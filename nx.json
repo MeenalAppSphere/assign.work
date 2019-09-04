@@ -1,0 +1,24 @@
+{
+  "npmScope": "aavantan-app",
+  "implicitDependencies": {
+    "angular.json": "*",
+    "package.json": "*",
+    "tsconfig.json": "*",
+    "tslint.json": "*",
+    "nx.json": "*"
+  },
+  "projects": {
+    "aavantan-frontend-e2e": {
+      "tags": []
+    },
+    "aavantan-frontend": {
+      "tags": []
+    },
+    "api": {
+      "tags": []
+    },
+    "api-interfaces": {
+      "tags": []
+    }
+  }
+}
