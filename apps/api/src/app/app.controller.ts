@@ -1,15 +1,21 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from '../auth/auth.service';
 
-import { Message } from '@aavantan-app/api-interfaces';
-
-import { AppService } from './app.service';
-
-@Controller()
+@Controller('api')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private _authService: AuthService) {
+  }
 
-  @Get('hello')
-  getData(): Message {
-    return this.appService.getData();
+  @UseGuards(AuthGuard('local'))
+  @Post('login')
+  async login(@Request() req) {
+    return this._authService.login(req.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  getProfile(@Request() req) {
+    return req.user;
   }
 }
