@@ -1,0 +1,25 @@
+<nz-card>
+  <h4>Project Recent Activity</h4>
+  <div class="m-t-25">
+    <nz-table #basicTable [nzData]="tableDataSet">
+      <thead>
+      <tr>
+        <th>Id</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Updated By</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td>{{data.id}}</td>
+        <td><a>{{data.title}}</a></td>
+        <td>{{data.status}}</td>
+        <td>
+          <a>{{data.updatedBy}}</a>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</nz-card>

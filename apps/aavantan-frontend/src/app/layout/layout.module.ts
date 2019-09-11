@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
     LayoutRoutingModule,
     CommonModule,
     NzBreadCrumbModule,
-    RouterModule
+    RouterModule,
   ],
   exports: [],
   declarations: [

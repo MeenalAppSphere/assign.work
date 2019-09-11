@@ -7,14 +7,8 @@ const routes: Routes = [
     path: '',
     pathMatch: 'full',
     component: LayoutComponent,
-    children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      {
-        path: 'dashboard',
-        loadChildren: () =>
-          import('../dashboard/dashboard.module').then(d => d.DashboardModule)
-      }
-    ]
+    loadChildren: () =>
+      import('../dashboard/dashboard.module').then(d => d.DashboardModule)
   }
 ];
 
