@@ -42,13 +42,13 @@ export const ROUTES: SideNavInterface[] = [
   },
   {
     path: '',
-    title: 'Setting',
+    title: 'Settings',
     iconType: 'nzIcon',
     iconTheme: 'outline',
     icon: 'setting',
     submenu: [
       {
-        path: 'permissions',
+        path: 'settings/permissions',
         title: 'Permissions',
         iconType: 'nzIcon',
         iconTheme: 'outline',
@@ -57,7 +57,7 @@ export const ROUTES: SideNavInterface[] = [
         type:'admin'
       },
       {
-        path: 'collaborator',
+        path: 'settings/collaborator',
         title: 'Collaborator',
         iconType: 'nzIcon',
         iconTheme: 'outline',

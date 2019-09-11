@@ -8,6 +8,8 @@ import { ProjectComponent } from './project/project.component';
 import { BoardComponent } from './board/board.component';
 import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { BacklogComponent } from './backlog/backlog.component';
+import { PermissionsComponent } from './settings/permissions/permissions.component';
+import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
 
 @NgModule({
     imports: [
@@ -21,7 +23,9 @@ import { BacklogComponent } from './backlog/backlog.component';
       ProjectComponent,
       BoardComponent,
       ActivesprintComponent,
-      BacklogComponent
+      BacklogComponent,
+      PermissionsComponent,
+      CollaboratorsComponent
     ],
     providers: [
         ThemeConstantService
