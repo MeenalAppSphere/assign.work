@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-header',
@@ -8,16 +9,20 @@ import { ThemeConstantService } from '../../services/theme-constant.service';
 
 export class HeaderComponent implements OnInit{
 
-  searchVisible : boolean = false;
-  quickViewVisible : boolean = false;
-  isFolded : boolean;
-  isExpand : boolean;
+  public modalBasicIsVisible: Boolean = false;
+  public modalBasicCode: any;
 
-  constructor( private themeService: ThemeConstantService) {}
+  public searchVisible : Boolean = false;
+  public quickViewVisible : Boolean = false;
+  public isFolded : boolean;
+  public isExpand : boolean;
+
+  constructor( private themeService: ThemeConstantService, private firstFB: FormBuilder) {}
 
   ngOnInit(): void {
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+    this.creatFrom();
   }
 
   toggleFold() {
@@ -66,4 +71,86 @@ export class HeaderComponent implements OnInit{
       color: 'ant-avatar-' + 'gold'
     }
   ];
+
+  // Ctrl + j functionality
+  @HostListener('document:keydown', ['$event'])
+  public handleKeyboardUpEvent(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.composed) && event.which === 74 && !this.modalBasicIsVisible) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.basicModalShow();
+    }
+  }
+
+  basicModalShow(): void {
+    this.modalBasicIsVisible = true;
+  }
+
+  basicModalHandleOk(): void {
+    console.log('Button ok clicked!');
+    this.modalBasicIsVisible = false;
+  }
+
+  basicModalHandleCancel(): void {
+    console.log('Button cancel clicked!');
+    this.modalBasicIsVisible = false;
+  }
+
+
+
+  // create a new component for project modal and put all
+
+  public creatFrom(){
+    this.FirstForm = this.firstFB.group({
+      projectName            : [ null, [ Validators.email ] ],
+      description         : [ null, [ Validators.required ] ]
+    });
+  }
+
+  public FirstForm: FormGroup;
+  public basicCurrent = 1;
+  public swicthStepCurrent = 0;
+  public index = 'Project Details';
+  public radioValue='A';
+
+
+  pre(): void {
+    this.swicthStepCurrent -= 1;
+    this.changeContent();
+  }
+
+  next(): void {
+    this.swicthStepCurrent += 1;
+    this.changeContent();
+  }
+
+  done(): void {
+    console.log('done');
+  }
+
+  changeContent(): void {
+    switch (this.swicthStepCurrent) {
+      case 0: {
+        this.index = 'Project Details';
+        break;
+      }
+      case 1: {
+        this.index = 'Organization';
+        break;
+      }
+      case 2: {
+        this.index = 'Collaborators';
+        break;
+      }
+      case 3: {
+        this.index = 'Template';
+        break;
+      }
+      default: {
+        this.index = 'error';
+      }
+    }
+  }
+
+
 }
