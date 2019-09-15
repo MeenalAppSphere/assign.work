@@ -13,6 +13,7 @@ phases:
        # Download and Install NodeJS 8.0
         # Install node dependancies.
         - npm install
+        - npm install -g @angular/cli
 
     build:
         commands:
