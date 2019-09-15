@@ -8,20 +8,20 @@ BUILD_ENV : "prod"
 
 phases:
     install:
-       runtime-versions:
-        nodejs: 10
+        runtime-versions:
+          nodejs: 10
         commands:
          - echo Installing source NPM dependencies...
           - npm install
           - npm install -g @angular/cli@8.1.1
 
-build:
+    build:
         commands:
         # Builds Angular application. You can also build using custom environment here like mock or staging
         - echo Build started on `date`
         - ng build --${BUILD_ENV}
 
-post_build:
+    post_build:
         commands:
         # Clear S3 bucket.
         - aws s3 rm s3://${S3_BUCKET} --recursive
