@@ -3,8 +3,8 @@ version: 0.2
 env:
     variables:
         S3_BUCKET: "assign.work"
-APP_NAME: "assign-work"
-BUILD_ENV : "prod"
+        APP_NAME: "assign-work"
+        BUILD_ENV : "prod"
 
 phases:
     install:
