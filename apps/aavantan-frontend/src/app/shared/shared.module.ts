@@ -6,6 +6,7 @@ import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { ThemeConstantService } from './services/theme-constant.service';
 import { AddProjectComponent } from '../dashboard/modals/add-project/add-project.component';
+import { SearchPipe } from './pipes/search.pipe';
 
 @NgModule({
   exports: [
@@ -15,7 +16,8 @@ import { AddProjectComponent } from '../dashboard/modals/add-project/add-project
     HttpClientModule,
     NgZorroAntdModule,
     PerfectScrollbarModule,
-    AddProjectComponent
+    AddProjectComponent,
+    SearchPipe
   ],
   imports: [
     CommonModule,
@@ -25,7 +27,8 @@ import { AddProjectComponent } from '../dashboard/modals/add-project/add-project
     PerfectScrollbarModule
   ],
   declarations: [
-    AddProjectComponent
+    AddProjectComponent,
+    SearchPipe
   ],
   providers: [ThemeConstantService]
 })
