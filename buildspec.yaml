@@ -12,7 +12,7 @@ phases:
         commands:
          - echo Installing source NPM dependencies...
           - npm install
-          - npm install -g @angular/cli@8.1.1
+          - npm install -g @angular/cli
 
     build:
         commands:
