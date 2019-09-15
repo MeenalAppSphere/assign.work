@@ -10,14 +10,16 @@ import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { BacklogComponent } from './backlog/backlog.component';
 import { PermissionsComponent } from './settings/permissions/permissions.component';
 import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
-
+import { AppsService } from '../shared/services/apps.service';
 @NgModule({
     imports: [
         CommonModule,
         SharedModule,
         DashboardRoutingModule
     ],
-    exports: [],
+  exports: [
+
+  ],
     declarations: [
       HomeComponent,
       ProjectComponent,
@@ -28,7 +30,8 @@ import { CollaboratorsComponent } from './settings/collaborators/collaborators.c
       CollaboratorsComponent
     ],
     providers: [
-        ThemeConstantService
+        ThemeConstantService,
+        AppsService
     ],
 })
 export class DashboardModule { }

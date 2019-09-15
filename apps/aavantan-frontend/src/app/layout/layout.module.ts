@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { NzBreadCrumbModule } from 'ng-zorro-antd';
 import { RouterModule } from '@angular/router';
 
-
 @NgModule({
   imports: [
     TemplateModule,

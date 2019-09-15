@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { ThemeConstantService } from './services/theme-constant.service';
+import { AddProjectComponent } from '../dashboard/modals/add-project/add-project.component';
 
 @NgModule({
   exports: [
@@ -13,10 +14,19 @@ import { ThemeConstantService } from './services/theme-constant.service';
     ReactiveFormsModule,
     HttpClientModule,
     NgZorroAntdModule,
+    PerfectScrollbarModule,
+    AddProjectComponent
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgZorroAntdModule,
     PerfectScrollbarModule
   ],
-  imports: [CommonModule, NgZorroAntdModule, PerfectScrollbarModule],
-  declarations: [],
+  declarations: [
+    AddProjectComponent
+  ],
   providers: [ThemeConstantService]
 })
 export class SharedModule {}
