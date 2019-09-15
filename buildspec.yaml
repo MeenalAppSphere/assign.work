@@ -8,6 +8,8 @@ BUILD_ENV : "prod"
 
 phases:
     install:
+       runtime-versions:
+        nodejs: 10
         commands:
         # Download and Install NodeJS 10.0
         - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
