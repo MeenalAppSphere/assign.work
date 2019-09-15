@@ -67,7 +67,7 @@
                   [(ngModel)]="listOfSelectedValue"
                   [nzCustomTemplate]="custom">
                   <ng-container *ngFor="let option of listOfOption">
-                    <nz-option [nzLabel]="option.value" [nzValue]="option.label" *ngIf="isNotSelected(option)"></nz-option>
+                    <nz-option [nzLabel]="option.value" [nzCustomContent]="option.IsInvitationSent" [nzValue]="option.label" *ngIf="isNotSelected(option)"></nz-option>
                   </ng-container>
                 </nz-select>
                 <ng-template #custom let-selected>

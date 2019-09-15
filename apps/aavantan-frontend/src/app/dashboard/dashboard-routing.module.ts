@@ -11,7 +11,9 @@ const routes: Routes = [
     pathMatch: 'full',
     component: HomeComponent,
     children: [
-      { path: 'dashboard', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard', redirectTo: 'dashboard', pathMatch: 'full'
+      },
       { path: 'project', redirectTo: 'dashboard/project', pathMatch: 'full', component: ProjectComponent },
       { path: 'board', redirectTo: 'dashboard/board', pathMatch: 'full', component: BoardComponent },
       { path: 'active_sprint', redirectTo: 'dashboard/active-sprint', pathMatch: 'full', component: ActivesprintComponent },

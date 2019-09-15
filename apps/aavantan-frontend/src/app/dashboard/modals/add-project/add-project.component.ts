@@ -59,6 +59,9 @@ export class AddProjectComponent implements OnInit {
     this.toggleShow.emit();
   }
 
+  basicModalHandleCancel(){
+    this.toggleShow.emit();
+  }
   changeContent(): void {
     switch (this.swicthStepCurrent) {
       case 0: {
