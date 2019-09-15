@@ -64,7 +64,7 @@ export class HeaderComponent implements OnInit{
       title: 'You have a new update',
       time: '2 days',
       icon: 'sync',
-      color: 'ant-avatar-' + 'gold'
+      color: 'ant-avatbasicModalHandleCancelar-' + 'gold'
     }
   ];
 
