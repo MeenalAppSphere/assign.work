@@ -11,11 +11,13 @@ import { BacklogComponent } from './backlog/backlog.component';
 import { PermissionsComponent } from './settings/permissions/permissions.component';
 import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
 import { AppsService } from '../shared/services/apps.service';
+import { TypeaheadModule } from 'ngx-bootstrap';
 @NgModule({
     imports: [
         CommonModule,
         SharedModule,
-        DashboardRoutingModule
+        DashboardRoutingModule,
+        TypeaheadModule.forRoot(),
     ],
   exports: [
 

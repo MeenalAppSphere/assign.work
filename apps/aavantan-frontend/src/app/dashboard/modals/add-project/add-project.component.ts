@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TypeaheadMatch } from 'ngx-bootstrap';
+import { ProjectRequest, Member } from '../../../models/project.model';
+import { ValidationRegexService } from '../../../shared/services/validation-regex.service';
 
 @Component({
   selector: 'aavantan-app-add-project',
@@ -16,33 +19,62 @@ export class AddProjectComponent implements OnInit {
   public swicthStepCurrent = 0;
   public index = 'Project Details';
   public radioValue='A';
+  public selectedCollaborators: Member[] = [];
+  public selectedCollaborator: string;
+  public response:any;
 
-  constructor(private firstFB: FormBuilder) { }
-  listOfOption = [
-    {label:'Pradeep',value:'Pradeep', IsInvitationSent:true},
-    {label:'Vishal',value:'Vishal', IsInvitationSent:false},
-    {label:'Jhon',value:'Jhon', IsInvitationSent:true}
-    ];
-  listOfSelectedValue: string[] = [];
+  public members: Member[] = [
+    {emailId:'pradeep@gmail.com', isEmailSent:true},
+    {emailId:'deep@gmail.com'},
+    {emailId:'deep1@gmail.com'},
+  ];
+
+  constructor(private FB: FormBuilder, private validationRegexService:ValidationRegexService) {
+  }
 
   ngOnInit() {
     this.createFrom();
   }
 
-  isNotSelected(value: any): boolean {
-    return this.listOfSelectedValue.indexOf(value) === -1;
-  }
   public createFrom(){
-    this.FirstForm = this.firstFB.group({
-      projectName : [ null, [ Validators.email ] ],
-      description : [ null, [ Validators.required ] ]
+    this.FirstForm = this.FB.group({
+      projectName : [ null, [ Validators.required ] ],
+      description : [ null ]
     });
-    this.SecondForm = this.firstFB.group({
-      projectName : [ null, [ Validators.email ] ]
+    this.SecondForm = this.FB.group({
+      organizationName : [ null, [ Validators.required ] ]
     });
-    this.ThirdForm = this.firstFB.group({
-      collaborators : [ null, [] ]
+    this.ThirdForm = this.FB.group({
+      collaborators: ''
     });
+
+  }
+
+  public removeCollaborators(mem: Member) {
+    this.selectedCollaborators = this.selectedCollaborators.filter(item => item !== mem);
+  }
+
+  public typeaheadOnSelect(e: TypeaheadMatch): void {
+    if(this.selectedCollaborators.filter(item => item === e.item).length===0){
+      this.selectedCollaborators.push(e.item);
+    }
+    this.selectedCollaborator=null;
+  }
+
+  public onKeydown(event) {
+    if (event.key === "Enter") {
+      const member : Member = {
+        emailId : this.selectedCollaborator
+      };
+      this.response=this.validationRegexService.emailValidator(member.emailId);
+      if(this.selectedCollaborators.filter(item => item === member).length===0){
+        // @ts-ignore
+        if(!this.response.invalidEmailAddress){
+          this.selectedCollaborators.push(member);
+          this.selectedCollaborator=null;
+        }
+      }
+    }
   }
 
   pre(): void {

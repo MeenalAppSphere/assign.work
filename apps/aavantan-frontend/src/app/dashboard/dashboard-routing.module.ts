@@ -10,6 +10,9 @@ const routes: Routes = [
     path: '',
     pathMatch: 'full',
     component: HomeComponent,
+    data:{
+      nzAutoGenerate:false
+    },
     children: [
       {
         path: 'dashboard', redirectTo: 'dashboard', pathMatch: 'full'

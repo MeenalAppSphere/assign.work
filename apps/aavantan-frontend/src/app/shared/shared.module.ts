@@ -7,6 +7,8 @@ import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { ThemeConstantService } from './services/theme-constant.service';
 import { AddProjectComponent } from '../dashboard/modals/add-project/add-project.component';
 import { SearchPipe } from './pipes/search.pipe';
+import { TypeaheadModule } from 'ngx-bootstrap';
+import { ValidationRegexService } from '../shared/services/validation-regex.service';
 
 @NgModule({
   exports: [
@@ -24,12 +26,13 @@ import { SearchPipe } from './pipes/search.pipe';
     FormsModule,
     ReactiveFormsModule,
     NgZorroAntdModule,
-    PerfectScrollbarModule
+    PerfectScrollbarModule,
+    TypeaheadModule
   ],
   declarations: [
     AddProjectComponent,
     SearchPipe
   ],
-  providers: [ThemeConstantService]
+  providers: [ThemeConstantService, ValidationRegexService]
 })
 export class SharedModule {}

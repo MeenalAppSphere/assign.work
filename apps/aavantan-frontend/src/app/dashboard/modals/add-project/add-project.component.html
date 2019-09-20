@@ -21,15 +21,14 @@
           <nz-form-item>
             <nz-form-label nzRequired nzFor="projectName">Project Name</nz-form-label>
             <nz-form-control>
-              <input nz-input formControlName="projectName" nzSize="small" id="projectName">
+              <input nz-input formControlName="projectName" autocomplete="Off" nzSize="small" id="projectName">
               <nz-form-explain *ngIf="FirstForm.get('projectName').dirty && FirstForm.get('projectName').errors">Please input Project Name!</nz-form-explain>
             </nz-form-control>
           </nz-form-item>
           <nz-form-item>
-            <nz-form-label nzFor="description" nzRequired>Description</nz-form-label>
+            <nz-form-label nzFor="description">Description</nz-form-label>
             <nz-form-control>
               <textarea formControlName="description" nz-input rows="2" placeholder="Project Description"></textarea>
-              <nz-form-explain *ngIf="FirstForm.get('description').dirty && FirstForm.get('description').errors">Please input description!</nz-form-explain>
             </nz-form-control>
           </nz-form-item>
         </form>
@@ -42,10 +41,10 @@
       <div class="min-height-100 m-t-25">
         <form nz-form class="register-form" [formGroup]="SecondForm">
           <nz-form-item>
-            <nz-form-label nzRequired nzFor="projectName">Organization Name</nz-form-label>
+            <nz-form-label nzRequired nzFor="organizationName">Organization Name</nz-form-label>
             <nz-form-control >
-              <input nz-input formControlName="projectName" nzSize="small" id="projectName">
-              <nz-form-explain *ngIf="FirstForm.get('projectName').dirty && FirstForm.get('projectName').errors">Please input Organization Name!</nz-form-explain>
+              <input nz-input formControlName="organizationName" autocomplete="Off" nzSize="small" id="organizationName">
+              <nz-form-explain *ngIf="SecondForm.get('organizationName').dirty && SecondForm.get('organizationName').errors">Please input Organization Name!</nz-form-explain>
             </nz-form-control>
           </nz-form-item>
         </form>
@@ -56,26 +55,27 @@
     <ng-container *ngIf="swicthStepCurrent===2" class="h-100">
       <div class="min-height-100 m-t-25">
         <form nz-form class="register-form" [formGroup]="ThirdForm">
-
-            <nz-form-item>
-              <nz-form-label>Collaborators</nz-form-label>
-              <nz-form-control >
-                <nz-select
-                  formControlName="collaborators"
-                  nzMode="multiple"
-                  nzPlaceHolder="Inserted are removed"
-                  [(ngModel)]="listOfSelectedValue"
-                  [nzCustomTemplate]="custom">
-                  <ng-container *ngFor="let option of listOfOption">
-                    <nz-option [nzLabel]="option.value" [nzCustomContent]="option.IsInvitationSent" [nzValue]="option.label" *ngIf="isNotSelected(option)"></nz-option>
-                  </ng-container>
-                </nz-select>
-                <ng-template #custom let-selected>
-                  <span><i nz-icon nzType="mail" theme="outline" *ngIf="selected.nzIsInvitationSent"></i> {{ selected.nzLabel }}</span>
-                </ng-template>
-              </nz-form-control>
-            </nz-form-item>
-
+          <div class="form-group">
+            <label>Collaborators</label>
+            <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
+                <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">
+                    <img *ngIf="item.profilePic" src="../../../../assets/images/48.png" height="14">&nbsp;
+                    <i class="fa fa-envelope" *ngIf="item.emailId"></i>
+                    &nbsp;<span>{{item.emailId}}</span> <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
+                </span>
+            </div>
+            <input
+                   autocomplete="Off"
+                   formControlName="collaborators"
+                   [(ngModel)]="selectedCollaborator"
+                   (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                   [typeahead]="members"
+                   typeaheadOptionField="emailId"
+                   placeholder="Search or Invite people"
+                   (keydown)="onKeydown($event)"
+                   class="form-control">
+            <nz-form-explain *ngIf="response && response.message">{{response.message}}</nz-form-explain>
+          </div>
         </form>
       </div>
     </ng-container>

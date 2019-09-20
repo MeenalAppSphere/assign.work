@@ -27,5 +27,17 @@ nz-modal {
 .min-height-100{
   min-height: 100px;
 }
+.collaborators-badge{
+  .badge{
+    font-weight: 400;
+    border-radius: 2px;
+    margin-right: 2px;
+    i.fa-times {
+      margin: 3px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+  }
+}
 
 

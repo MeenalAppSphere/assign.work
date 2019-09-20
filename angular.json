@@ -31,6 +31,8 @@
               }
             ],
             "styles": [
+              "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "apps/aavantan-frontend/src/styles.scss"
             ],
             "scripts": [
@@ -100,7 +102,11 @@
           "options": {
             "jestConfig": "apps/aavantan-frontend/jest.config.js",
             "tsConfig": "apps/aavantan-frontend/tsconfig.spec.json",
-            "setupFile": "apps/aavantan-frontend/src/test-setup.ts"
+            "setupFile": "apps/aavantan-frontend/src/test-setup.ts",
+            "styles": [
+              "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css"
+            ]
           }
         }
       }

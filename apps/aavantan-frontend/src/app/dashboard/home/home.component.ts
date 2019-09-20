@@ -2,6 +2,7 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { AppsService } from '../../shared/services/apps.service';
 import { NzModalService } from 'ng-zorro-antd';
 import { ProjectList } from '../../shared/interfaces/project-list.type';
+import { registerLocaleData } from '@angular/common';
 
 
 @Component({
@@ -206,6 +207,7 @@ export class HomeComponent implements OnInit{
       ];
 
   }
+
 
   showNewProject(newProjectContent: TemplateRef<{}>) {
     const modal = this.modalService.create({
