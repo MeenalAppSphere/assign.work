@@ -1,3 +1,36 @@
-<div class="row">
-    Project
-</div>
+<nz-tabset>
+  <nz-tab nzTitle="My Task">
+    <ng-template nz-tab>
+      <ng-container *ngIf="myTaskList && myTaskList.length===0">
+        <nz-empty
+          [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+          [nzNotFoundFooter]="footerTpl">
+          <ng-template #footerTpl>
+            <button nz-button nzType="primary" nzSize="small" (click)="createTask()">Create New Task</button>
+          </ng-template>
+        </nz-empty>
+      </ng-container>
+      <ng-container *ngIf="myTaskList && myTaskList.length>0">
+       <aavantan-task-list [taskByUser]="'my'" [taskList]="myTaskList" [switchViewOption]="true"></aavantan-task-list>
+      </ng-container>
+    </ng-template>
+  </nz-tab>
+
+
+  <nz-tab nzTitle="All">
+    <ng-template nz-tab>
+      <ng-container *ngIf="allTaskList && allTaskList.length===0">
+        <nz-empty
+          [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+          [nzNotFoundFooter]="footerTpl">
+          <ng-template #footerTpl>
+            <button nz-button nzType="primary" nzSize="small" (click)="createTask()">Create New Task</button>
+          </ng-template>
+        </nz-empty>
+      </ng-container>
+      <ng-container *ngIf="allTaskList && allTaskList.length>0">
+        <aavantan-task-list [taskByUser]="'all'" [taskList]="allTaskList" [switchViewOption]="true"></aavantan-task-list>
+      </ng-container>
+    </ng-template>
+  </nz-tab>
+</nz-tabset>

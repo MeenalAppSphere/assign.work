@@ -9,6 +9,7 @@ import { AddProjectComponent } from '../dashboard/modals/add-project/add-project
 import { SearchPipe } from './pipes/search.pipe';
 import { TypeaheadModule } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
+import { TaskListComponent } from './components/task-list/task-list.component';
 
 @NgModule({
   exports: [
@@ -19,7 +20,8 @@ import { ValidationRegexService } from '../shared/services/validation-regex.serv
     NgZorroAntdModule,
     PerfectScrollbarModule,
     AddProjectComponent,
-    SearchPipe
+    SearchPipe,
+    TaskListComponent
   ],
   imports: [
     CommonModule,
@@ -31,7 +33,8 @@ import { ValidationRegexService } from '../shared/services/validation-regex.serv
   ],
   declarations: [
     AddProjectComponent,
-    SearchPipe
+    SearchPipe,
+    TaskListComponent
   ],
   providers: [ThemeConstantService, ValidationRegexService]
 })
