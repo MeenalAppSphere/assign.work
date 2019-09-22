@@ -82,7 +82,4 @@ export class HeaderComponent implements OnInit{
   basicModalShow(): void {
     this.modalBasicIsVisible = !this.modalBasicIsVisible;
   }
-
-
-
 }
