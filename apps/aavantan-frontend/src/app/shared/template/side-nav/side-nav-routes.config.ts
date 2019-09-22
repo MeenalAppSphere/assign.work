@@ -25,7 +25,7 @@ export const ROUTES: SideNavInterface[] = [
     submenu: []
   },
   {
-    path: 'active-sprint',
+    path: 'active_sprint',
     title: 'Active Sprint',
     iconType: 'nzIcon',
     iconTheme: 'outline',

@@ -6,10 +6,10 @@ import { ThemeConstantService } from '../shared/services/theme-constant.service'
 import { distinctUntilChanged, filter, map, startWith } from 'rxjs/operators';
 
 @Component({
-  templateUrl: './layout.component.html'
+  templateUrl: './dashboard.component.html'
 })
 
-export class LayoutComponent implements OnInit {
+export class DashboardComponent implements OnInit {
   breadcrumbs$: Observable<IBreadcrumb[]>;
   contentHeaderDisplay: string;
   isFolded : boolean ;
