@@ -8,8 +8,16 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class RegisterComponent implements OnInit {
   signUpForm: FormGroup;
 
-  submitForm(): void {}
+  submitForm(): void {
+    console.log(this.signUpForm.invalid);
+    if(!this.signUpForm.invalid){
 
+    }
+  }
+
+  signupWithSocial(type:string){
+    console.log('Signup with ',type);
+  }
   updateConfirmValidator(): void {
     Promise.resolve().then(() =>
       this.signUpForm.controls.checkPassword.updateValueAndValidity()
@@ -28,8 +36,9 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.signUpForm = new FormGroup({
-      userName: new FormControl(null, [Validators.required]),
-      email: new FormControl(null, [Validators.required]),
+      firstName: new FormControl(null, [Validators.required]),
+      lastName: new FormControl(null),
+      emailId: new FormControl(null, [Validators.required]),
       password: new FormControl(null, [Validators.required]),
       checkPassword: new FormControl(null, [
         Validators.required,

@@ -15,45 +15,39 @@
               nz-form
               [formGroup]="loginForm"
               class="login-form"
-              (ngSubmit)="submitForm()"
-            >
+              (ngSubmit)="submitForm()">
               <nz-form-item>
-                <nz-form-label nzRequired nzFor="userName"
-                  >Username</nz-form-label
-                >
+                <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
                 <nz-form-control>
                   <nz-input-group [nzPrefix]="prefixUser">
                     <input
                       type="text"
                       nz-input
-                      formControlName="userName"
-                      placeholder="Username"
-                    />
+                      nzSize="small"
+                      maxlength="100"
+                      formControlName="emailId"
+                      placeholder="Email"/>
                   </nz-input-group>
                   <nz-form-explain
-                    *ngIf="
-                      loginForm.get('userName').dirty &&
-                      loginForm.get('userName').errors
-                    "
-                    >Please input your username!
+                    *ngIf="loginForm.get('emailId').dirty &&
+                      loginForm.get('emailId').errors">Please input your email!
                   </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
 
               <nz-form-item>
                 <nz-form-label nzRequired nzFor="password"
-                  >Password</nz-form-label
-                >
-                <a
-                  class="float-right font-size-13 p-t-10 text-muted"
-                  [routerLink]="['/authentication/reset-password-1']"
-                  >Forget Password?</a
-                >
+                  >Password</nz-form-label>
+                <a class="float-right font-size-13 p-t-10 text-muted"
+                  [routerLink]="['/forgot']"
+                  >Forget Password?</a>
                 <nz-form-control>
                   <nz-input-group [nzPrefix]="prefixLock">
                     <input
                       type="password"
                       nz-input
+                      maxlength="50"
+                      nzSize="small"
                       formControlName="password"
                       placeholder="Password"
                     />
@@ -62,8 +56,7 @@
                     *ngIf="
                       loginForm.get('password').dirty &&
                       loginForm.get('password').errors
-                    "
-                    >Please input your Password!
+                    ">Please input your Password!
                   </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
@@ -71,29 +64,24 @@
               <nz-form-item>
                 <nz-form-control>
                   <div
-                    class="d-flex align-items-center justify-content-between"
-                  >
+                    class="d-flex align-items-center justify-content-between">
                     <span class="font-size-13 text-muted"
                       >Don't have an account?
                       <a
                         class="small"
-                        [routerLink]="['/register']"
-                      >
-                        Signup</a
-                      ></span
-                    >
+                        [routerLink]="['/register']">
+                        Signup</a></span>
                     <button
                       nz-button
                       class="login-form-button"
-                      [nzType]="'primary'"
-                    >
+                      [nzType]="'primary'">
                       Sign In
                     </button>
                   </div>
                 </nz-form-control>
               </nz-form-item>
             </form>
-            <div class="text-center">
+            <div class="text-center m-t-25">
               <nz-button-group>
                 <button nz-button nzType="primary"><i nz-icon nzType="linkedin" theme="outline"></i> Login with LinkedIn</button>
                 <button nz-button nzType="danger"><i nz-icon nzType="google" theme="outline"></i> Login with Gmail</button>
@@ -115,7 +103,7 @@
     </div>
 
     <div class="d-none d-md-flex  p-h-40 justify-content-between">
-      <span class="">© 2019 Aavantan</span>
+      <span class="">© 2019 Assign.work</span>
       <ul class="list-inline">
         <li class="list-inline-item">
           <a class="text-dark text-link" href="">Legal</a>

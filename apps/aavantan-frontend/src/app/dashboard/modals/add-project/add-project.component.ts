@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
-import { ProjectRequest, Member } from '../../../shared/interfaces/project.interface';
 import { ValidationRegexService } from '../../../shared/services/validation-regex.service';
+import { Member } from '../../../shared/interfaces/member.interface';
 
 @Component({
   selector: 'aavantan-app-add-project',
