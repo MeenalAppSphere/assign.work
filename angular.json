@@ -35,9 +35,7 @@
               "./node_modules/bootstrap/dist/css/bootstrap.min.css",
               "apps/aavantan-frontend/src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/jquery/dist/jquery.js"
-            ]
+            "scripts": ["node_modules/jquery/dist/jquery.js"]
           },
           "configurations": {
             "production": {
@@ -91,10 +89,7 @@
               "apps/aavantan-frontend/tsconfig.app.json",
               "apps/aavantan-frontend/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/aavantan-frontend/**"
-            ]
+            "exclude": ["**/node_modules/**", "!apps/aavantan-frontend/**"]
           }
         },
         "test": {
@@ -132,13 +127,8 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "apps/aavantan-frontend-e2e/tsconfig.e2e.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/aavantan-frontend-e2e/**"
-            ]
+            "tsConfig": ["apps/aavantan-frontend-e2e/tsconfig.e2e.json"],
+            "exclude": ["**/node_modules/**", "!apps/aavantan-frontend-e2e/**"]
           }
         }
       }
@@ -156,9 +146,7 @@
             "outputPath": "dist/apps/api",
             "main": "apps/api/src/main.ts",
             "tsConfig": "apps/api/tsconfig.app.json",
-            "assets": [
-              "apps/api/src/assets"
-            ]
+            "assets": ["apps/api/src/assets"]
           },
           "configurations": {
             "production": {
@@ -187,10 +175,7 @@
               "apps/api/tsconfig.app.json",
               "apps/api/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/api/**"
-            ]
+            "exclude": ["**/node_modules/**", "!apps/api/**"]
           }
         },
         "test": {
@@ -202,9 +187,9 @@
         }
       }
     },
-    "api-interfaces": {
-      "root": "libs/api-interfaces",
-      "sourceRoot": "libs/api-interfaces/src",
+    "models": {
+      "root": "libs/models",
+      "sourceRoot": "libs/models/src",
       "projectType": "library",
       "schematics": {},
       "architect": {
@@ -212,20 +197,17 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "libs/api-interfaces/tsconfig.lib.json",
-              "libs/api-interfaces/tsconfig.spec.json"
+              "libs/models/tsconfig.lib.json",
+              "libs/models/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**",
-              "!libs/api-interfaces/**"
-            ]
+            "exclude": ["**/node_modules/**", "!libs/models/**"]
           }
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
-            "jestConfig": "libs/api-interfaces/jest.config.js",
-            "tsConfig": "libs/api-interfaces/tsconfig.spec.json"
+            "jestConfig": "libs/models/jest.config.js",
+            "tsConfig": "libs/models/tsconfig.spec.json"
           }
         }
       }
