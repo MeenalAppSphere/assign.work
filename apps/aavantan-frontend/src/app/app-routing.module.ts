@@ -13,6 +13,11 @@ const appRoutes: Routes = [
       import('./register/register.module').then(m => m.RegisterModule)
   },
   {
+    path: 'forgot',
+    loadChildren: () =>
+      import('./forgot/forgot.module').then(m => m.ForgotModule)
+  },
+  {
     path: 'dashboard',
     loadChildren: () =>
       import('./dashboard/dashboard.module').then(m => m.DashboardModule)

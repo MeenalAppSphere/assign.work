@@ -20,116 +20,137 @@
             <p class="m-b-30">Create your account to get access</p>
 
             <form
+              autocomplete="off"
               nz-form
               [formGroup]="signUpForm"
               class="login-form"
-              (ngSubmit)="submitForm()"
-            >
+              (ngSubmit)="submitForm()">
+
+              <div class="row">
+                <div class="col">
+                  <nz-form-item>
+                    <nz-form-label nzRequired nzFor="firstName">First name</nz-form-label>
+                    <nz-form-control>
+                      <input
+                        type="text"
+                        nz-input
+                        formControlName="firstName"
+                        placeholder="First Name"
+                        autocomplete="none"
+                        nzSize="small"
+                        id="firstName"
+                        maxlength="15"/>
+
+                      <nz-form-explain
+                        *ngIf="signUpForm.get('firstName').dirty &&
+                          signUpForm.get('firstName').errors">Please input first name!</nz-form-explain>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+                <div class="col">
+                  <nz-form-item>
+                    <nz-form-label nzRequired nzFor="lastName">Last name</nz-form-label>
+                    <nz-form-control>
+                      <input
+                        type="text"
+                        nz-input
+                        formControlName="lastName"
+                        autocomplete="none"
+                        nzSize="small"
+                        placeholder="Last Name"
+                        id="lastName"
+                        maxlength="15"/>
+
+                      <nz-form-explain
+                        *ngIf="signUpForm.get('lastName').dirty &&
+                          signUpForm.get('lastName').errors">Please input your last name!</nz-form-explain>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+
+
               <nz-form-item>
-                <nz-form-label nzRequired nzFor="userName"
-                  >Username</nz-form-label
-                >
+                <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
 
                 <nz-form-control>
                   <input
                     type="text"
                     nz-input
-                    formControlName="userName"
-                    placeholder="Username"
-                    id="userName"
-                  />
+                    formControlName="emailId"
+                    autocomplete="none"
+                    nzSize="small"
+                    placeholder="Email"
+                    maxlength="100"
+                    id="emailId"/>
 
                   <nz-form-explain
                     *ngIf="
-                      signUpForm.get('userName').dirty &&
-                      signUpForm.get('userName').errors
-                    "
-                    >Please input your username!</nz-form-explain
-                  >
+                      signUpForm.get('emailId').dirty &&
+                      signUpForm.get('emailId').errors
+                    ">This is not valid E-mail!</nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
 
-              <nz-form-item>
-                <nz-form-label nzRequired nzFor="email">Email</nz-form-label>
+              <div class="row">
+                <div class="col">
+                  <nz-form-item>
+                    <nz-form-label nzRequired nzFor="password"
+                      >Password</nz-form-label>
+                    <nz-form-control>
+                      <input
+                        type="password"
+                        nz-input
+                        formControlName="password"
+                        autocomplete="none"
+                        nzSize="small"
+                        maxlength="50"
+                        placeholder="Password"
+                        id="password"/>
+                      <nz-form-explain
+                        *ngIf="
+                          signUpForm.get('password').dirty &&
+                          signUpForm.get('password').errors
+                        ">Please input your Password!</nz-form-explain>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
 
-                <nz-form-control>
-                  <input
-                    type="text"
-                    nz-input
-                    formControlName="email"
-                    placeholder="Username"
-                    id="email"
-                  />
+                <div class="col">
+                  <nz-form-item>
+                    <nz-form-label nzFor="checkPassword" nzRequired>Re-Password</nz-form-label>
+                    <nz-form-control>
+                      <input
+                        nz-input
+                        type="password"
+                        nzSize="small"
+                        formControlName="checkPassword"
+                        autocomplete="none"
+                        maxlength="50"
+                        placeholder="Re-Password"
+                        id="checkPassword"
+                      />
+                      <nz-form-explain
+                        *ngIf="
+                          signUpForm.get('checkPassword').dirty &&
+                          signUpForm.get('checkPassword').errors">
+                        <ng-container
+                          *ngIf="
+                            signUpForm.get('checkPassword').hasError('required')">
+                          Please confirm your password!
+                        </ng-container>
+                        <ng-container
+                          *ngIf="
+                            signUpForm.get('checkPassword').hasError('confirm')">
+                          Two passwords that you enter is inconsistent!
+                        </ng-container>
+                      </nz-form-explain>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
 
-                  <nz-form-explain
-                    *ngIf="
-                      signUpForm.get('email').dirty &&
-                      signUpForm.get('email').errors
-                    "
-                    >The input is not valid E-mail!</nz-form-explain
-                  >
-                </nz-form-control>
-              </nz-form-item>
 
-              <nz-form-item>
-                <nz-form-label nzRequired nzFor="password"
-                  >Password</nz-form-label
-                >
-                <nz-form-control>
-                  <input
-                    type="password"
-                    nz-input
-                    formControlName="password"
-                    placeholder="Password"
-                    id="password"
-                  />
-                  <nz-form-explain
-                    *ngIf="
-                      signUpForm.get('password').dirty &&
-                      signUpForm.get('password').errors
-                    "
-                    >Please input your Password!</nz-form-explain
-                  >
-                </nz-form-control>
-              </nz-form-item>
-
-              <nz-form-item>
-                <nz-form-label nzFor="checkPassword" nzRequired
-                  >Confirm Password</nz-form-label
-                >
-                <nz-form-control>
-                  <input
-                    nz-input
-                    type="password"
-                    formControlName="checkPassword"
-                    placeholder="Confirm Password"
-                    id="checkPassword"
-                  />
-                  <nz-form-explain
-                    *ngIf="
-                      signUpForm.get('checkPassword').dirty &&
-                      signUpForm.get('checkPassword').errors
-                    "
-                  >
-                    <ng-container
-                      *ngIf="
-                        signUpForm.get('checkPassword').hasError('required')
-                      "
-                    >
-                      Please confirm your password!
-                    </ng-container>
-                    <ng-container
-                      *ngIf="
-                        signUpForm.get('checkPassword').hasError('confirm')
-                      "
-                    >
-                      Two passwords that you enter is inconsistent!
-                    </ng-container>
-                  </nz-form-explain>
-                </nz-form-control>
-              </nz-form-item>
-
-              <div class="d-flex align-items-center justify-content-between">
                 <nz-form-item>
                   <nz-form-control>
                     <label nz-checkbox formControlName="agree">
@@ -138,28 +159,44 @@
                   </nz-form-control>
                 </nz-form-item>
 
-                <nz-form-item>
-                  <nz-form-control>
-                    <div>
-                      <button
-                        nz-button
-                        class="login-form-button"
-                        [nzType]="'primary'"
-                      >
-                        Sign Up
-                      </button>
-                    </div>
-                  </nz-form-control>
-                </nz-form-item>
-              </div>
+              <nz-form-item>
+                <nz-form-control>
+                  <div
+                    class="d-flex align-items-center justify-content-between">
+                    <span class="font-size-13 text-muted">Have an account?
+                      <a class="small"
+                        [routerLink]="['/login']">
+                        Signin</a></span>
+                    <button
+                      nz-button
+                      class="login-form-button"
+                      [nzType]="'primary'">
+                      Sign Up
+                    </button>
+                  </div>
+                </nz-form-control>
+              </nz-form-item>
+
             </form>
+            <div class="text-center m-t-25">
+              <nz-button-group>
+                <button nz-button nzType="primary" (click)="signupWithSocial('linkedin')">
+                  <i nz-icon nzType="linkedin" theme="outline"></i> Login with
+                  LinkedIn
+                </button>
+                <button nz-button nzType="danger" (click)="signupWithSocial('google')">
+                  <i nz-icon nzType="google" theme="outline"></i> Login with
+                  Gmail
+                </button>
+              </nz-button-group>
+            </div>
           </nz-card>
         </div>
       </div>
     </div>
 
     <div class="d-none d-md-flex  p-h-40 justify-content-between">
-      <span class="">© 2019 Aavantan</span>
+      <span class="">&copy; 2019 Assign.work</span>
       <ul class="list-inline">
         <li class="list-inline-item">
           <a class="text-dark text-link" href="">Legal</a>

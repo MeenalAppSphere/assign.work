@@ -11,6 +11,10 @@ export class ProjectComponent implements OnInit{
   public allTaskList: Task[]=[];
   public taskObj: Task;
   public memberObj: Member[]=[];
+  public issueTypes:any[]=[
+    {label: "BUG"},
+    {label: "TASK"},
+  ]
   constructor( ) {}
 
   ngOnInit(): void {
@@ -20,7 +24,7 @@ export class ProjectComponent implements OnInit{
             _id:'1212'+(i+1),
             emailId:'abc'+(i+1)+'@gmail.com',
             firstName: 'Pradeep',
-            profilePic: '../../assets/images/avatars/thumb-8.jpg'
+            profilePic: '../../assets/images/avatars/thumb-4.jpg'
           }
         ];
         this.taskObj= {
@@ -30,7 +34,8 @@ export class ProjectComponent implements OnInit{
           createdAt : new Date(),
           description:'description here',
           status:'In Progress',
-          assigned:this.memberObj
+          assigned:this.memberObj,
+          estimate: 2+'hr'
         }
         this.myTaskList.push(this.taskObj);
       }

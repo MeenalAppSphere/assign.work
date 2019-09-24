@@ -1,36 +1,94 @@
-<nz-tabset>
-  <nz-tab nzTitle="My Task">
-    <ng-template nz-tab>
-      <ng-container *ngIf="myTaskList && myTaskList.length===0">
-        <nz-empty
-          [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
-          [nzNotFoundFooter]="footerTpl">
-          <ng-template #footerTpl>
-            <button nz-button nzType="primary" nzSize="small" (click)="createTask()">Create New Task</button>
-          </ng-template>
-        </nz-empty>
-      </ng-container>
-      <ng-container *ngIf="myTaskList && myTaskList.length>0">
-       <aavantan-task-list [taskByUser]="'my'" [taskList]="myTaskList" [switchViewOption]="true"></aavantan-task-list>
-      </ng-container>
-    </ng-template>
-  </nz-tab>
+<!-- section 1 -->
+<section>
+  <nz-card
+    nzSize="small"
+    [nzBordered]="false"
+    nzTitle="Create Backlog Item/Task"
+    [nzExtra]="extraTemplate">
+  <ng-template #extraTemplate>
 
+    <nz-button-group>
+      <button nzType="primary" nz-button (click)="createTask()">Create New</button>
+      <button nzType="primary" nz-button nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
+        <i nz-icon nzType="down"></i>
+      </button>
+    </nz-button-group>
+    <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>
+      </ul>
+    </nz-dropdown-menu>
 
-  <nz-tab nzTitle="All">
-    <ng-template nz-tab>
-      <ng-container *ngIf="allTaskList && allTaskList.length===0">
-        <nz-empty
-          [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
-          [nzNotFoundFooter]="footerTpl">
-          <ng-template #footerTpl>
-            <button nz-button nzType="primary" nzSize="small" (click)="createTask()">Create New Task</button>
-          </ng-template>
-        </nz-empty>
-      </ng-container>
-      <ng-container *ngIf="allTaskList && allTaskList.length>0">
-        <aavantan-task-list [taskByUser]="'all'" [taskList]="allTaskList" [switchViewOption]="true"></aavantan-task-list>
-      </ng-container>
-    </ng-template>
-  </nz-tab>
-</nz-tabset>
+  </ng-template>
+    <nz-tabset>
+      <nz-tab nzTitle="My Task">
+        <ng-template nz-tab>
+          <ng-container *ngIf="myTaskList && myTaskList.length === 0">
+            <nz-empty
+              [nzNotFoundImage]="
+                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'
+              "
+              [nzNotFoundFooter]="footerTpl"
+              [nzNotFoundContent]="contentTpl"
+            >
+              <ng-template #contentTpl>
+                <span> No Item Assigned</span>
+              </ng-template>
+              <ng-template #footerTpl>
+                <button
+                  nz-button
+                  nzType="primary"
+                  (click)="createTask()"
+                >
+                  Create New
+                </button>
+              </ng-template>
+            </nz-empty>
+          </ng-container>
+          <ng-container *ngIf="myTaskList && myTaskList.length > 0">
+            <aavantan-task-list
+              [taskByUser]="'my'"
+              [taskList]="myTaskList"
+              [switchViewOption]="true"
+            ></aavantan-task-list>
+          </ng-container>
+        </ng-template>
+      </nz-tab>
+
+      <nz-tab nzTitle="All">
+        <ng-template nz-tab>
+          <ng-container *ngIf="allTaskList && allTaskList.length === 0">
+            <nz-empty
+              [nzNotFoundImage]="
+                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'
+              "
+              [nzNotFoundFooter]="footerTpl"
+              [nzNotFoundContent]="contentTpl"
+            >
+              <ng-template #contentTpl>
+                <span> No Item Created</span>
+              </ng-template>
+              <ng-template #footerTpl>
+                <button
+                  nz-button
+                  nzType="primary"
+                  (click)="createTask()"
+                >
+                  Create New
+                </button>
+              </ng-template>
+            </nz-empty>
+          </ng-container>
+          <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+            <aavantan-task-list
+              [taskByUser]="'all'"
+              [taskList]="allTaskList"
+              [switchViewOption]="true"
+            ></aavantan-task-list>
+          </ng-container>
+        </ng-template>
+      </nz-tab>
+    </nz-tabset>
+  </nz-card>
+</section>
+

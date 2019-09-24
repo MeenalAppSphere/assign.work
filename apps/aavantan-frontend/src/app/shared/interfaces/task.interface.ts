@@ -25,6 +25,7 @@ export interface Task {
   updatedAt?: Date;
   progress?:number;
   status?:string;
+  estimate?:string;
 }
 
 export interface Labels{
