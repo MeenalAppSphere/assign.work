@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, UseGuards, Headers } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from './shared/services/auth.service';
+import { User } from '@aavantan-app/models';
 
-@Controller('api')
+@Controller('auth')
 export class AppController {
   constructor(private _authService: AuthService) {
   }
@@ -17,5 +18,11 @@ export class AppController {
   @Get('me')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @Post('signup')
+  async signUp(@Body() user: User, @Headers('accept-language') locale: string) {
+    user.locale = locale || 'en-Us';
+    return await this._authService.signUpWithPassword(user);
   }
 }
