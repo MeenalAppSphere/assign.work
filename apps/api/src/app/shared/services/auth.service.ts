@@ -37,7 +37,6 @@ export class AuthService {
       model.status = UserStatus.Active;
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
-      model.
 
       const newUser = await model.save();
       const payload = { username: user.username, sub: newUser.username };
