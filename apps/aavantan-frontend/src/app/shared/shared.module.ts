@@ -8,7 +8,7 @@ import { ThemeConstantService } from './services/theme-constant.service';
 import { AddProjectComponent } from '../dashboard/modals/add-project/add-project.component';
 import { SearchPipe } from './pipes/search.pipe';
 import { TypeaheadModule } from 'ngx-bootstrap';
-import { ValidationRegexService } from '../shared/services/validation-regex.service';
+import { ValidationRegexService } from './services/validation-regex.service';
 import { TaskListComponent } from './components/task-list/task-list.component';
 
 @NgModule({
