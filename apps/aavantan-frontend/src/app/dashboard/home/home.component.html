@@ -111,7 +111,7 @@
       </thead>
       <tbody>
       <tr *ngFor="let item of listViewTable.data">
-        <td>
+        <td data-label="Project">
           <div class="media align-items-center">
             <nz-avatar nzShape="square" [nzSrc]="item.avatar"></nz-avatar>
             <div class="m-l-10">
@@ -119,7 +119,7 @@
             </div>
           </div>
         </td>
-        <td>{{item.tasks}} Tasks</td>
+        <td data-label="Tasks">{{item.tasks}} Tasks</td>
         <td>
           <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let item of (item.member ? item.member.slice(0,2): [])">
             <nz-avatar  nzSize="small" [nzSrc]="item.avatar" nz-tooltip [nzTitle]="item.name"></nz-avatar>
@@ -128,16 +128,16 @@
             <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.member.length - 2].toString()" nz-tooltip [nzTitle]="[item.member.length - 2].toString() + ' More'"></nz-avatar>
           </a>
         </td>
-        <td>
+        <td  data-label="Members">
           <nz-progress *ngIf="item.status !== 'Behind'" [nzPercent]="item.progress" nzSize="small"></nz-progress>
           <nz-progress *ngIf="item.status == 'Behind'" [nzPercent]="item.progress" nzSize="small" nzStatus="exception"></nz-progress>
         </td>
-        <td class="text-center">
+        <td  data-label="Tasks" class="text-center">
           <nz-tag class="m-b-0" *ngIf="item.status == 'In Progress'" [nzColor]="'blue'">{{item.status}}</nz-tag>
           <nz-tag class="m-b-0" *ngIf="item.status == 'Ready'" [nzColor]="'cyan'">{{item.status}}</nz-tag>
           <nz-tag class="m-b-0" *ngIf="item.status == 'Behind'" [nzColor]="'red'">{{item.status}}</nz-tag>
         </td>
-        <td class="text-right">
+        <td  data-label="Progress" class="text-right">
           <div>
             <a class="text-gray font-size-18" nz-dropdown nzPlacement="bottomRight" nzTrigger="click" [nzDropdownMenu]="projectListSetting2">
               <i nz-icon nzType="ellipsis" theme="outline"></i>
