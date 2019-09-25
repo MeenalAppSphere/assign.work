@@ -12,16 +12,29 @@ import { Member } from '../../../shared/interfaces/member.interface';
 export class AddProjectComponent implements OnInit {
   @Input() public modalBasicIsVisible: Boolean = false;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
-  public FirstForm: FormGroup;
-  public SecondForm: FormGroup;
-  public ThirdForm: FormGroup;
+  public orgForm: FormGroup;
+  public projectForm: FormGroup;
+  public collaboratorForm: FormGroup;
   public basicCurrent = 1;
   public swicthStepCurrent = 0;
-  public index = 'Project Details';
+  public modalTitle = 'Project Details';
   public radioValue='A';
   public selectedCollaborators: Member[] = [];
   public selectedCollaborator: string;
   public response:any;
+
+  public organizations: any = [
+    // {
+    //   name: 'App Sphere Softwares',
+    //   _id: '121212',
+    //   owner: 'Owner : Aashish Patil'
+    // },
+    // {
+    //   name: 'App Sphere Enterprises',
+    //   _id: '131212',
+    //   owner: 'Owner : Aashish Patil'
+    // }
+  ];
 
   public members: Member[] = [
     {emailId:'pradeep@gmail.com', isEmailSent:true},
@@ -37,14 +50,15 @@ export class AddProjectComponent implements OnInit {
   }
 
   public createFrom(){
-    this.FirstForm = this.FB.group({
+    this.projectForm = this.FB.group({
       projectName : [ null, [ Validators.required ] ],
       description : [ null ]
     });
-    this.SecondForm = this.FB.group({
-      organizationName : [ null, [ Validators.required ] ]
+    this.orgForm = this.FB.group({
+      organizationName : [ null, [ Validators.required ] ],
+      organizationDescription:[null, '']
     });
-    this.ThirdForm = this.FB.group({
+    this.collaboratorForm = this.FB.group({
       collaborators: ''
     });
 
@@ -77,6 +91,11 @@ export class AddProjectComponent implements OnInit {
     }
   }
 
+  public selectOrg(item) {
+    console.log('Selected Org:', item.name);
+    this.next();
+  }
+
   pre(): void {
     this.swicthStepCurrent -= 1;
     this.changeContent();
@@ -97,24 +116,30 @@ export class AddProjectComponent implements OnInit {
   changeContent(): void {
     switch (this.swicthStepCurrent) {
       case 0: {
-        this.index = 'Project Details';
+        this.modalTitle = 'Organization';
         break;
       }
       case 1: {
-        this.index = 'Organization';
+        this.modalTitle = 'Project Details';
         break;
       }
       case 2: {
-        this.index = 'Collaborators';
+        this.modalTitle = 'Collaborators';
         break;
       }
       case 3: {
-        this.index = 'Template';
+        this.modalTitle = 'Template';
         break;
       }
       default: {
-        this.index = 'error';
+        this.modalTitle = 'error';
       }
     }
+    this.saveForm();
   }
+
+  public saveForm(){
+    console.log('Save : ', this.modalTitle)
+  }
+
 }

@@ -8,39 +8,13 @@ import { ThemeConstantService } from '../../services/theme-constant.service';
 
 export class HeaderComponent implements OnInit{
 
+  constructor( private themeService: ThemeConstantService) {}
+
   public modalBasicIsVisible: Boolean = false;
-  public modalAddSelectOrgVisible: Boolean = false;
   public searchVisible : Boolean = false;
   public quickViewVisible : Boolean = false;
   public isFolded : boolean;
   public isExpand : boolean;
-
-  constructor( private themeService: ThemeConstantService) {}
-
-  ngOnInit(): void {
-    this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
-    this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
-  }
-
-  toggleFold() {
-    this.isFolded = !this.isFolded;
-    this.themeService.toggleFold(this.isFolded);
-  }
-
-  toggleExpand() {
-    this.isFolded = false;
-    this.isExpand = !this.isExpand;
-    this.themeService.toggleExpand(this.isExpand);
-    this.themeService.toggleFold(this.isFolded);
-  }
-
-  searchToggle(): void {
-    this.searchVisible = !this.searchVisible;
-  }
-
-  quickViewToggle(): void {
-    this.quickViewVisible = !this.quickViewVisible;
-  }
 
   notificationList = [
     {
@@ -69,6 +43,31 @@ export class HeaderComponent implements OnInit{
     }
   ];
 
+  ngOnInit(): void {
+    this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
+    this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+  }
+
+  toggleFold() {
+    this.isFolded = !this.isFolded;
+    this.themeService.toggleFold(this.isFolded);
+  }
+
+  toggleExpand() {
+    this.isFolded = false;
+    this.isExpand = !this.isExpand;
+    this.themeService.toggleExpand(this.isExpand);
+    this.themeService.toggleFold(this.isFolded);
+  }
+
+  searchToggle(): void {
+    this.searchVisible = !this.searchVisible;
+  }
+
+  quickViewToggle(): void {
+    this.quickViewVisible = !this.quickViewVisible;
+  }
+
   // Ctrl + j functionality
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
@@ -78,17 +77,9 @@ export class HeaderComponent implements OnInit{
       event.stopPropagation();
       this.basicModalShow();
     }
-    if ((event.ctrlKey || event.composed) && event.which === 71 && !this.modalBasicIsVisible) { // CMD+G
-      event.preventDefault();
-      event.stopPropagation();
-      this.modalAddSelectOrgShow();
-    }
   }
 
   basicModalShow(): void {
     this.modalBasicIsVisible = !this.modalBasicIsVisible;
-  }
-  modalAddSelectOrgShow(): void {
-    this.modalAddSelectOrgVisible = !this.modalAddSelectOrgVisible;
   }
 }

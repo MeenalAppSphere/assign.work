@@ -1,14 +1,14 @@
-<nz-modal [(nzVisible)]="modalBasicIsVisible" nzFooter="#nzModalFooter" nzWidth="600" nzTitle="{{index}}">
+<nz-modal [(nzVisible)]="modalBasicIsVisible" nzFooter="#nzModalFooter" nzWidth="600" nzTitle="{{modalTitle}}">
   <div class="steps-action">
 
     <div class="text-center">
-      <h4>Welcome to Aavantan</h4>
+      <h4>Welcome to Assign.work</h4>
       <p>Wanna add your first project?</p>
     </div>
 
     <nz-steps [nzCurrent]="swicthStepCurrent">
-      <nz-step nzTitle="Project"></nz-step>
       <nz-step nzTitle="Organization"></nz-step>
+      <nz-step nzTitle="Project"></nz-step>
       <nz-step nzTitle="Collaborators"></nz-step>
       <nz-step nzTitle="Template"></nz-step>
     </nz-steps>
@@ -17,12 +17,57 @@
     <ng-container *ngIf="swicthStepCurrent===0" class="h-100">
 
       <div class="m-t-25">
-        <form nz-form class="register-form" [formGroup]="FirstForm">
+        <form nz-form class="register-form" [formGroup]="orgForm">
+          <ng-container *ngIf="organizations?.length>0">
+            <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+              <ng-template #item let-item>
+                <a class="font-size-15" (click)="selectOrg(item)">
+                  <nz-list-item>
+                    <nz-list-item-meta
+                      [nzTitle]="nzTitle"
+                      nzAvatar="assets/images/others/thumb-2.jpg"
+                      nzDescription="{{item.owner}}">
+                      <ng-template #nzTitle>
+                        <span class="font-size-15">{{item.name}}</span>
+                      </ng-template>
+                    </nz-list-item-meta>
+                  </nz-list-item>
+                </a>
+              </ng-template>
+            </nz-list>
+          </ng-container>
+          <ng-container *ngIf="organizations?.length===0">
+            <form nz-form class="register-form" [formGroup]="orgForm">
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="organizationName">Organization Name</nz-form-label>
+                <nz-form-control >
+                  <input nz-input formControlName="organizationName" maxlength="100" autocomplete="Off" nzSize="small" id="organizationName">
+                  <nz-form-explain *ngIf="orgForm.get('organizationName').dirty && orgForm.get('organizationName').errors">Please input Organization Name!</nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="organizationDescription">Description</nz-form-label>
+                <nz-form-control >
+                  <textarea nz-input rows="2" formControlName="organizationDescription" maxlength="500" autocomplete="Off" nzSize="small" id="organizationDescription"></textarea>
+                </nz-form-control>
+              </nz-form-item>
+            </form>
+          </ng-container>
+        </form>
+
+      </div>
+
+    </ng-container>
+
+    <!--second-->
+    <ng-container *ngIf="swicthStepCurrent===1">
+      <div class="min-height-100 m-t-25">
+        <form nz-form class="register-form" [formGroup]="projectForm">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="projectName">Project Name</nz-form-label>
             <nz-form-control>
               <input nz-input formControlName="projectName" autocomplete="Off" nzSize="small" id="projectName">
-              <nz-form-explain *ngIf="FirstForm.get('projectName').dirty && FirstForm.get('projectName').errors">Please input Project Name!</nz-form-explain>
+              <nz-form-explain *ngIf="projectForm.get('projectName').dirty && projectForm.get('projectName').errors">Please input Project Name!</nz-form-explain>
             </nz-form-control>
           </nz-form-item>
           <nz-form-item>
@@ -33,28 +78,12 @@
           </nz-form-item>
         </form>
       </div>
-
-    </ng-container>
-
-    <!--second-->
-    <ng-container *ngIf="swicthStepCurrent===1">
-      <div class="min-height-100 m-t-25">
-        <form nz-form class="register-form" [formGroup]="SecondForm">
-          <nz-form-item>
-            <nz-form-label nzRequired nzFor="organizationName">Organization Name</nz-form-label>
-            <nz-form-control >
-              <input nz-input formControlName="organizationName" autocomplete="Off" nzSize="small" id="organizationName">
-              <nz-form-explain *ngIf="SecondForm.get('organizationName').dirty && SecondForm.get('organizationName').errors">Please input Organization Name!</nz-form-explain>
-            </nz-form-control>
-          </nz-form-item>
-        </form>
-      </div>
     </ng-container>
 
     <!--third-->
     <ng-container *ngIf="swicthStepCurrent===2" class="h-100">
       <div class="min-height-100 m-t-25">
-        <form nz-form class="register-form" [formGroup]="ThirdForm">
+        <form nz-form class="register-form" [formGroup]="collaboratorForm">
           <div class="form-group">
             <label>Collaborators</label>
             <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
@@ -83,7 +112,7 @@
     <!--four-->
     <ng-container *ngIf="swicthStepCurrent===3">
       <div class="min-height-100 m-t-25">
-        <p class="m-t-25 m-b-25">Select Business {{index}}</p>
+        <p class="m-t-25 m-b-25">Select Business {{modalTitle}}</p>
         <nz-radio-group [(ngModel)]="radioValue">
           <label nz-radio nzValue="A">Software</label>
           <label nz-radio nzValue="B">Task Management</label>

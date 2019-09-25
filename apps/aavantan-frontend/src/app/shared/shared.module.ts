@@ -10,7 +10,6 @@ import { SearchPipe } from './pipes/search.pipe';
 import { TypeaheadModule } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { TaskListComponent } from './components/task-list/task-list.component';
-import { AddSelectOrganization } from '../dashboard/modals/add-select-organization/add-select-organization';
 
 @NgModule({
   exports: [
@@ -21,7 +20,6 @@ import { AddSelectOrganization } from '../dashboard/modals/add-select-organizati
     NgZorroAntdModule,
     PerfectScrollbarModule,
     AddProjectComponent,
-    AddSelectOrganization,
     SearchPipe,
     TaskListComponent
   ],
@@ -35,7 +33,6 @@ import { AddSelectOrganization } from '../dashboard/modals/add-select-organizati
   ],
   declarations: [
     AddProjectComponent,
-    AddSelectOrganization,
     SearchPipe,
     TaskListComponent
   ],
