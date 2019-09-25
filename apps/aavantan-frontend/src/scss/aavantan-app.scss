@@ -32,6 +32,10 @@ nz-modal {
   margin-bottom: 25px;
 }
 
+button:focus{
+  outline: none;
+}
+
 /* custom css*/
 .min-height-100{
   min-height: 100px;

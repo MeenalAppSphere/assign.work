@@ -9,6 +9,7 @@ import { ThemeConstantService } from '../../services/theme-constant.service';
 export class HeaderComponent implements OnInit{
 
   public modalBasicIsVisible: Boolean = false;
+  public modalAddSelectOrgVisible: Boolean = false;
   public searchVisible : Boolean = false;
   public quickViewVisible : Boolean = false;
   public isFolded : boolean;
@@ -72,14 +73,22 @@ export class HeaderComponent implements OnInit{
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
     console.log(event);
-    if ((event.ctrlKey || event.composed) && event.which === 74 && !this.modalBasicIsVisible) {
+    if ((event.ctrlKey || event.composed) && event.which === 74 && !this.modalBasicIsVisible) { // CMD+J
       event.preventDefault();
       event.stopPropagation();
       this.basicModalShow();
+    }
+    if ((event.ctrlKey || event.composed) && event.which === 71 && !this.modalBasicIsVisible) { // CMD+G
+      event.preventDefault();
+      event.stopPropagation();
+      this.modalAddSelectOrgShow();
     }
   }
 
   basicModalShow(): void {
     this.modalBasicIsVisible = !this.modalBasicIsVisible;
+  }
+  modalAddSelectOrgShow(): void {
+    this.modalAddSelectOrgVisible = !this.modalAddSelectOrgVisible;
   }
 }
