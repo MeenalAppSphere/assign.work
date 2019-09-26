@@ -1,6 +1,7 @@
 import { Query } from '@datorama/akita';
 import { AuthState, AuthStore } from '../../store/auth/auth.store';
 
+@Injectable()
 export class AuthQuery extends Query<AuthState> {
   isLoginInProcess$ = this.select(s => s.isLoginInProcess);
   isLoginSuccess$ = this.select(s => s.isLoginSuccess);
