@@ -29,7 +29,7 @@ export class ProjectComponent implements OnInit{
         ];
         this.taskObj= {
           _id : '100' + i,
-          name : 'This is task' + i + '.',
+          name : 'A responsive table that stacks into cards when space is limited ' + i + '.',
           progress : (i * 10),
           createdAt : new Date(),
           description:'description here',

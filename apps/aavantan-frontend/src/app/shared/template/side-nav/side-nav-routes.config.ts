@@ -46,6 +46,7 @@ export const ROUTES: SideNavInterface[] = [
     iconType: 'nzIcon',
     iconTheme: 'outline',
     icon: 'setting',
+    type:'admin',
     submenu: [
       {
         path: 'settings/permissions',
