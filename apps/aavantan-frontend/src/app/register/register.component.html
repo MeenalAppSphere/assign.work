@@ -73,7 +73,7 @@
               <nz-form-item>
                 <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
 
-                <nz-form-control>
+                <nz-form-control nzErrorTip="Please input your username!">
                   <input
                     type="text"
                     nz-input
@@ -169,6 +169,7 @@
                         Signin</a></span>
                     <button
                       nz-button
+
                       class="login-form-button"
                       [nzType]="'primary'">
                       Sign Up
