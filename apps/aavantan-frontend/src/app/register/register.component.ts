@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ResponseMessage } from '../shared/interfaces/response.interface';
+import { Notice } from '../shared/interfaces/notice.type';
 
 @Component({
   templateUrl: './register.component.html',
@@ -9,7 +9,7 @@ import { ResponseMessage } from '../shared/interfaces/response.interface';
 export class RegisterComponent implements OnInit {
   public signUpForm: FormGroup;
   public loading: Boolean = false;
-  public responseMessage: ResponseMessage;
+  public responseMessage: Notice;
 
   submitForm(): void {
     console.log(this.signUpForm.invalid);

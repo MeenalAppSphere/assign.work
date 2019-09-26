@@ -4,7 +4,7 @@ import { AuthService } from '../shared/services/auth.service';
 import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { untilDestroyed } from '@ngneat/until-destroy';
-import { ResponseMessage } from '../shared/interfaces/response.interface';
+import { Notice } from '../shared/interfaces/notice.type';
 
 @Component({
   templateUrl: 'login.component.html'
@@ -13,7 +13,7 @@ import { ResponseMessage } from '../shared/interfaces/response.interface';
 export class LoginComponent implements OnInit {
   public loginForm: FormGroup;
   public loading: Boolean = false;
-  public responseMessage: ResponseMessage;
+  public responseMessage: Notice;
 
   constructor(private _authService: AuthService, private _authQuery: AuthQuery, private router: Router) {
   }

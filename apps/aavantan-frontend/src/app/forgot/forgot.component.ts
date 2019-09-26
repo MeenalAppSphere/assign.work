@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ResponseMessage } from '../shared/interfaces/response.interface';
+import { Notice } from '../shared/interfaces/notice.type';
 
 @Component({
   templateUrl: './forgot.component.html',
@@ -9,7 +9,7 @@ import { ResponseMessage } from '../shared/interfaces/response.interface';
 export class ForgotComponent implements OnInit {
   public forgotForm: FormGroup;
   public loading: Boolean = false;
-  public responseMessage: ResponseMessage;
+  public responseMessage: Notice;
 
   submitForm(): void {
     this.loading=true;
