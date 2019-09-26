@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ResponseMessage } from '../shared/interfaces/response.interface';
 
 @Component({
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
-  signUpForm: FormGroup;
+  public signUpForm: FormGroup;
+  public loading: Boolean = false;
+  public responseMessage: ResponseMessage;
 
   submitForm(): void {
     console.log(this.signUpForm.invalid);

@@ -159,6 +159,10 @@
                   </nz-form-control>
                 </nz-form-item>
 
+              <nz-form-item *ngIf="responseMessage && responseMessage.message" >
+                <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
+              </nz-form-item>
+
               <nz-form-item>
                 <nz-form-control>
                   <div
@@ -169,6 +173,8 @@
                         Signin</a></span>
                     <button
                       nz-button
+                      [disabled]="signUpForm.invalid"
+                      [nzLoading]="loading"
                       class="login-form-button"
                       [nzType]="'primary'">
                       Sign Up
