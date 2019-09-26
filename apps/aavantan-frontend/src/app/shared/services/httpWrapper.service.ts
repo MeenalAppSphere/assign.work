@@ -50,6 +50,7 @@ export class HttpWrapperService {
 
   public deleteWithBody = (url: string, request: any): Observable<any> => {
     const options = { headers: {}, body: {} };
+    options.headers['Authorization'] = `Bearer ${this._generalService.token}`;
     options.headers['Content-Type'] = 'application/json';
     options.headers['Accept'] = 'application/json';
     options.headers = new HttpHeaders(options.headers);
@@ -73,13 +74,19 @@ export class HttpWrapperService {
 
   public prepareOptions(options: any): any {
     this.showLoader();
+    const token = this._generalService.token;
     options = options || {};
 
     if (!options.headers) {
       options.headers = {} as any;
     }
 
+    if (token) {
+      options.headers['Authorization'] = `Bearer ${token}`;
+    }
+
     // options.withCredentials = true;
+    options.headers['Accept-Language'] = this._generalService.userLocale;
     options.headers['cache-control'] = 'no-cache';
     if (!options.headers['Content-Type']) {
       options.headers['Content-Type'] = 'application/json';

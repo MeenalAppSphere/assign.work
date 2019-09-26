@@ -11,7 +11,7 @@ export class AppController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Request() req) {
-    return this._authService.login(req.user);
+    return await this._authService.login(req.user);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -20,7 +20,7 @@ export class AppController {
     return req.user;
   }
 
-  @Post('signup')
+  @Post('register')
   async signUp(@Body() user: User, @Headers('accept-language') locale: string) {
     user.locale = locale || 'en-Us';
     return await this._authService.signUpWithPassword(user);

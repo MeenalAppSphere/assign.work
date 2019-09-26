@@ -1297,6 +1297,13 @@
   dependencies:
     optional "0.1.4"
 
+"@ngneat/until-destroy@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@ngneat/until-destroy/-/until-destroy-6.0.0.tgz#2c0421fee52fcf1645f3404d79d747a501cc4d6d"
+  integrity sha512-ePzVhuT3J+HLRLacXy4vt/+cvmjpd5qIfqrzmybi8FEm8DSCdYHgzZwB/icDAe+qEF0eK9Sb0o7/M4QgcGUvYQ==
+  dependencies:
+    tslib "^1.9.0"
+
 "@ngtools/webpack@8.0.6":
   version "8.0.6"
   resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-8.0.6.tgz#c6b5416710913b24b741a17c8f255e54f42c9abf"

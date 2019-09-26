@@ -1,7 +1,7 @@
 import { OneTimeMessagesDismissed } from './general.model';
 
 export class UserLoginWithPasswordRequest {
-  userName: string;
+  emailId: string;
   password: string;
 }
 

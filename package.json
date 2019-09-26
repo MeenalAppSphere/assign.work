@@ -46,6 +46,7 @@
     "@nestjs/mongoose": "^6.1.2",
     "@nestjs/passport": "^6.1.0",
     "@nestjs/platform-express": "^6.6.7",
+    "@ngneat/until-destroy": "^6.0.0",
     "@nrwl/angular": "8.4.13",
     "bootstrap": "4.1.1",
     "core-js": "^2.5.4",
