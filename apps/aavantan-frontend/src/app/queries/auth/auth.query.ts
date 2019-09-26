@@ -1,5 +1,6 @@
 import { Query } from '@datorama/akita';
 import { AuthState, AuthStore } from '../../store/auth/auth.store';
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class AuthQuery extends Query<AuthState> {
