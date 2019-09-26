@@ -1,17 +1,23 @@
 import { Store, StoreConfig } from '@datorama/akita';
+import { User } from '@aavantan-app/models';
 
 export interface AuthState {
   isLoginInProcess: boolean;
   isLoginSuccess: boolean;
   isRegisterInProcess: boolean;
   isRegisterSuccess: boolean;
+  token: string;
+  user: User;
+
 }
 
 const initialState: AuthState = {
   isLoginInProcess: false,
   isLoginSuccess: false,
   isRegisterInProcess: false,
-  isRegisterSuccess: false
+  isRegisterSuccess: false,
+  token: null,
+  user: null
 };
 
 @StoreConfig({ name: 'auth', resettable: true })

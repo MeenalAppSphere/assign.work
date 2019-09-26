@@ -1,5 +1,10 @@
 import { OneTimeMessagesDismissed } from './general.model';
 
+export class UserLoginWithPasswordRequest {
+  userName: string;
+  password: string;
+}
+
 export enum UserStatus {
   'deleted' = 'deleted',
   'blocked' = 'blocked',
