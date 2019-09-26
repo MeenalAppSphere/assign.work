@@ -13,6 +13,7 @@ import { TaskListComponent } from './components/task-list/task-list.component';
 import { HttpWrapperService } from './services/httpWrapper.service';
 import { AuthService } from './services/auth.service';
 import { GeneralService } from './services/general.service';
+import { LoaderComponent } from './components/loader/loader.component';
 
 @NgModule({
   exports: [
@@ -24,7 +25,8 @@ import { GeneralService } from './services/general.service';
     PerfectScrollbarModule,
     AddProjectComponent,
     SearchPipe,
-    TaskListComponent
+    TaskListComponent,
+    LoaderComponent
   ],
   imports: [
     CommonModule,
@@ -37,7 +39,8 @@ import { GeneralService } from './services/general.service';
   declarations: [
     AddProjectComponent,
     SearchPipe,
-    TaskListComponent
+    TaskListComponent,
+    LoaderComponent
   ],
   providers: [
     ThemeConstantService,
