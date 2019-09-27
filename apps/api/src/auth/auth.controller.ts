@@ -9,7 +9,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Request() req: UserLoginWithPasswordRequest) {
+  async login(@Body() req: UserLoginWithPasswordRequest) {
     return await this._authService.login(req);
   }
 

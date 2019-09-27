@@ -14,21 +14,11 @@ export class AuthService {
   ) {
   }
 
-  async validateUser(emailId: string, pass: string): Promise<any> {
-    const user = await this._userModel.findOne({ emailId }).exec();
-    console.log(user);
-    if (user) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
-
   async login(req: UserLoginWithPasswordRequest) {
     const user = await this._userModel.findOne({ emailId: req.emailId, password: req.password }).exec();
     if (user) {
       return {
-        access_token: this.jwtService.sign({ username: user.emailId, sub: user.id })
+        access_token: this.jwtService.sign({ emailId: user.emailId, id: user.id })
       };
     } else {
         throw new UnauthorizedException('invalid email or password');
