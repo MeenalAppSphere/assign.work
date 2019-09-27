@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
-import { DbNameEnum, MemberTypes, User, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { DbCollection, MemberTypes, User, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 
@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    @InjectModel(DbNameEnum.users) private readonly _userModel: Model<User & Document>
+    @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
   ) {
   }
 

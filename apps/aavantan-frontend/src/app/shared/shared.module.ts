@@ -14,6 +14,7 @@ import { HttpWrapperService } from './services/httpWrapper.service';
 import { AuthService } from './services/auth.service';
 import { GeneralService } from './services/general.service';
 import { LoaderComponent } from './components/loader/loader.component';
+import { LoaderService } from './services/loader.service';
 
 @NgModule({
   exports: [
@@ -47,7 +48,8 @@ import { LoaderComponent } from './components/loader/loader.component';
     ValidationRegexService,
     HttpWrapperService,
     AuthService,
-    GeneralService
+    GeneralService,
+    LoaderService
   ]
 })
 export class SharedModule {}

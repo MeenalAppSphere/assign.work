@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GeneralService } from './general.service';
-import { LoaderService } from '../components/loader/loader.service';
+import { LoaderService } from './loader.service';
 
 @Injectable()
 export class HttpWrapperService {

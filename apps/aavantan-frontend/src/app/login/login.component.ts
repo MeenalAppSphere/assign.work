@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../shared/services/auth.service';
 import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
-import { untilDestroyed } from '@ngneat/until-destroy';
 import { Notice } from '../shared/interfaces/notice.type';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 @Component({
   templateUrl: 'login.component.html'
 })
 
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   public loginForm: FormGroup;
   public loading: Boolean = false;
   public responseMessage: Notice;
@@ -33,5 +33,8 @@ export class LoginComponent implements OnInit {
 
   submitForm() {
     this._authService.login(this.loginForm.value);
+  }
+
+  ngOnDestroy(): void {
   }
 }
