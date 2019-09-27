@@ -1,8 +1,7 @@
 import { takeUntil } from 'rxjs/operators';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { ReplaySubject, Observable, of } from 'rxjs';
-import { LoaderService } from './loader.service';
-import { LoaderState } from './loader';
+import { LoaderService } from '../../services/loader.service';
 // import { AppState } from 'app/store';
 // import { Store } from '@ngrx/store';
 import { Router, NavigationStart, NavigationEnd, RouteConfigLoadEnd } from '@angular/router';
@@ -31,12 +30,8 @@ export class LoaderComponent implements OnInit, OnDestroy, OnChanges {
   ) { }
 
   public ngOnInit() {
-    this.loaderService.loaderState.pipe(takeUntil(this.destroyed$)).subscribe((state: LoaderState) => {
-      if (state.show) {
-        this.showLoader = true;
-      } else {
-        this.showLoader = false;
-      }
+    this.loaderService.loaderState.pipe(takeUntil(this.destroyed$)).subscribe((state: { show: boolean }) => {
+      this.showLoader = state.show;
       this.cdref.detectChanges();
     });
 
