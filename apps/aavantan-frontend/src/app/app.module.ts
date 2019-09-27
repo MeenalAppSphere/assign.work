@@ -9,11 +9,12 @@ import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
 import { ThemeConstantService } from './shared/services/theme-constant.service';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { MiddlewareComponent } from './middleware.component';
 
 registerLocaleData(en);
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, MiddlewareComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

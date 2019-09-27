@@ -88,7 +88,7 @@ export class HttpWrapperService {
     }
 
     // options.withCredentials = true;
-    options.headers['Accept-Language'] = this._generalService.userLocale;
+    options.headers['Accept-Language'] = this._generalService.userLocale || 'en-Us';
     options.headers['cache-control'] = 'no-cache';
     if (!options.headers['Content-Type']) {
       options.headers['Content-Type'] = 'application/json';
