@@ -1,1 +1,64 @@
-<p>board works!</p>
+<div class="sprintboard-container">
+  <div class="container-fluid">
+    <div class="row flex-row flex-nowrap">
+      <div class="column">
+        <div class="card card-block">
+          <div class="card-header">TODO <i class="pull-right fa fa-ellipsis-v"></i></div>
+          <bs-sortable [(ngModel)]="itemStringsTODO" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
+          </bs-sortable>
+          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>
+          <ng-template #createTaskSummaryTemplate>
+            <p>Task Popup here...</p>
+<!--            <app-create-task-summary isOpencreateTaskSummaryTemplate></app-create-task-summary>-->
+          </ng-template>
+        </div>
+      </div>
+      <div class="column">
+        <div class="card card-block">
+          <div class="card-header">IN-PROGRESS <i class="pull-right fa fa-ellipsis-v"></i></div>
+          <bs-sortable [(ngModel)]="itemStringsPROGRESS" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body"></bs-sortable>
+          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>
+          <ng-template #createTaskSummaryTemplate>
+            <p>Task Popup here...</p>
+<!--            <app-create-task-summary isOpencreateTaskSummaryTemplate></app-create-task-summary>-->
+          </ng-template>
+        </div>
+      </div>
+      <div class="column">
+        <div class="card card-block">
+          <div class="card-header">QA <i class="pull-right fa fa-ellipsis-v"></i></div>
+          <bs-sortable [(ngModel)]="itemStringsQA" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body"></bs-sortable>
+          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>
+          <ng-template #createTaskSummaryTemplate>
+            <p>Task Popup here...</p>
+<!--            <app-create-task-summary isOpencreateTaskSummaryTemplate></app-create-task-summary>-->
+          </ng-template>
+        </div>
+      </div>
+      <div class="column">
+        <div class="card card-block">
+          <div class="card-header">DONE <i class="pull-right fa fa-ellipsis-v"></i></div>
+          <bs-sortable [(ngModel)]="itemStringsDONE" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body"></bs-sortable>
+          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>
+          <ng-template #createTaskSummaryTemplate>
+            <p>Task Popup here...</p>
+<!--            <app-create-task-summary isOpencreateTaskSummaryTemplate></app-create-task-summary>-->
+          </ng-template>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<ng-template #itemTemplate let-item="item" let-index="index">
+  <div class="task-card">
+    <div class="task-body">
+      <a href=""><img src="../../../../assets/images/priority/medium.png" height="14" /> {{item.value}}</a>
+    </div>
+    <div class="task-footer">
+      <span><i class="fa fa-arrow-up text-warning"></i>  2 min ago</span>
+      <span class="pull-right"><nz-avatar class="m-r-10" nzIcon="user" nzSrc="./../../../assets/images/avatars/thumb-8.jpg" nzShape="circle"></nz-avatar>  Pradeep Kumar</span>
+    </div>
+  </div>
+</ng-template>

@@ -1,3 +1,15 @@
+:root {
+  --theme-primary: #47b8f8;
+  --theme-dark: #249bdf;
+  --cyan: #348FC8;
+  --gray-dark: #444444;
+  --gray-light: #9a9a9a;
+  --gray-very-light: #efefef;
+  --green: #28F047;
+  --green-dark: #15D833;
+  --red: #dc3545;
+}
+
 /* modal css customized */
 nz-modal {
   .ant-modal-body {
@@ -36,6 +48,15 @@ button:focus{
   outline: none;
 }
 
+/* logo modified */
+.logo img{
+  width: 80%;
+}
+.is-folded {
+  .logo img{
+    width: 100%;
+  }
+}
 /* custom css*/
 .min-height-100{
   min-height: 100px;

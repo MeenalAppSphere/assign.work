@@ -11,7 +11,7 @@ import { BacklogComponent } from '../backlog/backlog.component';
 import { PermissionsComponent } from './settings/permissions/permissions.component';
 import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
 import { AppsService } from '../shared/services/apps.service';
-import { TypeaheadModule } from 'ngx-bootstrap';
+import { PopoverModule, SortableModule, TypeaheadModule } from 'ngx-bootstrap';
 import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 
@@ -21,7 +21,9 @@ import { TemplateModule } from '../shared/template/template.module';
     CommonModule,
     SharedModule,
     DashboardRoutingModule,
-    TypeaheadModule.forRoot()
+    TypeaheadModule.forRoot(),
+    SortableModule.forRoot(),
+    PopoverModule.forRoot()
   ],
   exports: [],
   declarations: [
