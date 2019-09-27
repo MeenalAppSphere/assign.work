@@ -1,17 +1,16 @@
 import { Body, Controller, Get, Post, Request, UseGuards, Headers } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from './shared/services/auth.service';
-import { User } from '@aavantan-app/models';
+import { User, UserLoginWithPasswordRequest } from '@aavantan-app/models';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
-export class AppController {
+export class AuthController {
   constructor(private _authService: AuthService) {
   }
 
-  @UseGuards(AuthGuard('local'))
   @Post('login')
-  async login(@Request() req) {
-    return await this._authService.login(req.user);
+  async login(@Request() req: UserLoginWithPasswordRequest) {
+    return await this._authService.login(req);
   }
 
   @UseGuards(AuthGuard('jwt'))

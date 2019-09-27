@@ -1,9 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { DbCollection, MemberTypes, User, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { DbCollection, MemberTypes, User, UserLoginProviderEnum, UserStatus, UserLoginWithPasswordRequest } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -24,11 +24,15 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
-    const payload = { username: user.username, sub: user.emailId };
-    return {
-      access_token: this.jwtService.sign(payload)
-    };
+  async login(req: UserLoginWithPasswordRequest) {
+    const user = await this._userModel.findOne({ emailId: req.emailId, password: req.password }).exec();
+    if (user) {
+      return {
+        access_token: this.jwtService.sign({ username: user.emailId, sub: user.id })
+      };
+    } else {
+        throw new UnauthorizedException('invalid email or password');
+    }
   }
 
   async signUpWithPassword(user: User) {
