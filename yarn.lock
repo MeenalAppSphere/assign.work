@@ -7808,6 +7808,11 @@ ngx-infinite-scroll@^8.0.0:
   dependencies:
     opencollective-postinstall "^2.0.2"
 
+ngx-joyride@^2.2.10:
+  version "2.2.10"
+  resolved "https://registry.yarnpkg.com/ngx-joyride/-/ngx-joyride-2.2.10.tgz#acd1f2c9b8bbcb33e87eb74860cb2092b59fc76f"
+  integrity sha512-3HRgrf7V9gFsDBP5kcsQ/h4PpYogrSDNGCAWGtVN/WqP5jZfohrFacYCUXJZEeZMovzLgwEyir4t6LtPEDSYqQ==
+
 ngx-perfect-scrollbar@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/ngx-perfect-scrollbar/-/ngx-perfect-scrollbar-8.0.0.tgz#19c1bbf9b1a36d89b00a68f7834e39427d29182f"
@@ -7822,6 +7827,21 @@ ngx-take-until-destroy@^5.4.0:
   integrity sha512-e+VfCrHbLybdKWoQ8prdhmVzWI6vTnedr/9cVGQTkfepMdLz5D++VDk+Wnbs7mru6S9C+kIpNWUlh2YMPl928Q==
   dependencies:
     tslib "^1.9.0"
+
+ngx-tour-core@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/ngx-tour-core/-/ngx-tour-core-4.0.1.tgz#1a50bc021ba227fcc04c2d87579ea416f4e73de7"
+  integrity sha512-FoDn9UtjWyxoBVrzBapO4tRZ3rcMmg/4dNfXaH88RUjIBRObdTCl6EXM3TbR1eWajUexgo1fPzPW02ov9Z2Ifw==
+  dependencies:
+    tslib "^1.9.0"
+
+ngx-tour-ngx-bootstrap@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/ngx-tour-ngx-bootstrap/-/ngx-tour-ngx-bootstrap-4.1.0.tgz#3b38200663bec1d79f80596265d04e59b84fd82a"
+  integrity sha512-phyfNVB5uPwkc/JAi3XUw0qz+5J5NEd/blRZSgR+VzYtQ4jbX5Dru8TcvFVHLmfzzKPchotPBMSyNsAnAj0tlg==
+  dependencies:
+    tslib "^1.9.0"
+    withinviewport "^2.0.0"
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -11455,6 +11475,11 @@ wide-align@^1.1.0:
   integrity sha512-QGkOQc8XL6Bt5PwnsExKBPuMKBxnGxWWW3fU55Xt4feHozMUhdUMaBCk290qpm/wG5u/RSKzwdAC4i51YigihA==
   dependencies:
     string-width "^1.0.2 || 2"
+
+withinviewport@^2.0.0:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/withinviewport/-/withinviewport-2.1.2.tgz#7b09a5e566be15e51211ebfd4afb9aad6bc5dc12"
+  integrity sha512-bOZt20QiBkAroXwCAVnb+ajYNPAzVrTKCKuVAuWtLbXlOk3e5cAS5diZMWhYP4Cpyq3GS47jk+fsb5tQqhIxtg==
 
 wordwrap@~0.0.2:
   version "0.0.3"
