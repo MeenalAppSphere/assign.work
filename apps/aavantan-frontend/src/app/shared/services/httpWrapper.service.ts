@@ -3,11 +3,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GeneralService } from './general.service';
+import { LoaderService } from './loader.service';
 
 @Injectable()
 export class HttpWrapperService {
 
-  constructor(private _http: HttpClient, private _generalService: GeneralService) {
+  constructor(private _http: HttpClient, private _generalService: GeneralService,
+              private _loaderService: LoaderService) {
   }
 
   public get = (url: string, params?: any, options?: any): Observable<any> => {
@@ -113,10 +115,10 @@ export class HttpWrapperService {
   }
 
   private showLoader(): void {
-    // this._loaderService.show();
+     this._loaderService.show();
   }
 
   private hideLoader(): void {
-    // this._loaderService.hide();
+     this._loaderService.hide();
   }
 }

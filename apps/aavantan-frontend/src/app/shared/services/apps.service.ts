@@ -8,21 +8,23 @@ import { ProjectList } from '../interfaces/project-list.type';
 
 @Injectable()
 export class AppsService {
-    constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
-    // public getChatJSON(): Observable<Chat[]> {
-    //     return this.http.get<Chat[]>("./assets/data/apps/chat-data.json")
-    // }
-    //
-    // public getFileManagerJson(): Observable<Files[]> {
-    //     return this.http.get<Files[]>("./assets/data/apps/file-manager-data.json")
-    // }
-    //
-    // public getMailJson(): Observable<Mail[]> {
-    //     return this.http.get<Mail[]>("./assets/data/apps/mail-data.json")
-    // }
+  // public getChatJSON(): Observable<Chat[]> {
+  //     return this.http.get<Chat[]>("./assets/data/apps/chat-data.json")
+  // }
+  //
+  // public getFileManagerJson(): Observable<Files[]> {
+  //     return this.http.get<Files[]>("./assets/data/apps/file-manager-data.json")
+  // }
+  //
+  // public getMailJson(): Observable<Mail[]> {
+  //     return this.http.get<Mail[]>("./assets/data/apps/mail-data.json")
+  // }
 
-    public getProjectListJson(): Observable<ProjectList[]> {
-        return this.http.get<ProjectList[]>("./assets/data/apps/project-list-data.json")
-    }
+  public getProjectListJson(): Observable<ProjectList[]> {
+    return this.http.get<ProjectList[]>(
+      './assets/data/apps/project-list-data.json'
+    );
+  }
 }

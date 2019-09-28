@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
 import { User } from '@aavantan-app/models';
 
+
 export interface AuthState {
   isLoginInProcess: boolean;
   isLoginSuccess: boolean;
@@ -10,7 +11,6 @@ export interface AuthState {
   isRegisterSuccess: boolean;
   token: string;
   user: User;
-
 }
 
 const initialState: AuthState = {

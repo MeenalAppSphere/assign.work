@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DbNameEnum } from '@aavantan-app/models';
+import { DbCollection } from '@aavantan-app/models';
 import { userSchema } from '../schemas/users.schema';
 import { UsersService } from './services/users.service';
 import { AuthService } from './services/auth.service';
@@ -19,9 +19,9 @@ import { jwtConstants } from './services/jwt/constants';
       signOptions: { expiresIn: '60s' }
     }),
     MongooseModule.forFeature([{
-      name: DbNameEnum.users,
+      name: DbCollection.users,
       schema: userSchema,
-      collection: DbNameEnum.users
+      collection: DbCollection.users
     }])
   ],
   exports: [AuthService, UsersService],

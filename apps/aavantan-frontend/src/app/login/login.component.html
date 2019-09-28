@@ -21,7 +21,7 @@
                 <nz-form-control>
                   <nz-input-group [nzPrefix]="prefixUser">
                     <input
-                      type="text"
+                      type="email"
                       nz-input
                       nzSize="small"
                       maxlength="100"
@@ -60,7 +60,9 @@
                   </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
-
+              <nz-form-item *ngIf="responseMessage && responseMessage.message" >
+                <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
+              </nz-form-item>
               <nz-form-item>
                 <nz-form-control>
                   <div
@@ -73,6 +75,8 @@
                         Signup</a></span>
                     <button
                       nz-button
+                      [disabled]="loginForm.invalid"
+                      [nzLoading]="loading"
                       class="login-form-button"
                       [nzType]="'primary'">
                       Sign In

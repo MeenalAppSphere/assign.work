@@ -38,7 +38,8 @@
                     autocomplete="none"
                     nzSize="small"
                     id="emailId"
-                    maxlength="15"
+                    maxlength="100"
+                    required
                   />
 
                   <nz-form-explain
@@ -58,6 +59,8 @@
                       <a class="small" [routerLink]="['/login']">
                         Signin</a></span>
                     <button
+                      [disabled]="forgotForm.invalid"
+                      [nzLoading]="loading"
                       nz-button
                       class="login-form-button"
                       [nzType]="'primary'">
@@ -65,6 +68,9 @@
                     </button>
                   </div>
                 </nz-form-control>
+              </nz-form-item>
+              <nz-form-item *ngIf="responseMessage && responseMessage.message" >
+                <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
               </nz-form-item>
             </form>
             <div class="text-center m-t-25">

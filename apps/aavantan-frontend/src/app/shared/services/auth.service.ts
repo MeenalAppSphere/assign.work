@@ -10,7 +10,7 @@ import { GeneralService } from './general.service';
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
-  constructor(private authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
+  constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
     super(authStore);
   }
 

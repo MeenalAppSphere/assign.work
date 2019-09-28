@@ -1,4 +1,4 @@
-export enum DbNameEnum {
+export enum DbCollection {
   users = 'users',
   projects = 'projects'
 }
