@@ -1,18 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-google-oauth20';
+import { Injectable, Inject } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { use } from 'passport';
+
+const GoogleTokenStrategy = require('passport-google-plus-token');
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy){
-  constructor() {
-    super({
-      clientID: '768411236596-gpfmj78vq5latkc7gi7b8digjd66ngi2.apps.googleusercontent.com',
-      clientSecret: '0BhMFxwTMuJ70ZllFcqcOT2w',
-      callbackURL: 'http://localhost:7777/api/auth/google/callback'
-    });
+export class GoogleStrategy {
+  constructor(
+  ) {
+    this.init();
   }
 
-  async validate(payload: any) {
-    return { userId: payload.sub, username: payload.username };
+  private init(): void {
+    use('google', new GoogleTokenStrategy({
+      clientID: '786347906702-f24fedavhbjl61iebi8e3obhdftj452k.apps.googleusercontent.com',
+      clientSecret: 'ad1o3FgYmhCH6QeZYL5nr_LI',
+    }, async (accessToken: string, refreshToken: string, profile: any, done: Function) => {
+      done(null, profile);
+    }));
   }
 }
