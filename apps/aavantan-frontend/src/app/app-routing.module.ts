@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { MiddlewareComponent } from './middleware.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -21,13 +22,17 @@ const appRoutes: Routes = [
     path: 'dashboard',
     loadChildren: () =>
       import('./dashboard/dashboard.module').then(m => m.DashboardModule)
+  },
+  {
+    path: 'middleware',
+    component: MiddlewareComponent
   }
 ];
 
 @NgModule({
   imports: [
     RouterModule.forRoot(appRoutes, {
-      useHash: true,
+      useHash: false,
       scrollPositionRestoration: 'enabled'
     })
   ],

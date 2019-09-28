@@ -1,8 +1,9 @@
+import { Injectable } from '@angular/core';
 import { Query } from '@datorama/akita';
 import { AuthState, AuthStore } from '../../store/auth/auth.store';
-import { Injectable } from '@angular/core';
 
-@Injectable({providedIn: 'root'})
+
+@Injectable({ providedIn: 'root' })
 export class AuthQuery extends Query<AuthState> {
   isLoginInProcess$ = this.select(s => s.isLoginInProcess);
   isLoginSuccess$ = this.select(s => s.isLoginSuccess);

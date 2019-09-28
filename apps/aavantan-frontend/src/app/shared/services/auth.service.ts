@@ -6,6 +6,7 @@ import { HttpWrapperService } from './httpWrapper.service';
 import { AuthUrls } from './apiUrls/auth.urls';
 import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
+import { of } from 'rxjs';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
@@ -42,6 +43,18 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         this.updateState({ isRegisterInProcess: false, isRegisterSuccess: false, token: null });
         this._generalService.token = null;
         return err;
+      })
+    );
+  }
+
+  googleSignIn(code: string) {
+    return this._http.post(AuthUrls.googleSignIn, { code }).pipe(
+      map(res => {
+        return res;
+      }),
+      catchError(err => {
+        debugger;
+        return of(err);
       })
     );
   }

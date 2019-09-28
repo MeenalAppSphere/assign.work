@@ -1,6 +1,8 @@
+
+import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
 import { User } from '@aavantan-app/models';
-import { Injectable } from '@angular/core';
+
 
 export interface AuthState {
   isLoginInProcess: boolean;
@@ -20,7 +22,7 @@ const initialState: AuthState = {
   user: null
 };
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 @StoreConfig({ name: 'auth', resettable: true })
 export class AuthStore extends Store<AuthState> {
   constructor() {
