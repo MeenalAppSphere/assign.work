@@ -2,9 +2,6 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { AppsService } from '../../shared/services/apps.service';
 import { NzModalService } from 'ng-zorro-antd';
 import { ProjectList } from '../../shared/interfaces/project-list.type';
-import { JoyrideService } from 'ngx-joyride';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 
 @Component({
   templateUrl: './home.component.html',
@@ -17,8 +14,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private projectListSvc: AppsService,
-    private modalService: NzModalService,
-    private joyrideService: JoyrideService
+    private modalService: NzModalService
   ) {}
 
   ngOnInit(): void {
@@ -213,45 +209,6 @@ export class HomeComponent implements OnInit {
       }
     ];
 
-    setTimeout(()=>{
-      this.startTour();
-    },100);
-
-  }
-
-  onPrev() {
-    console.log('Prev Clicked');
-  }
-
-  stepDone() {
-    setTimeout(() => {
-      console.log('Step done!');
-    }, 3000);
-  }
-
-  startTour() {
-    const options = {
-      steps: ['tour1', 'tour-card2', 'tour3',"board@dashboard/board"],
-      startWith: 'tour1',
-      // waitingTime: 2000,
-      stepDefaultPosition: 'top',
-      themeColor: '#000000',
-      showPrevButton: true,
-      logsEnabled: true,
-      customTexts: { prev: of('<<').pipe(delay(2000)), next: '>>' }
-    };
-    this.joyrideService.startTour(options).subscribe(
-      step => {
-        console.log('Next:', step);
-      },
-      e => {
-        console.log('Error', e);
-      },
-      () => {
-        this.stepDone();
-        console.log('Tour finished');
-      }
-    );
   }
 
   showNewProject(newProjectContent: TemplateRef<{}>) {

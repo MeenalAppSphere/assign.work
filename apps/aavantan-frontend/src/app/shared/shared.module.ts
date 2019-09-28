@@ -15,6 +15,7 @@ import { AuthService } from './services/auth.service';
 import { GeneralService } from './services/general.service';
 import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderService } from './services/loader.service';
+import { JoyrideModule } from 'ngx-joyride';
 
 @NgModule({
   exports: [

@@ -32,7 +32,7 @@
         </nz-drawer>
       </li>
     </ul>
-    <ul class="nav-right">
+    <ul class="nav-right" joyrideStep="tour1" title="Current Project" text="You can change your project form here.">
       <li>
         Project Name
       </li>
@@ -77,7 +77,7 @@
       </li>
       <li>
                 <span class="p-h-10 pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'" [nzPlacement]="'bottomRight'">
-                    <nz-avatar [nzIcon]="'user'" nzSrc="assets/images/avatars/thumb-3.jpg"></nz-avatar>
+                    <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile" [nzIcon]="'user'" nzSrc="assets/images/avatars/thumb-3.jpg"></nz-avatar>
                 </span>
         <nz-dropdown-menu #profile="nzDropdownMenu">
           <ul nz-menu class="p-b-15 p-t-20">

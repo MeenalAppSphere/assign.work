@@ -11,6 +11,7 @@ import { FooterComponent } from "./footer/footer.component";
 
 import { SideNavDirective } from "../directives/side-nav.directive";
 import { ThemeConstantService } from '../services/theme-constant.service';
+import { JoyrideModule } from 'ngx-joyride';
 
 @NgModule({
     exports: [
@@ -23,7 +24,8 @@ import { ThemeConstantService } from '../services/theme-constant.service';
     ],
     imports: [
         RouterModule,
-        SharedModule
+        SharedModule,
+        JoyrideModule.forRoot(),
     ],
     declarations: [
         HeaderComponent,

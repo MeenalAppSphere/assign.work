@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
-import { distinctUntilChanged, filter, map, startWith } from 'rxjs/operators';
+import { delay, distinctUntilChanged, filter, map, startWith } from 'rxjs/operators';
+import { JoyrideService } from 'ngx-joyride';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -17,7 +18,8 @@ export class DashboardComponent implements OnInit {
   isExpand: boolean;
   selectedHeaderColor: string;
 
-  constructor(private router: Router,  private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService) {
+  constructor(private router: Router,  private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
+  private joyrideService: JoyrideService) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => {
@@ -48,6 +50,12 @@ export class DashboardComponent implements OnInit {
     this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
     this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+
+    setTimeout(()=>{
+      this.startTour();
+    },1000);
+
+
   }
 
   private buildBreadCrumb(route: ActivatedRoute, url: string = '', breadcrumbs: IBreadcrumb[] = []): IBreadcrumb[] {
@@ -74,4 +82,38 @@ export class DashboardComponent implements OnInit {
     }
     return newBreadcrumbs;
   }
+
+  stepDone() {
+    setTimeout(() => {
+      console.log('Step done!');
+    }, 3000);
+  }
+
+  startTour() {
+    const options = {
+      steps: ['tour1', 'tour2','main-menu', 'tour-card0@dashboard/home', 'tour3',"board@dashboard/board"],
+      startWith: 'tour1',
+      // waitingTime: 2000,
+      stepDefaultPosition: 'top',
+      themeColor: '#000000',
+      showPrevButton: true,
+      logsEnabled: true,
+      customTexts: { prev: of('<<').pipe(delay(2000)), next: '>>' }
+    };
+    this.joyrideService.startTour(options).subscribe(
+      step => {
+        console.log('Next:', step);
+      },
+      e => {
+        console.log('Error', e);
+      },
+      () => {
+        this.stepDone();
+        console.log('Tour finished');
+      }
+    );
+  }
+
+
+
 }
