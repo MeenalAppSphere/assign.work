@@ -1,0 +1,13 @@
+<nz-list [nzDataSource]="data" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+  <ng-template #item let-item>
+    <nz-list-item>
+      <div class="media">
+        <nz-avatar nzSize="small" class="m-r-10" [nzSrc]="item.profilePic" nzShape="circle" nz-tooltip [nzTitle]="item.firstName"></nz-avatar>
+        <div class="media-body">
+          <h6><span class="p-r-10">{{item.firstName}}</span><small class="text-muted text-right"><span>{{ item.createdAt | dateAgo}}</span></small></h6>
+          <div>{{item.description}}</div>
+        </div>
+      </div>
+    </nz-list-item>
+  </ng-template>
+</nz-list>

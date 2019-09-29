@@ -1,0 +1,29 @@
+.time-log-header {
+    font-size: 12px;
+}
+
+.modal-header .modal-title {
+    font-size: 14px;
+}
+
+.time-log-body {
+    width: 260px;
+    height: 235px;
+    max-height: 300px;
+    overflow: auto;
+    padding: 5px 10px;
+    background: #f7f7f7;
+    .form-control {
+        font-size: 12px;
+    }
+    textarea.form-control {
+        min-height: 50px;
+    }
+}
+
+.time-log-footer {
+    padding: 6px;
+    .btn {
+        font-size: 12px;
+    }
+}

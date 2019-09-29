@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -8,9 +9,9 @@ import { ThemeConstantService } from '../../services/theme-constant.service';
 
 export class HeaderComponent implements OnInit{
 
-  constructor( private themeService: ThemeConstantService) {}
+  constructor( private themeService: ThemeConstantService, private router:Router) {}
 
-  public modalBasicIsVisible: Boolean = false;
+  public projectModalIsVisible: Boolean = false;
   public searchVisible : Boolean = false;
   public quickViewVisible : Boolean = false;
   public isFolded : boolean;
@@ -72,14 +73,19 @@ export class HeaderComponent implements OnInit{
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
     console.log(event);
-    if ((event.ctrlKey || event.composed) && event.which === 74 && !this.modalBasicIsVisible) { // CMD+J
+    if ((event.ctrlKey || event.composed) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();
-      this.basicModalShow();
+      this.projectModalShow();
+    }
+    if ((event.ctrlKey || event.composed) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
+      event.preventDefault();
+      event.stopPropagation();
+      this.router.navigateByUrl('dashboard/task');
     }
   }
 
-  basicModalShow(): void {
-    this.modalBasicIsVisible = !this.modalBasicIsVisible;
+  public projectModalShow(): void {
+    this.projectModalIsVisible = !this.projectModalIsVisible;
   }
 }
