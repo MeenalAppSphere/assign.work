@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -8,7 +9,7 @@ import { ThemeConstantService } from '../../services/theme-constant.service';
 
 export class HeaderComponent implements OnInit{
 
-  constructor( private themeService: ThemeConstantService) {}
+  constructor( private themeService: ThemeConstantService, private readonly _authService: AuthService) {}
 
   public modalBasicIsVisible: Boolean = false;
   public searchVisible : Boolean = false;
@@ -81,5 +82,9 @@ export class HeaderComponent implements OnInit{
 
   basicModalShow(): void {
     this.modalBasicIsVisible = !this.modalBasicIsVisible;
+  }
+
+  logOut() {
+    this._authService.logOut();
   }
 }

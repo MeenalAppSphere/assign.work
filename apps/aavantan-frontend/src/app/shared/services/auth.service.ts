@@ -6,13 +6,15 @@ import { HttpWrapperService } from './httpWrapper.service';
 import { AuthUrls } from './apiUrls/auth.urls';
 import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
-import { of } from 'rxjs';
 import { Router } from '@angular/router';
+import { NzNotificationService } from 'ng-zorro-antd';
+import { from, of } from 'rxjs';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
-  constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router) {
+  constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
+              private notification: NzNotificationService) {
     super(authStore);
   }
 
@@ -27,7 +29,8 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
       catchError(err => {
         this.updateState({ isLoginSuccess: false, isLoginInProcess: false, token: null });
         this._generalService.token = null;
-        return err;
+        this.notification.error('Error', err.error.message);
+        return of(err);
       })
     );
   }
@@ -43,9 +46,15 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
       catchError(err => {
         this.updateState({ isRegisterInProcess: false, isRegisterSuccess: false, token: null });
         this._generalService.token = null;
-        return err;
+        this.notification.error('Error', err.error.message);
+        return of(err);
       })
     );
+  }
+
+  logOut() {
+    this.updateState({ token: null });
+    this.router.navigate(['/login']);
   }
 
   requestGoogleRedirectUri() {

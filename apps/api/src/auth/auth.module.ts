@@ -25,7 +25,7 @@ import { authenticate } from 'passport';
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(authenticate('google', { session: false }))
-      .forRoutes('api/auth/google/token')
+    // consumer.apply(authenticate('google', { session: false }))
+    //   .forRoutes('api/auth/google/token')
   }
 }
