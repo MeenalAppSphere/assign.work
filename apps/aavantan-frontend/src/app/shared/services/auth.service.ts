@@ -7,11 +7,12 @@ import { AuthUrls } from './apiUrls/auth.urls';
 import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
 import { of } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
-  constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
+  constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router) {
     super(authStore);
   }
 
@@ -47,15 +48,17 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
     );
   }
 
-  googleSignIn(code: string) {
-    return this._http.post(AuthUrls.googleSignIn, { code }).pipe(
-      map(res => {
-        return res;
-      }),
-      catchError(err => {
-        debugger;
-        return of(err);
-      })
-    );
+  requestGoogleRedirectUri() {
+    return this._http.get(AuthUrls.googleUriRequest);
+  }
+
+  googleSignIn(code) {
+    this.updateState({ token: null });
+    return this._http.post(AuthUrls.googleSignIn, { code });
+  }
+
+  googleSignInSuccess(code: string) {
+    this.updateState({ token: code });
+    this.router.navigate(['dashboard']);
   }
 }

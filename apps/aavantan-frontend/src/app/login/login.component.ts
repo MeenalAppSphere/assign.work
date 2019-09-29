@@ -31,6 +31,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
+  loginWithGoogle() {
+    this._authService.requestGoogleRedirectUri().subscribe(res => {
+      window.location.replace(res.redirect_uri);
+    });
+  }
+
   submitForm() {
     this._authService.login(this.loginForm.value);
   }

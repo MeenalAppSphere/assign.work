@@ -3,5 +3,7 @@ import { createUrl } from './base.url';
 export const AuthUrls = {
   login: `${createUrl('auth/login')}`,
   register: `${createUrl('auth/register')}`,
-  googleSignIn: `${createUrl('auth/google/signin')}`
+  googleUriRequest: `${createUrl('auth/google/uri')}`,
+  googleSignIn: `${createUrl('auth/google/signin')}`,
+
 };

@@ -10,6 +10,8 @@ import { AppComponent } from './app.component';
 import { ThemeConstantService } from './shared/services/theme-constant.service';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { MiddlewareComponent } from './middleware.component';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { RedirectInterceptor } from './shared/interceptor/redirect.interceptor';
 
 registerLocaleData(en);
 
@@ -26,7 +28,7 @@ registerLocaleData(en);
       provide: NZ_I18N,
       useValue: en_US
     },
-    ThemeConstantService
+    ThemeConstantService,
   ],
   bootstrap: [AppComponent]
 })

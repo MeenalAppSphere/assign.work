@@ -88,7 +88,7 @@
             <div class="text-center m-t-25">
               <nz-button-group>
                 <button nz-button nzType="primary"><i nz-icon nzType="linkedin" theme="outline"></i> Login with LinkedIn</button>
-                <button nz-button nzType="danger"><i nz-icon nzType="google" theme="outline"></i> Login with Gmail</button>
+                <button nz-button nzType="danger" (click)="loginWithGoogle()"><i nz-icon nzType="google" theme="outline"></i> Login with Gmail</button>
               </nz-button-group>
             </div>
             <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>

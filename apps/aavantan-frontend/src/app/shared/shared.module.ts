@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { ThemeConstantService } from './services/theme-constant.service';
@@ -16,6 +16,7 @@ import { GeneralService } from './services/general.service';
 import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderService } from './services/loader.service';
 import { JoyrideModule } from 'ngx-joyride';
+import { RedirectInterceptor } from './interceptor/redirect.interceptor';
 
 @NgModule({
   exports: [
@@ -50,7 +51,10 @@ import { JoyrideModule } from 'ngx-joyride';
     HttpWrapperService,
     AuthService,
     GeneralService,
-    LoaderService
+    LoaderService,
+    // {
+    //   provide: HTTP_INTERCEPTORS, useClass: RedirectInterceptor, multi: true
+    // }
   ]
 })
 export class SharedModule {}
