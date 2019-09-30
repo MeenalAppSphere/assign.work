@@ -47,6 +47,28 @@ nz-modal {
 button:focus{
   outline: none;
 }
+.ant-radio-button-wrapper{
+  padding: 5px 10px;
+}
+
+/* table */
+.ant-table-tbody > tr > td {
+  padding: 5px 15px;
+}
+
+/* typography */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-weight: 400;
+}
+p {
+  line-height: 1.5;
+}
+
+/* layout */
+.common-layout .page-container .main-content {
+  padding: calc(70px + 25px) 10px 10px 10px;
+  min-height: calc(100vh - 65px);
+}
 
 /* logo modified */
 .logo img{
@@ -143,6 +165,13 @@ button:focus{
     }
   }
 }
+
+.card-desc-height{
+  height: 60px;
+  overflow: hidden;
+}
+
+/* Project page */
 #project-page{
   .ant-btn:not(.ant-btn-circle):not(.ant-btn-circle-outline).ant-btn-icon-only{
     line-height: 1.2;

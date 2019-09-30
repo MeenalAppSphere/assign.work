@@ -10,15 +10,14 @@
   </nz-radio-group>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
   <div class="row" *ngIf="view == 'cardView'" >
     <div class="col-md-3" *ngFor="let item of projectList; let i=index;">
-      <nz-card joyrideStep="tour-card{{i}}" title="Card View" text="">
+      <nz-card joyrideStep="tour-card{{i}}" title="Card View" text="" nzSize="small">
         <div class="d-flex justify-content-between">
           <div class="media">
-            <nz-avatar [nzSize]="40" nzShape="square" [nzSrc]="item.avatar"></nz-avatar>
-            <div class="m-l-10">
-              <h5 class="m-b-0">{{item.project}}</h5>
+            <div class="">
+              <h6 class="m-b-0">{{item.project}}</h6>
               <span class="text-muted font-size-13">{{item.tasks}} Tasks</span>
             </div>
           </div>
@@ -51,8 +50,8 @@
             </nz-dropdown-menu>
           </div>
         </div>
-        <p class="m-t-25">{{item.desc}}</p>
-        <div class="m-t-30">
+        <p class="m-t-5 card-desc-height" nzEllipsisRows="3" nzEllipsis="true">{{item.desc}}</p>
+        <div class="">
           <div class="d-flex justify-content-between">
             <span class="font-weight-semibold">Progress</span>
             <span class="font-weight-semibold">{{item.progress}}%</span>
@@ -60,7 +59,7 @@
           <nz-progress *ngIf="item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>
           <nz-progress *ngIf="item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>
         </div>
-        <div class="m-t-20">
+        <div class="m-t-10">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <nz-tag class="m-b-0" *ngIf="item.status == 'In Progress'" [nzColor]="'blue'">{{item.status}}</nz-tag>
@@ -80,7 +79,7 @@
       </nz-card>
     </div>
   </div>
-  <nz-card *ngIf="view == 'listView'" joyrideStep="tour3" title="List View" text="">
+  <nz-card *ngIf="view == 'listView'" joyrideStep="tour3" title="List View" text="" [nzBodyStyle]="{ 'padding': '0px' }">
     <nz-table #listViewTable [nzData]="projectList">
       <thead>
       <tr>
@@ -96,9 +95,8 @@
       <tr *ngFor="let item of listViewTable.data">
         <td data-label="Project">
           <div class="media align-items-center">
-            <nz-avatar nzShape="square" [nzSrc]="item.avatar"></nz-avatar>
-            <div class="m-l-10">
-              <h5 class="m-b-0">{{item.project}}</h5>
+            <div class="">
+              <h6 class="m-b-0">{{item.project}}</h6>
             </div>
           </div>
         </td>

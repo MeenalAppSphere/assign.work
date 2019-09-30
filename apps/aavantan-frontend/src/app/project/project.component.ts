@@ -29,13 +29,14 @@ export class ProjectComponent implements OnInit{
         ];
         this.taskObj= {
           _id : '100' + i,
-          name : 'A responsive table that stacks into cards when space is limited ' + i + '.',
+          name : 'A responsive table that stacks into cards when space is ' + i + '.',
           progress : (i * 10),
           createdAt : new Date(),
-          description:'description here',
+          description:'task description here, A responsive table that stacks into cards',
           status:'In Progress',
           assigned:this.memberObj,
-          estimate: 2+'hr'
+          estimate: 2+'hr',
+          priority:'high'
         }
         this.myTaskList.push(this.taskObj);
       }
