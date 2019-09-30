@@ -25,7 +25,7 @@ export class HomeComponent implements OnInit {
         avatar: 'assets/images/others/thumb-1.jpg',
         status: 'Ready',
         tasks: '31',
-        desc: 'European minnow priapumfish mosshead warbonnet shrimpfish. European minnow priapumfish mosshead warbonnet shrimpfish.',
+        desc: 'European minnow priapumfish mosshead warbonnet shrimpfish. European minnow priapumfish mosshead warbonnet shrimpfish.European minnow priapumfish mosshead warbonnet shrimpfish.',
         progress: 100,
         member: [
           {

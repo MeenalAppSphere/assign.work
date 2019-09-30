@@ -33,7 +33,7 @@ export class ProjectComponent implements OnInit{
           name : 'A responsive table that stacks into cards when space is ' + i + '.',
           progress : (i * 10),
           createdAt : new Date(),
-          description:'task description here, A responsive table that stacks into cards',
+          description:'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
           status:'In Progress',
           assigned:this.memberObj,
           estimate: 2+'hr',

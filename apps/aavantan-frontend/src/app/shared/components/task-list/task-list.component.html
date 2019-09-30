@@ -6,11 +6,11 @@
           <div class="media">
             <img src="../../../../assets/images/priority/high.png" class="m-t-5"  height="16"/>
             <div class="m-l-10">
-              <h6 class="m-b-0" nzEllipsisRows="2" nzEllipsis="true"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.name}}</a></h6>
+              <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.name}}</a></h6>
             </div>
           </div>
         </div>
-        <p class="m-t-5 card-desc-height" nzEllipsisRows="3" nzEllipsis="true">{{item.description}}</p>
+        <p class="m-t-5 card-desc-height" nz-paragraph nzEllipsisRows="3" [nzContent]="item.description" nzEllipsis="true"></p>
         <p class="">{{item.estimate}}
           <a href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
         </p>
