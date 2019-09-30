@@ -73,12 +73,12 @@ export class HeaderComponent implements OnInit{
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
     console.log(event);
-    if ((event.ctrlKey || event.composed) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
+    if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();
       this.projectModalShow();
     }
-    if ((event.ctrlKey || event.composed) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
+    if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
       event.preventDefault();
       event.stopPropagation();
       this.router.navigateByUrl('dashboard/task');

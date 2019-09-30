@@ -11,6 +11,7 @@ export class ProjectComponent implements OnInit{
   public allTaskList: Task[]=[];
   public taskObj: Task;
   public memberObj: Member[]=[];
+  public view: String = 'listView';
   public issueTypes:any[]=[
     {label: "BUG"},
     {label: "TASK"},

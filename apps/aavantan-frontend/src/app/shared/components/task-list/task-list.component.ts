@@ -10,9 +10,7 @@ export class TaskListComponent implements OnInit {
 
   @Input() public taskByUser: string;
   @Input() public taskList: Task[];
-  @Input() public switchViewOption:boolean=true;
-  public  view:string = 'listView';
-
+  @Input() public view: string;
 
   constructor() { }
 

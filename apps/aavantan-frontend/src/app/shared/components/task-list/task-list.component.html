@@ -1,18 +1,4 @@
-<div class="container-fluid">
-  <div class="row align-items-sm-end" *ngIf="switchViewOption">
-    <div class="col-md-12">
-      <div class="text-md-right m-b-10">
-        <nz-radio-group [(ngModel)]="view">
-          <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
-            <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>
-          </label>
-          <label nz-radio-button nzValue="cardView" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>
-            <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>
-          </label>
-        </nz-radio-group>
-      </div>
-    </div>
-  </div>
+<div class="container-fluid p-0">
   <div class="row" *ngIf="view == 'cardView'">
     <div class="col-md-3" *ngFor="let item of taskList">
       <nz-card nzSize="small">
@@ -25,7 +11,9 @@
           </div>
         </div>
         <p class="m-t-5 card-desc-height" nzEllipsisRows="3" nzEllipsis="true">{{item.description}}</p>
-        <p class=""><i nz-icon nzType="clock-circle" theme="outline"></i> {{item.estimate}}</p>
+        <p class="">{{item.estimate}}
+          <a href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+        </p>
         <div class="">
           <div class="d-flex justify-content-between">
             <span class="font-weight-semibold">Progress</span>
@@ -62,7 +50,7 @@
         <th>Progress</th>
         <th class="text-center">Status</th>
         <th>Members</th>
-        <th class="text-center">Estimate</th>
+        <th class="text-center">Estimate/Log Time</th>
       </tr>
       </thead>
       <tbody>
@@ -91,7 +79,7 @@
           </a>
         </td>
         <td data-label="Estimate" class="text-center">
-          {{item.estimate}}
+          {{item.estimate}} <a href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
         </td>
       </tr>
       </tbody>
