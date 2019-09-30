@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DbCollection } from '@aavantan-app/models';
-import { userSchema } from '../schemas/users.schema';
+import { userSchema } from '../users/users.schema';
 
 @Global()
 @Module({

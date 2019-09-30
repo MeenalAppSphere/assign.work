@@ -1,6 +1,9 @@
 import * as mongoose from 'mongoose';
 import { MemberTypes, User, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
 
+const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
+
+
 export const userSchema = new mongoose.Schema(
   {
     emailId: { type: String, unique: true, required: true },
@@ -31,3 +34,10 @@ export const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+userSchema.plugin(mongooseValidationErrorTransform, {
+  capitalize: true,
+  humanize: true,
+  transform: function(msg) {
+    return msg;
+  }
+});

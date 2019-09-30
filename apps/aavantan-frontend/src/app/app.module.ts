@@ -12,6 +12,8 @@ import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { MiddlewareComponent } from './middleware.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RedirectInterceptor } from './shared/interceptor/redirect.interceptor';
+import { MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { ResponseMiddleware } from '../../../api/src/shared/interceptors/response.middleware';
 
 registerLocaleData(en);
 
@@ -28,8 +30,9 @@ registerLocaleData(en);
       provide: NZ_I18N,
       useValue: en_US
     },
-    ThemeConstantService,
+    ThemeConstantService
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+}

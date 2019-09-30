@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule } from '@nestjs/common';
 
-import { SharedModule } from './shared/shared.module';
+import { SharedModule } from '../shared/shared.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
@@ -15,4 +15,5 @@ import { UsersModule } from '../users/users.module';
   controllers: [],
   providers: []
 })
-export class AppModule {}
+export class AppModule {
+}
