@@ -7,12 +7,14 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app/app.module';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
+import { GenericExceptionFilter } from './shared/exceptionFilters/generic.exceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   const globalPrefix = 'api';
   app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new GenericExceptionFilter());
   app.setGlobalPrefix(globalPrefix);
   const port = process.env.port || 3333;
   await app.listen(port, () => {
