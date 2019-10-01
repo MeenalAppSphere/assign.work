@@ -6,9 +6,9 @@
     nzTitle="Create Backlog Item/Task"
     [nzExtra]="createTaskBtnTemplate">
   <ng-template #createTaskBtnTemplate>
-    <nz-button-group>
+    <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
       <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>
-      <button nzType="primary" nzSize="small" nz-button nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
+      <button nzType="primary" nzSize="small" nz-button>
         <i nz-icon nzType="down"></i>
       </button>
     </nz-button-group>
