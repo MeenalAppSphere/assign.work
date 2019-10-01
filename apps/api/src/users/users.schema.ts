@@ -38,6 +38,6 @@ userSchema.plugin(mongooseValidationErrorTransform, {
   capitalize: true,
   humanize: true,
   transform: function(msg) {
-    return msg;
+      return msg;
   }
 });

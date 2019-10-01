@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { MongoError } from 'mongodb';
 import { BaseResponseModel } from '@aavantan-app/models';
+import { Error } from 'mongoose';
 
 @Catch()
 export class GenericExceptionFilter implements ExceptionFilter {
@@ -17,12 +18,21 @@ export class GenericExceptionFilter implements ExceptionFilter {
         type: 'error'
       }];
       resp.status = 404;
-    } else if (exception.response instanceof HttpException) {
-      // http exception includes mongoose validation errors
-      resp.errors = [{
-        message: exception.response.message,
-        type: 'error'
-      }];
+    } else if (exception instanceof HttpException) {
+      // mongoose validation errors
+      if (exception.getResponse() instanceof Error.ValidationError) {
+        resp.errors = [
+          ...(exception.getResponse() as any).message.map(m => {
+            return { type: 'error', message: m };
+          })
+        ];
+      } else {
+        // http errors
+        resp.errors = [{
+          message: (exception.getResponse() as any).message,
+          type: 'error'
+        }];
+      }
     }
     resp.status = exception.getStatus();
     resp.data = null;

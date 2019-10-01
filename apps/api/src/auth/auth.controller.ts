@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Request, UseGuards, Headers, Req, Response } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+  Headers,
+  Req,
+  Response,
+  BadRequestException
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User, UserLoginWithPasswordRequest } from '@aavantan-app/models';
 import { AuthService } from './auth.service';
@@ -22,7 +33,8 @@ export class AuthController {
   @Post('register')
   async signUp(@Body() user: User, @Headers('accept-language') locale: string) {
     user.locale = locale || 'en-Us';
-    return await this._authService.signUpWithPassword(user);
+    throw new BadRequestException('please try again later', 'error');
+    // return await this._authService.signUpWithPassword(user);
   }
 
   @Get('google/uri')

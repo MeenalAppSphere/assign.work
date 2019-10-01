@@ -8,12 +8,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
 import { ThemeConstantService } from './shared/services/theme-constant.service';
-import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { MiddlewareComponent } from './middleware.component';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { RedirectInterceptor } from './shared/interceptor/redirect.interceptor';
-import { MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { ResponseMiddleware } from '../../../api/src/shared/interceptors/response.middleware';
 
 registerLocaleData(en);
 
