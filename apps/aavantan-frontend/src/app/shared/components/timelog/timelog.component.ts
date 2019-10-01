@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { PopoverContainerComponent } from 'ngx-bootstrap';
 
 @Component({
@@ -8,13 +8,15 @@ import { PopoverContainerComponent } from 'ngx-bootstrap';
 })
 export class TimelogComponent implements OnInit {
   public dateFormat = 'MM/dd/yyyy';
+  @Input() public timelogModalIsVisible: Boolean = false;
+  @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   constructor() { }
 
   ngOnInit() {
   }
 
   public closeTimeLog() {
-
+    this.toggleTimeLogShow.emit();
   }
 
 }

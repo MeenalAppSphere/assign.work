@@ -10,7 +10,7 @@ import { Member } from '../../interfaces/member.interface';
   styleUrls: ['./add-project.component.css']
 })
 export class AddProjectComponent implements OnInit {
-  @Input() public modalBasicIsVisible: Boolean = false;
+  @Input() public projectModalIsVisible: Boolean = false;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
   public orgForm: FormGroup;
   public projectForm: FormGroup;

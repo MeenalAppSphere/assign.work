@@ -12,6 +12,7 @@ export class HeaderComponent implements OnInit{
   constructor( private themeService: ThemeConstantService, private router:Router) {}
 
   public projectModalIsVisible: Boolean = false;
+  public timelogModalIsVisible: Boolean = false;
   public searchVisible : Boolean = false;
   public quickViewVisible : Boolean = false;
   public isFolded : boolean;
@@ -87,5 +88,8 @@ export class HeaderComponent implements OnInit{
 
   public projectModalShow(): void {
     this.projectModalIsVisible = !this.projectModalIsVisible;
+  }
+  public timelogModalShow(): void {
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 }

@@ -1,33 +1,34 @@
-<form>
-    <div class="modal-header time-log-header">
-        <h4 class="modal-title pull-left">Time Log : MYCA-BUG-13</h4>
-    </div>
-    <div class="modal-body time-log-body">
-      <nz-form-item>
-        <nz-form-label for="Description">Description<span class="text-danger">*</span></nz-form-label>
-            <textarea class="form-control" rows="2" placeholder="What you have done..."></textarea>
-      </nz-form-item>
+<nz-modal [(nzVisible)]="timelogModalIsVisible" nzWidth="300" nzClosable="false">
+  <form>
+      <div class="modal-header time-log-header">
+          <h4 class="modal-title pull-left">Time Log : MYCA-BUG-13</h4>
+      </div>
+      <div class="modal-body time-log-body">
+        <nz-form-item>
+          <nz-form-label for="Description">Description<span class="text-danger">*</span></nz-form-label>
+              <textarea class="form-control" rows="2" placeholder="What you have done..."></textarea>
+        </nz-form-item>
 
-      <nz-form-item>
-        <nz-form-label for="startend">Start-End<span class="text-danger">*</span></nz-form-label>
-              <nz-range-picker [nzFormat]="dateFormat" ></nz-range-picker>
-      </nz-form-item>
-      <nz-form-item>
-            <div class="col col p-0 pr-1">
-                <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
-                <input nz-input type="text" class="form-control" placeholder="5h" />
-            </div>
-            <div class="col col p-0 pl-1">
-              <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
-                <input nz-input type="text" class="form-control" placeholder="3h" />
-            </div>
-      </nz-form-item>
-
-    </div>
-    <div class="modal-footer time-log-footer">
-        <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save
-        </button>
-        <button type="button" class="btn btn-default btn-sm" (click)='closeTimeLog()'> Cancel
-        </button>
-    </div>
-</form>
+        <nz-form-item>
+          <nz-form-label for="startend">Start-End<span class="text-danger">*</span></nz-form-label>
+                <nz-range-picker [nzFormat]="dateFormat" ></nz-range-picker>
+        </nz-form-item>
+        <nz-form-item>
+              <div class="col col p-0 pr-1">
+                  <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input type="text" class="form-control" placeholder="5h" />
+              </div>
+              <div class="col col p-0 pl-1">
+                <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input type="text" class="form-control" placeholder="3h" />
+              </div>
+        </nz-form-item>
+      </div>
+      <div class="modal-footer time-log-footer">
+          <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-save"></i> Save
+          </button>
+          <button type="button" class="btn btn-default btn-sm" (click)='closeTimeLog()'> Cancel
+          </button>
+      </div>
+  </form>
+</nz-modal>
