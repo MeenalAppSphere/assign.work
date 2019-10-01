@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit {
           },
           {
             avatar: 'assets/images/avatars/thumb-5.jpg',
-            name: 'Nicole Wyne'
+            name: 'Nicole Wyne1'
           }
         ]
       },
@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
           },
           {
             avatar: 'assets/images/avatars/thumb-12.jpg',
-            name: 'Wilma Young'
+            name: 'Wilma Young1'
           },
           {
             avatar: 'assets/images/avatars/thumb-11.jpg',
@@ -91,7 +91,7 @@ export class HomeComponent implements OnInit {
           },
           {
             avatar: 'assets/images/avatars/thumb-12.jpg',
-            name: 'Wilma Young'
+            name: 'Wilma Young2'
           }
         ]
       },

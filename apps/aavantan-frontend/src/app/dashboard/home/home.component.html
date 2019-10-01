@@ -106,8 +106,13 @@
             <nz-avatar  nzSize="small" [nzSrc]="item.avatar" nz-tooltip [nzTitle]="item.name"></nz-avatar>
           </a>
           <a *ngIf="item.member.length > 2">
-            <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.member.length - 2].toString()" nz-tooltip [nzTitle]="[item.member.length - 2].toString() + ' More'"></nz-avatar>
+            <span><nz-avatar class="font-size-11 text-dark"  nz-tooltip [nzTitle]="titleTemplate" nzSize="small" [nzText]="'+' + [item.member.length - 2].toString()" ></nz-avatar></span>
           </a>
+          <ng-template #titleTemplate let-itm="item">
+            <div *ngFor="let item of (item.member ? item.member.slice(2): []); let last = last;" [ngClass]="{'m-b-5' : !last}">
+              <nz-avatar  nzSize="small" [nzSrc]="item.avatar"></nz-avatar> {{item.name}}
+            </div>
+          </ng-template>
         </td>
         <td  data-label="Members">
           <nz-progress *ngIf="item.status !== 'Behind'" [nzPercent]="item.progress" nzSize="small"></nz-progress>
