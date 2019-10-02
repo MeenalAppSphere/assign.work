@@ -10,6 +10,7 @@ export class TaskComponent implements OnInit {
 
   public assigneeValue:string;
   public taskTypeValue:string;
+  public isOpenActivitySidebar:Boolean = false;
   public defaultFileList = [
     {
       uid: -1,
@@ -75,6 +76,14 @@ export class TaskComponent implements OnInit {
     });
   }
 
+  public toggleActivitySidebar(el:HTMLElement){
+    this.isOpenActivitySidebar=!this.isOpenActivitySidebar;
+    if(this.isOpenActivitySidebar && window.innerWidth<768){
+      setTimeout(()=>{
+        el.scrollIntoView();
+      },200);
+    }
+  }
   public assignedToMe() {
     // this.taskForm.get('assignedTo').patchValue(this.userDetails.fullName);
     // this.taskForm.value.assignedTo = this.userDetails._id;
