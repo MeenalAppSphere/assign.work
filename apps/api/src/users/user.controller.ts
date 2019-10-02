@@ -12,4 +12,9 @@ export class UserController {
   async getUser(@Request() req) {
     return req.user;
   }
+
+  @Get('')
+  async getAll() {
+    return await this._userService.getAll();
+  }
 }

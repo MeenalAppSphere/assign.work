@@ -11,6 +11,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, BaseResponseMo
           const newResponse = new BaseResponseModel<T>();
           newResponse.data = m;
           newResponse.hasError = false;
+          newResponse.errors = null;
           return newResponse;
         })
       );

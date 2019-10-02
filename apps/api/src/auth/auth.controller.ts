@@ -33,8 +33,7 @@ export class AuthController {
   @Post('register')
   async signUp(@Body() user: User, @Headers('accept-language') locale: string) {
     user.locale = locale || 'en-Us';
-    throw new BadRequestException('please try again later', 'error');
-    // return await this._authService.signUpWithPassword(user);
+    return await this._authService.signUpWithPassword(user);
   }
 
   @Get('google/uri')

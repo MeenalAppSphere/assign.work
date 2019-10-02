@@ -1,13 +1,14 @@
 import * as mongoose from 'mongoose';
-import { MemberTypes, User, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { DbCollection, MemberTypes, User, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-
+const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
 export const userSchema = new mongoose.Schema(
   {
-    emailId: { type: String, unique: true, required: true },
-    userName: { type: String, unique: true },
+    emailId: { type: String, required: true },
+    userName: { type: String },
     password: { type: String, required: true },
     firstName: { type: String },
     lastName: { type: String },
@@ -32,12 +33,10 @@ export const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed
     }
   },
-  { timestamps: true }
+  schemaOptions
 );
-userSchema.plugin(mongooseValidationErrorTransform, {
-  capitalize: true,
-  humanize: true,
-  transform: function(msg) {
-      return msg;
-  }
-});
+
+// plugins
+userSchema
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
+  .plugin(aggregatePaginate);
