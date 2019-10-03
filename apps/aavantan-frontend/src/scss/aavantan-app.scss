@@ -48,6 +48,13 @@ nz-modal {
   color: #fff!important;
 }
 
+.ant-tabs-nav .ant-tabs-tab-active {
+  background: #fff;
+  box-shadow: 2px 0px 3px -2px #ddd;
+}
+.ant-tabs-content{
+  background: #ffffff;
+}
 button:focus{
   outline: none;
 }
@@ -76,7 +83,7 @@ p {
 
 /* layout */
 .common-layout .page-container .main-content {
-  padding: calc(70px + 25px) 10px 10px 10px;
+  padding: calc(70px + 10px) 10px 10px 10px;
   min-height: calc(100vh - 65px);
 }
 
@@ -206,6 +213,44 @@ p {
     background: #fbfbfb;
     text-align: center;
     line-height: 75px;
+  }
+}
+
+/* Timelog modal */
+.time-log-modal {
+  .ant-modal-header {
+    padding: 14px!important;
+    .ant-modal-title{
+      font-size: 15px;
+      line-height: 17px;
+    }
+  }
+  .ant-form-item-label {
+    line-height: 12px !important;
+    font-size: 13px !important;
+    margin-bottom: 0px !important;
+  }
+  .ant-form-item {
+    margin-bottom: 10px !important;
+    &:last-child{
+      margin-bottom: 0px !important;
+    }
+  }
+  .ant-modal-body{
+    padding: 14px!important;
+    .ant-input-sm {
+      padding: 6px 8px!important;
+      font-size: 12px!important;
+    }
+     textarea.ant-input {
+      padding: 6px 8px!important;
+      font-size: 12px!important;
+    }
+    .ant-calendar-picker-input.ant-input {
+       line-height: 1.5;
+       padding: 4px;
+       font-size: 12px;
+     }
   }
 }
 

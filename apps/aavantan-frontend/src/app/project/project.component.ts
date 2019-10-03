@@ -3,7 +3,8 @@ import { Task } from '../shared/interfaces/task.interface';
 import { Member } from '../shared/interfaces/member.interface';
 
 @Component({
-    templateUrl: './project.component.html'
+    templateUrl: './project.component.html',
+    styleUrls:['./project.component.scss']
 })
 
 export class ProjectComponent implements OnInit{

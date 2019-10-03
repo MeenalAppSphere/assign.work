@@ -1,23 +1,23 @@
 <!-- section 1 -->
 <section id="project-page">
-  <nz-card
-    nzSize="small"
-    [nzBordered]="false"
-    nzTitle="Create Backlog Item/Task"
-    [nzExtra]="createTaskBtnTemplate">
-  <ng-template #createTaskBtnTemplate>
-    <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
-      <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>
-      <button nzType="primary" nzSize="small" nz-button>
-        <i nz-icon nzType="down"></i>
-      </button>
-    </nz-button-group>
-    <nz-dropdown-menu #createTaskType="nzDropdownMenu">
-      <ul nz-menu>
-        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>
-      </ul>
-    </nz-dropdown-menu>
-  </ng-template>
+<!--  <nz-card-->
+<!--    nzSize="small"-->
+<!--    [nzBordered]="false"-->
+<!--    nzTitle="Create Backlog Item/Task"-->
+<!--    [nzExtra]="createTaskBtnTemplate">-->
+<!--  <ng-template #createTaskBtnTemplate>-->
+<!--    <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">-->
+<!--      <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>-->
+<!--      <button nzType="primary" nzSize="small" nz-button>-->
+<!--        <i nz-icon nzType="down"></i>-->
+<!--      </button>-->
+<!--    </nz-button-group>-->
+<!--    <nz-dropdown-menu #createTaskType="nzDropdownMenu">-->
+<!--      <ul nz-menu>-->
+<!--        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>-->
+<!--      </ul>-->
+<!--    </nz-dropdown-menu>-->
+<!--  </ng-template>-->
 
 
     <nz-tabset [nzTabBarExtraContent]="tabSwitchTemplate" nzSize="small">
@@ -88,7 +88,7 @@
       </nz-tab>
     </nz-tabset>
     <ng-template #tabSwitchTemplate>
-      <nz-radio-group [(ngModel)]="view" class="m-r-20">
+      <nz-radio-group [(ngModel)]="view" class="m-r-5">
         <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
           <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>
         </label>
@@ -96,7 +96,18 @@
           <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>
         </label>
       </nz-radio-group>
+      <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
+        <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>
+        <button nzType="primary" nzSize="small" nz-button>
+          <i nz-icon nzType="down"></i>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>
+        </ul>
+      </nz-dropdown-menu>
     </ng-template>
-  </nz-card>
+<!--  </nz-card>-->
 </section>
 

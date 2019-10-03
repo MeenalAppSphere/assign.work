@@ -1,24 +1,24 @@
-<nz-modal [(nzVisible)]="timelogModalIsVisible" [nzTitle]="'Time Log : MYCA-BUG-13'" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
-  <form>
-      <div class="">
+<nz-modal [(nzVisible)]="timelogModalIsVisible" [nzTitle]="selectedTaskItem && selectedTaskItem.name" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
+  <form >
+      <div >
         <nz-form-item>
-          <nz-form-label for="Description">Description<span class="text-danger">*</span></nz-form-label>
-              <textarea class="form-control" rows="2" placeholder="What you have done..."></textarea>
+          <nz-form-label>Description<span class="text-danger">*</span></nz-form-label>
+              <textarea  nz-input rows="2" placeholder="What you have done..."></textarea>
         </nz-form-item>
 
         <nz-form-item>
-          <nz-form-label for="startend">Start-End<span class="text-danger">*</span></nz-form-label>
+          <nz-form-label>Start-End<span class="text-danger">*</span></nz-form-label>
                 <nz-range-picker [nzFormat]="dateFormat" ></nz-range-picker>
         </nz-form-item>
         <nz-form-item>
           <div class="row">
               <div class="col pr-1">
                   <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input nzSize="small" type="text" class="form-control" placeholder="5h" />
+                  <input nz-input nzSize="small" type="text" placeholder="5h" />
               </div>
               <div class="col pl-1">
                 <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input nzSize="small" type="text" class="form-control" placeholder="3h" />
+                  <input nz-input nzSize="small" type="text" placeholder="3h" />
               </div>
           </div>
         </nz-form-item>

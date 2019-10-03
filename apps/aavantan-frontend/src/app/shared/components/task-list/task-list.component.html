@@ -12,7 +12,7 @@
         </div>
         <p class="m-t-5 card-desc-height" nz-paragraph nzEllipsisRows="3" [nzContent]="item.description" nzEllipsis="true"></p>
         <p class="">{{item.estimate}}
-          <a  *ngIf="showLogOption" href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+          <a  *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
         </p>
         <div *ngIf="showProgressOption" class="">
           <div class="d-flex justify-content-between">
@@ -84,11 +84,11 @@
           </a>
         </td>
         <td data-label="Estimate">
-          {{item.estimate}}&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (click)="timeLog()"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+          {{item.estimate}}&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (click)="timeLog(item)"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
         </td>
       </tr>
       </tbody>
     </nz-table>
 </div>
 
-<app-timelog [timelogModalIsVisible]="timelogModalIsVisible" (toggleTimeLogShow)="timeLog()"></app-timelog>
+<app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem" (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
