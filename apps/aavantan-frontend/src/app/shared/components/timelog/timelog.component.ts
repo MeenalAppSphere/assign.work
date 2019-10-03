@@ -15,8 +15,12 @@ export class TimelogComponent implements OnInit {
   ngOnInit() {
   }
 
-  public closeTimeLog() {
+  handleOk(): void {
+    console.log('Button ok clicked!');
     this.toggleTimeLogShow.emit();
   }
 
+  handleCancel(): void {
+    this.timelogModalIsVisible=false;
+  }
 }

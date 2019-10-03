@@ -15,7 +15,7 @@ export class TaskListComponent implements OnInit {
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForSprint: EventEmitter<any> = new EventEmitter<any>();
-
+  public timelogModalIsVisible: Boolean = false;
   //backlog page
   public tasksSelected: TasksSelectedForSprint = {
     ids: [],
@@ -26,7 +26,7 @@ export class TaskListComponent implements OnInit {
   ngOnInit() {}
 
   public timeLog() {
-    this.toggleTimeLogShow.emit();
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
   public viewTask(task: Task) {}
