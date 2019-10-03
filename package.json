@@ -47,6 +47,7 @@
     "@nestjs/mongoose": "^6.1.2",
     "@nestjs/passport": "^6.1.0",
     "@nestjs/platform-express": "^6.7.2",
+    "@nestjs/swagger": "^3.1.0",
     "@nrwl/angular": "8.4.13",
     "@types/request": "^2.48.3",
     "bootstrap": "4.1.1",
@@ -69,6 +70,7 @@
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0",
     "rxjs": "~6.4.0",
+    "swagger-ui-express": "^4.1.1",
     "zone.js": "^0.9.1"
   },
   "devDependencies": {

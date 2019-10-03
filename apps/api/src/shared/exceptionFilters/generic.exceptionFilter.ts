@@ -17,7 +17,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
         message: exception.response.errmsg,
         type: 'error'
       }];
-      resp.status = 404;
+      resp.status = 500;
     } else if (exception instanceof HttpException) {
       // mongoose validation errors
       if (exception.getResponse() instanceof Error.ValidationError) {

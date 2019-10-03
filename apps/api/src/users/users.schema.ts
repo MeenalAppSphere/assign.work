@@ -7,7 +7,7 @@ const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
 
 export const userSchema = new mongoose.Schema(
   {
-    emailId: { type: String, required: true },
+    emailId: { type: String, required: true, unique: true },
     userName: { type: String },
     password: { type: String, required: true },
     firstName: { type: String },
@@ -32,12 +32,27 @@ export const userSchema = new mongoose.Schema(
     projectsId: {
       type: mongoose.Schema.Types.Mixed
     }
+  }, {
+    _id: false
   }
 );
 
 // virtuals
-userSchema.set('toJSON', { virtuals: true, versionKey: false });
-userSchema.set('toObject', { versionKey: false, virtuals: true });
+userSchema.set('toJSON', {
+  transform: function(doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+  }
+});
+userSchema.set('toObject', {
+  transform: function(doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+  }
+});
+
 
 // plugins
 userSchema
