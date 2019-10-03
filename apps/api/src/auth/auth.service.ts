@@ -12,14 +12,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { get, post, Response } from 'request';
+import { BaseService } from '../shared/services/base.service';
 
 @Injectable()
-export class AuthService {
+export class AuthService extends BaseService<User & Document> {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>
   ) {
+    super(_userModel);
   }
 
   createToken(user: any) {
@@ -48,7 +50,7 @@ export class AuthService {
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
 
-      const newUser = await model.save();
+      const newUser = await this.create(model);
       const payload = { username: user.username, sub: newUser.username };
       return {
         access_token: this.jwtService.sign(payload)

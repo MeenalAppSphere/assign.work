@@ -5,7 +5,10 @@ export const schemaOptions: SchemaOptions = {
   toJSON: {
     virtuals: true,
     getters: true,
-    versionKey: false
+    versionKey: false,
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+    }
   },
   id: true
 };

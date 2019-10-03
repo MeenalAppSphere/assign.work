@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
-import { DbCollection, MemberTypes, User, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { mongooseErrorTransformPluginOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
@@ -32,9 +32,12 @@ export const userSchema = new mongoose.Schema(
     projectsId: {
       type: mongoose.Schema.Types.Mixed
     }
-  },
-  schemaOptions
+  }
 );
+
+// virtuals
+userSchema.set('toJSON', { virtuals: true, versionKey: false });
+userSchema.set('toObject', { versionKey: false, virtuals: true });
 
 // plugins
 userSchema
