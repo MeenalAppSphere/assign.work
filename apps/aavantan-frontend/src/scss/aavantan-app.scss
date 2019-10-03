@@ -44,6 +44,10 @@ nz-modal {
   margin-bottom: 25px;
 }
 
+.ant-pagination-item-active a {
+  color: #fff!important;
+}
+
 button:focus{
   outline: none;
 }
@@ -62,6 +66,12 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 p {
   line-height: 1.5;
+}
+
+
+/* Bootstrap override */
+.bg-success {
+  background-color: #5eca41 !important;
 }
 
 /* layout */

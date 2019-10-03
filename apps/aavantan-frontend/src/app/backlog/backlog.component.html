@@ -1,1 +1,27 @@
-<p>backlog works!</p>
+<nz-card
+  nzSize="small"
+  [nzBordered]="false"
+  nzTitle="Backlogs"
+  [nzExtra]="createSprintBtnTemplate">
+  <ng-template #createSprintBtnTemplate>
+    <button *ngIf="tasksSelectedForSprint && tasksSelectedForSprint.duration>0" nz-button class="bg-success m-r-5 text-white" nzSize="small" nzShape="round">
+      Ready for Sprint: {{tasksSelectedForSprint?.duration}} hrs
+    </button>
+    <button nz-button class="bg-warning m-r-35 text-white" nzSize="small" nzShape="round">
+      Total: {{totalDuration}} hrs
+    </button>
+    <nz-button-group>
+      <button [disabled]="isDisabledCraeteBtn" nzType="primary" nzSize="small" nz-button (click)="createSprint()">Create Sprint</button>
+    </nz-button-group>
+  </ng-template>
+  <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+    <aavantan-task-list
+      [taskByUser]="'all'"
+      [taskList]="allTaskList"
+      [view]="view"
+      [showLogOption]="false"
+      [showProgressOption]="false"
+      (tasksSelectedForSprint)="getTasksSelectedForSprint($event)"
+    ></aavantan-task-list>
+  </ng-container>
+</nz-card>
