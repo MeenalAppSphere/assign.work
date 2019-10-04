@@ -13,10 +13,28 @@ export class ProjectComponent implements OnInit{
   public taskObj: Task;
   public memberObj: Member[]=[];
   public view: String = 'listView';
-  public issueTypes:any[]=[
-    {label: "BUG"},
-    {label: "TASK"},
-  ]
+  public taskTypeDataSource = [
+    {
+      _id: 1,
+      name: 'BUG',
+      value: 'bug'
+    },
+    {
+      _id: 2,
+      name: 'CR',
+      value: 'cr'
+    },
+    {
+      _id: 3,
+      name: 'NEW WORK',
+      value: 'newwork'
+    },
+    {
+      _id: 4,
+      name: 'ENHANCEMENTS',
+      value: 'enhancement'
+    }
+  ];
   constructor( ) {}
 
   ngOnInit(): void {

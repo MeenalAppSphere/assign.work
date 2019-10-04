@@ -6,14 +6,20 @@
         <div class="col-md-3">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="taskType">Task Type</nz-form-label>
-            <nz-form-control>
-              <input placeholder="Task Type" formControlName="taskType" nz-input [nzAutocomplete]="autoTaskType">
-              <nz-autocomplete #autoTaskType>
-                <nz-auto-option *ngFor="let option of taskTypeDataSource" [nzLabel]="option.taskTypeName" [nzValue]="option._id">
-                  <nz-avatar class="m-r-10" nzShape="circle" nzSize="small" nzIcon="user" nzSrc="../../../../assets/images/priority/{{option.value}}.svg"></nz-avatar>
-                  <span>{{ option.taskTypeName}}</span>
-                </nz-auto-option>
-              </nz-autocomplete>
+            <nz-form-control class="issue-type-btn-grp" >
+              <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
+                <button nzType="default" nzSize="small" nz-button>
+                  <nz-avatar class="m-r-10" nzShape="circle" nzSize="small" nzIcon="user" height="15px" nzSrc="../../../../assets/images/priority/enhancement.svg"></nz-avatar> ENHANCEMENTS
+                </button>
+                <button nzType="default" nzSize="small" nz-button>
+                  <i nz-icon nzType="down"></i>
+                </button>
+              </nz-button-group>
+              <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item *ngFor="let item of taskTypeDataSource"><nz-avatar class="m-r-10 issue-type-icon" nzSize="small" nzShape="circle" nzIcon="user" nzSrc="../../../../assets/images/priority/{{item.value}}.svg"></nz-avatar> {{item.name}}</li>
+                </ul>
+              </nz-dropdown-menu>
             </nz-form-control>
           </nz-form-item>
         </div>

@@ -44,22 +44,22 @@ export class TaskComponent implements OnInit {
   public taskTypeDataSource = [
     {
       _id: 1,
-      taskTypeName: 'BUG',
+      name: 'BUG',
       value: 'bug'
     },
     {
       _id: 2,
-      taskTypeName: 'CR',
+      name: 'CR',
       value: 'cr'
     },
     {
       _id: 3,
-      taskTypeName: 'NEW WORK',
+      name: 'NEW WORK',
       value: 'newwork'
     },
     {
       _id: 4,
-      taskTypeName: 'ENHANCEMENTS',
+      name: 'ENHANCEMENTS',
       value: 'enhancement'
     }
   ];

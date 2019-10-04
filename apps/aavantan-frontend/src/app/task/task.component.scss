@@ -78,3 +78,22 @@
     padding-top: 70px;
   }
 }
+
+
+.issue-type-btn-grp {
+  .ant-btn-icon-only {
+    line-height: 1.3!important;
+  }
+  .ant-avatar-sm{
+    height: 15px!important;
+    width: 15px!important;
+  }
+  .issue-type-icon{
+    img{
+      height: 15px!important;
+      width: 15px!important;
+    }
+    height: 15px!important;
+    width: 15px!important;
+  }
+}
