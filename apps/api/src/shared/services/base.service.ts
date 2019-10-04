@@ -1,5 +1,5 @@
 import { Document, Model, Types, Aggregate } from 'mongoose';
-import { BaseRequestModel } from '@aavantan-app/models';
+import { BaseRequestModel, MongoosePaginateQuery } from '@aavantan-app/models';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -8,6 +8,7 @@ const myPaginationLabels = {
   totalDocs: 'totalItems',
   totalPages: 'totalPages'
 };
+
 
 export class BaseService<T extends Document> {
   constructor(protected model: Model<T>) {
@@ -26,20 +27,46 @@ export class BaseService<T extends Document> {
   }
 
   public async create(doc: T): Promise<T> {
-    return this.model.create(doc);
+    const session = await this.model.db.startSession();
+    session.startTransaction();
+
+    let result;
+    try {
+      result = await this.model.create(doc);
+      await session.commitTransaction();
+      session.endSession();
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      return e;
+    }
+    return result;
   }
 
   public async update(
     id: string,
     updatedDoc: T
   ): Promise<T> {
-    return await this.model
-      .findByIdAndUpdate(this.toObjectId(id), updatedDoc)
-      .exec();
+    const session = await this.model.db.startSession();
+    session.startTransaction();
+
+    let result;
+    try {
+      result = await this.model
+        .findByIdAndUpdate(this.toObjectId(id), updatedDoc)
+        .exec();
+      await session.commitTransaction();
+      session.endSession();
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
+    return result;
   }
 
-  public async getAllPaginatedData(query: any, paginationOption: Partial<BaseRequestModel>) {
-    return (this.model as any).aggregatePaginate(query, this.transformPaginationObject(paginationOption));
+  public async getAllPaginatedData(query: any, options: Partial<MongoosePaginateQuery> | any) {
+    return (this.model as any).paginate(query, options);
   }
 
   public async delete(id: string): Promise<T> {
@@ -48,13 +75,16 @@ export class BaseService<T extends Document> {
       .exec();
   }
 
-  private transformPaginationObject(object: Partial<BaseRequestModel>) {
+  private transformPaginationObject(object: Partial<MongoosePaginateQuery>) {
     return {
       page: object.page,
       limit: object.count,
       sort: { [object.sortBy]: object.sort },
       allowDiskUse: true,
-      customLabels: myPaginationLabels
+      customLabels: myPaginationLabels,
+      lean: true,
+      leanWithId: true,
+      populate: object.populate
     };
   }
 

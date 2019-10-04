@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DbCollection } from '@aavantan-app/models';
 import { userSchema } from '../users/users.schema';
+import { projectSchema } from '../project/project.schema';
 
 @Global()
 @Module({
@@ -10,6 +11,10 @@ import { userSchema } from '../users/users.schema';
       name: DbCollection.users,
       schema: userSchema,
       collection: DbCollection.users
+    }, {
+      name: DbCollection.projects,
+      schema: projectSchema,
+      collection: DbCollection.projects
     }])
   ],
   exports: [

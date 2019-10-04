@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BaseRequestModel, DbCollection, User } from '@aavantan-app/models';
-import { Model, Document } from 'mongoose';
+import { BaseRequestModel, DbCollection, MongoosePaginateQuery, User } from '@aavantan-app/models';
+import { Model, Document, Query } from 'mongoose';
 import { BaseService } from '../shared/services/base.service';
 
 @Injectable()
@@ -11,8 +11,9 @@ export class UsersService extends BaseService<User & Document> {
   }
 
   async getAll() {
-    const query = this._userModel.aggregate();
-    const paginationRequest = new BaseRequestModel();
+    const query = new Query();
+    const paginationRequest = new MongoosePaginateQuery();
+    paginationRequest.populate = 'projects';
     return await this.getAllPaginatedData(query, paginationRequest);
   }
 }

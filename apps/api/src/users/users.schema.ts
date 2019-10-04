@@ -1,11 +1,11 @@
-import * as mongoose from 'mongoose';
-import { MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions } from '../shared/schema/base.schema';
+import { Schema } from 'mongoose';
+import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const aggregatePaginate = require('mongoose-aggregate-paginate-v2');
+const paginate = require('mongoose-paginate-v2');
 
-export const userSchema = new mongoose.Schema(
+export const userSchema = new Schema(
   {
     emailId: { type: String, required: true, unique: true },
     userName: { type: String },
@@ -21,20 +21,18 @@ export const userSchema = new mongoose.Schema(
     memberType: { type: String, enum: Object.keys(MemberTypes) },
     oneTimeMessagesDismissed: { type: Array },
     timezoneInfo: {
-      type: mongoose.Schema.Types.Mixed
+      type: Schema.Types.Mixed
     },
     recentLoginInfo: {
-      type: mongoose.Schema.Types.Mixed
+      type: Schema.Types.Mixed
     },
     organizationId: {
-      type: mongoose.Schema.Types.Mixed
+      type: Schema.Types.Mixed
     },
-    projectsId: {
-      type: mongoose.Schema.Types.Mixed
-    }
-  }, {
-    _id: false
-  }
+    projects: [
+      { type: Schema.Types.ObjectId, ref: DbCollection.projects }
+    ]
+  }, schemaOptions
 );
 
 // virtuals
@@ -57,4 +55,4 @@ userSchema.set('toObject', {
 // plugins
 userSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(aggregatePaginate);
+  .plugin(paginate);
