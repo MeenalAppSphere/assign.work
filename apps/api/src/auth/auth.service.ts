@@ -43,6 +43,9 @@ export class AuthService extends BaseService<User & Document> {
   }
 
   async signUpWithPassword(user: User) {
+    const session = await this._userModel.db.startSession();
+    session.startTransaction();
+
     try {
       const model = new this._userModel(user);
       model.username = model.emailId;
@@ -50,7 +53,7 @@ export class AuthService extends BaseService<User & Document> {
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
 
-      const newUser = await this.create(model);
+      const newUser = await this.create(model, session);
       const payload = { username: user.username, sub: newUser.username };
       return {
         access_token: this.jwtService.sign(payload)

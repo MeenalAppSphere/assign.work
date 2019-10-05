@@ -1,4 +1,4 @@
-import { Document, Model, Types, Aggregate } from 'mongoose';
+import { Document, Model, Types, Aggregate, SaveOptions, ClientSession } from 'mongoose';
 import { BaseRequestModel, MongoosePaginateQuery } from '@aavantan-app/models';
 
 const myPaginationLabels = {
@@ -26,21 +26,8 @@ export class BaseService<T extends Document> {
     return this.model.findOne(filter).exec();
   }
 
-  public async create(doc: T): Promise<T> {
-    const session = await this.model.db.startSession();
-    session.startTransaction();
-
-    let result;
-    try {
-      result = await this.model.create(doc);
-      await session.commitTransaction();
-      session.endSession();
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      return e;
-    }
-    return result;
+  public async create(doc: T, session: ClientSession): Promise<T> {
+    return await this.model.create(doc, { session });
   }
 
   public async update(

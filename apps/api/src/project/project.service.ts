@@ -1,21 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BaseRequestModel, DbCollection } from '@aavantan-app/models';
+import { BaseRequestModel, DbCollection, User } from '@aavantan-app/models';
 import { Model, Document } from 'mongoose';
 import { Project } from '@aavantan-app/models';
 import { BaseService } from '../shared/services/base.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
-  constructor(@InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>) {
+  constructor(
+    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
+    private readonly _userService: UsersService
+  ) {
     super(_projectModel);
   }
 
   async addProject(model: Project) {
-    const unregisteredMembers: string[] = model.members.filter(f => !f.userId && f.emailId).map(m => m.emailId);
-    // create user and get user id from them
+    const session = await this._projectModel.db.startSession();
+    session.startTransaction();
 
-    return await this.create(new this._projectModel(model));
+    try {
+      const unregisteredMembers: string[] = model.members.filter(f => !f.userId && f.emailId).map(m => m.emailId);
+      const unregisteredMembersModel: Partial<User>[] = [];
+      unregisteredMembers.forEach(f => {
+        unregisteredMembersModel.push({
+          emailId: f,
+          username: f
+        });
+      });
+
+      // create user and get user id from them
+      const createdUsers = await this._userService.createUser(unregisteredMembersModel);
+
+      // create project and get project id from them
+      const createdProject = await this.create(new this._projectModel(model), session);
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      return e;
+    }
   }
 
   async getAllProject(query: any, reuest: BaseRequestModel) {
