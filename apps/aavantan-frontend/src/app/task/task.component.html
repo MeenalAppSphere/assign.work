@@ -208,7 +208,7 @@
             <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
             <nz-form-control>
               <textarea
-                placeholder="Description"
+                placeholder="Write something about this item"
                 formControlName="description"
                 rows="4"
                 class="form-control"
@@ -314,8 +314,9 @@
       <!-- row 9-->
       <!-- row 10-->
       <div class="row">
-        <div class="col-md-12">
-          <div class="frozen-div m-t-15">
+        <div class="col-md-12 m-t-15">
+          <nz-form-label>Activity <small>(Pinned Messages)</small></nz-form-label>
+          <div class="frozen-div">
             <aavantan-app-activity></aavantan-app-activity>
           </div>
         </div>

@@ -100,7 +100,11 @@ export class TaskComponent implements OnInit {
       title: [null, [Validators.required]],
       description: [null],
       taskType: [null, [Validators.required]],
-      assignedTo: [null]
+      assignedTo: [null],
+      sprint: [null],
+      watchers: [null],
+      dependentItem: [null],
+      tags: [null]
     });
   }
 
