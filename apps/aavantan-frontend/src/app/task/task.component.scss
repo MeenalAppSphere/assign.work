@@ -14,18 +14,6 @@
     float: right;
     margin-top: 5px;
   }
-
-  .btn-logtime {
-    position: absolute;
-    color: white;
-    right: 0px;
-    top: 12px;
-    font-size: 13px;
-  }
-
-  .progress-bar {
-    background: #0bbc4a;
-  }
 }
 #sidebar {
   /* for the animation */
@@ -40,8 +28,8 @@
 .collapsed-title{
   cursor: pointer;
   position: absolute;
-  top: 60px;
-  right: -60px;
+  top: 25px;
+  right: -25px;
   box-shadow: none;
   border: none;
   transform: rotate(-90deg);
@@ -95,5 +83,27 @@
     }
     height: 15px!important;
     width: 15px!important;
+  }
+}
+
+.first-section {
+  .duration-box {
+    padding: 10px;
+    background: #f9fbfd;
+    position: relative;
+    .ant-form-item{
+      margin-bottom: 5px;
+    }
+    .progress-bar {
+      background: #0bbc4a;
+    }
+    .btn {
+      position: absolute;
+      color: #3f87f5;
+      background: #f9fbfd;
+      border: none;
+      top: -5px;
+      right: -5px;
+    }
   }
 }

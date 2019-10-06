@@ -10,7 +10,7 @@ export class TaskComponent implements OnInit {
 
   public assigneeValue:string;
   public taskTypeValue:string;
-  public isOpenActivitySidebar:Boolean = false;
+  public isOpenActivitySidebar:Boolean = true;
   public defaultFileList = [
     {
       uid: -1,
