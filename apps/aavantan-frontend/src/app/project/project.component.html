@@ -1,26 +1,26 @@
 <!-- section 1 -->
 <section id="project-page">
-  <nz-card
-    nzSize="small"
-    [nzBordered]="false"
-    nzTitle="Create Backlog Item/Task"
-    [nzExtra]="extraTemplate">
-  <ng-template #extraTemplate>
+<!--  <nz-card-->
+<!--    nzSize="small"-->
+<!--    [nzBordered]="false"-->
+<!--    nzTitle="Create Backlog Item/Task"-->
+<!--    [nzExtra]="createTaskBtnTemplate">-->
+<!--  <ng-template #createTaskBtnTemplate>-->
+<!--    <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">-->
+<!--      <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>-->
+<!--      <button nzType="primary" nzSize="small" nz-button>-->
+<!--        <i nz-icon nzType="down"></i>-->
+<!--      </button>-->
+<!--    </nz-button-group>-->
+<!--    <nz-dropdown-menu #createTaskType="nzDropdownMenu">-->
+<!--      <ul nz-menu>-->
+<!--        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>-->
+<!--      </ul>-->
+<!--    </nz-dropdown-menu>-->
+<!--  </ng-template>-->
 
-    <nz-button-group>
-      <button nzType="primary" nz-button (click)="createTask()">Create New</button>
-      <button nzType="primary" nz-button nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
-        <i nz-icon nzType="down"></i>
-      </button>
-    </nz-button-group>
-    <nz-dropdown-menu #createTaskType="nzDropdownMenu">
-      <ul nz-menu>
-        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>
-      </ul>
-    </nz-dropdown-menu>
 
-  </ng-template>
-    <nz-tabset>
+    <nz-tabset [nzTabBarExtraContent]="tabSwitchTemplate" nzSize="small">
       <nz-tab nzTitle="My Task">
         <ng-template nz-tab>
           <ng-container *ngIf="myTaskList && myTaskList.length === 0">
@@ -49,7 +49,7 @@
             <aavantan-task-list
               [taskByUser]="'my'"
               [taskList]="myTaskList"
-              [switchViewOption]="true"
+              [view]="view"
             ></aavantan-task-list>
           </ng-container>
         </ng-template>
@@ -60,11 +60,9 @@
           <ng-container *ngIf="allTaskList && allTaskList.length === 0">
             <nz-empty
               [nzNotFoundImage]="
-                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'
-              "
+                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
               [nzNotFoundFooter]="footerTpl"
-              [nzNotFoundContent]="contentTpl"
-            >
+              [nzNotFoundContent]="contentTpl">
               <ng-template #contentTpl>
                 <span> No Item Created</span>
               </ng-template>
@@ -83,12 +81,33 @@
             <aavantan-task-list
               [taskByUser]="'all'"
               [taskList]="allTaskList"
-              [switchViewOption]="true"
+              [view]="view"
             ></aavantan-task-list>
           </ng-container>
         </ng-template>
       </nz-tab>
     </nz-tabset>
-  </nz-card>
+    <ng-template #tabSwitchTemplate>
+      <nz-radio-group [(ngModel)]="view" class="m-r-5">
+        <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
+          <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>
+        </label>
+        <label nz-radio-button nzValue="cardView" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>
+          <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>
+        </label>
+      </nz-radio-group>
+      <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
+        <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>
+        <button nzType="primary" nzSize="small" nz-button>
+          <i nz-icon nzType="down"></i>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item *ngFor="let item of taskTypeDataSource"><nz-avatar class="m-r-10" nzShape="circle" nzSize="small" nzIcon="user" nzSrc="../../../../assets/images/priority/{{item.value}}.svg"></nz-avatar> {{item.name}}</li>
+        </ul>
+      </nz-dropdown-menu>
+    </ng-template>
+<!--  </nz-card>-->
 </section>
 

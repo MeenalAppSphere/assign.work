@@ -12,7 +12,7 @@ import { JoyrideService } from 'ngx-joyride';
 
 export class DashboardComponent implements OnInit {
   breadcrumbs$: Observable<IBreadcrumb[]>;
-  contentHeaderDisplay: string;
+  contentHeaderDisplay: String ='none';
   isFolded : boolean ;
   isSideNavDark : boolean;
   isExpand: boolean;
@@ -20,32 +20,34 @@ export class DashboardComponent implements OnInit {
 
   constructor(private router: Router,  private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
   private joyrideService: JoyrideService) {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      map(() => {
-        let child = this.activatedRoute.firstChild;
-        while (child) {
-          if (child.firstChild) {
-            child = child.firstChild;
-          } else if (child.snapshot.data && child.snapshot.data['headerDisplay']) {
-            return child.snapshot.data['headerDisplay'];
-          } else {
-            return null;
-          }
-        }
-        return null;
-      })
-    ).subscribe( (data: any) => {
-      this.contentHeaderDisplay = data;
-    });
+    // Disable breadcrumbs
+    // this.router.events.pipe(
+    //   filter(event => event instanceof NavigationEnd),
+    //   map(() => {
+    //     let child = this.activatedRoute.firstChild;
+    //     while (child) {
+    //       if (child.firstChild) {
+    //         child = child.firstChild;
+    //       } else if (child.snapshot.data && child.snapshot.data['headerDisplay']) {
+    //         return child.snapshot.data['headerDisplay'];
+    //       } else {
+    //         return null;
+    //       }
+    //     }
+    //     return null;
+    //   })
+    // ).subscribe( (data: any) => {
+    //   this.contentHeaderDisplay = data;
+    // });
   }
 
   ngOnInit() {
-    this.breadcrumbs$ = this.router.events.pipe(
-      startWith(new NavigationEnd(0, '/', '/')),
-      filter(event => event instanceof NavigationEnd),distinctUntilChanged(),
-      map(data => this.buildBreadCrumb(this.activatedRoute.root))
-    );
+    // Disable breadcrumbs
+    // this.breadcrumbs$ = this.router.events.pipe(
+    //   startWith(new NavigationEnd(0, '/', '/')),
+    //   filter(event => event instanceof NavigationEnd),distinctUntilChanged(),
+    //   map(data => this.buildBreadCrumb(this.activatedRoute.root))
+    // );
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
     this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);

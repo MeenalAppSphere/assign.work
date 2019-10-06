@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -9,9 +10,8 @@ import { AuthService } from '../../services/auth.service';
 
 export class HeaderComponent implements OnInit{
 
-  constructor( private themeService: ThemeConstantService, private readonly _authService: AuthService) {}
-
-  public modalBasicIsVisible: Boolean = false;
+  constructor( private themeService: ThemeConstantService, private router:Router, private readonly _authService: AuthService) {}
+  public projectModalIsVisible: Boolean = false;
   public searchVisible : Boolean = false;
   public quickViewVisible : Boolean = false;
   public isFolded : boolean;
@@ -73,15 +73,20 @@ export class HeaderComponent implements OnInit{
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
     console.log(event);
-    if ((event.ctrlKey || event.composed) && event.which === 74 && !this.modalBasicIsVisible) { // CMD+J
+    if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();
-      this.basicModalShow();
+      this.projectModalShow();
+    }
+    if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
+      event.preventDefault();
+      event.stopPropagation();
+      this.router.navigateByUrl('dashboard/task');
     }
   }
 
-  basicModalShow(): void {
-    this.modalBasicIsVisible = !this.modalBasicIsVisible;
+  public projectModalShow(): void {
+    this.projectModalIsVisible = !this.projectModalIsVisible;
   }
 
   logOut() {

@@ -1,3 +1,30 @@
+.collaborators-avatar{
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 1px 2px 2px #ddd;
+  background: #fff;
+  .ant-btn:not(.ant-btn-circle):not(.ant-btn-circle-outline).ant-btn-icon-only {
+    line-height: 1.2;
+  }
+  .ant-avatar{
+    cursor: pointer;
+    margin-right: -3px;
+    border: 2px solid #e5e5e5;
+    font-size: 15px;
+    height: 35px;
+    width: 35px;
+    line-height: 31px;
+    &:hover{
+      border: 2px solid #247fe0!important;
+    }
+  }
+  .ant-avatar-sm > * {
+    line-height: 1.8rem;
+  }
+  .active-avatar{
+    border: 2px solid #247fe0!important;
+  }
+}
 .sprintboard-container {
   overflow: auto;
   max-width: calc(100% - 0px);
@@ -8,7 +35,7 @@
   .card-block {
     border: 0px;
     width: 280px;
-    box-shadow: 2px 3px 5px #00000047;
+    box-shadow: 1px 2px 4px #00000047;
     .pull-right{
       float: right;
     }

@@ -26,6 +26,7 @@ export interface Task {
   progress?:number;
   status?:string;
   estimate?:string;
+  selectedForSprint?:boolean;
 }
 
 export interface Labels{
@@ -43,4 +44,9 @@ export interface TaskAttachement {
   name: string;
   url: string;
   createdAt: Date;
+}
+
+export interface TasksSelectedForSprint {
+  ids: String[];
+  duration:number;
 }

@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { ThemeConstantService } from './services/theme-constant.service';
-import { AddProjectComponent } from '../dashboard/modals/add-project/add-project.component';
+import { AddProjectComponent } from './components/add-project/add-project.component';
 import { SearchPipe } from './pipes/search.pipe';
-import { TypeaheadModule } from 'ngx-bootstrap';
+import { PopoverModule, TypeaheadModule } from 'ngx-bootstrap';
 import { ValidationRegexService } from './services/validation-regex.service';
 import { TaskListComponent } from './components/task-list/task-list.component';
 import { HttpWrapperService } from './services/httpWrapper.service';
@@ -15,8 +15,8 @@ import { AuthService } from './services/auth.service';
 import { GeneralService } from './services/general.service';
 import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderService } from './services/loader.service';
-import { JoyrideModule } from 'ngx-joyride';
-import { RedirectInterceptor } from './interceptor/redirect.interceptor';
+import { TimelogComponent } from './components/timelog/timelog.component';
+import { DateAgoPipe } from './pipes/dateago.pipe';
 
 @NgModule({
   exports: [
@@ -27,9 +27,11 @@ import { RedirectInterceptor } from './interceptor/redirect.interceptor';
     NgZorroAntdModule,
     PerfectScrollbarModule,
     AddProjectComponent,
+    TimelogComponent,
     SearchPipe,
     TaskListComponent,
-    LoaderComponent
+    LoaderComponent,
+    DateAgoPipe
   ],
   imports: [
     CommonModule,
@@ -37,13 +39,16 @@ import { RedirectInterceptor } from './interceptor/redirect.interceptor';
     ReactiveFormsModule,
     NgZorroAntdModule,
     PerfectScrollbarModule,
-    TypeaheadModule
+    TypeaheadModule,
+    PopoverModule
   ],
   declarations: [
     AddProjectComponent,
+    TimelogComponent,
     SearchPipe,
     TaskListComponent,
-    LoaderComponent
+    LoaderComponent,
+    DateAgoPipe
   ],
   providers: [
     ThemeConstantService,
@@ -51,10 +56,7 @@ import { RedirectInterceptor } from './interceptor/redirect.interceptor';
     HttpWrapperService,
     AuthService,
     GeneralService,
-    LoaderService,
-    // {
-    //   provide: HTTP_INTERCEPTORS, useClass: RedirectInterceptor, multi: true
-    // }
+    LoaderService
   ]
 })
 export class SharedModule {}

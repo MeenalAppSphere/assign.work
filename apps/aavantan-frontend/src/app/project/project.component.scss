@@ -1,5 +1,13 @@
-#project{
+#project-page{
+  background: #fff;
+  padding: 10px;
   .ant-card-body{
     padding: 0px;
+  }
+  .ant-tabs-nav .ant-tabs-tab-active {
+    background: #f9f9f9;
+  }
+  .ant-tabs-bar {
+    border-bottom: 0px;
   }
 }

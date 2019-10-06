@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
-import { ValidationRegexService } from '../../../shared/services/validation-regex.service';
-import { Member } from '../../../shared/interfaces/member.interface';
+import { ValidationRegexService } from '../../services/validation-regex.service';
+import { Member } from '../../interfaces/member.interface';
 
 @Component({
   selector: 'aavantan-app-add-project',
@@ -10,7 +10,7 @@ import { Member } from '../../../shared/interfaces/member.interface';
   styleUrls: ['./add-project.component.css']
 })
 export class AddProjectComponent implements OnInit {
-  @Input() public modalBasicIsVisible: Boolean = false;
+  @Input() public projectModalIsVisible: Boolean = false;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
   public orgForm: FormGroup;
   public projectForm: FormGroup;
@@ -51,11 +51,11 @@ export class AddProjectComponent implements OnInit {
 
   public createFrom(){
     this.projectForm = this.FB.group({
-      projectName : [ null, [ Validators.required ] ],
+      projectName : [ null, [ Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+') ] ],
       description : [ null ]
     });
     this.orgForm = this.FB.group({
-      organizationName : [ null, [ Validators.required ] ],
+      organizationName : [ null, [ Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
       organizationDescription:[null, '']
     });
     this.collaboratorForm = this.FB.group({
@@ -69,7 +69,7 @@ export class AddProjectComponent implements OnInit {
   }
 
   public typeaheadOnSelect(e: TypeaheadMatch): void {
-    if(this.selectedCollaborators.filter(item => item === e.item).length===0){
+    if(this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length===0){
       this.selectedCollaborators.push(e.item);
     }
     this.selectedCollaborator=null;
@@ -81,8 +81,7 @@ export class AddProjectComponent implements OnInit {
         emailId : this.selectedCollaborator
       };
       this.response=this.validationRegexService.emailValidator(member.emailId);
-      if(this.selectedCollaborators.filter(item => item === member).length===0){
-        // @ts-ignore
+      if(this.selectedCollaborators.filter(item => item.emailId === member.emailId).length===0){
         if(!this.response.invalidEmailAddress){
           this.selectedCollaborators.push(member);
           this.selectedCollaborator=null;

@@ -13,7 +13,6 @@ import { PopoverModule, SortableModule, TypeaheadModule } from 'ngx-bootstrap';
 import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 import { JoyrideModule } from 'ngx-joyride';
-import { DateAgoPipe } from '../shared/pipes/dateago.pipe';
 
 @NgModule({
   imports: [
@@ -26,15 +25,15 @@ import { DateAgoPipe } from '../shared/pipes/dateago.pipe';
     PopoverModule.forRoot(),
     JoyrideModule.forRoot(),
   ],
-  exports: [],
+  exports: [
+  ],
   declarations: [
     DashboardComponent,
     HomeComponent,
     BoardComponent,
     ActivesprintComponent,
     PermissionsComponent,
-    CollaboratorsComponent,
-    DateAgoPipe
+    CollaboratorsComponent
   ],
   providers: [
     ThemeConstantService,

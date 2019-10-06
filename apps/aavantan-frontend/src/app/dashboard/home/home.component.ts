@@ -8,7 +8,7 @@ import { ProjectList } from '../../shared/interfaces/project-list.type';
   styleUrls:['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  public view: String = 'cardView';
+  public view: String = 'listView';
   public newProject: Boolean = false;
   public projectList: ProjectList[];
 
@@ -25,7 +25,7 @@ export class HomeComponent implements OnInit {
         avatar: 'assets/images/others/thumb-1.jpg',
         status: 'Ready',
         tasks: '31',
-        desc: 'European minnow priapumfish mosshead warbonnet shrimpfish.',
+        desc: 'European minnow priapumfish mosshead warbonnet shrimpfish. European minnow priapumfish mosshead warbonnet shrimpfish.European minnow priapumfish mosshead warbonnet shrimpfish.',
         progress: 100,
         member: [
           {
@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit {
           },
           {
             avatar: 'assets/images/avatars/thumb-5.jpg',
-            name: 'Nicole Wyne'
+            name: 'Nicole Wyne1'
           }
         ]
       },
@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
           },
           {
             avatar: 'assets/images/avatars/thumb-12.jpg',
-            name: 'Wilma Young'
+            name: 'Wilma Young1'
           },
           {
             avatar: 'assets/images/avatars/thumb-11.jpg',
@@ -91,7 +91,7 @@ export class HomeComponent implements OnInit {
           },
           {
             avatar: 'assets/images/avatars/thumb-12.jpg',
-            name: 'Wilma Young'
+            name: 'Wilma Young2'
           }
         ]
       },

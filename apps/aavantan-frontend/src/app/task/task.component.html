@@ -1,0 +1,136 @@
+<div id="row-main" class="form-container row">
+  <aside id="content" class="m-b-20 p-r-25" [ngClass]="{'col-md-8': isOpenActivitySidebar, 'col-md-12':!isOpenActivitySidebar}">
+
+    <form nz-form class="bg-white p-15" [formGroup]="taskForm" (ngSubmit)="saveForm()">
+      <div class="row">
+        <div class="col-md-3">
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="taskType">Task Type</nz-form-label>
+            <nz-form-control class="issue-type-btn-grp" >
+              <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
+                <button nzType="default" nzSize="small" nz-button>
+                  <nz-avatar class="m-r-10" nzShape="circle" nzSize="small" nzIcon="user" height="15px" nzSrc="../../../../assets/images/priority/enhancement.svg"></nz-avatar> ENHANCEMENTS
+                </button>
+                <button nzType="default" nzSize="small" nz-button>
+                  <i nz-icon nzType="down"></i>
+                </button>
+              </nz-button-group>
+              <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item *ngFor="let item of taskTypeDataSource"><nz-avatar class="m-r-10 issue-type-icon" nzSize="small" nzShape="circle" nzIcon="user" nzSrc="../../../../assets/images/priority/{{item.value}}.svg"></nz-avatar> {{item.name}}</li>
+                </ul>
+              </nz-dropdown-menu>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="col-md-5">
+        </div>
+        <div class="col-md-4">
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="assignedTo">Assignee</nz-form-label>
+            <small class="text-primary assign-me" (click)="assignedToMe()">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Default-avatar.jpg"
+                   class="rounded-circle" height="15" valign="text-bottom">&ensp;Assign to me</small>
+            <nz-form-control>
+              <input placeholder="Search Assignee" formControlName="assignedTo" nz-input [nzAutocomplete]="autoAssignee">
+              <nz-autocomplete #autoAssignee>
+                <nz-auto-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option._id">
+                  <nz-avatar class="m-r-10" nzShape="circle" nzSize="small" nzIcon="user" nzSrc="./../../assets/images/avatars/thumb-2.jpg"></nz-avatar>
+                  <span>{{ option.firstName}}</span>
+                </nz-auto-option>
+                </nz-autocomplete>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+
+      <nz-form-item>
+        <nz-form-label for="TimeTracking">Estimated Time</nz-form-label>
+        <div class="progress" style="height: 6px; background: #e5e2e2; width:calc(100% - 120px);margin-top: 6px;">
+          <div class="progress-bar bg-info" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <small class="text-muted">8h</small>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label for="TimeTracking">Time Tracking</nz-form-label>
+        <div class="progress" style="height: 6px; background: #e5e2e2; width:calc(100% - 120px);margin-top: 6px;">
+          <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <small class="text-muted">2h logged</small>
+        <button type="button" nz-tooltip nzTitle="Log your working time" class="btn btn-sm btn-warning btn-logtime" (click)="openTimeLogModal()">
+          <i class="fa fa-clock"></i> Log Time
+        </button>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="title">Title</nz-form-label>
+        <nz-form-control>
+          <input nz-input size="small" placeholder="Task Title" formControlName="title" id="title" nzRequired>
+          <nz-form-explain *ngIf="taskForm.get('title').dirty && taskForm.get('title').errors">Enter valid title</nz-form-explain>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzFor="description">Description</nz-form-label>
+        <nz-form-control>
+          <textarea rows="4" class="form-control" formControlName="description" id="description" placeholder="Write something about this task..."></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+      <div class="clearfix">
+        <nz-upload class="upload-list-inline"
+                   nzAction="https://jsonplaceholder.typicode.com/posts/"
+                   nzListType="picture"
+                   [(nzFileList)]="fileList2">
+          <button nz-button>
+            <span><i nz-icon nzType="upload"></i> Attachment</span>
+          </button>
+        </nz-upload>
+      </div>
+      </nz-form-item>
+
+
+      <div class="row">
+        <div class="col text-left">
+          <button type="submit" nz-button nzType="primary" nzSize="small" class="m-r-5">
+            <span>Save</span>
+          </button>
+          <button nz-button nzType="danger" nzSize="small" (click)="cancel()">
+            <span>Cancel</span>
+          </button>
+        </div>
+      </div>
+    </form>
+    <div class="collapsed-title" (click)="toggleActivitySidebar(sidebar)">Activity/History
+      <i nz-icon nzType="caret-down" *ngIf="isOpenActivitySidebar" class="m-l-5" theme="outline"></i>
+      <i nz-icon nzType="caret-up" *ngIf="!isOpenActivitySidebar" class="m-l-5" theme="outline"></i>
+    </div>
+  </aside>
+  <aside id="sidebar" #sidebar [ngClass]="{'collapsed': !isOpenActivitySidebar}" class="col-md-4 m-b-20 p-r-10 p-l-10 bg-white border-radius-4">
+    <nz-tabset nzSize="small">
+      <nz-tab nzTitle="Activity">
+        <div>
+          <aavantan-app-activity></aavantan-app-activity>
+        </div>
+        <div>
+          <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+          <ng-template #contentActivity>
+            <span> No Activities</span>
+          </ng-template>
+        </div>
+      </nz-tab>
+      <nz-tab nzSize="small"nzTitle="History">
+        <div>
+          <aavantan-app-history></aavantan-app-history>
+        </div>
+        <div>
+          <nz-empty [nzNotFoundContent]="contentHistory"></nz-empty>
+          <ng-template #contentHistory>
+            <span> No History </span>
+          </ng-template>
+        </div>
+      </nz-tab>
+    </nz-tabset>
+  </aside>
+</div>
