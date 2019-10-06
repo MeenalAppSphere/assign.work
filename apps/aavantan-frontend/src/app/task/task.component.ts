@@ -10,6 +10,7 @@ export class TaskComponent implements OnInit {
 
   public assigneeValue:string;
   public taskTypeValue:string;
+  public timelogModalIsVisible:Boolean=false;
   public isOpenActivitySidebar:Boolean = true;
   public defaultFileList = [
     {
@@ -117,15 +118,15 @@ export class TaskComponent implements OnInit {
   }
 
   public openTimeLogModal(){
-
+    this.timelogModalIsVisible=!this.timelogModalIsVisible;
   }
 
   public selectTaskTypeTypeahead(e:string) {
-    console.log('taskType',e);
+    console.log('taskType', e);
   }
   public selectAssigneeTypeahead(e: string) {
     this.taskForm.get('assignedTo').patchValue(e);
-    console.log('assignedTo',e);
+    console.log('assignedTo', e);
   }
   public cancel(){
     this.taskForm.reset();
