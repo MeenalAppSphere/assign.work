@@ -4,6 +4,15 @@
 }
 
 #content {
+  .create-task-form{
+    position: relative;
+  }
+  .floating-save-btns{
+    z-index:10;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
   .ant-form-item{
     margin-bottom: 5px;
   }
