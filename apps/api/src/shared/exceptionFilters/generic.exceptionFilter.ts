@@ -12,7 +12,15 @@ export class GenericExceptionFilter implements ExceptionFilter {
 
     const resp = new BaseResponseModel();
 
-    if (exception.response instanceof MongoError) {
+    if (exception instanceof MongoError) {
+      // normal mongo errors
+      resp.errors = [{
+        message: exception.errmsg,
+        type: 'error'
+      }];
+      resp.status = 500;
+    } else if (exception.response instanceof MongoError) {
+      // mongo duplicate error and etc...
       resp.errors = [{
         message: exception.response.errmsg,
         type: 'error'
@@ -33,8 +41,15 @@ export class GenericExceptionFilter implements ExceptionFilter {
           type: 'error'
         }];
       }
+      resp.status = exception.getStatus();
+    } else {
+      resp.errors = [{
+        message: 'Something Went Wrong',
+        type: 'error'
+      }];
+      resp.status = 500;
     }
-    resp.status = exception.getStatus();
+
     resp.data = null;
     resp.hasError = true;
 

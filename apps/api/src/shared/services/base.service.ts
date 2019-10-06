@@ -1,4 +1,4 @@
-import { Document, Model, Types, Aggregate, SaveOptions, ClientSession } from 'mongoose';
+import { Document, Model, Types, Aggregate, SaveOptions, ClientSession, Query, QueryPopulateOptions } from 'mongoose';
 import { BaseRequestModel, MongoosePaginateQuery } from '@aavantan-app/models';
 
 const myPaginationLabels = {
@@ -9,24 +9,39 @@ const myPaginationLabels = {
   totalPages: 'totalPages'
 };
 
+const defaultQueryOptions = {
+  isDeleted: false
+};
 
 export class BaseService<T extends Document> {
-  constructor(protected model: Model<T>) {
+  constructor(private model: Model<T>) {
   }
 
-  public async find(filter: any = {}): Promise<T[]> {
-    return this.model.find(filter).exec();
+  public async find(filter: any = {}, populate: Array<any> = []): Promise<T[]> {
+    const query = this.model.find({ ...filter, ...defaultQueryOptions });
+    if (populate && populate.length) {
+      query.populate(populate);
+    }
+    return query.exec();
   }
 
-  public async findById(id: string): Promise<T> {
-    return this.model.findById(this.toObjectId(id)).exec();
+  public async findById(id: string, populate: Array<any> = []): Promise<T> {
+    const query = this.model.findById(this.toObjectId(id)).where(defaultQueryOptions);
+    if (populate && populate.length) {
+      query.populate(populate);
+    }
+    return query.exec();
   }
 
-  public async findOne(filter: any = {}): Promise<T> {
-    return this.model.findOne(filter).exec();
+  public async findOne(filter: any = {}, populate: Array<any> = []): Promise<T> {
+    const query = this.model.findOne({ ...filter, ...defaultQueryOptions });
+    if (populate && populate.length) {
+      query.populate(populate);
+    }
+    return query.exec();
   }
 
-  public async create(doc: T, session: ClientSession): Promise<T> {
+  public async create(doc: T | T[], session: ClientSession): Promise<T> {
     return await this.model.create(doc, { session });
   }
 
@@ -52,13 +67,13 @@ export class BaseService<T extends Document> {
     return result;
   }
 
-  public async getAllPaginatedData(query: any, options: Partial<MongoosePaginateQuery> | any) {
+  public async getAllPaginatedData(query: any = {}, options: Partial<MongoosePaginateQuery> | any) {
     return (this.model as any).paginate(query, options);
   }
 
   public async delete(id: string): Promise<T> {
     return this.model
-      .findByIdAndDelete(this.toObjectId(id))
+      .update({ _id: this.toObjectId(id) }, { isDeleted: true })
       .exec();
   }
 

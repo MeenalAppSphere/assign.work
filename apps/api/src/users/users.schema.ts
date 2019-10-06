@@ -10,7 +10,7 @@ export const userSchema = new Schema(
   {
     emailId: { type: String, required: true, unique: true },
     userName: { type: String },
-    password: { type: String, required: true },
+    password: { type: String },
     firstName: { type: String },
     lastName: { type: String },
     profilePic: { type: String },
@@ -64,3 +64,5 @@ userSchema.set('toObject', {
 userSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
   .plugin(paginate);
+
+// hooks

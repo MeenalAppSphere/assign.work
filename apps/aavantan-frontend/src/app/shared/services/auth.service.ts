@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { AuthState, AuthStore } from '../../store/auth/auth.store';
-import { User, UserLoginWithPasswordRequest } from '@aavantan-app/models';
+import {
+  BaseResponseModel,
+  User,
+  UserLoginSignUpSuccessResponse,
+  UserLoginWithPasswordRequest
+} from '@aavantan-app/models';
 import { BaseService } from './base.service';
 import { HttpWrapperService } from './httpWrapper.service';
 import { AuthUrls } from './apiUrls/auth.urls';
@@ -38,12 +43,12 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
   register(user: User) {
     this.updateState({ isRegisterInProcess: true, isRegisterSuccess: false });
     return this._http.post(AuthUrls.register, user).pipe(
-      map(res => {
-        this.updateState({ isRegisterSuccess: true, isRegisterInProcess: false, token: res.access_token });
-        this._generalService.token = res.access_token;
+      map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+        this.updateState({ isRegisterSuccess: true, isRegisterInProcess: false, token: res.data.access_token });
+        this._generalService.token = res.data.access_token;
         return res;
       }),
-      catchError(err => {
+      catchError((err: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
         this.updateState({ isRegisterInProcess: false, isRegisterSuccess: false, token: null });
         this._generalService.token = null;
         this.notification.error('Error', err.error.message);

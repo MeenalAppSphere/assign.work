@@ -15,13 +15,12 @@ import { get, post, Response } from 'request';
 import { BaseService } from '../shared/services/base.service';
 
 @Injectable()
-export class AuthService extends BaseService<User & Document> {
+export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>
   ) {
-    super(_userModel);
   }
 
   createToken(user: any) {
@@ -52,8 +51,8 @@ export class AuthService extends BaseService<User & Document> {
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
 
-      const newUser = await this.create(model, session);
-      const payload = { username: user.username, sub: newUser.username };
+      const newUser = await this.usersService.createUser(model, session);
+      const payload = { username: newUser.username, sub: newUser.id };
       return {
         access_token: this.jwtService.sign(payload)
       };

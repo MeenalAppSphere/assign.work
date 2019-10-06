@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Notice } from '../shared/interfaces/notice.type';
 import { AuthService } from '../shared/services/auth.service';
@@ -10,7 +10,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit, OnDestroy {
   public signUpForm: FormGroup;
   public registerInProcess = false;
   public responseMessage: Notice;
@@ -21,7 +21,7 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     this.signUpForm = new FormGroup({
       firstName: new FormControl(null, [Validators.required]),
-      lastName: new FormControl(null),
+      lastName: new FormControl(null, [Validators.required]),
       emailId: new FormControl(null, [Validators.required]),
       password: new FormControl(null, [Validators.required]),
       checkPassword: new FormControl(null, [
@@ -63,5 +63,8 @@ export class RegisterComponent implements OnInit {
       return { confirm: true, error: true };
     }
   };
+
+  ngOnDestroy(): void {
+  }
 
 }

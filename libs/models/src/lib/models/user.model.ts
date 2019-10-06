@@ -8,6 +8,10 @@ export class UserLoginWithPasswordRequest {
   password: string;
 }
 
+export class UserLoginSignUpSuccessResponse {
+  access_token: string;
+}
+
 export interface UserRecentLoginInfo {
   lastLoggedInTime: string;
 }

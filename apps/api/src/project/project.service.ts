@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BaseRequestModel, DbCollection, User } from '@aavantan-app/models';
+import { BaseRequestModel, DbCollection, ProjectMembers, User } from '@aavantan-app/models';
 import { Model, Document } from 'mongoose';
 import { Project } from '@aavantan-app/models';
 import { BaseService } from '../shared/services/base.service';
@@ -29,11 +29,19 @@ export class ProjectService extends BaseService<Project & Document> {
         });
       });
 
-      // create user and get user id from them
-      const createdUsers = await this._userService.createUser(unregisteredMembersModel);
+      // create unregistered users and get user id from them
+      const createdUsers = await this._userService.createUser(unregisteredMembersModel, session);
+
+      // assign newly created users to project members array
+      const members: ProjectMembers[] = model.members.map(m => {
+        return m;
+      });
 
       // create project and get project id from them
       const createdProject = await this.create(new this._projectModel(model), session);
+      await session.commitTransaction();
+      session.endSession();
+      return createdProject;
     } catch (e) {
       await session.abortTransaction();
       session.endSession();

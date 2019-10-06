@@ -14,7 +14,7 @@ export class UsersService extends BaseService<User & Document> {
     const query = new Query();
     const paginationRequest = new MongoosePaginateQuery();
     paginationRequest.populate = 'projects';
-    return await this.getAllPaginatedData(query, paginationRequest);
+    return await this.getAllPaginatedData({}, paginationRequest);
   }
 
   async createUser(user: Partial<User> | Array<Partial<User>>, session?: ClientSession) {
@@ -22,7 +22,7 @@ export class UsersService extends BaseService<User & Document> {
     session.startTransaction();
 
     try {
-      const result = await this.create(new this._userModel(user), session);
+      const result = await this.create([new this._userModel(user)], session);
       await session.commitTransaction();
       session.endSession();
       return result;
