@@ -18,6 +18,12 @@ export class ActivityComponent implements OnInit {
       createdAt : new Date(),
       profilePic:'./../../assets/images/avatars/thumb-8.jpg',
       description:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED Team'
+    },
+    {
+      firstName: 'Vishal',
+      createdAt : new Date(),
+      profilePic:'./../../assets/images/avatars/thumb-7.jpg',
+      description:'Ant Design, a design language for background applicationsAnt Design, a design language for background applicationsAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED Team'
     }
   ];
   constructor() { }

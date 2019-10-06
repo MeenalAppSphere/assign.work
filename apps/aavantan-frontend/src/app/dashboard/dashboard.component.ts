@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit {
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
 
     setTimeout(()=>{
-      this.startTour();
+      // this.startTour();
     },1000);
 
 

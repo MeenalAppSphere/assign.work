@@ -2,17 +2,28 @@
   /* necessary to hide collapsed sidebar */
   overflow-x: hidden;
 }
+
 #content {
+  .ant-form-item{
+    margin-bottom: 5px;
+  }
   transition: width 0.3s ease;
-  //position: relative;
-  label {
-    display: inline-block;
-    margin-bottom: 4px !important;
+  .ant-input-sm {
+    padding: 0.25rem 0.6rem;
+    height: auto;
+  }
+  .ant-btn-sm, .ant-btn-group-sm > .ant-btn {
+    padding: 0.35rem .4rem;
+    height: auto;
   }
 
-  .assign-me {
-    float: right;
-    margin-top: 5px;
+  .frozen-div{
+    min-height: 150px;
+    max-height: 300px;
+    overflow: auto;
+    background: #f9f9f985;
+    padding: 10px;
+    border-radius: 4px;
   }
 }
 #sidebar {
@@ -107,3 +118,4 @@
     }
   }
 }
+

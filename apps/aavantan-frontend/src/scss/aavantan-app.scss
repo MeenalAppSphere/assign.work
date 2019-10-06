@@ -253,3 +253,13 @@ p {
      }
   }
 }
+
+.create-task-form{
+  .ant-form-item-label {
+    line-height: 15px!important;
+  }
+  label {
+    margin-bottom: 0px!important;
+    font-size: 13px;
+  }
+}

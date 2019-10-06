@@ -34,10 +34,14 @@ export class TaskComponent implements OnInit {
   public assigneeDataSource = [
     {
       _id: 1,
-      firstName: 'Pradeep'
+      firstName: 'Assign to Me'
     },
     {
       _id: 2,
+      firstName: 'Pradeep'
+    },
+    {
+      _id: 3,
       firstName: 'Aashish'
     }
   ];
@@ -63,6 +67,29 @@ export class TaskComponent implements OnInit {
       value: 'enhancement'
     }
   ];
+  public statusDataSource = [
+    {
+      _id: 1,
+      name: 'TODO',
+      value: 'todo'
+    },
+    {
+      _id: 2,
+      name: 'In-Progress',
+      value: 'inprogress'
+    },
+    {
+      _id: 3,
+      name: 'QA',
+      value: 'qa'
+    },
+    {
+      _id: 4,
+      name: 'Done',
+      value: 'done'
+    }
+  ];
+
   constructor(
     private FB: FormBuilder
   ) {}
