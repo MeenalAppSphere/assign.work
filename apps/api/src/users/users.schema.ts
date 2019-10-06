@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
-import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { DbCollection, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { MemberTypes } from '@aavantan-app/models';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -26,16 +27,23 @@ export const userSchema = new Schema(
     recentLoginInfo: {
       type: Schema.Types.Mixed
     },
-    organizationId: {
-      type: Schema.Types.Mixed
-    },
+    organizations: [{
+      type: Schema.Types.ObjectId,
+      ref: DbCollection.organizations,
+      required: [true, 'Please select Organization.']
+    }],
     projects: [
-      { type: Schema.Types.ObjectId, ref: DbCollection.projects }
-    ]
+      {
+        type: Schema.Types.ObjectId,
+        ref: DbCollection.projects
+      }
+    ],
+    defaultOrganization: { type: Schema.Types.ObjectId, ref: DbCollection.organizations },
+    isDeleted: { type: Boolean, default: false }
   }, schemaOptions
 );
 
-// virtuals
+// virtual
 userSchema.set('toJSON', {
   transform: function(doc, ret) {
     ret.id = ret._id;

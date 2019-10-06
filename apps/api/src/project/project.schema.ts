@@ -7,8 +7,7 @@ const paginate = require('mongoose-paginate-v2');
 
 export const projectSchema = new Schema({
   name: { type: String, required: [true, 'Project Name is required'] },
-  access: { type: String },
-  version: { type: String, default: 'v_1.0' },
+  description: { type: String },
   members: {
     type: Array,
     default: [],
@@ -17,8 +16,10 @@ export const projectSchema = new Schema({
     isEmailSent: { type: Boolean },
     isInviteAccepted: { type: Boolean }
   },
+  organization: { type: Schema.Types.ObjectId, ref: DbCollection.organizations, required: [true, 'Please select Organization.'] },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true }
+  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
 // plugins

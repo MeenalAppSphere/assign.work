@@ -1,27 +1,11 @@
-import { OneTimeMessagesDismissed } from './general.model';
+import { MemberTypes, OneTimeMessagesDismissed } from '../general';
+import { UserLoginProviderEnum, UserStatus } from '../enums/user.enum';
+import { Organization } from './organization.model';
+import { Project } from './project.model';
 
 export class UserLoginWithPasswordRequest {
   emailId: string;
   password: string;
-}
-
-export enum UserStatus {
-  'deleted' = 'deleted',
-  'blocked' = 'blocked',
-  'Active' = 'Active',
-  'Left' = 'Left',
-  'Expired' = 'Expired'
-}
-
-export enum UserLoginProviderEnum {
-  'google' = 'google',
-  'linkedIn' = 'linkedIn',
-  'normal' = 'normal'
-}
-
-export enum MemberTypes {
-  'alien' = 'alien',
-  'normal' = 'normal'
 }
 
 export interface UserRecentLoginInfo {
@@ -36,7 +20,6 @@ export class UserTimeZoneInfo {
   offsetCurrent: number;
 }
 
-
 export class User {
   emailId: string;
   password: string;
@@ -50,8 +33,9 @@ export class User {
   oneTimeMessagesDismissed: OneTimeMessagesDismissed[];
   locale: string;
   timezoneInfo: UserTimeZoneInfo;
-  organization: any[];
-  projects: any[];
+  organizations: string[] | Organization[];
+  projects: string[] | Project[];
+  defaultOrganization: string;
   status: UserStatus;
   mobileNumber: string;
   username: string;

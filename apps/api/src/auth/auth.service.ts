@@ -30,7 +30,6 @@ export class AuthService extends BaseService<User & Document> {
     };
   }
 
-
   async login(req: UserLoginWithPasswordRequest) {
     const user = await this._userModel.findOne({ emailId: req.emailId, password: req.password }).exec();
     if (user) {
@@ -110,16 +109,16 @@ export class AuthService extends BaseService<User & Document> {
           form: {
             access_token
           }
-        }, async (err: Error, res: Response, body: any) => {
-          if (err) {
-            return reject(err);
+        }, async (err1: Error, res1: Response, body1: any) => {
+          if (err1) {
+            return reject(err1);
           }
 
-          if (body.error) {
-            return reject(body.error);
+          if (body1.error) {
+            return reject(body1.error);
           }
 
-          resolve(body);
+          resolve(body1);
         });
       });
     });
