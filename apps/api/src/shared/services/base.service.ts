@@ -91,7 +91,7 @@ export class BaseService<T extends Document> {
   }
 
   private toObjectId(id: string | number): Types.ObjectId {
-    return Types.ObjectId(id);
+    return new Types.ObjectId(id);
   }
 
 }

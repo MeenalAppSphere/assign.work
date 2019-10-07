@@ -53,4 +53,20 @@ export class ProjectService extends BaseService<Project & Document> {
     query = this._projectModel.aggregate();
     return await this.getAllPaginatedData(query, reuest);
   }
+
+  async deleteProject(id: string) {
+    const session = await this._projectModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      await this.delete(id);
+      await session.commitTransaction();
+      session.endSession();
+      return 'Project Deleted Successfully!';
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      return e;
+    }
+  }
 }

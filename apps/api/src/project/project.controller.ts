@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { MongoosePaginateQuery, Project } from '@aavantan-app/models';
 
@@ -17,5 +17,10 @@ export class ProjectController {
   @Post()
   async createProject(@Body() model: Project) {
     return await this._projectService.addProject(model);
+  }
+
+  @Delete(':id')
+  async deleteProject(@Query() id: string) {
+
   }
 }

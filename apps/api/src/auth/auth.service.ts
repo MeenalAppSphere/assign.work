@@ -36,7 +36,7 @@ export class AuthService {
     }).populate(['projects', 'organization']).exec();
     if (user) {
       return {
-        ...user,
+        user: user.toJSON(),
         access_token: this.jwtService.sign({ emailId: user.emailId, sub: user.id })
       };
     } else {
@@ -55,13 +55,13 @@ export class AuthService {
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
 
-      let newUser: any = await this.usersService.createUser([model], session);
-      newUser = await newUser[0].populate('projects', 'organization').execPopulate();
-      const payload = { username: newUser.username, sub: newUser.id };
+      const newUser = await this.usersService.createUser(model, session);
+      const userDetails = await newUser[0].populate('projects', 'organization').execPopulate();
+      const payload = { username: userDetails.username, sub: userDetails.id };
       await session.commitTransaction();
       session.endSession();
       return {
-        ...newUser.toJSON(),
+        user: userDetails.toJSON(),
         access_token: this.jwtService.sign(payload)
       };
     } catch (e) {
