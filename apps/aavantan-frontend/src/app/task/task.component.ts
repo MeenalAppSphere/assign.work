@@ -7,7 +7,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./task.component.scss']
 })
 export class TaskComponent implements OnInit {
-
+  public listOfSelectedWatchers:any = [];
   public assigneeValue:string;
   public taskTypeValue:string;
   public timelogModalIsVisible:Boolean=false;

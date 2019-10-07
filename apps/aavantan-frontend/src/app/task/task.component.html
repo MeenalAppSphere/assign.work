@@ -276,28 +276,14 @@
           <nz-form-item>
             <nz-form-label nzRequired nzFor="watchers">Watchers</nz-form-label>
             <nz-form-control>
-              <input
-                placeholder="Add Watchers"
-                formControlName="watchers"
-                nz-input
-                multiple="true"
+              <nz-select
+                style="width: 100%"
                 nzSize="small"
-                [nzAutocomplete]="autoWatchers"/>
-              <nz-autocomplete #autoWatchers>
-                <nz-auto-option
-                  *ngFor="let option of assigneeDataSource"
-                  [nzLabel]="option.firstName"
-                  [nzValue]="option._id" >
-                  <nz-avatar
-                    class="m-r-10"
-                    nzShape="circle"
-                    nzSize="small"
-                    nzIcon="user"
-                    nzSrc="./../../assets/images/avatar/thumb-2.jpg"
-                  ></nz-avatar>
-                  <span>{{ option.firstName }}</span>
-                </nz-auto-option>
-              </nz-autocomplete>
+                nzMode="multiple"
+                nzPlaceHolder="Select watcher"
+                [(ngModel)]="listOfSelectedWatchers">
+                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option._id"></nz-option>
+              </nz-select>
             </nz-form-control>
           </nz-form-item>
         </div>
