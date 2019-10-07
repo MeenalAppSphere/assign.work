@@ -30,13 +30,17 @@ export class ProjectService extends BaseService<Project & Document> {
       });
 
       // create unregistered users and get user id from them
-      const createdUsers = await this._userService.createUser(unregisteredMembersModel, session);
+      const createdUsers = await this._userService.createUser(unregisteredMembersModel, session) as (User & Document)[];
 
       // assign newly created users to project members array
       const members: ProjectMembers[] = model.members.map(m => {
+        m.userId = createdUsers.find(f => f.emailId === m.emailId).id;
+        m.isEmailSent = false;
+        m.isInviteAccepted = false;
         return m;
       });
 
+      model.members = members;
       // create project and get project id from them
       const createdProject = await this.create(new this._projectModel(model), session);
       await session.commitTransaction();
