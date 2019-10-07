@@ -12,14 +12,14 @@ import { JoyrideService } from 'ngx-joyride';
 
 export class DashboardComponent implements OnInit {
   breadcrumbs$: Observable<IBreadcrumb[]>;
-  contentHeaderDisplay: String ='none';
-  isFolded : boolean ;
-  isSideNavDark : boolean;
+  contentHeaderDisplay: String = 'none';
+  isFolded: boolean;
+  isSideNavDark: boolean;
   isExpand: boolean;
   selectedHeaderColor: string;
 
-  constructor(private router: Router,  private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
-  private joyrideService: JoyrideService) {
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
+              private joyrideService: JoyrideService) {
     // Disable breadcrumbs
     // this.router.events.pipe(
     //   filter(event => event instanceof NavigationEnd),
@@ -53,15 +53,16 @@ export class DashboardComponent implements OnInit {
     this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
 
-    setTimeout(()=>{
+    setTimeout(() => {
       this.startTour();
-    },1000);
+    }, 1000);
 
 
   }
 
   private buildBreadCrumb(route: ActivatedRoute, url: string = '', breadcrumbs: IBreadcrumb[] = []): IBreadcrumb[] {
-    let label = '', path = '/', display = null;
+    let label = '', path = '/';
+    const display = null;
 
     if (route.routeConfig) {
       if (route.routeConfig.data) {
@@ -93,7 +94,7 @@ export class DashboardComponent implements OnInit {
 
   startTour() {
     const options = {
-      steps: ['tour1', 'tour2','main-menu', 'tour-card0@dashboard/home', 'tour3',"board@dashboard/board"],
+      steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/board'],
       startWith: 'tour1',
       // waitingTime: 2000,
       stepDefaultPosition: 'top',
@@ -115,7 +116,6 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
-
 
 
 }

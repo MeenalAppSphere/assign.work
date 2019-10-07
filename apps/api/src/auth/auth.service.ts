@@ -30,9 +30,13 @@ export class AuthService {
   }
 
   async login(req: UserLoginWithPasswordRequest) {
-    const user = await this._userModel.findOne({ emailId: req.emailId, password: req.password }).exec();
+    const user = await this._userModel.findOne({
+      emailId: req.emailId,
+      password: req.password
+    }).populate(['projects', 'organization']).exec();
     if (user) {
       return {
+        ...user,
         access_token: this.jwtService.sign({ emailId: user.emailId, sub: user.id })
       };
     } else {
@@ -51,12 +55,18 @@ export class AuthService {
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
 
-      const newUser = await this.usersService.createUser(model, session);
+      let newUser: any = await this.usersService.createUser([model], session);
+      newUser = await newUser[0].populate('projects', 'organization').execPopulate();
       const payload = { username: newUser.username, sub: newUser.id };
+      await session.commitTransaction();
+      session.endSession();
       return {
+        ...newUser.toJSON(),
         access_token: this.jwtService.sign(payload)
       };
     } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
       throw new HttpException(e, HttpStatus.BAD_REQUEST);
     }
   }

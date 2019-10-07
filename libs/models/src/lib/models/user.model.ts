@@ -10,6 +10,7 @@ export class UserLoginWithPasswordRequest {
 
 export class UserLoginSignUpSuccessResponse {
   access_token: string;
+  user: User;
 }
 
 export interface UserRecentLoginInfo {

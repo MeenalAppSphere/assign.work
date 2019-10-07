@@ -26,14 +26,26 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
   login(request: UserLoginWithPasswordRequest) {
     this.updateState({ isLoginInProcess: true, isLoginSuccess: false });
     return this._http.post(AuthUrls.login, request).pipe(
-      map(res => {
-        this.updateState({ isLoginSuccess: true, isLoginInProcess: false, token: res.access_token });
-        this._generalService.token = res.access_token;
+      map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+        this.updateState({
+          isLoginSuccess: true,
+          isLoginInProcess: false,
+          token: res.data.access_token,
+          user: res.data.user
+        });
+        this._generalService.token = res.data.access_token;
+        this._generalService.user = res.data.user;
         return res;
       }),
       catchError(err => {
-        this.updateState({ isLoginSuccess: false, isLoginInProcess: false, token: null });
+        this.updateState({
+          isLoginSuccess: false,
+          isLoginInProcess: false,
+          token: null,
+          user: null
+        });
         this._generalService.token = null;
+        this._generalService.user = null;
         this.notification.error('Error', err.error.message);
         return of(err);
       })
@@ -44,13 +56,25 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
     this.updateState({ isRegisterInProcess: true, isRegisterSuccess: false });
     return this._http.post(AuthUrls.register, user).pipe(
       map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
-        this.updateState({ isRegisterSuccess: true, isRegisterInProcess: false, token: res.data.access_token });
+        this.updateState({
+          isRegisterSuccess: true,
+          isRegisterInProcess: false,
+          token: res.data.access_token,
+          user: res.data.user,
+        });
         this._generalService.token = res.data.access_token;
+        this._generalService.user = res.data.user;
         return res;
       }),
       catchError((err: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
-        this.updateState({ isRegisterInProcess: false, isRegisterSuccess: false, token: null });
+        this.updateState({
+          isRegisterInProcess: false,
+          isRegisterSuccess: false,
+          token: null,
+          user: null
+        });
         this._generalService.token = null;
+        this._generalService.user = null;
         this.notification.error('Error', err.error.message);
         return of(err);
       })

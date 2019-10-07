@@ -41,7 +41,7 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async create(doc: T | T[], session: ClientSession): Promise<T> {
+  public async create(doc: T | T[], session: ClientSession): Promise<T | T[]> {
     return await this.model.create(doc, { session });
   }
 
