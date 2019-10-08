@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Task } from '../shared/interfaces/task.interface';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -8,7 +9,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class TaskComponent implements OnInit {
   public listOfSelectedWatchers:any = [];
-  public assigneeValue:string;
+  public listOfSelectedTags:any = [];
+  public assigneeTo:string;
   public taskTypeValue:string;
   public timelogModalIsVisible:Boolean=false;
   public isOpenActivitySidebar:Boolean = true;
@@ -44,6 +46,87 @@ export class TaskComponent implements OnInit {
     {
       _id: 3,
       firstName: 'Aashish'
+    }
+  ];
+  public relatedTaskDataSource:Task[] = [
+    {
+      _id: '1',
+      name: 'Related Task 1',
+      taskType:'cr'
+    },
+    {
+      _id: '2',
+      name: 'Related Task 2',
+      taskType:'enhancement'
+    },
+    {
+      _id: '3',
+      name: 'Related Task 3',
+      taskType:'bug'
+    }
+  ];
+  public dependentTaskDataSource:Task[] = [
+    {
+      _id: '1',
+      name: 'Dependent Task 1',
+      taskType:'cr'
+    },
+    {
+      _id: '2',
+      name: 'Dependent Task 2',
+      taskType:'bug'
+    },
+    {
+      _id: '3',
+      name: 'Dependent Task 3',
+      taskType:'cr'
+    },
+    {
+      _id: '4',
+      name: 'Dependent Task 4',
+      taskType:'newwork'
+    }
+  ];
+  public sprintDataSource = [
+    {
+      _id: 1,
+      name: 'Sprint 1'
+    },
+    {
+      _id: 2,
+      name: 'Sprint 2'
+    },
+    {
+      _id: 3,
+      name: 'Sprint 3'
+    }
+  ];
+  public tagsDataSource = [
+    {
+      _id: 1,
+      name: 'Tag 1'
+    },
+    {
+      _id: 2,
+      name: 'Tag 2'
+    },
+    {
+      _id: 3,
+      name: 'Tag 3'
+    }
+  ];
+  public epicDataSource = [
+    {
+      _id: 1,
+      name: 'Epic 1'
+    },
+    {
+      _id: 2,
+      name: 'Epic 2'
+    },
+    {
+      _id: 3,
+      name: 'Epic 3'
     }
   ];
   public taskTypeDataSource = [
@@ -104,7 +187,9 @@ export class TaskComponent implements OnInit {
       sprint: [null],
       watchers: [null],
       dependentItem: [null],
-      tags: [null]
+      relatedItem: [null],
+      tags: [null],
+      epic: [null]
     });
   }
 

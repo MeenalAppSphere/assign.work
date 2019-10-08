@@ -7,6 +7,7 @@
           <h6 class="m-b-0"><span class="p-r-10">{{item.firstName}}</span><small class="text-muted text-right"><span>{{ item.createdAt | dateAgo}}</span></small></h6>
           <div class="font-size-13">{{item.description}}</div>
         </div>
+        <div *ngIf="enablePinButton" class="float-right pin-activity" [ngClass]="{'pinned':item.pinned}"></div>
       </div>
     </nz-list-item>
   </ng-template>

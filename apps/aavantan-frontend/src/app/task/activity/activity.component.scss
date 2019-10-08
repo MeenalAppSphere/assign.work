@@ -1,1 +1,22 @@
-
+.ant-list-item {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  position: relative;
+}
+.pin-activity{
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  height: 22px;
+  width: 22px;
+  display: inline-block;
+  background-size: 22px 22px;
+  content: url("../../../assets/images/pin-o.png");
+  cursor: pointer;
+  &:hover {
+    content: url("../../../assets/images/pin-fill.png");
+  }
+}
+.pin-activity.pinned{
+  content: url("../../../assets/images/pin-fill.png");
+}

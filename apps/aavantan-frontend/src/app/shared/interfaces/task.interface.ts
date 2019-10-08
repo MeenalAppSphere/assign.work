@@ -27,6 +27,7 @@ export interface Task {
   status?:string;
   estimate?:string;
   selectedForSprint?:boolean;
+  taskType?:string;
 }
 
 export interface Labels{

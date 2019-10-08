@@ -10,7 +10,6 @@
       [formGroup]="taskForm"
       (ngSubmit)="saveForm()">
       <!-- row 1-->
-
       <div class="row row-1">
         <div class="col-md-3">
           <nz-form-item>
@@ -22,31 +21,20 @@
                 nzPlacement="bottomRight">
                 <button nzType="default" nzSize="small" nz-button>
                   <nz-avatar
-                    class="m-r-10"
+                    class="m-r-5"
                     nzShape="circle"
                     nzSize="small"
                     nzIcon="user"
                     height="15px"
                     nzSrc="../../../../assets/images/priority/enhancement.svg"
                   ></nz-avatar>
-                  ENHANCEMENTS
-                </button>
-                <button nzType="default" nzSize="small" nz-button>
-                  <i nz-icon nzType="down"></i>
+                  ENHANCEMENTS <i nz-icon nzType="caret-down" theme="outline"></i>
                 </button>
               </nz-button-group>
               <nz-dropdown-menu #createTaskType="nzDropdownMenu">
                 <ul nz-menu>
                   <li nz-menu-item *ngFor="let item of taskTypeDataSource">
-                    <nz-avatar
-                      class="m-r-10 issue-type-icon"
-                      nzSize="small"
-                      nzShape="circle"
-                      nzIcon="user"
-                      nzSrc="../../../../assets/images/priority/{{
-                          item.value
-                        }}.svg"
-                    ></nz-avatar>
+                    <img class="m-r-5 issue-type-icon" height="15px" src="../../../../assets/images/priority/{{item.value}}.svg"/>
                     {{ item.name }}
                   </li>
                 </ul>
@@ -58,10 +46,12 @@
         <div class="col-md-4">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="taskType">Assigned To</nz-form-label>
-            <nz-form-control>
+            <nz-form-control class="relative">
+              <img src="./../../assets/images/avatars/thumb-2.jpg" height="16" class="img-circle assigned-user-icon"/>
               <input
                 placeholder="Search Assignee"
                 formControlName="assignedTo"
+                class="assigned-user-input"
                 nz-input
                 nzSize="small"
                 [nzAutocomplete]="autoAssignee"/>
@@ -93,10 +83,7 @@
                   [nzDropdownMenu]="statusDDLTemplate"
                   nzPlacement="bottomRight">
                   <button nzType="default" nzSize="small" nz-button>
-                    In-Progress
-                  </button>
-                  <button nzType="default" nzSize="small" nz-button>
-                    <i nz-icon nzType="down"></i>
+                    In-Progress <i nz-icon nzType="caret-down" theme="outline"></i>
                   </button>
                 </nz-button-group>
                 <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
@@ -127,17 +114,10 @@
                 [nzAutocomplete]="autoSprint"/>
               <nz-autocomplete #autoSprint>
                 <nz-auto-option
-                  *ngFor="let option of assigneeDataSource"
-                  [nzLabel]="option.firstName"
+                  *ngFor="let option of sprintDataSource"
+                  [nzLabel]="option.name"
                   [nzValue]="option._id" >
-                  <nz-avatar
-                    class="m-r-10"
-                    nzShape="circle"
-                    nzSize="small"
-                    nzIcon="user"
-                    nzSrc="./../../assets/images/avatars/thumb-2.jpg"
-                  ></nz-avatar>
-                  <span>{{ option.firstName }}</span>
+                  <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
             </nz-form-control>
@@ -145,13 +125,22 @@
         </div>
         <div class="col-md-3">
           <nz-form-item>
-            <nz-form-label nzRequired nzFor="taskType">Epic</nz-form-label>
+            <nz-form-label nzRequired nzFor="epic">Epic</nz-form-label>
             <nz-form-control>
               <input
-                placeholder="Epic"
-                formControlName="assignedTo"
+                placeholder="Search/Select Epic"
+                formControlName="epic"
                 nz-input
-                nzSize="small"/>
+                nzSize="small"
+                [nzAutocomplete]="autoEpic"/>
+              <nz-autocomplete #autoEpic>
+                <nz-auto-option
+                  *ngFor="let option of epicDataSource"
+                  [nzLabel]="option.name"
+                  [nzValue]="option._id" >
+                  <span>{{ option.name }}</span>
+                </nz-auto-option>
+              </nz-autocomplete>
             </nz-form-control>
           </nz-form-item>
         </div>
@@ -166,20 +155,31 @@
           <nz-form-item>
             <nz-form-label nzRequired nzFor="tags">Tags</nz-form-label>
             <nz-form-control>
-              <input
-                placeholder="Search/Select and new Tag"
-                formControlName="tags"
-                nz-input
+              <nz-select
+                style="width: 100%"
                 nzSize="small"
-                [nzAutocomplete]="autoTags"/>
-              <nz-autocomplete #autoTags>
-                <nz-auto-option
-                  *ngFor="let option of assigneeDataSource"
-                  [nzLabel]="option.firstName"
-                  [nzValue]="option._id" >
-                  <span>{{ option.firstName }}</span>
-                </nz-auto-option>
-              </nz-autocomplete>
+                nzMode="multiple"
+                formControlName="tags"
+                nzPlaceHolder="Search/Select tag"
+                [(ngModel)]="listOfSelectedTags">
+                <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option.name" [nzValue]="option._id"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="col-md-6">
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="watchers">Watchers</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                style="width: 100%"
+                nzSize="small"
+                nzMode="multiple"
+                formControlName="watchers"
+                nzPlaceHolder="Search/Select watcher"
+                [(ngModel)]="listOfSelectedWatchers">
+                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option._id"></nz-option>
+              </nz-select>
             </nz-form-control>
           </nz-form-item>
         </div>
@@ -192,7 +192,7 @@
             <nz-form-label nzRequired nzFor="title">Title</nz-form-label>
             <nz-form-control>
               <input
-                placeholder="Task Title"
+                placeholder="Enter Task Title"
                 formControlName="title"
                 nz-input
                 nzSize="small"/>
@@ -220,7 +220,7 @@
       <!-- row 5-->
       <!-- row 6-->
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="dependentItem">Dependent Item</nz-form-label>
             <nz-form-control>
@@ -232,17 +232,33 @@
                 [nzAutocomplete]="autoDependentItem"/>
               <nz-autocomplete #autoDependentItem>
                 <nz-auto-option
-                  *ngFor="let option of assigneeDataSource"
-                  [nzLabel]="option.firstName"
+                  *ngFor="let option of dependentTaskDataSource"
+                  [nzLabel]="option.name"
                   [nzValue]="option._id" >
-                  <nz-avatar
-                    class="m-r-10"
-                    nzShape="circle"
-                    nzSize="small"
-                    nzIcon="user"
-                    nzSrc="./../../assets/images/priority/bug.svg"
-                  ></nz-avatar>
-                  <span>{{ option.firstName }}</span>
+                  <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
+                  <span>{{ option.name }}</span>
+                </nz-auto-option>
+              </nz-autocomplete>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="col-md-12">
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="relatedItem">Related Item</nz-form-label>
+            <nz-form-control>
+              <input
+                placeholder="Search/Select Related Item"
+                formControlName="relatedItem"
+                nz-input
+                nzSize="small"
+                [nzAutocomplete]="autoRelatedItem"/>
+              <nz-autocomplete #autoRelatedItem>
+                <nz-auto-option
+                  *ngFor="let option of relatedTaskDataSource"
+                  [nzLabel]="option.name"
+                  [nzValue]="option._id" >
+                  <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
+                  <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
             </nz-form-control>
@@ -261,7 +277,7 @@
                 nzListType="picture"
                 [(nzFileList)]="fileList2">
                 <button nz-button>
-                  <span><i nz-icon nzType="upload"></i> Attachment</span>
+                  <span><i nz-icon nzType="upload"></i> Upload attachments</span>
                 </button>
               </nz-upload>
             </div>
@@ -269,33 +285,35 @@
         </div>
       </div>
       <!-- row 7-->
-      <!-- row 8-->
 
-      <div class="row">
-        <div class="col-md-6">
-          <nz-form-item>
-            <nz-form-label nzRequired nzFor="watchers">Watchers</nz-form-label>
-            <nz-form-control>
-              <nz-select
-                style="width: 100%"
-                nzSize="small"
-                nzMode="multiple"
-                nzPlaceHolder="Select watcher"
-                [(ngModel)]="listOfSelectedWatchers">
-                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option._id"></nz-option>
-              </nz-select>
-            </nz-form-control>
-          </nz-form-item>
-        </div>
-      </div>
       <!-- row 8-->
-      <!-- row 9-->
 
       <!-- will use on scroll event 'floating-save-btns' -->
       <div class="row floating-save-btns">
         <div class="col-md-12 text-right">
           <button nz-button nzSize="small" nzType="primary" class="m-r-5">Save</button>
-          <button nz-button nzSize="small" nzType="default">Cancel</button>
+          <button nz-button nzSize="small" nzType="default" class="m-r-5">Cancel</button>
+          <ng-container>
+            <button nz-dropdown
+                    [nzDropdownMenu]="taskContextMenu"
+                    nzPlacement="bottomRight"
+                    nzType="link"
+                    nzSize="small"
+                    class="float-right btn-warning"
+                    nz-button>
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item>
+                  Create Sub Task
+                </li>
+                <li nz-menu-item>
+                  Delete
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </ng-container>
         </div>
       </div>
       <div class="row">
@@ -304,17 +322,17 @@
           <button nz-button nzSize="small" nzType="default">Cancel</button>
         </div>
       </div>
+      <!-- row 8-->
       <!-- row 9-->
-      <!-- row 10-->
       <div class="row">
         <div class="col-md-12 m-t-15">
-          <nz-form-label>Activity <small>(Pinned Messages)</small></nz-form-label>
-          <div class="frozen-div">
+          <nz-form-label>Activity <small>(<img src="./../../assets/images/pin-fill.png" class="pin-icon" height="22"/> Pinned Messages)</small></nz-form-label>
+          <div class="frozen-div m-t-5">
             <aavantan-app-activity></aavantan-app-activity>
           </div>
         </div>
       </div>
-      <!-- row 10-->
+      <!-- row 9-->
 
     </form>
     <div class="collapsed-title" (click)="toggleActivitySidebar(sidebar)">
@@ -394,7 +412,7 @@
       <nz-tabset nzSize="small">
         <nz-tab nzTitle="Activity">
           <div>
-            <aavantan-app-activity></aavantan-app-activity>
+            <aavantan-app-activity [enablePinButton]="true"></aavantan-app-activity>
           </div>
           <div>
             <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
