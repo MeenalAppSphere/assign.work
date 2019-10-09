@@ -10,11 +10,15 @@ export class UsersService extends BaseService<User & Document> {
     super(_userModel);
   }
 
-  async getAll() {
+  async getAllWithPagination() {
     const query = new Query();
     const paginationRequest = new MongoosePaginateQuery();
     paginationRequest.populate = 'projects';
     return await this.getAllPaginatedData({}, paginationRequest);
+  }
+
+  async getAll() {
+    return this.find();
   }
 
   async createUser(user: Partial<User> | Array<Partial<User>>, session: ClientSession) {

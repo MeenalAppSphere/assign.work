@@ -11,7 +11,7 @@ export class ProjectController {
 
   @Get()
   async getAll() {
-    return await this._projectService.getAllPaginatedData({}, new MongoosePaginateQuery());
+    return await this._projectService.getAll();
   }
 
   @Post()
@@ -21,6 +21,7 @@ export class ProjectController {
 
   @Delete(':id')
   async deleteProject(@Query() id: string) {
-
+    return await this._projectService.delete(id);
   }
+
 }

@@ -71,6 +71,10 @@ export class BaseService<T extends Document> {
     return (this.model as any).paginate(query, options);
   }
 
+  public async getAll() {
+    return await this.find();
+  }
+
   public async delete(id: string): Promise<T> {
     return this.model
       .update({ _id: this.toObjectId(id) }, { isDeleted: true })
