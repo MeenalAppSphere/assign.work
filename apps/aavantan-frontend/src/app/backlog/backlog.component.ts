@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Task, TasksSelectedForSprint } from '../shared/interfaces/task.interface';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Task, DraftSprint } from '../shared/interfaces/task.interface';
 import { Member } from '../shared/interfaces/member.interface';
 
 @Component({
@@ -9,13 +9,15 @@ import { Member } from '../shared/interfaces/member.interface';
 })
 export class BacklogComponent implements OnInit {
   public allTaskList: Task[]=[];
+  public draftTaskList: Task[]=[];
   public taskObj: Task;
   public memberObj: Member[]=[];
   public view: String = 'listView';
   public totalDuration: Number = 0;
   public isDisabledCraeteBtn:Boolean=true;
-  public tasksSelectedForSprint: TasksSelectedForSprint;
-  constructor() { }
+  public draftSprint: DraftSprint;
+  public draftData:Task[]=[];
+  constructor(private cdr:ChangeDetectorRef) {}
 
   ngOnInit() {
 
@@ -55,16 +57,24 @@ export class BacklogComponent implements OnInit {
     })
   }
 
-  public getTasksSelectedForSprint(ev:TasksSelectedForSprint){
-    this.tasksSelectedForSprint=ev;
-    if(this.tasksSelectedForSprint && this.tasksSelectedForSprint.ids.length>0){
+  public getTasksSelectedForSprint(ev:DraftSprint){
+    this.draftSprint=ev;
+    if(this.draftSprint && this.draftSprint.tasks.length>0){
       this.isDisabledCraeteBtn=false;
+      this.prepareDraftSprint();
     }else{
       this.isDisabledCraeteBtn=true;
     }
   }
+
+  public prepareDraftSprint(){
+      this.draftData=this.draftSprint.tasks.filter((item)=>{
+        return item;
+      })
+  }
+
   public createSprint(){
-    console.log('Create Sprint For Tasks ', this.tasksSelectedForSprint.ids);
+    console.log('Create Sprint For Tasks ', this.draftSprint.ids);
   }
 
 }

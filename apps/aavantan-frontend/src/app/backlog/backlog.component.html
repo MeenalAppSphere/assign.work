@@ -4,8 +4,8 @@
   nzTitle="Backlogs"
   [nzExtra]="createSprintBtnTemplate">
   <ng-template #createSprintBtnTemplate>
-    <button *ngIf="tasksSelectedForSprint && tasksSelectedForSprint.duration>0" nz-button class="bg-success m-r-5 text-white" nzSize="small" nzShape="round">
-      Ready for Sprint: {{tasksSelectedForSprint?.duration}} hrs
+    <button *ngIf="draftSprint && draftSprint.duration>0" nz-button class="bg-success m-r-5 text-white" nzSize="small" nzShape="round">
+      Ready for Sprint: {{draftSprint?.duration}} hrs
     </button>
     <button nz-button class="bg-warning m-r-35 text-white" nzSize="small" nzShape="round">
       Total: {{totalDuration}} hrs
@@ -14,14 +14,49 @@
       <button [disabled]="isDisabledCraeteBtn" nzType="primary" nzSize="small" nz-button (click)="createSprint()">Create Sprint</button>
     </nz-button-group>
   </ng-template>
-  <ng-container *ngIf="allTaskList && allTaskList.length > 0">
-    <aavantan-task-list
-      [taskByUser]="'all'"
-      [taskList]="allTaskList"
-      [view]="view"
-      [showLogOption]="false"
-      [showProgressOption]="false"
-      (tasksSelectedForSprint)="getTasksSelectedForSprint($event)"
-    ></aavantan-task-list>
-  </ng-container>
+
+
+  <section class="m-b-20">
+    <ng-container *ngIf="draftData && draftData.length>0">
+      <label>Draft</label>
+      <div>
+          <aavantan-task-list
+            [taskByUser]="'all'"
+            [taskList]="draftData"
+            [view]="view"
+            [showLogOption]="false"
+            [showCheckboxOption]="false"
+            [showProgressOption]="false"
+          ></aavantan-task-list>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="draftData && draftData.length===0">
+      <nz-empty
+        class="draft-sprint-box p-20"
+        [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+        [nzNotFoundContent]="contentTpl"
+        [nzNotFoundFooter]="footerTpl">
+        <ng-template #contentTpl>
+          <span>Select task from <strong>Backlog</strong> list to move into <strong>Draft</strong> sprint</span>
+        </ng-template>
+        <ng-template #footerTpl>
+          <button nz-button nzType="primary" (click)="createNewSprint()">Create New Sprint</button>
+        </ng-template>
+      </nz-empty>
+    </ng-container>
+  </section>
+  <section>
+    <label>Backlogs</label>
+    <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+      <aavantan-task-list
+        [taskByUser]="'all'"
+        [taskList]="allTaskList"
+        [view]="view"
+        [showLogOption]="false"
+        [showCheckboxOption]="true"
+        [showProgressOption]="false"
+        (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
+      ></aavantan-task-list>
+    </ng-container>
+  </section>
 </nz-card>

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Task, TasksSelectedForSprint } from '../../interfaces/task.interface';
+import { Task, DraftSprint } from '../../interfaces/task.interface';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -11,15 +11,17 @@ export class TaskListComponent implements OnInit {
   @Input() public taskList: Task[];
   @Input() public view: string;
   @Input() public showLogOption: Boolean = true;
+  @Input() public showCheckboxOption: Boolean = false;
   @Input() public showProgressOption: Boolean = true;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
-  @Output() tasksSelectedForSprint: EventEmitter<any> = new EventEmitter<any>();
+  @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
   public timelogModalIsVisible: Boolean = false;
   public selectedTaskItem:Task;
   //backlog page
-  public tasksSelected: TasksSelectedForSprint = {
-    ids: [],
+  public tasksSelected: DraftSprint = {
+    ids:[],
+    tasks: [],
     duration: 0
   };
   constructor() {}
@@ -37,6 +39,7 @@ export class TaskListComponent implements OnInit {
   public selectTaskForSprint(task: Task) {
     const duration = task.estimate.split('h')[0];
     if (task.selectedForSprint && (this.tasksSelected.ids.indexOf(task._id))<1) {
+      this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task._id);
       this.tasksSelected.duration =
         this.tasksSelected.duration + Number(duration);
@@ -44,10 +47,12 @@ export class TaskListComponent implements OnInit {
       this.tasksSelected.ids=this.tasksSelected.ids.filter(ele => {
         return ele !== task._id;
       });
+      this.tasksSelected.tasks=this.tasksSelected.tasks.filter(ele => {
+        return ele._id !== task._id;
+      });
       this.tasksSelected.duration =
         this.tasksSelected.duration - Number(duration);
     }
-    console.log(this.tasksSelected.ids);
-    this.tasksSelectedForSprint.emit(this.tasksSelected);
+    this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
   }
 }
