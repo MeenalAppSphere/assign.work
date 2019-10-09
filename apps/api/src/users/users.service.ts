@@ -22,6 +22,6 @@ export class UsersService extends BaseService<User & Document> {
   }
 
   async createUser(user: Partial<User> | Array<Partial<User>>, session: ClientSession) {
-    return await this.create([new this._userModel(user)], session);
+    return await this.create(user, session);
   }
 }

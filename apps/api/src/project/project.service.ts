@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BaseRequestModel, DbCollection, ProjectMembers, User } from '@aavantan-app/models';
-import { Model, Document } from 'mongoose';
-import { Project } from '@aavantan-app/models';
+import { BaseRequestModel, DbCollection, Project, ProjectMembers, User } from '@aavantan-app/models';
+import { Document, Model } from 'mongoose';
 import { BaseService } from '../shared/services/base.service';
 import { UsersService } from '../users/users.service';
 
@@ -10,7 +9,8 @@ import { UsersService } from '../users/users.service';
 export class ProjectService extends BaseService<Project & Document> {
   constructor(
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    private readonly _userService: UsersService
+    @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
+    private _userService: UsersService
   ) {
     super(_projectModel);
   }
@@ -18,31 +18,33 @@ export class ProjectService extends BaseService<Project & Document> {
   async addProject(model: Project) {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
-
+    model = new this._projectModel(model);
+    model.organization = this.toObjectId('5d99c928ef96a822b08a66d5');
     try {
       const unregisteredMembers: string[] = model.members.filter(f => !f.userId && f.emailId).map(m => m.emailId);
       const unregisteredMembersModel: Partial<User>[] = [];
       unregisteredMembers.forEach(f => {
-        unregisteredMembersModel.push({
-          emailId: f,
-          username: f
-        });
+        unregisteredMembersModel.push(
+          new this._userModel({
+            emailId: f,
+            username: f
+          })
+        );
       });
 
       // create unregistered users and get user id from them
-      const createdUsers = await this._userService.createUser(unregisteredMembersModel, session) as (User & Document)[];
+      const createdUsers: any = await this._userService.createUser(unregisteredMembersModel, session);
 
       // assign newly created users to project members array
-      const members: ProjectMembers[] = model.members.map(m => {
-        m.userId = createdUsers.find(f => f.emailId === m.emailId).id;
+      model.members = model.members.map(m => {
+        m.userId = m.userId ? m.userId : createdUsers.find(f => f.emailId === m.userId);
         m.isEmailSent = false;
         m.isInviteAccepted = false;
         return m;
       });
 
-      model.members = members;
       // create project and get project id from them
-      const createdProject = await this.create(new this._projectModel(model), session);
+      const createdProject = await this.create([model], session);
       await session.commitTransaction();
       session.endSession();
       return createdProject;

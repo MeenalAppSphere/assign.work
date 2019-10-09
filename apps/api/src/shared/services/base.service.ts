@@ -41,7 +41,7 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async create(doc: T | T[], session: ClientSession): Promise<T | T[]> {
+  public async create(doc: T | T[] | Partial<T> | Partial<T[]>, session: ClientSession): Promise<T | T[]> {
     return await this.model.create(doc, { session });
   }
 
@@ -94,7 +94,7 @@ export class BaseService<T extends Document> {
     };
   }
 
-  private toObjectId(id: string | number): Types.ObjectId {
+  public toObjectId(id: string | number): Types.ObjectId {
     return new Types.ObjectId(id);
   }
 
