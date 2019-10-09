@@ -2,29 +2,40 @@
   /* necessary to hide collapsed sidebar */
   overflow-x: hidden;
 }
+
 #content {
-  transition: width 0.3s ease;
-  //position: relative;
-  label {
-    display: inline-block;
-    margin-bottom: 4px !important;
+  .create-task-form{
+    position: relative;
   }
-
-  .assign-me {
-    float: right;
-    margin-top: 5px;
-  }
-
-  .btn-logtime {
+  .floating-save-btns{
+    z-index: 10;
     position: absolute;
-    color: white;
-    right: 0px;
     top: 12px;
-    font-size: 13px;
+    right: 11px;
   }
-
-  .progress-bar {
-    background: #0bbc4a;
+  .ant-form-item{
+    margin-bottom: 5px;
+  }
+  transition: width 0.3s ease;
+  .ant-input-sm {
+    padding: 0.25rem 0.6rem;
+    height: auto;
+  }
+  .ant-btn-sm, .ant-btn-group-sm > .ant-btn {
+    padding: 0.35rem .4rem;
+    height: auto;
+  }
+  .pin-icon{
+    vertical-align: bottom;
+  }
+  .frozen-div{
+    min-height: 150px;
+    max-height: 300px;
+    overflow: auto;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 2px 8px 3px -6px #dce0e6;
   }
 }
 #sidebar {
@@ -40,8 +51,8 @@
 .collapsed-title{
   cursor: pointer;
   position: absolute;
-  top: 60px;
-  right: -60px;
+  top: 25%;
+  right: -25px;
   box-shadow: none;
   border: none;
   transform: rotate(-90deg);
@@ -71,15 +82,11 @@
     margin-right: -25%;
   }
 }
-
-
 @media screen and (max-width: 768px) {
   #sidebar{
     padding-top: 70px;
   }
 }
-
-
 .issue-type-btn-grp {
   .ant-btn-icon-only {
     line-height: 1.3!important;
@@ -90,10 +97,44 @@
   }
   .issue-type-icon{
     img{
+      border-radius:50%;
       height: 15px!important;
       width: 15px!important;
     }
+    border-radius:50%;
     height: 15px!important;
     width: 15px!important;
   }
+}
+
+.first-section {
+  .duration-box {
+    padding: 10px;
+    background: #f9fbfd;
+    position: relative;
+    .ant-form-item{
+      margin-bottom: 5px;
+    }
+    .progress-bar {
+      background: #0bbc4a;
+    }
+    .btn {
+      position: absolute;
+      color: #3f87f5;
+      background: #f9fbfd;
+      border: none;
+      top: -5px;
+      right: -5px;
+    }
+  }
+}
+
+.assigned-user-icon {
+  position: absolute;
+  z-index: 1;
+  top: 2px;
+  left: 6px;
+}
+.assigned-user-input{
+  padding-left: 28px!important;
 }

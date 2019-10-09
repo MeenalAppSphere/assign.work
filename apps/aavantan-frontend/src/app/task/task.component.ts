@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Task } from '../shared/interfaces/task.interface';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -7,10 +8,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./task.component.scss']
 })
 export class TaskComponent implements OnInit {
-
-  public assigneeValue:string;
+  public listOfSelectedWatchers:any = [];
+  public listOfSelectedTags:any = [];
+  public assigneeTo:string;
   public taskTypeValue:string;
-  public isOpenActivitySidebar:Boolean = false;
+  public timelogModalIsVisible:Boolean=false;
+  public isOpenActivitySidebar:Boolean = true;
   public defaultFileList = [
     {
       uid: -1,
@@ -34,11 +37,96 @@ export class TaskComponent implements OnInit {
   public assigneeDataSource = [
     {
       _id: 1,
-      firstName: 'Pradeep'
+      firstName: 'Assign to Me'
     },
     {
       _id: 2,
+      firstName: 'Pradeep'
+    },
+    {
+      _id: 3,
       firstName: 'Aashish'
+    }
+  ];
+  public relatedTaskDataSource:Task[] = [
+    {
+      _id: '1',
+      name: 'Related Task 1',
+      taskType:'cr'
+    },
+    {
+      _id: '2',
+      name: 'Related Task 2',
+      taskType:'enhancement'
+    },
+    {
+      _id: '3',
+      name: 'Related Task 3',
+      taskType:'bug'
+    }
+  ];
+  public dependentTaskDataSource:Task[] = [
+    {
+      _id: '1',
+      name: 'Dependent Task 1',
+      taskType:'cr'
+    },
+    {
+      _id: '2',
+      name: 'Dependent Task 2',
+      taskType:'bug'
+    },
+    {
+      _id: '3',
+      name: 'Dependent Task 3',
+      taskType:'cr'
+    },
+    {
+      _id: '4',
+      name: 'Dependent Task 4',
+      taskType:'newwork'
+    }
+  ];
+  public sprintDataSource = [
+    {
+      _id: 1,
+      name: 'Sprint 1'
+    },
+    {
+      _id: 2,
+      name: 'Sprint 2'
+    },
+    {
+      _id: 3,
+      name: 'Sprint 3'
+    }
+  ];
+  public tagsDataSource = [
+    {
+      _id: 1,
+      name: 'Tag 1'
+    },
+    {
+      _id: 2,
+      name: 'Tag 2'
+    },
+    {
+      _id: 3,
+      name: 'Tag 3'
+    }
+  ];
+  public epicDataSource = [
+    {
+      _id: 1,
+      name: 'Epic 1'
+    },
+    {
+      _id: 2,
+      name: 'Epic 2'
+    },
+    {
+      _id: 3,
+      name: 'Epic 3'
     }
   ];
   public taskTypeDataSource = [
@@ -63,6 +151,29 @@ export class TaskComponent implements OnInit {
       value: 'enhancement'
     }
   ];
+  public statusDataSource = [
+    {
+      _id: 1,
+      name: 'TODO',
+      value: 'todo'
+    },
+    {
+      _id: 2,
+      name: 'In-Progress',
+      value: 'inprogress'
+    },
+    {
+      _id: 3,
+      name: 'QA',
+      value: 'qa'
+    },
+    {
+      _id: 4,
+      name: 'Done',
+      value: 'done'
+    }
+  ];
+
   constructor(
     private FB: FormBuilder
   ) {}
@@ -72,7 +183,13 @@ export class TaskComponent implements OnInit {
       title: [null, [Validators.required]],
       description: [null],
       taskType: [null, [Validators.required]],
-      assignedTo: [null]
+      assignedTo: [null],
+      sprint: [null],
+      watchers: [null],
+      dependentItem: [null],
+      relatedItem: [null],
+      tags: [null],
+      epic: [null]
     });
   }
 
@@ -90,15 +207,15 @@ export class TaskComponent implements OnInit {
   }
 
   public openTimeLogModal(){
-
+    this.timelogModalIsVisible=!this.timelogModalIsVisible;
   }
 
   public selectTaskTypeTypeahead(e:string) {
-    console.log('taskType',e);
+    console.log('taskType', e);
   }
   public selectAssigneeTypeahead(e: string) {
     this.taskForm.get('assignedTo').patchValue(e);
-    console.log('assignedTo',e);
+    console.log('assignedTo', e);
   }
   public cancel(){
     this.taskForm.reset();
