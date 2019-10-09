@@ -12,6 +12,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { get, post, Response } from 'request';
+import { BaseService } from '../shared/services/base.service';
 
 @Injectable()
 export class AuthService {
@@ -28,11 +29,14 @@ export class AuthService {
     };
   }
 
-
   async login(req: UserLoginWithPasswordRequest) {
-    const user = await this._userModel.findOne({ emailId: req.emailId, password: req.password }).exec();
+    const user = await this._userModel.findOne({
+      emailId: req.emailId,
+      password: req.password
+    }).populate(['projects', 'organization']).exec();
     if (user) {
       return {
+        user: user.toJSON(),
         access_token: this.jwtService.sign({ emailId: user.emailId, sub: user.id })
       };
     } else {
@@ -41,6 +45,9 @@ export class AuthService {
   }
 
   async signUpWithPassword(user: User) {
+    const session = await this._userModel.db.startSession();
+    session.startTransaction();
+
     try {
       const model = new this._userModel(user);
       model.username = model.emailId;
@@ -48,12 +55,18 @@ export class AuthService {
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
 
-      const newUser = await model.save();
-      const payload = { username: user.username, sub: newUser.username };
+      const newUser = await this.usersService.createUser(model, session);
+      const userDetails = await newUser[0].populate('projects', 'organization').execPopulate();
+      const payload = { username: userDetails.username, sub: userDetails.id };
+      await session.commitTransaction();
+      session.endSession();
       return {
+        user: userDetails.toJSON(),
         access_token: this.jwtService.sign(payload)
       };
     } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
       throw new HttpException(e, HttpStatus.BAD_REQUEST);
     }
   }
@@ -105,16 +118,16 @@ export class AuthService {
           form: {
             access_token
           }
-        }, async (err: Error, res: Response, body: any) => {
-          if (err) {
-            return reject(err);
+        }, async (err1: Error, res1: Response, body1: any) => {
+          if (err1) {
+            return reject(err1);
           }
 
-          if (body.error) {
-            return reject(body.error);
+          if (body1.error) {
+            return reject(body1.error);
           }
 
-          resolve(body);
+          resolve(body1);
         });
       });
     });

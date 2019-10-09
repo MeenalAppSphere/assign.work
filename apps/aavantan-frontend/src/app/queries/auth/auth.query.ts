@@ -9,7 +9,7 @@ export class AuthQuery extends Query<AuthState> {
   isLoginSuccess$ = this.select(s => s.isLoginSuccess);
   isRegisterInProcess$ = this.select(s => s.isRegisterInProcess);
   isRegisterIsSuccess$ = this.select(s => s.isRegisterSuccess);
-  token$ = this.select(s => s.user);
+  token$ = this.select(s => s.token);
 
   constructor(protected store: AuthStore) {
     super(store);

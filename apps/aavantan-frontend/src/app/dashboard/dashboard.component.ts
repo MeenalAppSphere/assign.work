@@ -61,7 +61,8 @@ export class DashboardComponent implements OnInit {
   }
 
   private buildBreadCrumb(route: ActivatedRoute, url: string = '', breadcrumbs: IBreadcrumb[] = []): IBreadcrumb[] {
-    let label = '', path = '/', display = null;
+    let label = '', path = '/';
+    const display = null;
 
     if (route.routeConfig) {
       if (route.routeConfig.data) {
@@ -115,7 +116,6 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
-
 
 
 }

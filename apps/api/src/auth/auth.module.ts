@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './jwt/constants';
 import { JwtStrategy } from './jwt/jwt.strategy';
-import { SharedModule } from '../app/shared/shared.module';
+import { SharedModule } from '../shared/shared.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { GoogleStrategy } from './google/google.strategy';
@@ -25,7 +25,7 @@ import { authenticate } from 'passport';
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(authenticate('google', { session: false }))
-      .forRoutes('api/auth/google/token')
+    // consumer.apply(authenticate('google', { session: false }))
+    //   .forRoutes('api/auth/google/token')
   }
 }
