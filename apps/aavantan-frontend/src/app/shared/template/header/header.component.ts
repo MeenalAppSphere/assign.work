@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
+import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,7 +10,7 @@ import { Router } from '@angular/router';
 
 export class HeaderComponent implements OnInit{
 
-  constructor( private themeService: ThemeConstantService, private router:Router) {}
+  constructor( private themeService: ThemeConstantService, private router:Router, private readonly _authService: AuthService) {}
   public projectModalIsVisible: Boolean = false;
   public searchVisible : Boolean = false;
   public quickViewVisible : Boolean = false;
@@ -88,4 +89,7 @@ export class HeaderComponent implements OnInit{
     this.projectModalIsVisible = !this.projectModalIsVisible;
   }
 
+  logOut() {
+    this._authService.logOut();
+  }
 }

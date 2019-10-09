@@ -1,7 +1,7 @@
 <div class="container-fluid h-100">
   <div class="d-flex h-100 p-v-15 flex-column justify-content-between">
     <div class="d-none d-md-flex p-h-40">
-      <img src="assets/images/logo/logo.png" alt="" />
+      <img src="assets/images/logo/logo.png" alt=""/>
     </div>
 
     <div class="container">
@@ -43,7 +43,8 @@
 
                       <nz-form-explain
                         *ngIf="signUpForm.get('firstName').dirty &&
-                          signUpForm.get('firstName').errors">Please input first name!</nz-form-explain>
+                          signUpForm.get('firstName').errors">Please input first name!
+                      </nz-form-explain>
                     </nz-form-control>
                   </nz-form-item>
                 </div>
@@ -63,7 +64,8 @@
 
                       <nz-form-explain
                         *ngIf="signUpForm.get('lastName').dirty &&
-                          signUpForm.get('lastName').errors">Please input your last name!</nz-form-explain>
+                          signUpForm.get('lastName').errors">Please input your last name!
+                      </nz-form-explain>
                     </nz-form-control>
                   </nz-form-item>
                 </div>
@@ -88,7 +90,8 @@
                     *ngIf="
                       signUpForm.get('emailId').dirty &&
                       signUpForm.get('emailId').errors
-                    ">This is not valid E-mail!</nz-form-explain>
+                    ">This is not valid E-mail!
+                  </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
 
@@ -96,7 +99,8 @@
                 <div class="col">
                   <nz-form-item>
                     <nz-form-label nzRequired nzFor="password"
-                      >Password</nz-form-label>
+                    >Password
+                    </nz-form-label>
                     <nz-form-control>
                       <input
                         type="password"
@@ -111,7 +115,8 @@
                         *ngIf="
                           signUpForm.get('password').dirty &&
                           signUpForm.get('password').errors
-                        ">Please input your Password!</nz-form-explain>
+                        ">Please input your Password!
+                      </nz-form-explain>
                     </nz-form-control>
                   </nz-form-item>
                 </div>
@@ -151,15 +156,15 @@
               </div>
 
 
-                <nz-form-item>
-                  <nz-form-control>
-                    <label nz-checkbox formControlName="agree">
-                      <span>I have read the <a>agreement</a></span>
-                    </label>
-                  </nz-form-control>
-                </nz-form-item>
+              <nz-form-item>
+                <nz-form-control>
+                  <label nz-checkbox formControlName="agree">
+                    <span>I have read the <a>agreement</a></span>
+                  </label>
+                </nz-form-control>
+              </nz-form-item>
 
-              <nz-form-item *ngIf="responseMessage && responseMessage.message" >
+              <nz-form-item *ngIf="responseMessage && responseMessage.message">
                 <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
               </nz-form-item>
 
@@ -169,12 +174,12 @@
                     class="d-flex align-items-center justify-content-between">
                     <span class="font-size-13 text-muted">Have an account?
                       <a class="small"
-                        [routerLink]="['/login']">
+                         [routerLink]="['/login']">
                         Signin</a></span>
                     <button
                       nz-button
                       [disabled]="signUpForm.invalid"
-                      [nzLoading]="loading"
+                      [nzLoading]="registerInProcess"
                       class="login-form-button"
                       [nzType]="'primary'">
                       Sign Up
