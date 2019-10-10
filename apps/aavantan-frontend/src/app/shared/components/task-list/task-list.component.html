@@ -46,17 +46,17 @@
     <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'" nzSize="small">
       <thead>
       <tr>
-        <th class="text-center" width="20" *ngIf="!showLogOption">#</th>
+        <th class="text-center" width="20" *ngIf="showCheckboxOption">#</th>
         <th>Title</th>
         <th class="text-center" *ngIf="showProgressOption">Progress</th>
         <th class="text-center">Status</th>
         <th class="text-center">Member</th>
-        <th>Estimate<span *ngIf="showLogOption">/Log Time</span></th>
+        <th class="text-right">Estimate<span *ngIf="showLogOption">/Log Time</span></th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let item of listViewTable.data">
-        <td data-label="#" *ngIf="!showLogOption" class="text-center">
+        <td data-label="#" *ngIf="showCheckboxOption" class="text-center">
           <label nz-checkbox [(ngModel)]="item.selectedForSprint" (nzCheckedChange)="selectTaskForSprint(item)"></label>
         </td>
         <td data-label="Title">
@@ -76,14 +76,15 @@
           <nz-tag class="m-b-0" *ngIf="item.status !== 'In Progress'" [nzColor]="'blue'">{{item.status}}</nz-tag>
         </td>
         <td data-label="Members" class="text-center">
-          <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let item of (item.assigned ? item.assigned.slice(0,2): [])">
-            <nz-avatar  nzSize="small" [nzSrc]="item.profilePic" nz-tooltip [nzTitle]="item.firstName"></nz-avatar>
+          <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let itm of (item.assigned ? item.assigned.slice(0,2): [])">
+            <nz-avatar  nzSize="small" [nzSrc]="itm.profilePic" nz-tooltip [nzTitle]="itm.firstName"></nz-avatar>
+            <span *ngIf="item.assigned.length===1" class="m-l-5">{{itm.firstName}}</span>
           </a>
           <a *ngIf="item.assigned.length > 2">
             <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.member.length - 2].toString()" nz-tooltip [nzTitle]="[item.assigned.length - 2].toString() + ' More'"></nz-avatar>
           </a>
         </td>
-        <td data-label="Estimate">
+        <td data-label="Estimate" class="text-right">
           {{item.estimate}}&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (click)="timeLog(item)"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
         </td>
       </tr>

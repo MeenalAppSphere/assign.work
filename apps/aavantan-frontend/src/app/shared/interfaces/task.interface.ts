@@ -47,7 +47,8 @@ export interface TaskAttachement {
   createdAt: Date;
 }
 
-export interface TasksSelectedForSprint {
-  ids: String[];
+export interface DraftSprint {
+  ids:String[],
+  tasks: Task[];
   duration:number;
 }
