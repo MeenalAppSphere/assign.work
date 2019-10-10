@@ -294,3 +294,19 @@ p {
     font-size: 13px;
   }
 }
+
+.draft-sprint-box{
+  .ant-steps-item-title{
+    font-size: 13px!important;
+    font-weight: 300!important;
+  }
+  .sprint-duration-datepicker{
+    .ant-calendar-picker{
+      display: block!important;
+      width: 100%!important;
+    }
+    .ant-input{
+      padding: 5px;
+    }
+  }
+}

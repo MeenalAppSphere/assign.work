@@ -1,14 +1,14 @@
 <nz-card
   nzSize="small"
   [nzBordered]="false"
-  nzTitle="Backlogs"
+  nzTitle="Backlogs/Sprint"
   [nzExtra]="createSprintBtnTemplate">
   <ng-template #createSprintBtnTemplate>
     <button *ngIf="draftSprint && draftSprint.duration>0" nz-button class="bg-success m-r-5 text-white" nzSize="small" nzShape="round">
       Ready for Sprint: {{draftSprint?.duration}} hrs
     </button>
     <button nz-button class="bg-warning m-r-35 text-white" nzSize="small" nzShape="round">
-      Total: {{totalDuration}} hrs
+      Total Backlogs: {{totalDuration}} hrs
     </button>
     <nz-button-group>
       <button [disabled]="isDisabledCraeteBtn" nzType="primary" nzSize="small" nz-button (click)="createSprint()">Create Sprint</button>
@@ -17,8 +17,17 @@
 
 
   <section class="m-b-20">
+    <label *ngIf="sprintData && sprintData.id">{{sprintData.title}}</label>
+    <div class="draft-sprint-box" *ngIf="sprintData && sprintData.id && draftData && draftData.length===0">
+        <nz-empty
+          [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+          [nzNotFoundContent]="contentTpl">
+          <ng-template #contentTpl>
+            <span>Select backlog items to move into <strong>{{sprintData.title}}</strong></span>
+          </ng-template>
+        </nz-empty>
+    </div>
     <ng-container *ngIf="draftData && draftData.length>0">
-      <label>Draft</label>
       <div>
           <aavantan-task-list
             [taskByUser]="'all'"
@@ -30,23 +39,99 @@
           ></aavantan-task-list>
       </div>
     </ng-container>
-    <ng-container *ngIf="draftData && draftData.length===0">
+    <ng-container *ngIf="!showStartWizard && sprintData && !sprintData.id && draftData && draftData.length===0">
       <nz-empty
         class="draft-sprint-box p-20"
         [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
         [nzNotFoundContent]="contentTpl"
         [nzNotFoundFooter]="footerTpl">
         <ng-template #contentTpl>
-          <span>Select task from <strong>Backlog</strong> list to move into <strong>Draft</strong> sprint</span>
+          <span>Click to setup your new <strong>Sprint</strong></span>
         </ng-template>
         <ng-template #footerTpl>
-          <button nz-button nzType="primary" (click)="createNewSprint()">Create New Sprint</button>
+          <button nz-button nzSize="small" nzType="primary" (click)="startNewSprint()">Create New Sprint</button>
         </ng-template>
       </nz-empty>
     </ng-container>
+    <ng-container *ngIf="showStartWizard">
+      <section class="draft-sprint-box">
+
+        <div class="offset-md-4 col-md-4 col-sm-12">
+          <nz-steps [nzCurrent]="wizardIndex">
+            <nz-step nzTitle="Title"></nz-step>
+            <nz-step nzTitle="Team"></nz-step>
+            <nz-step nzTitle="Duration"></nz-step>
+          </nz-steps>
+        </div>
+
+        <div class="steps-content m-t-15 m-b-15">
+          <ng-container *ngIf="wizardIndex===0">
+            <div nz-row>
+              <div class="offset-md-4 col-md-4 col-sm-12">
+                <nz-form-label>Title</nz-form-label>
+                <input nz-input placeholder="Title" nzSize="small" maxlength="100"/>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="wizardIndex===1">
+            <div nz-row>
+              <div class="offset-md-4 col-md-4 col-sm-12">
+                <div class="p-10 bg-white">
+                  <nz-list [nzDataSource]="projectTeams" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+                    <ng-template #item let-item>
+                      <nz-list-item>
+                        <div class="row">
+                          <div class="col-9">
+                            <nz-avatar nzSize="small" nzSrc="{{item.profilePic}}"></nz-avatar> {{item.firstName}}
+                          </div>
+                          <div class="col-3">
+                            <input nz-input placeholder="Hours" class="team-list-input" nzSize="small" maxlength="3"/>
+                          </div>
+                        </div>
+                      </nz-list-item>
+                    </ng-template>
+                  </nz-list>
+                  <div class="row">
+                    <div class="col-12 text-right">
+                      <div class="p-5"><label>Total Hours: 24</label></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="wizardIndex===2">
+            <div nz-row>
+              <div class="offset-md-4 col-md-4 col-sm-12 sprint-duration-datepicker">
+                <nz-range-picker [nzFormat]="dateFormat"></nz-range-picker>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="steps-action text-right">
+          <div nz-row>
+            <div class="offset-md-4 col-md-4 col-sm-12">
+              <button nz-button nzSize="small" nzType="default" class="float-left" (click)="cancel()">
+                <span>Cancel</span>
+              </button>
+              <button nz-button nzSize="small" nzType="default" (click)="pre()" *ngIf="wizardIndex > 0">
+                <span>Previous</span>
+              </button>
+              <button nz-button nzSize="small" class="m-l-5" nzType="default" (click)="next()" *ngIf="wizardIndex < 2">
+                <span>Next</span>
+              </button>
+              <button nz-button nzSize="small" nzType="primary" class="m-l-5" (click)="done()" *ngIf="wizardIndex === 2">
+                <span>Done</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
   </section>
   <section>
-    <label>Backlogs</label>
+    <label>Backlogs | <span class="text-warning">Total: {{totalDuration}} hrs</span></label>
     <ng-container *ngIf="allTaskList && allTaskList.length > 0">
       <aavantan-task-list
         [taskByUser]="'all'"

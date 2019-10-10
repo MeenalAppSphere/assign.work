@@ -12,6 +12,7 @@
       "element",
       "aavantan-app",
       "kebab-case"
-    ]
+    ],
+    "no-inferrable-types": false
   }
 }
