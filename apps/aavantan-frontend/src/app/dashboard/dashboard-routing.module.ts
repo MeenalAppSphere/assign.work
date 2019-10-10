@@ -24,6 +24,7 @@ const routes: Routes = [
       { path: 'active_sprint', component: ActivesprintComponent },
       { path: 'backlog', loadChildren: () => import('../backlog/backlog.module').then(p => p.BacklogModule) },
       { path: 'task', loadChildren: () => import('../task/task.module').then(p => p.TaskModule) },
+      { path: 'settings', loadChildren: () => import('../settings/settings.module').then(p => p.SettingsModule) },
     ]
   }
 ];

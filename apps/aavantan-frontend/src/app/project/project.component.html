@@ -96,17 +96,23 @@
           <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>
         </label>
       </nz-radio-group>
-      <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">
-        <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>
-        <button nzType="primary" nzSize="small" nz-button>
-          <i nz-icon nzType="down"></i>
-        </button>
-      </nz-button-group>
-      <nz-dropdown-menu #createTaskType="nzDropdownMenu">
-        <ul nz-menu>
-          <li nz-menu-item *ngFor="let item of taskTypeDataSource"><nz-avatar class="m-r-10" nzShape="circle" nzSize="small" nzIcon="user" nzSrc="../../../../assets/images/priority/{{item.value}}.svg"></nz-avatar> {{item.name}}</li>
-        </ul>
-      </nz-dropdown-menu>
+      <nz-button-group
+          class="issue-type-btn-grp"
+          nz-dropdown
+          [nzDropdownMenu]="createTaskType"
+          nzPlacement="bottomRight">
+          <button nzType="primary" nzSize="small" nz-button>
+            Create New <i nz-icon nzType="caret-down" theme="outline"></i>
+          </button>
+        </nz-button-group>
+        <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item *ngFor="let item of taskTypeDataSource">
+              <img class="m-r-5 issue-type-icon" height="15px" src="../../../../assets/images/priority/{{item.value}}.svg"/>
+              {{ item.name }}
+            </li>
+          </ul>
+        </nz-dropdown-menu>
     </ng-template>
 <!--  </nz-card>-->
 </section>

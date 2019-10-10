@@ -1,0 +1,61 @@
+<!-- section 1 -->
+<section id="settings-page">
+  <ul class="setting-tab-btn">
+    <li>
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}" (click)="activeTab('stages', 'Stages')">
+        <i class="fas fa-bars"></i>
+        Stages
+      </a>
+    </li>
+    <li>
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}" (click)="activeTab('taskType', 'Task Type')">
+        <i class="fab fa-accusoft"></i>
+        Task Type
+      </a>
+    </li>
+    <li>
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskStatus'}" (click)="activeTab('taskStatus', 'Task Status')">
+        <i class="fas fa-hourglass-start"></i>
+        Task Status
+      </a>
+    </li>
+  </ul>
+  <section>
+    <nz-card nzTitle="{{activeView.title}}" style="min-height:420px; overflow: scroll;">
+      <ng-container *ngIf="activeView.view==='stages'">
+        <section class="row">
+          <aside class="col-md-3">
+          <form nz-form>
+            <nz-form-item>
+              <nz-form-label>Stage title</nz-form-label>
+              <nz-form-control>
+                <input nz-input nzSize="small" placeholder="Stage title" maxlength="30"/>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+               <button nz-button nzType="primary" nzSize="small">Add</button>
+            </nz-form-item>
+          </form>
+          </aside>
+          <aside class="col-md-3">
+            <nz-form-label>Default Stages</nz-form-label>
+            <ul class="stages-list">
+              <li *ngFor="let item of stagesList">{{item.title}}</li>
+            </ul>
+          </aside>
+        </section>
+      </ng-container>
+      <!-- end stages -->
+      <ng-container *ngIf="activeView.view==='taskType'">
+
+      </ng-container>
+      <!-- end taskType -->
+      <ng-container *ngIf="activeView.view==='taskStatus'">
+
+      </ng-container>
+      <!-- end taskStatus -->
+    </nz-card>
+  </section>
+
+</section>
+

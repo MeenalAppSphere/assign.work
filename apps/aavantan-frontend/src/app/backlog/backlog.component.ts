@@ -103,7 +103,9 @@ export class BacklogComponent implements OnInit {
   public startNewSprint(){
     this.showStartWizard=true;
   }
-
+  public editSprint(){
+    this.showStartWizard=true;
+  }
   public cancel(): void {
     this.showStartWizard=false;
     this.wizardIndex = 0;
@@ -118,7 +120,6 @@ export class BacklogComponent implements OnInit {
     this.changeContent();
   }
   public done(): void {
-    console.log('Done');
     this.showStartWizard=false;
     this.wizardIndex = 0;
     this.sprintData.id="1";
@@ -126,15 +127,11 @@ export class BacklogComponent implements OnInit {
   changeContent(): void {
     switch (this.wizardIndex) {
       case 0: {
-        this.wizardTitle = 'Title';
+        this.wizardTitle = 'Title and Duration';
         break;
       }
       case 1: {
         this.wizardTitle = 'Team';
-        break;
-      }
-      case 2: {
-        this.wizardTitle = 'Duration';
         break;
       }
       default: {

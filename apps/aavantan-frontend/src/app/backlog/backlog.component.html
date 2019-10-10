@@ -17,13 +17,17 @@
 
 
   <section class="m-b-20">
-    <label *ngIf="sprintData && sprintData.id">{{sprintData.title}}</label>
-    <div class="draft-sprint-box" *ngIf="sprintData && sprintData.id && draftData && draftData.length===0">
+    <label *ngIf="sprintData && sprintData.id">{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
+    <div class="draft-sprint-box" *ngIf="!showStartWizard && sprintData && sprintData.id && draftData && draftData.length===0">
         <nz-empty
           [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
-          [nzNotFoundContent]="contentTpl">
+          [nzNotFoundContent]="contentTpl"
+          [nzNotFoundFooter]="footerTpl">
           <ng-template #contentTpl>
             <span>Select backlog items to move into <strong>{{sprintData.title}}</strong></span>
+          </ng-template>
+          <ng-template #footerTpl>
+            <button nz-button nzSize="small" nzType="primary" (click)="editSprint()">Edit {{sprintData.title}}</button>
           </ng-template>
         </nz-empty>
     </div>
@@ -58,25 +62,33 @@
 
         <div class="offset-md-4 col-md-4 col-sm-12">
           <nz-steps [nzCurrent]="wizardIndex">
-            <nz-step nzTitle="Title"></nz-step>
+            <nz-step nzTitle="Title and Duration"></nz-step>
             <nz-step nzTitle="Team"></nz-step>
-            <nz-step nzTitle="Duration"></nz-step>
           </nz-steps>
         </div>
 
         <div class="steps-content m-t-15 m-b-15">
           <ng-container *ngIf="wizardIndex===0">
-            <div nz-row>
+            <form nz-row>
               <div class="offset-md-4 col-md-4 col-sm-12">
-                <nz-form-label>Title</nz-form-label>
-                <input nz-input placeholder="Title" nzSize="small" maxlength="100"/>
+                <nz-form-item>
+                  <nz-form-label>Title</nz-form-label>
+                  <input nz-input placeholder="Enter Sprint Title" nzSize="small" maxlength="100"/>
+                  </nz-form-item>
+                <nz-form-item>
+                <nz-form-label>Duration (Start - End Date)</nz-form-label>
+                  <div class="sprint-duration-datepicker">
+                      <nz-range-picker [nzFormat]="dateFormat"></nz-range-picker>
+                  </div>
+                </nz-form-item>
               </div>
-            </div>
+            </form>
           </ng-container>
           <ng-container *ngIf="wizardIndex===1">
             <div nz-row>
               <div class="offset-md-4 col-md-4 col-sm-12">
                 <div class="p-10 bg-white">
+                  <label>Fill estimated  working hours to each team members (eg:40)</label>
                   <nz-list [nzDataSource]="projectTeams" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
                     <ng-template #item let-item>
                       <nz-list-item>
@@ -85,7 +97,7 @@
                             <nz-avatar nzSize="small" nzSrc="{{item.profilePic}}"></nz-avatar> {{item.firstName}}
                           </div>
                           <div class="col-3">
-                            <input nz-input placeholder="Hours" class="team-list-input" nzSize="small" maxlength="3"/>
+                            <input nz-input placeholder="Hours" class="team-list-input" value="40" nzSize="small" maxlength="3"/>
                           </div>
                         </div>
                       </nz-list-item>
@@ -93,35 +105,29 @@
                   </nz-list>
                   <div class="row">
                     <div class="col-12 text-right">
-                      <div class="p-5"><label>Total Hours: 24</label></div>
+                      <div class="p-5"><label>Total Hours: 120</label></div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </ng-container>
-          <ng-container *ngIf="wizardIndex===2">
-            <div nz-row>
-              <div class="offset-md-4 col-md-4 col-sm-12 sprint-duration-datepicker">
-                <nz-range-picker [nzFormat]="dateFormat"></nz-range-picker>
-              </div>
-            </div>
-          </ng-container>
+
         </div>
 
         <div class="steps-action text-right">
           <div nz-row>
             <div class="offset-md-4 col-md-4 col-sm-12">
-              <button nz-button nzSize="small" nzType="default" class="float-left" (click)="cancel()">
+              <button class="btn btn-sm btn-default float-left" (click)="cancel()">
                 <span>Cancel</span>
               </button>
-              <button nz-button nzSize="small" nzType="default" (click)="pre()" *ngIf="wizardIndex > 0">
+              <button class="btn btn-sm btn-default" (click)="pre()" *ngIf="wizardIndex > 0">
                 <span>Previous</span>
               </button>
-              <button nz-button nzSize="small" class="m-l-5" nzType="default" (click)="next()" *ngIf="wizardIndex < 2">
+              <button class="btn btn-sm btn-warning m-l-5" (click)="next()" *ngIf="wizardIndex < 1">
                 <span>Next</span>
               </button>
-              <button nz-button nzSize="small" nzType="primary" class="m-l-5" (click)="done()" *ngIf="wizardIndex === 2">
+              <button class="btn btn-sm btn-success m-l-5" (click)="done()" *ngIf="wizardIndex === 1">
                 <span>Done</span>
               </button>
             </div>
