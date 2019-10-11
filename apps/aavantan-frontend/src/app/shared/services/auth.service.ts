@@ -13,13 +13,14 @@ import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
 import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { from, of } from 'rxjs';
+import { of } from 'rxjs';
+import { UserStore } from '../../store/user/user.store';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
   constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              private notification: NzNotificationService) {
+              private notification: NzNotificationService, private userStore: UserStore) {
     super(authStore);
   }
 
@@ -30,9 +31,16 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         this.updateState({
           isLoginSuccess: true,
           isLoginInProcess: false,
-          token: res.data.access_token,
-          user: res.data.user
+          token: res.data.access_token
         });
+
+        this.userStore.update((state => {
+          return {
+            ...state,
+            user: res.data.user
+          };
+        }));
+
         this._generalService.token = res.data.access_token;
         this._generalService.user = res.data.user;
         return res;
@@ -41,9 +49,16 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         this.updateState({
           isLoginSuccess: false,
           isLoginInProcess: false,
-          token: null,
-          user: null
+          token: null
         });
+
+        this.userStore.update((state => {
+          return {
+            ...state,
+            user: null
+          };
+        }));
+
         this._generalService.token = null;
         this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);
@@ -56,12 +71,20 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
     this.updateState({ isRegisterInProcess: true, isRegisterSuccess: false });
     return this._http.post(AuthUrls.register, user).pipe(
       map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+
         this.updateState({
           isRegisterSuccess: true,
           isRegisterInProcess: false,
-          token: res.data.access_token,
-          user: res.data.user
+          token: res.data.access_token
         });
+
+        this.userStore.update((state => {
+          return {
+            ...state,
+            user: res.data.user
+          };
+        }));
+
         this._generalService.token = res.data.access_token;
         this._generalService.user = res.data.user;
         return res;
@@ -70,9 +93,16 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         this.updateState({
           isRegisterInProcess: false,
           isRegisterSuccess: false,
-          token: null,
-          user: null
+          token: null
         });
+
+        this.userStore.update((state => {
+          return {
+            ...state,
+            user: null
+          };
+        }));
+
         this._generalService.token = null;
         this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);

@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, UnauthorizedException } from '@nestjs/common';
 import { MongoError } from 'mongodb';
 import { BaseResponseModel } from '@aavantan-app/models';
 import { Error } from 'mongoose';
@@ -41,6 +41,12 @@ export class GenericExceptionFilter implements ExceptionFilter {
           type: 'error'
         }];
       }
+      resp.status = exception.getStatus();
+    } else if (exception instanceof UnauthorizedException) {
+      resp.errors = [{
+        message: exception.message,
+        type: 'error'
+      }];
       resp.status = exception.getStatus();
     } else {
       resp.errors = [{

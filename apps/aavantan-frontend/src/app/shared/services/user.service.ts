@@ -1,0 +1,50 @@
+import { Injectable } from '@angular/core';
+import { AuthState, AuthStore } from '../../store/auth/auth.store';
+import {
+  BaseResponseModel,
+  User,
+  UserLoginSignUpSuccessResponse,
+  UserLoginWithPasswordRequest
+} from '@aavantan-app/models';
+import { BaseService } from './base.service';
+import { HttpWrapperService } from './httpWrapper.service';
+import { AuthUrls } from './apiUrls/auth.urls';
+import { catchError, map } from 'rxjs/operators';
+import { GeneralService } from './general.service';
+import { Router } from '@angular/router';
+import { NzNotificationService } from 'ng-zorro-antd';
+import { of } from 'rxjs';
+import { UserState, UserStore } from '../../store/user/user.store';
+import { UserUrls } from './apiUrls/user.url';
+
+@Injectable()
+export class UserService extends BaseService<UserStore, UserState> {
+
+  constructor(protected userStore: UserStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
+              private notification: NzNotificationService) {
+    super(userStore);
+  }
+
+  getProfile() {
+    this.updateState({ getUserProfileInProcess: true });
+    return this._http.get(UserUrls.profile).pipe(
+      map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+        this.updateState({
+          getUserProfileInProcess: false,
+          user: res.data.user
+        });
+        this._generalService.user = res.data.user;
+        return res;
+      }),
+      catchError(err => {
+        this.updateState({
+          getUserProfileInProcess: false,
+          user: null
+        });
+        this._generalService.user = null;
+        this.notification.error('Error', err.error.error.message);
+        return of(err);
+      })
+    );
+  }
+}

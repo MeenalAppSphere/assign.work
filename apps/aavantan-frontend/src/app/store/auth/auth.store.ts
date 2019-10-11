@@ -10,7 +10,6 @@ export interface AuthState {
   isRegisterInProcess: boolean;
   isRegisterSuccess: boolean;
   token: string;
-  user: User;
 }
 
 const initialState: AuthState = {
@@ -19,7 +18,6 @@ const initialState: AuthState = {
   isRegisterInProcess: false,
   isRegisterSuccess: false,
   token: null,
-  user: null
 };
 
 @Injectable({ providedIn: 'root' })
