@@ -11,9 +11,9 @@ import { Router } from '@angular/router';
 export class HeaderComponent implements OnInit{
 
   constructor( private themeService: ThemeConstantService, private router:Router, private readonly _authService: AuthService) {}
-  public projectModalIsVisible: Boolean = false;
-  public searchVisible : Boolean = false;
-  public quickViewVisible : Boolean = false;
+  public projectModalIsVisible: boolean = false;
+  public searchVisible : boolean = false;
+  public quickViewVisible : boolean = false;
   public isFolded : boolean;
   public isExpand : boolean;
 

@@ -46,7 +46,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         });
         this._generalService.token = null;
         this._generalService.user = null;
-        this.notification.error('Error', err.error.message);
+        this.notification.error('Error', err.error.error.message);
         return of(err);
       })
     );
@@ -60,13 +60,13 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           isRegisterSuccess: true,
           isRegisterInProcess: false,
           token: res.data.access_token,
-          user: res.data.user,
+          user: res.data.user
         });
         this._generalService.token = res.data.access_token;
         this._generalService.user = res.data.user;
         return res;
       }),
-      catchError((err: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+      catchError((err) => {
         this.updateState({
           isRegisterInProcess: false,
           isRegisterSuccess: false,
@@ -75,7 +75,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         });
         this._generalService.token = null;
         this._generalService.user = null;
-        this.notification.error('Error', err.error.message);
+        this.notification.error('Error', err.error.error.message);
         return of(err);
       })
     );

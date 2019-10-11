@@ -3,12 +3,7 @@ export class BaseResponseModel<T> {
   public hasError: boolean;
   public data: T;
   public errors: BaseErrorMessageClass[];
-
-  get error() {
-    if (this.hasError) {
-      return this.errors[0];
-    }
-  }
+  public error: BaseErrorMessageClass;
 }
 
 export class BasePaginatedResponse<P> {
