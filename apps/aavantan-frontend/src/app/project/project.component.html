@@ -108,7 +108,7 @@
         <nz-dropdown-menu #createTaskType="nzDropdownMenu">
           <ul nz-menu>
             <li nz-menu-item *ngFor="let item of taskTypeDataSource">
-              <img class="m-r-5 issue-type-icon" height="15px" src="../../../../assets/images/priority/{{item.value}}.svg"/>
+              <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
               {{ item.name }}
             </li>
           </ul>

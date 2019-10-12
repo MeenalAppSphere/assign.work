@@ -18,23 +18,16 @@
               <nz-button-group
                 nz-dropdown
                 [nzDropdownMenu]="createTaskType"
-                nzPlacement="bottomRight">
+                nzPlacement="bottomLeft">
                 <button nzType="default" nzSize="small" nz-button>
-                  <nz-avatar
-                    class="m-r-5"
-                    nzShape="circle"
-                    nzSize="small"
-                    nzIcon="user"
-                    height="15px"
-                    nzSrc="../../../../assets/images/priority/enhancement.svg"
-                  ></nz-avatar>
-                  ENHANCEMENTS <i nz-icon nzType="caret-down" theme="outline"></i>
+                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedTaskType.color}"></i>
+                  {{selectedTaskType.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
                 </button>
               </nz-button-group>
               <nz-dropdown-menu #createTaskType="nzDropdownMenu">
                 <ul nz-menu>
-                  <li nz-menu-item *ngFor="let item of taskTypeDataSource">
-                    <img class="m-r-5 issue-type-icon" height="15px" src="../../../../assets/images/priority/{{item.value}}.svg"/>
+                  <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="selectTaskType(item)">
+                    <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
                     {{ item.name }}
                   </li>
                 </ul>

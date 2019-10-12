@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Task } from '@aavantan-app/models';
+import { Task, TaskType } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -8,26 +8,30 @@ import { Task } from '@aavantan-app/models';
   styleUrls: ['./task.component.scss']
 })
 export class TaskComponent implements OnInit {
-  public listOfSelectedWatchers:any = [];
-  public listOfSelectedTags:any = [];
-  public assigneeTo:string;
-  public taskTypeValue:string;
-  public timelogModalIsVisible:boolean=false;
-  public isOpenActivitySidebar:boolean = true;
+  public listOfSelectedWatchers: any = [];
+  public listOfSelectedTags: any = [];
+  public assigneeTo: string;
+  public selectedTaskType: TaskType;
+  public timelogModalIsVisible: boolean = false;
+  public isOpenActivitySidebar: boolean = true;
   public defaultFileList = [
     {
       uid: -1,
       name: 'abc.png',
       status: 'done',
-      url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      thumbUrl: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
+      url:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+      thumbUrl:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
     },
     {
       uid: -2,
       name: 'yyy.png',
       status: 'done',
-      url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      thumbUrl: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
+      url:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+      thumbUrl:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
     }
   ];
 
@@ -48,43 +52,43 @@ export class TaskComponent implements OnInit {
       firstName: 'Aashish'
     }
   ];
-  public relatedTaskDataSource:Task[] = [
+  public relatedTaskDataSource: Task[] = [
     {
       id: '1',
       name: 'Related Task 1',
-      taskType:'cr'
+      taskType: 'cr'
     },
     {
       id: '2',
       name: 'Related Task 2',
-      taskType:'enhancement'
+      taskType: 'enhancement'
     },
     {
       id: '3',
       name: 'Related Task 3',
-      taskType:'bug'
+      taskType: 'bug'
     }
   ];
-  public dependentTaskDataSource:Task[] = [
+  public dependentTaskDataSource: Task[] = [
     {
       id: '1',
       name: 'Dependent Task 1',
-      taskType:'cr'
+      taskType: 'cr'
     },
     {
       id: '2',
       name: 'Dependent Task 2',
-      taskType:'bug'
+      taskType: 'bug'
     },
     {
       id: '3',
       name: 'Dependent Task 3',
-      taskType:'cr'
+      taskType: 'cr'
     },
     {
       id: '4',
       name: 'Dependent Task 4',
-      taskType:'newwork'
+      taskType: 'newwork'
     }
   ];
   public sprintDataSource = [
@@ -129,33 +133,39 @@ export class TaskComponent implements OnInit {
       name: 'Epic 3'
     }
   ];
-  public taskTypeDataSource = [
+  public taskTypeDataSource: TaskType[] = [
     {
-      id: 1,
+      id: '1',
       name: 'BUG',
-      value: 'bug'
+      value: 'bug',
+      color: '#F80647'
     },
     {
-      id: 2,
+      id: '2',
       name: 'CR',
-      value: 'cr'
+      value: 'cr',
+      color: '#F0CB2D'
     },
     {
-      id: 3,
+      id: '3',
       name: 'NEW WORK',
-      value: 'newwork'
+      value: 'newwork',
+      color: '#0E7FE0'
     },
     {
-      id: 4,
+      id: '4',
       name: 'ENHANCEMENTS',
-      value: 'enhancement'
+      value: 'enhancement',
+      color: '#0AC93E'
     },
     {
-      id: 5,
+      id: '4',
       name: 'EPIC',
-      value: 'epic'
+      value: 'epic',
+      color: '#1022A8'
     }
   ];
+
   public statusDataSource = [
     {
       id: 1,
@@ -179,9 +189,7 @@ export class TaskComponent implements OnInit {
     }
   ];
 
-  constructor(
-    private FB: FormBuilder
-  ) {}
+  constructor(private FB: FormBuilder) {}
 
   ngOnInit() {
     this.taskForm = this.FB.group({
@@ -196,14 +204,16 @@ export class TaskComponent implements OnInit {
       tags: [null],
       epic: [null]
     });
+
+    this.selectedTaskType=this.taskTypeDataSource[0];
   }
 
-  public toggleActivitySidebar(el:HTMLElement){
-    this.isOpenActivitySidebar=!this.isOpenActivitySidebar;
-    if(this.isOpenActivitySidebar && window.innerWidth<768){
-      setTimeout(()=>{
+  public toggleActivitySidebar(el: HTMLElement) {
+    this.isOpenActivitySidebar = !this.isOpenActivitySidebar;
+    if (this.isOpenActivitySidebar && window.innerWidth < 768) {
+      setTimeout(() => {
         el.scrollIntoView();
-      },200);
+      }, 200);
     }
   }
   public assignedToMe() {
@@ -211,21 +221,25 @@ export class TaskComponent implements OnInit {
     // this.taskForm.value.assignedTo = this.userDetails.id;
   }
 
-  public openTimeLogModal(){
-    this.timelogModalIsVisible=!this.timelogModalIsVisible;
+  public openTimeLogModal() {
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
-  public selectTaskTypeTypeahead(e:string) {
+  public selectTaskTypeTypeahead(e: string) {
     console.log('taskType', e);
   }
   public selectAssigneeTypeahead(e: string) {
     this.taskForm.get('assignedTo').patchValue(e);
     console.log('assignedTo', e);
   }
-  public cancel(){
+  public cancel() {
     this.taskForm.reset();
   }
   public saveForm() {
     console.log('Save', this.taskForm.value);
+  }
+
+  public selectTaskType(item:TaskType){
+    this.selectedTaskType=item;
   }
 }
