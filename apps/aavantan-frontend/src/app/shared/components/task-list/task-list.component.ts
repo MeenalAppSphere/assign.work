@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Task, DraftSprint } from '../../interfaces/task.interface';
+import { DraftSprint, Task } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -38,17 +38,17 @@ export class TaskListComponent implements OnInit {
   }
   public selectTaskForSprint(task: Task) {
     const duration = task.estimate.split('h')[0];
-    if (task.selectedForSprint && (this.tasksSelected.ids.indexOf(task._id))<1) {
+    if (task.selectedForSprint && (this.tasksSelected.ids.indexOf(task.id))<1) {
       this.tasksSelected.tasks.push(task);
-      this.tasksSelected.ids.push(task._id);
+      this.tasksSelected.ids.push(task.id);
       this.tasksSelected.duration =
         this.tasksSelected.duration + Number(duration);
     } else {
       this.tasksSelected.ids=this.tasksSelected.ids.filter(ele => {
-        return ele !== task._id;
+        return ele !== task.id;
       });
       this.tasksSelected.tasks=this.tasksSelected.tasks.filter(ele => {
-        return ele._id !== task._id;
+        return ele.id !== task.id;
       });
       this.tasksSelected.duration =
         this.tasksSelected.duration - Number(duration);

@@ -38,27 +38,27 @@ export class SettingsComponent implements OnInit{
     }];
   public typesList:any=[
     {
-      _id: 1,
+      id: 1,
       name: 'BUG',
       value: 'bug'
     },
     {
-      _id: 2,
+      id: 2,
       name: 'CR',
       value: 'cr'
     },
     {
-      _id: 3,
+      id: 3,
       name: 'NEW WORK',
       value: 'newwork'
     },
     {
-      _id: 4,
+      id: 4,
       name: 'ENHANCEMENTS',
       value: 'enhancement'
     },
     {
-      _id: 4,
+      id: 4,
       name: 'EPIC',
       value: 'epic'
     }];

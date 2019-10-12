@@ -45,4 +45,5 @@ export class User {
   status?: UserStatus;
   mobileNumber?: string;
   username?: string;
+  isEmailSent?:boolean;
 }

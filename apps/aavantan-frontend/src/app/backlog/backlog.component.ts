@@ -1,7 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Task, DraftSprint } from '../shared/interfaces/task.interface';
-import { Member } from '../shared/interfaces/member.interface';
-import { User } from '@aavantan-app/models';
+import { Component, OnInit } from '@angular/core';
+import { DraftSprint, User, Task } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -12,7 +10,7 @@ export class BacklogComponent implements OnInit {
   public allTaskList: Task[]=[];
   public draftTaskList: Task[]=[];
   public taskObj: Task;
-  public memberObj: Member[]=[];
+  public memberObj: User[]=[];
   public view: String = 'listView';
   public totalDuration: Number = 0;
   public isDisabledCraeteBtn:boolean=true;
@@ -31,14 +29,14 @@ export class BacklogComponent implements OnInit {
     for(let i=0; i<50; i++){
       this.memberObj = [
         {
-          _id:'1212'+(i+1),
+          id:'1212'+(i+1),
           emailId:'abc'+(i+1)+'@gmail.com',
           firstName: 'Pradeep',
           profilePic: '../../assets/images/avatars/thumb-4.jpg'
         }
       ];
       this.taskObj= {
-        _id : '100' + i,
+        id : '100' + i,
         name : 'You can create sprint by selecting multiple tasks' + i + '.',
         progress : (i * 10),
         createdAt : new Date(),

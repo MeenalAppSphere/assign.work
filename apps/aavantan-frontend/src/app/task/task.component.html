@@ -59,7 +59,7 @@
                 <nz-auto-option
                   *ngFor="let option of assigneeDataSource"
                   [nzLabel]="option.firstName"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <nz-avatar
                     class="m-r-10"
                     nzShape="circle"
@@ -116,7 +116,7 @@
                 <nz-auto-option
                   *ngFor="let option of sprintDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
@@ -137,7 +137,7 @@
                 <nz-auto-option
                   *ngFor="let option of epicDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
@@ -162,7 +162,7 @@
                 formControlName="tags"
                 nzPlaceHolder="Search/Select tag"
                 [(ngModel)]="listOfSelectedTags">
-                <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option.name" [nzValue]="option._id"></nz-option>
+                <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option.name" [nzValue]="option.id"></nz-option>
               </nz-select>
             </nz-form-control>
           </nz-form-item>
@@ -178,7 +178,7 @@
                 formControlName="watchers"
                 nzPlaceHolder="Search/Select watcher"
                 [(ngModel)]="listOfSelectedWatchers">
-                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option._id"></nz-option>
+                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option.id"></nz-option>
               </nz-select>
             </nz-form-control>
           </nz-form-item>
@@ -234,7 +234,7 @@
                 <nz-auto-option
                   *ngFor="let option of dependentTaskDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
@@ -256,7 +256,7 @@
                 <nz-auto-option
                   *ngFor="let option of relatedTaskDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
