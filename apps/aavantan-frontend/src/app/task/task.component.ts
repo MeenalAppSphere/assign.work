@@ -149,6 +149,11 @@ export class TaskComponent implements OnInit {
       _id: 4,
       name: 'ENHANCEMENTS',
       value: 'enhancement'
+    },
+    {
+      _id: 5,
+      name: 'EPIC',
+      value: 'epic'
     }
   ];
   public statusDataSource = [
