@@ -33,16 +33,8 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: res.data.access_token
         });
 
-        // this.userStore.update((state => {
-        //   return {
-        //     ...state,
-        //     user: res.data.user
-        //   };
-        // }));
-
         this._generalService.token = res.data.access_token;
         this.router.navigate(['dashboard']);
-        // this._generalService.user = res.data.user;
         return res;
       }),
       catchError(err => {
@@ -52,15 +44,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: null
         });
 
-        // this.userStore.update((state => {
-        //   return {
-        //     ...state,
-        //     user: null
-        //   };
-        // }));
-
         this._generalService.token = null;
-        // this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);
         return of(err);
       })
@@ -78,15 +62,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: res.data.access_token
         });
 
-        // this.userStore.update((state => {
-        //   return {
-        //     ...state,
-        //     user: res.data.user
-        //   };
-        // }));
-
         this._generalService.token = res.data.access_token;
-        // this._generalService.user = res.data.user;
         return res;
       }),
       catchError((err) => {
@@ -96,15 +72,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: null
         });
 
-        // this.userStore.update((state => {
-        //   return {
-        //     ...state,
-        //     user: null
-        //   };
-        // }));
-
         this._generalService.token = null;
-        // this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);
         return of(err);
       })
@@ -113,14 +81,8 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
 
   logOut() {
     this.updateState({ token: null });
-    // this.userStore.update(state => {
-    //   return {
-    //     ...state,
-    //     user: null
-    //   };
-    // });
     this._generalService.token = null;
-    // this._generalService.user = null;
+    this._generalService.user = null;
     this.router.navigate(['/login']);
   }
 

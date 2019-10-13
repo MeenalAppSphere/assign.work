@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseResponseModel, UserLoginSignUpSuccessResponse } from '@aavantan-app/models';
+import { BaseResponseModel, User, UserLoginSignUpSuccessResponse } from '@aavantan-app/models';
 import { BaseService } from './base.service';
 import { HttpWrapperService } from './httpWrapper.service';
 import { catchError, map } from 'rxjs/operators';
@@ -21,12 +21,12 @@ export class UserService extends BaseService<UserStore, UserState> {
   getProfile() {
     this.updateState({ getUserProfileInProcess: true });
     return this._http.get(UserUrls.profile).pipe(
-      map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+      map((res: BaseResponseModel<User>) => {
         this.updateState({
           getUserProfileInProcess: false,
-          user: res.data.user
+          user: res.data
         });
-        this._generalService.user = res.data.user;
+        this._generalService.user = res.data;
         return res;
       }),
       catchError(err => {

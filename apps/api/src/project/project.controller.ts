@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { MongoosePaginateQuery, Project } from '@aavantan-app/models';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('project')
+@UseGuards(AuthGuard('jwt'))
 export class ProjectController {
 
   constructor(private readonly _projectService: ProjectService) {
@@ -11,7 +13,7 @@ export class ProjectController {
 
   @Get()
   async getAll() {
-    return await this._projectService.getAll();
+    return await this._projectService.getAll({}, ['members.userDetails']);
   }
 
   @Post()

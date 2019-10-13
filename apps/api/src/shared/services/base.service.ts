@@ -71,8 +71,12 @@ export class BaseService<T extends Document> {
     return (this.model as any).paginate(query, options);
   }
 
-  public async getAll() {
-    return await this.find();
+  public async getAll(filter: any = {}, populate: Array<any> = []) {
+    const query = this.model.find({ ...filter, ...defaultQueryOptions });
+    if (populate && populate.length) {
+      query.populate(populate);
+    }
+    return query.exec();
   }
 
   public async delete(id: string): Promise<T> {

@@ -16,13 +16,30 @@ export const projectSchema = new Schema({
     isEmailSent: { type: Boolean },
     isInviteAccepted: { type: Boolean }
   },
-  organization: { type: Schema.Types.ObjectId, ref: DbCollection.organizations, required: [true, 'Please select Organization.'] },
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: DbCollection.organizations,
+    required: [true, 'Please select Organization.']
+  },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   isDeleted: { type: Boolean, default: false }
-}, schemaOptions);
+});
+
+// options
+projectSchema
+  .set('toObject', { virtuals: true })
+  .set('toJSON', { virtuals: true });
 
 // plugins
 projectSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
   .plugin(paginate);
+
+// virtual
+projectSchema
+  .virtual('members.userDetails', {
+    ref: DbCollection.users,
+    localField: 'members.userId',
+    foreignField: '_id'
+  });
