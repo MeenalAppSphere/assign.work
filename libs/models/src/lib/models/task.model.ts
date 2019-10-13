@@ -1,7 +1,7 @@
-import { Member } from './member.interface';
+import { Labels, User } from '@aavantan-app/models';
 
 export interface Task {
-  _id: string;
+  id: string;
   name: string;
   shortLink?: string;
   closed?: boolean;
@@ -16,7 +16,7 @@ export interface Task {
   priority?: string;
   labelsId?: any[];
   comments?: any[];
-  assigned?: Member[];
+  assigned?: User[];
   shortUrl?: string;
   url?: string;
   labels?: Labels[];
@@ -30,25 +30,13 @@ export interface Task {
   taskType?:string;
 }
 
-export interface Labels{
-  _id:string;
-  projectId:string;
-  name:string;
-  color: string;
-}
 
 export interface TaskAttachement {
-  _id: string;
+  id: string;
   memberId:string;
   isUpload: boolean;
   mimeType: string;
   name: string;
   url: string;
   createdAt: Date;
-}
-
-export interface DraftSprint {
-  ids:String[],
-  tasks: Task[];
-  duration:number;
 }

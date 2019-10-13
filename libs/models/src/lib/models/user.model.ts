@@ -26,22 +26,24 @@ export class UserTimeZoneInfo {
 }
 
 export class User {
-  emailId: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  profilePic: string;
-  lastLoginProvider: UserLoginProviderEnum;
-  recentLoginInfo: UserRecentLoginInfo;
-  confirmed: boolean;
-  memberType: MemberTypes;
-  oneTimeMessagesDismissed: OneTimeMessagesDismissed[];
-  locale: string;
-  timezoneInfo: UserTimeZoneInfo;
-  organizations: string[] | Organization[];
-  projects: string[] | Project[];
-  defaultOrganization: string;
-  status: UserStatus;
-  mobileNumber: string;
-  username: string;
+  id?:string;
+  emailId?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  profilePic?: string;
+  lastLoginProvider?: UserLoginProviderEnum;
+  recentLoginInfo?: UserRecentLoginInfo;
+  confirmed?: boolean;
+  memberType?: MemberTypes;
+  oneTimeMessagesDismissed?: OneTimeMessagesDismissed[];
+  locale?: string;
+  timezoneInfo?: UserTimeZoneInfo;
+  organizations?: string[] | Organization[];
+  projects?: string[] | Project[];
+  defaultOrganization?: string;
+  status?: UserStatus;
+  mobileNumber?: string;
+  username?: string;
+  isEmailSent?:boolean;
 }

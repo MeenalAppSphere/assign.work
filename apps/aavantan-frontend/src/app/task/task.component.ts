@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Task } from '../shared/interfaces/task.interface';
+import { Task, TaskType } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -8,26 +8,30 @@ import { Task } from '../shared/interfaces/task.interface';
   styleUrls: ['./task.component.scss']
 })
 export class TaskComponent implements OnInit {
-  public listOfSelectedWatchers:any = [];
-  public listOfSelectedTags:any = [];
-  public assigneeTo:string;
-  public taskTypeValue:string;
-  public timelogModalIsVisible:Boolean=false;
-  public isOpenActivitySidebar:Boolean = true;
+  public listOfSelectedWatchers: any = [];
+  public listOfSelectedTags: any = [];
+  public assigneeTo: string;
+  public selectedTaskType: TaskType;
+  public timelogModalIsVisible: boolean = false;
+  public isOpenActivitySidebar: boolean = true;
   public defaultFileList = [
     {
       uid: -1,
       name: 'abc.png',
       status: 'done',
-      url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      thumbUrl: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
+      url:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+      thumbUrl:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
     },
     {
       uid: -2,
       name: 'yyy.png',
       status: 'done',
-      url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      thumbUrl: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
+      url:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+      thumbUrl:
+        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
     }
   ];
 
@@ -36,147 +40,156 @@ export class TaskComponent implements OnInit {
   public taskForm: FormGroup;
   public assigneeDataSource = [
     {
-      _id: 1,
+      id: 1,
       firstName: 'Assign to Me'
     },
     {
-      _id: 2,
+      id: 2,
       firstName: 'Pradeep'
     },
     {
-      _id: 3,
+      id: 3,
       firstName: 'Aashish'
     }
   ];
-  public relatedTaskDataSource:Task[] = [
+  public relatedTaskDataSource: Task[] = [
     {
-      _id: '1',
+      id: '1',
       name: 'Related Task 1',
-      taskType:'cr'
+      taskType: 'cr'
     },
     {
-      _id: '2',
+      id: '2',
       name: 'Related Task 2',
-      taskType:'enhancement'
+      taskType: 'enhancement'
     },
     {
-      _id: '3',
+      id: '3',
       name: 'Related Task 3',
-      taskType:'bug'
+      taskType: 'bug'
     }
   ];
-  public dependentTaskDataSource:Task[] = [
+  public dependentTaskDataSource: Task[] = [
     {
-      _id: '1',
+      id: '1',
       name: 'Dependent Task 1',
-      taskType:'cr'
+      taskType: 'cr'
     },
     {
-      _id: '2',
+      id: '2',
       name: 'Dependent Task 2',
-      taskType:'bug'
+      taskType: 'bug'
     },
     {
-      _id: '3',
+      id: '3',
       name: 'Dependent Task 3',
-      taskType:'cr'
+      taskType: 'cr'
     },
     {
-      _id: '4',
+      id: '4',
       name: 'Dependent Task 4',
-      taskType:'newwork'
+      taskType: 'newwork'
     }
   ];
   public sprintDataSource = [
     {
-      _id: 1,
+      id: 1,
       name: 'Sprint 1'
     },
     {
-      _id: 2,
+      id: 2,
       name: 'Sprint 2'
     },
     {
-      _id: 3,
+      id: 3,
       name: 'Sprint 3'
     }
   ];
   public tagsDataSource = [
     {
-      _id: 1,
+      id: 1,
       name: 'Tag 1'
     },
     {
-      _id: 2,
+      id: 2,
       name: 'Tag 2'
     },
     {
-      _id: 3,
+      id: 3,
       name: 'Tag 3'
     }
   ];
   public epicDataSource = [
     {
-      _id: 1,
+      id: 1,
       name: 'Epic 1'
     },
     {
-      _id: 2,
+      id: 2,
       name: 'Epic 2'
     },
     {
-      _id: 3,
+      id: 3,
       name: 'Epic 3'
     }
   ];
-  public taskTypeDataSource = [
+  public taskTypeDataSource: TaskType[] = [
     {
-      _id: 1,
+      id: '1',
       name: 'BUG',
-      value: 'bug'
+      value: 'bug',
+      color: '#F80647'
     },
     {
-      _id: 2,
+      id: '2',
       name: 'CR',
-      value: 'cr'
+      value: 'cr',
+      color: '#F0CB2D'
     },
     {
-      _id: 3,
+      id: '3',
       name: 'NEW WORK',
-      value: 'newwork'
+      value: 'newwork',
+      color: '#0E7FE0'
     },
     {
-      _id: 4,
+      id: '4',
       name: 'ENHANCEMENTS',
-      value: 'enhancement'
+      value: 'enhancement',
+      color: '#0AC93E'
+    },
+    {
+      id: '4',
+      name: 'EPIC',
+      value: 'epic',
+      color: '#1022A8'
     }
   ];
+
   public statusDataSource = [
     {
-      _id: 1,
+      id: 1,
       name: 'TODO',
       value: 'todo'
     },
     {
-      _id: 2,
+      id: 2,
       name: 'In-Progress',
       value: 'inprogress'
     },
     {
-      _id: 3,
+      id: 3,
       name: 'QA',
       value: 'qa'
     },
     {
-      _id: 4,
+      id: 4,
       name: 'Done',
       value: 'done'
     }
   ];
 
-  constructor(
-    private FB: FormBuilder
-  ) {}
+  constructor(private FB: FormBuilder) {}
 
   ngOnInit() {
     this.taskForm = this.FB.group({
@@ -191,36 +204,42 @@ export class TaskComponent implements OnInit {
       tags: [null],
       epic: [null]
     });
+
+    this.selectedTaskType=this.taskTypeDataSource[0];
   }
 
-  public toggleActivitySidebar(el:HTMLElement){
-    this.isOpenActivitySidebar=!this.isOpenActivitySidebar;
-    if(this.isOpenActivitySidebar && window.innerWidth<768){
-      setTimeout(()=>{
+  public toggleActivitySidebar(el: HTMLElement) {
+    this.isOpenActivitySidebar = !this.isOpenActivitySidebar;
+    if (this.isOpenActivitySidebar && window.innerWidth < 768) {
+      setTimeout(() => {
         el.scrollIntoView();
-      },200);
+      }, 200);
     }
   }
   public assignedToMe() {
     // this.taskForm.get('assignedTo').patchValue(this.userDetails.fullName);
-    // this.taskForm.value.assignedTo = this.userDetails._id;
+    // this.taskForm.value.assignedTo = this.userDetails.id;
   }
 
-  public openTimeLogModal(){
-    this.timelogModalIsVisible=!this.timelogModalIsVisible;
+  public openTimeLogModal() {
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
-  public selectTaskTypeTypeahead(e:string) {
+  public selectTaskTypeTypeahead(e: string) {
     console.log('taskType', e);
   }
   public selectAssigneeTypeahead(e: string) {
     this.taskForm.get('assignedTo').patchValue(e);
     console.log('assignedTo', e);
   }
-  public cancel(){
+  public cancel() {
     this.taskForm.reset();
   }
   public saveForm() {
     console.log('Save', this.taskForm.value);
+  }
+
+  public selectTaskType(item:TaskType){
+    this.selectedTaskType=item;
   }
 }

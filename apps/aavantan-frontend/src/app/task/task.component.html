@@ -18,23 +18,16 @@
               <nz-button-group
                 nz-dropdown
                 [nzDropdownMenu]="createTaskType"
-                nzPlacement="bottomRight">
+                nzPlacement="bottomLeft">
                 <button nzType="default" nzSize="small" nz-button>
-                  <nz-avatar
-                    class="m-r-5"
-                    nzShape="circle"
-                    nzSize="small"
-                    nzIcon="user"
-                    height="15px"
-                    nzSrc="../../../../assets/images/priority/enhancement.svg"
-                  ></nz-avatar>
-                  ENHANCEMENTS <i nz-icon nzType="caret-down" theme="outline"></i>
+                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedTaskType.color}"></i>
+                  {{selectedTaskType.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
                 </button>
               </nz-button-group>
               <nz-dropdown-menu #createTaskType="nzDropdownMenu">
                 <ul nz-menu>
-                  <li nz-menu-item *ngFor="let item of taskTypeDataSource">
-                    <img class="m-r-5 issue-type-icon" height="15px" src="../../../../assets/images/priority/{{item.value}}.svg"/>
+                  <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="selectTaskType(item)">
+                    <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
                     {{ item.name }}
                   </li>
                 </ul>
@@ -59,7 +52,7 @@
                 <nz-auto-option
                   *ngFor="let option of assigneeDataSource"
                   [nzLabel]="option.firstName"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <nz-avatar
                     class="m-r-10"
                     nzShape="circle"
@@ -116,7 +109,7 @@
                 <nz-auto-option
                   *ngFor="let option of sprintDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
@@ -137,7 +130,7 @@
                 <nz-auto-option
                   *ngFor="let option of epicDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
@@ -162,7 +155,7 @@
                 formControlName="tags"
                 nzPlaceHolder="Search/Select tag"
                 [(ngModel)]="listOfSelectedTags">
-                <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option.name" [nzValue]="option._id"></nz-option>
+                <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option.name" [nzValue]="option.id"></nz-option>
               </nz-select>
             </nz-form-control>
           </nz-form-item>
@@ -178,7 +171,7 @@
                 formControlName="watchers"
                 nzPlaceHolder="Search/Select watcher"
                 [(ngModel)]="listOfSelectedWatchers">
-                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option._id"></nz-option>
+                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.firstName" [nzValue]="option.id"></nz-option>
               </nz-select>
             </nz-form-control>
           </nz-form-item>
@@ -234,7 +227,7 @@
                 <nz-auto-option
                   *ngFor="let option of dependentTaskDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
@@ -256,7 +249,7 @@
                 <nz-auto-option
                   *ngFor="let option of relatedTaskDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option._id" >
+                  [nzValue]="option.id" >
                   <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>

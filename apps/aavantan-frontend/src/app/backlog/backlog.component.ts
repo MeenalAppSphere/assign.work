@@ -1,6 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Task, DraftSprint } from '../shared/interfaces/task.interface';
-import { Member } from '../shared/interfaces/member.interface';
+import { Component, OnInit } from '@angular/core';
+import { DraftSprint, User, Task } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -11,27 +10,33 @@ export class BacklogComponent implements OnInit {
   public allTaskList: Task[]=[];
   public draftTaskList: Task[]=[];
   public taskObj: Task;
-  public memberObj: Member[]=[];
+  public memberObj: User[]=[];
   public view: String = 'listView';
   public totalDuration: Number = 0;
-  public isDisabledCraeteBtn:Boolean=true;
+  public isDisabledCraeteBtn:boolean=true;
   public draftSprint: DraftSprint;
   public draftData:Task[]=[];
-  constructor(private cdr:ChangeDetectorRef) {}
+  public showStartWizard: boolean;
+  public wizardIndex = 0;
+  public wizardTitle = 'Title';
+  public projectTeams: User[] = [];
+  public dateFormat = 'mm/dd/yyyy';
+  public sprintData:any;
+  constructor() {}
 
   ngOnInit() {
 
     for(let i=0; i<50; i++){
       this.memberObj = [
         {
-          _id:'1212'+(i+1),
+          id:'1212'+(i+1),
           emailId:'abc'+(i+1)+'@gmail.com',
           firstName: 'Pradeep',
           profilePic: '../../assets/images/avatars/thumb-4.jpg'
         }
       ];
       this.taskObj= {
-        _id : '100' + i,
+        id : '100' + i,
         name : 'You can create sprint by selecting multiple tasks' + i + '.',
         progress : (i * 10),
         createdAt : new Date(),
@@ -47,6 +52,26 @@ export class BacklogComponent implements OnInit {
     if(this.allTaskList && this.allTaskList.length>0){
       this.countTotalDuration();
     }
+
+    // dummy sprint wizard data
+    this.sprintData={
+      title:'Sprint 1'
+    }
+    this.projectTeams=[{
+        id:'1',
+        firstName: 'Pradeep',
+        profilePic:'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
+      },
+      {
+        id:'2',
+        firstName: 'Vishal',
+        profilePic:'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
+      },
+      {
+        id:'3',
+        firstName: 'Aashsih',
+        profilePic:'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
+      }]
   }
 
   public countTotalDuration(){
@@ -73,6 +98,45 @@ export class BacklogComponent implements OnInit {
       })
   }
 
+  public startNewSprint(){
+    this.showStartWizard=true;
+  }
+  public editSprint(){
+    this.showStartWizard=true;
+  }
+  public cancel(): void {
+    this.showStartWizard=false;
+    this.wizardIndex = 0;
+    this.changeContent();
+  }
+  public pre(): void {
+    this.wizardIndex -= 1;
+    this.changeContent();
+  }
+  public next(): void {
+    this.wizardIndex += 1;
+    this.changeContent();
+  }
+  public done(): void {
+    this.showStartWizard=false;
+    this.wizardIndex = 0;
+    this.sprintData.id="1";
+  }
+  changeContent(): void {
+    switch (this.wizardIndex) {
+      case 0: {
+        this.wizardTitle = 'Title and Duration';
+        break;
+      }
+      case 1: {
+        this.wizardTitle = 'Team';
+        break;
+      }
+      default: {
+        this.wizardTitle = 'error';
+      }
+    }
+  }
   public createSprint(){
     console.log('Create Sprint For Tasks ', this.draftSprint.ids);
   }

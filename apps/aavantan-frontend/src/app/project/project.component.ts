@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Task } from '../shared/interfaces/task.interface';
-import { Member } from '../shared/interfaces/member.interface';
+import { User, Task, TaskType } from '@aavantan-app/models';
 
 @Component({
     templateUrl: './project.component.html',
@@ -11,28 +10,38 @@ export class ProjectComponent implements OnInit{
   public myTaskList: Task[]=[];
   public allTaskList: Task[]=[];
   public taskObj: Task;
-  public memberObj: Member[]=[];
+  public memberObj: User[]=[];
   public view: String = 'listView';
-  public taskTypeDataSource = [
+  public taskTypeDataSource: TaskType[] = [
     {
-      _id: 1,
+      id: '1',
       name: 'BUG',
-      value: 'bug'
+      value: 'bug',
+      color: '#F80647'
     },
     {
-      _id: 2,
+      id: '2',
       name: 'CR',
-      value: 'cr'
+      value: 'cr',
+      color: '#F0CB2D'
     },
     {
-      _id: 3,
+      id: '3',
       name: 'NEW WORK',
-      value: 'newwork'
+      value: 'newwork',
+      color: '#0E7FE0'
     },
     {
-      _id: 4,
+      id: '4',
       name: 'ENHANCEMENTS',
-      value: 'enhancement'
+      value: 'enhancement',
+      color: '#0AC93E'
+    },
+    {
+      id: '4',
+      name: 'EPIC',
+      value: 'epic',
+      color: '#1022A8'
     }
   ];
   constructor( ) {}
@@ -41,14 +50,14 @@ export class ProjectComponent implements OnInit{
       for(let i=0; i<5; i++){
         this.memberObj = [
           {
-            _id:'1212'+(i+1),
+            id:'1212'+(i+1),
             emailId:'abc'+(i+1)+'@gmail.com',
             firstName: 'Pradeep',
             profilePic: '../../assets/images/avatars/thumb-4.jpg'
           }
         ];
         this.taskObj= {
-          _id : '100' + i,
+          id : '100' + i,
           name : 'A responsive table that stacks into cards when space is ' + i + '.',
           progress : (i * 10),
           createdAt : new Date(),

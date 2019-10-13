@@ -235,6 +235,23 @@ p {
   }
 }
 
+#settings-page {
+  .ant-tabs-extra-content {
+    line-height: 30px !important;
+  }
+  .ant-card-body{
+    padding:10px 15px;
+  }
+  label{
+    margin-bottom: 3px;
+  }
+  .ant-card-head{
+    padding:0px 15px;
+    .ant-card-head-title{
+      padding: 11px 0px;
+    }
+  }
+}
 
 .sortable-wrapper{
   .placeholderStyle{
@@ -292,5 +309,21 @@ p {
   label {
     margin-bottom: 0px!important;
     font-size: 13px;
+  }
+}
+
+.draft-sprint-box{
+  .ant-steps-item-title{
+    font-size: 13px!important;
+    font-weight: 300!important;
+  }
+  .sprint-duration-datepicker{
+    .ant-calendar-picker{
+      display: block!important;
+      width: 100%!important;
+    }
+    .ant-input{
+      padding: 5px;
+    }
   }
 }

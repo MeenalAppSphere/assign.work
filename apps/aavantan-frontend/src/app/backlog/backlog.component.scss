@@ -1,4 +1,21 @@
 .draft-sprint-box{
-  border:1px dashed #dddddd;
+  padding: 25px 10px;
+  border: 1px solid #f9fbfd;
   border-radius: 4px;
+  background: #f9fbfd;
+  box-shadow: 3px 3px 4px 0px #ddd;
+  .steps-content{
+    min-height: 60px;
+  }
+
+  .ant-input-sm.team-list-input {
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .ant-list-item{
+    background: #ffffff;
+    display: block;
+    padding: 5px;
+  }
 }

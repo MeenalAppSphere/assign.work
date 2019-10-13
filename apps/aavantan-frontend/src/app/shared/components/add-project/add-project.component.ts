@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
-import { Member } from '../../interfaces/member.interface';
+import { User } from '@aavantan-app/models';
+
 
 @Component({
   selector: 'aavantan-app-add-project',
@@ -19,27 +20,27 @@ export class AddProjectComponent implements OnInit {
   public swicthStepCurrent = 0;
   public modalTitle = 'Project Details';
   public radioValue='A';
-  public selectedCollaborators: Member[] = [];
+  public selectedCollaborators: User[] = [];
   public selectedCollaborator: string;
   public response:any;
 
   public organizations: any = [
     // {
     //   name: 'App Sphere Softwares',
-    //   _id: '121212',
+    //   id: '121212',
     //   owner: 'Owner : Aashish Patil'
     // },
     // {
     //   name: 'App Sphere Enterprises',
-    //   _id: '131212',
+    //   id: '131212',
     //   owner: 'Owner : Aashish Patil'
     // }
   ];
 
-  public members: Member[] = [
-    {emailId:'pradeep@gmail.com', isEmailSent:true},
-    {emailId:'deep@gmail.com'},
-    {emailId:'deep1@gmail.com'},
+  public members: User[] = [
+    {id:'1', firstName:'Pradeep', emailId:'pradeep@gmail.com', isEmailSent : true},
+    {id:'2', firstName:'Deep', emailId:'deep@gmail.com'},
+    {id:'3', firstName :'Deep1', emailId:'deep1@gmail.com'},
   ];
 
   constructor(private FB: FormBuilder, private validationRegexService:ValidationRegexService) {
@@ -64,7 +65,7 @@ export class AddProjectComponent implements OnInit {
 
   }
 
-  public removeCollaborators(mem: Member) {
+  public removeCollaborators(mem: User) {
     this.selectedCollaborators = this.selectedCollaborators.filter(item => item !== mem);
   }
 
@@ -77,7 +78,7 @@ export class AddProjectComponent implements OnInit {
 
   public onKeydown(event) {
     if (event.key === "Enter") {
-      const member : Member = {
+      const member : User = {
         emailId : this.selectedCollaborator
       };
       this.response=this.validationRegexService.emailValidator(member.emailId);

@@ -1,3 +1,5 @@
+import { User } from '@aavantan-app/models';
+
 export interface ProjectList {
     project: string;
     avatar: string;
@@ -5,10 +7,5 @@ export interface ProjectList {
     tasks: string;
     desc: string;
     progress: number;
-    member: Member[];
-}
-  
-interface Member {
-    avatar: string;
-    name: string;
+    member: User[];
 }

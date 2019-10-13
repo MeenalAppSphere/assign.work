@@ -77,7 +77,7 @@ export class BaseService<T extends Document> {
 
   public async delete(id: string): Promise<T> {
     return this.model
-      .update({ _id: this.toObjectId(id) }, { isDeleted: true })
+      .update({ id: this.toObjectId(id) }, { isDeleted: true })
       .exec();
   }
 

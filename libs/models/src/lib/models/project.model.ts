@@ -1,6 +1,8 @@
 import { Organization } from './organization.model';
 import { Types } from 'mongoose';
 
+import { User } from '@aavantan-app/models';
+
 export class Project {
   id?: string;
   name: string;
@@ -8,6 +10,10 @@ export class Project {
   version?: string;
   members: ProjectMembers[];
   organization: string | Organization | Types.ObjectId;
+  desc?: string;
+  avatar?: string;
+  status?: string;
+  progress?: number;
 }
 
 export class ProjectMembers {
@@ -15,4 +21,5 @@ export class ProjectMembers {
   emailId: string;
   isEmailSent: boolean;
   isInviteAccepted: boolean;
+  userDetails?:User
 }
