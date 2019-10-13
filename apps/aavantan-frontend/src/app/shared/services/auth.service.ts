@@ -14,13 +14,12 @@ import { GeneralService } from './general.service';
 import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { of } from 'rxjs';
-import { UserStore } from '../../store/user/user.store';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
   constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              private notification: NzNotificationService, private userStore: UserStore) {
+              private notification: NzNotificationService) {
     super(authStore);
   }
 
@@ -34,15 +33,16 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: res.data.access_token
         });
 
-        this.userStore.update((state => {
-          return {
-            ...state,
-            user: res.data.user
-          };
-        }));
+        // this.userStore.update((state => {
+        //   return {
+        //     ...state,
+        //     user: res.data.user
+        //   };
+        // }));
 
         this._generalService.token = res.data.access_token;
-        this._generalService.user = res.data.user;
+        this.router.navigate(['dashboard']);
+        // this._generalService.user = res.data.user;
         return res;
       }),
       catchError(err => {
@@ -52,15 +52,15 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: null
         });
 
-        this.userStore.update((state => {
-          return {
-            ...state,
-            user: null
-          };
-        }));
+        // this.userStore.update((state => {
+        //   return {
+        //     ...state,
+        //     user: null
+        //   };
+        // }));
 
         this._generalService.token = null;
-        this._generalService.user = null;
+        // this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);
         return of(err);
       })
@@ -78,15 +78,15 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: res.data.access_token
         });
 
-        this.userStore.update((state => {
-          return {
-            ...state,
-            user: res.data.user
-          };
-        }));
+        // this.userStore.update((state => {
+        //   return {
+        //     ...state,
+        //     user: res.data.user
+        //   };
+        // }));
 
         this._generalService.token = res.data.access_token;
-        this._generalService.user = res.data.user;
+        // this._generalService.user = res.data.user;
         return res;
       }),
       catchError((err) => {
@@ -96,15 +96,15 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
           token: null
         });
 
-        this.userStore.update((state => {
-          return {
-            ...state,
-            user: null
-          };
-        }));
+        // this.userStore.update((state => {
+        //   return {
+        //     ...state,
+        //     user: null
+        //   };
+        // }));
 
         this._generalService.token = null;
-        this._generalService.user = null;
+        // this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);
         return of(err);
       })
@@ -113,14 +113,14 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
 
   logOut() {
     this.updateState({ token: null });
-    this.userStore.update(state => {
-      return {
-        ...state,
-        user: null
-      };
-    });
+    // this.userStore.update(state => {
+    //   return {
+    //     ...state,
+    //     user: null
+    //   };
+    // });
     this._generalService.token = null;
-    this._generalService.user = null;
+    // this._generalService.user = null;
     this.router.navigate(['/login']);
   }
 

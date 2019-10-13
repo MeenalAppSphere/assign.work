@@ -60,7 +60,8 @@ export class HomeComponent implements OnInit {
               firstName: 'Aashish'
             }
           }
-        ]
+        ],
+        organization: ''
       }
     ];
   }
@@ -83,4 +84,4 @@ export class HomeComponent implements OnInit {
       nzWidth: 800
     });
   }
-}  
+}

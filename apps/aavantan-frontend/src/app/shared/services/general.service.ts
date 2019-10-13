@@ -1,5 +1,7 @@
 import { User } from '@aavantan-app/models';
+import { Injectable } from '@angular/core';
 
+@Injectable({ providedIn: 'root' })
 export class GeneralService {
   get userLocale(): string {
     return this._userLocale;
@@ -8,6 +10,7 @@ export class GeneralService {
   set userLocale(value: string) {
     this._userLocale = value;
   }
+
   get token(): string {
     return this._token;
   }
@@ -15,6 +18,7 @@ export class GeneralService {
   set token(value: string) {
     this._token = value;
   }
+
   get user(): User {
     return this._user;
   }
