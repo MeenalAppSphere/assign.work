@@ -113,6 +113,14 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
 
   logOut() {
     this.updateState({ token: null });
+    this.userStore.update(state => {
+      return {
+        ...state,
+        user: null
+      };
+    });
+    this._generalService.token = null;
+    this._generalService.user = null;
     this.router.navigate(['/login']);
   }
 

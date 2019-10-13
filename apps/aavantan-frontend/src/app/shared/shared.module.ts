@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { ThemeConstantService } from './services/theme-constant.service';
@@ -17,6 +17,8 @@ import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderService } from './services/loader.service';
 import { TimelogComponent } from './components/timelog/timelog.component';
 import { DateAgoPipe } from './pipes/dateago.pipe';
+import { UserService } from './services/user.service';
+import { AuthInterceptor } from './interceptor/auth.interceptor';
 
 @NgModule({
   exports: [
@@ -56,7 +58,9 @@ import { DateAgoPipe } from './pipes/dateago.pipe';
     HttpWrapperService,
     AuthService,
     GeneralService,
-    LoaderService
+    LoaderService,
+    UserService
   ]
 })
-export class SharedModule {}
+export class SharedModule {
+}

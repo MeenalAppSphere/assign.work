@@ -1,14 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AuthState, AuthStore } from '../../store/auth/auth.store';
-import {
-  BaseResponseModel,
-  User,
-  UserLoginSignUpSuccessResponse,
-  UserLoginWithPasswordRequest
-} from '@aavantan-app/models';
+import { BaseResponseModel, UserLoginSignUpSuccessResponse } from '@aavantan-app/models';
 import { BaseService } from './base.service';
 import { HttpWrapperService } from './httpWrapper.service';
-import { AuthUrls } from './apiUrls/auth.urls';
 import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
 import { Router } from '@angular/router';
