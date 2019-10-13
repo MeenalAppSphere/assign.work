@@ -6,6 +6,7 @@ import { AuthService } from './services/auth.service';
 import { GeneralService } from './services/general.service';
 import { LoaderService } from './services/loader.service';
 import { UserService } from './services/user.service';
+import { OrganizationService } from './services/organization.service';
 
 @NgModule()
 export class ServiceModule {
@@ -20,7 +21,8 @@ export class ServiceModule {
         AuthService,
         GeneralService,
         LoaderService,
-        UserService
+        UserService,
+        OrganizationService
       ]
     };
   }

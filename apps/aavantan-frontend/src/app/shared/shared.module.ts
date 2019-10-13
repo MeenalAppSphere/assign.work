@@ -35,8 +35,7 @@ import { ServiceModule } from './service.module';
     NgZorroAntdModule,
     PerfectScrollbarModule,
     TypeaheadModule,
-    PopoverModule,
-    ServiceModule.forRoot()
+    PopoverModule
   ],
   declarations: [
     AddProjectComponent,

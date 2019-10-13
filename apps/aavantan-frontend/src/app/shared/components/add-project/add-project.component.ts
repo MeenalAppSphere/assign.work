@@ -1,8 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
-import { User } from '@aavantan-app/models';
+import { Organization, User } from '@aavantan-app/models';
+import { OrganizationService } from '../../services/organization.service';
+import { GeneralService } from '../../services/general.service';
+import { OrganizationQuery } from '../../../queries/organization/organization.query';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 
 @Component({
@@ -10,55 +14,63 @@ import { User } from '@aavantan-app/models';
   templateUrl: './add-project.component.html',
   styleUrls: ['./add-project.component.css']
 })
-export class AddProjectComponent implements OnInit {
+export class AddProjectComponent implements OnInit, OnDestroy {
   @Input() public projectModalIsVisible: Boolean = false;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
+
   public orgForm: FormGroup;
   public projectForm: FormGroup;
   public collaboratorForm: FormGroup;
   public basicCurrent = 1;
   public swicthStepCurrent = 0;
   public modalTitle = 'Project Details';
-  public radioValue='A';
+  public radioValue = 'A';
   public selectedCollaborators: User[] = [];
   public selectedCollaborator: string;
-  public response:any;
+  public response: any;
 
-  public organizations: any = [
-    // {
-    //   name: 'App Sphere Softwares',
-    //   id: '121212',
-    //   owner: 'Owner : Aashish Patil'
-    // },
-    // {
-    //   name: 'App Sphere Enterprises',
-    //   id: '131212',
-    //   owner: 'Owner : Aashish Patil'
-    // }
-  ];
+  public organizations: Organization[];
+  public organizationCreationInProcess: boolean = false;
 
   public members: User[] = [
-    {id:'1', firstName:'Pradeep', emailId:'pradeep@gmail.com', isEmailSent : true},
-    {id:'2', firstName:'Deep', emailId:'deep@gmail.com'},
-    {id:'3', firstName :'Deep1', emailId:'deep1@gmail.com'},
+    { id: '1', firstName: 'Pradeep', emailId: 'pradeep@gmail.com', isEmailSent: true },
+    { id: '2', firstName: 'Deep', emailId: 'deep@gmail.com' },
+    { id: '3', firstName: 'Deep1', emailId: 'deep1@gmail.com' }
   ];
 
-  constructor(private FB: FormBuilder, private validationRegexService:ValidationRegexService) {
+  constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _organizationService: OrganizationService,
+              private _generalService: GeneralService, private _organizationQuery: OrganizationQuery) {
   }
 
   ngOnInit() {
+    this.organizations = this._generalService.user.organizations as Organization[];
     this.createFrom();
+
+    // listen for organization creation
+    this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res && this.swicthStepCurrent === 0) {
+        this.swicthStepCurrent++;
+        this.changeContent();
+      }
+    });
+
+    // listen for organization creation in process
+    this._organizationQuery.isCreateOrganizationInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
+      this.organizationCreationInProcess = res;
+    });
   }
 
-  public createFrom(){
+  public createFrom() {
     this.projectForm = this.FB.group({
-      projectName : [ null, [ Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+') ] ],
-      description : [ null ]
+      projectName: [null, [Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
+      description: [null]
     });
+
     this.orgForm = this.FB.group({
-      organizationName : [ null, [ Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
-      organizationDescription:[null, '']
+      name: [null, [Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
+      description: [null, '']
     });
+
     this.collaboratorForm = this.FB.group({
       collaborators: ''
     });
@@ -70,22 +82,28 @@ export class AddProjectComponent implements OnInit {
   }
 
   public typeaheadOnSelect(e: TypeaheadMatch): void {
-    if(this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length===0){
+    if (this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length === 0) {
       this.selectedCollaborators.push(e.item);
     }
-    this.selectedCollaborator=null;
+    this.selectedCollaborator = null;
+  }
+
+  public createOrganization() {
+    const organization: Organization = { ...this.orgForm.getRawValue() };
+    organization.createdBy = this._generalService.user.id;
+    this._organizationService.createOrganization(organization).subscribe();
   }
 
   public onKeydown(event) {
-    if (event.key === "Enter") {
-      const member : User = {
-        emailId : this.selectedCollaborator
+    if (event.key === 'Enter') {
+      const member: User = {
+        emailId: this.selectedCollaborator
       };
-      this.response=this.validationRegexService.emailValidator(member.emailId);
-      if(this.selectedCollaborators.filter(item => item.emailId === member.emailId).length===0){
-        if(!this.response.invalidEmailAddress){
+      this.response = this.validationRegexService.emailValidator(member.emailId);
+      if (this.selectedCollaborators.filter(item => item.emailId === member.emailId).length === 0) {
+        if (!this.response.invalidEmailAddress) {
           this.selectedCollaborators.push(member);
-          this.selectedCollaborator=null;
+          this.selectedCollaborator = null;
         }
       }
     }
@@ -102,6 +120,13 @@ export class AddProjectComponent implements OnInit {
   }
 
   next(): void {
+    if (this.swicthStepCurrent === 0) {
+      // organization
+      if (!this.organizations.length) {
+        this.createOrganization();
+        return;
+      }
+    }
     this.swicthStepCurrent += 1;
     this.changeContent();
   }
@@ -110,9 +135,10 @@ export class AddProjectComponent implements OnInit {
     this.toggleShow.emit();
   }
 
-  basicModalHandleCancel(){
+  basicModalHandleCancel() {
     this.toggleShow.emit();
   }
+
   changeContent(): void {
     switch (this.swicthStepCurrent) {
       case 0: {
@@ -138,8 +164,11 @@ export class AddProjectComponent implements OnInit {
     this.saveForm();
   }
 
-  public saveForm(){
-    console.log('Save : ', this.modalTitle)
+  public saveForm() {
+    console.log('Save : ', this.modalTitle);
+  }
+
+  ngOnDestroy(): void {
   }
 
 }

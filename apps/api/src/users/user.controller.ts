@@ -10,7 +10,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   async getUser(@Request() req) {
-    return await this._userService.findById(req.user.id, ['projects', 'organization']);
+    return await this._userService.findById(req.user.id, ['projects', 'organizations']);
   }
 
   @Get('')

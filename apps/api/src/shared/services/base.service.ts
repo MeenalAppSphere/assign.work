@@ -45,26 +45,10 @@ export class BaseService<T extends Document> {
     return await this.model.create(doc, { session });
   }
 
-  public async update(
-    id: string,
-    updatedDoc: T
-  ): Promise<T> {
-    const session = await this.model.db.startSession();
-    session.startTransaction();
-
-    let result;
-    try {
-      result = await this.model
-        .findByIdAndUpdate(this.toObjectId(id), updatedDoc)
-        .exec();
-      await session.commitTransaction();
-      session.endSession();
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
-    return result;
+  public async update(id: string, updatedDoc: T | Partial<T>, session: ClientSession): Promise<T> {
+    return await this.model
+      .findByIdAndUpdate(this.toObjectId(id), updatedDoc)
+      .exec();
   }
 
   public async getAllPaginatedData(query: any = {}, options: Partial<MongoosePaginateQuery> | any) {

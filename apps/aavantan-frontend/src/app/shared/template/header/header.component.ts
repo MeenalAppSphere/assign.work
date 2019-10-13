@@ -2,21 +2,25 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { GeneralService } from '../../services/general.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls:['./header.component.scss']
+  styleUrls: ['./header.component.scss']
 })
 
-export class HeaderComponent implements OnInit{
+export class HeaderComponent implements OnInit {
 
-  constructor( private themeService: ThemeConstantService, private router:Router, private readonly _authService: AuthService) {}
+  constructor(private themeService: ThemeConstantService, private router: Router, private readonly _authService: AuthService,
+              private readonly _generalService: GeneralService) {
+  }
+
   public projectModalIsVisible: boolean = false;
-  public searchVisible : boolean = false;
-  public quickViewVisible : boolean = false;
-  public isFolded : boolean;
-  public isExpand : boolean;
+  public searchVisible: boolean = false;
+  public quickViewVisible: boolean = false;
+  public isFolded: boolean;
+  public isExpand: boolean;
 
   notificationList = [
     {
@@ -73,7 +77,6 @@ export class HeaderComponent implements OnInit{
   // Ctrl + j functionality
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
-    console.log(event);
     if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();

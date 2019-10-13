@@ -1,7 +1,7 @@
 import { User } from '@aavantan-app/models';
 import { Injectable } from '@angular/core';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class GeneralService {
   get userLocale(): string {
     return this._userLocale;
