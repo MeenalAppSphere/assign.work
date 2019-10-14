@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Task, TaskType } from '@aavantan-app/models';
+import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -8,6 +9,18 @@ import { Task, TaskType } from '@aavantan-app/models';
   styleUrls: ['./task.component.scss']
 })
 export class TaskComponent implements OnInit {
+  public Editor = ClassicEditor;
+  public config:any = { toolbar:[
+    'heading',
+    'bold',
+    'italic',
+    'link',
+    'bulletedList',
+    'numberedList',
+    'blockQuote',
+    'undo',
+    'redo'
+  ]};
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
   public assigneeTo: string;

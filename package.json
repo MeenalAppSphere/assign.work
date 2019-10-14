@@ -39,6 +39,8 @@
     "@angular/platform-browser": "^8.2.8",
     "@angular/platform-browser-dynamic": "^8.2.8",
     "@angular/router": "^8.2.8",
+    "@ckeditor/ckeditor5-angular": "^1.1.0",
+    "@ckeditor/ckeditor5-build-classic": "^12.4.0",
     "@datorama/akita": "^4.10.5",
     "@datorama/akita-ngdevtools": "^3.0.2",
     "@fortawesome/fontawesome-free": "^5.11.2",
