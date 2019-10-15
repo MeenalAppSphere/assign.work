@@ -47,8 +47,7 @@ export class BaseService<T extends Document> {
 
   public async update(id: string, updatedDoc: T | Partial<T>, session: ClientSession): Promise<T> {
     return await this.model
-      .findByIdAndUpdate(this.toObjectId(id), updatedDoc)
-      .exec();
+      .updateOne({ id }, updatedDoc, { session }).exec();
   }
 
   public async getAllPaginatedData(query: any = {}, options: Partial<MongoosePaginateQuery> | any) {

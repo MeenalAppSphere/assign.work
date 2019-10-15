@@ -1,13 +1,14 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Put, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from '@aavantan-app/models';
 
 @Controller('user')
+@UseGuards(AuthGuard('jwt'))
 export class UserController {
   constructor(private readonly _userService: UsersService) {
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   async getUser(@Request() req) {
     return await this._userService.findById(req.user.id, ['projects', 'organizations']);
@@ -16,5 +17,10 @@ export class UserController {
   @Get('')
   async getAll() {
     return await this._userService.getAll();
+  }
+
+  @Put('profile')
+  async updateUserProfile(@Body() id: string, @Body() user: Partial<User>) {
+    return await this._userService.updateUser(id, user, null);
   }
 }
