@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
-import { Organization, User } from '@aavantan-app/models';
+import { Organization, Project, ProjectTemplateEnum, User } from '@aavantan-app/models';
 import { OrganizationService } from '../../services/organization.service';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
@@ -62,8 +62,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public createFrom() {
     this.projectForm = this.FB.group({
-      projectName: [null, [Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
-      description: [null]
+      name: [null, [Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
+      description: [null],
+      organization: [null, Validators.required],
+      template: [ProjectTemplateEnum.software, Validators.required],
+      members: []
     });
 
     this.orgForm = this.FB.group({
@@ -109,8 +112,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     }
   }
 
-  public selectOrg(item) {
-    console.log('Selected Org:', item.name);
+  public selectOrg(item: Organization) {
+    this.projectForm.get('organization').patchValue(item.id);
     this.next();
   }
 
@@ -126,6 +129,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.createOrganization();
         return;
       }
+    }
+
+    if (this.swicthStepCurrent === 2) {
+      console.log(this.collaboratorForm.value);
     }
     this.swicthStepCurrent += 1;
     this.changeContent();
@@ -165,7 +172,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   public saveForm() {
-    console.log('Save : ', this.modalTitle);
+    const project: Project = { ...this.projectForm.getRawValue() };
+    project.createdBy = this._generalService.user.id;
   }
 
   ngOnDestroy(): void {

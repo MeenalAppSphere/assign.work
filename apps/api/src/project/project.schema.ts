@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { DbCollection } from '@aavantan-app/models';
+import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -21,8 +21,13 @@ export const projectSchema = new Schema({
     ref: DbCollection.organizations,
     required: [true, 'Please select Organization.']
   },
+  template: {
+    type: String,
+    required: [true, 'Please Select Project Template'],
+    enum: Object.values(ProjectTemplateEnum)
+  },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false }
 });
 

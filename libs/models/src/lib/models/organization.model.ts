@@ -10,4 +10,5 @@ export class Organization {
   activeMembersCount?: number;
   createdBy?: string | User;
   updatedBy?: string | User;
+  members?: string[] | Array<Partial<User>>;
 }
