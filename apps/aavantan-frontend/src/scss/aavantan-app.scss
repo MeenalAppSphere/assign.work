@@ -144,6 +144,24 @@ p {
     }
   }
 }
+/* ckeditor */
+.ck-rounded-corners .ck.ck-button, .ck-rounded-corners a.ck.ck-button, .ck.ck-button.ck-rounded-corners, a.ck.ck-button.ck-rounded-corners {
+  border-radius: var(--ck-border-radius);
+  margin: 0px;
+}
+ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main>.ck-editor__editable.ck-rounded-corners {
+  min-height: 140px;
+}
+.ck.ck-toolbar{
+  border-color: #d1dae4!important;
+}
+.ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+  border-color: #d1dae4!important;
+}
+.ck.ck-icon{
+  font-size: 10px!important;
+}
+/* */
 .joyride-step__container{
   border-radius: 6px;
   height: auto!important;

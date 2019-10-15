@@ -200,12 +200,7 @@
           <nz-form-item>
             <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
             <nz-form-control>
-              <textarea
-                placeholder="Write something about this item"
-                formControlName="description"
-                rows="4"
-                class="form-control"
-                nzSize="small"></textarea>
+              <ckeditor formControlName="description" [config]="config" placeholder="Write something about this item..." [editor]="Editor" data="<p>Hello, world!</p>"></ckeditor>
             </nz-form-control>
           </nz-form-item>
         </div>
