@@ -44,31 +44,26 @@ export class SettingsComponent implements OnInit{
     {
       id: '1',
       name: 'BUG',
-      value: 'bug',
       color:'#F80647'
     },
     {
       id: '2',
       name: 'CR',
-      value: 'cr',
       color:'#F0CB2D'
     },
     {
       id: '3',
       name: 'NEW WORK',
-      value: 'newwork',
       color:'#0E7FE0'
     },
     {
       id: '4',
       name: 'ENHANCEMENTS',
-      value: 'enhancement',
       color:'#0AC93E'
     },
     {
-      id: '4',
+      id: '5',
       name: 'EPIC',
-      value: 'epic',
       color:'#1022A8'
     }];
   public teamsList:User[] = [

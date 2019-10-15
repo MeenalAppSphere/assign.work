@@ -3,8 +3,8 @@
     <div class="col-md-3" *ngFor="let item of taskList">
       <nz-card nzSize="small">
         <div class="d-flex justify-content-between">
-          <div class="media">
-            <img src="../../../../assets/images/priority/high.png" class="m-t-5"  height="16"/>
+          <div class="media" [ngStyle]="{'border-left': '4px solid '+ item.taskType.color}">
+            <img src="../../../../assets/images/priority/high.png" class="m-t-5 m-l-10"  height="16"/>
             <div class="m-l-10">
               <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.name}}</a></h6>
             </div>
@@ -60,8 +60,8 @@
           <label nz-checkbox [(ngModel)]="item.selectedForSprint" (nzCheckedChange)="selectTaskForSprint(item)"></label>
         </td>
         <td data-label="Title">
-          <div class="media align-items-center">
-            <img src="../../../../assets/images/priority/{{item.priority}}.png"  height="16"/>
+          <div class="media align-items-center" [ngStyle]="{'border-left': '5px solid '+ item.taskType.color}">
+            <img src="../../../../assets/images/priority/{{item.priority}}.png" class="m-l-10" height="16"/>
             <div class="m-l-10">
               <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.name}}</a></h6>
             </div>

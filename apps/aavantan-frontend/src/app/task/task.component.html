@@ -40,19 +40,22 @@
           <nz-form-item>
             <nz-form-label nzRequired nzFor="taskType">Assigned To</nz-form-label>
             <nz-form-control class="relative">
-              <img src="./../../assets/images/avatars/thumb-2.jpg" height="16" class="img-circle assigned-user-icon"/>
+              <span class="assigned-user-icon">
+                <nz-avatar [nzSize]="16" nzIcon="user" [nzSrc]="assigneeTo ? assigneeTo.profilePic : null" ></nz-avatar>
+              </span>
               <input
                 placeholder="Search Assignee"
                 formControlName="assignedTo"
                 class="assigned-user-input"
                 nz-input
+                (ngModelChange)="selectAssigneeTypeahead($event)"
                 nzSize="small"
                 [nzAutocomplete]="autoAssignee"/>
               <nz-autocomplete #autoAssignee>
                 <nz-auto-option
                   *ngFor="let option of assigneeDataSource"
                   [nzLabel]="option.firstName"
-                  [nzValue]="option.id" >
+                  [nzValue]="option" >
                   <nz-avatar
                     class="m-r-10"
                     nzShape="circle"
@@ -211,7 +214,10 @@
         <div class="col-md-12">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="dependentItem">Dependent Item</nz-form-label>
-            <nz-form-control>
+            <nz-form-control class="relative input-relative-group">
+              <span class="assigned-user-icon">
+                <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedDependentItem && selectedDependentItem.taskType ? selectedDependentItem.taskType.color : '' }"></i>
+              </span>
               <input
                 placeholder="Search/Select Dependent Item"
                 formControlName="dependentItem"
@@ -222,8 +228,9 @@
                 <nz-auto-option
                   *ngFor="let option of dependentTaskDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option.id" >
-                  <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
+                  (ngModelChange)="selectDependentItemTypeahead($event)"
+                  [nzValue]="option" >
+                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
@@ -233,19 +240,23 @@
         <div class="col-md-12">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="relatedItem">Related Item</nz-form-label>
-            <nz-form-control>
+            <nz-form-control class="relative input-relative-group">
+              <span class="assigned-user-icon">
+                <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
+              </span>
               <input
                 placeholder="Search/Select Related Item"
                 formControlName="relatedItem"
                 nz-input
+                (ngModelChange)="selectRelatedItemTypeahead($event)"
                 nzSize="small"
                 [nzAutocomplete]="autoRelatedItem"/>
               <nz-autocomplete #autoRelatedItem>
                 <nz-auto-option
                   *ngFor="let option of relatedTaskDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option.id" >
-                  <img src="./../../assets/images/priority/{{option.taskType}}.svg" height="14" class="m-r-5"/>
+                  [nzValue]="option" >
+                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>

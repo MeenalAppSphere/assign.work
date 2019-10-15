@@ -16,31 +16,26 @@ export class ProjectComponent implements OnInit{
     {
       id: '1',
       name: 'BUG',
-      value: 'bug',
       color: '#F80647'
     },
     {
       id: '2',
       name: 'CR',
-      value: 'cr',
       color: '#F0CB2D'
     },
     {
       id: '3',
       name: 'NEW WORK',
-      value: 'newwork',
       color: '#0E7FE0'
     },
     {
       id: '4',
       name: 'ENHANCEMENTS',
-      value: 'enhancement',
       color: '#0AC93E'
     },
     {
       id: '4',
       name: 'EPIC',
-      value: 'epic',
       color: '#1022A8'
     }
   ];
@@ -65,7 +60,11 @@ export class ProjectComponent implements OnInit{
           status:'In Progress',
           assigned:this.memberObj,
           estimate: 2+'hr',
-          priority:'high'
+          priority:'high',
+          taskType: {
+            name:'bug',
+            color:'#ddee00'
+          }
         }
         this.myTaskList.push(this.taskObj);
       }

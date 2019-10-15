@@ -13,7 +13,6 @@ import { User } from '@aavantan-app/models';
 export class AddProjectComponent implements OnInit {
   @Input() public projectModalIsVisible: Boolean = false;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
-  public orgForm: FormGroup;
   public projectForm: FormGroup;
   public collaboratorForm: FormGroup;
   public basicCurrent = 1;
@@ -23,19 +22,6 @@ export class AddProjectComponent implements OnInit {
   public selectedCollaborators: User[] = [];
   public selectedCollaborator: string;
   public response:any;
-
-  public organizations: any = [
-    // {
-    //   name: 'App Sphere Softwares',
-    //   id: '121212',
-    //   owner: 'Owner : Aashish Patil'
-    // },
-    // {
-    //   name: 'App Sphere Enterprises',
-    //   id: '131212',
-    //   owner: 'Owner : Aashish Patil'
-    // }
-  ];
 
   public members: User[] = [
     {id:'1', firstName:'Pradeep', emailId:'pradeep@gmail.com', isEmailSent : true},
@@ -54,10 +40,6 @@ export class AddProjectComponent implements OnInit {
     this.projectForm = this.FB.group({
       projectName : [ null, [ Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+') ] ],
       description : [ null ]
-    });
-    this.orgForm = this.FB.group({
-      organizationName : [ null, [ Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
-      organizationDescription:[null, '']
     });
     this.collaboratorForm = this.FB.group({
       collaborators: ''
@@ -89,11 +71,6 @@ export class AddProjectComponent implements OnInit {
         }
       }
     }
-  }
-
-  public selectOrg(item) {
-    console.log('Selected Org:', item.name);
-    this.next();
   }
 
   pre(): void {

@@ -45,7 +45,11 @@ export class BacklogComponent implements OnInit {
         assigned:this.memberObj,
         estimate: 2+'hr',
         priority:'low',
-        selectedForSprint:false
+        selectedForSprint:false,
+        taskType: {
+          name:'bug',
+          color:'#ddee00'
+        }
       }
       this.allTaskList.push(this.taskObj);
     }

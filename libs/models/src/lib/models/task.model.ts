@@ -1,4 +1,4 @@
-import { Labels, User } from '@aavantan-app/models';
+import { Labels, TaskType, User } from '@aavantan-app/models';
 
 export interface Task {
   id: string;
@@ -27,9 +27,8 @@ export interface Task {
   status?:string;
   estimate?:string;
   selectedForSprint?:boolean;
-  taskType?:string;
+  taskType?: string | TaskType;
 }
-
 
 export interface TaskAttachement {
   id: string;
