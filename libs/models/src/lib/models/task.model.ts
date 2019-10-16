@@ -1,16 +1,16 @@
 import { Labels, TaskType, User } from '@aavantan-app/models';
 
-export interface Task {
-  id: string;
+export class Task {
+  id?: string;
   name: string;
   shortLink?: string;
   closed?: boolean;
   dateLastActivity?: Date;
-  description?:string;
+  description?: string;
   dueReminder?: string;
   due?: Date;
   dueComplete?: boolean;
-  stageId?:string;
+  stageId?: string;
   projectId?: string;
   position?: number;
   priority?: string;
@@ -20,19 +20,19 @@ export interface Task {
   shortUrl?: string;
   url?: string;
   labels?: Labels[];
-  attachments?: TaskAttachement[];
+  attachments?: TaskAttachment[];
   createdAt?: Date;
   updatedAt?: Date;
-  progress?:number;
-  status?:string;
-  estimate?:string;
-  selectedForSprint?:boolean;
+  progress?: number;
+  status?: string;
+  estimate?: string;
+  selectedForSprint?: boolean;
   taskType?: string | TaskType;
 }
 
-export interface TaskAttachement {
+export class TaskAttachment {
   id: string;
-  memberId:string;
+  memberId: string;
   isUpload: boolean;
   mimeType: string;
   name: string;

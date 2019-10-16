@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { AppsService } from '../../shared/services/apps.service';
 import { NzModalService } from 'ng-zorro-antd';
-import { Project } from '@aavantan-app/models';
+import { Project, ProjectTemplateEnum } from '@aavantan-app/models';
 
 @Component({
   templateUrl: './home.component.html',
@@ -15,7 +15,8 @@ export class HomeComponent implements OnInit {
   constructor(
     private projectListSvc: AppsService,
     private modalService: NzModalService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.projectList = [
@@ -61,7 +62,8 @@ export class HomeComponent implements OnInit {
             }
           }
         ],
-        organization: ''
+        organization: '',
+        template: ProjectTemplateEnum.software
       }
     ];
   }

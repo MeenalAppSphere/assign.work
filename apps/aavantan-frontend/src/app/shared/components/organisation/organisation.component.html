@@ -1,53 +1,75 @@
-<nz-modal [(nzVisible)]="organizationModalIsVisible" [nzTitle]="modalTitle" nzClassName="organisation-modal" nzFooter="#nzModalFooter" nzWidth="600" nzClosable="false">
-<form nz-form class="register-form" [formGroup]="orgForm">
-  <ng-container *ngIf="organizations?.length>0">
-    <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-      <ng-template #item let-item>
-        <a class="font-size-15" (click)="selectOrg(item)">
-          <nz-list-item class="p-l-20">
-            <nz-list-item-meta
-              [nzTitle]="nzTitle"
-              nzAvatar="assets/images/others/thumb-2.jpg"
-              nzDescription="{{item.owner}}">
-              <ng-template #nzTitle>
-                <span class="font-size-15">{{item.name}}</span>
-              </ng-template>
-            </nz-list-item-meta>
-          </nz-list-item>
-        </a>
-      </ng-template>
-    </nz-list>
-  </ng-container>
-  <ng-container *ngIf="organizations?.length===0">
-    <form nz-form class="register-form" [formGroup]="orgForm">
-      <nz-form-item>
-        <nz-form-label nzRequired nzFor="organizationName">Organization Name</nz-form-label>
-        <nz-form-control >
-          <input nz-input formControlName="organizationName" placeholder="Organization Name" maxlength="100" autocomplete="Off" nzSize="small" id="organizationName">
-          <nz-form-explain *ngIf="orgForm.get('organizationName').dirty && orgForm.get('organizationName').errors">Please Enter Organization Name! <small class="text-muted"> (Allowed Alphanumeric only)</small></nz-form-explain>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzRequired nzFor="organizationDescription">Description</nz-form-label>
-        <nz-form-control >
-          <textarea nz-input rows="3" placeholder="Write something about your Organization..." formControlName="organizationDescription" maxlength="500" autocomplete="Off" nzSize="small" id="organizationDescription"></textarea>
-        </nz-form-control>
-      </nz-form-item>
-    </form>
-  </ng-container>
-</form>
+<nz-modal [(nzVisible)]="organizationModalIsVisible" [nzTitle]="modalTitle" nzClassName="organisation-modal"
+          nzFooter="#nzModalFooter" nzWidth="600" nzClosable="false">
+
+  <form nz-form class="register-form" [formGroup]="orgForm">
+
+    <ng-container *ngIf="organizations?.length>0">
+
+      <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+
+        <ng-template #item let-item>
+          <a class="font-size-15" (click)="selectOrg(item)">
+            <nz-list-item class="p-l-20">
+              <nz-list-item-meta
+                [nzTitle]="nzTitle"
+                nzAvatar="assets/images/others/thumb-2.jpg"
+                nzDescription="{{item.owner}}">
+                <ng-template #nzTitle>
+                  <span class="font-size-15">{{item.name}}</span>
+                </ng-template>
+              </nz-list-item-meta>
+            </nz-list-item>
+          </a>
+        </ng-template>
+
+      </nz-list>
+
+    </ng-container>
+
+    <ng-container *ngIf="organizations?.length===0">
+
+      <form nz-form class="register-form" [formGroup]="orgForm">
+
+        <nz-form-item>
+          <nz-form-label nzRequired nzFor="name">Organization Name</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="name" placeholder="Organization Name" maxlength="100"
+                   autocomplete="Off" nzSize="small" id="name">
+            <nz-form-explain *ngIf="orgForm.get('name').dirty && orgForm.get('name').errors">
+              Please Enter Organization Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
+            </nz-form-explain>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input rows="3" placeholder="Write something about your Organization..."
+                      formControlName="description" maxlength="500" autocomplete="Off" nzSize="small"
+                      id="description"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+
+      </form>
+    </ng-container>
+
+  </form>
+
   <div *nzModalFooter>
+
     <div class="row">
       <div class="col text-left">
         <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()">
           <span>Cancel</span>
         </button>
       </div>
+
       <div class="col">
-        <button nz-button nzType="primary" nzSize="small" (click)="saveForm()">
+        <button nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
           <span>Save</span>
         </button>
       </div>
+
     </div>
   </div>
 </nz-modal>

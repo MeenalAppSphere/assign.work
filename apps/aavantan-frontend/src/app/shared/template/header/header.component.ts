@@ -51,6 +51,17 @@ export class HeaderComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+
+    if (this._generalService.user) {
+      if (!this._generalService.user.organizations.length) {
+        this.organizationModalShow();
+      } else {
+        if (!this._generalService.user.projects.length) {
+          this.projectModalShow();
+        }
+      }
+    }
+
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
   }

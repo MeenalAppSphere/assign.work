@@ -18,15 +18,16 @@
       <div class="min-height-100 m-t-25">
         <form nz-form class="register-form" [formGroup]="projectForm">
           <nz-form-item>
-            <nz-form-label nzRequired nzFor="projectName">Project Name</nz-form-label>
+            <nz-form-label nzRequired nzFor="name">Project Name</nz-form-label>
             <nz-form-control>
-              <input nz-input formControlName="projectName" placeholder="Project Name" autocomplete="Off" nzSize="small"
-                     id="projectName">
-              <nz-form-explain *ngIf="projectForm.get('projectName').dirty && projectForm.get('projectName').errors">
+              <input nz-input formControlName="name" placeholder="Project Name" autocomplete="Off" nzSize="small"
+                     id="name">
+              <nz-form-explain *ngIf="projectForm.get('name').dirty && projectForm.get('name').errors">
                 Please Enter Project Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
               </nz-form-explain>
             </nz-form-control>
           </nz-form-item>
+
           <nz-form-item>
             <nz-form-label nzFor="description">Description</nz-form-label>
             <nz-form-control>
@@ -34,6 +35,7 @@
                         placeholder="Write something about your project..."></textarea>
             </nz-form-control>
           </nz-form-item>
+
         </form>
       </div>
     </ng-container>
@@ -53,7 +55,7 @@
             </div>
             <input
               autocomplete="Off"
-              formControlName="collaborators"
+              formControlName="members"
               [(ngModel)]="selectedCollaborator"
               (typeaheadOnSelect)="typeaheadOnSelect($event)"
               [typeahead]="members"
