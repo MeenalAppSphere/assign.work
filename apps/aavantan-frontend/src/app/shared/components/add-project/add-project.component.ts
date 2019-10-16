@@ -15,7 +15,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
   styleUrls: ['./add-project.component.css']
 })
 export class AddProjectComponent implements OnInit, OnDestroy {
-  @Input() public projectModalIsVisible: Boolean = false;
+  @Input() public projectModalIsVisible: boolean = false;
   @Input() public selectedOrgId: string;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 

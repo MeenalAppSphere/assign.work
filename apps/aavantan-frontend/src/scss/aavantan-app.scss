@@ -347,8 +347,12 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 /* organisation-modal */
-.organisation-modal {
+
+.capability-modal {
+  .ant-steps-item-title {
+    font-size: 13px !important;
+  }
   .ant-modal-body {
-    padding: 0rem !important;
+    padding: 0px 10px!important;
   }
 }

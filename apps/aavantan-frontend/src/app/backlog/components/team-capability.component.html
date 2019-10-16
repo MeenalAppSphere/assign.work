@@ -1,0 +1,43 @@
+<nz-modal [(nzVisible)]="teamCapabilityModalIsVisible" nzTitle="Allocated Working Hours" nzClassName="capability-modal" nzFooter="#nzModalFooter" nzWidth="500" nzClosable="false">
+
+  <div class="capability-table">
+    <nz-table
+      [nzData]="sprintMembers"
+      [nzShowPagination]="false">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th class="text-right" width="140">Working hours</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <tr *ngFor="let item of sprintMembers">
+        <td><nz-avatar nzSize="small" nzSrc="{{item.profilePic}}"></nz-avatar> {{item.firstName}} {{item.lastName}}</td>
+        <td class="text-right"><input nz-input placeholder="Hours" class="team-list-input" value="40" nzSize="small" maxlength="3"/></td>
+      </tr>
+      <tr>
+        <td class="text-right" colspan="2">Total Hours: 120</td>
+      </tr>
+
+      </tbody>
+    </nz-table>
+  </div>
+
+  <div *nzModalFooter>
+    <div class="row">
+
+      <div class="col text-left">
+        <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()">
+          <span>Cancel</span>
+        </button>
+      </div>
+      <div class="col text-right">
+        <button nz-button nzType="primary" nzSize="small" (click)="saveForm()">
+          <span>Save</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</nz-modal>

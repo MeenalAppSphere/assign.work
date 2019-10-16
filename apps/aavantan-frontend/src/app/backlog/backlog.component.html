@@ -17,7 +17,10 @@
 
 
   <section class="m-b-20">
-    <label *ngIf="sprintData && sprintData.id">{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
+    <div class="clearfix" *ngIf="sprintData && sprintData.id">
+    <label>{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
+    <a href="javascript:void(0);" class="float-right" (click)="showTeamCapability()">Team Capability</a>
+    </div>
     <div class="draft-sprint-box" *ngIf="!showStartWizard && sprintData && sprintData.id && draftData && draftData.length===0">
         <nz-empty
           [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
@@ -151,3 +154,10 @@
     </ng-container>
   </section>
 </nz-card>
+
+
+
+<aavantan-team-capability
+  [teamCapabilityModalIsVisible]="teamCapabilityModalIsVisible"
+  (toggleShow)="showTeamCapability()">
+</aavantan-team-capability>
