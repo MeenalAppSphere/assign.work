@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Task, TaskType } from '@aavantan-app/models';
+import { Task, TaskType, User } from '@aavantan-app/models';
 import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 @Component({
@@ -23,7 +23,9 @@ export class TaskComponent implements OnInit {
   ]};
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
-  public assigneeTo: string;
+  public assigneeTo: User;
+  public selectedRelatedItem:Task;
+  public selectedDependentItem:Task;
   public selectedTaskType: TaskType;
   public timelogModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
@@ -51,57 +53,73 @@ export class TaskComponent implements OnInit {
   public fileList2 = [...this.defaultFileList];
 
   public taskForm: FormGroup;
-  public assigneeDataSource = [
+  public assigneeDataSource :User[] = [
     {
-      id: 1,
-      firstName: 'Assign to Me'
+      id: '1',
+      firstName: 'Assign to Me',
+      profilePic:'./../../assets/images/avatars/thumb-2.jpg'
     },
     {
-      id: 2,
-      firstName: 'Pradeep'
+      id: '2',
+      firstName: 'Pradeep',
+      profilePic:null
     },
     {
-      id: 3,
-      firstName: 'Aashish'
+      id: '3',
+      firstName: 'Aashish',
+      profilePic:null
     }
   ];
   public relatedTaskDataSource: Task[] = [
     {
       id: '1',
       name: 'Related Task 1',
-      taskType: 'cr'
+      taskType: {
+        name:'bug',
+        color:'#ddee00'
+      }
     },
     {
       id: '2',
       name: 'Related Task 2',
-      taskType: 'enhancement'
+      taskType: {
+        name:'bug',
+        color:'#ddee00'
+      }
     },
     {
       id: '3',
       name: 'Related Task 3',
-      taskType: 'bug'
+      taskType: {
+        name:'task',
+        color:'#ddee00'
+      }
     }
   ];
   public dependentTaskDataSource: Task[] = [
     {
       id: '1',
-      name: 'Dependent Task 1',
-      taskType: 'cr'
+      name: 'Related Task 1',
+      taskType: {
+        name:'bug',
+        color:'#ddee00'
+      }
     },
     {
       id: '2',
-      name: 'Dependent Task 2',
-      taskType: 'bug'
+      name: 'Related Task 2',
+      taskType: {
+        name:'bug',
+        color:'#ddee00'
+      }
     },
     {
       id: '3',
-      name: 'Dependent Task 3',
-      taskType: 'cr'
-    },
-    {
-      id: '4',
-      name: 'Dependent Task 4',
-      taskType: 'newwork'
+      name: 'Related Task 3',
+      taskType: {
+        name:'task',
+        color:'#ddee00'
+      }
     }
   ];
   public sprintDataSource = [
@@ -150,31 +168,26 @@ export class TaskComponent implements OnInit {
     {
       id: '1',
       name: 'BUG',
-      value: 'bug',
       color: '#F80647'
     },
     {
       id: '2',
       name: 'CR',
-      value: 'cr',
       color: '#F0CB2D'
     },
     {
       id: '3',
       name: 'NEW WORK',
-      value: 'newwork',
       color: '#0E7FE0'
     },
     {
       id: '4',
       name: 'ENHANCEMENTS',
-      value: 'enhancement',
       color: '#0AC93E'
     },
     {
       id: '4',
       name: 'EPIC',
-      value: 'epic',
       color: '#1022A8'
     }
   ];
@@ -241,9 +254,15 @@ export class TaskComponent implements OnInit {
   public selectTaskTypeTypeahead(e: string) {
     console.log('taskType', e);
   }
-  public selectAssigneeTypeahead(e: string) {
-    this.taskForm.get('assignedTo').patchValue(e);
-    console.log('assignedTo', e);
+  public selectAssigneeTypeahead(e: User) {
+    this.assigneeTo=e;
+    // this.taskForm.get('assignedTo').patchValue(e.id);
+  }
+  public selectDependentItemTypeahead(e: Task) {
+    this.selectedDependentItem=e;
+  }
+  public selectRelatedItemTypeahead(e: Task) {
+    this.selectedRelatedItem=e;
   }
   public cancel() {
     this.taskForm.reset();

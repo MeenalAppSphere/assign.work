@@ -12,6 +12,7 @@ import { LoaderComponent } from './components/loader/loader.component';
 import { TimelogComponent } from './components/timelog/timelog.component';
 import { DateAgoPipe } from './pipes/dateago.pipe';
 import { ServiceModule } from './service.module';
+import { OrganisationComponent } from './components/organisation/organisation.component';
 
 @NgModule({
   exports: [
@@ -22,6 +23,7 @@ import { ServiceModule } from './service.module';
     NgZorroAntdModule,
     PerfectScrollbarModule,
     AddProjectComponent,
+    OrganisationComponent,
     TimelogComponent,
     SearchPipe,
     TaskListComponent,
@@ -39,6 +41,7 @@ import { ServiceModule } from './service.module';
   ],
   declarations: [
     AddProjectComponent,
+    OrganisationComponent,
     TimelogComponent,
     SearchPipe,
     TaskListComponent,

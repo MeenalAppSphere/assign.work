@@ -80,7 +80,8 @@ export class HeaderComponent implements OnInit {
     if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();
-      this.projectModalShow();
+      this.organizationModalShow();
+      //this.projectModalShow();
     }
     if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
       event.preventDefault();
@@ -91,6 +92,10 @@ export class HeaderComponent implements OnInit {
 
   public projectModalShow(): void {
     this.projectModalIsVisible = !this.projectModalIsVisible;
+  }
+
+  public organizationModalShow(): void {
+    this.organizationModalIsVisible = !this.organizationModalIsVisible;
   }
 
   logOut() {

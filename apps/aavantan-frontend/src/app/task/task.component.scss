@@ -21,6 +21,14 @@
     padding: 0.25rem 0.6rem;
     height: auto;
   }
+  .input-relative-group{
+    .ant-input-sm {
+      padding-left: 25px;
+    }
+    .fa-circle{
+      color: #f3f3f3;
+    }
+  }
   .ant-btn-sm, .ant-btn-group-sm > .ant-btn {
     padding: 0.35rem .4rem;
     height: auto;
@@ -132,9 +140,9 @@
 .assigned-user-icon {
   position: absolute;
   z-index: 1;
-  top: 2px;
   left: 6px;
 }
 .assigned-user-input{
   padding-left: 28px!important;
 }
+
