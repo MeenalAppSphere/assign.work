@@ -13,10 +13,11 @@
       <nz-step nzTitle="Template"></nz-step>
     </nz-steps>
 
-    <!--first-->
-    <ng-container *ngIf="swicthStepCurrent===1">
-      <div class="min-height-100 m-t-25">
-        <form nz-form class="register-form" [formGroup]="projectForm">
+    <form nz-form class="register-form" [formGroup]="projectForm">
+
+      <!--first-->
+      <ng-container *ngIf="swicthStepCurrent===1">
+        <div class="min-height-100 m-t-25">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="name">Project Name</nz-form-label>
             <nz-form-control>
@@ -36,14 +37,14 @@
             </nz-form-control>
           </nz-form-item>
 
-        </form>
-      </div>
-    </ng-container>
+        </div>
+      </ng-container>
 
-    <!-- second-->
-    <ng-container *ngIf="swicthStepCurrent===2" class="h-100">
-      <div class="min-height-100 m-t-25">
-        <form nz-form class="register-form" [formGroup]="collaboratorForm">
+      <!-- second-->
+      <ng-container *ngIf="swicthStepCurrent===2" class="h-100">
+
+        <div class="min-height-100 m-t-25">
+
           <div class="form-group">
             <label>Collaborators</label>
             <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
@@ -53,11 +54,11 @@
                     &nbsp;<span>{{item.emailId}}</span> <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
                 </span>
             </div>
+
             <input
               autocomplete="Off"
-              formControlName="members"
-              [(ngModel)]="selectedCollaborator"
               (typeaheadOnSelect)="typeaheadOnSelect($event)"
+              [(ngModel)]="selectedCollaborator"
               [typeahead]="members"
               typeaheadOptionField="emailId"
               placeholder="Search or Invite people"
@@ -66,24 +67,25 @@
             <nz-form-explain class="text-danger"
                              *ngIf="response && response.message">{{response.message}}</nz-form-explain>
           </div>
-        </form>
-      </div>
-    </ng-container>
-
-    <!--third-->
-    <ng-container *ngIf="swicthStepCurrent===3">
-      <div class="min-height-100 m-t-25">
-        <p class="m-t-25 m-b-25">Select Business {{modalTitle}}</p>
-        <div class="text-center">
-          <nz-radio-group [(ngModel)]="radioValue">
-            <label nz-radio nzValue="A">Software <i nz-icon nzType="info-circle" theme="outline"></i></label>
-            <label nz-radio nzValue="B">Task Management <i nz-icon nzType="info-circle" theme="outline"></i></label>
-            <label nz-radio nzValue="C">Accounts <i nz-icon nzType="info-circle" theme="outline"></i></label>
-            <label nz-radio nzValue="D">Production <i nz-icon nzType="info-circle" theme="outline"></i></label>
-          </nz-radio-group>
         </div>
-      </div>
-    </ng-container>
+      </ng-container>
+
+      <!--third-->
+      <ng-container *ngIf="swicthStepCurrent===3">
+        <div class="min-height-100 m-t-25">
+          <p class="m-t-25 m-b-25">Select Business {{modalTitle}}</p>
+          <div class="text-center">
+            <nz-radio-group formControlName="template">
+              <label nz-radio nzValue="A">Software <i nz-icon nzType="info-circle" theme="outline"></i></label>
+              <label nz-radio nzValue="B">Task Management <i nz-icon nzType="info-circle" theme="outline"></i></label>
+              <label nz-radio nzValue="C">Accounts <i nz-icon nzType="info-circle" theme="outline"></i></label>
+              <label nz-radio nzValue="D">Production <i nz-icon nzType="info-circle" theme="outline"></i></label>
+            </nz-radio-group>
+          </div>
+        </div>
+      </ng-container>
+
+    </form>
 
   </div>
 
@@ -108,7 +110,7 @@
           <span>Next</span>
         </button>
 
-        <button nz-button nzType="primary" nzSize="small" (click)="done()" *ngIf="swicthStepCurrent === 3">
+        <button nz-button nzType="primary" nzSize="small" (click)="saveForm()" *ngIf="swicthStepCurrent === 3">
           <span>Done</span>
         </button>
 

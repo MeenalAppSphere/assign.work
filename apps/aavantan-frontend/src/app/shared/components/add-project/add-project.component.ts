@@ -7,6 +7,7 @@ import { OrganizationService } from '../../services/organization.service';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserService } from '../../services/user.service';
 
 
 @Component({
@@ -31,14 +32,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public organizations: Organization[];
   public organizationCreationInProcess: boolean = false;
 
-  public members: User[] = [
-    { id: '1', firstName: 'Pradeep', emailId: 'pradeep@gmail.com', isEmailSent: true },
-    { id: '2', firstName: 'Deep', emailId: 'deep@gmail.com' },
-    { id: '3', firstName: 'Deep1', emailId: 'deep1@gmail.com' }
-  ];
+  public members: User[] = [];
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
-              private _generalService: GeneralService) {
+              private _generalService: GeneralService, private _usersService: UserService) {
+    this.getAllUsers();
   }
 
   ngOnInit() {
@@ -97,16 +95,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   next(): void {
-    if (this.swicthStepCurrent === 2) {
-      console.log(this.collaboratorForm.value);
-    }
     this.swicthStepCurrent += 1;
     this.changeContent();
   }
 
-  done(): void {
-    this.toggleShow.emit();
-  }
 
   basicModalHandleCancel() {
     this.toggleShow.emit();
@@ -134,15 +126,21 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.modalTitle = 'error';
       }
     }
-    this.saveForm();
   }
 
-  public saveForm() {
+  saveForm() {
     const project: Project = { ...this.projectForm.getRawValue() };
     project.createdBy = this._generalService.user.id;
   }
 
-  ngOnDestroy(): void {
+  private getAllUsers() {
+    this._usersService.getAllUsers().subscribe(res => {
+      this.members = res.data;
+    }, error => {
+      this.members = [];
+    });
   }
 
+  ngOnDestroy(): void {
+  }
 }

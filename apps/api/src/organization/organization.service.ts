@@ -34,10 +34,4 @@ export class OrganizationService extends BaseService<Organization & Document> {
       throw e;
     }
   }
-
-  async getAllUsers(id: string) {
-    return this.find({
-      members: Types.ObjectId(id)
-    });
-  }
 }

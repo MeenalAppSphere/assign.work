@@ -6,7 +6,7 @@ import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
 import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { UserState, UserStore } from '../../store/user/user.store';
 import { UserUrls } from './apiUrls/user.url';
 
@@ -36,6 +36,17 @@ export class UserService extends BaseService<UserStore, UserState> {
         });
         this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);
+        return of(err);
+      })
+    );
+  }
+
+  getAllUsers(): Observable<BaseResponseModel<User[]>> {
+    return this._http.get(UserUrls.getAll).pipe(
+      map(res => {
+        return res;
+      }),
+      catchError(err => {
         return of(err);
       })
     );
