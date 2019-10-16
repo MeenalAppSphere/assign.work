@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
 import { Organization, Project, ProjectTemplateEnum, User } from '@aavantan-app/models';
@@ -16,13 +16,12 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 })
 export class AddProjectComponent implements OnInit, OnDestroy {
   @Input() public projectModalIsVisible: Boolean = false;
+  @Input() public selectedOrgId: string;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
-  public orgForm: FormGroup;
   public projectForm: FormGroup;
   public collaboratorForm: FormGroup;
-  public basicCurrent = 1;
-  public swicthStepCurrent = 0;
+  public swicthStepCurrent = 1;
   public modalTitle = 'Project Details';
   public radioValue = 'A';
   public selectedCollaborators: User[] = [];
@@ -38,26 +37,17 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     { id: '3', firstName: 'Deep1', emailId: 'deep1@gmail.com' }
   ];
 
-  constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _organizationService: OrganizationService,
-              private _generalService: GeneralService, private _organizationQuery: OrganizationQuery) {
+  constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
+              private _generalService: GeneralService) {
   }
 
   ngOnInit() {
     this.organizations = this._generalService.user.organizations as Organization[];
     this.createFrom();
 
-    // listen for organization creation
-    this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res && this.swicthStepCurrent === 0) {
-        this.swicthStepCurrent++;
-        this.changeContent();
-      }
-    });
-
-    // listen for organization creation in process
-    this._organizationQuery.isCreateOrganizationInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
-      this.organizationCreationInProcess = res;
-    });
+    if (this.selectedOrgId) {
+      this.projectForm.get('organization').patchValue(this.selectedOrgId);
+    }
   }
 
   public createFrom() {
@@ -68,16 +58,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       template: [ProjectTemplateEnum.software, Validators.required],
       members: []
     });
-
-    this.orgForm = this.FB.group({
-      name: [null, [Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
-      description: [null, '']
-    });
-
-    this.collaboratorForm = this.FB.group({
-      collaborators: ''
-    });
-
   }
 
   public removeCollaborators(mem: User) {
@@ -89,12 +69,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this.selectedCollaborators.push(e.item);
     }
     this.selectedCollaborator = null;
-  }
-
-  public createOrganization() {
-    const organization: Organization = { ...this.orgForm.getRawValue() };
-    organization.createdBy = this._generalService.user.id;
-    this._organizationService.createOrganization(organization).subscribe();
   }
 
   public onKeydown(event) {
@@ -123,14 +97,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   next(): void {
-    if (this.swicthStepCurrent === 0) {
-      // organization
-      if (!this.organizations.length) {
-        this.createOrganization();
-        return;
-      }
-    }
-
     if (this.swicthStepCurrent === 2) {
       console.log(this.collaboratorForm.value);
     }

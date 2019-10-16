@@ -27,14 +27,17 @@
         <a (click)="searchToggle()">
           <i nz-icon nzType="search" theme="outline"></i>
         </a>
-        <nz-drawer [nzWidth]="380" nzTitle="Search" [nzVisible]="searchVisible" nzPlacement="left" (nzOnClose)="searchToggle()">
+        <nz-drawer [nzWidth]="380" nzTitle="Search" [nzVisible]="searchVisible" nzPlacement="left"
+                   (nzOnClose)="searchToggle()">
           <app-search></app-search>
         </nz-drawer>
       </li>
     </ul>
     <ul class="nav-right" joyrideStep="tour1" title="Current Project" text="You can change your project form here.">
       <li>
-        <a href="javascript:void(0);" class="project-name-btn" routerLink="settings">Project Name <i nz-icon nzType="setting" theme="outline"></i></a>
+        <a href="javascript:void(0);" class="project-name-btn" routerLink="settings">Project Name <i nz-icon
+                                                                                                     nzType="setting"
+                                                                                                     theme="outline"></i></a>
       </li>
     </ul>
     <ul class="nav-right">
@@ -56,7 +59,8 @@
               </a>
             </div>
             <perfect-scrollbar class="overflow-y-auto" style="max-height: 300px">
-              <nz-list class="ant-list-item-links" [nzDataSource]="notificationList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+              <nz-list class="ant-list-item-links" [nzDataSource]="notificationList" [nzRenderItem]="item"
+                       [nzItemLayout]="'horizontal'">
                 <ng-template #item let-item>
                   <nz-list-item>
                     <a [routerLink]="''">
@@ -76,8 +80,10 @@
         </nz-dropdown-menu>
       </li>
       <li>
-                <span class="p-h-10 pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'" [nzPlacement]="'bottomRight'">
-                    <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile" [nzIcon]="'user'" nzSrc="assets/images/avatars/thumb-3.jpg"></nz-avatar>
+                <span class="p-h-10 pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'"
+                      [nzPlacement]="'bottomRight'">
+                    <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile" [nzIcon]="'user'"
+                               nzSrc="assets/images/avatars/thumb-3.jpg"></nz-avatar>
                 </span>
         <nz-dropdown-menu #profile="nzDropdownMenu">
           <ul nz-menu class="p-b-15 p-t-20">
@@ -118,7 +124,8 @@
               </a>
             </li>
             <li nz-menu-item>
-              <a class="p-v-5 d-flex align-items-center justify-content-between" href="javascript: void 0" (click)="logOut()">
+              <a class="p-v-5 d-flex align-items-center justify-content-between" href="javascript: void 0"
+                 (click)="logOut()">
                 <div>
                   <i class="opacity-04 font-size-16" nz-icon nzType="logout" theme="outline"></i>
                   <span class="m-l-10">Logout</span>
@@ -127,13 +134,14 @@
               </a>
             </li>
           </ul>
-        </nz-dropdown-menu >
+        </nz-dropdown-menu>
       </li>
       <li>
         <a (click)="quickViewToggle()">
           <i nz-icon nzType="appstore" theme="outline"></i>
         </a>
-        <nz-drawer [nzWidth]="280" nzTitle="Theme Config" [nzClosable]="false" [nzVisible]="quickViewVisible" nzPlacement="right" (nzOnClose)="quickViewToggle()">
+        <nz-drawer [nzWidth]="280" nzTitle="Theme Config" [nzClosable]="false" [nzVisible]="quickViewVisible"
+                   nzPlacement="right" (nzOnClose)="quickViewToggle()">
           <app-quick-view></app-quick-view>
         </nz-drawer>
       </li>
@@ -141,5 +149,13 @@
   </div>
 </div>
 
-<aavantan-app-add-project [projectModalIsVisible]="projectModalIsVisible" (toggleShow)="projectModalShow()"></aavantan-app-add-project>
-<aavantan-app-organisation [organizationModalIsVisible]="organizationModalIsVisible" (toggleShow)="organizationModalShow()"></aavantan-app-organisation>
+<aavantan-app-add-project
+  [projectModalIsVisible]="projectModalIsVisible"
+  [selectedOrgId]="selectedOrgId"
+  (toggleShow)="projectModalShow()">
+</aavantan-app-add-project>
+
+<aavantan-app-organisation
+  [organizationModalIsVisible]="organizationModalIsVisible"
+  (toggleShow)="organizationModalShow()">
+</aavantan-app-organisation>
