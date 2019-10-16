@@ -15,9 +15,9 @@ export class OrganizationController {
     return await this._organizationService.createOrganization(organization);
   }
 
-  @Get('organization/users')
-  async getAllOrganizatioinUsers(@Query() orgId: string) {
-    return await this._organizationService.getAllUsers(orgId);
+  @Get('users')
+  async getAllOrganizatioinUsers(@Query() query: any) {
+    return await this._organizationService.getAllUsers(query.orgId);
   }
 
 }
