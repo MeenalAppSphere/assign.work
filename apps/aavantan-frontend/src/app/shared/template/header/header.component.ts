@@ -17,6 +17,7 @@ export class HeaderComponent implements OnInit {
   }
 
   public projectModalIsVisible: boolean = false;
+  public organizationModalIsVisible: boolean = false;
   public searchVisible: boolean = false;
   public quickViewVisible: boolean = false;
   public isFolded: boolean;
