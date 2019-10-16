@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { BacklogComponent } from './backlog.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
+import { TeamCapabilityComponent } from './components/team-capability.component';
 
 const routes: Routes = [
   { path: '', component: BacklogComponent }
@@ -16,7 +17,8 @@ const routes: Routes = [
   ],
   exports: [],
   declarations: [
-    BacklogComponent
+    BacklogComponent,
+    TeamCapabilityComponent
   ]
 })
 export class BacklogModule {

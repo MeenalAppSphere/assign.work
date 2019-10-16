@@ -22,6 +22,7 @@ export class BacklogComponent implements OnInit {
   public projectTeams: User[] = [];
   public dateFormat = 'mm/dd/yyyy';
   public sprintData:any;
+  public teamCapabilityModalIsVisible:boolean;
   constructor() {}
 
   ngOnInit() {
@@ -143,6 +144,10 @@ export class BacklogComponent implements OnInit {
   }
   public createSprint(){
     console.log('Create Sprint For Tasks ', this.draftSprint.ids);
+  }
+
+  public showTeamCapability(){
+      this.teamCapabilityModalIsVisible=!this.teamCapabilityModalIsVisible;
   }
 
 }
