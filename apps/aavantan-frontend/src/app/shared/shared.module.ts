@@ -4,19 +4,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
-import { ThemeConstantService } from './services/theme-constant.service';
 import { AddProjectComponent } from './components/add-project/add-project.component';
 import { SearchPipe } from './pipes/search.pipe';
 import { PopoverModule, TypeaheadModule } from 'ngx-bootstrap';
-import { ValidationRegexService } from './services/validation-regex.service';
 import { TaskListComponent } from './components/task-list/task-list.component';
-import { HttpWrapperService } from './services/httpWrapper.service';
-import { AuthService } from './services/auth.service';
-import { GeneralService } from './services/general.service';
 import { LoaderComponent } from './components/loader/loader.component';
-import { LoaderService } from './services/loader.service';
 import { TimelogComponent } from './components/timelog/timelog.component';
 import { DateAgoPipe } from './pipes/dateago.pipe';
+import { ServiceModule } from './service.module';
 import { OrganisationComponent } from './components/organisation/organisation.component';
 
 @NgModule({
@@ -52,14 +47,7 @@ import { OrganisationComponent } from './components/organisation/organisation.co
     TaskListComponent,
     LoaderComponent,
     DateAgoPipe
-  ],
-  providers: [
-    ThemeConstantService,
-    ValidationRegexService,
-    HttpWrapperService,
-    AuthService,
-    GeneralService,
-    LoaderService
   ]
 })
-export class SharedModule {}
+export class SharedModule {
+}

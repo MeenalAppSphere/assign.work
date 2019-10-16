@@ -5,10 +5,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './jwt/constants';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { SharedModule } from '../shared/shared.module';
-import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { GoogleStrategy } from './google/google.strategy';
-import { authenticate } from 'passport';
 
 @Module({
   imports: [
@@ -18,10 +16,10 @@ import { authenticate } from 'passport';
       signOptions: { expiresIn: '60s' }
     }),
     SharedModule,
-    UsersModule
   ],
   providers: [AuthService, JwtStrategy, GoogleStrategy],
-  controllers: [AuthController]
+  controllers: [AuthController],
+  exports: [JwtModule]
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

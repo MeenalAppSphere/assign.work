@@ -18,7 +18,11 @@ export const organizationSchema = new Schema({
     required: [true, 'Organization Creator Name is required']
   },
   updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  members: [{
+    type: Schema.Types.ObjectId,
+    ref: DbCollection.users
+  }]
 }, schemaOptions);
 
 // plugins

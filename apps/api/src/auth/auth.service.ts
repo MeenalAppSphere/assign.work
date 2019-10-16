@@ -5,19 +5,16 @@ import {
   MemberTypes,
   User,
   UserLoginProviderEnum,
-  UserStatus,
-  UserLoginWithPasswordRequest
+  UserLoginWithPasswordRequest,
+  UserStatus
 } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
-import { UsersService } from '../users/users.service';
-import { get, post, Response } from 'request';
-import { BaseService } from '../shared/services/base.service';
+import { post, Response } from 'request';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>
   ) {
@@ -37,7 +34,7 @@ export class AuthService {
     if (user) {
       return {
         user: user.toJSON(),
-        access_token: this.jwtService.sign({ emailId: user.emailId, sub: user.id })
+        access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
       };
     } else {
       throw new UnauthorizedException('invalid email or password');
@@ -55,7 +52,7 @@ export class AuthService {
       model.lastLoginProvider = UserLoginProviderEnum.normal;
       model.memberType = MemberTypes.alien;
 
-      const newUser = await this.usersService.createUser(model, session);
+      const newUser = await this._userModel.create([model], session);
       const userDetails = await newUser[0].populate('projects', 'organization').execPopulate();
       const payload = { username: userDetails.username, sub: userDetails.id };
       await session.commitTransaction();

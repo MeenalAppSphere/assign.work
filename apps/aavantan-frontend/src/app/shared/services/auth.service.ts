@@ -13,7 +13,7 @@ import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
 import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { from, of } from 'rxjs';
+import { of } from 'rxjs';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
@@ -30,23 +30,22 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         this.updateState({
           isLoginSuccess: true,
           isLoginInProcess: false,
-          token: res.data.access_token,
-          user: res.data.user
+          token: res.data.access_token
         });
+
         this._generalService.token = res.data.access_token;
-        this._generalService.user = res.data.user;
+        this.router.navigate(['dashboard']);
         return res;
       }),
       catchError(err => {
         this.updateState({
           isLoginSuccess: false,
           isLoginInProcess: false,
-          token: null,
-          user: null
+          token: null
         });
+
         this._generalService.token = null;
-        this._generalService.user = null;
-        this.notification.error('Error', err.error.message);
+        this.notification.error('Error', err.error.error.message);
         return of(err);
       })
     );
@@ -56,26 +55,25 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
     this.updateState({ isRegisterInProcess: true, isRegisterSuccess: false });
     return this._http.post(AuthUrls.register, user).pipe(
       map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+
         this.updateState({
           isRegisterSuccess: true,
           isRegisterInProcess: false,
-          token: res.data.access_token,
-          user: res.data.user,
+          token: res.data.access_token
         });
+
         this._generalService.token = res.data.access_token;
-        this._generalService.user = res.data.user;
         return res;
       }),
-      catchError((err: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
+      catchError((err) => {
         this.updateState({
           isRegisterInProcess: false,
           isRegisterSuccess: false,
-          token: null,
-          user: null
+          token: null
         });
+
         this._generalService.token = null;
-        this._generalService.user = null;
-        this.notification.error('Error', err.error.message);
+        this.notification.error('Error', err.error.error.message);
         return of(err);
       })
     );
@@ -83,6 +81,8 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
 
   logOut() {
     this.updateState({ token: null });
+    this._generalService.token = null;
+    this._generalService.user = null;
     this.router.navigate(['/login']);
   }
 

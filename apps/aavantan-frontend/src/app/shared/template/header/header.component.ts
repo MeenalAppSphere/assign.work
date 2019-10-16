@@ -1,23 +1,31 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { GeneralService } from '../../services/general.service';
+import { OrganizationQuery } from '../../../queries/organization/organization.query';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { Organization } from '@aavantan-app/models';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls:['./header.component.scss']
+  styleUrls: ['./header.component.scss']
 })
 
-export class HeaderComponent implements OnInit{
+export class HeaderComponent implements OnInit, OnDestroy {
 
-  constructor( private themeService: ThemeConstantService, private router:Router, private readonly _authService: AuthService) {}
-  public projectModalIsVisible: Boolean = false;
-  public organizationModalIsVisible: Boolean = false;
-  public searchVisible : Boolean = false;
-  public quickViewVisible : Boolean = false;
-  public isFolded : boolean;
-  public isExpand : boolean;
+  constructor(private themeService: ThemeConstantService, private router: Router, private readonly _authService: AuthService,
+              private readonly _generalService: GeneralService, private _organizationQuery: OrganizationQuery) {
+  }
+
+  public projectModalIsVisible: boolean = false;
+  public organizationModalIsVisible: boolean = false;
+  public searchVisible: boolean = false;
+  public quickViewVisible: boolean = false;
+  public isFolded: boolean;
+  public isExpand: boolean;
+  public selectedOrgId: string = null;
 
   notificationList = [
     {
@@ -47,6 +55,29 @@ export class HeaderComponent implements OnInit{
   ];
 
   ngOnInit(): void {
+
+    // listen for organization create success
+    this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
+        this.selectedOrgId = (lastOrganization as Organization).id;
+      } else {
+        this.selectedOrgId = null;
+      }
+    });
+
+    if (this._generalService.user) {
+      if (!this._generalService.user.organizations.length) {
+        this.organizationModalShow();
+      } else {
+        if (!this._generalService.user.projects.length) {
+          const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
+          this.selectedOrgId = (lastOrganization as Organization).id;
+          this.projectModalShow();
+        }
+      }
+    }
+
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
   }
@@ -74,7 +105,6 @@ export class HeaderComponent implements OnInit{
   // Ctrl + j functionality
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
-    console.log(event);
     if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();
@@ -98,5 +128,8 @@ export class HeaderComponent implements OnInit{
 
   logOut() {
     this._authService.logOut();
+  }
+
+  ngOnDestroy(): void {
   }
 }

@@ -11,6 +11,9 @@ import { ThemeConstantService } from './shared/services/theme-constant.service';
 import { MiddlewareComponent } from './middleware.component';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { environment } from '../environments/environment';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
+import { ServiceModule } from './shared/service.module';
 
 registerLocaleData(en);
 
@@ -21,6 +24,7 @@ registerLocaleData(en);
     BrowserAnimationsModule,
     AppRoutingModule,
     SharedModule,
+    ServiceModule.forRoot(),
     environment.production ? [] : AkitaNgDevtools.forRoot()
   ],
   providers: [
@@ -28,7 +32,10 @@ registerLocaleData(en);
       provide: NZ_I18N,
       useValue: en_US
     },
-    ThemeConstantService
+    ThemeConstantService,
+    {
+      provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

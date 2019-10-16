@@ -5,5 +5,4 @@ export const AuthUrls = {
   register: `${createUrl('auth/register')}`,
   googleUriRequest: `${createUrl('auth/google/uri')}`,
   googleSignIn: `${createUrl('auth/google/signin')}`,
-
 };

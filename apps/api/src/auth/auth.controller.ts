@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-  Headers,
-  Req,
-  Response,
-  BadRequestException
-} from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Req, Request, Response, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User, UserLoginWithPasswordRequest } from '@aavantan-app/models';
 import { AuthService } from './auth.service';

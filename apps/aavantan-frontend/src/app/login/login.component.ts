@@ -24,15 +24,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: new FormControl(null, [Validators.required])
     });
 
-    this._authQuery.token$.pipe(untilDestroyed(this)).subscribe(token => {
-      if (token) {
-        this.router.navigate(['/dashboard']);
-      }
-    });
-
     this._authQuery.isLoginInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
       this.loginInProcess = res;
-    })
+    });
 
   }
 

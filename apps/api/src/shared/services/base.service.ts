@@ -41,38 +41,25 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async create(doc: T | T[], session: ClientSession): Promise<T | T[]> {
+  public async create(doc: T | T[] | Partial<T> | Partial<T[]>, session: ClientSession): Promise<T | T[]> {
     return await this.model.create(doc, { session });
   }
 
-  public async update(
-    id: string,
-    updatedDoc: T
-  ): Promise<T> {
-    const session = await this.model.db.startSession();
-    session.startTransaction();
-
-    let result;
-    try {
-      result = await this.model
-        .findByIdAndUpdate(this.toObjectId(id), updatedDoc)
-        .exec();
-      await session.commitTransaction();
-      session.endSession();
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
-    return result;
+  public async update(id: string, updatedDoc: T | Partial<T>, session: ClientSession): Promise<T> {
+    return await this.model
+      .updateOne({ _id: id }, updatedDoc, { session }).exec();
   }
 
   public async getAllPaginatedData(query: any = {}, options: Partial<MongoosePaginateQuery> | any) {
     return (this.model as any).paginate(query, options);
   }
 
-  public async getAll() {
-    return await this.find();
+  public async getAll(filter: any = {}, populate: Array<any> = []) {
+    const query = this.model.find({ ...filter, ...defaultQueryOptions });
+    if (populate && populate.length) {
+      query.populate(populate);
+    }
+    return query.exec();
   }
 
   public async delete(id: string): Promise<T> {
@@ -94,7 +81,7 @@ export class BaseService<T extends Document> {
     };
   }
 
-  private toObjectId(id: string | number): Types.ObjectId {
+  public toObjectId(id: string | number): Types.ObjectId {
     return new Types.ObjectId(id);
   }
 
