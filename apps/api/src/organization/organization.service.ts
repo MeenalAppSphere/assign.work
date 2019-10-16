@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BaseService } from '../shared/services/base.service';
 import { DbCollection, Organization } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Document } from 'mongoose';
+import { Model, Document, Types } from 'mongoose';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -33,5 +33,11 @@ export class OrganizationService extends BaseService<Organization & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  async getAllUsers(id: string) {
+    return this.find({
+      members: Types.ObjectId(id)
+    });
   }
 }

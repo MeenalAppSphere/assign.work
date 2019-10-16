@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request, Put, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Put, Body, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '@aavantan-app/models';
