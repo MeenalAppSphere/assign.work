@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
-import { Organization } from '@aavantan-app/models';
+import { Organization, Project } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('organization')
@@ -15,9 +15,13 @@ export class OrganizationController {
     return await this._organizationService.createOrganization(organization);
   }
 
-  @Get('organization/users')
-  async getAllOrganizatioinUsers(@Query() orgId: string) {
-    return await this._organizationService.getAllUsers(orgId);
+  @Delete(':id')
+  async deleteProject(@Query() id: string) {
+    return await this._organizationService.delete(id);
   }
 
+  @Put()
+  async updateProject(@Query() id: string, @Body() organization: Organization) {
+    return await this._organizationService.updateOrganization(id, organization);
+  }
 }

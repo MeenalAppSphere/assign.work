@@ -108,8 +108,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();
-      this.organizationModalShow();
-      //this.projectModalShow();
+      // this.organizationModalShow();
+      this.projectModalShow();
     }
     if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
       event.preventDefault();

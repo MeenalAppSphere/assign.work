@@ -6,7 +6,7 @@
       <p>Wanna add your first project?</p>
     </div>
 
-    <nz-steps [nzCurrent]="swicthStepCurrent">
+    <nz-steps [nzCurrent]="switchStepCurrent">
       <nz-step nzTitle="Organization"></nz-step>
       <nz-step nzTitle="Project"></nz-step>
       <nz-step nzTitle="Collaborators"></nz-step>
@@ -14,9 +14,10 @@
     </nz-steps>
 
     <!--first-->
-    <ng-container *ngIf="swicthStepCurrent===1">
-      <div class="min-height-100 m-t-25">
-        <form nz-form class="register-form" [formGroup]="projectForm">
+    <ng-container *ngIf="switchStepCurrent===1">
+      <form nz-form class="register-form" [formGroup]="projectForm">
+
+        <div class="min-height-100 m-t-25">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="name">Project Name</nz-form-label>
             <nz-form-control>
@@ -36,46 +37,46 @@
             </nz-form-control>
           </nz-form-item>
 
-        </form>
-      </div>
+        </div>
+      </form>
     </ng-container>
 
     <!-- second-->
-    <ng-container *ngIf="swicthStepCurrent===2" class="h-100">
+    <ng-container *ngIf="switchStepCurrent===2" class="h-100">
+
       <div class="min-height-100 m-t-25">
-        <form nz-form class="register-form" [formGroup]="collaboratorForm">
-          <div class="form-group">
-            <label>Collaborators</label>
-            <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
+
+        <div class="form-group">
+          <label>Collaborators</label>
+          <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
                 <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">
                     <img *ngIf="item.profilePic" src="../../../../assets/images/48.png" height="14">&nbsp;
                     <i class="fa fa-envelope" *ngIf="item.emailId"></i>
                     &nbsp;<span>{{item.emailId}}</span> <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
                 </span>
-            </div>
-            <input
-              autocomplete="Off"
-              formControlName="members"
-              [(ngModel)]="selectedCollaborator"
-              (typeaheadOnSelect)="typeaheadOnSelect($event)"
-              [typeahead]="members"
-              typeaheadOptionField="emailId"
-              placeholder="Search or Invite people"
-              (keydown)="onKeydown($event)"
-              nz-input nzSize="small">
-            <nz-form-explain class="text-danger"
-                             *ngIf="response && response.message">{{response.message}}</nz-form-explain>
           </div>
-        </form>
+
+          <input
+            autocomplete="Off"
+            (typeaheadOnSelect)="typeaheadOnSelect($event)"
+            [(ngModel)]="selectedCollaborator"
+            [typeahead]="members"
+            typeaheadOptionField="emailId"
+            placeholder="Search or Invite people"
+            (keydown)="onKeydown($event)"
+            nz-input nzSize="small">
+          <nz-form-explain class="text-danger"
+                           *ngIf="response && response.message">{{response.message}}</nz-form-explain>
+        </div>
       </div>
     </ng-container>
 
     <!--third-->
-    <ng-container *ngIf="swicthStepCurrent===3">
+    <ng-container *ngIf="switchStepCurrent===3">
       <div class="min-height-100 m-t-25">
         <p class="m-t-25 m-b-25">Select Business {{modalTitle}}</p>
         <div class="text-center">
-          <nz-radio-group [(ngModel)]="radioValue">
+          <nz-radio-group [(ngModel)]="selectedTemplate">
             <label nz-radio nzValue="A">Software <i nz-icon nzType="info-circle" theme="outline"></i></label>
             <label nz-radio nzValue="B">Task Management <i nz-icon nzType="info-circle" theme="outline"></i></label>
             <label nz-radio nzValue="C">Accounts <i nz-icon nzType="info-circle" theme="outline"></i></label>
@@ -99,16 +100,17 @@
 
       <div class="col">
 
-        <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="swicthStepCurrent > 1">
+        <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="switchStepCurrent > 1">
           <span>Previous</span>
         </button>
 
-        <button nz-button nzType="primary" nzSize="small" (click)="next()" *ngIf="swicthStepCurrent < 3"
-                [nzLoading]="organizationCreationInProcess">
+        <button nz-button nzType="primary" nzSize="small" (click)="next()" *ngIf="switchStepCurrent < 3"
+                [nzLoading]="createProjectInProcess || addCollaboratorsInProcess">
           <span>Next</span>
         </button>
 
-        <button nz-button nzType="primary" nzSize="small" (click)="done()" *ngIf="swicthStepCurrent === 3">
+        <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="switchStepCurrent === 3"
+                [nzLoading]="selectTemplateInProcess">
           <span>Done</span>
         </button>
 

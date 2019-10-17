@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BaseService } from './base.service';
 import { OrganizationState, OrganizationStore } from '../../store/organization/organization.store';
-import { BaseResponseModel, Organization } from '@aavantan-app/models';
+import { BaseResponseModel, Organization, User } from '@aavantan-app/models';
 import { HttpWrapperService } from './httpWrapper.service';
 import { OrganizationUrls } from './apiUrls/organization.url';
 import { catchError, map } from 'rxjs/operators';
 import { UserStore } from '../../store/user/user.store';
 import { GeneralService } from './general.service';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 @Injectable()
 export class OrganizationService extends BaseService<OrganizationStore, OrganizationState> {
@@ -42,6 +42,15 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
         this.updateState({ createOrganizationInProcess: false, createOrganizationSuccess: false });
         return of(err);
       })
+    );
+  }
+
+  getAllUsers(id: string): Observable<BaseResponseModel<User[]>> {
+    return this._httpWrapper.get(OrganizationUrls.users.replace(':orgId', id)).pipe(
+      map((res) => {
+        return res;
+      }),
+      catchError((err => of(err)))
     );
   }
 }

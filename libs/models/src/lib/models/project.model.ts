@@ -22,7 +22,7 @@ export class Project {
 export class ProjectMembers {
   userId: string;
   emailId: string;
-  isEmailSent: boolean;
-  isInviteAccepted: boolean;
+  isEmailSent?: boolean;
+  isInviteAccepted?: boolean;
   userDetails?: User;
 }
