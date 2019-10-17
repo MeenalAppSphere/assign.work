@@ -2,12 +2,12 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Organization, User } from '@aavantan-app/models';
 
 @Component({
-  selector: 'aavantan-team-capability',
-  templateUrl: './team-capability.component.html',
-  styleUrls: ['./team-capability.component.scss']
+  selector: 'aavantan-team-capacity',
+  templateUrl: './team-capacity.component.html',
+  styleUrls: ['./team-capacity.component.scss']
 })
-export class TeamCapabilityComponent implements OnInit {
-  @Input() public teamCapabilityModalIsVisible: boolean;
+export class TeamCapacityComponent implements OnInit {
+  @Input() public teamCapacityModalIsVisible: boolean;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
   public response: any;
   public organizations: Organization[];
