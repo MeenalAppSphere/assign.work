@@ -23,7 +23,7 @@ export const projectSchema = new Schema({
   },
   template: {
     type: String,
-    required: [true, 'Please Select Project Template'],
+    required: [false, 'Please Select Project Template'],
     enum: Object.values(ProjectTemplateEnum)
   },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },

@@ -8,7 +8,7 @@ import {
 } from '@aavantan-app/models';
 import { BaseService } from './base.service';
 import { HttpWrapperService } from './httpWrapper.service';
-import { AuthUrls } from './apiUrls/auth.urls';
+import { AuthUrls } from './apiUrls/auth.url';
 import { catchError, map } from 'rxjs/operators';
 import { GeneralService } from './general.service';
 import { Router } from '@angular/router';

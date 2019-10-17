@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from '../shared/services/base.service';
-import { DbCollection, Organization } from '@aavantan-app/models';
+import { DbCollection, Organization, Project } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Document, Types } from 'mongoose';
 import { UsersService } from '../users/users.service';
@@ -28,6 +28,38 @@ export class OrganizationService extends BaseService<Organization & Document> {
       await session.commitTransaction();
       session.endSession();
       return result[0];
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
+  }
+
+  async deleteOrganization(id: string) {
+    const session = await this._organizationModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      await this.delete(id);
+      await session.commitTransaction();
+      session.endSession();
+      return 'Organization Deleted Successfully!';
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
+  }
+
+  async updateOrganization(id: string, organization: Partial<Organization>) {
+    const session = await this._organizationModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      const result = await this.update(id, organization, session);
+      await session.commitTransaction();
+      session.endSession();
+      return result;
     } catch (e) {
       await session.abortTransaction();
       session.endSession();

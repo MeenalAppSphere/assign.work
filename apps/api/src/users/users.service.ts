@@ -40,7 +40,7 @@ export class UsersService extends BaseService<User & Document> {
       } catch (e) {
         await session.abortTransaction();
         session.endSession();
-        return e;
+        throw e;
       }
     }
   }
