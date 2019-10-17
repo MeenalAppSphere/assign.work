@@ -19,7 +19,7 @@
   <section class="m-b-20">
     <div class="clearfix" *ngIf="sprintData && sprintData.id">
     <label>{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
-    <a href="javascript:void(0);" class="float-right" (click)="showTeamCapability()">Team Capability</a>
+    <a href="javascript:void(0);" class="float-right" (click)="showTeamCapacity()">Team Capacity</a>
     </div>
     <div class="draft-sprint-box" *ngIf="!showStartWizard && sprintData && sprintData.id && draftData && draftData.length===0">
         <nz-empty
@@ -157,7 +157,7 @@
 
 
 
-<aavantan-team-capability
-  [teamCapabilityModalIsVisible]="teamCapabilityModalIsVisible"
-  (toggleShow)="showTeamCapability()">
-</aavantan-team-capability>
+<aavantan-team-capacity
+  [teamCapacityModalIsVisible]="teamCapacityModalIsVisible"
+  (toggleShow)="showTeamCapacity()">
+</aavantan-team-capacity>
