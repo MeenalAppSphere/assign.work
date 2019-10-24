@@ -8,13 +8,14 @@ import { catchError, map } from 'rxjs/operators';
 import { UserStore } from '../../store/user/user.store';
 import { GeneralService } from './general.service';
 import { Observable, of } from 'rxjs';
+import { NzNotificationService } from 'ng-zorro-antd';
 
 @Injectable()
 export class OrganizationService extends BaseService<OrganizationStore, OrganizationState> {
 
   constructor(private readonly _organizationStore: OrganizationStore, private _httpWrapper: HttpWrapperService,
-              private _userStore: UserStore, private _generalService: GeneralService) {
-    super(_organizationStore);
+              private _userStore: UserStore, private _generalService: GeneralService, protected notification: NzNotificationService) {
+    super(_organizationStore, notification);
   }
 
   createOrganization(org: Organization) {

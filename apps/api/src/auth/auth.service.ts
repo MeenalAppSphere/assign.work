@@ -30,7 +30,7 @@ export class AuthService {
     const user = await this._userModel.findOne({
       emailId: req.emailId,
       password: req.password
-    }).populate(['projects', 'organization']).exec();
+    }).populate(['projects', 'organization', 'currentProject']).exec();
     if (user) {
       return {
         user: user.toJSON(),
@@ -53,7 +53,7 @@ export class AuthService {
       model.memberType = MemberTypes.alien;
 
       const newUser = await this._userModel.create([model], session);
-      const userDetails = await newUser[0].populate('projects', 'organization').execPopulate();
+      const userDetails = await newUser[0].populate(['projects', 'organization', 'currentProject']).execPopulate();
       const payload = { username: userDetails.username, sub: userDetails.id };
       await session.commitTransaction();
       session.endSession();

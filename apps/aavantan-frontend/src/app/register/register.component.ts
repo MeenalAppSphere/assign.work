@@ -31,12 +31,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
       agree: new FormControl(false)
     });
 
-    this._authQuery.token$.pipe(untilDestroyed(this)).subscribe(token => {
-      if (token) {
-        this.router.navigate(['/dashboard']);
-      }
-    });
-
     this._authQuery.isRegisterInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
       this.registerInProcess = res;
     })

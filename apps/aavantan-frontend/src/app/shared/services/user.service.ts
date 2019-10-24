@@ -15,8 +15,8 @@ import { cloneDeep } from 'lodash';
 export class UserService extends BaseService<UserStore, UserState> {
 
   constructor(protected userStore: UserStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              private notification: NzNotificationService) {
-    super(userStore);
+              protected notification: NzNotificationService) {
+    super(userStore, notification);
   }
 
   getProfile() {

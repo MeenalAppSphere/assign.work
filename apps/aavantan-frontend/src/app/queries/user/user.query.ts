@@ -5,7 +5,7 @@ import { UserState, UserStore } from '../../store/user/user.store';
 
 @Injectable({ providedIn: 'root' })
 export class UserQuery extends Query<UserState> {
-  currentProject$ = this.select(s => s.currentProject);
+  currentProject$ = this.select(s => s.user.currentProject);
 
   constructor(protected store: UserStore) {
     super(store);

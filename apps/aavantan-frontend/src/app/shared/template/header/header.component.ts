@@ -79,14 +79,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
           const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
           this.selectedOrgId = (lastOrganization as Organization).id;
           this.projectModalShow();
-        } else {
-          if (this._generalService.user.currentProject) {
-            this.currentProject = this._generalService.user.currentProject;
-            this.router.navigate(['dashboard/project']);
-          }
         }
       }
     }
+
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      this.currentProject = res;
+    });
 
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
