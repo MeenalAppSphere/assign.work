@@ -1,5 +1,5 @@
 import { HttpInterceptor, HttpHandler, HttpRequest, HttpEvent, HttpResponse } from '@angular/common/http';
-import { EMPTY, Observable } from 'rxjs';
+import { EMPTY, Observable, of, throwError } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
@@ -24,7 +24,7 @@ export class AuthInterceptor implements HttpInterceptor {
         if (err && err.status === 401) {
           this.authService.logOut();
         }
-        return EMPTY;
+        return throwError(err);
       })
     );
   }

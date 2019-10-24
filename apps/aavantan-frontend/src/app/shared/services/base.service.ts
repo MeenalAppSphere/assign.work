@@ -1,7 +1,11 @@
 import { Store } from '@datorama/akita';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BaseResponseModel } from '@aavantan-app/models';
+import { NzNotificationService } from 'ng-zorro-antd';
+import { throwError } from 'rxjs';
 
 export class BaseService<S extends Store, St> {
-  constructor(protected store: S) {
+  constructor(protected store: S, protected notification: NzNotificationService) {
   }
 
   protected updateState(model: Partial<St>) {
@@ -11,5 +15,11 @@ export class BaseService<S extends Store, St> {
         ...model
       };
     });
+  }
+
+  protected handleError<TResponse>(r: BaseResponseModel<TResponse>) {
+    const error: BaseResponseModel<TResponse> = r;
+    this.notification.error('Error', error.message);
+    return throwError(error);
   }
 }

@@ -19,8 +19,8 @@ import { of } from 'rxjs';
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
   constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              private notification: NzNotificationService) {
-    super(authStore);
+              protected notification: NzNotificationService) {
+    super(authStore, notification);
   }
 
   login(request: UserLoginWithPasswordRequest) {
@@ -45,8 +45,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         });
 
         this._generalService.token = null;
-        this.notification.error('Error', err.error.message);
-        return of(err);
+        return this.handleError(err.error);
       })
     );
   }
