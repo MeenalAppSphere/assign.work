@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseResponseModel, User, UserLoginSignUpSuccessResponse } from '@aavantan-app/models';
+import { BaseResponseModel, Project, User, UserLoginSignUpSuccessResponse } from '@aavantan-app/models';
 import { BaseService } from './base.service';
 import { HttpWrapperService } from './httpWrapper.service';
 import { catchError, map } from 'rxjs/operators';
@@ -9,6 +9,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { Observable, of } from 'rxjs';
 import { UserState, UserStore } from '../../store/user/user.store';
 import { UserUrls } from './apiUrls/user.url';
+import { cloneDeep } from 'lodash';
 
 @Injectable()
 export class UserService extends BaseService<UserStore, UserState> {
@@ -48,6 +49,21 @@ export class UserService extends BaseService<UserStore, UserState> {
       }),
       catchError(err => {
         return of(err);
+      })
+    );
+  }
+
+  switchProject(id: string) {
+    this.updateState({ switchProjectInProcess: true, switchProjectSuccess: false });
+    return this._http.post(UserUrls.switchProject, { id }).pipe(
+      map(res => {
+        const projectIndex: number = this._generalService.user.projects.findIndex(d => d.id === id);
+        this.updateState({ switchProjectSuccess: true, switchProjectInProcess: false });
+        return res;
+      }),
+      catchError(err => {
+        this.updateState({ switchProjectSuccess: false, switchProjectInProcess: false });
+        return err;
       })
     );
   }

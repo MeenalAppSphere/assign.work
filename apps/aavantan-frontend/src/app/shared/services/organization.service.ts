@@ -21,7 +21,6 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
     this.updateState({ createOrganizationInProcess: true, createOrganizationSuccess: false });
     return this._httpWrapper.post(OrganizationUrls.base, org).pipe(
       map((res: BaseResponseModel<Organization>) => {
-        this.updateState({ createOrganizationInProcess: false, createOrganizationSuccess: true });
 
         // update user profile
         this._userStore.update(state => {
@@ -36,6 +35,8 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
           ...this._generalService.user,
           organizations: [...this._generalService.user.organizations, res.data as any]
         };
+
+        this.updateState({ createOrganizationInProcess: false, createOrganizationSuccess: true });
         return res;
       }),
       catchError(err => {

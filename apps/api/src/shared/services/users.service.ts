@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BaseRequestModel, DbCollection, MongoosePaginateQuery, User } from '@aavantan-app/models';
-import { Model, Document, Query, ClientSession } from 'mongoose';
-import { BaseService } from '../shared/services/base.service';
+import { DbCollection, MongoosePaginateQuery, User } from '@aavantan-app/models';
+import { ClientSession, Document, Model, Query } from 'mongoose';
+import { BaseService } from './base.service';
+import { ProjectService } from './project.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> {
-  constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>) {
+  constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
+              @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService) {
     super(_userModel);
   }
 
@@ -25,7 +27,7 @@ export class UsersService extends BaseService<User & Document> {
     return await this.create(user, session);
   }
 
-  async updateUser(id: string, user: Partial<User>, session: ClientSession) {
+  async updateUser(id: string, user: any, session?: ClientSession) {
     if (session) {
       return await this.update(id, user, session);
     } else {
@@ -43,5 +45,16 @@ export class UsersService extends BaseService<User & Document> {
         throw e;
       }
     }
+  }
+
+  async switchProject(id: string, userId: string) {
+    const project = await this._projectService.findById(id);
+
+    if (!project) {
+      throw new BadRequestException('No Project Found');
+    }
+    const user = await this._userModel.findById(userId);
+    user.currentProject = project;
+    return this.updateUser(userId, user);
   }
 }

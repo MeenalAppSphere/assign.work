@@ -1,121 +1,134 @@
 import { Component, OnInit } from '@angular/core';
-import { User, TaskType } from '@aavantan-app/models';
+import { User, TaskType, Project } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { TypeaheadMatch } from 'ngx-bootstrap';
+import { GeneralService } from '../shared/services/general.service';
+import { ProjectService } from '../shared/services/project.service';
 
 @Component({
-    templateUrl: './settings.component.html',
-    styleUrls:['./settings.component.scss']
+  templateUrl: './settings.component.html',
+  styleUrls: ['./settings.component.scss']
 })
 
-export class SettingsComponent implements OnInit{
-  public response:any;
+export class SettingsComponent implements OnInit {
+  public response: any;
   public collaboratorForm: FormGroup;
 
   public selectedCollaborator: string;
-  public selectedCollaborators : User[]=[];
-  public enableInviteBtn:boolean;
+  public selectedCollaborators: User[] = [];
+  public enableInviteBtn: boolean;
   public stageForm: FormGroup;
   public projectForm: FormGroup;
   public taskTypeForm: FormGroup;
 
-  public activeView:any={
-    title:'Project',
-    view:'project'
+  public activeView: any = {
+    title: 'Project',
+    view: 'project'
   };
-  public stagesList:any=[
+  public stagesList: any = [
     {
-      name:'TO Do',
-      id:'1',
-      position:1
+      name: 'TO Do',
+      id: '1',
+      position: 1
     },
     {
-      name:'In-Progress',
-      id:'2',
-      position:2
+      name: 'In-Progress',
+      id: '2',
+      position: 2
     },
     {
-      name:'Done',
-      id:'1',
-      position:3
+      name: 'Done',
+      id: '1',
+      position: 3
     }];
-  public typesList:TaskType[]=[
+  public typesList: TaskType[] = [
     {
       id: '1',
       name: 'BUG',
-      color:'#F80647'
+      color: '#F80647'
     },
     {
       id: '2',
       name: 'CR',
-      color:'#F0CB2D'
+      color: '#F0CB2D'
     },
     {
       id: '3',
       name: 'NEW WORK',
-      color:'#0E7FE0'
+      color: '#0E7FE0'
     },
     {
       id: '4',
       name: 'ENHANCEMENTS',
-      color:'#0AC93E'
+      color: '#0AC93E'
     },
     {
       id: '5',
       name: 'EPIC',
-      color:'#1022A8'
+      color: '#1022A8'
     }];
-  public teamsList:User[] = [
+  public teamsList: User[] = [
     {
       id: '1',
       firstName: 'Aashish',
-      lastName:'Patil',
-      emailId:'aashish.patil@appsphere.in'
+      lastName: 'Patil',
+      emailId: 'aashish.patil@appsphere.in'
     },
     {
       id: '2',
       firstName: 'Vishal',
-      emailId:'vishal@appsphere.in'
+      emailId: 'vishal@appsphere.in'
     },
     {
       id: '3',
       firstName: 'Pradeep',
-      lastName:'Kumar',
-      emailId:'pradeep@appsphere.in'
+      lastName: 'Kumar',
+      emailId: 'pradeep@appsphere.in'
     }
   ];
-  constructor(private FB: FormBuilder, private validationRegexService:ValidationRegexService) {}
+  public currentProject: Project = null;
+  public updateRequestInProcess: boolean = false;
+
+  constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
+              private _projectService: ProjectService) {
+  }
 
   ngOnInit(): void {
+    this.currentProject = this._generalService.user.currentProject;
+
     this.collaboratorForm = this.FB.group({
-      collaborators: new FormControl(null, [Validators.required]),
+      collaborators: new FormControl(null, [Validators.required])
     });
+
     this.stageForm = this.FB.group({
-      title: new FormControl(null, [Validators.required]),
+      title: new FormControl(null, [Validators.required])
     });
+
     this.projectForm = this.FB.group({
-      name: new FormControl(null, [Validators.required]),
+      name: new FormControl(this.currentProject.name, [Validators.required])
     });
+
     this.taskTypeForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
-      value:new FormControl(null, [Validators.required]),
-      color:new FormControl(null, [Validators.required])
+      value: new FormControl(null, [Validators.required]),
+      color: new FormControl(null, [Validators.required])
     });
-    this.selectedCollaborators=this.teamsList;
+
+    this.selectedCollaborators = this.teamsList;
   }
 
 
-  public activeTab(view:string, title:string) {
+  public activeTab(view: string, title: string) {
     this.activeView = {
       title: title,
       view: view
-    }
+    };
   }
 
   /* project tab */
-  public saveProject(){
-    console.log('saveProject : ',this.projectForm.value);
+  public saveProject() {
+    this.updateProjectDetails(this.projectForm.value);
   }
 
   /* collaborators tab */
@@ -125,77 +138,88 @@ export class SettingsComponent implements OnInit{
   }
 
   public typeaheadOnSelect(e: TypeaheadMatch): void {
-    if(this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length===0){
+    if (this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length === 0) {
       this.selectedCollaborators.push(e.item);
     }
-    this.selectedCollaborator=null;
+    this.selectedCollaborator = null;
   }
 
   public onKeydown(event) {
-    const val=event.key;
-    if (val === "Enter") {
+    const val = event.key;
+    if (val === 'Enter') {
       this.addCollaborators();
-    }else{
-      setTimeout(()=>{
+    } else {
+      setTimeout(() => {
 
-        if(val) {
-          const hasValues=
-            this.selectedCollaborators.filter((o)=>{
-              return o.emailId===this.selectedCollaborator;
+        if (val) {
+          const hasValues =
+            this.selectedCollaborators.filter((o) => {
+              return o.emailId === this.selectedCollaborator;
             });
-            if(hasValues && hasValues.length){
-              this.enableInviteBtn=false;
-            }else{
-              if(!this.validationRegexService.emailValidator(this.selectedCollaborator).invalidEmailAddress){
-                this.enableInviteBtn=true;
-              }else{
-                this.enableInviteBtn=false;
-              }
+          if (hasValues && hasValues.length) {
+            this.enableInviteBtn = false;
+          } else {
+            if (!this.validationRegexService.emailValidator(this.selectedCollaborator).invalidEmailAddress) {
+              this.enableInviteBtn = true;
+            } else {
+              this.enableInviteBtn = false;
             }
+          }
         }
-      },300);
+      }, 300);
     }
   }
-  public addCollaborators(){
-    const user : User = {
-      emailId : this.selectedCollaborator
+
+  public addCollaborators() {
+    const user: User = {
+      emailId: this.selectedCollaborator
     };
-    this.response=this.validationRegexService.emailValidator(user.emailId);
-    if(this.selectedCollaborators.filter(item => item.emailId === user.emailId).length===0){
-      if(!this.response.invalidEmailAddress){
+    this.response = this.validationRegexService.emailValidator(user.emailId);
+    if (this.selectedCollaborators.filter(item => item.emailId === user.emailId).length === 0) {
+      if (!this.response.invalidEmailAddress) {
         this.selectedCollaborators.push(user);
-        this.selectedCollaborator=null;
-        this.enableInviteBtn=false;
+        this.selectedCollaborator = null;
+        this.enableInviteBtn = false;
       }
     }
   }
 
-
   /* stage tab */
-  public addStage(){
+  public addStage() {
     // add api call here
     console.log('addStage : ', this.stageForm.value);
   }
 
-  public removeStage(stage:any){
+  public removeStage(stage: any) {
     console.log('removeStage : ', stage);
   }
 
   /* task type tab */
-  public saveTaskType(){
+  public saveTaskType() {
     // add api call here
     console.log('saveTaskType : ', this.taskTypeForm.value);
     let value = this.taskTypeForm.get('name').value.toUpperCase();
     this.taskTypeForm.get('name').patchValue(value);
-    value=value.toLocaleString().trim();
+    value = value.toLocaleString().trim();
     this.taskTypeForm.get('value').patchValue(value);
-    if(this.typesList.filter(item => item.color === this.taskTypeForm.get('color').value || item.name === this.taskTypeForm.get('name').value).length===0){
+    if (this.typesList.filter(item => item.color === this.taskTypeForm.get('color').value || item.name === this.taskTypeForm.get('name').value).length === 0) {
       this.typesList.push(this.taskTypeForm.value);
     }
   }
-  public removeTaskType(taskType:TaskType){
+
+  public removeTaskType(taskType: TaskType) {
     // remove api call here
     this.typesList = this.typesList.filter(item => item.color !== taskType.color);
+  }
+
+  public updateProjectDetails(project: Partial<Project>) {
+    this.updateRequestInProcess = true;
+    try {
+      this._projectService.updateProject(this.currentProject.id, project).subscribe();
+      this.updateRequestInProcess = false;
+    } catch (e) {
+      this.updateRequestInProcess = false;
+    }
   }
 
 }

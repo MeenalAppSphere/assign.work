@@ -2,70 +2,25 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { AppsService } from '../../shared/services/apps.service';
 import { NzModalService } from 'ng-zorro-antd';
 import { Project, ProjectTemplateEnum } from '@aavantan-app/models';
+import { GeneralService } from '../../shared/services/general.service';
 
 @Component({
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  public view: String = 'listView';
-  public newProject: Boolean = false;
+  public view: string = 'listView';
   public projectList: Project[];
 
   constructor(
     private projectListSvc: AppsService,
-    private modalService: NzModalService
+    private modalService: NzModalService,
+    private _generalService: GeneralService
   ) {
   }
 
   ngOnInit(): void {
-    this.projectList = [
-      {
-        name: 'Mind Cog App',
-        avatar: 'assets/images/others/thumb-1.jpg',
-        status: 'Ready',
-        desc:
-          'European minnow priapumfish mosshead warbonnet shrimpfish. European.',
-        progress: 100,
-        members: [
-          {
-            userId: '1',
-            emailId: 'pradeep@appsphere.in',
-            isEmailSent: true,
-            isInviteAccepted: true,
-            userDetails: {
-              id: '1',
-              profilePic: 'assets/images/avatars/thumb-1.jpg',
-              firstName: 'Pradeep'
-            }
-          },
-          {
-            userId: '2',
-            emailId: 'vishal@appsphere.in',
-            isEmailSent: true,
-            isInviteAccepted: false,
-            userDetails: {
-              id: '2',
-              profilePic: 'assets/images/avatars/thumb-2.jpg',
-              firstName: 'Vishal'
-            }
-          },
-          {
-            userId: '3',
-            emailId: 'aashish.patil@appsphere.in',
-            isEmailSent: true,
-            isInviteAccepted: false,
-            userDetails: {
-              id: '2',
-              profilePic: 'assets/images/avatars/thumb-2.jpg',
-              firstName: 'Aashish'
-            }
-          }
-        ],
-        organization: '',
-        template: ProjectTemplateEnum.software
-      }
-    ];
+    this.projectList = this._generalService.user.projects as Project[];
   }
 
   showNewProject(newProjectContent: TemplateRef<{}>) {

@@ -1,5 +1,5 @@
 import { MemberTypes, OneTimeMessagesDismissed } from '../general';
-import { UserLoginProviderEnum, UserStatus } from '../enums/user.enum';
+import { UserLoginProviderEnum, UserStatus } from '../enums';
 import { Organization } from './organization.model';
 import { Project } from './project.model';
 
@@ -42,6 +42,7 @@ export class User {
   organizations?: string[] | Organization[];
   projects?: string[] | Project[];
   defaultOrganization?: string;
+  currentProject?: Project;
   status?: UserStatus;
   mobileNumber?: string;
   username?: string;

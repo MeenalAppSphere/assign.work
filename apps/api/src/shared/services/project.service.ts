@@ -1,18 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BaseRequestModel, DbCollection, Project, ProjectMembers, User } from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
-import { BaseService } from '../shared/services/base.service';
-import { UsersService } from '../users/users.service';
-import { OrganizationService } from '../organization/organization.service';
+import { BaseService } from './base.service';
+import { UsersService } from './users.service';
+import { OrganizationService } from './organization.service';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
   constructor(
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
-    private readonly _userService: UsersService,
-    private readonly _organizationService: OrganizationService
+    @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
+    @Inject(forwardRef(() => OrganizationService)) private readonly _organizationService: OrganizationService
   ) {
     super(_projectModel);
   }
@@ -24,42 +24,19 @@ export class ProjectService extends BaseService<Project & Document> {
     model = new this._projectModel(model);
     model.organization = this.toObjectId(model.organization as string);
     try {
-      // get organization object
-      // const organization = await this._organizationService.findById(organizationId as string);
-
-      // get unregistered members
-      const unregisteredMembers: string[] = model.members.filter(f => !f.userId && f.emailId).map(m => m.emailId);
-      const unregisteredMembersModel: Partial<User>[] = [];
-
-      unregisteredMembers.forEach(f => {
-        unregisteredMembersModel.push(
-          new this._userModel({
-            emailId: f,
-            username: f
-          })
-        );
-      });
-
-      // create unregistered users and get user id from them
-      if (unregisteredMembersModel.length) {
-        const createdUsers: any = await this._userService.createUser(unregisteredMembersModel, session);
-
-
-        // add newly created users to organization members array
-        // organization.members.push(...createdUsers.map(m => m.id));
-        // await organization.updateOne(organization, { session });
-
-        // assign newly created users to project members array
-        model.members = model.members.map(m => {
-          m.userId = m.userId ? m.userId : createdUsers.find(f => f.emailId === m.userId);
-          m.isEmailSent = false;
-          m.isInviteAccepted = false;
-          return m;
-        });
-      }
-
       // create project and get project id from them
       const createdProject = await this.create([model], session);
+
+      const userDetails = await this._userService.findById(createdProject[0].createdBy as string);
+
+      // if user is creating first project then mark it as
+      if (!userDetails.projects.length) {
+        userDetails.currentProject = createdProject[0].id;
+      }
+
+      userDetails.projects.push(createdProject[0].id);
+      await this._userService.updateUser(userDetails.id, userDetails, session);
+
       await session.commitTransaction();
       session.endSession();
       return createdProject[0];
@@ -78,7 +55,7 @@ export class ProjectService extends BaseService<Project & Document> {
       const result = await this.update(id, project, session);
       await session.commitTransaction();
       session.endSession();
-      return result;
+      return await this.findById(id);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -91,6 +68,11 @@ export class ProjectService extends BaseService<Project & Document> {
     session.startTransaction();
 
     const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
+
+    if (!projectDetails) {
+      throw new NotFoundException('No Project Found');
+    }
+
     const alreadyRegisteredMembers: ProjectMembers[] = [];
     const unRegisteredMembers: ProjectMembers[] = [];
     const unregisteredMembersModel: Partial<User>[] = [];
@@ -145,6 +127,17 @@ export class ProjectService extends BaseService<Project & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  async removeCollaborator(id: string, projectId: string) {
+
+    const projectDetails: Project = await this._projectModel.findById(projectId).lean().exec();
+    if (!projectDetails) {
+      throw new NotFoundException('No Project Found');
+    }
+
+    projectDetails.members = projectDetails.members.filter(f => f.userId !== id);
+    return await this.updateProject(projectId, projectDetails);
   }
 
   async getAllProject(query: any, reuest: BaseRequestModel) {

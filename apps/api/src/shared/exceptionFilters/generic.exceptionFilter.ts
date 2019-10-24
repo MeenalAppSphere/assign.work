@@ -66,7 +66,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
 
     resp.data = null;
     resp.hasError = true;
-    resp.error = resp.errors[0];
+    resp.message = resp.errors[0].message;
 
     response.status(resp.status).json(resp);
   }

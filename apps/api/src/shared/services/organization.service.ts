@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { BaseService } from '../shared/services/base.service';
-import { DbCollection, Organization, Project } from '@aavantan-app/models';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { BaseService } from './base.service';
+import { DbCollection, Organization } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Document, Types } from 'mongoose';
-import { UsersService } from '../users/users.service';
+import { Document, Model } from 'mongoose';
+import { UsersService } from './users.service';
 
 @Injectable()
 export class OrganizationService extends BaseService<Organization & Document> {
   constructor(
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
-    private readonly _userService: UsersService
+    @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService
   ) {
     super(_organizationModel);
   }

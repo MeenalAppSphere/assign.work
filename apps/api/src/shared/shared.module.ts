@@ -4,6 +4,9 @@ import { DbCollection } from '@aavantan-app/models';
 import { userSchema } from '../users/users.schema';
 import { projectSchema } from '../project/project.schema';
 import { organizationSchema } from '../organization/organization.schema';
+import { UsersService } from './services/users.service';
+import { ProjectService } from './services/project.service';
+import { OrganizationService } from './services/organization.service';
 
 @Global()
 @Module({
@@ -23,9 +26,16 @@ import { organizationSchema } from '../organization/organization.schema';
     }])
   ],
   exports: [
-    MongooseModule
+    MongooseModule,
+    UsersService,
+    ProjectService,
+    OrganizationService
   ],
-  providers: []
+  providers: [
+    UsersService,
+    ProjectService,
+    OrganizationService
+  ]
 })
 export class SharedModule {
 

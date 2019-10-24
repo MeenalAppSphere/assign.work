@@ -138,7 +138,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     });
 
     try {
-      await this._projectService.addCollaborators(this.createdProjectId, members);
+      await this._projectService.addCollaborators(this.createdProjectId, members).toPromise();
       this.addCollaboratorsInProcess = false;
       this.switchStepCurrent++;
     } catch (e) {
@@ -149,7 +149,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   async addTemplate() {
     this.selectTemplateInProcess = true;
     try {
-      await this._projectService.updateProject(this.createdProjectId, { template: this.selectedTemplate });
+      await this._projectService.updateProject(this.createdProjectId, { template: this.selectedTemplate }).toPromise();
       this.selectTemplateInProcess = false;
       this.toggleShow.emit();
     } catch (e) {

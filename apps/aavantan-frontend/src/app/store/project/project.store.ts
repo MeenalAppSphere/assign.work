@@ -1,17 +1,13 @@
-import { Project, User } from '@aavantan-app/models';
+import { Project } from '@aavantan-app/models';
 import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
 
 export interface ProjectState {
-  getUserProfileInProcess: boolean;
   projects: Project[];
-  activeProject: Project;
 }
 
 const initialState: ProjectState = {
-  getUserProfileInProcess: false,
-  projects: null,
-  activeProject: null
+  projects: null
 };
 
 @Injectable({ providedIn: 'root' })

@@ -1,5 +1,5 @@
-import { Controller, Get, UseGuards, Request, Put, Body, Query } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { Controller, Get, UseGuards, Request, Put, Body, Query, Post } from '@nestjs/common';
+import { UsersService } from '../shared/services/users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '@aavantan-app/models';
 
@@ -11,7 +11,7 @@ export class UserController {
 
   @Get('profile')
   async getUser(@Request() req) {
-    return await this._userService.findById(req.user.id, ['projects', 'organizations']);
+    return await this._userService.findById(req.user.id, ['projects', 'organizations', 'currentProject']);
   }
 
   @Get('')
@@ -22,5 +22,10 @@ export class UserController {
   @Put('profile')
   async updateUserProfile(@Body() id: string, @Body() user: Partial<User>) {
     return await this._userService.updateUser(id, user, null);
+  }
+
+  @Post('switch-project')
+  async switchProject(@Body() id: string, @Request() req) {
+    return await this._userService.switchProject(id, req.user.id);
   }
 }

@@ -1,33 +1,46 @@
 <!-- section 1 -->
 <section id="settings-page">
+
   <ul class="setting-tab-btn">
+
     <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='project'}" (click)="activeTab('project', 'Project')">
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='project'}"
+         (click)="activeTab('project', 'Project')">
         <i nz-icon nzType="border" theme="outline"></i>
         Project
       </a>
     </li>
+
     <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='collaborators'}" (click)="activeTab('collaborators', 'Collaborators')">
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='collaborators'}"
+         (click)="activeTab('collaborators', 'Collaborators')">
         <i class="fas fa-user-friends"></i>
         Collaborators
       </a>
     </li>
+
     <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}" (click)="activeTab('stages', 'Stages')">
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"
+         (click)="activeTab('stages', 'Stages')">
         <i class="fas fa-bars"></i>
         Stages
       </a>
     </li>
+
     <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}" (click)="activeTab('taskType', 'Task Type')">
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}"
+         (click)="activeTab('taskType', 'Task Type')">
         <i class="fab fa-accusoft"></i>
         Task Type
       </a>
     </li>
+
   </ul>
+
   <section>
+
     <nz-card nzTitle="{{activeView.title}}" style="min-height:420px; overflow: scroll;">
+
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
           <aside class="col-md-3">
@@ -41,7 +54,8 @@
                   nz-input nzSize="small">
               </nz-form-item>
               <nz-form-item>
-                <button (click)="saveProject()" nz-button nzType="primary" nzSize="small">
+                <button (click)="saveProject()" [nzLoading]="updateRequestInProcess" nz-button nzType="primary"
+                        nzSize="small">
                   Save
                 </button>
               </nz-form-item>
@@ -49,6 +63,7 @@
           </aside>
         </section>
       </ng-container>
+
       <ng-container *ngIf="activeView.view==='collaborators'">
         <section class="row">
           <aside class="col-md-3">
@@ -66,13 +81,15 @@
                   placeholder="Search or Invite people"
                   (keydown)="onKeydown($event)"
                   nz-input nzSize="small">
-                </nz-form-item>
-                <nz-form-explain class="text-danger m-b-15" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
-                <nz-form-item>
-                  <button (click)="addCollaborators()" [disabled]="!enableInviteBtn" nz-button nzType="primary" nzSize="small">
-                    <i nz-icon nzType="mail" theme="outline"></i> Invite
-                  </button>
-                </nz-form-item>
+              </nz-form-item>
+              <nz-form-explain class="text-danger m-b-15"
+                               *ngIf="response && response.message">{{response.message}}</nz-form-explain>
+              <nz-form-item>
+                <button (click)="addCollaborators()" [disabled]="!enableInviteBtn" nz-button nzType="primary"
+                        nzSize="small">
+                  <i nz-icon nzType="mail" theme="outline"></i> Invite
+                </button>
+              </nz-form-item>
               <p>Note: If user not available into list then you type email id and then invite them directly.</p>
             </form>
           </aside>
@@ -81,9 +98,9 @@
             <ul class="stages-list">
               <li *ngFor="let item of selectedCollaborators">
                 <a href="mailto:{{item.emailId}}">
-                <img src="../../assets/images/avatars/thumb-4.jpg" height="20" class="m-r-10"/>
-                <span>{{item.emailId}}</span><br>
-                <span class="p-l-25 text-muted small">{{item.firstName}} {{item.lastName}}</span>
+                  <img src="../../assets/images/avatars/thumb-4.jpg" height="20" class="m-r-10"/>
+                  <span>{{item.emailId}}</span><br>
+                  <span class="p-l-25 text-muted small">{{item.firstName}} {{item.lastName}}</span>
                 </a>
                 <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="float-right"></i>
               </li>
@@ -91,21 +108,23 @@
           </aside>
         </section>
       </ng-container>
+
       <!-- end collaborators -->
       <ng-container *ngIf="activeView.view==='stages'">
         <section class="row">
           <aside class="col-md-3">
-          <form nz-form (submit)="addStage()" [formGroup]="stageForm">
-            <nz-form-item>
-              <nz-form-label>Stage title</nz-form-label>
-              <nz-form-control>
-                <input nz-input nzSize="small" formControlName="title" placeholder="Enter Stage title" maxlength="30"/>
-              </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-               <button nz-button nzType="primary" nzSize="small">Add</button>
-            </nz-form-item>
-          </form>
+            <form nz-form (submit)="addStage()" [formGroup]="stageForm">
+              <nz-form-item>
+                <nz-form-label>Stage title</nz-form-label>
+                <nz-form-control>
+                  <input nz-input nzSize="small" formControlName="title" placeholder="Enter Stage title"
+                         maxlength="30"/>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <button nz-button nzType="primary" nzSize="small">Add</button>
+              </nz-form-item>
+            </form>
           </aside>
           <aside class="col-md-3">
             <nz-form-label>Default Stages</nz-form-label>
@@ -117,6 +136,7 @@
           </aside>
         </section>
       </ng-container>
+
       <!-- end stages -->
       <ng-container *ngIf="activeView.view==='taskType'">
         <section class="row task-type-section">
@@ -126,7 +146,8 @@
                 <nz-form-label>Type</nz-form-label>
                 <nz-form-control>
                   <nz-input-group [nzAddOnBefore]="profixIconButton">
-                    <input class="task-type-input" type="text" nzSize="small" formControlName="name" nz-input placeholder="Enter Task type" />
+                    <input class="task-type-input" type="text" nzSize="small" formControlName="name" nz-input
+                           placeholder="Enter Task type"/>
                   </nz-input-group>
                   <ng-template #profixIconButton>
                     <input type="color" nzSize="small" formControlName="color"/>
@@ -150,6 +171,7 @@
           </aside>
         </section>
       </ng-container>
+
       <!-- end taskType -->
 
     </nz-card>

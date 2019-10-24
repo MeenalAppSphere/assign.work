@@ -39,6 +39,10 @@ export const userSchema = new Schema(
       }
     ],
     defaultOrganization: { type: Schema.Types.ObjectId, ref: DbCollection.organizations },
+    currentProject: {
+      type: Schema.Types.ObjectId,
+      ref: DbCollection.projects
+    },
     isDeleted: { type: Boolean, default: false }
   }, schemaOptions
 );

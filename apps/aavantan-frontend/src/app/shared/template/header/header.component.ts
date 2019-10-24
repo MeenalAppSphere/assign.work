@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { Organization } from '@aavantan-app/models';
+import { Organization, Project } from '@aavantan-app/models';
+import { UserService } from '../../services/user.service';
+import { UserQuery } from '../../../queries/user/user.query';
 
 @Component({
   selector: 'app-header',
@@ -14,9 +16,11 @@ import { Organization } from '@aavantan-app/models';
 })
 
 export class HeaderComponent implements OnInit, OnDestroy {
+  public currentProject: Project = null;
 
   constructor(private themeService: ThemeConstantService, private router: Router, private readonly _authService: AuthService,
-              private readonly _generalService: GeneralService, private _organizationQuery: OrganizationQuery) {
+              private readonly _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
+              private _userQuery: UserQuery) {
   }
 
   public projectModalIsVisible: boolean = false;
@@ -71,9 +75,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.organizationModalShow();
       } else {
         if (!this._generalService.user.projects.length) {
+          // if user have no projects show create project dialog
           const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
           this.selectedOrgId = (lastOrganization as Organization).id;
           this.projectModalShow();
+        } else {
+          if (this._generalService.user.currentProject) {
+            this.currentProject = this._generalService.user.currentProject;
+            this.router.navigate(['dashboard/project']);
+          }
         }
       }
     }

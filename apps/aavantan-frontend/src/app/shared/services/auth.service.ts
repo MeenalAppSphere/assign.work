@@ -45,7 +45,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         });
 
         this._generalService.token = null;
-        this.notification.error('Error', err.error.error.message);
+        this.notification.error('Error', err.error.message);
         return of(err);
       })
     );
@@ -73,7 +73,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         });
 
         this._generalService.token = null;
-        this.notification.error('Error', err.error.error.message);
+        this.notification.error('Error', err.error.message);
         return of(err);
       })
     );

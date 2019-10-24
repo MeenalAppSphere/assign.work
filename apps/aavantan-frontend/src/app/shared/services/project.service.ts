@@ -29,7 +29,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   updateProject(id: string, model: Partial<Project>): Observable<BaseResponseModel<Project>> {
-    return this._http.post(ProjectUrls.updateProject.replace(':projectId', id), model).pipe(
+    return this._http.put(ProjectUrls.updateProject.replace(':projectId', id), model).pipe(
       map(res => {
         return res;
       }),
