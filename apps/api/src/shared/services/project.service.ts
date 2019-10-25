@@ -1,6 +1,14 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BaseRequestModel, DbCollection, Project, ProjectMembers, User } from '@aavantan-app/models';
+import {
+  BaseRequestModel,
+  DbCollection,
+  Project,
+  ProjectMembers,
+  ProjectStages,
+  TaskType,
+  User
+} from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
@@ -131,10 +139,7 @@ export class ProjectService extends BaseService<Project & Document> {
 
   async removeCollaborator(id: string, projectId: string) {
 
-    const projectDetails: Project = await this._projectModel.findById(projectId).lean().exec();
-    if (!projectDetails) {
-      throw new NotFoundException('No Project Found');
-    }
+    const projectDetails: Project = await this.getProjectDetails(projectId);
 
     projectDetails.members = projectDetails.members.filter(f => f.userId !== id);
     return await this.updateProject(projectId, projectDetails);
@@ -159,5 +164,41 @@ export class ProjectService extends BaseService<Project & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  async createStage(id: string, stage: ProjectStages) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    projectDetails.settings.stages.push(stage);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  async removeStage(id: string, stageId: string) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    projectDetails.settings.stages = projectDetails.settings.stages.filter(f => f.id !== stageId);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  async createTaskType(id: string, taskType: TaskType) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    projectDetails.settings.taskTypes.push(taskType);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  async removeTaskType(id: string, taskTypeId: string) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    projectDetails.settings.taskTypes = projectDetails.settings.taskTypes.filter(f => f.id !== taskTypeId);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  private async getProjectDetails(id: string): Promise<Project> {
+    const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
+    if (!projectDetails) {
+      throw new NotFoundException('No Project Found');
+    }
+    return projectDetails;
   }
 }

@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { BaseService } from './base.service';
-import { ProjectState, ProjectStore } from '../../store/project/project.store';
-import { HttpWrapperService } from './httpWrapper.service';
-import { GeneralService } from './general.service';
+import { BaseService } from '../base.service';
+import { ProjectState, ProjectStore } from '../../../store/project/project.store';
+import { HttpWrapperService } from '../httpWrapper.service';
+import { GeneralService } from '../general.service';
 import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { ProjectUrls } from './apiUrls/project.url';
-import { BaseResponseModel, Project, ProjectMembers } from '@aavantan-app/models';
+import { ProjectUrls } from './project.url';
+import { BaseResponseModel, Project, ProjectMembers, ProjectStages, TaskType } from '@aavantan-app/models';
 import { catchError, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { UserStore } from '../../store/user/user.store';
+import { UserStore } from '../../../store/user/user.store';
 
 @Injectable()
 export class ProjectService extends BaseService<ProjectStore, ProjectState> {
@@ -63,5 +63,43 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
 
   removeCollaborators() {
 
+  }
+
+  addStage(id: string, stage: ProjectStages) {
+    return this._http.post(ProjectUrls.addStage.replace(':projectId', id), stage)
+      .pipe(
+        map(res => res),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+  removeStage(id: string, stageid: string) {
+    return this._http.delete(ProjectUrls.removeStage
+      .replace(':projectId', id)
+      .replace(':stageId', stageid)
+    )
+      .pipe(
+        map(res => res),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+  addTaskType(id: string, taskType: TaskType) {
+    return this._http.post(ProjectUrls.addTaskType.replace(':projectId', id), taskType)
+      .pipe(
+        map(res => res),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+  removeTaskType(id: string, taskTypeId: string) {
+    return this._http.delete(ProjectUrls.removeTaskType
+      .replace(':projectId', id)
+      .replace(':taskTypeId', taskTypeId)
+    )
+      .pipe(
+        map(res => res),
+        catchError(e => this.handleError(e))
+      );
   }
 }

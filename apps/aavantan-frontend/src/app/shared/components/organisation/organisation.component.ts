@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Organization } from '@aavantan-app/models';
-import { OrganizationService } from '../../services/organization.service';
+import { OrganizationService } from '../../services/organization/organization.service';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';

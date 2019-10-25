@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
-import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
+import { DbCollection, ProjectStages, ProjectTemplateEnum } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { TaskType } from '../../../../libs/models/src/lib/models/tasktype.model';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -25,6 +26,12 @@ export const projectSchema = new Schema({
     type: String,
     required: [false, 'Please Select Project Template'],
     enum: Object.values(ProjectTemplateEnum)
+  },
+  settings: {
+    stages: [],
+    taskTypes: [],
+    required: false,
+    default: {}
   },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ProjectService } from '../shared/services/project.service';
-import { MongoosePaginateQuery, Project, ProjectMembers } from '@aavantan-app/models';
+import { MongoosePaginateQuery, Project, ProjectMembers, ProjectStages, TaskType } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('project')
@@ -32,8 +32,28 @@ export class ProjectController {
   }
 
   @Post(':id/add-collaborators')
-  async addCollaborators(@Param() id: string, @Body() members: ProjectMembers[]) {
+  async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
+  }
+
+  @Post(':id/add-stage')
+  async addStage(@Param('id') id: string, @Body() stage: ProjectStages) {
+    return await this._projectService.createStage(id, stage);
+  }
+
+  @Delete(':id/remove-stage/:stageId')
+  async removeStage(@Param('id') id: string, @Param('stageId') stageId: string) {
+    return await this._projectService.removeStage(id, stageId);
+  }
+
+  @Post(':id/add-task-type')
+  async addTaskType(@Param('id') id: string, @Body() taskType: TaskType) {
+    return await this._projectService.createTaskType(id, taskType);
+  }
+
+  @Delete(':id/remove-task-type/:taskTypeId')
+  async removeTaskType(@Param('id') id: string, @Param('taskTypeId') taskTypeId: string) {
+    return await this._projectService.removeTaskType(id, taskTypeId);
   }
 
 }

@@ -111,64 +111,97 @@
 
       <!-- end collaborators -->
       <ng-container *ngIf="activeView.view==='stages'">
+
         <section class="row">
+
           <aside class="col-md-3">
+
             <form nz-form (submit)="addStage()" [formGroup]="stageForm">
+
               <nz-form-item>
+
                 <nz-form-label>Stage title</nz-form-label>
                 <nz-form-control>
-                  <input nz-input nzSize="small" formControlName="title" placeholder="Enter Stage title"
+                  <input nz-input nzSize="small" formControlName="name" placeholder="Enter Stage title"
                          maxlength="30"/>
                 </nz-form-control>
+
               </nz-form-item>
+
               <nz-form-item>
-                <button nz-button nzType="primary" nzSize="small">Add</button>
+                <button nz-button nzType="primary" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
               </nz-form-item>
+
             </form>
+
           </aside>
+
           <aside class="col-md-3">
+
             <nz-form-label>Default Stages</nz-form-label>
+
             <ul class="stages-list">
               <li *ngFor="let item of stagesList"><span>{{item.name}}</span>
                 <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
               </li>
             </ul>
+
           </aside>
+
         </section>
       </ng-container>
 
       <!-- end stages -->
+
       <ng-container *ngIf="activeView.view==='taskType'">
+
         <section class="row task-type-section">
+
           <aside class="col-md-3">
+
             <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
+
               <nz-form-item>
+
                 <nz-form-label>Type</nz-form-label>
+
                 <nz-form-control>
                   <nz-input-group [nzAddOnBefore]="profixIconButton">
                     <input class="task-type-input" type="text" nzSize="small" formControlName="name" nz-input
                            placeholder="Enter Task type"/>
-                  </nz-input-group>
+                  </nz-input-group
+                  >
                   <ng-template #profixIconButton>
                     <input type="color" nzSize="small" formControlName="color"/>
                   </ng-template>
                 </nz-form-control>
+
               </nz-form-item>
+
               <nz-form-item>
-                <button nz-button nzType="primary" nzSize="small">Add</button>
+                <button nz-button nzType="primary" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
               </nz-form-item>
+
             </form>
+
           </aside>
+
           <aside class="col-md-3">
+
             <nz-form-label>Default Types</nz-form-label>
+
             <ul class="stages-list">
+
               <li *ngFor="let item of typesList">
                 <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
                 <span>{{item.name}}</span>
                 <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
               </li>
+
             </ul>
+
           </aside>
+
         </section>
       </ng-container>
 

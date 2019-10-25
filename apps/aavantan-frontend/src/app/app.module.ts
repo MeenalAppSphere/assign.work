@@ -13,7 +13,7 @@ import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { environment } from '../environments/environment';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
-import { ServiceModule } from './shared/service.module';
+import { ServiceModule } from './shared/services/apiUrls/service.module';
 
 registerLocaleData(en);
 

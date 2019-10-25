@@ -2,7 +2,7 @@ import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/r
 import { EMPTY, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { AuthQuery } from '../queries/auth/auth.query';
-import { UserService } from '../shared/services/user.service';
+import { UserService } from '../shared/services/user/user.service';
 import { catchError } from 'rxjs/operators';
 import { GeneralService } from '../shared/services/general.service';
 

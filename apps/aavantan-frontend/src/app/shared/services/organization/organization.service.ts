@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BaseService } from './base.service';
-import { OrganizationState, OrganizationStore } from '../../store/organization/organization.store';
+import { BaseService } from '../base.service';
+import { OrganizationState, OrganizationStore } from '../../../store/organization/organization.store';
 import { BaseResponseModel, Organization, User } from '@aavantan-app/models';
-import { HttpWrapperService } from './httpWrapper.service';
-import { OrganizationUrls } from './apiUrls/organization.url';
+import { HttpWrapperService } from '../httpWrapper.service';
+import { OrganizationUrls } from './organization.url';
 import { catchError, map } from 'rxjs/operators';
-import { UserStore } from '../../store/user/user.store';
-import { GeneralService } from './general.service';
+import { UserStore } from '../../../store/user/user.store';
+import { GeneralService } from '../general.service';
 import { Observable, of } from 'rxjs';
 import { NzNotificationService } from 'ng-zorro-antd';
 

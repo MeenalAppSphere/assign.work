@@ -1,7 +1,7 @@
 import { Organization } from './organization.model';
 import { Types } from 'mongoose';
 
-import { ProjectTemplateEnum, User } from '@aavantan-app/models';
+import { ProjectTemplateEnum, TaskType, User } from '@aavantan-app/models';
 
 export class Project {
   id?: string;
@@ -17,6 +17,7 @@ export class Project {
   template: ProjectTemplateEnum;
   createdBy?: string | User;
   updated?: string | User;
+  settings?: ProjectSettings;
 }
 
 export class ProjectMembers {
@@ -25,4 +26,15 @@ export class ProjectMembers {
   isEmailSent?: boolean;
   isInviteAccepted?: boolean;
   userDetails?: User;
+}
+
+export class ProjectSettings {
+  stages: ProjectStages[];
+  taskTypes: TaskType[];
+}
+
+export class ProjectStages {
+  id?: string;
+  name: string;
+  alias?: string;
 }

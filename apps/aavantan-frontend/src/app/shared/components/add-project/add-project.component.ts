@@ -4,8 +4,8 @@ import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
 import { Organization, Project, ProjectMembers, ProjectTemplateEnum, User } from '@aavantan-app/models';
 import { GeneralService } from '../../services/general.service';
-import { UserService } from '../../services/user.service';
-import { ProjectService } from '../../services/project.service';
+import { UserService } from '../../services/user/user.service';
+import { ProjectService } from '../../services/project/project.service';
 
 
 @Component({

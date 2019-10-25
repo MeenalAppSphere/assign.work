@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { User, TaskType, Project } from '@aavantan-app/models';
+import { User, TaskType, Project, ProjectStages } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { GeneralService } from '../shared/services/general.service';
-import { ProjectService } from '../shared/services/project.service';
+import { ProjectService } from '../shared/services/project/project.service';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -26,48 +26,8 @@ export class SettingsComponent implements OnInit {
     title: 'Project',
     view: 'project'
   };
-  public stagesList: any = [
-    {
-      name: 'TO Do',
-      id: '1',
-      position: 1
-    },
-    {
-      name: 'In-Progress',
-      id: '2',
-      position: 2
-    },
-    {
-      name: 'Done',
-      id: '1',
-      position: 3
-    }];
-  public typesList: TaskType[] = [
-    {
-      id: '1',
-      name: 'BUG',
-      color: '#F80647'
-    },
-    {
-      id: '2',
-      name: 'CR',
-      color: '#F0CB2D'
-    },
-    {
-      id: '3',
-      name: 'NEW WORK',
-      color: '#0E7FE0'
-    },
-    {
-      id: '4',
-      name: 'ENHANCEMENTS',
-      color: '#0AC93E'
-    },
-    {
-      id: '5',
-      name: 'EPIC',
-      color: '#1022A8'
-    }];
+  public stagesList: any = [];
+  public typesList: TaskType[] = [];
   public teamsList: User[] = [
     {
       id: '1',
@@ -96,28 +56,28 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentProject = this._generalService.user.currentProject;
+    this.stagesList = this.currentProject.settings.stages;
+    this.typesList = this.currentProject.settings.taskTypes;
 
     this.collaboratorForm = this.FB.group({
       collaborators: new FormControl(null, [Validators.required])
     });
 
     this.stageForm = this.FB.group({
-      title: new FormControl(null, [Validators.required])
+      name: new FormControl(null, [Validators.required])
     });
 
     this.projectForm = this.FB.group({
-      name: new FormControl(this.currentProject.name, [Validators.required])
+      name: new FormControl(this.currentProject ? this.currentProject.name: null, [Validators.required])
     });
 
     this.taskTypeForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
-      value: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
 
     this.selectedCollaborators = this.teamsList;
   }
-
 
   public activeTab(view: string, title: string) {
     this.activeView = {
@@ -126,12 +86,10 @@ export class SettingsComponent implements OnInit {
     };
   }
 
-  /* project tab */
   public saveProject() {
     this.updateProjectDetails(this.projectForm.value);
   }
 
-  /* collaborators tab */
   public removeCollaborators(user: User) {
     // remove api call here
     this.selectedCollaborators = this.selectedCollaborators.filter(item => item.emailId !== user.emailId);
@@ -184,32 +142,44 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  /* stage tab */
   public addStage() {
-    // add api call here
-    console.log('addStage : ', this.stageForm.value);
+    this.updateRequestInProcess = true;
+    try {
+      this._projectService.addStage(this.currentProject.id, this.stageForm.value).subscribe();
+      this.updateRequestInProcess = false;
+    } catch (e) {
+      this.updateRequestInProcess = false;
+    }
   }
 
-  public removeStage(stage: any) {
-    console.log('removeStage : ', stage);
+  public removeStage(stage: ProjectStages) {
+    this.updateRequestInProcess = true;
+    try {
+      this._projectService.removeStage(this.currentProject.id, stage.id).subscribe();
+      this.updateRequestInProcess = false;
+    } catch (e) {
+      this.updateRequestInProcess = false;
+    }
   }
 
-  /* task type tab */
   public saveTaskType() {
-    // add api call here
-    console.log('saveTaskType : ', this.taskTypeForm.value);
-    let value = this.taskTypeForm.get('name').value.toUpperCase();
-    this.taskTypeForm.get('name').patchValue(value);
-    value = value.toLocaleString().trim();
-    this.taskTypeForm.get('value').patchValue(value);
-    if (this.typesList.filter(item => item.color === this.taskTypeForm.get('color').value || item.name === this.taskTypeForm.get('name').value).length === 0) {
-      this.typesList.push(this.taskTypeForm.value);
+    this.updateRequestInProcess = true;
+    try {
+      this._projectService.addTaskType(this.currentProject.id, this.taskTypeForm.value).subscribe();
+      this.updateRequestInProcess = false;
+    } catch (e) {
+      this.updateRequestInProcess = false;
     }
   }
 
   public removeTaskType(taskType: TaskType) {
-    // remove api call here
-    this.typesList = this.typesList.filter(item => item.color !== taskType.color);
+    this.updateRequestInProcess = true;
+    try {
+      this._projectService.removeTaskType(this.currentProject.id, taskType.id).subscribe();
+      this.updateRequestInProcess = false;
+    } catch (e) {
+      this.updateRequestInProcess = false;
+    }
   }
 
   public updateProjectDetails(project: Partial<Project>) {

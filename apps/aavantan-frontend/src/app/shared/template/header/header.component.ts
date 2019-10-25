@@ -6,7 +6,7 @@ import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { Organization, Project } from '@aavantan-app/models';
-import { UserService } from '../../services/user.service';
+import { UserService } from '../../services/user/user.service';
 import { UserQuery } from '../../../queries/user/user.query';
 
 @Component({

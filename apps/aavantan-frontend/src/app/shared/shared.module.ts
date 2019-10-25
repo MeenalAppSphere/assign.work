@@ -11,7 +11,7 @@ import { TaskListComponent } from './components/task-list/task-list.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { TimelogComponent } from './components/timelog/timelog.component';
 import { DateAgoPipe } from './pipes/dateago.pipe';
-import { ServiceModule } from './service.module';
+import { ServiceModule } from './services/apiUrls/service.module';
 import { OrganisationComponent } from './components/organisation/organisation.component';
 
 @NgModule({

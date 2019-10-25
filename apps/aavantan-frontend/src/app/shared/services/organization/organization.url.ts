@@ -1,4 +1,4 @@
-import { createUrl } from './base.url';
+import { createUrl } from '../apiUrls/base.url';
 
 export const OrganizationUrls = {
   base: `${createUrl('organization')}`,
