@@ -54,7 +54,7 @@ export class AuthService {
 
       const newUser = await this._userModel.create([model], session);
       const userDetails = await newUser[0].populate(['projects', 'organization', 'currentProject']).execPopulate();
-      const payload = { username: userDetails.username, sub: userDetails.id };
+      const payload = { sub: userDetails.emailId, id: userDetails.id };
       await session.commitTransaction();
       session.endSession();
       return {

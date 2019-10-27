@@ -13,9 +13,9 @@ const routes: Routes = [
       nzAutoGenerate: false
     },
     children: [
-      {
-        path: '', redirectTo: 'home', pathMatch: 'full'
-      },
+      // {
+      //   path: '', redirectTo: 'home', pathMatch: 'full'
+      // },
       {
         path: 'home', component: HomeComponent
       },

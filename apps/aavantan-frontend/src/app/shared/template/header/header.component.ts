@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ThemeConstantService } from '../../services/theme-constant.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -59,28 +59,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-
-    // listen for user from store
-    this._userQuery.user$.subscribe(res => {
-      this._generalService.user = res;
-
-      this.initialCheck();
-    });
-
-    // listen for current project
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      this.currentProject = res;
-    });
-
-    // listen for organization create success
-    this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
-        this.selectedOrgId = (lastOrganization as Organization).id;
-      } else {
-        this.selectedOrgId = null;
-      }
-    });
+    this.currentProject = this._generalService.currentProject;
 
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
@@ -106,22 +85,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.quickViewVisible = !this.quickViewVisible;
   }
 
-  // Ctrl + j functionality
-  @HostListener('document:keydown', ['$event'])
-  public handleKeyboardUpEvent(event: KeyboardEvent) {
-    if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
-      event.preventDefault();
-      event.stopPropagation();
-      // this.organizationModalShow();
-      this.projectModalShow();
-    }
-    if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
-      event.preventDefault();
-      event.stopPropagation();
-      this.router.navigateByUrl('dashboard/task');
-    }
-  }
-
   public projectModalShow(): void {
     this.projectModalIsVisible = !this.projectModalIsVisible;
   }
@@ -132,21 +95,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   logOut() {
     this._authService.logOut();
-  }
-
-  private initialCheck() {
-    if (this._generalService.user) {
-      if (!this._generalService.user.organizations.length) {
-        this.organizationModalShow();
-      } else {
-        if (!this._generalService.user.projects.length) {
-          // if user have no projects show create project dialog
-          const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
-          this.selectedOrgId = (lastOrganization as Organization).id;
-          this.projectModalShow();
-        }
-      }
-    }
   }
 
   ngOnDestroy(): void {

@@ -1,8 +1,17 @@
-import { User } from '@aavantan-app/models';
+import { Project, User } from '@aavantan-app/models';
 import { Injectable } from '@angular/core';
 
 @Injectable()
 export class GeneralService {
+
+  get currentProject(): Project {
+    return this._currentProject;
+  }
+
+  set currentProject(value: Project) {
+    this._currentProject = value;
+  }
+
   get userLocale(): string {
     return this._userLocale;
   }
@@ -30,4 +39,5 @@ export class GeneralService {
   private _user: User;
   private _token: string;
   private _userLocale: string;
+  private _currentProject: Project;
 }

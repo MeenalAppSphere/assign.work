@@ -15,7 +15,8 @@
 
       <div class="main-content-header" *ngIf="contentHeaderDisplay !== 'none'">
 
-        <h4 class="page-title" *ngIf="breadcrumbs$ | async; let breadcrumbs">{{(breadcrumbs[breadcrumbs.length - 1].label)}}</h4>
+        <h4 class="page-title"
+            *ngIf="breadcrumbs$ | async; let breadcrumbs">{{(breadcrumbs[breadcrumbs.length - 1].label)}}</h4>
 
         <nz-breadcrumb nzSeparator=">">
 
@@ -38,3 +39,26 @@
 
   </div>
 </div>
+
+
+<!-- region global modals -->
+<!-- region add project -->
+<ng-container *ngIf="projectModalIsVisible">
+  <aavantan-app-add-project
+    [projectModalIsVisible]="projectModalIsVisible"
+    [selectedOrgId]="selectedOrgId"
+    (toggleShow)="projectModalShow()">
+  </aavantan-app-add-project>
+</ng-container>
+<!-- endregion -->
+
+<!--region add organization -->
+<ng-container *ngIf="organizationModalIsVisible">
+  <aavantan-app-organisation
+    [organizationModalIsVisible]="organizationModalIsVisible"
+    (toggleShow)="organizationModalShow()">
+  </aavantan-app-organisation>
+</ng-container>
+<!--endregion-->
+
+<!--endregion-->

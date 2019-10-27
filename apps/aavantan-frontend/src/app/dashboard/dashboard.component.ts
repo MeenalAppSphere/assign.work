@@ -1,63 +1,151 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
-import { delay, distinctUntilChanged, filter, map, startWith } from 'rxjs/operators';
+import { delay } from 'rxjs/operators';
 import { JoyrideService } from 'ngx-joyride';
+import { Organization } from '@aavantan-app/models';
+import { GeneralService } from '../shared/services/general.service';
+import { OrganizationQuery } from '../queries/organization/organization.query';
+import { UserService } from '../shared/services/user/user.service';
+import { UserQuery } from '../queries/user/user.query';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { NzModalService } from 'ng-zorro-antd';
+import { AuthService } from '../shared/services/auth.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
 })
 
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   breadcrumbs$: Observable<IBreadcrumb[]>;
-  contentHeaderDisplay: String ='none';
-  isFolded : boolean ;
-  isSideNavDark : boolean;
+  contentHeaderDisplay: String = 'none';
+  isFolded: boolean;
+  isSideNavDark: boolean;
   isExpand: boolean;
   selectedHeaderColor: string;
+  projectModalIsVisible: boolean = false;
+  organizationModalIsVisible: boolean = false;
 
-  constructor(private router: Router,  private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
-  private joyrideService: JoyrideService) {
-    // Disable breadcrumbs
-    // this.router.events.pipe(
-    //   filter(event => event instanceof NavigationEnd),
-    //   map(() => {
-    //     let child = this.activatedRoute.firstChild;
-    //     while (child) {
-    //       if (child.firstChild) {
-    //         child = child.firstChild;
-    //       } else if (child.snapshot.data && child.snapshot.data['headerDisplay']) {
-    //         return child.snapshot.data['headerDisplay'];
-    //       } else {
-    //         return null;
-    //       }
-    //     }
-    //     return null;
-    //   })
-    // ).subscribe( (data: any) => {
-    //   this.contentHeaderDisplay = data;
-    // });
+  selectedOrgId: string = null;
+
+
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
+              private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
+              private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService) {
   }
 
   ngOnInit() {
-    // Disable breadcrumbs
-    // this.breadcrumbs$ = this.router.events.pipe(
-    //   startWith(new NavigationEnd(0, '/', '/')),
-    //   filter(event => event instanceof NavigationEnd),distinctUntilChanged(),
-    //   map(data => this.buildBreadCrumb(this.activatedRoute.root))
-    // );
+
+    // listen for user from store
+    this._userQuery.user$.subscribe(res => {
+      this._generalService.user = res;
+
+      this.initialCheck();
+    });
+
+    // listen for current project
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      this._generalService.currentProject = res;
+    });
+
+    // listen for organization create success
+    this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
+        this.selectedOrgId = (lastOrganization as Organization).id;
+      } else {
+        this.selectedOrgId = null;
+      }
+    });
+
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
     this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+  }
 
-    setTimeout(()=>{
-      // this.startTour();
-    },1000);
+  projectModalShow(): void {
+    if (!this._generalService.user.projects.length) {
+      this.showLogoutWarning('Project');
+    } else {
+      this.projectModalIsVisible = !this.projectModalIsVisible;
+    }
+  }
 
+  organizationModalShow(): void {
+    if (!this._generalService.user.organizations.length) {
+      // show logout popup
+      this.showLogoutWarning('Organization');
+    } else {
+      this.organizationModalIsVisible = !this.organizationModalIsVisible;
 
+      if (this._generalService.user.organizations.length === 1) {
+        this.projectModalShow();
+      } else {
+        return;
+      }
+    }
+  }
+
+  stepDone() {
+    setTimeout(() => {
+      console.log('Step done!');
+    }, 3000);
+  }
+
+  startTour() {
+    const options = {
+      steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/board'],
+      startWith: 'tour1',
+      // waitingTime: 2000,
+      stepDefaultPosition: 'top',
+      themeColor: '#000000',
+      showPrevButton: true,
+      logsEnabled: true,
+      customTexts: { prev: of('<<').pipe(delay(2000)), next: '>>' }
+    };
+    this.joyrideService.startTour(options).subscribe(
+      step => {
+        console.log('Next:', step);
+      },
+      e => {
+        console.log('Error', e);
+      },
+      () => {
+        this.stepDone();
+        console.log('Tour finished');
+      }
+    );
+  }
+
+  showLogoutWarning(type: 'Organization' | 'Project') {
+    this._modalService.confirm({
+      nzContent: `<p>You need at least one <b>${type}</b> to continue, otherwise you will be logged out of application</p>`,
+      nzTitle: 'Warning',
+      nzOnOk: () => {
+        this._authService.logOut();
+      },
+      nzOnCancel: () => {
+        return;
+      }
+    });
+  }
+
+  // Ctrl + j functionality
+  @HostListener('document:keydown', ['$event'])
+  public handleKeyboardUpEvent(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
+      event.preventDefault();
+      event.stopPropagation();
+      this.projectModalShow();
+    }
+    if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
+      event.preventDefault();
+      event.stopPropagation();
+      this.router.navigateByUrl('dashboard/task');
+    }
   }
 
   private buildBreadCrumb(route: ActivatedRoute, url: string = '', breadcrumbs: IBreadcrumb[] = []): IBreadcrumb[] {
@@ -86,36 +174,23 @@ export class DashboardComponent implements OnInit {
     return newBreadcrumbs;
   }
 
-  stepDone() {
-    setTimeout(() => {
-      console.log('Step done!');
-    }, 3000);
-  }
-
-  startTour() {
-    const options = {
-      steps: ['tour1', 'tour2','main-menu', 'tour-card0@dashboard/home', 'tour3',"board@dashboard/board"],
-      startWith: 'tour1',
-      // waitingTime: 2000,
-      stepDefaultPosition: 'top',
-      themeColor: '#000000',
-      showPrevButton: true,
-      logsEnabled: true,
-      customTexts: { prev: of('<<').pipe(delay(2000)), next: '>>' }
-    };
-    this.joyrideService.startTour(options).subscribe(
-      step => {
-        console.log('Next:', step);
-      },
-      e => {
-        console.log('Error', e);
-      },
-      () => {
-        this.stepDone();
-        console.log('Tour finished');
+  private initialCheck() {
+    if (this._generalService.user) {
+      if (!this._generalService.user.organizations.length) {
+        this.organizationModalIsVisible = true;
+      } else {
+        if (!this._generalService.user.projects.length) {
+          // if user have no projects show create project dialog
+          const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
+          this.selectedOrgId = (lastOrganization as Organization).id;
+          this.projectModalIsVisible = true;
+        } else {
+          this.router.navigate(['task']);
+        }
       }
-    );
+    }
   }
 
-
+  ngOnDestroy(): void {
+  }
 }

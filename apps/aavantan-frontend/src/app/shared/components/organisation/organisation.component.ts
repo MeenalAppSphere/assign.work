@@ -54,7 +54,7 @@ export class OrganisationComponent implements OnInit, OnDestroy {
     this._organizationService.createOrganization(organization).subscribe();
   }
 
-  basicModalHandleCancel() {
+  closeModal() {
     this.toggleShow.emit();
   }
 
