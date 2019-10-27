@@ -5,6 +5,7 @@ import { ValidationRegexService } from '../shared/services/validation-regex.serv
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
+import { UserQuery } from '../queries/user/user.query';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -49,15 +50,22 @@ export class SettingsComponent implements OnInit {
   ];
   public currentProject: Project = null;
   public updateRequestInProcess: boolean = false;
+  public deleteStageInProcess: boolean = false;
+  public deleteTaskTypeInProcess: boolean = false;
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
-              private _projectService: ProjectService) {
+              private _projectService: ProjectService, private _userQuery: UserQuery) {
   }
 
   ngOnInit(): void {
-    this.currentProject = this._generalService.user.currentProject;
-    this.stagesList = this.currentProject.settings.stages;
-    this.typesList = this.currentProject.settings.taskTypes;
+    // get current project from store
+    this._userQuery.currentProject$.subscribe(res => {
+      if (res) {
+        this.currentProject = res;
+        this.stagesList = res.settings.stages;
+        this.typesList = res.settings.taskTypes;
+      }
+    });
 
     this.collaboratorForm = this.FB.group({
       collaborators: new FormControl(null, [Validators.required])
@@ -68,7 +76,7 @@ export class SettingsComponent implements OnInit {
     });
 
     this.projectForm = this.FB.group({
-      name: new FormControl(this.currentProject ? this.currentProject.name: null, [Validators.required])
+      name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required])
     });
 
     this.taskTypeForm = this.FB.group({
@@ -144,42 +152,40 @@ export class SettingsComponent implements OnInit {
 
   public addStage() {
     this.updateRequestInProcess = true;
-    try {
-      this._projectService.addStage(this.currentProject.id, this.stageForm.value).subscribe();
+    this._projectService.addStage(this.currentProject.id, this.stageForm.value).subscribe((res => {
+      this.stageForm.reset();
       this.updateRequestInProcess = false;
-    } catch (e) {
+    }), (error => {
       this.updateRequestInProcess = false;
-    }
+    }));
   }
 
   public removeStage(stage: ProjectStages) {
-    this.updateRequestInProcess = true;
-    try {
-      this._projectService.removeStage(this.currentProject.id, stage.id).subscribe();
-      this.updateRequestInProcess = false;
-    } catch (e) {
-      this.updateRequestInProcess = false;
-    }
+    this.deleteStageInProcess = true;
+    this._projectService.removeStage(this.currentProject.id, stage.id).subscribe((res => {
+      this.deleteStageInProcess = false;
+    }), (error => {
+      this.deleteStageInProcess = false;
+    }));
   }
 
   public saveTaskType() {
     this.updateRequestInProcess = true;
-    try {
-      this._projectService.addTaskType(this.currentProject.id, this.taskTypeForm.value).subscribe();
+    this._projectService.addTaskType(this.currentProject.id, this.taskTypeForm.value).subscribe((res => {
+      this.taskTypeForm.reset();
       this.updateRequestInProcess = false;
-    } catch (e) {
+    }), (error => {
       this.updateRequestInProcess = false;
-    }
+    }));
   }
 
   public removeTaskType(taskType: TaskType) {
-    this.updateRequestInProcess = true;
-    try {
-      this._projectService.removeTaskType(this.currentProject.id, taskType.id).subscribe();
-      this.updateRequestInProcess = false;
-    } catch (e) {
-      this.updateRequestInProcess = false;
-    }
+    this.deleteTaskTypeInProcess = true;
+    this._projectService.removeTaskType(this.currentProject.id, taskType.id).subscribe((res => {
+      this.deleteTaskTypeInProcess = false;
+    }), (error => {
+      this.deleteTaskTypeInProcess = false;
+    }));
   }
 
   public updateProjectDetails(project: Partial<Project>) {

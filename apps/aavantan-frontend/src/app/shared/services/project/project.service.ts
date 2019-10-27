@@ -53,6 +53,12 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   addCollaborators(id: string, members: ProjectMembers[]) {
     return this._http.put(ProjectUrls.addCollaborators.replace(':projectId', id), members).pipe(
       map(res => {
+        this.userStore.update((state => {
+          return {
+            ...state,
+            currentProject: res
+          };
+        }));
         return res;
       }),
       catchError(e => {
@@ -68,7 +74,11 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   addStage(id: string, stage: ProjectStages) {
     return this._http.post(ProjectUrls.addStage.replace(':projectId', id), stage)
       .pipe(
-        map(res => res),
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Stage Created Successfully');
+          return res;
+        }),
         catchError(e => this.handleError(e))
       );
   }
@@ -79,7 +89,11 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       .replace(':stageId', stageid)
     )
       .pipe(
-        map(res => res),
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Stage Deleted Successfully');
+          return res;
+        }),
         catchError(e => this.handleError(e))
       );
   }
@@ -87,7 +101,11 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   addTaskType(id: string, taskType: TaskType) {
     return this._http.post(ProjectUrls.addTaskType.replace(':projectId', id), taskType)
       .pipe(
-        map(res => res),
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Task Type Created Successfully');
+          return res;
+        }),
         catchError(e => this.handleError(e))
       );
   }
@@ -98,8 +116,21 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       .replace(':taskTypeId', taskTypeId)
     )
       .pipe(
-        map(res => res),
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Task Type Deleted Successfully');
+          return res;
+        }),
         catchError(e => this.handleError(e))
       );
+  }
+
+  private updateCurrentProjectState(result: Project) {
+    this.userStore.update((state => {
+      return {
+        ...state,
+        currentProject: result
+      };
+    }));
   }
 }

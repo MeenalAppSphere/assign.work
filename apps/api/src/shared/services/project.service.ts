@@ -9,7 +9,7 @@ import {
   TaskType,
   User
 } from '@aavantan-app/models';
-import { Document, Model } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
 import { OrganizationService } from './organization.service';
@@ -169,6 +169,7 @@ export class ProjectService extends BaseService<Project & Document> {
   async createStage(id: string, stage: ProjectStages) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
+    stage.id = new Types.ObjectId().toHexString();
     projectDetails.settings.stages.push(stage);
     return await this.updateProject(id, projectDetails);
   }
@@ -183,6 +184,7 @@ export class ProjectService extends BaseService<Project & Document> {
   async createTaskType(id: string, taskType: TaskType) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
+    taskType.id = new Types.ObjectId().toHexString();
     projectDetails.settings.taskTypes.push(taskType);
     return await this.updateProject(id, projectDetails);
   }

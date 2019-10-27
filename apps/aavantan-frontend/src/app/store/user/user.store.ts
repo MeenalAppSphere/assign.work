@@ -7,13 +7,15 @@ export interface UserState {
   user: User;
   switchProjectInProcess: boolean;
   switchProjectSuccess: boolean;
+  currentProject: Project;
 }
 
 const initialState: UserState = {
   getUserProfileInProcess: false,
   user: null,
   switchProjectInProcess: false,
-  switchProjectSuccess: false
+  switchProjectSuccess: false,
+  currentProject: null
 };
 
 @Injectable({ providedIn: 'root' })

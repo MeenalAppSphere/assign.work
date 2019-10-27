@@ -140,11 +140,15 @@
 
             <nz-form-label>Default Stages</nz-form-label>
 
-            <ul class="stages-list">
-              <li *ngFor="let item of stagesList"><span>{{item.name}}</span>
-                <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
-              </li>
-            </ul>
+            <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
+
+              <ul class="stages-list">
+                <li *ngFor="let item of stagesList"><span>{{item.name}}</span>
+                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
+                </li>
+              </ul>
+
+            </nz-spin>
 
           </aside>
 
@@ -190,15 +194,20 @@
 
             <nz-form-label>Default Types</nz-form-label>
 
-            <ul class="stages-list">
+            <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
 
-              <li *ngFor="let item of typesList">
-                <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
-                <span>{{item.name}}</span>
-                <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
-              </li>
+              <ul class="stages-list">
 
-            </ul>
+                <li *ngFor="let item of typesList">
+                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
+                  <span>{{item.name}}</span>
+                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline"
+                     class="close float-right"></i>
+                </li>
+
+              </ul>
+
+            </nz-spin>
 
           </aside>
 

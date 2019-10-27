@@ -24,7 +24,8 @@ export class UserService extends BaseService<UserStore, UserState> {
       map((res: BaseResponseModel<User>) => {
         this.updateState({
           getUserProfileInProcess: false,
-          user: res.data
+          user: res.data,
+          currentProject: res.data.currentProject
         });
         this._generalService.user = res.data;
         return res;
@@ -32,7 +33,8 @@ export class UserService extends BaseService<UserStore, UserState> {
       catchError(err => {
         this.updateState({
           getUserProfileInProcess: false,
-          user: null
+          user: null,
+          currentProject: null
         });
         this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);

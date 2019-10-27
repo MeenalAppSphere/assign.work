@@ -60,6 +60,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
+    // listen for user from store
+    this._userQuery.user$.subscribe(res => {
+      this._generalService.user = res;
+
+      this.initialCheck();
+    });
+
+    // listen for current project
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      this.currentProject = res;
+    });
+
     // listen for organization create success
     this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -68,23 +80,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       } else {
         this.selectedOrgId = null;
       }
-    });
-
-    if (this._generalService.user) {
-      if (!this._generalService.user.organizations.length) {
-        this.organizationModalShow();
-      } else {
-        if (!this._generalService.user.projects.length) {
-          // if user have no projects show create project dialog
-          const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
-          this.selectedOrgId = (lastOrganization as Organization).id;
-          this.projectModalShow();
-        }
-      }
-    }
-
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      this.currentProject = res;
     });
 
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
@@ -137,6 +132,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   logOut() {
     this._authService.logOut();
+  }
+
+  private initialCheck() {
+    if (this._generalService.user) {
+      if (!this._generalService.user.organizations.length) {
+        this.organizationModalShow();
+      } else {
+        if (!this._generalService.user.projects.length) {
+          // if user have no projects show create project dialog
+          const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
+          this.selectedOrgId = (lastOrganization as Organization).id;
+          this.projectModalShow();
+        }
+      }
+    }
   }
 
   ngOnDestroy(): void {
