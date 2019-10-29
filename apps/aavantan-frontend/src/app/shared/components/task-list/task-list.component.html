@@ -6,7 +6,7 @@
           <div class="media" [ngStyle]="{'border-left': '4px solid '+ item.taskType.color}">
             <img src="../../../../assets/images/priority/high.png" class="m-t-5 m-l-10"  height="16"/>
             <div class="m-l-10">
-              <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.name}}</a></h6>
+              <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.taskId}} - {{item.name}}</a></h6>
             </div>
           </div>
         </div>
@@ -47,6 +47,7 @@
       <thead>
       <tr>
         <th class="text-center" width="20" *ngIf="showCheckboxOption">#</th>
+        <th>ID</th>
         <th>Title</th>
         <th class="text-center" *ngIf="showProgressOption">Progress</th>
         <th class="text-center">Status</th>
@@ -58,6 +59,9 @@
       <tr *ngFor="let item of listViewTable.data">
         <td data-label="#" *ngIf="showCheckboxOption" class="text-center">
           <label nz-checkbox [(ngModel)]="item.selectedForSprint" (nzCheckedChange)="selectTaskForSprint(item)"></label>
+        </td>
+        <td data-label="ID">
+          <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.taskId}}</a></h6>
         </td>
         <td data-label="Title">
           <div class="media align-items-center" [ngStyle]="{'border-left': '5px solid '+ item.taskType.color}">

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { User, TaskType } from '@aavantan-app/models';
+import { User, TaskType, ProjectMembers } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { TypeaheadMatch } from 'ngx-bootstrap';
@@ -14,7 +14,7 @@ export class SettingsComponent implements OnInit{
   public collaboratorForm: FormGroup;
 
   public selectedCollaborator: string;
-  public selectedCollaborators : User[]=[];
+  public selectedCollaborators : ProjectMembers[]=[];
   public enableInviteBtn:boolean;
   public stageForm: FormGroup;
   public projectForm: FormGroup;
@@ -66,23 +66,62 @@ export class SettingsComponent implements OnInit{
       name: 'EPIC',
       color:'#1022A8'
     }];
-  public teamsList:User[] = [
+  public teamsList:ProjectMembers[] = [
     {
-      id: '1',
-      firstName: 'Aashish',
-      lastName:'Patil',
-      emailId:'aashish.patil@appsphere.in'
+      userId: '1',
+      emailId: "pradeep@appsphere.in",
+      userDetails: {
+        firstName: 'Pradeep',
+        profilePic:
+          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
+      }
     },
     {
-      id: '2',
-      firstName: 'Vishal',
-      emailId:'vishal@appsphere.in'
+      userId: '2',
+      emailId: "vishal@appsphere.in",
+      userDetails: {
+        firstName: 'Vishal',
+        profilePic:
+          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
+      }
     },
     {
-      id: '3',
-      firstName: 'Pradeep',
-      lastName:'Kumar',
-      emailId:'pradeep@appsphere.in'
+      userId: '3',
+      emailId:"aahsish.patil@appsphere.in",
+      userDetails: {
+        firstName: 'Aashsih',
+        profilePic:
+          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
+      }
+    }
+  ];
+  public projectMembers:ProjectMembers[] = [
+    {
+      userId: '1',
+      emailId: "pradeep@appsphere.in",
+      userDetails: {
+        firstName: 'Pradeep',
+        profilePic:
+          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
+      }
+    },
+    {
+      userId: '2',
+      emailId: "vishal@appsphere.in",
+      userDetails: {
+        firstName: 'Vishal',
+        profilePic:
+          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
+      }
+    },
+    {
+      userId: '3',
+      emailId:"aahsish.patil@appsphere.in",
+      userDetails: {
+        firstName: 'Aashsih',
+        profilePic:
+          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
+      }
     }
   ];
   constructor(private FB: FormBuilder, private validationRegexService:ValidationRegexService) {}
@@ -98,6 +137,7 @@ export class SettingsComponent implements OnInit{
       name: new FormControl(null, [Validators.required]),
     });
     this.taskTypeForm = this.FB.group({
+      displayName:new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
       value:new FormControl(null, [Validators.required]),
       color:new FormControl(null, [Validators.required])
@@ -157,7 +197,8 @@ export class SettingsComponent implements OnInit{
     }
   }
   public addCollaborators(){
-    const user : User = {
+    const user : ProjectMembers = {
+      userId:'1',
       emailId : this.selectedCollaborator
     };
     this.response=this.validationRegexService.emailValidator(user.emailId);

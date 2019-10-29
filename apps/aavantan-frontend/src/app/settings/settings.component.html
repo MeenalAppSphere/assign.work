@@ -3,7 +3,7 @@
   <ul class="setting-tab-btn">
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='project'}" (click)="activeTab('project', 'Project')">
-        <i nz-icon nzType="border" theme="outline"></i>
+        <i class="fas fa-desktop"></i>
         Project
       </a>
     </li>
@@ -23,6 +23,12 @@
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}" (click)="activeTab('taskType', 'Task Type')">
         <i class="fab fa-accusoft"></i>
         Task Type
+      </a>
+    </li>
+    <li>
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='capacity'}" (click)="activeTab('capacity', 'Team Capacity')">
+        <i class="fab fa-slideshare"></i>
+        Team Capacity
       </a>
     </li>
   </ul>
@@ -49,6 +55,8 @@
           </aside>
         </section>
       </ng-container>
+
+
       <ng-container *ngIf="activeView.view==='collaborators'">
         <section class="row">
           <aside class="col-md-3">
@@ -81,9 +89,9 @@
             <ul class="stages-list">
               <li *ngFor="let item of selectedCollaborators">
                 <a href="mailto:{{item.emailId}}">
-                <img src="../../assets/images/avatars/thumb-4.jpg" height="20" class="m-r-10"/>
+                <img src="{{item.userDetails.profilePic}}" height="20" class="m-r-10"/>
                 <span>{{item.emailId}}</span><br>
-                <span class="p-l-25 text-muted small">{{item.firstName}} {{item.lastName}}</span>
+                <span class="p-l-30 text-muted small">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
                 </a>
                 <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="float-right"></i>
               </li>
@@ -92,6 +100,8 @@
         </section>
       </ng-container>
       <!-- end collaborators -->
+
+
       <ng-container *ngIf="activeView.view==='stages'">
         <section class="row">
           <aside class="col-md-3">
@@ -118,10 +128,18 @@
         </section>
       </ng-container>
       <!-- end stages -->
+
+
       <ng-container *ngIf="activeView.view==='taskType'">
         <section class="row task-type-section">
           <aside class="col-md-3">
             <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
+              <nz-form-item>
+                <nz-form-label>Display name <small>(as prefix with id eg : <b class="text-info">BUG-1001</b>)</small></nz-form-label>
+                <nz-form-control>
+                    <input class="task-type-input" type="text" nzSize="small" formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="4" />
+                </nz-form-control>
+              </nz-form-item>
               <nz-form-item>
                 <nz-form-label>Type</nz-form-label>
                 <nz-form-control>
@@ -151,6 +169,41 @@
         </section>
       </ng-container>
       <!-- end taskType -->
+
+
+      <ng-container *ngIf="activeView.view==='capacity'">
+        <aside class="col-md-4">
+          <div class="capacity-table">
+            <nz-table
+              [nzData]="projectMembers"
+              [nzShowPagination]="false">
+              <thead>
+              <tr>
+                <th width="30">#</th>
+                <th class="text-left" colspan="2">Name</th>
+                <th class="text-right" width="140">Working hours</th>
+              </tr>
+              </thead>
+              <tbody>
+
+              <tr *ngFor="let item of projectMembers; let i = index;">
+                <td>{{i+1}}.</td>
+                <td><nz-avatar nzSize="small" nzSrc="{{item.userDetails.profilePic}}"></nz-avatar></td>
+                <td>{{item.userDetails.firstName}} {{item.userDetails.lastName}}
+                  <div class="cap-email"><small class="text-muted">{{item.emailId}}</small></div>
+                </td>
+                <td class="text-right"><input nz-input placeholder="Hours" class="team-list-input" value="40" nzSize="small" maxlength="3"/></td>
+              </tr>
+              <tr>
+                <td class="text-right" colspan="4">Total Hours: 120</td>
+              </tr>
+              </tbody>
+            </nz-table>
+            <button nz-button nzSize="small" nzType="primary">Save</button>
+          </div>
+        </aside>
+      </ng-container>
+      <!-- end team capacity-->
 
     </nz-card>
   </section>

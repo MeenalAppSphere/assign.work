@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DraftSprint, User, Task } from '@aavantan-app/models';
+import { DraftSprint, User, Task, Sprint } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -23,6 +23,20 @@ export class BacklogComponent implements OnInit {
   public dateFormat = 'mm/dd/yyyy';
   public sprintData:any;
   public teamCapacityModalIsVisible:boolean;
+  public sprintDataSource:Sprint[] = [
+    {
+      id: '1',
+      name: 'Sprint 1'
+    },
+    {
+      id: '2',
+      name: 'Sprint 2'
+    },
+    {
+      id: '3',
+      name: 'Sprint 3'
+    }
+  ];
   constructor() {}
 
   ngOnInit() {
@@ -38,6 +52,7 @@ export class BacklogComponent implements OnInit {
       ];
       this.taskObj= {
         id : '100' + i,
+        taskId:'BUG-10'+i,
         name : 'You can create sprint by selecting multiple tasks' + i + '.',
         progress : (i * 10),
         createdAt : new Date(),

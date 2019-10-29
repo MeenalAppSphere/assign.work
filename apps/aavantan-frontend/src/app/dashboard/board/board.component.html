@@ -1,4 +1,4 @@
-<section class="collaborators-avatar m-b-15">
+<section class="collaborators-avatar">
   <div class="row">
     <div class="col">
     <nz-avatar nzText="U" nzSize="" nzTitle="Umesh Kumar" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
@@ -14,10 +14,7 @@
       </nz-button-group>
       <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">
         <ul nz-menu>
-          <li nz-menu-item>Sprint 1</li>
-          <li nz-menu-item>Sprint 2</li>
-          <li nz-menu-item>Sprint 3</li>
-          <li nz-menu-item>Sprint 4</li>
+          <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>
         </ul>
       </nz-dropdown-menu>
     </div>
@@ -27,12 +24,12 @@
 <div class="sprintboard-container">
   <div class="container-fluid">
     <div class="row flex-row flex-nowrap">
-      <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of tasks">
+      <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of tasks; let last">
         <div class="card card-block">
-          <div class="card-header">{{item.name}} <i class="pull-right fa fa-ellipsis-v"></i></div>
+          <div class="card-header">{{item.name}} <span class="pull-right "><span class="text-warning">Total hours : 14</span><i class="pl-2 fa fa-ellipsis-v"></i></span></div>
           <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
           </bs-sortable>
-          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>
+<!--          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>-->
           <ng-template #createTaskSummaryTemplate>
             <p>Task Popup here...</p>
 <!--            <app-create-task-summary isOpencreateTaskSummaryTemplate></app-create-task-summary>-->
@@ -46,11 +43,14 @@
 <ng-template #itemTemplate let-item="item" let-index="index">
   <div class="task-card" [ngStyle]="{'border-left': '5px solid '+item.value.taskType.color}">
     <div class="task-body">
-      <a href=""><img src="../../../../assets/images/priority/{{item.value.proirity}}.png" height="14" class="m-r-5" /> {{item.value.name}}</a>
+      <a href=""><img src="../../../../assets/images/priority/{{item.value.proirity}}.png" height="14" class="m-r-5" /><span class="font-weight-semibold">{{item.value.taskId}}</span>: {{item.value.name}}</a>
     </div>
     <div class="task-footer">
       <span>{{item.value.createdAt | dateAgo }}</span>
-      <span class="pull-right"><nz-avatar class="m-r-10" nzIcon="user" nzSrc="{{item.value.assigned.profilePic}}" nzShape="circle"></nz-avatar>  {{item.value.assigned.firstName}}</span>
+      <span class="pull-right"><nz-avatar class="m-r-10" nzIcon="user" nzSrc="{{item.value.assigned.profilePic}}" nzShape="circle"></nz-avatar>  {{item.value.assigned.firstName}}<span class="p-l-5 p-r-5">|</span> <a (click)="timeLog(item.value)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
     </div>
   </div>
 </ng-template>
+
+<app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem" (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
+

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-
+import { Task } from '@aavantan-app/models';
 @Component({
   selector: 'app-timelog',
   templateUrl: './timelog.component.html',

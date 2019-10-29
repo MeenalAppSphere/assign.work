@@ -16,7 +16,7 @@ export class TaskListComponent implements OnInit {
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
-  public timelogModalIsVisible: Boolean = false;
+  public timelogModalIsVisible: boolean;
   public selectedTaskItem:Task;
   //backlog page
   public tasksSelected: DraftSprint = {

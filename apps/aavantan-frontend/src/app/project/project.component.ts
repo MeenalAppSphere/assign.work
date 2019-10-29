@@ -53,6 +53,7 @@ export class ProjectComponent implements OnInit{
         ];
         this.taskObj= {
           id : '100' + i,
+          taskId : 'BUG-100' + i,
           name : 'A responsive table that stacks into cards when space is ' + i + '.',
           progress : (i * 10),
           createdAt : new Date(),
@@ -62,7 +63,7 @@ export class ProjectComponent implements OnInit{
           estimate: 2+'hr',
           priority:'high',
           taskType: {
-            name:'bug',
+            name:'BUG',
             color:'#ddee00'
           }
         }

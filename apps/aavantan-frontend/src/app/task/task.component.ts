@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Task, TaskType, User } from '@aavantan-app/models';
+import { Sprint, Task, TaskType, User } from '@aavantan-app/models';
 import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 @Component({
@@ -73,25 +73,28 @@ export class TaskComponent implements OnInit {
   public relatedTaskDataSource: Task[] = [
     {
       id: '1',
+      taskId:'BUG-1001',
       name: 'Related Task 1',
       taskType: {
-        name:'bug',
+        name:'BUG',
         color:'#ddee00'
       }
     },
     {
       id: '2',
+      taskId:'BUG-1002',
       name: 'Related Task 2',
       taskType: {
-        name:'bug',
+        name:'BUG',
         color:'#ddee00'
       }
     },
     {
       id: '3',
+      taskId:'CR-1001',
       name: 'Related Task 3',
       taskType: {
-        name:'task',
+        name:'CR',
         color:'#ddee00'
       }
     }
@@ -99,40 +102,43 @@ export class TaskComponent implements OnInit {
   public dependentTaskDataSource: Task[] = [
     {
       id: '1',
+      taskId:'BUG-1001',
       name: 'Related Task 1',
       taskType: {
-        name:'bug',
+        name:'BUG',
         color:'#ddee00'
       }
     },
     {
       id: '2',
+      taskId:'BUG-1002',
       name: 'Related Task 2',
       taskType: {
-        name:'bug',
+        name:'BUG',
         color:'#ddee00'
       }
     },
     {
       id: '3',
+      taskId:'CR-1001',
       name: 'Related Task 3',
       taskType: {
-        name:'task',
+        name:'CR',
         color:'#ddee00'
       }
     }
   ];
-  public sprintDataSource = [
+  public sprintDataSource:Sprint[] = [
     {
-      id: 1,
+      id: '1',
       name: 'Sprint 1'
     },
     {
-      id: 2,
+      id: '2',
       name: 'Sprint 2'
     },
     {
-      id: 3,
+      id: '3',
       name: 'Sprint 3'
     }
   ];
