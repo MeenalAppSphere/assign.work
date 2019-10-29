@@ -170,6 +170,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     stage.id = new Types.ObjectId().toHexString();
+    const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase() === stage.name.toLowerCase());
     projectDetails.settings.stages.push(stage);
     return await this.updateProject(id, projectDetails);
   }

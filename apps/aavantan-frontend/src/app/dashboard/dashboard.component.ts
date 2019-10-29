@@ -185,7 +185,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.selectedOrgId = (lastOrganization as Organization).id;
           this.projectModalIsVisible = true;
         } else {
-          this.router.navigate(['task']);
+          this.router.navigate(['dashboard', 'task']);
         }
       }
     }
