@@ -7,6 +7,7 @@ import { organizationSchema } from '../organization/organization.schema';
 import { UsersService } from './services/users.service';
 import { ProjectService } from './services/project.service';
 import { OrganizationService } from './services/organization.service';
+import { TaskService } from './services/task.service';
 
 @Global()
 @Module({
@@ -29,12 +30,14 @@ import { OrganizationService } from './services/organization.service';
     MongooseModule,
     UsersService,
     ProjectService,
-    OrganizationService
+    OrganizationService,
+    TaskService
   ],
   providers: [
     UsersService,
     ProjectService,
-    OrganizationService
+    OrganizationService,
+    TaskService
   ]
 })
 export class SharedModule {

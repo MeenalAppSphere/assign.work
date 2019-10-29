@@ -6,7 +6,7 @@
           <div class="media" [ngStyle]="{'border-left': '4px solid '+ item.taskType.color}">
             <img src="../../../../assets/images/priority/high.png" class="m-t-5 m-l-10"  height="16"/>
             <div class="m-l-10">
-              <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.taskId}} - {{item.name}}</a></h6>
+              <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.displayName}} - {{item.name}}</a></h6>
             </div>
           </div>
         </div>

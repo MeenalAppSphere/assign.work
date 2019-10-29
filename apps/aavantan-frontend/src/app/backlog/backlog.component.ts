@@ -52,7 +52,7 @@ export class BacklogComponent implements OnInit {
       ];
       this.taskObj= {
         id : '100' + i,
-        taskId:'BUG-10'+i,
+        displayName:'BUG-10'+i,
         name : 'You can create sprint by selecting multiple tasks' + i + '.',
         progress : (i * 10),
         createdAt : new Date(),

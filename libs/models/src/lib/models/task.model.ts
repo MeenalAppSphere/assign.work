@@ -2,10 +2,9 @@ import { Labels, TaskType, User } from '@aavantan-app/models';
 
 export class Task {
   id?: string;
-  taskId?:string;
+  displayName?:string;
   name: string;
   closed?: boolean;
-  dateLastActivity?: Date;
   description?: string;
   dueReminder?: string;
   due?: Date;
@@ -14,7 +13,7 @@ export class Task {
   projectId?: string;
   position?: number;
   priority?: string;
-  tagsId?: any[];
+  tags?: string[];
   comments?: any[];
   assigned?: User[];
   url?: string;
