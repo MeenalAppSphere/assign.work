@@ -13,6 +13,7 @@ import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { AuthService } from '../shared/services/auth.service';
+import { cloneDeep } from 'lodash';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -40,24 +41,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // listen for user from store
     this._userQuery.user$.subscribe(res => {
-      this._generalService.user = res;
+      this._generalService.user = cloneDeep(res);
 
       this.initialCheck();
     });
 
     // listen for current project
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      this._generalService.currentProject = res;
-    });
-
-    // listen for organization create success
-    this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
-        this.selectedOrgId = (lastOrganization as Organization).id;
-      } else {
-        this.selectedOrgId = null;
-      }
+      this._generalService.currentProject = cloneDeep(res);
     });
 
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
@@ -82,7 +73,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.organizationModalIsVisible = !this.organizationModalIsVisible;
 
       if (this._generalService.user.organizations.length === 1) {
-        this.projectModalShow();
+        this.projectModalIsVisible = true;
       } else {
         return;
       }

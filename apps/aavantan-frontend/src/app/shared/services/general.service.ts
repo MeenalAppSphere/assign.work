@@ -1,8 +1,15 @@
-import { Project, User } from '@aavantan-app/models';
+import { Organization, Project, User } from '@aavantan-app/models';
 import { Injectable } from '@angular/core';
 
 @Injectable()
 export class GeneralService {
+  get currentOrganization(): Organization {
+    return this._currentOrganization;
+  }
+
+  set currentOrganization(value: Organization) {
+    this._currentOrganization = value;
+  }
 
   get currentProject(): Project {
     return this._currentProject;
@@ -40,4 +47,5 @@ export class GeneralService {
   private _token: string;
   private _userLocale: string;
   private _currentProject: Project;
+  private _currentOrganization: Organization;
 }

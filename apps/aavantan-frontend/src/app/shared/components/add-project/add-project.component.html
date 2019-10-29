@@ -97,16 +97,24 @@
   <div *nzModalFooter>
     <div class="row">
 
-      <div class="col text-left">
+      <div class="col text-left" *ngIf="!createdProjectId">
         <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"
                 [disabled]="organizationCreationInProcess">
           <span>Cancel</span>
         </button>
       </div>
 
+      <div class="col text-left">
+        <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"
+                *ngIf="createdProjectId">
+          <span>Close</span>
+        </button>
+      </div>
+
       <div class="col">
 
-        <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="switchStepCurrent > 1">
+        <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()"
+                *ngIf="switchStepCurrent > 1 && !createdProjectId">
           <span>Previous</span>
         </button>
 

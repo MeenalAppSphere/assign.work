@@ -15,7 +15,6 @@ import { ProjectService } from '../../services/project/project.service';
 })
 export class AddProjectComponent implements OnInit, OnDestroy {
   @Input() public projectModalIsVisible: boolean = false;
-  @Input() public selectedOrgId: string;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public projectForm: FormGroup;
@@ -25,6 +24,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public selectedCollaborator: string;
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.software;
   public response: any;
+
+  public currentOrganization: Organization;
 
   public organizations: Organization[];
   public organizationCreationInProcess: boolean = false;
@@ -44,10 +45,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.organizations = this._generalService.user && this._generalService.user.organizations as Organization[] || [];
+    this.currentOrganization = this._generalService.currentOrganization;
     this.createFrom();
 
-    if (this.selectedOrgId) {
-      this.projectForm.get('organization').patchValue(this.selectedOrgId);
+    if (this.currentOrganization) {
+      this.projectForm.get('organization').patchValue(this.currentOrganization.id);
     }
   }
 
@@ -117,6 +119,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     try {
       const createdProject = await this._projectService.createProject(project).toPromise();
+
       this.createdProjectId = createdProject.data.id;
       this.createProjectInProcess = false;
 

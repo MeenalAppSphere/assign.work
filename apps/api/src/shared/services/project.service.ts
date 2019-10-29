@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   BaseRequestModel,
@@ -103,8 +103,8 @@ export class ProjectService extends BaseService<Project & Document> {
       unRegisteredMembers.forEach(f => {
         unregisteredMembersModel.push(
           new this._userModel({
-            emailId: f,
-            username: f
+            emailId: f.emailId,
+            username: f.emailId
           })
         );
       });
@@ -171,6 +171,10 @@ export class ProjectService extends BaseService<Project & Document> {
 
     stage.id = new Types.ObjectId().toHexString();
     const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase() === stage.name.toLowerCase());
+
+    if (isDuplicate) {
+      throw new BadRequestException('Stage Name Already Exists');
+    }
     projectDetails.settings.stages.push(stage);
     return await this.updateProject(id, projectDetails);
   }
@@ -184,6 +188,12 @@ export class ProjectService extends BaseService<Project & Document> {
 
   async createTaskType(id: string, taskType: TaskType) {
     const projectDetails: Project = await this.getProjectDetails(id);
+
+    const isDuplicate = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
+
+    if (isDuplicate) {
+      throw new BadRequestException('Tasktype Name Already Exists');
+    }
 
     taskType.id = new Types.ObjectId().toHexString();
     projectDetails.settings.taskTypes.push(taskType);

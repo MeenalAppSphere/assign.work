@@ -20,11 +20,15 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
 
   createProject(model: Project): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.base, model).pipe(
-      map(res => {
+      map((res: BaseResponseModel<Project>) => {
+        if (!this._generalService.user.projects.length) {
+          this.updateCurrentProjectState(res.data);
+        }
+        this._generalService.user.projects.push(res.data as any);
         return res;
       }),
       catchError(err => {
-        return err;
+        return this.handleError(err);
       })
     );
   }
@@ -32,37 +36,24 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   updateProject(id: string, model: Partial<Project>): Observable<BaseResponseModel<Project>> {
     return this._http.put(ProjectUrls.updateProject.replace(':projectId', id), model).pipe(
       map(res => {
-        this.userStore.update((state) => {
-          return {
-            ...state,
-            user: {
-              ...state.user,
-              currentProject: res.data
-            }
-          };
-        });
+        this.updateCurrentProjectState(res.data);
         this.notification.success('Project Updated', 'Project Settings Updated');
         return res;
       }),
       catchError(err => {
-        return err;
+        return this.handleError(err);
       })
     );
   }
 
-  addCollaborators(id: string, members: ProjectMembers[]) {
-    return this._http.put(ProjectUrls.addCollaborators.replace(':projectId', id), members).pipe(
+  addCollaborators(id: string, members: ProjectMembers[]): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.addCollaborators.replace(':projectId', id), members).pipe(
       map(res => {
-        this.userStore.update((state => {
-          return {
-            ...state,
-            currentProject: res
-          };
-        }));
+        this.updateCurrentProjectState(res.data);
         return res;
       }),
       catchError(e => {
-        return e;
+        return this.handleError(e);
       })
     );
   }
@@ -71,7 +62,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
 
   }
 
-  addStage(id: string, stage: ProjectStages) {
+  addStage(id: string, stage: ProjectStages): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.addStage.replace(':projectId', id), stage)
       .pipe(
         map(res => {
@@ -83,7 +74,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       );
   }
 
-  removeStage(id: string, stageid: string) {
+  removeStage(id: string, stageid: string): Observable<BaseResponseModel<Project>> {
     return this._http.delete(ProjectUrls.removeStage
       .replace(':projectId', id)
       .replace(':stageId', stageid)
@@ -98,7 +89,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       );
   }
 
-  addTaskType(id: string, taskType: TaskType) {
+  addTaskType(id: string, taskType: TaskType): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.addTaskType.replace(':projectId', id), taskType)
       .pipe(
         map(res => {
@@ -110,7 +101,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       );
   }
 
-  removeTaskType(id: string, taskTypeId: string) {
+  removeTaskType(id: string, taskTypeId: string): Observable<BaseResponseModel<Project>> {
     return this._http.delete(ProjectUrls.removeTaskType
       .replace(':projectId', id)
       .replace(':taskTypeId', taskTypeId)

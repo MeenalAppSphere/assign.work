@@ -59,7 +59,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    this.currentProject = this._generalService.currentProject;
+    // get current project from store
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentProject = res;
+      }
+    });
 
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);

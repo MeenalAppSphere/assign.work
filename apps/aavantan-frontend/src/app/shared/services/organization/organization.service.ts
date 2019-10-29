@@ -23,6 +23,11 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
     return this._httpWrapper.post(OrganizationUrls.base, org).pipe(
       map((res: BaseResponseModel<Organization>) => {
 
+        // no organization means it's current organization
+        if (!this._generalService.user.organizations.length) {
+          this._generalService.currentOrganization = res.data;
+        }
+
         // update user profile
         this._userStore.update(state => {
           return {
@@ -32,17 +37,13 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
             })
           };
         });
-        this._generalService.user = {
-          ...this._generalService.user,
-          organizations: [...this._generalService.user.organizations, res.data as any]
-        };
 
         this.updateState({ createOrganizationInProcess: false, createOrganizationSuccess: true });
         return res;
       }),
       catchError(err => {
         this.updateState({ createOrganizationInProcess: false, createOrganizationSuccess: false });
-        return of(err);
+        return this.handleError(err);
       })
     );
   }
