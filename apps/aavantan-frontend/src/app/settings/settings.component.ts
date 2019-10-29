@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { User, TaskType, ProjectMembers } from '@aavantan-app/models';
-import { User, TaskType, Project, ProjectStages } from '@aavantan-app/models';
+import { User, TaskType, Project, ProjectStages, ProjectMembers } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { TypeaheadMatch } from 'ngx-bootstrap';
@@ -18,7 +17,7 @@ export class SettingsComponent implements OnInit {
   public collaboratorForm: FormGroup;
 
   public selectedCollaborator: string;
-  public selectedCollaborators : ProjectMembers[]=[];
+  public selectedCollaborators : User[]=[];
   public enableInviteBtn:boolean;
   public stageForm: FormGroup;
   public projectForm: FormGroup;
@@ -30,9 +29,9 @@ export class SettingsComponent implements OnInit {
   };
   public stagesList: any = [];
   public typesList: TaskType[] = [];
-  public teamsList: User[] = [
+  public teamsList: any[] = [
     {
-      userId: '1',
+      id: '1',
       emailId: "pradeep@appsphere.in",
       userDetails: {
         firstName: 'Pradeep',
@@ -41,7 +40,7 @@ export class SettingsComponent implements OnInit {
       }
     },
     {
-      userId: '2',
+      id: '2',
       emailId: "vishal@appsphere.in",
       userDetails: {
         firstName: 'Vishal',
@@ -53,9 +52,7 @@ export class SettingsComponent implements OnInit {
       id: '3',
       firstName: 'Pradeep',
       lastName: 'Kumar',
-      emailId: 'pradeep@appsphere.in'
-      userId: '3',
-      emailId:"aahsish.patil@appsphere.in",
+      emailId: 'pradeep@appsphere.in',
       userDetails: {
         firstName: 'Aashsih',
         profilePic:
