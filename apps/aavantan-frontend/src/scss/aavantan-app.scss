@@ -369,3 +369,20 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     padding: 5px 10px!important;
   }
 }
+
+
+
+.ddls-btn {
+  text-align: left;
+  width: 130px!important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  i {
+    float: right;
+    position: absolute;
+    right: 2px;
+    top: 7px;
+  }
+}

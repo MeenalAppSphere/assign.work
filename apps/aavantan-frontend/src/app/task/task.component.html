@@ -9,18 +9,20 @@
     <form nz-form class="bg-white p-15 create-task-form"
       [formGroup]="taskForm"
       (ngSubmit)="saveForm()">
+      <h5>Create Task</h5>
+      <hr class="m-t-5 m-b-5"/>
       <!-- row 1-->
       <div class="row row-1">
         <div class="col-md-3">
           <nz-form-item>
-            <nz-form-label nzRequired nzFor="taskType">Task Type</nz-form-label>
-            <nz-form-control class="issue-type-btn-grp">
+            <nz-form-label nzRequired nzFor="taskType">Task Type<span class="text-danger">*</span></nz-form-label>
+            <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
               <nz-button-group
                 nz-dropdown
                 [nzDropdownMenu]="createTaskType"
                 nzPlacement="bottomLeft">
-                <button nzType="default" nzSize="small" nz-button>
-                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedTaskType.color}"></i>
+                <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
+                  <span class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedTaskType.color}"></span>
                   {{selectedTaskType.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
                 </button>
               </nz-button-group>
@@ -70,27 +72,49 @@
           </nz-form-item>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-2">
           <nz-form-item>
-            <nz-form-label nzRequired nzFor="taskType">Status</nz-form-label>
+            <nz-form-label nzRequired nzFor="taskType">Stage</nz-form-label>
               <nz-form-control class="issue-type-btn-grp">
                 <nz-button-group
                   nz-dropdown
-                  [nzDropdownMenu]="statusDDLTemplate"
+                  [nzDropdownMenu]="stagesDDLTemplate"
                   nzPlacement="bottomRight">
-                  <button nzType="default" nzSize="small" nz-button>
+                  <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
                     In-Progress <i nz-icon nzType="caret-down" theme="outline"></i>
                   </button>
                 </nz-button-group>
-                <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
+                <nz-dropdown-menu #stagesDDLTemplate="nzDropdownMenu">
                   <ul nz-menu>
-                    <li nz-menu-item *ngFor="let item of statusDataSource">
+                    <li nz-menu-item *ngFor="let item of stagesDataSource">
                       {{ item.name }}
                     </li>
                   </ul>
                 </nz-dropdown-menu>
               </nz-form-control>
             </nz-form-item>
+        </div>
+        <div class="col-md-2">
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="taskType">Priority</nz-form-label>
+            <nz-form-control class="issue-type-btn-grp">
+              <nz-button-group
+                nz-dropdown
+                [nzDropdownMenu]="proiorityDDLTemplate"
+                nzPlacement="bottomRight">
+                <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
+                  Low <i nz-icon nzType="caret-down" theme="outline"></i>
+                </button>
+              </nz-button-group>
+              <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item *ngFor="let item of priorityDataSource">
+                    {{ item.name }}
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+            </nz-form-control>
+          </nz-form-item>
         </div>
       </div>
       <!-- row 1-->
@@ -185,8 +209,8 @@
       <div class="row">
         <div class="col-md-12">
           <nz-form-item>
-            <nz-form-label nzRequired nzFor="title">Title</nz-form-label>
-            <nz-form-control>
+            <nz-form-label nzRequired nzFor="title">Title<span class="text-danger">*</span></nz-form-label>
+            <nz-form-control nzValidatingTip="Please enter task title">
               <input
                 placeholder="Enter Task Title"
                 formControlName="title"

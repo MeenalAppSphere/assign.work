@@ -186,7 +186,7 @@ export class TaskComponent implements OnInit {
     }
   ];
 
-  public statusDataSource = [
+  public stagesDataSource = [
     {
       id: 1,
       name: 'TODO',
@@ -206,6 +206,24 @@ export class TaskComponent implements OnInit {
       id: 4,
       name: 'Done',
       value: 'done'
+    }
+  ];
+  public priorityDataSource = [
+    {
+      id: '1',
+      name: 'Low'
+    }
+    ,{
+      id: '2',
+      name: 'High'
+    },
+    {
+      id: '3',
+      name: 'Medium'
+    },
+    {
+      id: '4',
+      name: 'Critical'
     }
   ];
 

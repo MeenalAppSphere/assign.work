@@ -18,7 +18,7 @@
               (ngSubmit)="submitForm()">
               <nz-form-item>
                 <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
-                <nz-form-control>
+                <nz-form-control nzValidatingTip="Please input your email!">
                   <nz-input-group [nzPrefix]="prefixUser">
                     <input
                       type="email"
@@ -28,10 +28,6 @@
                       formControlName="emailId"
                       placeholder="Email"/>
                   </nz-input-group>
-                  <nz-form-explain
-                    *ngIf="loginForm.get('emailId').dirty &&
-                      loginForm.get('emailId').errors">Please input your email!
-                  </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
 
@@ -41,7 +37,7 @@
                 <a class="float-right font-size-13 p-t-10 text-muted"
                   [routerLink]="['/forgot']"
                   >Forget Password?</a>
-                <nz-form-control>
+                <nz-form-control nzValidatingTip="Please input your Password!">
                   <nz-input-group [nzPrefix]="prefixLock">
                     <input
                       type="password"
@@ -52,12 +48,6 @@
                       placeholder="Password"
                     />
                   </nz-input-group>
-                  <nz-form-explain
-                    *ngIf="
-                      loginForm.get('password').dirty &&
-                      loginForm.get('password').errors
-                    ">Please input your Password!
-                  </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
               <nz-form-item *ngIf="responseMessage && responseMessage.message" >
