@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { User, TaskType, Project, ProjectStages, ProjectMembers } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
@@ -6,19 +6,20 @@ import { TypeaheadMatch } from 'ngx-bootstrap';
 import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
 import { UserQuery } from '../queries/user/user.query';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 @Component({
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
 
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   public response: any;
   public collaboratorForm: FormGroup;
 
   public selectedCollaborator: string;
-  public selectedCollaborators : User[]=[];
-  public enableInviteBtn:boolean;
+  public selectedCollaborators: User[] = [];
+  public enableInviteBtn: boolean;
   public stageForm: FormGroup;
   public projectForm: FormGroup;
   public taskTypeForm: FormGroup;
@@ -32,7 +33,7 @@ export class SettingsComponent implements OnInit {
   public teamsList: any[] = [
     {
       id: '1',
-      emailId: "pradeep@appsphere.in",
+      emailId: 'pradeep@appsphere.in',
       userDetails: {
         firstName: 'Pradeep',
         profilePic:
@@ -41,7 +42,7 @@ export class SettingsComponent implements OnInit {
     },
     {
       id: '2',
-      emailId: "vishal@appsphere.in",
+      emailId: 'vishal@appsphere.in',
       userDetails: {
         firstName: 'Vishal',
         profilePic:
@@ -60,10 +61,10 @@ export class SettingsComponent implements OnInit {
       }
     }
   ];
-  public projectMembers:ProjectMembers[] = [
+  public projectMembers: ProjectMembers[] = [
     {
       userId: '1',
-      emailId: "pradeep@appsphere.in",
+      emailId: 'pradeep@appsphere.in',
       userDetails: {
         firstName: 'Pradeep',
         profilePic:
@@ -72,7 +73,7 @@ export class SettingsComponent implements OnInit {
     },
     {
       userId: '2',
-      emailId: "vishal@appsphere.in",
+      emailId: 'vishal@appsphere.in',
       userDetails: {
         firstName: 'Vishal',
         profilePic:
@@ -81,7 +82,7 @@ export class SettingsComponent implements OnInit {
     },
     {
       userId: '3',
-      emailId:"aahsish.patil@appsphere.in",
+      emailId: 'aahsish.patil@appsphere.in',
       userDetails: {
         firstName: 'Aashsih',
         profilePic:
@@ -100,7 +101,7 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     // get current project from store
-    this._userQuery.currentProject$.subscribe(res => {
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentProject = res;
         this.stagesList = res.settings.stages;
@@ -121,7 +122,7 @@ export class SettingsComponent implements OnInit {
     });
 
     this.taskTypeForm = this.FB.group({
-      displayName:new FormControl(null, [Validators.required]),
+      displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
@@ -238,6 +239,9 @@ export class SettingsComponent implements OnInit {
     } catch (e) {
       this.updateRequestInProcess = false;
     }
+  }
+
+  public ngOnDestroy(): void {
   }
 
 }

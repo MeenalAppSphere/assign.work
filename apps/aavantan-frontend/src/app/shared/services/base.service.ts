@@ -17,8 +17,8 @@ export class BaseService<S extends Store, St> {
     });
   }
 
-  protected handleError<TResponse>(r: BaseResponseModel<TResponse>) {
-    const error: BaseResponseModel<TResponse> = r;
+  protected handleError<TResponse>(r: HttpErrorResponse) {
+    const error: BaseResponseModel<TResponse> = r.error;
     this.notification.error('Error', error.message);
     return throwError(error);
   }

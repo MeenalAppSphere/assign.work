@@ -9,6 +9,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { Observable, of } from 'rxjs';
 import { UserState, UserStore } from '../../../store/user/user.store';
 import { UserUrls } from './user.url';
+import { cloneDeep } from 'lodash';
 
 @Injectable()
 export class UserService extends BaseService<UserStore, UserState> {
@@ -27,7 +28,7 @@ export class UserService extends BaseService<UserStore, UserState> {
           user: res.data,
           currentProject: res.data.currentProject
         });
-        this._generalService.user = res.data;
+        this._generalService.user = cloneDeep(res.data);
         return res;
       }),
       catchError(err => {

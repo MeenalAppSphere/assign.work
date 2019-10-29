@@ -20,11 +20,15 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
 
   createProject(model: Project): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.base, model).pipe(
-      map(res => {
+      map((res: BaseResponseModel<Project>) => {
+        if (!this._generalService.user.projects.length) {
+          this.updateCurrentProjectState(res.data);
+        }
+        this._generalService.user.projects.push(res.data as any);
         return res;
       }),
       catchError(err => {
-        return err;
+        return this.handleError(err);
       })
     );
   }
@@ -45,13 +49,13 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         return res;
       }),
       catchError(err => {
-        return err;
+        return this.handleError(err);
       })
     );
   }
 
   addCollaborators(id: string, members: ProjectMembers[]) {
-    return this._http.put(ProjectUrls.addCollaborators.replace(':projectId', id), members).pipe(
+    return this._http.post(ProjectUrls.addCollaborators.replace(':projectId', id), members).pipe(
       map(res => {
         this.userStore.update((state => {
           return {
@@ -62,7 +66,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         return res;
       }),
       catchError(e => {
-        return e;
+        return this.handleError(e);
       })
     );
   }
