@@ -6,9 +6,7 @@ import { SharedModule } from '../shared/shared.module';
 import { TypeaheadModule } from 'ngx-bootstrap';
 import { ActivityComponent } from './activity/activity.component';
 import { HistoryComponent } from './history/history.component';
-import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import { FroalaEditorModule } from 'angular-froala-wysiwyg';
-import { AngularEditorModule } from '@kolkov/angular-editor';
+import { EditorModule } from '@tinymce/tinymce-angular';
 
 const routes: Routes = [
   { path: '', component: TaskComponent }
@@ -20,9 +18,7 @@ const routes: Routes = [
     CommonModule,
     SharedModule,
     TypeaheadModule,
-    CKEditorModule,
-    FroalaEditorModule,
-    AngularEditorModule
+    EditorModule
   ],
   exports: [],
   declarations: [

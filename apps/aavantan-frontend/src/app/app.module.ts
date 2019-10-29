@@ -14,7 +14,7 @@ import { environment } from '../environments/environment';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
 import { ServiceModule } from './shared/services/apiUrls/service.module';
-import { AngularEditorModule } from '@kolkov/angular-editor';
+import { EditorModule } from '@tinymce/tinymce-angular';
 
 registerLocaleData(en);
 
@@ -27,7 +27,7 @@ registerLocaleData(en);
     SharedModule,
     ServiceModule.forRoot(),
     environment.production ? [] : AkitaNgDevtools.forRoot(),
-    AngularEditorModule
+    EditorModule
   ],
   providers: [
     {

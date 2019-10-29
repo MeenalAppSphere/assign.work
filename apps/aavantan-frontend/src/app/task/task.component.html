@@ -203,9 +203,7 @@
           <nz-form-item>
             <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
             <nz-form-control>
-              <!-- <ckeditor formControlName="description" [config]="config" placeholder="Write something about this item..." [editor]="Editor" data="<p>Hello, world!</p>"></ckeditor>-->
-              <angular-editor formControlName="description" [config]="editorConfig"></angular-editor>
-
+              <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
             </nz-form-control>
           </nz-form-item>
         </div>

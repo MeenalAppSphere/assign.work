@@ -1031,18 +1031,6 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@ckeditor/ckeditor5-angular@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-angular/-/ckeditor5-angular-1.1.0.tgz#f1ba15b4eab1315a357bb6718b6e6c1582b5e52f"
-  integrity sha512-6b9NX/PhFuQKo/mR0tSpCVNGU1fhg1Y8ju5OBWxCPpIbdDZIIoqjHlhWL76EmfztteouYLACsnfrnqVQGC0utA==
-  dependencies:
-    tslib "^1.9.0"
-
-"@ckeditor/ckeditor5-build-classic@^12.4.0":
-  version "12.4.0"
-  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-build-classic/-/ckeditor5-build-classic-12.4.0.tgz#d5eefb00424d6c559f826d8509ba6ce7e1ce12b9"
-  integrity sha512-KzndcFz45e96z/ErToABYFf7mtcHyPCyNzzobAkpBRzKqBoS0CMDmLjHWWnL0ite39oidgBJ7PXt+iRl7p+5jA==
-
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.3.tgz#099139eaec7ebf07a27c1786a3ff64f39464d2ef"
@@ -1256,13 +1244,6 @@
     "@types/istanbul-lib-coverage" "^2.0.0"
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
-
-"@kolkov/angular-editor@^1.0.0-beta.4":
-  version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@kolkov/angular-editor/-/angular-editor-1.0.0-beta.4.tgz#d7b2536235a65a9930614c0ec9bfc6c5ac35fe90"
-  integrity sha512-GLFf+JQ6Xb2IeNdyH0VTzDa8TIKDOKcseF3MNhKkYySQ/9M+O8Bx46Axb/TkVWVqESh3+qKlFzEoSdXOZXdbZw==
-  dependencies:
-    tslib "^1.9.0"
 
 "@nestjs/common@^6.7.2":
   version "6.7.2"
@@ -1533,6 +1514,13 @@
     rxjs "6.4.0"
     semver "6.2.0"
     semver-intersect "1.4.0"
+
+"@tinymce/tinymce-angular@^3.3.1":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-angular/-/tinymce-angular-3.3.1.tgz#bc0260c72cc6a58ab117c79dbc909bc2c0ba20ad"
+  integrity sha512-a7WyOAQso7RVCllklicE1M9wvNAXrnB+SC4/JTlZvXEy57fH/t3XHT9c4fd0BqlAUsBxDobUmERcWLjc/qhCnA==
+  dependencies:
+    tslib "^1.9.0"
 
 "@types/babel__core@^7.1.0":
   version "7.1.2"
