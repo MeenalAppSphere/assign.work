@@ -157,7 +157,7 @@
 
               <ul class="stages-list">
                 <li *ngFor="let item of stagesList"><span>{{item.name}}</span>
-                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
+<!--                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                 </li>
               </ul>
 
@@ -213,8 +213,7 @@
                 <li *ngFor="let item of priorityList">
                   <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
                   <span>{{item.name}}</span>
-                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline"
-                     class="close float-right"></i>
+<!--                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                 </li>
 
               </ul>
@@ -277,8 +276,7 @@
                 <li *ngFor="let item of typesList">
                   <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
                   <span>{{item.name}}</span>
-                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline"
-                     class="close float-right"></i>
+<!--                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                 </li>
 
               </ul>
