@@ -27,6 +27,14 @@
     </li>
 
     <li>
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='priority'}"
+         (click)="activeTab('priority', 'Priority')">
+        <i class="fas fa-arrow-up"></i>
+        Priority
+      </a>
+    </li>
+
+    <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}"
          (click)="activeTab('taskType', 'Task Type')">
         <i class="fab fa-accusoft"></i>
@@ -61,8 +69,7 @@
               </nz-form-item>
               <nz-form-item>
                 <button (click)="saveProject()" [nzLoading]="updateRequestInProcess" nz-button nzType="primary"
-                        nzSize="small">
-                  Save
+                        nzSize="small"> Save
                 </button>
               </nz-form-item>
             </form>
@@ -162,6 +169,64 @@
       </ng-container>
 
       <!-- end stages -->
+
+      <ng-container *ngIf="activeView.view==='priority'">
+
+        <section class="row task-type-section">
+
+          <aside class="col-md-3">
+
+            <form nz-form (submit)="savePriority()" [formGroup]="priorityForm">
+
+              <nz-form-item>
+                <nz-form-label>Priority</nz-form-label>
+
+                <nz-form-control>
+                  <nz-input-group [nzAddOnBefore]="profixIconButton">
+                    <input class="task-type-input" type="text" nzSize="small" formControlName="name" nz-input
+                           placeholder="eg: Low"/>
+                  </nz-input-group
+                  >
+                  <ng-template #profixIconButton>
+                    <input type="color" nzSize="small" formControlName="color"/>
+                  </ng-template>
+                </nz-form-control>
+
+              </nz-form-item>
+
+              <nz-form-item>
+                <button nz-button nzType="primary" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
+              </nz-form-item>
+
+            </form>
+
+          </aside>
+
+          <aside class="col-md-3">
+
+            <nz-form-label>Default Priorities</nz-form-label>
+
+            <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
+
+              <ul class="stages-list">
+
+                <li *ngFor="let item of priorityList">
+                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
+                  <span>{{item.name}}</span>
+                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline"
+                     class="close float-right"></i>
+                </li>
+
+              </ul>
+
+            </nz-spin>
+
+          </aside>
+
+        </section>
+      </ng-container>
+
+      <!-- end priority -->
 
       <ng-container *ngIf="activeView.view==='taskType'">
 

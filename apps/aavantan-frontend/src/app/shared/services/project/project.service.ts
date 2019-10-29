@@ -10,6 +10,7 @@ import { BaseResponseModel, Project, ProjectMembers, ProjectStages, TaskType } f
 import { catchError, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { UserStore } from '../../../store/user/user.store';
+import { Priority } from '../../../../../../../libs/models/src/lib/models/priority.model';
 
 @Injectable()
 export class ProjectService extends BaseService<ProjectStore, ProjectState> {
@@ -83,6 +84,18 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         map(res => {
           this.updateCurrentProjectState(res.data);
           this.notification.success('Success', 'Stage Deleted Successfully');
+          return res;
+        }),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+  addPriority(id: string, priority: Priority): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.addTaskType.replace(':projectId', id), priority)
+      .pipe(
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Priority Created Successfully');
           return res;
         }),
         catchError(e => this.handleError(e))

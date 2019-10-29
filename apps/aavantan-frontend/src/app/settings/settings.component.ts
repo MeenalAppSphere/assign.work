@@ -7,6 +7,7 @@ import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { Priority } from '../../../../../libs/models/src/lib/models/priority.model';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -23,6 +24,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public stageForm: FormGroup;
   public projectForm: FormGroup;
   public taskTypeForm: FormGroup;
+  public priorityForm:FormGroup;
 
   public activeView: any = {
     title: 'Project',
@@ -30,6 +32,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   };
   public stagesList: any = [];
   public typesList: TaskType[] = [];
+  public priorityList: Priority[]=[];
   public teamsList: any[] = [
     {
       id: '1',
@@ -106,6 +109,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.currentProject = res;
         this.stagesList = res.settings.stages;
         this.typesList = res.settings.taskTypes;
+        // this.priorityList = res.settings.priorities;
       }
     });
 
@@ -126,7 +130,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
-
+    this.priorityForm = this.FB.group({
+      name: new FormControl(null, [Validators.required]),
+      color: new FormControl(null, [Validators.required])
+    });
     this.selectedCollaborators = this.teamsList;
   }
 
@@ -209,6 +216,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.deleteStageInProcess = false;
     }), (error => {
       this.deleteStageInProcess = false;
+    }));
+  }
+
+  public savePriority() {
+    this.updateRequestInProcess = true;
+    this._projectService.addPriority(this.currentProject.id, this.priorityForm.value).subscribe((res => {
+      this.priorityForm.reset();
+      this.updateRequestInProcess = false;
+    }), (error => {
+      this.updateRequestInProcess = false;
     }));
   }
 

@@ -7,5 +7,6 @@ export const ProjectUrls = {
   addStage: `${createUrl('project/:projectId/add-stage')}`,
   removeStage: `${createUrl('project/:projectId/remove-stage/:stageId')}`,
   addTaskType: `${createUrl('project/:projectId/add-task-type')}`,
+  addPriority: `${createUrl('project/:projectId/add-priority')}`,
   removeTaskType: `${createUrl('project/:projectId/remove-task-type/:taskTypeId')}`
 };
