@@ -2,8 +2,10 @@
   <form >
       <div >
         <nz-form-item>
-          <nz-form-label>Description<span class="text-danger">*</span></nz-form-label>
+          <nz-form-control nzValidatingTip="Description">
+              <nz-form-label>Description<span class="text-danger">*</span></nz-form-label>
               <textarea  nz-input rows="2" placeholder="What you have done..."></textarea>
+          </nz-form-control>
         </nz-form-item>
 
         <nz-form-item>
@@ -13,12 +15,16 @@
         <nz-form-item>
           <div class="row">
               <div class="col pr-1">
+                <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
                   <input nz-input nzSize="small" type="text" placeholder="5h" />
+                </nz-form-control>
               </div>
               <div class="col pl-1">
-                <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
+                <nz-form-control nzValidatingTip="Remaining Time">
+                  <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
                   <input nz-input nzSize="small" type="text" placeholder="3h" />
+                </nz-form-control>
               </div>
           </div>
         </nz-form-item>

@@ -30,7 +30,7 @@
                 <div class="col">
                   <nz-form-item>
                     <nz-form-label nzRequired nzFor="firstName">First name</nz-form-label>
-                    <nz-form-control>
+                    <nz-form-control nzValidatingTip="Please input first name!">
                       <input
                         type="text"
                         nz-input
@@ -41,17 +41,13 @@
                         id="firstName"
                         maxlength="15"/>
 
-                      <nz-form-explain
-                        *ngIf="signUpForm.get('firstName').dirty &&
-                          signUpForm.get('firstName').errors">Please input first name!
-                      </nz-form-explain>
                     </nz-form-control>
                   </nz-form-item>
                 </div>
                 <div class="col">
                   <nz-form-item>
                     <nz-form-label nzRequired nzFor="lastName">Last name</nz-form-label>
-                    <nz-form-control>
+                    <nz-form-control nzValidatingTip="Please input your last name!">
                       <input
                         type="text"
                         nz-input
@@ -61,11 +57,6 @@
                         placeholder="Last Name"
                         id="lastName"
                         maxlength="15"/>
-
-                      <nz-form-explain
-                        *ngIf="signUpForm.get('lastName').dirty &&
-                          signUpForm.get('lastName').errors">Please input your last name!
-                      </nz-form-explain>
                     </nz-form-control>
                   </nz-form-item>
                 </div>
@@ -75,7 +66,7 @@
               <nz-form-item>
                 <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
 
-                <nz-form-control nzErrorTip="Please input your username!">
+                <nz-form-control nzValidatingTip="Please input your username!">
                   <input
                     type="email"
                     nz-input
@@ -101,7 +92,7 @@
                     <nz-form-label nzRequired nzFor="password"
                     >Password
                     </nz-form-label>
-                    <nz-form-control>
+                    <nz-form-control nzValidatingTip="Please input your Password!">
                       <input
                         type="password"
                         nz-input
@@ -111,12 +102,6 @@
                         maxlength="50"
                         placeholder="Password"
                         id="password"/>
-                      <nz-form-explain
-                        *ngIf="
-                          signUpForm.get('password').dirty &&
-                          signUpForm.get('password').errors
-                        ">Please input your Password!
-                      </nz-form-explain>
                     </nz-form-control>
                   </nz-form-item>
                 </div>
@@ -124,7 +109,7 @@
                 <div class="col">
                   <nz-form-item>
                     <nz-form-label nzFor="checkPassword" nzRequired>Re-Password</nz-form-label>
-                    <nz-form-control>
+                    <nz-form-control nzValidatingTip="Please confirm your password!">
                       <input
                         nz-input
                         type="password"
@@ -135,21 +120,6 @@
                         placeholder="Re-Password"
                         id="checkPassword"
                       />
-                      <nz-form-explain
-                        *ngIf="
-                          signUpForm.get('checkPassword').dirty &&
-                          signUpForm.get('checkPassword').errors">
-                        <ng-container
-                          *ngIf="
-                            signUpForm.get('checkPassword').hasError('required')">
-                          Please confirm your password!
-                        </ng-container>
-                        <ng-container
-                          *ngIf="
-                            signUpForm.get('checkPassword').hasError('confirm')">
-                          Two passwords that you enter is inconsistent!
-                        </ng-container>
-                      </nz-form-explain>
                     </nz-form-control>
                   </nz-form-item>
                 </div>

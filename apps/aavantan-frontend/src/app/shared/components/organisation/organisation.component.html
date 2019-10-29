@@ -32,12 +32,14 @@
 
         <nz-form-item>
           <nz-form-label nzRequired nzFor="name">Organization Name</nz-form-label>
-          <nz-form-control>
+          <nz-form-control [nzValidatingTip]="errorTpl">
             <input nz-input formControlName="name" placeholder="Organization Name" maxlength="100"
                    autocomplete="Off" nzSize="small" id="name">
-            <nz-form-explain *ngIf="orgForm.get('name').dirty && orgForm.get('name').errors">
-              Please Enter Organization Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
-            </nz-form-explain>
+            <ng-template #errorTpl let-control>
+              <ng-container *ngIf="orgForm.hasError('required')">
+                Please Enter Organization Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
+              </ng-container>
+            </ng-template>
           </nz-form-control>
         </nz-form-item>
 
