@@ -2,6 +2,7 @@ import { Labels, TaskType, User } from '@aavantan-app/models';
 
 export class Task {
   id?: string;
+  taskId:string;
   name: string;
   shortLink?: string;
   closed?: boolean;

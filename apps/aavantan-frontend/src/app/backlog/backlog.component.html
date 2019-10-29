@@ -1,8 +1,11 @@
 <nz-card
   nzSize="small"
   [nzBordered]="false"
-  nzTitle="Backlogs/Sprint"
+  [nzTitle]="titleTemplateRef"
   [nzExtra]="createSprintBtnTemplate">
+  <ng-template #titleTemplateRef>
+    <span class="p-r-15">Backlog/Sprint</span> <i nz-icon nzType="info-circle" theme="outline" nz-tooltip nzTooltipTitle="About Backlog page..."></i>
+  </ng-template>
   <ng-template #createSprintBtnTemplate>
     <button *ngIf="draftSprint && draftSprint.duration>0" nz-button class="bg-success m-r-5 text-white" nzSize="small" nzShape="round">
       Ready for Sprint: {{draftSprint?.duration}} hrs
@@ -19,7 +22,19 @@
   <section class="m-b-20">
     <div class="clearfix" *ngIf="sprintData && sprintData.id">
     <label>{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
-    <a href="javascript:void(0);" class="float-right" (click)="showTeamCapacity()">Team Capacity</a>
+      <span class="float-right" >
+        <span class="text-warning">Current Capacity 120hrs</span> <span class="p-l-10 p-r-10">|</span> <a href="javascript:void(0);" (click)="showTeamCapacity()" class="p-r-10">Edit Capacity </a>
+          <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomRight">
+            <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button >Sprint 1
+              <i nz-icon nzType="caret-down" class="m-l-10"></i>
+            </button>
+          </nz-button-group>
+          <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">
+            <ul nz-menu>
+              <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>
+            </ul>
+          </nz-dropdown-menu>
+        </span>
     </div>
     <div class="draft-sprint-box" *ngIf="!showStartWizard && sprintData && sprintData.id && draftData && draftData.length===0">
         <nz-empty
@@ -63,12 +78,7 @@
     <ng-container *ngIf="showStartWizard">
       <section class="draft-sprint-box">
 
-        <div class="offset-md-4 col-md-4 col-sm-12">
-          <nz-steps [nzCurrent]="wizardIndex">
-            <nz-step nzTitle="Title and Duration"></nz-step>
-            <nz-step nzTitle="Team"></nz-step>
-          </nz-steps>
-        </div>
+        <div class="text-center"><h4>Title and Duration</h4></div>
 
         <div class="steps-content m-t-15 m-b-15">
           <ng-container *ngIf="wizardIndex===0">
@@ -87,35 +97,6 @@
               </div>
             </form>
           </ng-container>
-          <ng-container *ngIf="wizardIndex===1">
-            <div nz-row>
-              <div class="offset-md-4 col-md-4 col-sm-12">
-                <div class="p-10 bg-white">
-                  <label>Fill estimated  working hours to each team members (eg:40)</label>
-                  <nz-list [nzDataSource]="projectTeams" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-                    <ng-template #item let-item>
-                      <nz-list-item>
-                        <div class="row">
-                          <div class="col-9">
-                            <nz-avatar nzSize="small" nzSrc="{{item.profilePic}}"></nz-avatar> {{item.firstName}}
-                          </div>
-                          <div class="col-3">
-                            <input nz-input placeholder="Hours" class="team-list-input" value="40" nzSize="small" maxlength="3"/>
-                          </div>
-                        </div>
-                      </nz-list-item>
-                    </ng-template>
-                  </nz-list>
-                  <div class="row">
-                    <div class="col-12 text-right">
-                      <div class="p-5"><label>Total Hours: 120</label></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-
         </div>
 
         <div class="steps-action text-right">
@@ -124,14 +105,8 @@
               <button class="btn btn-sm btn-default float-left" (click)="cancel()">
                 <span>Cancel</span>
               </button>
-              <button class="btn btn-sm btn-default" (click)="pre()" *ngIf="wizardIndex > 0">
-                <span>Previous</span>
-              </button>
-              <button class="btn btn-sm btn-warning m-l-5" (click)="next()" *ngIf="wizardIndex < 1">
-                <span>Next</span>
-              </button>
-              <button class="btn btn-sm btn-success m-l-5" (click)="done()" *ngIf="wizardIndex === 1">
-                <span>Done</span>
+              <button class="btn btn-sm btn-success m-l-5" (click)="done()">
+                <span>Save</span>
               </button>
             </div>
           </div>
@@ -154,8 +129,6 @@
     </ng-container>
   </section>
 </nz-card>
-
-
 
 <aavantan-team-capacity
   [teamCapacityModalIsVisible]="teamCapacityModalIsVisible"

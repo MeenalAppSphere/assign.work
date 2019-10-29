@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="timelogModalIsVisible" [nzTitle]="selectedTaskItem && selectedTaskItem.name" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
+<nz-modal [(nzVisible)]="timelogModalIsVisible" [nzTitle]="titleTemp" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
   <form >
       <div >
         <nz-form-item>
@@ -27,5 +27,8 @@
         <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
         <button nz-button nzSize="small" nzType="primary" (click)="handleOk()">Save</button>
       </div>
+    <ng-template #titleTemp>
+      <span>{{selectedTaskItem.taskId}}</span>
+    </ng-template>
   </form>
 </nz-modal>
