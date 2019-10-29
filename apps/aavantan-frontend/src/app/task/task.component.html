@@ -203,20 +203,20 @@
           <nz-form-item>
             <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
             <nz-form-control>
-<!--              <ckeditor formControlName="description" [config]="config" placeholder="Write something about this item..." [editor]="Editor" data="<p>Hello, world!</p>"></ckeditor>-->
+              <!-- <ckeditor formControlName="description" [config]="config" placeholder="Write something about this item..." [editor]="Editor" data="<p>Hello, world!</p>"></ckeditor>-->
+              <angular-editor formControlName="description" [config]="editorConfig"></angular-editor>
+
             </nz-form-control>
           </nz-form-item>
         </div>
-      </div>
-      <!-- row 5-->
-      <!-- row 6-->
-      <div class="row">
+
         <div class="col-md-12">
           <nz-form-item>
             <nz-form-label nzRequired nzFor="dependentItem">Dependent Item</nz-form-label>
             <nz-form-control class="relative input-relative-group">
               <span class="assigned-user-icon">
-                <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedDependentItem && selectedDependentItem.taskType ? selectedDependentItem.taskType.color : '' }"></i>
+                <i class="fas fa-circle m-r-10"
+                   [ngStyle]="{'color':selectedDependentItem && selectedDependentItem.taskType ? selectedDependentItem.taskType.color : '' }"></i>
               </span>
               <input
                 placeholder="Search/Select Dependent Item"
@@ -229,8 +229,9 @@
                   *ngFor="let option of dependentTaskDataSource"
                   [nzLabel]="option.name"
                   (ngModelChange)="selectDependentItemTypeahead($event)"
-                  [nzValue]="option" >
-                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
+                  [nzValue]="option">
+                  <i class="fas fa-circle m-r-10"
+                     [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
@@ -242,7 +243,8 @@
             <nz-form-label nzRequired nzFor="relatedItem">Related Item</nz-form-label>
             <nz-form-control class="relative input-relative-group">
               <span class="assigned-user-icon">
-                <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
+                <i class="fas fa-circle m-r-10"
+                   [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
               </span>
               <input
                 placeholder="Search/Select Related Item"
@@ -255,8 +257,9 @@
                 <nz-auto-option
                   *ngFor="let option of relatedTaskDataSource"
                   [nzLabel]="option.name"
-                  [nzValue]="option" >
-                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
+                  [nzValue]="option">
+                  <i class="fas fa-circle m-r-10"
+                     [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
                   <span>{{ option.name }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
@@ -264,8 +267,8 @@
           </nz-form-item>
         </div>
       </div>
-      <!-- row 6-->
-      <!-- row 7-->
+
+
       <div class="row">
         <div class="col-md-12">
           <nz-form-item>

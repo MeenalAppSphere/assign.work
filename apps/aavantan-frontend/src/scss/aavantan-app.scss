@@ -10,6 +10,16 @@
   --red: #dc3545;
 }
 
+#logo{ // floral library
+  display: none!important;
+}
+.fr-toolbar .fr-command.fr-btn, .fr-popup .fr-command.fr-btn, .fr-modal .fr-command.fr-btn{
+  margin: 0px 2px!important;
+}
+
+.fr-toolbar .fr-command.fr-btn svg.fr-svg, .fr-popup .fr-command.fr-btn svg.fr-svg, .fr-modal .fr-command.fr-btn svg.fr-svg {
+  height: 20px;
+}
 /* modal css customized */
 nz-modal {
   .ant-modal-body {
