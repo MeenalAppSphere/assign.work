@@ -103,8 +103,8 @@ export class ProjectService extends BaseService<Project & Document> {
       unRegisteredMembers.forEach(f => {
         unregisteredMembersModel.push(
           new this._userModel({
-            emailId: f,
-            username: f
+            emailId: f.emailId,
+            username: f.emailId
           })
         );
       });

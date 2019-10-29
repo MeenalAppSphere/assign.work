@@ -233,12 +233,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public updateProjectDetails(project: Partial<Project>) {
     this.updateRequestInProcess = true;
-    try {
-      this._projectService.updateProject(this.currentProject.id, project).subscribe();
+    this._projectService.updateProject(this.currentProject.id, project).subscribe((res => {
       this.updateRequestInProcess = false;
-    } catch (e) {
+    }), (error => {
       this.updateRequestInProcess = false;
-    }
+    }));
+
   }
 
   public ngOnDestroy(): void {
