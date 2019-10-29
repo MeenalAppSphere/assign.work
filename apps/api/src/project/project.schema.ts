@@ -1,7 +1,6 @@
 import { Schema } from 'mongoose';
-import { DbCollection, ProjectStages, ProjectTemplateEnum } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
-import { TaskType } from '../../../../libs/models/src/lib/models/tasktype.model';
+import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
+import { mongooseErrorTransformPluginOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');

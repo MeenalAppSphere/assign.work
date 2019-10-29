@@ -61,7 +61,7 @@ export class TaskComponent implements OnInit {
   public relatedTaskDataSource: Task[] = [
     {
       id: '1',
-      taskId:'BUG-1001',
+      displayName:'BUG-1001',
       name: 'Related Task 1',
       taskType: {
         name:'BUG',
@@ -70,7 +70,7 @@ export class TaskComponent implements OnInit {
     },
     {
       id: '2',
-      taskId:'BUG-1002',
+      displayName:'BUG-1002',
       name: 'Related Task 2',
       taskType: {
         name:'BUG',
@@ -79,7 +79,7 @@ export class TaskComponent implements OnInit {
     },
     {
       id: '3',
-      taskId:'CR-1001',
+      displayName:'CR-1001',
       name: 'Related Task 3',
       taskType: {
         name:'CR',
@@ -90,7 +90,7 @@ export class TaskComponent implements OnInit {
   public dependentTaskDataSource: Task[] = [
     {
       id: '1',
-      taskId:'BUG-1001',
+      displayName:'BUG-1001',
       name: 'Related Task 1',
       taskType: {
         name:'BUG',
@@ -99,7 +99,7 @@ export class TaskComponent implements OnInit {
     },
     {
       id: '2',
-      taskId:'BUG-1002',
+      displayName:'BUG-1002',
       name: 'Related Task 2',
       taskType: {
         name:'BUG',
@@ -108,7 +108,7 @@ export class TaskComponent implements OnInit {
     },
     {
       id: '3',
-      taskId:'CR-1001',
+      displayName:'CR-1001',
       name: 'Related Task 3',
       taskType: {
         name:'CR',

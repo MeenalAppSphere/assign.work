@@ -34,7 +34,7 @@
         <button nz-button nzSize="small" nzType="primary" (click)="handleOk()">Save</button>
       </div>
     <ng-template #titleTemp>
-      <span>{{selectedTaskItem && selectedTaskItem.taskId ? selectedTaskItem.taskId : 'TIME LOG'}}</span>
+      <span>{{selectedTaskItem && selectedTaskItem.displayName ? selectedTaskItem.displayName : 'TIME LOG'}}</span>
     </ng-template>
   </form>
 </nz-modal>
