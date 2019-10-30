@@ -1,5 +1,4 @@
-import { Priority } from './priority.model';
-import { Labels, Project, ProjectStages, TaskType, User } from '@aavantan-app/models';
+import { Priority, Project, ProjectStages, TaskType, User } from '@aavantan-app/models';
 
 export class Task {
   id?: string;
