@@ -8,6 +8,7 @@ import { UsersService } from './services/users.service';
 import { ProjectService } from './services/project.service';
 import { OrganizationService } from './services/organization.service';
 import { TaskService } from './services/task.service';
+import { taskSchema } from '../task/task.schema';
 
 @Global()
 @Module({
@@ -24,6 +25,10 @@ import { TaskService } from './services/task.service';
       name: DbCollection.organizations,
       schema: organizationSchema,
       collection: DbCollection.organizations
+    }, {
+      name: DbCollection.tasks,
+      schema: taskSchema,
+      collection: DbCollection.tasks
     }])
   ],
   exports: [

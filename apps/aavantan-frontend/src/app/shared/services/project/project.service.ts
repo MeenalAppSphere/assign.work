@@ -6,11 +6,18 @@ import { GeneralService } from '../general.service';
 import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { ProjectUrls } from './project.url';
-import { BaseResponseModel, Project, ProjectMembers, ProjectStages, TaskType } from '@aavantan-app/models';
+import {
+  BaseResponseModel,
+  Project,
+  ProjectMembers,
+  ProjectPriority,
+  ProjectStages,
+  TaskType
+} from '@aavantan-app/models';
 import { catchError, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { UserStore } from '../../../store/user/user.store';
-import { Priority } from '../../../../../../../libs/models/src/lib/models/priority.model';
+
 
 @Injectable()
 export class ProjectService extends BaseService<ProjectStore, ProjectState> {
@@ -26,6 +33,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
           this.updateCurrentProjectState(res.data);
         }
         this._generalService.user.projects.push(res.data as any);
+        this.notification.success('Success', 'Project Created Successfully');
         return res;
       }),
       catchError(err => {
@@ -90,7 +98,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       );
   }
 
-  addPriority(id: string, priority: Priority): Observable<BaseResponseModel<Project>> {
+  addPriority(id: string, priority: ProjectPriority): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.addTaskType.replace(':projectId', id), priority)
       .pipe(
         map(res => {

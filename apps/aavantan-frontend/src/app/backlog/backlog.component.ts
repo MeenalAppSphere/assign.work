@@ -7,23 +7,23 @@ import { DraftSprint, User, Task, Sprint } from '@aavantan-app/models';
   styleUrls: ['./backlog.component.scss']
 })
 export class BacklogComponent implements OnInit {
-  public allTaskList: Task[]=[];
-  public draftTaskList: Task[]=[];
+  public allTaskList: Task[] = [];
+  public draftTaskList: Task[] = [];
   public taskObj: Task;
-  public memberObj: User[]=[];
+  public memberObj: User[] = [];
   public view: String = 'listView';
   public totalDuration: Number = 0;
-  public isDisabledCraeteBtn:boolean=true;
+  public isDisabledCraeteBtn: boolean = true;
   public draftSprint: DraftSprint;
-  public draftData:Task[]=[];
+  public draftData: Task[] = [];
   public showStartWizard: boolean;
   public wizardIndex = 0;
   public wizardTitle = 'Title';
   public projectTeams: User[] = [];
   public dateFormat = 'mm/dd/yyyy';
-  public sprintData:any;
-  public teamCapacityModalIsVisible:boolean;
-  public sprintDataSource:Sprint[] = [
+  public sprintData: any;
+  public teamCapacityModalIsVisible: boolean;
+  public sprintDataSource: Sprint[] = [
     {
       id: '1',
       name: 'Sprint 1'
@@ -37,111 +37,119 @@ export class BacklogComponent implements OnInit {
       name: 'Sprint 3'
     }
   ];
-  constructor() {}
+
+  constructor() {
+  }
 
   ngOnInit() {
 
-    for(let i=0; i<50; i++){
+    for (let i = 0; i < 50; i++) {
       this.memberObj = [
         {
-          id:'1212'+(i+1),
-          emailId:'abc'+(i+1)+'@gmail.com',
+          id: '1212' + (i + 1),
+          emailId: 'abc' + (i + 1) + '@gmail.com',
           firstName: 'Pradeep',
           profilePic: '../../assets/images/avatars/thumb-4.jpg'
         }
       ];
-      this.taskObj= {
-        id : '100' + i,
-        displayName:'BUG-10'+i,
-        name : 'You can create sprint by selecting multiple tasks' + i + '.',
-        progress : (i * 10),
-        createdAt : new Date(),
-        description:'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
-        status:'TO DO',
-        assigned:this.memberObj,
-        estimate: 2+'hr',
-        priority:'low',
-        selectedForSprint:false,
+      this.taskObj = {
+        id: '100' + i,
+        displayName: 'BUG-10' + i,
+        name: 'You can create sprint by selecting multiple tasks' + i + '.',
+        progress: (i * 10),
+        createdAt: new Date(),
+        description: 'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
+        status: 'TO DO',
+        assigned: this.memberObj,
+        estimateTime: 2 + 'hr',
+        priority: 'low',
+        sprint: null,
         taskType: {
-          name:'bug',
-          color:'#ddee00'
+          name: 'bug',
+          color: '#ddee00'
         }
-      }
+      };
       this.allTaskList.push(this.taskObj);
     }
-    if(this.allTaskList && this.allTaskList.length>0){
+    if (this.allTaskList && this.allTaskList.length > 0) {
       this.countTotalDuration();
     }
 
     // dummy sprint wizard data
-    this.sprintData={
-      title:'Sprint 1'
-    }
-    this.projectTeams=[{
-        id:'1',
-        firstName: 'Pradeep',
-        profilePic:'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
-      },
+    this.sprintData = {
+      title: 'Sprint 1'
+    };
+    this.projectTeams = [{
+      id: '1',
+      firstName: 'Pradeep',
+      profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
+    },
       {
-        id:'2',
+        id: '2',
         firstName: 'Vishal',
-        profilePic:'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
+        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
       },
       {
-        id:'3',
+        id: '3',
         firstName: 'Aashsih',
-        profilePic:'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
-      }]
+        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
+      }];
   }
 
-  public countTotalDuration(){
-    this.allTaskList.forEach((ele)=>{
-      const duration=ele.estimate.split('hr')[0];
+  public countTotalDuration() {
+    this.allTaskList.forEach((ele) => {
+      const duration = ele.estimateTime.split('hr')[0];
       // @ts-ignore
       this.totalDuration += Number(duration);
-    })
+    });
   }
 
-  public getTasksSelectedForSprint(ev:DraftSprint){
-    this.draftSprint=ev;
-    if(this.draftSprint && this.draftSprint.tasks.length>0){
-      this.isDisabledCraeteBtn=false;
+  public getTasksSelectedForSprint(ev: DraftSprint) {
+    this.draftSprint = ev;
+    if (this.draftSprint && this.draftSprint.tasks.length > 0) {
+      this.isDisabledCraeteBtn = false;
       this.prepareDraftSprint();
-    }else{
-      this.isDisabledCraeteBtn=true;
+    } else {
+      this.isDisabledCraeteBtn = true;
     }
   }
 
-  public prepareDraftSprint(){
-      this.draftData=this.draftSprint.tasks.filter((item)=>{
-        return item;
-      })
+  public prepareDraftSprint() {
+    this.draftData = this.draftSprint.tasks.filter((item) => {
+      return item;
+    });
   }
 
-  public startNewSprint(){
-    this.showStartWizard=true;
+  public startNewSprint() {
+    this.showStartWizard = true;
   }
-  public editSprint(){
-    this.showStartWizard=true;
+
+  public editSprint() {
+    this.showStartWizard = true;
   }
+
   public cancel(): void {
-    this.showStartWizard=false;
+    this.showStartWizard = false;
     this.wizardIndex = 0;
     this.changeContent();
   }
+
   public pre(): void {
     this.wizardIndex -= 1;
     this.changeContent();
   }
+
   public next(): void {
     this.wizardIndex += 1;
     this.changeContent();
   }
+
   public done(): void {
-    this.showStartWizard=false;
+    this.showStartWizard = false;
     this.wizardIndex = 0;
-    this.sprintData.id="1";
+    this.sprintData.id = '1';
   }
+
   changeContent(): void {
     switch (this.wizardIndex) {
       case 0: {
@@ -157,12 +165,13 @@ export class BacklogComponent implements OnInit {
       }
     }
   }
-  public createSprint(){
+
+  public createSprint() {
     console.log('Create Sprint For Tasks ', this.draftSprint.ids);
   }
 
-  public showTeamCapacity(){
-      this.teamCapacityModalIsVisible=!this.teamCapacityModalIsVisible;
+  public showTeamCapacity() {
+    this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 
 }

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { User, TaskType, Project, ProjectStages, ProjectMembers } from '@aavantan-app/models';
+import { User, TaskType, Project, ProjectStages, ProjectMembers, ProjectPriority } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { TypeaheadMatch } from 'ngx-bootstrap';
@@ -7,7 +7,6 @@ import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { Priority } from '../../../../../libs/models/src/lib/models/priority.model';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -32,7 +31,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   };
   public stagesList: any = [];
   public typesList: TaskType[] = [];
-  public priorityList: Priority[]=[];
+  public priorityList: ProjectPriority[]=[];
   public teamsList: any[] = [
     {
       id: '1',
