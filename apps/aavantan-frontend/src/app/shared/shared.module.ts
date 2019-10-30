@@ -13,6 +13,7 @@ import { TimelogComponent } from './components/timelog/timelog.component';
 import { DateAgoPipe } from './pipes/dateago.pipe';
 import { ServiceModule } from './services/service.module';
 import { OrganisationComponent } from './components/organisation/organisation.component';
+import { NumericDirective } from './directives/numbers-only.directive';
 
 @NgModule({
   exports: [
@@ -28,7 +29,8 @@ import { OrganisationComponent } from './components/organisation/organisation.co
     SearchPipe,
     TaskListComponent,
     LoaderComponent,
-    DateAgoPipe
+    DateAgoPipe,
+    NumericDirective
   ],
   imports: [
     CommonModule,
@@ -46,7 +48,8 @@ import { OrganisationComponent } from './components/organisation/organisation.co
     SearchPipe,
     TaskListComponent,
     LoaderComponent,
-    DateAgoPipe
+    DateAgoPipe,
+    NumericDirective
   ]
 })
 export class SharedModule {

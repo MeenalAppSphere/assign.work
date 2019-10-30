@@ -6,3 +6,4 @@ export * from './sprint.model';
 export * from './labels.model';
 export * from './tasktype.model';
 export * from './priority.model';
+export * from './timelog.model';

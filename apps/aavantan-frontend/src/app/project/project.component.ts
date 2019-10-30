@@ -60,7 +60,7 @@ export class ProjectComponent implements OnInit{
           description:'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
           status:'In Progress',
           assigned:this.memberObj,
-          estimate: 2+'hr',
+          totalLoggedTime: 2,
           priority: {
             name:'Critical',
             color:'red'
