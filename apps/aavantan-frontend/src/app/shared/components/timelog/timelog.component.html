@@ -1,29 +1,29 @@
 <nz-modal [(nzVisible)]="timelogModalIsVisible" [nzTitle]="titleTemp" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
-  <form >
+  <form [formGroup]="timeLogForm" autocomplete="off" nz-form>
       <div >
         <nz-form-item>
           <nz-form-control nzValidatingTip="Description">
               <nz-form-label>Description<span class="text-danger">*</span></nz-form-label>
-              <textarea  nz-input rows="2" placeholder="What you have done..."></textarea>
+              <textarea  formControlName="description" nz-input rows="2" placeholder="What you have done..."></textarea>
           </nz-form-control>
         </nz-form-item>
 
         <nz-form-item>
           <nz-form-label>Start-End<span class="text-danger">*</span></nz-form-label>
-                <nz-range-picker [nzFormat]="dateFormat" ></nz-range-picker>
+                <nz-range-picker formControlName="date" [nzFormat]="dateFormat" ></nz-range-picker>
         </nz-form-item>
         <nz-form-item>
           <div class="row">
               <div class="col pr-1">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input nzSize="small" type="text" placeholder="5h" />
+                  <input nz-input formControlName="startTime" nzSize="small" type="text" placeholder="5h" />
                 </nz-form-control>
               </div>
               <div class="col pl-1">
                 <nz-form-control nzValidatingTip="Remaining Time">
                   <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input nzSize="small" type="text" placeholder="3h" />
+                  <input nz-input formControlName="endTime" nzSize="small" type="text" placeholder="3h" />
                 </nz-form-control>
               </div>
           </div>

@@ -13,6 +13,7 @@ import { PopoverModule, SortableModule, TypeaheadModule } from 'ngx-bootstrap';
 import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 import { JoyrideModule } from 'ngx-joyride';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 @NgModule({
   imports: [
@@ -24,6 +25,7 @@ import { JoyrideModule } from 'ngx-joyride';
     SortableModule.forRoot(),
     PopoverModule.forRoot(),
     JoyrideModule.forRoot(),
+    NzToolTipModule
   ],
   exports: [
   ],

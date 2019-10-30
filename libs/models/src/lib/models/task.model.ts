@@ -1,4 +1,5 @@
 import { Labels, TaskType, User } from '@aavantan-app/models';
+import { Priority } from './priority.model';
 
 export class Task {
   id?: string;
@@ -12,7 +13,7 @@ export class Task {
   stageId?: string;
   projectId?: string;
   position?: number;
-  priority?: string;
+  priority?: string | Priority;
   tags?: string[];
   comments?: any[];
   assigned?: User[];

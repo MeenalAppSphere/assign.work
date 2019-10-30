@@ -61,10 +61,13 @@ export class ProjectComponent implements OnInit{
           status:'In Progress',
           assigned:this.memberObj,
           estimate: 2+'hr',
-          priority:'high',
+          priority: {
+            name:'Critical',
+            color:'red'
+          },
           taskType: {
-            name:'BUG',
-            color:'#ddee00'
+            name:'CR',
+            color:'#F0CB2D'
           }
         }
         this.myTaskList.push(this.taskObj);

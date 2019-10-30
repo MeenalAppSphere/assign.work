@@ -41,9 +41,13 @@
 </div>
 
 <ng-template #itemTemplate let-item="item" let-index="index">
-  <div class="task-card" [ngStyle]="{'border-left': '5px solid '+item.value.taskType.color}">
+  <div class="task-card" [ngStyle]="{'border-left': '5px solid '+item.value.proirity.color}">
     <div class="task-body">
-      <a href=""><img src="../../../../assets/images/priority/{{item.value.proirity}}.png" height="14" class="m-r-5" /><span class="font-weight-semibold">{{item.value.taskId}}</span>: {{item.value.name}}</a>
+      <a href="">
+        <i [ngStyle]="{'color': item.value.taskType.color}" [nzTitle]="item.value.taskType.name" class="fas fa-circle m-r-10" nz-tooltip></i>
+<!--        <i class="far fa-arrow-alt-circle-up m-r-5" [ngStyle]="{'color': item.value.taskType.color}"></i>-->
+        <span class="font-weight-semibold">{{item.value.taskId}}</span>: {{item.value.name}}
+      </a>
     </div>
     <div class="task-footer">
       <span>{{item.value.createdAt | dateAgo }}</span>

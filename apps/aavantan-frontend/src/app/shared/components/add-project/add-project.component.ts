@@ -11,7 +11,7 @@ import { ProjectService } from '../../services/project/project.service';
 @Component({
   selector: 'aavantan-app-add-project',
   templateUrl: './add-project.component.html',
-  styleUrls: ['./add-project.component.css']
+  styleUrls: ['./add-project.component.scss']
 })
 export class AddProjectComponent implements OnInit, OnDestroy {
   @Input() public projectModalIsVisible: boolean = false;
