@@ -378,7 +378,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 
 .ddls-btn {
   text-align: left;
-  width: 130px!important;
+  min-width: 130px!important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

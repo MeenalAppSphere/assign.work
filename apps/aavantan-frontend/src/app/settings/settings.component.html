@@ -60,7 +60,7 @@
           <aside class="col-md-3">
             <form nz-form class="register-form" [formGroup]="projectForm">
               <nz-form-item>
-                <label>Project Title</label>
+                <nz-form-label>Project Title<span class="text-danger">*</span></nz-form-label>
                 <input
                   autocomplete="Off"
                   formControlName="name"
@@ -133,7 +133,7 @@
 
               <nz-form-item>
 
-                <nz-form-label>Stage title</nz-form-label>
+                <nz-form-label>Stage title<span class="text-danger">*</span></nz-form-label>
                 <nz-form-control>
                   <input nz-input nzSize="small" formControlName="name" placeholder="Enter Stage title"
                          maxlength="30"/>
@@ -179,7 +179,7 @@
             <form nz-form (submit)="savePriority()" [formGroup]="priorityForm">
 
               <nz-form-item>
-                <nz-form-label>Priority</nz-form-label>
+                <nz-form-label>Priority<span class="text-danger">*</span></nz-form-label>
 
                 <nz-form-control>
                   <nz-input-group [nzAddOnBefore]="profixIconButton">
@@ -236,13 +236,13 @@
             <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
 
               <nz-form-item>
-                <nz-form-label>Display name <small>(as prefix with id eg : <b class="text-info">BUG-1001</b>)</small></nz-form-label>
+                <nz-form-label>Display name<span class="text-danger">*</span> <small>(as prefix with id eg : <b class="text-info">BUG-1001</b>)</small></nz-form-label>
                 <nz-form-control>
                     <input class="task-type-input" type="text" nzSize="small" formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="4" />
                 </nz-form-control>
               </nz-form-item>
               <nz-form-item>
-                <nz-form-label>Type</nz-form-label>
+                <nz-form-label>Type<span class="text-danger">*</span></nz-form-label>
 
                 <nz-form-control>
                   <nz-input-group [nzAddOnBefore]="profixIconButton">

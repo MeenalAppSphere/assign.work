@@ -1,20 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Sprint, Task, TaskType, User } from '@aavantan-app/models';
+import { Project, ProjectPriority, ProjectStages, Sprint, Task, TaskType, User } from '@aavantan-app/models';
+import { UserQuery } from '../queries/user/user.query';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 @Component({
   selector: 'aavantan-app-task',
   templateUrl: './task.component.html',
   styleUrls: ['./task.component.scss']
 })
-export class TaskComponent implements OnInit {
+export class TaskComponent implements OnInit, OnDestroy {
 
+  public enableTaskForm:boolean;
+  public currentProject: Project = null;
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
   public assigneeTo: User;
   public selectedRelatedItem:Task;
   public selectedDependentItem:Task;
   public selectedTaskType: TaskType;
+  public selectedPriority: ProjectPriority;
+  public selectedStage: ProjectStages;
   public timelogModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
   public defaultFileList = [
@@ -158,76 +164,34 @@ export class TaskComponent implements OnInit {
       name: 'Epic 3'
     }
   ];
-  public taskTypeDataSource: TaskType[] = [
-    {
-      id: '1',
-      name: 'BUG',
-      color: '#F80647'
-    },
-    {
-      id: '2',
-      name: 'CR',
-      color: '#F0CB2D'
-    },
-    {
-      id: '3',
-      name: 'NEW WORK',
-      color: '#0E7FE0'
-    },
-    {
-      id: '4',
-      name: 'ENHANCEMENTS',
-      color: '#0AC93E'
-    },
-    {
-      id: '4',
-      name: 'EPIC',
-      color: '#1022A8'
-    }
-  ];
 
-  public stagesDataSource = [
-    {
-      id: 1,
-      name: 'TODO',
-      value: 'todo'
-    },
-    {
-      id: 2,
-      name: 'In-Progress',
-      value: 'inprogress'
-    },
-    {
-      id: 3,
-      name: 'QA',
-      value: 'qa'
-    },
-    {
-      id: 4,
-      name: 'Done',
-      value: 'done'
-    }
-  ];
-  public priorityDataSource = [
+  public taskTypeDataSource: TaskType[] = [];
+  public stagesDataSource: ProjectStages[] = [];
+
+  public priorityDataSource: ProjectPriority[] = [
     {
       id: '1',
-      name: 'Low'
+      name: 'Low',
+      color: 'green'
     }
     ,{
       id: '2',
-      name: 'High'
+      name: 'High',
+      color: 'pink',
     },
     {
       id: '3',
-      name: 'Medium'
+      name: 'Medium',
+      color: 'orange'
     },
     {
       id: '4',
-      name: 'Critical'
+      name: 'Critical',
+      color: 'red'
     }
   ];
 
-  constructor(private FB: FormBuilder) {}
+  constructor(private FB: FormBuilder, private _userQuery: UserQuery) {}
 
   ngOnInit() {
     this.taskForm = this.FB.group({
@@ -243,7 +207,20 @@ export class TaskComponent implements OnInit {
       epic: [null]
     });
 
-    this.selectedTaskType=this.taskTypeDataSource[0];
+    // get current project from store
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentProject = res;
+        this.stagesDataSource = res.settings.stages;
+        this.taskTypeDataSource = res.settings.taskTypes;
+        this.selectedTaskType = this.taskTypeDataSource[0];
+        // this.assigneeDataSource = res.members;
+        // this.priorityDataSource = res.settings.priorities;
+        if(this.stagesDataSource.length && this.taskTypeDataSource.length) {
+          this.enableTaskForm = false;
+        }
+      }
+    });
   }
 
   public toggleActivitySidebar(el: HTMLElement) {
@@ -263,9 +240,6 @@ export class TaskComponent implements OnInit {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
-  public selectTaskTypeTypeahead(e: string) {
-    console.log('taskType', e);
-  }
   public selectAssigneeTypeahead(e: User) {
     this.assigneeTo=e;
     // this.taskForm.get('assignedTo').patchValue(e.id);
@@ -286,4 +260,14 @@ export class TaskComponent implements OnInit {
   public selectTaskType(item:TaskType){
     this.selectedTaskType=item;
   }
+  public selectPriority(item:ProjectPriority){
+    this.selectedPriority =item;
+  }
+  public selectStage(item:ProjectStages){
+    this.selectedStage =item;
+  }
+  public ngOnDestroy(){
+
+  }
+
 }

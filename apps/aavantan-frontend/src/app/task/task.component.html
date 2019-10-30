@@ -6,7 +6,7 @@
       'col-md-8': isOpenActivitySidebar,
       'col-md-12': !isOpenActivitySidebar
     }">
-    <form nz-form class="bg-white p-15 create-task-form"
+    <form nz-form class="bg-white p-15 create-task-form" *ngIf="enableTaskForm"
       [formGroup]="taskForm"
       (ngSubmit)="saveForm()">
       <h5>Create Task</h5>
@@ -20,9 +20,9 @@
               <nz-button-group
                 nz-dropdown
                 [nzDropdownMenu]="createTaskType"
-                nzPlacement="bottomLeft">
-                <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
-                  <span class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedTaskType.color}"></span>
+                nzPlacement="bottomLeft" style="width: 100%!important;">
+                <button nzType="default" nzSize="small" class="ddls-btn" nz-button style="width: 100%!important;">
+                  <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType.color}"></span>
                   {{selectedTaskType.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
                 </button>
               </nz-button-group>
@@ -81,12 +81,12 @@
                   [nzDropdownMenu]="stagesDDLTemplate"
                   nzPlacement="bottomRight">
                   <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
-                    In-Progress <i nz-icon nzType="caret-down" theme="outline"></i>
+                    {{selectedStage.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
                   </button>
                 </nz-button-group>
                 <nz-dropdown-menu #stagesDDLTemplate="nzDropdownMenu">
                   <ul nz-menu>
-                    <li nz-menu-item *ngFor="let item of stagesDataSource">
+                    <li nz-menu-item *ngFor="let item of stagesDataSource" (click)="selectStage()">
                       {{ item.name }}
                     </li>
                   </ul>
@@ -103,13 +103,13 @@
                 [nzDropdownMenu]="proiorityDDLTemplate"
                 nzPlacement="bottomRight">
                 <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
-                  Low <i nz-icon nzType="caret-down" theme="outline"></i>
+                  <i class="fas fa-square m-r-5" [ngStyle]="{'color': selectedPriority.color}"></i> {{selectedPriority.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
                 </button>
               </nz-button-group>
               <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
                 <ul nz-menu>
-                  <li nz-menu-item *ngFor="let item of priorityDataSource">
-                    {{ item.name }}
+                  <li nz-menu-item *ngFor="let item of priorityDataSource" (click)="selectPriority(item)">
+                    <i class="fas fa-square m-r-5" [ngStyle]="{'color': item.color}"></i>{{ item.name }}
                   </li>
                 </ul>
               </nz-dropdown-menu>

@@ -7,6 +7,7 @@ import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { NzNotificationService } from 'ng-zorro-antd';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -97,7 +98,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public deleteStageInProcess: boolean = false;
   public deleteTaskTypeInProcess: boolean = false;
 
-  constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
+  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
               private _projectService: ProjectService, private _userQuery: UserQuery) {
   }
 
@@ -200,6 +201,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public addStage() {
+    if(this.stageForm.invalid){
+      this.notification.error('Error', 'Please check Stage title');
+      return;
+    }
     this.updateRequestInProcess = true;
     this._projectService.addStage(this.currentProject.id, this.stageForm.value).subscribe((res => {
       this.stageForm.reset();
@@ -219,6 +224,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public savePriority() {
+    if(this.priorityForm.invalid){
+      this.notification.error('Error', 'Please check Color and Priority');
+      return;
+    }
     this.updateRequestInProcess = true;
     this._projectService.addPriority(this.currentProject.id, this.priorityForm.value).subscribe((res => {
       this.priorityForm.reset();
@@ -229,6 +238,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public saveTaskType() {
+    if(this.taskTypeForm.invalid){
+      this.notification.error('Error', 'Please check Display name, Color and Task type');
+      return;
+    }
     this.updateRequestInProcess = true;
     this._projectService.addTaskType(this.currentProject.id, this.taskTypeForm.value).subscribe((res => {
       this.taskTypeForm.reset();
