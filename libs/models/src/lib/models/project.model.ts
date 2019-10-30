@@ -38,3 +38,9 @@ export class ProjectStages {
   name: string;
   alias?: string;
 }
+
+export interface ProjectPriority {
+  id?: string;
+  name: string;
+  color: string;
+}

@@ -17,7 +17,7 @@ import { OrganizationService } from './organization.service';
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
   constructor(
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
+    @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
     @Inject(forwardRef(() => OrganizationService)) private readonly _organizationService: OrganizationService

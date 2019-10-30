@@ -1,5 +1,6 @@
 export enum DbCollection {
   users = 'users',
   projects = 'projects',
-  organizations = 'organizations'
+  organizations = 'organizations',
+  tasks = 'tasks'
 }

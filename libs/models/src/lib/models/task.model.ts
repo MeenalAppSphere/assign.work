@@ -1,42 +1,42 @@
-import { Labels, TaskType, User } from '@aavantan-app/models';
 import { Priority } from './priority.model';
+import { Labels, Project, ProjectStages, TaskType, User } from '@aavantan-app/models';
 
 export class Task {
   id?: string;
-  displayName?:string;
+  displayName?: string;
   name: string;
-  closed?: boolean;
   description?: string;
   dueReminder?: string;
-  due?: Date;
+  dueDate?: Date;
   dueComplete?: boolean;
-  stageId?: string;
-  projectId?: string;
+  stage?: string | ProjectStages;
+  project?: string | Project;
   position?: number;
   priority?: string | Priority;
   tags?: string[];
   comments?: any[];
+  assignee?: string | User;
   assigned?: User[];
   url?: string;
   attachments?: TaskAttachment[];
   createdAt?: Date;
   updatedAt?: Date;
   progress?: number;
-  loggedTime?:TaskLoggedTime[];
-  totalLoggedTime?:number;
-  estimate?: string;
+  loggedTime?: TaskLoggedTime[];
+  totalLoggedTime?: number;
+  estimateTime?: string;
   status?: string;
-  selectedForSprint?: boolean;
+  sprint?: string;
   taskType?: string | TaskType;
 }
 
 export class TaskLoggedTime {
-  id?:string;
-  createdAt:Date;
-  loggedTime:string;
-  startDate:string;
-  endDate:string;
-  description:string;
+  id?: string;
+  createdAt: Date;
+  loggedTime: string;
+  startDate: string;
+  endDate: string;
+  description: string;
 }
 
 export class TaskAttachment {
@@ -47,4 +47,8 @@ export class TaskAttachment {
   name: string;
   url: string;
   createdAt: Date;
+}
+
+export class TaskComments {
+
 }
