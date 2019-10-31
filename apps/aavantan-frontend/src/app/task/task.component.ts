@@ -1,8 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Project, ProjectPriority, ProjectStages, Sprint, Task, TaskType, User } from '@aavantan-app/models';
+import {
+  Project,
+  ProjectMembers,
+  ProjectPriority,
+  ProjectStages,
+  Sprint,
+  Task,
+  TaskType,
+  User
+} from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { ActivatedRoute } from '@angular/router';
+
 
 @Component({
   selector: 'aavantan-app-task',
@@ -11,7 +22,6 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 })
 export class TaskComponent implements OnInit, OnDestroy {
 
-  public enableTaskForm:boolean;
   public currentProject: Project = null;
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
@@ -47,23 +57,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public fileList2 = [...this.defaultFileList];
 
   public taskForm: FormGroup;
-  public assigneeDataSource :User[] = [
-    {
-      id: '1',
-      firstName: 'Assign to Me',
-      profilePic:'./../../assets/images/avatars/thumb-2.jpg'
-    },
-    {
-      id: '2',
-      firstName: 'Pradeep',
-      profilePic:null
-    },
-    {
-      id: '3',
-      firstName: 'Aashish',
-      profilePic:null
-    }
-  ];
+  public assigneeDataSource :ProjectMembers[] = [];
   public relatedTaskDataSource: Task[] = [
     {
       id: '1',
@@ -179,33 +173,16 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public taskTypeDataSource: TaskType[] = [];
   public stagesDataSource: ProjectStages[] = [];
+  public priorityDataSource: ProjectPriority[] = [];
 
-  public priorityDataSource: ProjectPriority[] = [
-    {
-      id: '1',
-      name: 'Low',
-      color: 'green'
-    }
-    ,{
-      id: '2',
-      name: 'High',
-      color: 'pink',
-    },
-    {
-      id: '3',
-      name: 'Medium',
-      color: 'orange'
-    },
-    {
-      id: '4',
-      name: 'Critical',
-      color: 'red'
-    }
-  ];
-
-  constructor(private FB: FormBuilder, private _userQuery: UserQuery) {}
+  constructor(private FB: FormBuilder, private _userQuery: UserQuery, private route: ActivatedRoute) {}
 
   ngOnInit() {
+
+    this.route.queryParams.subscribe(params => {
+      console.log(params);
+    });
+
     this.taskForm = this.FB.group({
       title: [null, [Validators.required]],
       description: [null],
@@ -225,14 +202,13 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.currentProject = res;
         this.stagesDataSource = res.settings.stages;
         this.taskTypeDataSource = res.settings.taskTypes;
+        this.assigneeDataSource = res.members;
+        this.priorityDataSource = res.settings.priorities;
+
         this.selectedTaskType = this.taskTypeDataSource[0];
-        // this.assigneeDataSource = res.members;
-        // this.priorityDataSource = res.settings.priorities;
-        if(this.stagesDataSource.length && this.taskTypeDataSource.length) {
-          this.enableTaskForm = false;
-        }
       }
     });
+
   }
 
   public toggleActivitySidebar(el: HTMLElement) {

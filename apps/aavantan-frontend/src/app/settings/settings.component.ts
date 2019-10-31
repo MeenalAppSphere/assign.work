@@ -20,6 +20,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public selectedCollaborator: string;
   public selectedCollaborators: User[] = [];
+  public userDataSource:User[]=[];
   public enableInviteBtn: boolean;
   public stageForm: FormGroup;
   public projectForm: FormGroup;
@@ -33,67 +34,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public stagesList: any = [];
   public typesList: TaskType[] = [];
   public priorityList: ProjectPriority[]=[];
-  public teamsList: any[] = [
-    {
-      id: '1',
-      emailId: 'pradeep@appsphere.in',
-      userDetails: {
-        firstName: 'Pradeep',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
-      }
-    },
-    {
-      id: '2',
-      emailId: 'vishal@appsphere.in',
-      userDetails: {
-        firstName: 'Vishal',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
-      }
-    },
-    {
-      id: '3',
-      firstName: 'Pradeep',
-      lastName: 'Kumar',
-      emailId: 'pradeep@appsphere.in',
-      userDetails: {
-        firstName: 'Aashsih',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
-      }
-    }
-  ];
-  public projectMembers: ProjectMembers[] = [
-    {
-      userId: '1',
-      emailId: 'pradeep@appsphere.in',
-      userDetails: {
-        firstName: 'Pradeep',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
-      }
-    },
-    {
-      userId: '2',
-      emailId: 'vishal@appsphere.in',
-      userDetails: {
-        firstName: 'Vishal',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
-      }
-    },
-    {
-      userId: '3',
-      emailId: 'aahsish.patil@appsphere.in',
-      userDetails: {
-        firstName: 'Aashsih',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
-      }
-    }
-  ];
+  public projectMembersList:ProjectMembers[]=[];
+
   public currentProject: Project = null;
+  public addCollaboratorsInProcess: boolean = false;
   public updateRequestInProcess: boolean = false;
   public deleteStageInProcess: boolean = false;
   public deleteTaskTypeInProcess: boolean = false;
@@ -109,7 +53,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.currentProject = res;
         this.stagesList = res.settings.stages;
         this.typesList = res.settings.taskTypes;
-        // this.priorityList = res.settings.priorities;
+        this.priorityList = res.settings.priorities;
+        this.projectMembersList = res.members;
       }
     });
 
@@ -130,11 +75,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
+
     this.priorityForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
-    this.selectedCollaborators = this.teamsList;
+
   }
 
   public activeTab(view: string, title: string) {
@@ -156,6 +102,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public typeaheadOnSelect(e: TypeaheadMatch): void {
     if (this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length === 0) {
       this.selectedCollaborators.push(e.item);
+      this.addMembers();
     }
     this.selectedCollaborator = null;
   }
@@ -186,6 +133,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  async addMembers() {
+    this.addCollaboratorsInProcess = true;
+    const members: ProjectMembers[] = [];
+    this.selectedCollaborators.forEach(f => {
+      members.push({
+        emailId: f.emailId,
+        userId: f.id
+      });
+    });
+
+    try {
+      await this._projectService.addCollaborators(this.currentProject.id, members).toPromise();
+      this.addCollaboratorsInProcess = false;
+    } catch (e) {
+      this.addCollaboratorsInProcess = false;
+    }
+  }
+
+
   public addCollaborators() {
     const user: User = {
       emailId: this.selectedCollaborator
@@ -196,6 +163,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.selectedCollaborators.push(user);
         this.selectedCollaborator = null;
         this.enableInviteBtn = false;
+        this.addMembers();
       }
     }
   }

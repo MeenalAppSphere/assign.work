@@ -99,7 +99,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   addPriority(id: string, priority: ProjectPriority): Observable<BaseResponseModel<Project>> {
-    return this._http.post(ProjectUrls.addTaskType.replace(':projectId', id), priority)
+    return this._http.post(ProjectUrls.addPriority.replace(':projectId', id), priority)
       .pipe(
         map(res => {
           this.updateCurrentProjectState(res.data);

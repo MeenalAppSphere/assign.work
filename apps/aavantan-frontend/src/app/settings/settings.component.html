@@ -88,8 +88,9 @@
                   type="email"
                   formControlName="collaborators"
                   [(ngModel)]="selectedCollaborator"
+                  [typeaheadAsync]="true"
+                  [typeahead]="userDataSource"
                   (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                  [typeahead]="teamsList"
                   typeaheadOptionField="emailId"
                   placeholder="Search or Invite people"
                   (keydown)="onKeydown($event)"
@@ -109,13 +110,13 @@
           <aside class="col-md-3">
             <nz-form-label>Collaborators</nz-form-label>
             <ul class="stages-list">
-              <li *ngFor="let item of selectedCollaborators">
+              <li *ngFor="let item of projectMembersList">
                 <a href="mailto:{{item.emailId}}">
-                <img src="{{item.userDetails.profilePic}}" height="20" class="m-r-10"/>
-                <span>{{item.emailId}}</span><br>
-                <span class="p-l-30 text-muted small">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
+                  <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                <span>{{item.emailId}}</span>
+                <div class="p-l-30 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
                 </a>
-                <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="float-right"></i>
+<!--                <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="float-right"></i>-->
               </li>
             </ul>
           </aside>
@@ -211,8 +212,7 @@
               <ul class="stages-list">
 
                 <li *ngFor="let item of priorityList">
-                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
-                  <span>{{item.name}}</span>
+                  <div [ngStyle]="{'border-left':'6px solid'+ item.color}" class="p-l-10"><span>{{item.name}}</span></div>
 <!--                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                 </li>
 
@@ -295,7 +295,7 @@
         <aside class="col-md-4">
           <div class="capacity-table">
             <nz-table
-              [nzData]="projectMembers"
+              [nzData]="projectMembersList"
               [nzShowPagination]="false">
               <thead>
               <tr>
@@ -306,10 +306,11 @@
               </thead>
               <tbody>
 
-              <tr *ngFor="let item of projectMembers; let i = index;">
+              <tr *ngFor="let item of projectMembersList; let i = index;">
                 <td>{{i+1}}.</td>
-                <td><nz-avatar nzSize="small" nzSrc="{{item.userDetails.profilePic}}"></nz-avatar></td>
-                <td>{{item.userDetails.firstName}} {{item.userDetails.lastName}}
+                <td><nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar></td>
+                <td>
+                  <span *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
                   <div class="cap-email"><small class="text-muted">{{item.emailId}}</small></div>
                 </td>
                 <td class="text-right"><input nz-input placeholder="Hours" class="team-list-input" value="40" nzSize="small" maxlength="3"/></td>

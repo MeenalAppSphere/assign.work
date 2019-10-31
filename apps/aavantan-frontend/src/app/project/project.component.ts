@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Task, TaskType, User } from '@aavantan-app/models';
+import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
   templateUrl: './project.component.html',
@@ -40,7 +41,7 @@ export class ProjectComponent implements OnInit {
     }
   ];
 
-  constructor() {
+  constructor(private router:Router) {
   }
 
   ngOnInit(): void {
@@ -77,7 +78,10 @@ export class ProjectComponent implements OnInit {
   }
 
 
-  public createTask() {
-
+  public createTask(item:TaskType) {
+    const navigationExtras: NavigationExtras = {
+      queryParams: item
+    };
+    this.router.navigate(["dashboard", "task"], navigationExtras);
   }
 }

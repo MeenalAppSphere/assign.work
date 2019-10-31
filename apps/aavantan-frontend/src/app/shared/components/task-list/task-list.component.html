@@ -4,7 +4,7 @@
       <nz-card nzSize="small">
         <div class="d-flex justify-content-between">
           <div class="media" [ngStyle]="{'border-left': '5px solid '+ item.taskType.color}">
-            <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" class="fas fa-circle m-l-5" nz-tooltip></i>
+            <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" class="fas fa-circle m-l-5 m-t-5" nz-tooltip></i>
             <div class="m-l-10">
               <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.displayName}}: {{item.name}}</a></h6>
             </div>
@@ -30,12 +30,13 @@
               <nz-tag class="m-b-0" *ngIf="item.status == 'Behind'" [nzColor]="'red'">{{item.status}}</nz-tag>
             </div>
             <div>
-              <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let item of (item.assigned ? item.assigned.slice(0,2): [])">
-                <nz-avatar  nzSize="small" [nzSrc]="item.profilePic" nz-tooltip [nzTitle]="item.firstName"></nz-avatar>
-              </a>
-              <a *ngIf="item.assigned.length > 2">
-                <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.assigned.length - 2].toString()" nz-tooltip [nzTitle]="[item.assigned.length - 2].toString() + ' More'"></nz-avatar>
-              </a>
+                <nz-avatar  nzSize="small" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee.firstName"></nz-avatar> {{item.assignee.firstName}}
+<!--              <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let item of (item.assignee ? item.assignee.slice(0,2): [])">-->
+<!--                <nz-avatar  nzSize="small" [nzSrc]="item.profilePic" nz-tooltip [nzTitle]="item.firstName"></nz-avatar>-->
+<!--              </a>-->
+<!--              <a *ngIf="item.assignee.length > 2">-->
+<!--                <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.assignee.length - 2].toString()" nz-tooltip [nzTitle]="[item.assignee.length - 2].toString() + ' More'"></nz-avatar>-->
+<!--              </a>-->
             </div>
           </div>
         </div>
@@ -77,13 +78,16 @@
           <nz-tag class="m-b-0" *ngIf="item.status !== 'In Progress'" [nzColor]="'blue'">{{item.status}}</nz-tag>
         </td>
         <td data-label="Members" class="text-center">
-          <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let itm of (item.assigned ? item.assigned.slice(0,2): [])">
-            <nz-avatar  nzSize="small" [nzSrc]="itm.profilePic" nz-tooltip [nzTitle]="itm.firstName"></nz-avatar>
-            <span *ngIf="item.assigned.length===1" class="m-l-5">{{itm.firstName}}</span>
-          </a>
-          <a *ngIf="item.assigned.length > 2">
-            <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.member.length - 2].toString()" nz-tooltip [nzTitle]="[item.assigned.length - 2].toString() + ' More'"></nz-avatar>
-          </a>
+
+          <nz-avatar nzSize="small" class="m-r-5" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee.firstName"></nz-avatar>{{item.assignee.firstName}}
+
+          <!--          <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let itm of (item.assignee ? item.assignee.slice(0,2): [])">-->
+<!--            <nz-avatar  nzSize="small" [nzSrc]="itm.profilePic" nz-tooltip [nzTitle]="itm.firstName"></nz-avatar>-->
+<!--            <span *ngIf="item.assignee.length===1" class="m-l-5">{{itm.firstName}}</span>-->
+<!--          </a>-->
+<!--          <a *ngIf="item.assignee.length > 2">-->
+<!--            <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.member.length - 2].toString()" nz-tooltip [nzTitle]="[item.assignee.length - 2].toString() + ' More'"></nz-avatar>-->
+<!--          </a>-->
         </td>
         <td data-label="Estimate" class="text-right">
           {{item.totalLoggedTime}}hr&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (click)="timeLog(item)"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>

@@ -6,7 +6,7 @@
       'col-md-8': isOpenActivitySidebar,
       'col-md-12': !isOpenActivitySidebar
     }">
-    <form nz-form class="bg-white p-15 create-task-form" *ngIf="enableTaskForm"
+    <form nz-form class="bg-white p-15 create-task-form"
       [formGroup]="taskForm"
       (ngSubmit)="saveForm()">
       <h5>Create Task</h5>
@@ -56,16 +56,10 @@
               <nz-autocomplete #autoAssignee>
                 <nz-auto-option
                   *ngFor="let option of assigneeDataSource"
-                  [nzLabel]="option.firstName"
+                  [nzLabel]="option.userDetails && option.userDetails.firstName ? option.userDetails.firstName : option.emailId"
                   [nzValue]="option" >
-                  <nz-avatar
-                    class="m-r-10"
-                    nzShape="circle"
-                    nzSize="small"
-                    nzIcon="user"
-                    nzSrc="./../../assets/images/avatars/thumb-2.jpg"
-                  ></nz-avatar>
-                  <span>{{ option.firstName }}</span>
+                  <nz-avatar class="m-r-10" [nzSrc]="option.userDetails && option.userDetails.profilePic ? option.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                  <span>{{ option.userDetails && option.userDetails.firstName ? option.userDetails.firstName : option.emailId }}</span>
                 </nz-auto-option>
               </nz-autocomplete>
             </nz-form-control>
@@ -81,12 +75,12 @@
                   [nzDropdownMenu]="stagesDDLTemplate"
                   nzPlacement="bottomRight">
                   <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
-                    {{selectedStage.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                    {{selectedStage && selectedStage.name ? selectedStage.name : 'Select Stages'}} <i nz-icon nzType="caret-down" theme="outline"></i>
                   </button>
                 </nz-button-group>
                 <nz-dropdown-menu #stagesDDLTemplate="nzDropdownMenu">
                   <ul nz-menu>
-                    <li nz-menu-item *ngFor="let item of stagesDataSource" (click)="selectStage()">
+                    <li nz-menu-item *ngFor="let item of stagesDataSource" (click)="selectStage(item)">
                       {{ item.name }}
                     </li>
                   </ul>
@@ -103,7 +97,7 @@
                 [nzDropdownMenu]="proiorityDDLTemplate"
                 nzPlacement="bottomRight">
                 <button nzType="default" nzSize="small" class="ddls-btn" nz-button>
-                  <i class="fas fa-square m-r-5" [ngStyle]="{'color': selectedPriority.color}"></i> {{selectedPriority.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                  <span class="fas fa-square m-r-5" [ngStyle]="{'color': selectedPriority && selectedPriority.color ? selectedPriority.color :'#f3f3f3'}"></span> {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
                 </button>
               </nz-button-group>
               <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
@@ -349,6 +343,14 @@
       <!-- row 8-->
       <!-- row 9-->
       <div class="row">
+        <div class="col-md-12 m-t-15">
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="description">Comment</nz-form-label>
+            <nz-form-control>
+              <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
         <div class="col-md-12 m-t-15">
           <nz-form-label>Activity <small>(<img src="./../../assets/images/pin-fill.png" class="pin-icon" height="22"/> Pinned Messages)</small></nz-form-label>
           <div class="frozen-div m-t-5">

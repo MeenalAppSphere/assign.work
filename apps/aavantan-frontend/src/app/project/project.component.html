@@ -26,11 +26,9 @@
           <ng-container *ngIf="myTaskList && myTaskList.length === 0">
             <nz-empty
               [nzNotFoundImage]="
-                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'
-              "
+                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
               [nzNotFoundFooter]="footerTpl"
-              [nzNotFoundContent]="contentTpl"
-            >
+              [nzNotFoundContent]="contentTpl">
               <ng-template #contentTpl>
                 <span> No Item Assigned</span>
               </ng-template>
@@ -38,8 +36,7 @@
                 <button
                   nz-button
                   nzType="primary"
-                  (click)="createTask()"
-                >
+                  (click)="createTask()">
                   Create New
                 </button>
               </ng-template>
@@ -70,8 +67,7 @@
                 <button
                   nz-button
                   nzType="primary"
-                  (click)="createTask()"
-                >
+                  (click)="createTask()">
                   Create New
                 </button>
               </ng-template>
@@ -107,7 +103,7 @@
         </nz-button-group>
         <nz-dropdown-menu #createTaskType="nzDropdownMenu">
           <ul nz-menu>
-            <li nz-menu-item *ngFor="let item of taskTypeDataSource">
+            <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="createTask(item)">
               <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
               {{ item.name }}
             </li>
