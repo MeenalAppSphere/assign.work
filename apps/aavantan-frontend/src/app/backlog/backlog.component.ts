@@ -62,6 +62,7 @@ export class BacklogComponent implements OnInit {
         estimateTime: 2,
         priority: 'low',
         sprint: null,
+        project: '',
         taskType: {
           name: 'bug',
           color: '#ddee00'

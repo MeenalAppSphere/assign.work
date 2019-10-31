@@ -69,7 +69,8 @@ export class ProjectComponent implements OnInit {
           name: 'CR',
           color: '#F0CB2D'
         },
-        createdBy: ''
+        createdBy: '',
+        project: ''
       };
       this.myTaskList.push(this.taskObj);
     }
