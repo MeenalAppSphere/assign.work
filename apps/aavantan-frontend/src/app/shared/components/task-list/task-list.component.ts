@@ -41,7 +41,7 @@ export class TaskListComponent implements OnInit {
   }
 
   public selectTaskForSprint(task: Task) {
-    const duration = task.estimateTime.split('h')[0];
+    const duration = task.estimateTime;
     if (task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 1) {
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);

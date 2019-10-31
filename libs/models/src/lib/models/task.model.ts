@@ -1,53 +1,43 @@
-import { Priority, Project, ProjectStages, TaskType, User } from '@aavantan-app/models';
+import { AttachmentModel, Project, ProjectPriority, TaskType, User } from '@aavantan-app/models';
 
 export class Task {
   id?: string;
-  displayName?: string;
   name: string;
+  displayName?: string;
   description?: string;
-  dueReminder?: string;
-  dueDate?: Date;
-  dueComplete?: boolean;
-  stage?: string | ProjectStages;
   project?: string | Project;
-  position?: number;
-  priority?: string | Priority;
-  tags?: string[];
-  comments?: any[];
   assignee?: string | User;
-  assigned?: User[];
-  url?: string;
-  attachments?: TaskAttachment[];
-  createdAt?: Date;
-  updatedAt?: Date;
-  progress?: number;
-  loggedTime?: TaskLoggedTime[];
+  attachments?: AttachmentModel[];
+  taskType: string | TaskType;
+  comments?: TaskComments[];
+  estimateTime?: number;
+  remainingTime?: number;
   totalLoggedTime?: number;
-  estimateTime?: string;
+  startedAt?: Date;
+  finishedAt?: Date;
+  priority?: string | ProjectPriority;
+  tags?: string[];
+  url?: string;
+  progress?: number;
   status?: string;
   sprint?: string;
-  taskType?: string | TaskType;
-}
-
-export class TaskLoggedTime {
-  id?: string;
-  createdAt: Date;
-  loggedTime: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-}
-
-export class TaskAttachment {
-  id: string;
-  memberId: string;
-  isUpload: boolean;
-  mimeType: string;
-  name: string;
-  url: string;
-  createdAt: Date;
+  createdBy: string | User;
+  updatedBy?: string | User;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class TaskComments {
+  comment: string;
+  createdBy: string | User;
+  createdAt: Date;
+  attachments: AttachmentModel[];
+}
 
+export class TaskHistory {
+  task: string | Task;
+  action: string;
+  createdBy: string | User;
+  createdAt: Date;
+  desc?: string;
 }

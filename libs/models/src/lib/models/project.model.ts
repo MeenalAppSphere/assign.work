@@ -31,6 +31,7 @@ export class ProjectMembers {
 export class ProjectSettings {
   stages: ProjectStages[];
   taskTypes: TaskType[];
+  priorities: ProjectPriority[];
 }
 
 export class ProjectStages {

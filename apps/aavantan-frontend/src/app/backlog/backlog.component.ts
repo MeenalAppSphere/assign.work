@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DraftSprint, User, Task, Sprint } from '@aavantan-app/models';
+import { DraftSprint, Sprint, Task, User } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -10,7 +10,7 @@ export class BacklogComponent implements OnInit {
   public allTaskList: Task[] = [];
   public draftTaskList: Task[] = [];
   public taskObj: Task;
-  public memberObj: User[] = [];
+  public memberObj: User;
   public view: String = 'listView';
   public totalDuration: Number = 0;
   public isDisabledCraeteBtn: boolean = true;
@@ -44,14 +44,12 @@ export class BacklogComponent implements OnInit {
   ngOnInit() {
 
     for (let i = 0; i < 50; i++) {
-      this.memberObj = [
-        {
-          id: '1212' + (i + 1),
-          emailId: 'abc' + (i + 1) + '@gmail.com',
-          firstName: 'Pradeep',
-          profilePic: '../../assets/images/avatars/thumb-4.jpg'
-        }
-      ];
+      this.memberObj = {
+        id: '1212' + (i + 1),
+        emailId: 'abc' + (i + 1) + '@gmail.com',
+        firstName: 'Pradeep',
+        profilePic: '../../assets/images/avatars/thumb-4.jpg'
+      };
       this.taskObj = {
         id: '100' + i,
         displayName: 'BUG-10' + i,
@@ -60,14 +58,15 @@ export class BacklogComponent implements OnInit {
         createdAt: new Date(),
         description: 'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
         status: 'TO DO',
-        assigned: this.memberObj,
-        estimateTime: 2 + 'hr',
+        assignee: this.memberObj,
+        estimateTime: 2,
         priority: 'low',
         sprint: null,
         taskType: {
           name: 'bug',
           color: '#ddee00'
-        }
+        },
+        createdBy: ''
       };
       this.allTaskList.push(this.taskObj);
     }
@@ -98,7 +97,7 @@ export class BacklogComponent implements OnInit {
 
   public countTotalDuration() {
     this.allTaskList.forEach((ele) => {
-      const duration = ele.estimateTime.split('hr')[0];
+      const duration = ele.estimateTime;
       // @ts-ignore
       this.totalDuration += Number(duration);
     });

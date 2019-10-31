@@ -9,6 +9,8 @@ import { ProjectService } from './services/project.service';
 import { OrganizationService } from './services/organization.service';
 import { TaskService } from './services/task.service';
 import { taskSchema } from '../task/task.schema';
+import { taskHistorySchema } from '../task-history/task-history.schema';
+import { TaskHistoryService } from './services/task-history.service';
 
 @Global()
 @Module({
@@ -29,6 +31,10 @@ import { taskSchema } from '../task/task.schema';
       name: DbCollection.tasks,
       schema: taskSchema,
       collection: DbCollection.tasks
+    }, {
+      name: DbCollection.taskHistory,
+      schema: taskHistorySchema,
+      collection: DbCollection.taskHistory
     }])
   ],
   exports: [
@@ -36,13 +42,15 @@ import { taskSchema } from '../task/task.schema';
     UsersService,
     ProjectService,
     OrganizationService,
-    TaskService
+    TaskService,
+    TaskHistoryService
   ],
   providers: [
     UsersService,
     ProjectService,
     OrganizationService,
-    TaskService
+    TaskService,
+    TaskHistoryService
   ]
 })
 export class SharedModule {

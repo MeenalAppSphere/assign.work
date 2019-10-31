@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { User, Task, TaskType } from '@aavantan-app/models';
+import { Task, TaskType, User } from '@aavantan-app/models';
 
 @Component({
-    templateUrl: './project.component.html',
-    styleUrls:['./project.component.scss']
+  templateUrl: './project.component.html',
+  styleUrls: ['./project.component.scss']
 })
 
-export class ProjectComponent implements OnInit{
-  public myTaskList: Task[]=[];
-  public allTaskList: Task[]=[];
+export class ProjectComponent implements OnInit {
+  public myTaskList: Task[] = [];
+  public allTaskList: Task[] = [];
   public taskObj: Task;
-  public memberObj: User[]=[];
+  public memberObj: User;
   public view: String = 'listView';
   public taskTypeDataSource: TaskType[] = [
     {
@@ -39,43 +39,44 @@ export class ProjectComponent implements OnInit{
       color: '#1022A8'
     }
   ];
-  constructor( ) {}
+
+  constructor() {
+  }
 
   ngOnInit(): void {
-      for(let i=0; i<5; i++){
-        this.memberObj = [
-          {
-            id:'1212'+(i+1),
-            emailId:'abc'+(i+1)+'@gmail.com',
-            firstName: 'Pradeep',
-            profilePic: '../../assets/images/avatars/thumb-4.jpg'
-          }
-        ];
-        this.taskObj= {
-          id : '100' + i,
-          displayName : 'BUG-100' + i,
-          name : 'A responsive table that stacks into cards when space is ' + i + '.',
-          progress : (i * 10),
-          createdAt : new Date(),
-          description:'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
-          status:'In Progress',
-          assigned:this.memberObj,
-          totalLoggedTime: 2,
-          priority: {
-            name:'Critical',
-            color:'red'
-          },
-          taskType: {
-            name:'CR',
-            color:'#F0CB2D'
-          }
-        }
-        this.myTaskList.push(this.taskObj);
-      }
+    for (let i = 0; i < 5; i++) {
+      this.memberObj = {
+        id: '1212' + (i + 1),
+        emailId: 'abc' + (i + 1) + '@gmail.com',
+        firstName: 'Pradeep',
+        profilePic: '../../assets/images/avatars/thumb-4.jpg'
+      };
+      this.taskObj = {
+        id: '100' + i,
+        displayName: 'BUG-100' + i,
+        name: 'A responsive table that stacks into cards when space is ' + i + '.',
+        progress: (i * 10),
+        createdAt: new Date(),
+        description: 'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
+        status: 'In Progress',
+        assignee: this.memberObj,
+        totalLoggedTime: 2,
+        priority: {
+          name: 'Critical',
+          color: 'red'
+        },
+        taskType: {
+          name: 'CR',
+          color: '#F0CB2D'
+        },
+        createdBy: ''
+      };
+      this.myTaskList.push(this.taskObj);
+    }
   }
 
 
-  public  createTask(){
+  public createTask() {
 
-    }
+  }
 }

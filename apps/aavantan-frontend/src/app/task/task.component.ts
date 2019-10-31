@@ -72,7 +72,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskType: {
         name:'BUG',
         color:'#ddee00'
-      }
+      },
+      createdBy:''
     },
     {
       id: '2',
@@ -81,7 +82,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskType: {
         name:'BUG',
         color:'#ddee00'
-      }
+      },
+      createdBy:''
     },
     {
       id: '3',
@@ -90,7 +92,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskType: {
         name:'CR',
         color:'#ddee00'
-      }
+      },
+      createdBy:''
     }
   ];
   public dependentTaskDataSource: Task[] = [
@@ -101,7 +104,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskType: {
         name:'BUG',
         color:'#ddee00'
-      }
+      },
+      createdBy:''
     },
     {
       id: '2',
@@ -110,7 +114,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskType: {
         name:'BUG',
         color:'#ddee00'
-      }
+      },
+      createdBy:''
     },
     {
       id: '3',
@@ -119,7 +124,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskType: {
         name:'CR',
         color:'#ddee00'
-      }
+      },
+      createdBy:''
     }
   ];
   public sprintDataSource:Sprint[] = [

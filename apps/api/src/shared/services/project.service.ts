@@ -4,7 +4,7 @@ import {
   BaseRequestModel,
   DbCollection,
   Project,
-  ProjectMembers,
+  ProjectMembers, ProjectPriority,
   ProjectStages,
   TaskType,
   User
@@ -169,12 +169,21 @@ export class ProjectService extends BaseService<Project & Document> {
   async createStage(id: string, stage: ProjectStages) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
-    stage.id = new Types.ObjectId().toHexString();
-    const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase() === stage.name.toLowerCase());
-
-    if (isDuplicate) {
-      throw new BadRequestException('Stage Name Already Exists');
+    if (!stage.name) {
+      throw new BadRequestException('Please add name');
     }
+
+    if (projectDetails.settings.stages) {
+      const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase() === stage.name.toLowerCase());
+
+      if (isDuplicate) {
+        throw new BadRequestException('Stage Name Already Exists');
+      }
+    } else {
+      projectDetails.settings.stages = [];
+    }
+
+    stage.id = new Types.ObjectId().toHexString();
     projectDetails.settings.stages.push(stage);
     return await this.updateProject(id, projectDetails);
   }
@@ -189,10 +198,22 @@ export class ProjectService extends BaseService<Project & Document> {
   async createTaskType(id: string, taskType: TaskType) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
-    const isDuplicate = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
+    if (!taskType.name) {
+      throw new BadRequestException('Please add name');
+    }
 
-    if (isDuplicate) {
-      throw new BadRequestException('Tasktype Name Already Exists');
+    if (!taskType.color) {
+      throw new BadRequestException('Please select color');
+    }
+
+    if (!projectDetails.settings.taskTypes) {
+      const isDuplicate = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
+
+      if (isDuplicate) {
+        throw new BadRequestException('Tasktype Name Already Exists');
+      }
+    } else {
+      projectDetails.settings.taskTypes = [];
     }
 
     taskType.id = new Types.ObjectId().toHexString();
@@ -204,6 +225,39 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     projectDetails.settings.taskTypes = projectDetails.settings.taskTypes.filter(f => f.id !== taskTypeId);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  async createPriority(id: string, priority: ProjectPriority) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    if (!priority.name) {
+      throw new BadRequestException('Please add name');
+    }
+
+    if (!priority.color) {
+      throw new BadRequestException('Please select color');
+    }
+
+    if (projectDetails.settings.priorities) {
+      const isDuplicate = projectDetails.settings.priorities.some(s => s.name.toLowerCase() === priority.name.toLowerCase());
+
+      if (isDuplicate) {
+        throw new BadRequestException('Priority Name Already Exists');
+      }
+    } else {
+      projectDetails.settings.priorities = [];
+    }
+
+    priority.id = new Types.ObjectId().toHexString();
+    projectDetails.settings.priorities.push(priority);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  async removePriority(id: string, priorityId: string) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    projectDetails.settings.priorities = projectDetails.settings.priorities.filter(f => f.id !== priorityId);
     return await this.updateProject(id, projectDetails);
   }
 

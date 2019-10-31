@@ -1,6 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ProjectService } from '../shared/services/project.service';
-import { MongoosePaginateQuery, Project, ProjectMembers, ProjectStages, TaskType } from '@aavantan-app/models';
+import {
+  MongoosePaginateQuery,
+  Project,
+  ProjectMembers,
+  ProjectPriority,
+  ProjectStages,
+  TaskType
+} from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('project')
@@ -54,6 +61,16 @@ export class ProjectController {
   @Delete(':id/remove-task-type/:taskTypeId')
   async removeTaskType(@Param('id') id: string, @Param('taskTypeId') taskTypeId: string) {
     return await this._projectService.removeTaskType(id, taskTypeId);
+  }
+
+  @Post(':id/add-priority')
+  async addPriority(@Param('id') id: string, @Body() priority: ProjectPriority) {
+    return await this._projectService.createPriority(id, priority);
+  }
+
+  @Delete(':id/remove-priority/:priorityId')
+  async removePriority(@Param('id') id: string, @Param('priorityId') priorityId: string) {
+    return await this._projectService.removePriority(id, priorityId);
   }
 
 }

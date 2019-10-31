@@ -29,6 +29,7 @@ export const projectSchema = new Schema({
   settings: {
     stages: [],
     taskTypes: [],
+    priorities: [],
     required: false,
     default: {}
   },

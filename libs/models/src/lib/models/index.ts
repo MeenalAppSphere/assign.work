@@ -7,3 +7,4 @@ export * from './labels.model';
 export * from './tasktype.model';
 export * from './priority.model';
 export * from './timelog.model';
+export * from './attachment.model';
