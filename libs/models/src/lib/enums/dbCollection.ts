@@ -3,5 +3,5 @@ export enum DbCollection {
   projects = 'projects',
   organizations = 'organizations',
   tasks = 'tasks',
-  taskHistory = 'taskHistory'
+  taskHistory = 'task-history'
 }

@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions } from '../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -10,7 +10,7 @@ export const taskHistorySchema = new Schema({
   action: { type: String },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   desc: {}
-});
+}, schemaOptions);
 
 
 // options

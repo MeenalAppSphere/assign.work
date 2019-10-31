@@ -5,7 +5,7 @@ export class Task {
   name: string;
   displayName?: string;
   description?: string;
-  project?: string | Project;
+  project: string | Project;
   assignee?: string | User;
   attachments?: AttachmentModel[];
   taskType: string | TaskType;
@@ -38,6 +38,6 @@ export class TaskHistory {
   task: string | Task;
   action: string;
   createdBy: string | User;
-  createdAt: Date;
+  createdAt?: Date;
   desc?: string;
 }

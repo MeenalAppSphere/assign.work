@@ -15,14 +15,14 @@ export class GenericExceptionFilter implements ExceptionFilter {
     if (exception instanceof MongoError) {
       // normal mongo errors
       resp.errors = [{
-        message: exception.errmsg,
+        message: exception.errmsg || exception.message,
         type: 'error'
       }];
       resp.status = 500;
     } else if (exception.response instanceof MongoError) {
       // mongo duplicate error and etc...
       resp.errors = [{
-        message: exception.response.errmsg,
+        message: exception.response.errmsg || exception.response.message,
         type: 'error'
       }];
       resp.status = 500;

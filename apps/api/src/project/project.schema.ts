@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions } from '../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -36,7 +36,7 @@ export const projectSchema = new Schema({
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false }
-});
+}, schemaOptions);
 
 // options
 projectSchema
