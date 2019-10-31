@@ -75,10 +75,10 @@ export class ProjectService extends BaseService<Project & Document> {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
 
-    const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
+    const projectDetails: Project = await this.getProjectDetails(id);
 
-    if (!projectDetails) {
-      throw new NotFoundException('No Project Found');
+    if (!Array.isArray(members)) {
+      throw new BadRequestException('Please check provided json');
     }
 
     const alreadyRegisteredMembers: ProjectMembers[] = [];
@@ -126,10 +126,10 @@ export class ProjectService extends BaseService<Project & Document> {
         return member;
       });
 
-      const result = await this.update(id, { members: membersModel }, session);
+      const result = await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
       await session.commitTransaction();
       session.endSession();
-      return result;
+      return await this.findById(id);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
