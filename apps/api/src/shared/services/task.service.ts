@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { DbCollection, Project, Task, TaskHistory, TaskType } from '@aavantan-app/models';
+import { AttachmentModel, DbCollection, Project, Task, TaskHistory, TaskType } from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
@@ -47,7 +47,7 @@ export class TaskService extends BaseService<Task & Document> {
       const taskHistory: TaskHistory = {
         action: 'Task Added',
         createdBy: task.createdBy,
-        task: createdTask[0].id,
+        task: createdTask[0].id
       };
       await this._taskHistoryService.addHistory(taskHistory, session);
       await session.commitTransaction();
@@ -89,6 +89,16 @@ export class TaskService extends BaseService<Task & Document> {
       await session.abortTransaction();
       session.endSession();
       throw e;
+    }
+  }
+
+  async addAttachment(path: string, files) {
+    const attachment = new AttachmentModel();
+    let fileUrl: string;
+    try {
+      fileUrl = await this.upload(path, files);
+    } catch (e) {
+
     }
   }
 

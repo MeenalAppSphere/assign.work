@@ -1,5 +1,7 @@
-import { Document, Model, Types, Aggregate, SaveOptions, ClientSession, Query, QueryPopulateOptions } from 'mongoose';
-import { BaseRequestModel, MongoosePaginateQuery } from '@aavantan-app/models';
+import { ClientSession, Document, Model, Types } from 'mongoose';
+import { MongoosePaginateQuery } from '@aavantan-app/models';
+import { S3Client } from './S3Client.service';
+import * as aws from 'aws-sdk';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -13,8 +15,14 @@ const defaultQueryOptions = {
   isDeleted: false
 };
 
-export class BaseService<T extends Document> {
+aws.config.update({
+  accessKeyId: 'AKIAVBE3ZXGH5F3IVEWZ',
+  secretAccessKey: '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'
+});
+
+export class BaseService<T extends Document> extends S3Client {
   constructor(private model: Model<T>) {
+    super(new aws.S3({ region: 'us-east-1' }), 'images.assign.work', '');
   }
 
   public async find(filter: any = {}, populate: Array<any> = []): Promise<T[]> {

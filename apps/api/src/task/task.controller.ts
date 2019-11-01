@@ -1,7 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put, UploadedFile,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task.service';
 import { Project, Task, TaskComments } from '@aavantan-app/models';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('task')
 @UseGuards(AuthGuard('jwt'))
@@ -28,6 +40,12 @@ export class TaskController {
   @Post(':id/add-comment')
   async addComment(@Param('id') id: string, @Body() comment: TaskComments) {
 
+  }
+
+  @Post('upload')
+  @UseInterceptors(AnyFilesInterceptor())
+  async addAttachment(@UploadedFiles() files) {
+    return this._taskService.addAttachment('task/' + files[0].originalname, files[0].buffer);
   }
 
   @Delete(':id')
