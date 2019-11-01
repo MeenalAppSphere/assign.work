@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task.service';
-import { Project, Task } from '@aavantan-app/models';
+import { Project, Task, TaskComments } from '@aavantan-app/models';
 
 @Controller('task')
 @UseGuards(AuthGuard('jwt'))
@@ -23,6 +23,11 @@ export class TaskController {
   @Put(':id')
   async updateTask(@Param('id') id: string, @Body() task: Task) {
     return await this._taskService.updateTask(id, task);
+  }
+
+  @Post(':id/add-comment')
+  async addComment(@Param('id') id: string, @Body() comment: TaskComments) {
+
   }
 
   @Delete(':id')

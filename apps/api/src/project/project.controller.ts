@@ -5,7 +5,7 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages,
+  ProjectStages, ProjectWorkingCapacityUpdateDto,
   TaskType
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
@@ -61,6 +61,11 @@ export class ProjectController {
   @Delete(':id/remove-task-type/:taskTypeId')
   async removeTaskType(@Param('id') id: string, @Param('taskTypeId') taskTypeId: string) {
     return await this._projectService.removeTaskType(id, taskTypeId);
+  }
+
+  @Put(':id/update-working-capacity')
+  async updateCollaboratorWorkingCapacity(@Param('id') id: string, @Body() dto: ProjectWorkingCapacityUpdateDto[]) {
+    return await this._projectService.updateCollaboratorWorkingCapacity(id, dto);
   }
 
   @Post(':id/add-priority')

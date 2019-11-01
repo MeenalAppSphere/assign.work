@@ -5,7 +5,7 @@ import {
   DbCollection,
   Project,
   ProjectMembers, ProjectPriority,
-  ProjectStages,
+  ProjectStages, ProjectWorkingCapacityUpdateDto,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -143,6 +143,26 @@ export class ProjectService extends BaseService<Project & Document> {
 
     projectDetails.members = projectDetails.members.filter(f => f.userId !== id);
     return await this.updateProject(projectId, projectDetails);
+  }
+
+  async updateCollaboratorWorkingCapacity(id: string, dto: ProjectWorkingCapacityUpdateDto[]) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    // check data
+    const everyBodyThere = dto.every(ddt => projectDetails.members.some(pd => pd.userId === ddt.userId));
+    if (!everyBodyThere) {
+      throw new BadRequestException('One of Collaborator not found, Please try again');
+    }
+
+    projectDetails.members = projectDetails.members.map(pd => {
+      const indexInDto = dto.findIndex(f => f.userId === pd.userId);
+      if (indexInDto > -1) {
+        pd.workingCapacity = dto[indexInDto].workingCapacity || 0;
+      }
+      return pd;
+    });
+
+    return await this.updateProject(id, projectDetails);
   }
 
   async getAllProject(query: any, reuest: BaseRequestModel) {

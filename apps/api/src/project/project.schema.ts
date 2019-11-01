@@ -14,7 +14,8 @@ export const projectSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
     emailId: { type: String },
     isEmailSent: { type: Boolean },
-    isInviteAccepted: { type: Boolean }
+    isInviteAccepted: { type: Boolean },
+    workingCapacity: { type: Number, default: 0 }
   },
   organization: {
     type: Schema.Types.ObjectId,

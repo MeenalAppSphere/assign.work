@@ -26,6 +26,7 @@ export class ProjectMembers {
   isEmailSent?: boolean;
   isInviteAccepted?: boolean;
   userDetails?: User;
+  workingCapacity?: number;
 }
 
 export class ProjectSettings {
@@ -44,4 +45,9 @@ export interface ProjectPriority {
   id?: string;
   name: string;
   color: string;
+}
+
+export class ProjectWorkingCapacityUpdateDto {
+  userId: string;
+  workingCapacity: number;
 }

@@ -45,7 +45,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
       } else {
         // http errors
         resp.errors = [{
-          message: (exception.getResponse() as any).message,
+          message: (exception.getResponse() as any).message || (exception.getResponse() as any).error,
           type: 'error'
         }];
       }
@@ -56,6 +56,12 @@ export class GenericExceptionFilter implements ExceptionFilter {
         type: 'error'
       }];
       resp.status = exception.getStatus();
+    } else if (exception instanceof Error) {
+      resp.errors = [{
+        message: exception.message,
+        type: 'error'
+      }];
+      resp.status = 401;
     } else {
       resp.errors = [{
         message: 'Something Went Wrong',
