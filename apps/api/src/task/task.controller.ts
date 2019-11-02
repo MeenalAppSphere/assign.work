@@ -42,12 +42,6 @@ export class TaskController {
 
   }
 
-  @Post('upload')
-  @UseInterceptors(AnyFilesInterceptor())
-  async addAttachment(@UploadedFiles() files) {
-    return this._taskService.addAttachment('task/' + files[0].originalname, files[0].buffer);
-  }
-
   @Delete(':id')
   async deleteProject(@Param() id: string) {
     return await this._taskService.delete(id);

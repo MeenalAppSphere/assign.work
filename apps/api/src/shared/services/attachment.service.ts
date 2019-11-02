@@ -1,24 +1,25 @@
-import { Injectable, InternalServerErrorException, PayloadTooLargeException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, PayloadTooLargeException } from '@nestjs/common';
 import { BaseService } from './base.service';
 import { AttachmentModel, DbCollection, Task, TaskHistory } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as aws from 'aws-sdk';
 import { S3Client } from './S3Client.service';
-
-aws.config.update({
-  accessKeyId: 'AKIAVBE3ZXGH5F3IVEWZ',
-  secretAccessKey: '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'
-});
+import { ConfigService } from 'nestjs-config';
 
 @Injectable()
 export class AttachmentService extends BaseService<AttachmentModel & Document> {
   s3Client: S3Client;
 
   constructor(
-    @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>
+    @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
+    private readonly config: ConfigService
   ) {
     super(_attachmentModel);
+    aws.config.update({
+      accessKeyId: this.config.get('aws').accessKeyId,
+      secretAccessKey: this.config.get('aws').secretAccessKey
+    });
     this.s3Client = new S3Client(new aws.S3({ region: 'us-east-1' }), 'images.assign.work', '');
   }
 
@@ -55,5 +56,22 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  async deleteAttachment(id: string) {
+    const attachmentDetails = await this._attachmentModel.findById(id).lean().exec();
+
+    if (!attachmentDetails) {
+      throw new NotFoundException('Attachment not found!');
+    }
+    const filePath = attachmentDetails.url.split('images.assign.work/');
+    try {
+      await this.s3Client.delete(filePath[1]);
+      await this.delete(id);
+      return 'Attachment Deleted Successfully';
+    } catch (e) {
+      throw e;
+    }
+
   }
 }

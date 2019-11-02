@@ -92,16 +92,6 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async addAttachment(path: string, files) {
-    const attachment = new AttachmentModel();
-    let fileUrl: string;
-    try {
-      fileUrl = await this.upload(path, files);
-    } catch (e) {
-
-    }
-  }
-
   private async getProjectDetails(id: string): Promise<Project> {
     const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
     if (!projectDetails) {

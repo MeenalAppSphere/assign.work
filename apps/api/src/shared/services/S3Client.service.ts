@@ -1,5 +1,6 @@
 import * as aws from 'aws-sdk';
 import { Body, ManagedUpload } from 'aws-sdk/clients/s3';
+import { AWSError } from 'aws-sdk';
 
 export class S3Client {
   constructor(protected connection: aws.S3, protected bucketName: string, protected filePathPrefix: string) {
@@ -40,5 +41,16 @@ export class S3Client {
       .trim();
 
     return this.upload(filePath, payload, options);
+  }
+
+  public delete(filePath: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.connection.deleteObject({
+        Bucket: this.bucketName,
+        Key: filePath
+      }, (err: AWSError, data: aws.S3.Types.DeleteObjectOutput) => {
+        err ? reject(err) : data.DeleteMarker ? resolve(data.DeleteMarker) : reject('Attachment Not deleted');
+      });
+    });
   }
 }
