@@ -16,7 +16,8 @@ export class S3Client {
         {
           Bucket: this.bucketName,
           Key: `${this.filePathPrefix ? this.filePathPrefix + '/' : ''}${filePath}`,
-          Body: payload
+          Body: payload,
+          ACL: 'public-read'
         },
         options,
         (err: Error, data: ManagedUpload.SendData) => {

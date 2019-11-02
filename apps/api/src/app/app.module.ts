@@ -1,4 +1,4 @@
-import { Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 
 import { SharedModule } from '../shared/shared.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { ProjectModule } from '../project/project.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { TaskModule } from '../task/task.module';
+import { AttachmentModule } from '../attachment/attachment.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { TaskModule } from '../task/task.module';
     UsersModule,
     ProjectModule,
     OrganizationModule,
-    TaskModule
+    TaskModule,
+    AttachmentModule
   ],
   controllers: [],
   providers: []

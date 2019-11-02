@@ -12,6 +12,8 @@ import { taskSchema } from '../task/task.schema';
 import { taskHistorySchema } from '../task-history/task-history.schema';
 import { TaskHistoryService } from './services/task-history.service';
 import { S3Client } from './services/S3Client.service';
+import { attachmentSchema } from '../attachment/attachment.schema';
+import { AttachmentService } from './services/attachment.service';
 
 @Global()
 @Module({
@@ -36,6 +38,10 @@ import { S3Client } from './services/S3Client.service';
       name: DbCollection.taskHistory,
       schema: taskHistorySchema,
       collection: DbCollection.taskHistory
+    }, {
+      name: DbCollection.attachments,
+      schema: attachmentSchema,
+      collection: DbCollection.attachments
     }])
   ],
   exports: [
@@ -44,7 +50,8 @@ import { S3Client } from './services/S3Client.service';
     ProjectService,
     OrganizationService,
     TaskService,
-    TaskHistoryService
+    TaskHistoryService,
+    AttachmentService
   ],
   providers: [
     UsersService,
@@ -52,7 +59,7 @@ import { S3Client } from './services/S3Client.service';
     OrganizationService,
     TaskService,
     TaskHistoryService,
-    // S3Client
+    AttachmentService
   ]
 })
 export class SharedModule {

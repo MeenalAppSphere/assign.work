@@ -15,11 +15,6 @@ const defaultQueryOptions = {
   isDeleted: false
 };
 
-aws.config.update({
-  accessKeyId: 'AKIAVBE3ZXGH5F3IVEWZ',
-  secretAccessKey: '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'
-});
-
 export class BaseService<T extends Document> extends S3Client {
   constructor(private model: Model<T>) {
     super(new aws.S3({ region: 'us-east-1' }), 'images.assign.work', '');
