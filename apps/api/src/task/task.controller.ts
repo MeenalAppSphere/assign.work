@@ -39,7 +39,17 @@ export class TaskController {
 
   @Post(':id/add-comment')
   async addComment(@Param('id') id: string, @Body() comment: TaskComments) {
+    return await this._taskService.addComment(id, comment);
+  }
 
+  @Post(':id/update-comment')
+  async updateComment(@Param('id') id: string, @Body() comment: TaskComments) {
+    return await this._taskService.updateComment(id, comment);
+  }
+
+  @Post(':id/pin-comment')
+  async pinComment(@Param('id') id: string, @Param('commentId') commentId: string, isPinned: boolean) {
+    return await this._taskService.pinComment(id, commentId, isPinned);
   }
 
   @Delete(':id')

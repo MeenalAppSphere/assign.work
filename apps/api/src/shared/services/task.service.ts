@@ -1,7 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { AttachmentModel, DbCollection, Project, Task, TaskHistory, TaskType } from '@aavantan-app/models';
-import { Document, Model } from 'mongoose';
+import {
+  AttachmentModel,
+  DbCollection,
+  Project,
+  Task,
+  TaskComments,
+  TaskHistory,
+  TaskType
+} from '@aavantan-app/models';
+import { Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 
@@ -92,12 +100,59 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
+  async addComment(id: string, comment: TaskComments) {
+    const taskDetails = await this.getTaskDetails(id);
+
+    comment.id = new Types.ObjectId().toHexString();
+    if (!taskDetails.comments.length) {
+      taskDetails.comments = [comment];
+    } else {
+      taskDetails.comments.push(comment);
+    }
+    return this.updateTask(id, taskDetails);
+  }
+
+  async updateComment(id: string, comment: TaskComments) {
+    const taskDetails = await this.getTaskDetails(id);
+
+    taskDetails.comments = taskDetails.comments.map(com => {
+      if (com.id === comment.id) {
+        return comment;
+      }
+      return com;
+    });
+
+    return this.updateTask(id, taskDetails);
+  }
+
+  async pinComment(id: string, commentId: string, isPinned: boolean) {
+    const taskDetails = await this.getTaskDetails(id);
+
+    taskDetails.comments = taskDetails.comments.map(com => {
+      if (com.id === commentId) {
+        com.isPinned = isPinned;
+      }
+      return com;
+    });
+
+    return this.updateTask(id, taskDetails);
+  }
+
   private async getProjectDetails(id: string): Promise<Project> {
     const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
     if (!projectDetails) {
       throw new NotFoundException('No Project Found');
     }
     return projectDetails;
+  }
+
+  private async getTaskDetails(id: string): Promise<Task> {
+    const taskDetails: Task = await this._taskModel.findById(id).lean().exec();
+
+    if (!taskDetails) {
+      throw new NotFoundException('No Project Found');
+    }
+    return taskDetails;
   }
 
 }

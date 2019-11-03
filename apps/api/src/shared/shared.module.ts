@@ -11,13 +11,15 @@ import { TaskService } from './services/task.service';
 import { taskSchema } from '../task/task.schema';
 import { taskHistorySchema } from '../task-history/task-history.schema';
 import { TaskHistoryService } from './services/task-history.service';
-import { S3Client } from './services/S3Client.service';
 import { attachmentSchema } from '../attachment/attachment.schema';
 import { AttachmentService } from './services/attachment.service';
+import { EasyconfigModule } from 'nestjs-easyconfig';
+import * as path from "path";
 
 @Global()
 @Module({
   imports: [
+    EasyconfigModule.register({ path: path.resolve(__dirname, '.env') }),
     MongooseModule.forFeature([{
       name: DbCollection.users,
       schema: userSchema,

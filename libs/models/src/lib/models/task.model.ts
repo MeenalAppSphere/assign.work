@@ -28,10 +28,12 @@ export class Task {
 }
 
 export class TaskComments {
+  id?: string;
   comment: string;
   createdBy: string | User;
   createdAt: Date;
-  attachments: AttachmentModel[];
+  attachments: string[] | AttachmentModel[];
+  isPinned: boolean;
 }
 
 export class TaskHistory {

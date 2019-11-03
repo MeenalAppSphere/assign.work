@@ -37,7 +37,9 @@
               "./node_modules/froala-editor/css/froala_style.min.css",
               "apps/aavantan-frontend/src/styles.scss"
             ],
-            "scripts": ["node_modules/jquery/dist/jquery.js"]
+            "scripts": [
+              "node_modules/jquery/dist/jquery.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -91,7 +93,10 @@
               "apps/aavantan-frontend/tsconfig.app.json",
               "apps/aavantan-frontend/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!apps/aavantan-frontend/**"]
+            "exclude": [
+              "**/node_modules/**",
+              "!apps/aavantan-frontend/**"
+            ]
           }
         },
         "test": {
@@ -129,8 +134,13 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": ["apps/aavantan-frontend-e2e/tsconfig.e2e.json"],
-            "exclude": ["**/node_modules/**", "!apps/aavantan-frontend-e2e/**"]
+            "tsConfig": [
+              "apps/aavantan-frontend-e2e/tsconfig.e2e.json"
+            ],
+            "exclude": [
+              "**/node_modules/**",
+              "!apps/aavantan-frontend-e2e/**"
+            ]
           }
         }
       }
@@ -148,7 +158,10 @@
             "outputPath": "dist/apps/api",
             "main": "apps/api/src/main.ts",
             "tsConfig": "apps/api/tsconfig.app.json",
-            "assets": ["apps/api/src/assets"]
+            "assets": [
+              "apps/api/src/assets",
+              "apps/api/src/.env"
+            ]
           },
           "configurations": {
             "production": {
@@ -177,7 +190,10 @@
               "apps/api/tsconfig.app.json",
               "apps/api/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!apps/api/**"]
+            "exclude": [
+              "**/node_modules/**",
+              "!apps/api/**"
+            ]
           }
         },
         "test": {
@@ -202,7 +218,10 @@
               "libs/models/tsconfig.lib.json",
               "libs/models/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!libs/models/**"]
+            "exclude": [
+              "**/node_modules/**",
+              "!libs/models/**"
+            ]
           }
         },
         "test": {
