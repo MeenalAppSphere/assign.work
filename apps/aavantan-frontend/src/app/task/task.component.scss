@@ -4,16 +4,16 @@
 }
 
 #content {
-  .create-task-form{
+  .create-task-form {
     position: relative;
   }
-  .floating-save-btns{
+  .floating-save-btns {
     z-index: 10;
     position: absolute;
     top: 12px;
     right: 11px;
   }
-  .ant-form-item{
+  .ant-form-item {
     margin-bottom: 5px;
   }
   transition: width 0.3s ease;
@@ -21,22 +21,26 @@
     padding: 0.25rem 0.6rem;
     height: auto;
   }
-  .input-relative-group{
+  .input-relative-group {
     .ant-input-sm {
       padding-left: 25px;
     }
-    .fa-circle{
+    .fa-circle {
       color: #f3f3f3;
     }
   }
-  .ant-btn-sm, .ant-btn-group-sm > .ant-btn {
-    padding: 0.35rem .4rem;
+  .ant-btn-sm,
+  .ant-btn-group-sm > .ant-btn {
+    padding: 0.35rem 0.4rem;
     height: auto;
   }
-  .pin-icon{
+  .ant-btn-primary {
+    padding: 0.35rem 1rem;
+  }
+  .pin-icon {
     vertical-align: bottom;
   }
-  .frozen-div{
+  .frozen-div {
     min-height: 150px;
     max-height: 300px;
     overflow: auto;
@@ -46,6 +50,7 @@
     box-shadow: 2px 8px 3px -6px #dce0e6;
   }
 }
+
 #sidebar {
   /* for the animation */
   transition: margin 0.3s ease;
@@ -56,7 +61,8 @@
   /* hide it for small displays*/
   display: none;
 }
-.collapsed-title{
+
+.collapsed-title {
   cursor: pointer;
   position: absolute;
   top: 25%;
@@ -80,8 +86,8 @@
   -ms-transform: rotate(-90deg);
   /* Opera */
   -o-transform: rotate(-90deg);
-  /* Internet Explorer */
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+  /* Internet Explorer
+  filter: progid: DXImageTransform.Microsoft.BasicImage(rotation=3);*/
 }
 
 @media (min-width: 992px) {
@@ -90,28 +96,30 @@
     margin-right: -25%;
   }
 }
+
 @media screen and (max-width: 768px) {
-  #sidebar{
+  #sidebar {
     padding-top: 70px;
   }
 }
+
 .issue-type-btn-grp {
   .ant-btn-icon-only {
-    line-height: 1.3!important;
+    line-height: 1.3 !important;
   }
-  .ant-avatar-sm{
-    height: 15px!important;
-    width: 15px!important;
+  .ant-avatar-sm {
+    height: 15px !important;
+    width: 15px !important;
   }
-  .issue-type-icon{
-    img{
-      border-radius:50%;
-      height: 15px!important;
-      width: 15px!important;
+  .issue-type-icon {
+    img {
+      border-radius: 50%;
+      height: 15px !important;
+      width: 15px !important;
     }
-    border-radius:50%;
-    height: 15px!important;
-    width: 15px!important;
+    border-radius: 50%;
+    height: 15px !important;
+    width: 15px !important;
   }
 }
 
@@ -120,7 +128,7 @@
     padding: 10px;
     background: #f9fbfd;
     position: relative;
-    .ant-form-item{
+    .ant-form-item {
       margin-bottom: 5px;
     }
     .progress-bar {
@@ -141,10 +149,9 @@
   position: absolute;
   z-index: 1;
   left: 6px;
-  top:0px;
-}
-.assigned-user-input{
-  padding-left: 28px!important;
+  top: 0px;
 }
 
-
+.assigned-user-input {
+  padding-left: 28px !important;
+}

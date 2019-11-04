@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { TaskComments, User } from '@aavantan-app/models';
+import { TaskService } from '../../shared/services/task/task.service';
 
 @Component({
   selector: 'aavantan-app-activity',
@@ -7,32 +9,58 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ActivityComponent implements OnInit {
   @Input() public enablePinButton:Boolean=false;
-  public data = [
+  public pinInProcess: boolean = false;
+
+  public data:TaskComments[] = [
     {
-      firstName: 'Pradeep',
+      id:'1',
+      createdBy :{
+        id:'1',
+        firstName: 'Pradeep',
+        profilePic:'./../../assets/images/avatars/thumb-8.jpg',
+      },
       createdAt : new Date(),
-      profilePic:'./../../assets/images/avatars/thumb-8.jpg',
-      description:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design....',
-      pinned:true
+      comment:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design....',
+      isPinned:true,
+      attachments:null
     },
     {
-      firstName: 'Vishal',
+      id:'2',
+      createdBy :{
+        id:'1',
+        firstName: 'Pradeep',
+        profilePic:'./../../assets/images/avatars/thumb-8.jpg',
+      },
       createdAt : new Date(),
-      profilePic:'./../../assets/images/avatars/thumb-8.jpg',
-      description:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED Team',
-      pinned:false
-    },
-    {
-      firstName: 'Vishal',
+      comment:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design....',
+      isPinned:false,
+      attachments:null
+    },{
+      id:'3',
+      createdBy :{
+        id:'1',
+        firstName: 'Pradeep',
+        profilePic:'./../../assets/images/avatars/thumb-8.jpg',
+      },
       createdAt : new Date(),
-      profilePic:'./../../assets/images/avatars/thumb-7.jpg',
-      description:'Ant Design, a design language for background applicationsAnt Design, a design language for background applicationsAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED TeamAnt Design, a design language for background applications, is refined by Ant UED Team',
-      pinned:false
+      comment:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design....',
+      isPinned:false,
+      attachments:null
     }
   ];
-  constructor() { }
+  constructor(private _taskService: TaskService) { }
 
   ngOnInit() {
+  }
+
+  async pinMessage(item:TaskComments){
+    this.pinInProcess=true;
+    try {
+      await this._taskService.pinComment(item).toPromise();
+      this.pinInProcess = false;
+    } catch (e) {
+      this.pinInProcess = false;
+    }
   }
 
 }

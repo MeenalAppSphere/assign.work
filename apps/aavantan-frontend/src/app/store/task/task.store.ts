@@ -1,4 +1,4 @@
-import { Project } from '@aavantan-app/models';
+import { Task } from '@aavantan-app/models';
 import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
 

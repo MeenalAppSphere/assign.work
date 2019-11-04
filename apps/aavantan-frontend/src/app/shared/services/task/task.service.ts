@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BaseService } from '../base.service';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { TaskStore } from '../../../store/task/task.store';
+import { TaskStore, TaskState } from '../../../store/task/task.store';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
-import { BaseResponseModel, TimeLog } from '@aavantan-app/models';
+import { BaseResponseModel, TimeLog, Task, TaskComments } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
+import { TaskComponent } from '../../../task/task.component';
 
 @Injectable()
 export class TaskService extends BaseService<TaskStore, TaskState> {
@@ -26,10 +27,55 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+  getAllTask(task: Task): Observable<BaseResponseModel<Task>> {
+    return this._http.post(TaskUrls.base, task).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        this.notification.success('Success', 'Task Created Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
   updateTask(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.update, task).pipe(
       map((res: BaseResponseModel<Task>) => {
         this.notification.success('Success', 'Task Updated Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+  addComment(taskId:string, comment: TaskComments): Observable<BaseResponseModel<Task>> {
+    return this._http.post(TaskUrls.addComment.replace(':taskId', taskId), comment).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        this.notification.success('Success', 'Commented Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+  pinComment(comment: TaskComments): Observable<BaseResponseModel<Task>> {
+    return this._http.post(TaskUrls.pinComment.replace(':commentId', comment.id), comment).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        this.notification.success('Success', 'Comment Pinned Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  addAttachment(task: Task): Observable<BaseResponseModel<Task>> {
+    return this._http.post(TaskUrls.attachement, task).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        this.notification.success('Success', 'File uploaded Successfully');
         return res;
       }),
       catchError(err => {

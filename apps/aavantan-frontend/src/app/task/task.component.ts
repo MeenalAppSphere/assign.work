@@ -6,13 +6,16 @@ import {
   ProjectPriority,
   ProjectStages,
   Sprint,
-  Task,
+  Task, TaskComments,
   TaskType,
   User
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ActivatedRoute } from '@angular/router';
+import { GeneralService } from '../shared/services/general.service';
+import { TaskService } from '../shared/services/task/task.service';
+import { NzNotificationService } from 'ng-zorro-antd';
 
 
 @Component({
@@ -23,9 +26,10 @@ import { ActivatedRoute } from '@angular/router';
 export class TaskComponent implements OnInit, OnDestroy {
 
   public currentProject: Project = null;
+  public currentUser:User;
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
-  public assigneeTo: User;
+  public assigneeTo: ProjectMembers;
   public selectedRelatedItem:Task;
   public selectedDependentItem:Task;
   public selectedTaskType: TaskType;
@@ -33,6 +37,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectedStage: ProjectStages;
   public timelogModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
+  public createTaskInProcess: boolean = false;
+  public createCommentInProcess:boolean= false;
+
   public defaultFileList = [
     {
       uid: -1,
@@ -57,6 +64,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public fileList2 = [...this.defaultFileList];
 
   public taskForm: FormGroup;
+  public commentForm: FormGroup;
   public assigneeDataSource :ProjectMembers[] = [];
   public relatedTaskDataSource: Task[] = [
     {
@@ -175,7 +183,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public stagesDataSource: ProjectStages[] = [];
   public priorityDataSource: ProjectPriority[] = [];
 
-  constructor(private FB: FormBuilder, private _userQuery: UserQuery, private route: ActivatedRoute) {}
+  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService,  private _userQuery: UserQuery, private route: ActivatedRoute) {}
 
   ngOnInit() {
 
@@ -184,11 +192,14 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
 
     this.taskForm = this.FB.group({
-      title: [null, [Validators.required]],
+      project:[null],
+      name: [null, [Validators.required]],
       description: [null],
       taskType: [null, [Validators.required]],
-      assignedTo: [null],
+      assignee: [null],
+      createdBy:[null],
       sprint: [null],
+      priority:[null],
       watchers: [null],
       dependentItem: [null],
       relatedItem: [null],
@@ -196,6 +207,9 @@ export class TaskComponent implements OnInit, OnDestroy {
       epic: [null]
     });
 
+    this.commentForm = this.FB.group({
+      comment:[null, [Validators.required]],
+    });
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -206,6 +220,12 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.priorityDataSource = res.settings.priorities;
 
         this.selectedTaskType = this.taskTypeDataSource[0];
+      }
+    });
+
+    this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUser = res;
       }
     });
 
@@ -227,33 +247,77 @@ export class TaskComponent implements OnInit, OnDestroy {
   public openTimeLogModal() {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
-
-  public selectAssigneeTypeahead(e: User) {
-    this.assigneeTo=e;
-    // this.taskForm.get('assignedTo').patchValue(e.id);
-  }
   public selectDependentItemTypeahead(e: Task) {
     this.selectedDependentItem=e;
   }
   public selectRelatedItemTypeahead(e: Task) {
     this.selectedRelatedItem=e;
   }
-  public cancel() {
+  public cancelTaskForm() {
     this.taskForm.reset();
   }
-  public saveForm() {
-    console.log('Save', this.taskForm.value);
+  async saveForm() {
+
+    const task: Task = { ...this.taskForm.getRawValue() };
+    task.project=this.currentProject.id;
+    task.createdBy = this._generalService.user.id;
+    task.taskType=this.selectedTaskType.id;
+
+    if(!task.name || !task.taskType){
+      this.notification.success('Success', 'Please check all mandatory fields');
+    }
+    console.log('Task value', task);
+    this.createTaskInProcess = true;
+    try {
+      await this._taskService.createTask(task).toPromise();
+      this.taskForm.reset();
+      this.createTaskInProcess = false;
+    } catch (e) {
+      this.createTaskInProcess = false;
+    }
+
+  }
+
+  public resetCommentForm(){
+    this.commentForm.reset();
+  }
+
+  public selectAssigneeTypeahead(user: ProjectMembers) {
+    if(user){
+      this.assigneeTo=user;
+      this.taskForm.get('assignee').patchValue(user.userId);
+    }
   }
 
   public selectTaskType(item:TaskType){
     this.selectedTaskType=item;
   }
+
   public selectPriority(item:ProjectPriority){
     this.selectedPriority =item;
+    this.taskForm.get('priority').patchValue(item.id);
   }
+
   public selectStage(item:ProjectStages){
     this.selectedStage =item;
   }
+
+  /* comment */
+  async saveComment(){
+    this.createCommentInProcess=true;
+
+    const comment: TaskComments = { ...this.commentForm.getRawValue() };
+
+    try {
+      await this._taskService.addComment('5dc06789288dc7695084c4ee', comment).toPromise();
+      this.commentForm.reset();
+      this.createCommentInProcess = false;
+    } catch (e) {
+      this.createCommentInProcess = false;
+    }
+  }
+
+
   public ngOnDestroy(){
 
   }
