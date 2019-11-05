@@ -18,7 +18,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
       accessKeyId: process.env.AWS_ACCESSKEYID,
       secretAccessKey: process.env.AWS_SECRETACCESSKEY
     });
-    this.s3Client = new S3Client(new aws.S3({ region: 'us-east-1' }), 'images.assign.work', '');
+    this.s3Client = new S3Client(new aws.S3({ region: 'us-east-1' }), 'image.assign.work', '');
   }
 
   async addAttachment(moduleName: string, files, userId: string): Promise<{ id: string, url: string }> {
@@ -65,7 +65,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
     if (!attachmentDetails) {
       throw new NotFoundException('Attachment not found!');
     }
-    const filePath = attachmentDetails.url.split('images.assign.work/');
+    const filePath = attachmentDetails.url.split('image.assign.work/');
     try {
       await this.s3Client.delete(filePath[1]);
       await this.delete(id);
