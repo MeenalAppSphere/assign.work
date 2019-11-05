@@ -6,7 +6,7 @@ const mongooseValidationErrorTransform = require('mongoose-validation-error-tran
 const paginate = require('mongoose-paginate-v2');
 
 export const taskSchema = new Schema({
-  name: { type: String, required: [true, 'Please Add task name'] },
+  name: { type: String, required: [true, 'Please Add task title'] },
   displayName: { type: String },
   description: { type: String },
   project: {

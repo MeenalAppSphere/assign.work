@@ -5,11 +5,11 @@ import {
   DbCollection,
   Project,
   Task,
-  TaskComments,
+  TaskComments, TaskFilterDto,
   TaskHistory,
   TaskType
 } from '@aavantan-app/models';
-import { Document, Model, Types } from 'mongoose';
+import { Document, DocumentQuery, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 
@@ -23,7 +23,7 @@ export class TaskService extends BaseService<Task & Document> {
     super(_taskModel);
   }
 
-  async addTask(task: Task) {
+  async addTask(task: Task): Promise<Task> {
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
@@ -68,20 +68,9 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async updateTask(id: string, task: Partial<Task>) {
-    const session = await this._taskModel.db.startSession();
-    session.startTransaction();
-
-    try {
-      await this.update(id, task, session);
-      await session.commitTransaction();
-      session.endSession();
-      return await this.findById(id);
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
+  async updateTask(id: string, task: Partial<Task>): Promise<Task> {
+    await this.updateHelper(id, task);
+    return this._taskModel.findById(id).lean();
   }
 
   async deleteTask(id: string) {
@@ -100,7 +89,11 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async addComment(id: string, comment: TaskComments) {
+  async getTasks(model: TaskFilterDto) {
+    return this._taskModel.find(this.prepareFilterQuery(model));
+  }
+
+  async addComment(id: string, comment: TaskComments): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
     comment.id = new Types.ObjectId().toHexString();
@@ -109,10 +102,11 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       taskDetails.comments.push(comment);
     }
-    return this.updateTask(id, taskDetails);
+    await this.updateHelper(id, taskDetails);
+    return 'Comment Added Successfully';
   }
 
-  async updateComment(id: string, comment: TaskComments) {
+  async updateComment(id: string, comment: TaskComments): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
     taskDetails.comments = taskDetails.comments.map(com => {
@@ -122,10 +116,11 @@ export class TaskService extends BaseService<Task & Document> {
       return com;
     });
 
-    return this.updateTask(id, taskDetails);
+    await this.updateHelper(id, taskDetails);
+    return 'Comment Updated Successfully';
   }
 
-  async pinComment(id: string, commentId: string, isPinned: boolean) {
+  async pinComment(id: string, commentId: string, isPinned: boolean): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
     taskDetails.comments = taskDetails.comments.map(com => {
@@ -135,7 +130,8 @@ export class TaskService extends BaseService<Task & Document> {
       return com;
     });
 
-    return this.updateTask(id, taskDetails);
+    await this.updateHelper(id, taskDetails);
+    return `Comment ${isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
   }
 
   private async getProjectDetails(id: string): Promise<Project> {
@@ -153,6 +149,36 @@ export class TaskService extends BaseService<Task & Document> {
       throw new NotFoundException('No Project Found');
     }
     return taskDetails;
+  }
+
+  private async updateHelper(id: string, task: Partial<Task>): Promise<string> {
+    const session = await this._taskModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      await this.update(id, task, session);
+      await session.commitTransaction();
+      session.endSession();
+      return id;
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
+  }
+
+  private async prepareFilterQuery(model: TaskFilterDto) {
+    const query = this._taskModel.find({});
+
+    Object.keys(model).forEach(key => {
+      if (Array.isArray(model[key])) {
+        query.setQuery({ [key]: { '$in': model[key] } });
+      } else {
+        query.setQuery({ [key]: model[key] });
+      }
+    });
+
+    return query.lean();
   }
 
 }

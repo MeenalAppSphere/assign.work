@@ -21,7 +21,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
     this.s3Client = new S3Client(new aws.S3({ region: 'us-east-1' }), 'images.assign.work', '');
   }
 
-  async addAttachment(moduleName: string, files, userId: string) {
+  async addAttachment(moduleName: string, files, userId: string): Promise<{ id: string, url: string }> {
     const file = files[0];
     const mimeType = file.mimetype.split('/')[0];
     const fileType = mimeType.includes('image') ? 'images' : mimeType.includes('video') ? 'videos' : 'others';
@@ -43,12 +43,15 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
     session.startTransaction();
 
     try {
-      await this.create([new this._attachmentModel({
+      const result = await this.create([new this._attachmentModel({
         name: file.originalname, url: fileUrl, createdBy: userId, mimeType: file.mimetype
       })], session);
       await session.commitTransaction();
       session.endSession();
-      return fileUrl;
+      return {
+        id: result[0].id,
+        url: result[0].url
+      };
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -56,7 +59,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
     }
   }
 
-  async deleteAttachment(id: string) {
+  async deleteAttachment(id: string): Promise<string> {
     const attachmentDetails = await this._attachmentModel.findById(id).lean().exec();
 
     if (!attachmentDetails) {

@@ -43,3 +43,22 @@ export class TaskHistory {
   createdAt?: Date;
   desc?: string;
 }
+
+export class TaskFilterDto {
+  name?: string | string[];
+  displayName?: string | string[];
+  description?: string | string[];
+  project?: string | string[];
+  assignee?: string | string[];
+  taskType?: string | string[];
+  priority?: string | string[];
+  tags?: string | string[];
+  status?: string | string[];
+  sprint?: string | string[];
+  createdBy?: string | string[];
+  q?: string;
+  sort?: string;
+  sortBy?: string;
+  startedAt?: Date;
+  finishedAt?: Date;
+}

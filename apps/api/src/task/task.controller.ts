@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task.service';
-import { Project, Task, TaskComments } from '@aavantan-app/models';
+import { Project, Task, TaskComments, TaskFilterDto } from '@aavantan-app/models';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('task')
@@ -57,4 +57,8 @@ export class TaskController {
     return await this._taskService.delete(id);
   }
 
+  @Post('')
+  async getTask(@Body() filterModel: TaskFilterDto) {
+    return await this._taskService.getTasks(filterModel);
+  }
 }
