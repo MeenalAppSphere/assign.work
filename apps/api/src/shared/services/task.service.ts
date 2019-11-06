@@ -1,15 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
-import {
-  AttachmentModel,
-  DbCollection,
-  Project,
-  Task,
-  TaskComments, TaskFilterDto,
-  TaskHistory,
-  TaskType
-} from '@aavantan-app/models';
-import { Document, DocumentQuery, Model, Types } from 'mongoose';
+import { DbCollection, Project, Task, TaskComments, TaskFilterDto, TaskHistory } from '@aavantan-app/models';
+import { Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 
@@ -21,6 +13,22 @@ export class TaskService extends BaseService<Task & Document> {
     private _taskHistoryService: TaskHistoryService
   ) {
     super(_taskModel);
+  }
+
+  async getAllTasks(filter: any = {}, populate: Array<any> = []): Promise<Partial<Task[]>> {
+    let allTasks: Task[] = await this.getAll(filter, populate);
+
+    allTasks = allTasks.map(task => {
+      task.taskType = (task.project as Project).settings.taskTypes.find(t => t.id === task.taskType);
+      task.priority = (task.project as Project).settings.priorities.find(t => t.id === task.priority);
+      return task;
+    });
+
+    allTasks.forEach(task => {
+      delete task['project']['settings'];
+    });
+
+    return allTasks;
   }
 
   async addTask(task: Task): Promise<Task> {

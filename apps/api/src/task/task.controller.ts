@@ -24,7 +24,13 @@ export class TaskController {
 
   @Get()
   async getAll() {
-    return await this._taskService.getAll({}, []);
+    return await this._taskService.getAllTasks({}, [{
+      path: 'project',
+      select: 'name description settings -_id'
+    }, {
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName -_id'
+    }]);
   }
 
   @Post()

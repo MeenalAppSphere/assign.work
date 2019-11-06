@@ -59,7 +59,7 @@ export class BaseService<T extends Document> {
     if (populate && populate.length) {
       query.populate(populate);
     }
-    return query.exec();
+    return query.lean().exec();
   }
 
   public async delete(id: string): Promise<T> {
