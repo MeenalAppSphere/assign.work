@@ -4,17 +4,23 @@ import { Store, StoreConfig } from '@datorama/akita';
 
 export interface TaskState {
   tasks: Task[];
+  getTaskInProcess: boolean;
+  getTaskSuccess: boolean;
 }
 
 const initialState: TaskState = {
-  tasks: null
+  tasks: null,
+  getTaskInProcess: false,
+  getTaskSuccess: false
 };
 
 @Injectable({ providedIn: 'root' })
 @StoreConfig({ name: 'task', resettable: true })
+
 export class TaskStore extends Store<TaskState> {
 
   constructor() {
     super(initialState);
   }
+
 }

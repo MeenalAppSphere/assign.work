@@ -194,8 +194,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.taskForm = this.FB.group({
       project:[null],
       name: [null, [Validators.required]],
-      description: [null],
       taskType: [null, [Validators.required]],
+      description: [null],
       assignee: [null],
       createdBy:[null],
       sprint: [null],
@@ -264,7 +264,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.taskType=this.selectedTaskType.id;
 
     if(!task.name || !task.taskType){
-      this.notification.success('Success', 'Please check all mandatory fields');
+      this.notification.error('Error', 'Please check all mandatory fields');
+      return;
     }
     console.log('Task value', task);
     this.createTaskInProcess = true;

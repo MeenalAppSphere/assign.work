@@ -8,7 +8,6 @@ import { catchError, map } from 'rxjs/operators';
 import { BaseResponseModel, TimeLog, Task, TaskComments } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
-import { TaskComponent } from '../../../task/task.component';
 
 @Injectable()
 export class TaskService extends BaseService<TaskStore, TaskState> {
@@ -27,10 +26,12 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-  getAllTask(task: Task): Observable<BaseResponseModel<Task>> {
-    return this._http.post(TaskUrls.base, task).pipe(
-      map((res: BaseResponseModel<Task>) => {
-        this.notification.success('Success', 'Task Created Successfully');
+  getAllTask(): Observable<BaseResponseModel<Task[]>> {
+    return this._http.get(TaskUrls.base).pipe(
+      map((res: BaseResponseModel<Task[]>) => {
+
+        this.updateState({ tasks:res.data, getTaskSuccess: true, getTaskInProcess: false });
+
         return res;
       }),
       catchError(err => {
@@ -95,4 +96,17 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+  //
+  // private updateTaskState(result: Task) {
+  //   this.taskStore.update((state => {
+  //     return {
+  //       ...state,
+  //       tasks: result,
+  //
+  //     };
+  //   }));
+  //
+  //
+  // }
+
 }

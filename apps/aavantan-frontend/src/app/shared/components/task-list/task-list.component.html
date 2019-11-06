@@ -3,7 +3,7 @@
     <div class="col-md-3" *ngFor="let item of taskList">
       <nz-card nzSize="small">
         <div class="d-flex justify-content-between">
-          <div class="media" [ngStyle]="{'border-left': '5px solid '+ item.taskType.color}">
+          <div class="media" [ngStyle]="{'border-left': '5px solid '+ item.taskType && item.taskType.color ? item.taskType.color : '#fff'}">
             <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" class="fas fa-circle m-l-5 m-t-5" nz-tooltip></i>
             <div class="m-l-10">
               <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.displayName}}: {{item.name}}</a></h6>
@@ -62,7 +62,7 @@
         </td>
 
         <td data-label="Title">
-          <div class="media align-items-center" [ngStyle]="{'border-left': '5px solid '+ item.priority.color}">
+          <div class="media align-items-center" [ngStyle]="{'border-left': '5px solid '+ item.priority && item.priority.color ? item.priority.color : '#fff'}">
             <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" class="fas fa-circle m-l-5" nz-tooltip></i>
             <div class="m-l-10">
               <h6 class="m-b-0"><a href="javascript:void(0)" (click)="viewTask(item)">{{item.displayName}}: {{item.name}}</a></h6>

@@ -1,18 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Task, TaskType, User } from '@aavantan-app/models';
 import { NavigationExtras, Router } from '@angular/router';
+import { TaskService } from '../shared/services/task/task.service';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { TaskQuery } from '../queries/task/task.query';
+import { GeneralService } from '../shared/services/general.service';
 
 @Component({
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.scss']
 })
 
-export class ProjectComponent implements OnInit {
+export class ProjectComponent implements OnInit, OnDestroy {
   public myTaskList: Task[] = [];
   public allTaskList: Task[] = [];
   public taskObj: Task;
   public memberObj: User;
   public view: String = 'listView';
+  public gettingAllTask:boolean;
   public taskTypeDataSource: TaskType[] = [
     {
       id: '1',
@@ -41,40 +46,25 @@ export class ProjectComponent implements OnInit {
     }
   ];
 
-  constructor(private router:Router) {
+  constructor(private _generalService: GeneralService, private router:Router,private _taskQuery: TaskQuery, private _taskService: TaskService) {
   }
 
   ngOnInit(): void {
-    for (let i = 0; i < 5; i++) {
-      this.memberObj = {
-        id: '1212' + (i + 1),
-        emailId: 'abc' + (i + 1) + '@gmail.com',
-        firstName: 'Pradeep',
-        profilePic: '../../assets/images/avatars/thumb-4.jpg'
-      };
-      this.taskObj = {
-        id: '100' + i,
-        displayName: 'BUG-100' + i,
-        name: 'A responsive table that stacks into cards when space is ' + i + '.',
-        progress: (i * 10),
-        createdAt: new Date(),
-        description: 'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
-        status: 'In Progress',
-        assignee: this.memberObj,
-        totalLoggedTime: 2,
-        priority: {
-          name: 'Critical',
-          color: 'red'
-        },
-        taskType: {
-          name: 'CR',
-          color: '#F0CB2D'
-        },
-        createdBy: '',
-        project: ''
-      };
-      this.myTaskList.push(this.taskObj);
-    }
+
+    this._taskService.getAllTask().subscribe();
+
+    this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.allTaskList = res;
+      }
+    });
+
+    this.myTaskList = this.allTaskList.filter((ele)=>{
+      return ele.createdBy === this._generalService.user.id;
+    })
+
+    console.log('My Task', this.myTaskList.length);
+    console.log('All Task', this.allTaskList.length);
   }
 
 
@@ -83,5 +73,7 @@ export class ProjectComponent implements OnInit {
       queryParams: item
     };
     this.router.navigate(["dashboard", "task"], navigationExtras);
+  }
+  public ngOnDestroy(){
   }
 }
