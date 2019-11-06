@@ -11,7 +11,15 @@ export class UserController {
 
   @Get('profile')
   async getUser(@Request() req) {
-    return await this._userService.findById(req.user.id, ['projects', 'organizations', 'currentProject']);
+    return await this._userService.findById(req.user.id, [{
+      path: 'projects',
+      select: 'name description'
+    }, 'organizations', {
+      path: 'currentProject',
+      populate: {
+        path: 'members.userDetails'
+      }
+    }]);
   }
 
   @Get('')
