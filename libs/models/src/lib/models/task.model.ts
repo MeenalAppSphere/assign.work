@@ -34,9 +34,11 @@ export class Task {
 export class TaskComments {
   id?: string;
   comment: string;
-  createdBy: string | User;
+  createdById: string;
+  createdBy?: User;
   createdAt: Date;
-  attachments: string[] | AttachmentModel[];
+  attachments?: string[];
+  attachmentsDetails?: AttachmentModel[];
   isPinned: boolean;
 }
 

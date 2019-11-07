@@ -105,7 +105,12 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       queryObj['displayName'] = q;
     }
-    return await this._taskModel.findOne(queryObj).populate(populate).lean().exec();
+    const task: Task = await this._taskModel.findOne(queryObj).populate(populate).select('-comments').lean().exec();
+    task.id = task['_id'];
+    task.taskType = task.project.settings.taskTypes.find(t => t.id === task.taskType);
+    task.priority = task.project.settings.priorities.find(t => t.id === task.priority);
+    delete task['project']['settings'];
+    return task;
   }
 
   async getTasks(model: TaskFilterDto, populate: Array<any> = []) {
@@ -114,10 +119,17 @@ export class TaskService extends BaseService<Task & Document> {
     return this._taskModel.find(query);
   }
 
+  async getComments(id: string): Promise<TaskComments[]> {
+    return await this._taskModel.findById(id).select('comments -_id').populate('comments.attachmentsDetails').lean().exec();
+  }
+
   async addComment(id: string, comment: TaskComments): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
     comment.id = new Types.ObjectId().toHexString();
+    comment.createdAt = new Date();
+    comment.isPinned = false;
+
     if (!taskDetails.comments.length) {
       taskDetails.comments = [comment];
     } else {
