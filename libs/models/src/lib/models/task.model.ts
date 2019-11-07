@@ -1,4 +1,5 @@
 import { AttachmentModel, Project, ProjectPriority, TaskType, User } from '@aavantan-app/models';
+import { TaskHistoryActionEnum } from '../enums/task.enum';
 
 export class Task {
   id?: string;
@@ -43,8 +44,9 @@ export class TaskComments {
 }
 
 export class TaskHistory {
-  task: string | Task;
-  action: string;
+  taskId: string;
+  task?: Task;
+  action: TaskHistoryActionEnum;
   createdById: string;
   createdBy?: User;
   createdAt?: Date;

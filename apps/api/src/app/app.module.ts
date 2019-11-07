@@ -10,6 +10,7 @@ import { TaskModule } from '../task/task.module';
 import { AttachmentModule } from '../attachment/attachment.module';
 import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as winston from 'winston';
+import { TaskHistoryModule } from '../task-history/task-history.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import * as winston from 'winston';
             winston.format.timestamp()
           ),
           filename: 'error.log'
-        }),
+        })
 
       ]
     }),
@@ -32,6 +33,7 @@ import * as winston from 'winston';
     ProjectModule,
     OrganizationModule,
     TaskModule,
+    TaskHistoryModule,
     AttachmentModule
   ],
   controllers: [],

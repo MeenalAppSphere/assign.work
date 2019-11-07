@@ -1,6 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { DbCollection, Project, Task, TaskComments, TaskFilterDto, TaskHistory } from '@aavantan-app/models';
+import {
+  DbCollection,
+  Project,
+  Task,
+  TaskComments,
+  TaskFilterDto,
+  TaskHistory,
+  TaskHistoryActionEnum
+} from '@aavantan-app/models';
 import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
@@ -61,11 +69,7 @@ export class TaskService extends BaseService<Task & Document> {
 
     try {
       const createdTask = await this.create([task], session);
-      const taskHistory: TaskHistory = {
-        action: 'Task Added',
-        createdById: task.createdById,
-        task: createdTask[0].id
-      };
+      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, task.createdById, createdTask[0].id);
       await this._taskHistoryService.addHistory(taskHistory, session);
       await session.commitTransaction();
       session.endSession();
@@ -135,7 +139,7 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       taskDetails.comments.push(comment);
     }
-    await this.updateHelper(id, taskDetails);
+    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentAdded);
     return 'Comment Added Successfully';
   }
 
@@ -149,7 +153,7 @@ export class TaskService extends BaseService<Task & Document> {
       return com;
     });
 
-    await this.updateHelper(id, taskDetails);
+    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentUpdated);
     return 'Comment Updated Successfully';
   }
 
@@ -163,7 +167,7 @@ export class TaskService extends BaseService<Task & Document> {
       return com;
     });
 
-    await this.updateHelper(id, taskDetails);
+    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentPinned);
     return `Comment ${isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
   }
 
@@ -184,12 +188,14 @@ export class TaskService extends BaseService<Task & Document> {
     return taskDetails;
   }
 
-  private async updateHelper(id: string, task: Partial<Task>): Promise<string> {
+  private async updateHelper(id: string, task: Partial<Task>, action: TaskHistoryActionEnum): Promise<string> {
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
     try {
       await this.update(id, task, session);
+      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(action, task.createdById, id);
+      await this._taskHistoryService.addHistory(taskHistory, session);
       await session.commitTransaction();
       session.endSession();
       return id;
@@ -198,6 +204,12 @@ export class TaskService extends BaseService<Task & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  private taskHistoryObjectHelper(action: TaskHistoryActionEnum, createdById: string, taskId: string) {
+    return {
+      action, createdById, taskId
+    } as TaskHistory;
   }
 
   private prepareFilterQuery(model: TaskFilterDto) {

@@ -31,6 +31,9 @@ export class ProjectService extends BaseService<Project & Document> {
     const organizationId = model.organization;
     model = new this._projectModel(model);
     model.organization = this.toObjectId(model.organization as string);
+    model.settings.taskTypes = [];
+    model.settings.priorities = [];
+    model.settings.stages = [];
     try {
       // create project and get project id from them
       const createdProject = await this.create([model], session);

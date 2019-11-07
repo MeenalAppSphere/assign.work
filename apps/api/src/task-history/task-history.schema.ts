@@ -6,7 +6,7 @@ const mongooseValidationErrorTransform = require('mongoose-validation-error-tran
 const paginate = require('mongoose-paginate-v2');
 
 export const taskHistorySchema = new Schema({
-  task: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
+  taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
   action: { type: String },
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   desc: {}
@@ -18,11 +18,19 @@ taskHistorySchema
   .set('toObject', { virtuals: true })
   .set('toJSON', { virtuals: true });
 
+// virtual
+taskHistorySchema.virtual('task', {
+  ref: DbCollection.tasks,
+  localField: 'taskId',
+  foreignField: '_id',
+  justOne: true
+});
 
 taskHistorySchema.virtual('createdBy', {
   ref: DbCollection.users,
   localField: 'createdById',
-  foreignField: '_id'
+  foreignField: '_id',
+  justOne: true
 });
 
 // plugins
