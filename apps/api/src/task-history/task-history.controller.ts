@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskHistoryService } from '../shared/services/task-history.service';
 
@@ -9,8 +9,8 @@ export class TaskHistoryController {
 
   }
 
-  @Get()
-  async getAll() {
-    return await this._taskHistoryService.getAll({}, []);
+  @Get(':id')
+  async getAll(@Param('id') id: string) {
+    return await this._taskHistoryService.getAll({ taskId: id }, []);
   }
 }

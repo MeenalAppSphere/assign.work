@@ -105,7 +105,12 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       queryObj['displayName'] = q;
     }
-    return await this._taskModel.findOne(queryObj).populate(populate).select('-comments').exec();
+    const task: Task = await this._taskModel.findOne(queryObj).populate(populate).select('-comments').lean().exec();
+    task.id = task['_id'];
+    task.taskType = task.project.settings.taskTypes.find(t => t.id === task.taskType);
+    task.priority = task.project.settings.priorities.find(t => t.id === task.priority);
+    delete task['project']['settings'];
+    return task;
   }
 
   async getTasks(model: TaskFilterDto, populate: Array<any> = []) {
