@@ -12,6 +12,14 @@ export class TaskHistoryController {
 
   @Get(':id')
   async getAll(@Param('id') id: string) {
-    return await this._taskHistoryService.find({ taskId: id });
+    return await this._taskHistoryService.find({ taskId: id }, [{
+      path: 'task',
+      select: 'name displayName',
+      justOne: true
+    }, {
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName -_id',
+      justOne: true
+    }]);
   }
 }

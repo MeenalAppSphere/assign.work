@@ -20,12 +20,12 @@ taskHistorySchema
   .set('toJSON', { virtuals: true });
 
 // virtual
-// taskHistorySchema.virtual('task', {
-//   ref: DbCollection.tasks,
-//   localField: 'taskId',
-//   foreignField: '_id',
-//   justOne: true
-// });
+taskHistorySchema.virtual('task', {
+  ref: DbCollection.tasks,
+  localField: 'taskId',
+  foreignField: '_id',
+  justOne: true
+});
 
 taskHistorySchema.virtual('createdBy', {
   ref: DbCollection.users,
