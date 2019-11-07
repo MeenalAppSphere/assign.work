@@ -19,7 +19,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public view: String = 'listView';
   public taskTypeDataSource: TaskType[] = [];
 
-  constructor(protected notification: NzNotificationService, private _generalService: GeneralService, private _userQuery: UserQuery, private router:Router,private _taskQuery: TaskQuery, private _taskService: TaskService) {
+  constructor(protected notification: NzNotificationService,
+              private _generalService: GeneralService,
+              private _userQuery: UserQuery,
+              private router:Router,
+              private _taskQuery: TaskQuery,
+              private _taskService: TaskService) {
   }
 
   ngOnInit(): void {
@@ -48,7 +53,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
 
-  public createTask(item:TaskType) {
+  public createTask(item?:TaskType) {
     if(!item.displayName && this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
       item.displayName=this.taskTypeDataSource[0].displayName;
     }

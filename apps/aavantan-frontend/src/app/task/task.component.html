@@ -3,6 +3,7 @@
       'col-md-8': isOpenActivitySidebar,
       'col-md-12': !isOpenActivitySidebar
     }">
+      <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
         <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
             <h5>Create Task</h5>
             <hr class="m-t-5 m-b-5" />
@@ -22,7 +23,7 @@
                                 <ul nz-menu>
                                     <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="selectTaskType(item)">
                                         <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i> {{ item.name }}
-                                    </li>
+                                    </li>[taskId]="taskData.data.id"
                                 </ul>
                             </nz-dropdown-menu>
                         </nz-form-control>
@@ -259,9 +260,10 @@
             <!-- row 8-->
 
         </form>
+      </nz-spin>
             <!-- row 9-->
 
-            <div class="task-sections p-t-10">
+            <div class="task-sections p-t-10" *ngIf="taskData && taskData.data && taskData.data.id">
                 <form (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12">
                     <nz-form-item>
                         <nz-form-label nzFor="comment">Comment</nz-form-label>
@@ -278,7 +280,7 @@
               <div class="p-15">
                   <nz-form-label>Activity <small>(<img src="./../../assets/images/pin-fill.png" class="pin-icon" height="22"/> Pinned Messages)</small></nz-form-label>
                   <div class="frozen-div m-t-5">
-                      <aavantan-app-activity></aavantan-app-activity>
+                      <aavantan-app-activity [taskId]="taskData && taskData.data && taskData.data.id ? taskData.data.id : ''"></aavantan-app-activity>
                   </div>
               </div>
             </div>
@@ -298,9 +300,9 @@
 
                 </div>
                 <div class="col text-right">
-                    <a href="javascript:void(0);" nz-tooltip nzTitle="Log your working time" (click)="openTimeLogModal()">
+                    <button [disabled]="!taskId" class="btn btn-sm" nzType="default" nzSize="small" nz-button nz-tooltip nzTitle="Log your working time" (click)="openTimeLogModal()">
                         <i class="fa fa-clock"></i> Log Time
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -329,26 +331,32 @@
         <section>
             <nz-tabset nzSize="small">
                 <nz-tab nzTitle="Activity">
-                    <div>
-                        <aavantan-app-activity [enablePinButton]="true"></aavantan-app-activity>
+
+                    <div *ngIf="taskId">
+                        <aavantan-app-activity [enablePinButton]="true" [taskId]="taskId ? taskId : ''"></aavantan-app-activity>
                     </div>
-                    <div>
+
+                    <div *ngIf="!taskId">
                         <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
                         <ng-template #contentActivity>
                             <span> No Activities</span>
                         </ng-template>
                     </div>
+
                 </nz-tab>
                 <nz-tab nzSize="small" nzTitle="History">
-                    <div>
-                        <aavantan-app-history></aavantan-app-history>
+
+                    <div *ngIf="taskId">
+                        <aavantan-app-history [taskId]="taskData.data.id"></aavantan-app-history>
                     </div>
-                    <div>
+
+                    <div *ngIf="!taskId">
                         <nz-empty [nzNotFoundContent]="contentHistory"></nz-empty>
                         <ng-template #contentHistory>
                             <span> No History </span>
                         </ng-template>
                     </div>
+
                 </nz-tab>
             </nz-tabset>
         </section>

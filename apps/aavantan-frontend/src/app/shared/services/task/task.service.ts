@@ -39,6 +39,16 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+  getTask(displayName: string): Observable<BaseResponseModel<Task>> {
+    return this._http.get(TaskUrls.getTask.replace(':displayName', displayName)).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
   updateTask(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.update, task).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -72,6 +82,29 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
+  getComments(taskId: string): Observable<BaseResponseModel<TaskComments[]>> {
+    return this._http.get(TaskUrls.getComments.replace(':taskId', taskId)).pipe(
+      map((res: BaseResponseModel<TaskComments[]>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  getHistory(taskId: string): Observable<BaseResponseModel<TaskComments[]>> {
+    return this._http.get(TaskUrls.getHistory.replace(':taskId', taskId)).pipe(
+      map((res: BaseResponseModel<TaskComments[]>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
 
   addAttachment(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.attachement, task).pipe(

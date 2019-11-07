@@ -1,14 +1,22 @@
-<nz-list [nzDataSource]="data" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-  <ng-template #item let-item>
-    <nz-list-item>
-      <div class="media">
-        <nz-avatar nzSize="small" class="m-r-10" [nzSrc]="item.createdBy.profilePic" nzShape="circle" nz-tooltip [nzTitle]="item.createdBy.firstName"></nz-avatar>
-        <div class="media-body">
-          <h6 class="m-b-0"><span class="p-r-10">{{item.createdBy.firstName}}</span><small class="text-muted text-right"><span>{{ item.createdAt | dateAgo}}</span></small></h6>
-          <div class="font-size-13">{{item.comment}}</div>
+<nz-spin nzTip="Loading..." [nzSpinning]="getCommentInProcess">
+  <nz-list [nzDataSource]="data" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+    <ng-template #item let-item>
+      <nz-list-item>
+        <div class="media">
+          <nz-avatar nzSize="small" class="m-r-10" [nzSrc]="item.createdBy.profilePic" nzShape="circle" nz-tooltip [nzTitle]="item.createdBy.firstName"></nz-avatar>
+          <div class="media-body">
+            <h6 class="m-b-0"><span class="p-r-10">{{item.createdBy.firstName}}</span><small class="text-muted text-right"><span>{{ item.createdAt | dateAgo}}</span></small></h6>
+            <div class="font-size-13">{{item.comment}}</div>
+          </div>
+          <div *ngIf="enablePinButton" class="float-right pin-activity" (click)="pinMessage(item)" [ngClass]="{'pinned':item.isPinned}"></div>
         </div>
-        <div *ngIf="enablePinButton" class="float-right pin-activity" (click)="pinMessage(item)" [ngClass]="{'pinned':item.isPinned}"></div>
-      </div>
-    </nz-list-item>
-  </ng-template>
-</nz-list>
+      </nz-list-item>
+    </ng-template>
+  </nz-list>
+  <div *ngIf="data.data && data.data.length">
+    <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+    <ng-template #contentActivity>
+      <span> No Activities</span>
+    </ng-template>
+  </div>
+</nz-spin>

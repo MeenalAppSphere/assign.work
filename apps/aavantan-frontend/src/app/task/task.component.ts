@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
+  BaseResponseModel,
   Project,
   ProjectMembers,
   ProjectPriority,
@@ -16,6 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { NzNotificationService } from 'ng-zorro-antd';
+import { TaskQuery } from '../queries/task/task.query';
 
 
 @Component({
@@ -39,6 +41,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public isOpenActivitySidebar: boolean = true;
   public createTaskInProcess: boolean = false;
   public createCommentInProcess: boolean = false;
+  public getTaskInProcess:boolean = false;
 
   public defaultFileList = [
     {
@@ -66,76 +69,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public taskForm: FormGroup;
   public commentForm: FormGroup;
   public assigneeDataSource: ProjectMembers[] = [];
-  public relatedTaskDataSource: Task[] = [
-    {
-      id: '1',
-      displayName: 'BUG-1001',
-      name: 'Related Task 1',
-      taskType: {
-        name: 'BUG',
-        color: '#ddee00'
-      },
-      createdById: '',
-      projectId: ''
-    },
-    {
-      id: '2',
-      displayName: 'BUG-1002',
-      name: 'Related Task 2',
-      taskType: {
-        name: 'BUG',
-        color: '#ddee00'
-      },
-      createdById: '',
-      projectId: ''
-    },
-    {
-      id: '3',
-      displayName: 'CR-1001',
-      name: 'Related Task 3',
-      taskType: {
-        name: 'CR',
-        color: '#ddee00'
-      },
-      createdById: '',
-      projectId: ''
-    }
-  ];
-  public dependentTaskDataSource: Task[] = [
-    {
-      id: '1',
-      displayName: 'BUG-1001',
-      name: 'Related Task 1',
-      taskType: {
-        name: 'BUG',
-        color: '#ddee00'
-      },
-      createdById: '',
-      projectId: ''
-    },
-    {
-      id: '2',
-      displayName: 'BUG-1002',
-      name: 'Related Task 2',
-      taskType: {
-        name: 'BUG',
-        color: '#ddee00'
-      },
-      createdById: '',
-      projectId: ''
-    },
-    {
-      id: '3',
-      displayName: 'CR-1001',
-      name: 'Related Task 3',
-      taskType: {
-        name: 'CR',
-        color: '#ddee00'
-      },
-      createdById: '',
-      projectId: ''
-    }
-  ];
+  public relatedTaskDataSource: Task[] = [];
+  public dependentTaskDataSource: Task[] = [];
   public sprintDataSource: Sprint[] = [
     {
       id: '1',
@@ -183,13 +118,25 @@ export class TaskComponent implements OnInit, OnDestroy {
   public stagesDataSource: ProjectStages[] = [];
   public priorityDataSource: ProjectPriority[] = [];
   public displayName: string;
+  public taskData:BaseResponseModel<Task>;
+  public taskId : string;
 
-  constructor(private  _activatedRouter: ActivatedRoute, protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService, private _userQuery: UserQuery) {
+  constructor(private  _activatedRouter: ActivatedRoute,
+              protected notification: NzNotificationService,
+              private FB: FormBuilder,
+              private _taskService: TaskService,
+              private _generalService: GeneralService,
+              private _userQuery: UserQuery,
+              private _taskQuery: TaskQuery) {
   }
 
   ngOnInit() {
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
+
+    if(this.displayName && this.displayName.split('-').length>1){
+      this.getTask();
+    }
 
     this.taskForm = this.FB.group({
       projectId: [null],
@@ -205,6 +152,13 @@ export class TaskComponent implements OnInit, OnDestroy {
       relatedItem: [null],
       tags: [null],
       epic: [null]
+    });
+
+    this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.relatedTaskDataSource = res;
+        this.dependentTaskDataSource = res;
+      }
     });
 
     this.commentForm = this.FB.group({
@@ -224,8 +178,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         if (this.taskTypeDataSource && this.displayName) {
 
           const arr: TaskType[] = this.taskTypeDataSource.filter((ele) => {
-            console.log(ele.displayName + '-- ' + this.displayName.substr(0, 4));
-            return ele.displayName === this.displayName.substr(0, 4);
+            return ele.displayName === this.displayName.split('-')[0];
           });
 
           if (arr && arr.length) {
@@ -277,6 +230,19 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.taskForm.reset();
   }
 
+  async getTask(){
+    this.getTaskInProcess = true;
+    try {
+
+      this.taskData= await this._taskService.getTask(this.displayName).toPromise();
+      this.taskForm.patchValue(this.taskData.data);
+      this.taskId = this.taskData && this.taskData.data && this.taskData.data.id;
+
+      this.getTaskInProcess = false;
+    } catch (e) {
+      this.getTaskInProcess = false;
+    }
+  }
   async saveForm() {
 
     const task: Task = { ...this.taskForm.getRawValue() };
@@ -291,8 +257,13 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this.createTaskInProcess = true;
     try {
-      await this._taskService.createTask(task).toPromise();
-      this.taskForm.reset();
+      if(this.taskData.data.id){
+        await this._taskService.updateTask(task).toPromise();
+      }else{
+        await this._taskService.createTask(task).toPromise();
+        this.taskForm.reset();
+      }
+
       this.createTaskInProcess = false;
     } catch (e) {
       this.createTaskInProcess = false;
@@ -331,7 +302,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     const comment: TaskComments = { ...this.commentForm.getRawValue() };
 
     try {
-      await this._taskService.addComment('5dc06789288dc7695084c4ee', comment).toPromise();
+      await this._taskService.addComment(this.taskId, comment).toPromise();
       this.commentForm.reset();
       this.createCommentInProcess = false;
     } catch (e) {
