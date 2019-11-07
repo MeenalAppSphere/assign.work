@@ -30,6 +30,9 @@ export class TaskController {
     }, {
       path: 'createdBy',
       select: 'emailId userName firstName lastName -_id'
+    }, {
+      path: 'assignee',
+      select: 'emailId userName firstName lastName -_id'
     }]);
   }
 
