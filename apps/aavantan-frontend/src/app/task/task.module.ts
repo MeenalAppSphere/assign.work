@@ -9,7 +9,8 @@ import { HistoryComponent } from './history/history.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
 
 const routes: Routes = [
-  { path: '', component: TaskComponent}
+  { path: '', component: TaskComponent},
+  { path: ':displayName', component: TaskComponent}
 ];
 
 @NgModule({

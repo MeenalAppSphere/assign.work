@@ -5,6 +5,8 @@ import { TaskService } from '../shared/services/task/task.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { TaskQuery } from '../queries/task/task.query';
 import { GeneralService } from '../shared/services/general.service';
+import { UserQuery } from '../queries/user/user.query';
+import { NzNotificationService } from 'ng-zorro-antd';
 
 @Component({
   templateUrl: './project.component.html',
@@ -14,54 +16,32 @@ import { GeneralService } from '../shared/services/general.service';
 export class ProjectComponent implements OnInit, OnDestroy {
   public myTaskList: Task[] = [];
   public allTaskList: Task[] = [];
-  public taskObj: Task;
-  public memberObj: User;
   public view: String = 'listView';
-  public gettingAllTask:boolean;
-  public taskTypeDataSource: TaskType[] = [
-    {
-      id: '1',
-      name: 'BUG',
-      color: '#F80647'
-    },
-    {
-      id: '2',
-      name: 'CR',
-      color: '#F0CB2D'
-    },
-    {
-      id: '3',
-      name: 'NEW WORK',
-      color: '#0E7FE0'
-    },
-    {
-      id: '4',
-      name: 'ENHANCEMENTS',
-      color: '#0AC93E'
-    },
-    {
-      id: '4',
-      name: 'EPIC',
-      color: '#1022A8'
-    }
-  ];
+  public taskTypeDataSource: TaskType[] = [];
 
-  constructor(private _generalService: GeneralService, private router:Router,private _taskQuery: TaskQuery, private _taskService: TaskService) {
+  constructor(protected notification: NzNotificationService, private _generalService: GeneralService, private _userQuery: UserQuery, private router:Router,private _taskQuery: TaskQuery, private _taskService: TaskService) {
   }
 
   ngOnInit(): void {
+
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.taskTypeDataSource = res.settings.taskTypes;
+      }
+    });
 
     this._taskService.getAllTask().subscribe();
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.allTaskList = res;
+
+        this.myTaskList = this.allTaskList.filter((ele:Task) => {
+          return (ele.createdBy as User).emailId === this._generalService.user.emailId;
+        });
+
       }
     });
-
-    this.myTaskList = this.allTaskList.filter((ele)=>{
-      return ele.createdBy === this._generalService.user.id;
-    })
 
     console.log('My Task', this.myTaskList.length);
     console.log('All Task', this.allTaskList.length);
@@ -69,11 +49,17 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
 
   public createTask(item:TaskType) {
-    const navigationExtras: NavigationExtras = {
-      queryParams: item
-    };
-    this.router.navigate(["dashboard", "task"], navigationExtras);
+    if(!item.displayName && this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
+      item.displayName=this.taskTypeDataSource[0].displayName;
+    }
+    if(!item.displayName){
+      this.notification.error('Error', 'Please create task types from settings');
+      return
+    }
+    this.router.navigateByUrl("dashboard/task/"+item.displayName);
   }
+
   public ngOnDestroy(){
   }
+
 }
