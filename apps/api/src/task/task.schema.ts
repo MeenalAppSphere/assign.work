@@ -9,12 +9,12 @@ export const taskSchema = new Schema({
   name: { type: String, required: [true, 'Please Add task title'] },
   displayName: { type: String },
   description: { type: String },
-  project: {
+  projectId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.projects,
     required: [true, 'Please Select Project First!']
   },
-  assignee: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+  assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
   attachments: [],
   taskType: { type: String, required: [true, 'Please add task type'] },
   comments: [],
@@ -29,8 +29,8 @@ export const taskSchema = new Schema({
   progress: { type: Number },
   status: { type: String },
   sprint: { type: String },
-  createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
@@ -38,6 +38,31 @@ export const taskSchema = new Schema({
 taskSchema
   .set('toObject', { virtuals: true })
   .set('toJSON', { virtuals: true });
+
+// virtual
+taskSchema.virtual('project', {
+  ref: DbCollection.projects,
+  localField: 'projectId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('assignee', {
+  ref: DbCollection.users,
+  localField: 'assigneeId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('createdBy', {
+  ref: DbCollection.users,
+  localField: 'createdById',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('updatedBy', {
+  ref: DbCollection.users,
+  localField: 'updatedById',
+  foreignField: '_id'
+});
 
 // plugins
 taskSchema

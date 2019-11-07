@@ -26,19 +26,19 @@ import { NzNotificationService } from 'ng-zorro-antd';
 export class TaskComponent implements OnInit, OnDestroy {
 
   public currentProject: Project = null;
-  public currentUser:User;
+  public currentUser: User;
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
   public assigneeTo: ProjectMembers;
-  public selectedRelatedItem:Task;
-  public selectedDependentItem:Task;
+  public selectedRelatedItem: Task;
+  public selectedDependentItem: Task;
   public selectedTaskType: TaskType;
   public selectedPriority: ProjectPriority;
   public selectedStage: ProjectStages;
   public timelogModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
   public createTaskInProcess: boolean = false;
-  public createCommentInProcess:boolean= false;
+  public createCommentInProcess: boolean = false;
 
   public defaultFileList = [
     {
@@ -65,78 +65,78 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public taskForm: FormGroup;
   public commentForm: FormGroup;
-  public assigneeDataSource :ProjectMembers[] = [];
+  public assigneeDataSource: ProjectMembers[] = [];
   public relatedTaskDataSource: Task[] = [
     {
       id: '1',
-      displayName:'BUG-1001',
+      displayName: 'BUG-1001',
       name: 'Related Task 1',
       taskType: {
-        name:'BUG',
-        color:'#ddee00'
+        name: 'BUG',
+        color: '#ddee00'
       },
-      createdBy:'',
-      project: ''
+      createdById: '',
+      projectId: ''
     },
     {
       id: '2',
-      displayName:'BUG-1002',
+      displayName: 'BUG-1002',
       name: 'Related Task 2',
       taskType: {
-        name:'BUG',
-        color:'#ddee00'
+        name: 'BUG',
+        color: '#ddee00'
       },
-      createdBy:'',
-      project: ''
+      createdById: '',
+      projectId: ''
     },
     {
       id: '3',
-      displayName:'CR-1001',
+      displayName: 'CR-1001',
       name: 'Related Task 3',
       taskType: {
-        name:'CR',
-        color:'#ddee00'
+        name: 'CR',
+        color: '#ddee00'
       },
-      createdBy:'',
-      project: ''
+      createdById: '',
+      projectId: ''
     }
   ];
   public dependentTaskDataSource: Task[] = [
     {
       id: '1',
-      displayName:'BUG-1001',
+      displayName: 'BUG-1001',
       name: 'Related Task 1',
       taskType: {
-        name:'BUG',
-        color:'#ddee00'
+        name: 'BUG',
+        color: '#ddee00'
       },
-      createdBy:'',
-      project: ''
+      createdById: '',
+      projectId: ''
     },
     {
       id: '2',
-      displayName:'BUG-1002',
+      displayName: 'BUG-1002',
       name: 'Related Task 2',
       taskType: {
-        name:'BUG',
-        color:'#ddee00'
+        name: 'BUG',
+        color: '#ddee00'
       },
-      createdBy:'',
-      project: ''
+      createdById: '',
+      projectId: ''
     },
     {
       id: '3',
-      displayName:'CR-1001',
+      displayName: 'CR-1001',
       name: 'Related Task 3',
       taskType: {
-        name:'CR',
-        color:'#ddee00'
+        name: 'CR',
+        color: '#ddee00'
       },
-      createdBy:'',
-      project: ''
+      createdById: '',
+      projectId: ''
     }
   ];
-  public sprintDataSource:Sprint[] = [
+  public sprintDataSource: Sprint[] = [
     {
       id: '1',
       name: 'Sprint 1'
@@ -183,7 +183,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public stagesDataSource: ProjectStages[] = [];
   public priorityDataSource: ProjectPriority[] = [];
 
-  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService,  private _userQuery: UserQuery, private route: ActivatedRoute) {}
+  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService, private _userQuery: UserQuery, private route: ActivatedRoute) {
+  }
 
   ngOnInit() {
 
@@ -192,14 +193,14 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
 
     this.taskForm = this.FB.group({
-      project:[null],
+      projectId: [null],
       name: [null, [Validators.required]],
       taskType: [null, [Validators.required]],
       description: [null],
-      assignee: [null],
-      createdBy:[null],
+      assigneeId: [null],
+      createdById: [null],
       sprint: [null],
-      priority:[null],
+      priority: [null],
       watchers: [null],
       dependentItem: [null],
       relatedItem: [null],
@@ -208,7 +209,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
 
     this.commentForm = this.FB.group({
-      comment:[null, [Validators.required]],
+      comment: [null, [Validators.required]]
     });
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -239,6 +240,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       }, 200);
     }
   }
+
   public assignedToMe() {
     // this.taskForm.get('assignedTo').patchValue(this.userDetails.fullName);
     // this.taskForm.value.assignedTo = this.userDetails.id;
@@ -247,23 +249,27 @@ export class TaskComponent implements OnInit, OnDestroy {
   public openTimeLogModal() {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
+
   public selectDependentItemTypeahead(e: Task) {
-    this.selectedDependentItem=e;
+    this.selectedDependentItem = e;
   }
+
   public selectRelatedItemTypeahead(e: Task) {
-    this.selectedRelatedItem=e;
+    this.selectedRelatedItem = e;
   }
+
   public cancelTaskForm() {
     this.taskForm.reset();
   }
+
   async saveForm() {
 
     const task: Task = { ...this.taskForm.getRawValue() };
-    task.project=this.currentProject.id;
-    task.createdBy = this._generalService.user.id;
-    task.taskType=this.selectedTaskType.id;
+    task.projectId = this.currentProject.id;
+    task.createdById = this._generalService.user.id;
+    task.taskType = this.selectedTaskType.id;
 
-    if(!task.name || !task.taskType){
+    if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
       return;
     }
@@ -279,33 +285,33 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   }
 
-  public resetCommentForm(){
+  public resetCommentForm() {
     this.commentForm.reset();
   }
 
   public selectAssigneeTypeahead(user: ProjectMembers) {
-    if(user){
-      this.assigneeTo=user;
-      this.taskForm.get('assignee').patchValue(user.userId);
+    if (user) {
+      this.assigneeTo = user;
+      this.taskForm.get('assigneeId').patchValue(user.userId);
     }
   }
 
-  public selectTaskType(item:TaskType){
-    this.selectedTaskType=item;
+  public selectTaskType(item: TaskType) {
+    this.selectedTaskType = item;
   }
 
-  public selectPriority(item:ProjectPriority){
-    this.selectedPriority =item;
+  public selectPriority(item: ProjectPriority) {
+    this.selectedPriority = item;
     this.taskForm.get('priority').patchValue(item.id);
   }
 
-  public selectStage(item:ProjectStages){
-    this.selectedStage =item;
+  public selectStage(item: ProjectStages) {
+    this.selectedStage = item;
   }
 
   /* comment */
-  async saveComment(){
-    this.createCommentInProcess=true;
+  async saveComment() {
+    this.createCommentInProcess = true;
 
     const comment: TaskComments = { ...this.commentForm.getRawValue() };
 
@@ -319,7 +325,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
 
-  public ngOnDestroy(){
+  public ngOnDestroy() {
 
   }
 

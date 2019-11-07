@@ -5,8 +5,10 @@ export class Task {
   name: string;
   displayName?: string;
   description?: string;
-  project: string | Project;
-  assignee?: string | User;
+  projectId: string;
+  project?: Project;
+  assigneeId?: string;
+  assignee?: User;
   attachments?: AttachmentModel[];
   taskType: string | TaskType;
   comments?: TaskComments[];
@@ -21,8 +23,10 @@ export class Task {
   progress?: number;
   status?: string;
   sprint?: string;
-  createdBy: string | User;
-  updatedBy?: string | User;
+  createdById: string;
+  createdBy?: User;
+  updatedById?: string;
+  updatedBy?: User;
   createdAt?: Date;
   updatedAt?: Date;
 }
