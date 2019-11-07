@@ -226,7 +226,7 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new BadRequestException('Please select color');
     }
 
-    if (!projectDetails.settings.taskTypes) {
+    if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
       const isDuplicate = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
 
       if (isDuplicate) {
