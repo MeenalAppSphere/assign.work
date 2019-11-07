@@ -15,42 +15,7 @@ export class ActivityComponent implements OnInit {
   public getCommentInProcess:boolean = false;
 
   public data: BaseResponseModel<TaskComments[]>;
-  //   [{
-  //     id:'1',
-  //     createdBy :{
-  //       id:'1',
-  //       firstName: 'Pradeep',
-  //       profilePic:'./../../assets/images/avatars/thumb-8.jpg',
-  //     },
-  //     createdAt : new Date(),
-  //     comment:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design....',
-  //     isPinned:true,
-  //     attachments:null
-  //   },
-  //   {
-  //     id:'2',
-  //     createdBy :{
-  //       id:'1',
-  //       firstName: 'Pradeep',
-  //       profilePic:'./../../assets/images/avatars/thumb-8.jpg',
-  //     },
-  //     createdAt : new Date(),
-  //     comment:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design....',
-  //     isPinned:false,
-  //     attachments:null
-  //   },{
-  //     id:'3',
-  //     createdBy :{
-  //       id:'1',
-  //       firstName: 'Pradeep',
-  //       profilePic:'./../../assets/images/avatars/thumb-8.jpg',
-  //     },
-  //     createdAt : new Date(),
-  //     comment:'Ant Design, a design language for background applications, is refined by Ant UED TeamAnt Design....',
-  //     isPinned:false,
-  //     attachments:null
-  //   }
-  // ];
+
   constructor(private _taskService: TaskService) { }
 
   ngOnInit() {

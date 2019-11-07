@@ -240,6 +240,9 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.taskForm.patchValue(this.taskData.data);
       this.taskId = this.taskData.data.id;
 
+      this.selectTaskType(this.taskData.data.taskType as TaskType);
+      this.selectPriority(this.taskData.data.priority as ProjectPriority);
+
       this.getTaskInProcess = false;
     } catch (e) {
       this.getTaskInProcess = false;
