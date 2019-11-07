@@ -19,8 +19,8 @@ export class TaskService extends BaseService<Task & Document> {
     let allTasks: Task[] = await this.getAll(filter, populate);
 
     allTasks = allTasks.map(task => {
-      task.taskType = (task.project as Project).settings.taskTypes.find(t => t.id === task.taskType);
-      task.priority = (task.project as Project).settings.priorities.find(t => t.id === task.priority);
+      task.taskType = task.project.settings.taskTypes.find(t => t.id === task.taskType);
+      task.priority = task.project.settings.priorities.find(t => t.id === task.priority);
       return task;
     });
 
@@ -35,7 +35,7 @@ export class TaskService extends BaseService<Task & Document> {
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
-    const projectDetails = await this.getProjectDetails(task.project as string);
+    const projectDetails = await this.getProjectDetails(task.projectId);
 
     // validation
     if (!task.taskType) {

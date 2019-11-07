@@ -1,19 +1,18 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put, UploadedFile,
-  UploadedFiles,
-  UseGuards,
-  UseInterceptors
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task.service';
-import { Project, Task, TaskComments, TaskFilterDto } from '@aavantan-app/models';
-import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { Task, TaskComments, TaskFilterDto } from '@aavantan-app/models';
+
+const taskBasicPopulation: any[] = [{
+  path: 'project',
+  select: 'name description settings -_id'
+}, {
+  path: 'createdBy',
+  select: 'emailId userName firstName lastName -_id'
+}, {
+  path: 'assignee',
+  select: 'emailId userName firstName lastName -_id'
+}];
 
 @Controller('task')
 @UseGuards(AuthGuard('jwt'))
@@ -24,16 +23,7 @@ export class TaskController {
 
   @Get()
   async getAll() {
-    return await this._taskService.getAllTasks({}, [{
-      path: 'project',
-      select: 'name description settings -_id'
-    }, {
-      path: 'createdBy',
-      select: 'emailId userName firstName lastName -_id'
-    }, {
-      path: 'assignee',
-      select: 'emailId userName firstName lastName -_id'
-    }]);
+    return await this._taskService.getAllTasks({}, taskBasicPopulation);
   }
 
   @Post()
@@ -62,8 +52,13 @@ export class TaskController {
   }
 
   @Delete(':id')
-  async deleteProject(@Param() id: string) {
+  async deleteProject(@Param('id') id: string) {
     return await this._taskService.delete(id);
+  }
+
+  @Get(':id')
+  async getById(@Param('id') id: string) {
+    return this._taskService.findById(id, taskBasicPopulation);
   }
 
   @Post('')

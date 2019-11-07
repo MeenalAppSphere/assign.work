@@ -30,7 +30,7 @@ export class BaseService<T extends Document> {
     if (populate && populate.length) {
       query.populate(populate);
     }
-    return query.exec();
+    return query.lean().exec();
   }
 
   public async findOne(filter: any = {}, populate: Array<any> = []): Promise<T> {

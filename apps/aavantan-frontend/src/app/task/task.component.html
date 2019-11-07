@@ -36,7 +36,7 @@
                             <span class="assigned-user-icon">
                               <nz-avatar [nzSize]="16" nzIcon="user" [nzSrc]="assigneeTo && assigneeTo.userDetails ? assigneeTo.userDetails.profilePic : null" ></nz-avatar>
                             </span>
-                            <input placeholder="Search Assignee" formControlName="assignee" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
+                            <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
                             <nz-autocomplete #autoAssignee>
                                 <nz-auto-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.userDetails && option.userDetails.firstName ? option.userDetails.firstName : option.emailId" [nzValue]="option">
                                     <nz-avatar class="m-r-10" [nzSrc]="option.userDetails && option.userDetails.profilePic ? option.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
