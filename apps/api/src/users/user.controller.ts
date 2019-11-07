@@ -18,7 +18,8 @@ export class UserController {
       path: 'currentProject',
       populate: {
         path: 'members.userDetails'
-      }
+      },
+      justOne: true
     }]);
   }
 

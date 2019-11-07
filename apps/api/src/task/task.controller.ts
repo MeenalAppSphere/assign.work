@@ -5,13 +5,16 @@ import { Task, TaskComments, TaskFilterDto } from '@aavantan-app/models';
 
 const taskBasicPopulation: any[] = [{
   path: 'project',
-  select: 'name description settings -_id'
+  select: 'name description settings -_id',
+  justOne: true
 }, {
   path: 'createdBy',
-  select: 'emailId userName firstName lastName -_id'
+  select: 'emailId userName firstName lastName -_id',
+  justOne: true
 }, {
   path: 'assignee',
-  select: 'emailId userName firstName lastName -_id'
+  select: 'emailId userName firstName lastName -_id',
+  justOne: true
 }];
 
 @Controller('task')

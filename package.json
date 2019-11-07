@@ -7,7 +7,6 @@
     "nx": "nx",
     "start": "ng serve",
     "start:api": "ng serve api",
-    "api:config": "node -r dotenv/config ./dist/apps/api/main.js dotenv_config_path=apps/api/src/.env",
     "build": "ng build",
     "test": "ng test",
     "lint": "nx workspace-lint && ng lint",

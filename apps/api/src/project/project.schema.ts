@@ -54,5 +54,6 @@ projectSchema
   .virtual('members.userDetails', {
     ref: DbCollection.users,
     localField: 'members.userId',
-    foreignField: '_id'
+    foreignField: '_id',
+    justOne: true
   });
