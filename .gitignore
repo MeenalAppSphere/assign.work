@@ -40,3 +40,4 @@ Thumbs.db
 yarn.lock
 package-lock.json
 .env
+/apps/api/error.log

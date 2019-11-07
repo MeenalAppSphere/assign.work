@@ -114,10 +114,17 @@ export class TaskService extends BaseService<Task & Document> {
     return this._taskModel.find(query);
   }
 
+  async getComments(id: string): Promise<TaskComments[]> {
+    return await this._taskModel.findById(id).select('comments -_id').populate('comments.attachmentsDetails').lean().exec();
+  }
+
   async addComment(id: string, comment: TaskComments): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
     comment.id = new Types.ObjectId().toHexString();
+    comment.createdAt = new Date();
+    comment.isPinned = false;
+
     if (!taskDetails.comments.length) {
       taskDetails.comments = [comment];
     } else {

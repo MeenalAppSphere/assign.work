@@ -64,6 +64,12 @@ taskSchema.virtual('updatedBy', {
   foreignField: '_id'
 });
 
+taskSchema.virtual('comments.attachmentsDetails', {
+  ref: DbCollection.attachments,
+  localField: 'comments.attachments',
+  foreignField: '_id'
+});
+
 // plugins
 taskSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)

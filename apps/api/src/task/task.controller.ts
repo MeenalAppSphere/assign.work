@@ -39,6 +39,11 @@ export class TaskController {
     return await this._taskService.updateTask(id, task);
   }
 
+  @Get(':id/get-comments')
+  async getComments(@Param('id') id: string) {
+    return await this._taskService.getComments(id);
+  }
+
   @Post(':id/add-comment')
   async addComment(@Param('id') id: string, @Body() comment: TaskComments) {
     return await this._taskService.addComment(id, comment);
