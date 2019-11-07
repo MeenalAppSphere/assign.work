@@ -13,7 +13,7 @@
       </nz-list-item>
     </ng-template>
   </nz-list>
-  <div *ngIf="data.data && data.data.length">
+  <div *ngIf="data && data.data && data.data.length">
     <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
     <ng-template #contentActivity>
       <span> No Activities</span>

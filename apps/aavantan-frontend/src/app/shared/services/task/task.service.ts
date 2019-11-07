@@ -50,7 +50,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
   updateTask(task: Task): Observable<BaseResponseModel<Task>> {
-    return this._http.post(TaskUrls.update, task).pipe(
+    return this._http.put(TaskUrls.base, task).pipe(
       map((res: BaseResponseModel<Task>) => {
         this.notification.success('Success', 'Task Updated Successfully');
         return res;

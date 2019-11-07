@@ -13,7 +13,7 @@
     </ng-template>
   </nz-list>
 
-  <div *ngIf="data.data && data.data.length">
+  <div *ngIf="data && data.data && data.data.length">
     <nz-empty [nzNotFoundContent]="contentHistory"></nz-empty>
     <ng-template #contentHistory>
       <span> No History </span>
