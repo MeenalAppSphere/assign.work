@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { DraftSprint, Task } from '@aavantan-app/models';
+import { DraftSprint, Task, TaskType } from '@aavantan-app/models';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -25,7 +26,7 @@ export class TaskListComponent implements OnInit {
     duration: 0
   };
 
-  constructor() {
+  constructor(private router: Router) {
   }
 
   ngOnInit() {
@@ -37,7 +38,7 @@ export class TaskListComponent implements OnInit {
   }
 
   public viewTask(task: Task) {
-
+    this.router.navigateByUrl("dashboard/task/"+task.displayName);
   }
 
   public selectTaskForSprint(task: Task) {

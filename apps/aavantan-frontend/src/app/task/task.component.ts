@@ -182,14 +182,13 @@ export class TaskComponent implements OnInit, OnDestroy {
   public taskTypeDataSource: TaskType[] = [];
   public stagesDataSource: ProjectStages[] = [];
   public priorityDataSource: ProjectPriority[] = [];
+  public displayName:string;
 
-  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService,  private _userQuery: UserQuery, private route: ActivatedRoute) {}
+  constructor(private  _activatedRouter: ActivatedRoute, protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService,  private _userQuery: UserQuery, private route: ActivatedRoute) {}
 
   ngOnInit() {
 
-    this.route.queryParams.subscribe(params => {
-      console.log(params);
-    });
+    this.displayName = this._activatedRouter.snapshot.params.displayName;
 
     this.taskForm = this.FB.group({
       project:[null],
@@ -210,16 +209,32 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.commentForm = this.FB.group({
       comment:[null, [Validators.required]],
     });
+
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
+
         this.currentProject = res;
         this.stagesDataSource = res.settings.stages;
         this.taskTypeDataSource = res.settings.taskTypes;
         this.assigneeDataSource = res.members;
         this.priorityDataSource = res.settings.priorities;
 
-        this.selectedTaskType = this.taskTypeDataSource[0];
+        if(this.taskTypeDataSource && this.displayName){
+
+          const arr:TaskType[] = this.taskTypeDataSource.filter((ele)=>{
+            console.log(ele.displayName + '-- '+this.displayName.substr(0,4))
+            return ele.displayName=== this.displayName.substr(0,4);
+          });
+
+          if(arr && arr.length){
+            this.selectedTaskType = arr[0];
+          }
+
+        } else{
+          this.selectedTaskType = this.taskTypeDataSource[0];
+        }
+
       }
     });
 
