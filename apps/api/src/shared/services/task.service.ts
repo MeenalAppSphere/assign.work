@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
 import { DbCollection, Project, Task, TaskComments, TaskFilterDto, TaskHistory } from '@aavantan-app/models';
-import { Document, Model, Types } from 'mongoose';
+import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 
@@ -98,8 +98,20 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async getTasks(model: TaskFilterDto) {
-    return this._taskModel.find(this.prepareFilterQuery(model));
+  async getTaskByIdOrDisplayName(q: string, populate: Array<any> = []) {
+    const queryObj = {};
+    if (Types.ObjectId.isValid(q)) {
+      queryObj['_id'] = q;
+    } else {
+      queryObj['displayName'] = q;
+    }
+    return await this._taskModel.find(queryObj).populate(populate).lean().exec();
+  }
+
+  async getTasks(model: TaskFilterDto, populate: Array<any> = []) {
+    const query = this.prepareFilterQuery(model);
+    query.populate(populate);
+    return this._taskModel.find(query);
   }
 
   async addComment(id: string, comment: TaskComments): Promise<string> {
@@ -176,14 +188,18 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  private async prepareFilterQuery(model: TaskFilterDto) {
-    const query = this._taskModel.find({});
+  private prepareFilterQuery(model: TaskFilterDto) {
+    const query = new Query();
+    const otherKeys: Array<{ key: string, value: string }> = [];
 
     Object.keys(model).forEach(key => {
+      if (['taskTypeId', ''].includes(key)) {
+
+      }
       if (Array.isArray(model[key])) {
-        query.setQuery({ [key]: { '$in': model[key] } });
+        query.setQuery({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
       } else {
-        query.setQuery({ [key]: model[key] });
+        query.setQuery({ [key]: { $regex: new RegExp(model[key]), $options: 'i' } });
       }
     });
 

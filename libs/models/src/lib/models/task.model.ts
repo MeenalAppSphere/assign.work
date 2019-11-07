@@ -50,9 +50,11 @@ export class TaskHistory {
 }
 
 export class TaskFilterDto {
-  name?: string | string[];
-  displayName?: string | string[];
-  description?: string | string[];
+  id?: string;
+  _id?: string;
+  name?: string;
+  displayName?: string;
+  description?: string;
   project?: string | string[];
   assignee?: string | string[];
   taskType?: string | string[];
@@ -61,7 +63,6 @@ export class TaskFilterDto {
   status?: string | string[];
   sprint?: string | string[];
   createdBy?: string | string[];
-  q?: string;
   sort?: string;
   sortBy?: string;
   startedAt?: Date;

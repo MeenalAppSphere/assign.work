@@ -59,13 +59,13 @@ export class TaskController {
     return await this._taskService.delete(id);
   }
 
-  @Get(':id')
-  async getById(@Param('id') id: string) {
-    return this._taskService.findById(id, taskBasicPopulation, true);
+  @Get(':query')
+  async getByIdOrDisplayName(@Param('query') query: string) {
+    return this._taskService.getTaskByIdOrDisplayName(query, taskBasicPopulation);
   }
 
-  @Post('')
+  @Post('filter')
   async getTask(@Body() filterModel: TaskFilterDto) {
-    return await this._taskService.getTasks(filterModel);
+    return await this._taskService.getTasks(filterModel, taskBasicPopulation);
   }
 }

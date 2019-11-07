@@ -5,6 +5,9 @@ import { CastError, Error } from 'mongoose';
 
 @Catch()
 export class GenericExceptionFilter implements ExceptionFilter {
+  constructor() {
+
+  }
   catch(exception: any, host: ArgumentsHost): any {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
