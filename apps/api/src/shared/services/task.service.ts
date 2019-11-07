@@ -82,7 +82,7 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   async updateTask(id: string, task: Partial<Task>): Promise<Task> {
-    await this.updateHelper(id, task);
+    await this.updateHelper(id, task, null);
     return this._taskModel.findById(id).lean();
   }
 
