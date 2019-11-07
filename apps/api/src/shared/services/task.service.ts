@@ -105,7 +105,7 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       queryObj['displayName'] = q;
     }
-    return await this._taskModel.findOne(queryObj).populate(populate).lean().exec();
+    return await this._taskModel.findOne(queryObj).populate(populate).select('-comments').exec();
   }
 
   async getTasks(model: TaskFilterDto, populate: Array<any> = []) {
