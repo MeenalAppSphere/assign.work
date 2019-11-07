@@ -5,7 +5,7 @@
     }">
       <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
         <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
-            <h5>Create Task</h5>
+            <h5>{{taskId ? 'Update Task' : 'Create Task'}}</h5>
             <hr class="m-t-5 m-b-5" />
             <!-- row 1-->
             <div class="row row-1">
@@ -23,7 +23,7 @@
                                 <ul nz-menu>
                                     <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="selectTaskType(item)">
                                         <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i> {{ item.name }}
-                                    </li>[taskId]="taskData.data.id"
+                                    </li>
                                 </ul>
                             </nz-dropdown-menu>
                         </nz-form-control>
@@ -73,8 +73,8 @@
                         <nz-form-control class="issue-type-btn-grp">
                             <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzPlacement="bottomRight">
                                 <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button>
-                  <span class="fas fa-square m-r-5" [ngStyle]="{'color': selectedPriority && selectedPriority.color ? selectedPriority.color :'#f3f3f3'}"></span> {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
-                </button>
+                                  <span class="fas fa-square m-r-5" [ngStyle]="{'color': selectedPriority && selectedPriority.color ? selectedPriority.color :'#f3f3f3'}"></span> {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
+                                </button>
                             </nz-button-group>
                             <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
                                 <ul nz-menu>
@@ -140,7 +140,7 @@
                         <nz-form-label nzFor="watchers">Watchers</nz-form-label>
                         <nz-form-control>
                             <nz-select style="width: 100%" nzSize="small" nzMode="multiple" formControlName="watchers" nzPlaceHolder="Search/Select watcher" [(ngModel)]="listOfSelectedWatchers">
-                                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.userDetails && option.userDetails.firstName ? option.userDetails.firstName : ''" [nzValue]="option.userDetails && option.userDetails.id ? option.userDetails.id : ''"></nz-option>
+                                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.userDetails && option.userDetails.firstName ? option.userDetails.firstName : option.emailId" [nzValue]="option.userDetails && option.userDetails.id ? option.userDetails.id : ''"></nz-option>
                             </nz-select>
                         </nz-form-control>
                     </nz-form-item>
@@ -165,7 +165,7 @@
                     <nz-form-item>
                         <nz-form-label  nzFor="description">Description</nz-form-label>
                         <nz-form-control>
-                            <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
+                            <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" formControlName="description" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
                         </nz-form-control>
                     </nz-form-item>
                 </div>
@@ -175,13 +175,13 @@
                         <nz-form-label  nzFor="dependentItem">Dependent Item</nz-form-label>
                         <nz-form-control class="relative input-relative-group">
                             <span class="assigned-user-icon">
-                <i class="fas fa-circle m-r-10"
-                   [ngStyle]="{'color':selectedDependentItem && selectedDependentItem.taskType ? selectedDependentItem.taskType.color : '' }"></i>
-              </span>
-                            <input placeholder="Search/Select Dependent Item" formControlName="dependentItem" nz-input nzSize="small" [nzAutocomplete]="autoDependentItem" />
+                              <i class="fas fa-circle m-r-10"
+                                 [ngStyle]="{'color':selectedDependentItem && selectedDependentItem.taskType ? selectedDependentItem.taskType.color : '' }"></i>
+                            </span>
+                            <input placeholder="Search/Select Dependent Item" formControlName="dependentItem" (ngModelChange)="selectDependentItemTypeahead($event)"  nz-input nzSize="small" [nzAutocomplete]="autoDependentItem" />
                             <nz-autocomplete #autoDependentItem>
-                                <nz-auto-option *ngFor="let option of dependentTaskDataSource" [nzLabel]="option.name" (ngModelChange)="selectDependentItemTypeahead($event)" [nzValue]="option">
-                                    <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
+                                <nz-auto-option *ngFor="let option of dependentTaskDataSource" [nzLabel]="option.name" [nzValue]="option">
+                                    <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
                                     <span>{{ option.name }}</span>
                                 </nz-auto-option>
                             </nz-autocomplete>
@@ -199,7 +199,7 @@
                             <input placeholder="Search/Select Related Item" formControlName="relatedItem" nz-input (ngModelChange)="selectRelatedItemTypeahead($event)" nzSize="small" [nzAutocomplete]="autoRelatedItem" />
                             <nz-autocomplete #autoRelatedItem>
                                 <nz-auto-option *ngFor="let option of relatedTaskDataSource" [nzLabel]="option.name" [nzValue]="option">
-                                    <i class="fas fa-circle m-r-10" [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
+                                    <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
                                     <span>{{ option.name }}</span>
                                 </nz-auto-option>
                             </nz-autocomplete>
@@ -263,7 +263,7 @@
       </nz-spin>
             <!-- row 9-->
 
-            <div class="task-sections p-t-10" *ngIf="taskData && taskData.data && taskData.data.id">
+            <div class="task-sections p-t-10" *ngIf="taskId">
                 <form (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12">
                     <nz-form-item>
                         <nz-form-label nzFor="comment">Comment</nz-form-label>
@@ -280,7 +280,7 @@
               <div class="p-15">
                   <nz-form-label>Activity <small>(<img src="./../../assets/images/pin-fill.png" class="pin-icon" height="22"/> Pinned Messages)</small></nz-form-label>
                   <div class="frozen-div m-t-5">
-                      <aavantan-app-activity [taskId]="taskData && taskData.data && taskData.data.id ? taskData.data.id : ''"></aavantan-app-activity>
+                      <aavantan-app-activity [taskId]="taskId ? taskId : ''"></aavantan-app-activity>
                   </div>
               </div>
             </div>
@@ -347,7 +347,7 @@
                 <nz-tab nzSize="small" nzTitle="History">
 
                     <div *ngIf="taskId">
-                        <aavantan-app-history [taskId]="taskData.data.id"></aavantan-app-history>
+                        <aavantan-app-history [taskId]="taskId"></aavantan-app-history>
                     </div>
 
                     <div *ngIf="!taskId">

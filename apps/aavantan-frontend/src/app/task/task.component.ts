@@ -158,6 +158,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       if (res) {
         this.relatedTaskDataSource = res;
         this.dependentTaskDataSource = res;
+      }else{
+        this._taskService.getAllTask().subscribe();
       }
     });
 
@@ -236,13 +238,15 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.taskData= await this._taskService.getTask(this.displayName).toPromise();
       this.taskForm.patchValue(this.taskData.data);
-      this.taskId = this.taskData && this.taskData.data && this.taskData.data.id;
+      this.taskId = this.taskData.data.id;
 
       this.getTaskInProcess = false;
     } catch (e) {
       this.getTaskInProcess = false;
     }
   }
+
+
   async saveForm() {
 
     const task: Task = { ...this.taskForm.getRawValue() };
@@ -257,7 +261,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this.createTaskInProcess = true;
     try {
-      if(this.taskData.data.id){
+      if(this.taskId){
         await this._taskService.updateTask(task).toPromise();
       }else{
         await this._taskService.createTask(task).toPromise();
