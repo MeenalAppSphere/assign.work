@@ -1,6 +1,7 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskHistoryService } from '../shared/services/task-history.service';
+import { Schema } from 'mongoose';
 
 @Controller('task-history')
 @UseGuards(AuthGuard('jwt'))
@@ -11,6 +12,6 @@ export class TaskHistoryController {
 
   @Get(':id')
   async getAll(@Param('id') id: string) {
-    return await this._taskHistoryService.getAll({ taskId: id }, []);
+    return await this._taskHistoryService.find({ taskId: id });
   }
 }

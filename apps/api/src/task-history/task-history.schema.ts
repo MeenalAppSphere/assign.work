@@ -9,7 +9,8 @@ export const taskHistorySchema = new Schema({
   taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
   action: { type: String },
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  desc: {}
+  desc: {},
+  isDeleted: { type: Schema.Types.Boolean, default: false }
 }, schemaOptions);
 
 
@@ -19,12 +20,12 @@ taskHistorySchema
   .set('toJSON', { virtuals: true });
 
 // virtual
-taskHistorySchema.virtual('task', {
-  ref: DbCollection.tasks,
-  localField: 'taskId',
-  foreignField: '_id',
-  justOne: true
-});
+// taskHistorySchema.virtual('task', {
+//   ref: DbCollection.tasks,
+//   localField: 'taskId',
+//   foreignField: '_id',
+//   justOne: true
+// });
 
 taskHistorySchema.virtual('createdBy', {
   ref: DbCollection.users,
