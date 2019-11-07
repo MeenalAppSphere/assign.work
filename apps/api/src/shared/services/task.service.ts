@@ -19,6 +19,7 @@ export class TaskService extends BaseService<Task & Document> {
     let allTasks: Task[] = await this.getAll(filter, populate);
 
     allTasks = allTasks.map(task => {
+      task.id = task['_id'];
       task.taskType = task.project.settings.taskTypes.find(t => t.id === task.taskType);
       task.priority = task.project.settings.priorities.find(t => t.id === task.priority);
       return task;

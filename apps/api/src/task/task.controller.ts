@@ -61,7 +61,7 @@ export class TaskController {
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    return this._taskService.findById(id, taskBasicPopulation);
+    return this._taskService.findById(id, taskBasicPopulation, true);
   }
 
   @Post('')

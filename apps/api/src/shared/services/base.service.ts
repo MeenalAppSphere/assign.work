@@ -25,11 +25,17 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async findById(id: string, populate: Array<any> = []): Promise<T> {
+  public async findById(id: string, populate: Array<any> = [], isLean = false): Promise<T> {
     const query = this.model.findById(this.toObjectId(id)).where(defaultQueryOptions);
+
     if (populate && populate.length) {
       query.populate(populate);
     }
+
+    if (isLean) {
+      query.lean();
+    }
+
     return query.exec();
   }
 
