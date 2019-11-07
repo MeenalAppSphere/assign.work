@@ -8,7 +8,7 @@ const paginate = require('mongoose-paginate-v2');
 export const taskHistorySchema = new Schema({
   task: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
   action: { type: String },
-  createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   desc: {}
 }, schemaOptions);
 
@@ -17,6 +17,13 @@ export const taskHistorySchema = new Schema({
 taskHistorySchema
   .set('toObject', { virtuals: true })
   .set('toJSON', { virtuals: true });
+
+
+taskHistorySchema.virtual('createdBy', {
+  ref: DbCollection.users,
+  localField: 'createdById',
+  foreignField: '_id'
+});
 
 // plugins
 taskHistorySchema

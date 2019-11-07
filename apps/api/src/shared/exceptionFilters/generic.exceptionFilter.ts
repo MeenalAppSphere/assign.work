@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, UnauthorizedException } from '@nestjs/common';
 import { MongoError } from 'mongodb';
 import { BaseResponseModel } from '@aavantan-app/models';
-import { Error } from 'mongoose';
+import { CastError, Error } from 'mongoose';
 
 @Catch()
 export class GenericExceptionFilter implements ExceptionFilter {
@@ -61,7 +61,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
         message: exception.message,
         type: 'error'
       }];
-      resp.status = 401;
+      resp.status = exception.name === 'CastError' ? 500 : 401;
     } else {
       resp.errors = [{
         message: 'Something Went Wrong',

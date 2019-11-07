@@ -182,9 +182,10 @@ export class TaskComponent implements OnInit, OnDestroy {
   public taskTypeDataSource: TaskType[] = [];
   public stagesDataSource: ProjectStages[] = [];
   public priorityDataSource: ProjectPriority[] = [];
-  public displayName:string;
+  public displayName: string;
 
-  constructor(private  _activatedRouter: ActivatedRoute, protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService,  private _userQuery: UserQuery) {}
+  constructor(private  _activatedRouter: ActivatedRoute, protected notification: NzNotificationService, private FB: FormBuilder, private _taskService: TaskService, private _generalService: GeneralService, private _userQuery: UserQuery) {
+  }
 
   ngOnInit() {
 
@@ -220,18 +221,18 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.assigneeDataSource = res.members;
         this.priorityDataSource = res.settings.priorities;
 
-        if(this.taskTypeDataSource && this.displayName){
+        if (this.taskTypeDataSource && this.displayName) {
 
-          const arr:TaskType[] = this.taskTypeDataSource.filter((ele)=>{
-            console.log(ele.displayName + '-- '+this.displayName.substr(0,4))
-            return ele.displayName=== this.displayName.substr(0,4);
+          const arr: TaskType[] = this.taskTypeDataSource.filter((ele) => {
+            console.log(ele.displayName + '-- ' + this.displayName.substr(0, 4));
+            return ele.displayName === this.displayName.substr(0, 4);
           });
 
-          if(arr && arr.length){
+          if (arr && arr.length) {
             this.selectedTaskType = arr[0];
           }
 
-        } else{
+        } else {
           this.selectedTaskType = this.taskTypeDataSource[0];
         }
 
@@ -287,7 +288,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.notification.error('Error', 'Please check all mandatory fields');
       return;
     }
-    console.log('Task value', task);
+
     this.createTaskInProcess = true;
     try {
       await this._taskService.createTask(task).toPromise();

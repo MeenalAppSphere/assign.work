@@ -19,8 +19,8 @@ export class TaskService extends BaseService<Task & Document> {
     let allTasks: Task[] = await this.getAll(filter, populate);
 
     allTasks = allTasks.map(task => {
-      task.taskType = task.project.settings.taskTypes.find(t => t.id === task.taskType);
-      task.priority = task.project.settings.priorities.find(t => t.id === task.priority);
+      task.taskType = task.project[0].settings.taskTypes.find(t => t.id === task.taskType);
+      task.priority = task.project[0].settings.priorities.find(t => t.id === task.priority);
       return task;
     });
 
@@ -62,7 +62,7 @@ export class TaskService extends BaseService<Task & Document> {
       const createdTask = await this.create([task], session);
       const taskHistory: TaskHistory = {
         action: 'Task Added',
-        createdBy: task.createdBy,
+        createdById: task.createdById,
         task: createdTask[0].id
       };
       await this._taskHistoryService.addHistory(taskHistory, session);

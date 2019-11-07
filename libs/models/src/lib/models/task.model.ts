@@ -43,7 +43,8 @@ export class TaskComments {
 export class TaskHistory {
   task: string | Task;
   action: string;
-  createdBy: string | User;
+  createdById: string;
+  createdBy?: User;
   createdAt?: Date;
   desc?: string;
 }
