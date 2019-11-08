@@ -8,6 +8,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
   constructor() {
 
   }
+
   catch(exception: any, host: ArgumentsHost): any {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
@@ -37,6 +38,20 @@ export class GenericExceptionFilter implements ExceptionFilter {
         })
       ];
       resp.status = 400;
+    } else if (exception instanceof Error.CastError) {
+      // mongoose cast errors
+      resp.errors = [{
+        message: exception.message,
+        type: 'error'
+      }];
+      resp.status = 500;
+    } else if (exception instanceof Error.DocumentNotFoundError) {
+      // mongoose cast errors
+      resp.errors = [{
+        message: exception.message,
+        type: 'error'
+      }];
+      resp.status = 404;
     } else if (exception instanceof HttpException) {
       // mongoose validation errors
       if (exception.getResponse() instanceof Error.ValidationError) {
@@ -64,7 +79,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
         message: exception.message,
         type: 'error'
       }];
-      resp.status = exception.name === 'CastError' ? 500 : 401;
+      resp.status = 401;
     } else {
       resp.errors = [{
         message: 'Something Went Wrong',

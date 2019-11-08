@@ -152,7 +152,8 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       taskDetails.comments.push(comment);
     }
-    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentAdded);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, this._generalService.userId, id);
+    await this.updateHelper(id, taskDetails, taskHistory);
     return 'Comment Added Successfully';
   }
 
@@ -166,8 +167,8 @@ export class TaskService extends BaseService<Task & Document> {
       }
       return com;
     });
-
-    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentUpdated);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, this._generalService.userId, id);
+    await this.updateHelper(id, taskDetails, taskHistory);
     return 'Comment Updated Successfully';
   }
 
@@ -182,7 +183,8 @@ export class TaskService extends BaseService<Task & Document> {
       return com;
     });
 
-    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentPinned);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, this._generalService.userId, id);
+    await this.updateHelper(id, taskDetails, taskHistory);
     return `Comment ${modal.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
   }
 
@@ -193,7 +195,8 @@ export class TaskService extends BaseService<Task & Document> {
       return com.id !== commentId;
     });
 
-    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentDeleted);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentDeleted, this._generalService.userId, id);
+    await this.updateHelper(id, taskDetails, taskHistory);
     return `Comment Deleted Successfully`;
   }
 
@@ -214,14 +217,13 @@ export class TaskService extends BaseService<Task & Document> {
     return taskDetails;
   }
 
-  private async updateHelper(id: string, task: Partial<Task>, action: TaskHistoryActionEnum): Promise<string> {
+  private async updateHelper(id: string, task: Partial<Task>, history: TaskHistory): Promise<string> {
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
     try {
       await this.update(id, task, session);
-      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(action, task.createdById, id);
-      await this._taskHistoryService.addHistory(taskHistory, session);
+      await this._taskHistoryService.addHistory(history, session);
       await session.commitTransaction();
       session.endSession();
       return id;
