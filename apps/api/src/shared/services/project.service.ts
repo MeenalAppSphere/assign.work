@@ -256,7 +256,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (!status.name) {
-      throw new BadRequestException('Please add name');
+      throw new BadRequestException('Please add Status name');
     }
 
     if (projectDetails.settings.status && projectDetails.settings.status.length) {

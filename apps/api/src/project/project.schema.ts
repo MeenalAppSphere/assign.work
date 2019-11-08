@@ -31,8 +31,8 @@ export const projectSchema = new Schema({
     stages: [],
     taskTypes: [],
     priorities: [],
+    status: [],
     required: false,
-    default: {}
   },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
