@@ -7,7 +7,7 @@ import {
   TaskComments,
   TaskFilterDto,
   TaskHistory,
-  TaskHistoryActionEnum
+  TaskHistoryActionEnum, User
 } from '@aavantan-app/models';
 import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -39,6 +39,20 @@ export class TaskService extends BaseService<Task & Document> {
     });
 
     return allTasks;
+  }
+
+  async getMyTask(projectId: string, populate: Array<any> = []): Promise<Partial<Task[]>> {
+    const projectDetails = await this.getProjectDetails(projectId);
+    const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User).id === this._generalService.userId;
+
+    if (!isMember) {
+      throw new BadRequestException('You are not a part of Project');
+    }
+
+    return this.getAllTasks({
+      projectId: projectId,
+      $or: [{ assigneeId: this._generalService.userId }, { createdById: this._generalService.userId }]
+    });
   }
 
   async addTask(task: Task): Promise<Task> {
@@ -177,7 +191,7 @@ export class TaskService extends BaseService<Task & Document> {
     const taskDetails = await this.getTaskDetails(id);
 
     taskDetails.comments = taskDetails.comments.map(com => {
-      if (com.id === modal.commentId) {
+      if (com['_id'].toString() === modal.commentId) {
         com.updatedAt = new Date();
         com.isPinned = modal.isPinned;
       }

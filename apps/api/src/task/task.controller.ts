@@ -24,9 +24,14 @@ export class TaskController {
 
   }
 
-  @Get()
-  async getAll() {
-    return await this._taskService.getAllTasks({}, taskBasicPopulation);
+  @Get(':projectId')
+  async getAll(@Param('projectId') projectId: string) {
+    return await this._taskService.getAllTasks({ projectId }, taskBasicPopulation);
+  }
+
+  @Get('my-task/:projectId')
+  async getMyTasks(@Param('projectId') projectId: string) {
+    return await this._taskService.getMyTask(projectId, taskBasicPopulation);
   }
 
   @Post()
