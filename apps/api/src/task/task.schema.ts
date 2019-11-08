@@ -9,7 +9,8 @@ const paginate = require('mongoose-paginate-v2');
 const commentSchema = new Schema({
   comment: { type: String },
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  createdAt: { type: Date, default: new Date() },
+  createdAt: { type: Date },
+  updatedAt: { type: Date },
   attachments: { type: Schema.Types.ObjectId, ref: DbCollection.attachments },
   isPinned: { type: Boolean, default: false }
 });

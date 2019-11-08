@@ -136,8 +136,8 @@ export class TaskService extends BaseService<Task & Document> {
   async addComment(id: string, comment: TaskComments): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
-    comment.id = new Types.ObjectId().toHexString();
     comment.createdById = this._generalService.userId;
+    comment.createdAt = new Date();
 
     if (!taskDetails.comments.length) {
       taskDetails.comments = [comment];
@@ -153,6 +153,7 @@ export class TaskService extends BaseService<Task & Document> {
 
     taskDetails.comments = taskDetails.comments.map(com => {
       if (com.id === comment.id) {
+        comment.updatedAt = new Date();
         return comment;
       }
       return com;
