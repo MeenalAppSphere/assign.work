@@ -41,9 +41,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     view: 'project'
   };
   public stagesList: any = [];
+  public statusList: ProjectStatus[]=[];
   public typesList: TaskType[] = [];
   public priorityList: ProjectPriority[]=[];
-  public projectMembersList:ProjectMembers[]=[];
+  public projectMembersList: ProjectMembers[]=[];
 
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
@@ -62,6 +63,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       if (res) {
         this.currentProject = res;
         this.stagesList = res.settings.stages;
+        this.statusList = res.settings.status;
         this.typesList = res.settings.taskTypes;
         this.priorityList = res.settings.priorities;
         this.projectMembersList = res.members;

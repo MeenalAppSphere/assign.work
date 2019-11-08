@@ -5,7 +5,7 @@ import { TaskStore, TaskState } from '../../../store/task/task.store';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
-import { BaseResponseModel, TimeLog, Task, TaskComments } from '@aavantan-app/models';
+import { BaseResponseModel, TimeLog, Task, TaskComments, TaskHistory } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
 
@@ -27,7 +27,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
   getAllTask(): Observable<BaseResponseModel<Task[]>> {
-    return this._http.get(TaskUrls.base).pipe(
+    return this._http.get(TaskUrls.getAllTask.replace(':projectId',this._generalService.currentProject.id)).pipe(
       map((res: BaseResponseModel<Task[]>) => {
 
         this.updateState({ tasks:res.data, getTaskSuccess: true, getTaskInProcess: false });
@@ -50,7 +50,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
   updateTask(task: Task): Observable<BaseResponseModel<Task>> {
-    return this._http.put(TaskUrls.base, task).pipe(
+    return this._http.put(TaskUrls.base.replace(':taskId', task.id), task).pipe(
       map((res: BaseResponseModel<Task>) => {
         this.notification.success('Success', 'Task Updated Successfully');
         return res;
@@ -71,10 +71,10 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-  pinComment(comment: TaskComments): Observable<BaseResponseModel<Task>> {
-    return this._http.post(TaskUrls.pinComment.replace(':commentId', comment.id), comment).pipe(
+  pinComment(taskId:string, comment: any): Observable<BaseResponseModel<Task>> {
+    return this._http.post(TaskUrls.pinComment.replace(':taskId', taskId), comment).pipe(
       map((res: BaseResponseModel<Task>) => {
-        this.notification.success('Success', 'Comment Pinned Successfully');
+        this.notification.success('Success', 'Comment updated Successfully');
         return res;
       }),
       catchError(err => {
@@ -94,9 +94,9 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getHistory(taskId: string): Observable<BaseResponseModel<TaskComments[]>> {
+  getHistory(taskId: string): Observable<BaseResponseModel<TaskHistory[]>> {
     return this._http.get(TaskUrls.getHistory.replace(':taskId', taskId)).pipe(
-      map((res: BaseResponseModel<TaskComments[]>) => {
+      map((res: BaseResponseModel<TaskHistory[]>) => {
         return res;
       }),
       catchError(err => {

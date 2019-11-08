@@ -99,7 +99,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   addStatus(id: string, status: ProjectStatus): Observable<BaseResponseModel<Project>> {
-    return this._http.post(ProjectUrls.addStage.replace(':projectId', id), status)
+    return this._http.post(ProjectUrls.addStatus.replace(':projectId', id), status)
       .pipe(
         map(res => {
           this.updateCurrentProjectState(res.data);
@@ -111,7 +111,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   removeStatus(id: string, statusId: string): Observable<BaseResponseModel<Project>> {
-    return this._http.delete(ProjectUrls.removeStage
+    return this._http.delete(ProjectUrls.removeStatus
       .replace(':projectId', id)
       .replace(':statusId', statusId)
     )

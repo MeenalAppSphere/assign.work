@@ -11,7 +11,7 @@ import { TaskListComponent } from './components/task-list/task-list.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { TimelogComponent } from './components/timelog/timelog.component';
 import { DateAgoPipe } from './pipes/dateago.pipe';
-import { ServiceModule } from './services/service.module';
+import { Safe } from './pipes/safehtml.pipe';
 import { OrganisationComponent } from './components/organisation/organisation.component';
 import { NumericDirective } from './directives/numbers-only.directive';
 
@@ -30,6 +30,7 @@ import { NumericDirective } from './directives/numbers-only.directive';
     TaskListComponent,
     LoaderComponent,
     DateAgoPipe,
+    Safe,
     NumericDirective
   ],
   imports: [
@@ -49,6 +50,7 @@ import { NumericDirective } from './directives/numbers-only.directive';
     TaskListComponent,
     LoaderComponent,
     DateAgoPipe,
+    Safe,
     NumericDirective
   ]
 })

@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TaskService } from '../../shared/services/task/task.service';
-import { BaseResponseModel, TaskComments } from '@aavantan-app/models';
+import { BaseResponseModel, TaskComments, TaskHistory } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-history',
@@ -8,25 +8,13 @@ import { BaseResponseModel, TaskComments } from '@aavantan-app/models';
   styleUrls: ['./history.component.css']
 })
 export class HistoryComponent implements OnInit {
-  @Input() public  taskId:string;
-  public getHistoryInProcess:boolean = false;
+  @Input() public taskId:string;
+  @Input() public historyList: TaskHistory[]=[];
 
-  public data: BaseResponseModel<TaskComments[]>;
-
-  constructor(private _taskService: TaskService) { }
+  constructor() { }
 
   ngOnInit() {
-    this.getHistory();
-  }
 
-  async getHistory(){
-    this.getHistoryInProcess=true;
-    try {
-      this.data = await this._taskService.getHistory(this.taskId).toPromise();
-      this.getHistoryInProcess = false;
-    } catch (e) {
-      this.getHistoryInProcess = false;
-    }
   }
 
 }

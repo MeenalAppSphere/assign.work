@@ -35,7 +35,7 @@
                         <nz-form-label  nzFor="taskType">Assigned To</nz-form-label>
                         <nz-form-control class="relative">
                             <span class="assigned-user-icon">
-                              <nz-avatar [nzSize]="16" nzIcon="user" [nzSrc]="assigneeTo && assigneeTo.userDetails ? assigneeTo.userDetails.profilePic : null" ></nz-avatar>
+                              <nz-avatar [nzSize]="16" nzIcon="user" [nzSrc]="selectedAssignee && selectedAssignee.userDetails ? selectedAssignee.userDetails.profilePic : null" ></nz-avatar>
                             </span>
                             <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
                             <nz-autocomplete #autoAssignee>
@@ -278,9 +278,17 @@
                 </form>
               <hr style="border-top: 4px solid #3f86f5; margin-bottom:5px; box-shadow: 0px 0px 3px 0px #ddd; margin-top: 15px;border-top: 4px solid #3f86f5; margin-top: 15px;"/>
               <div class="p-15">
-                  <nz-form-label>Activity <small>(<img src="./../../assets/images/pin-fill.png" class="pin-icon" height="22"/> Pinned Messages)</small></nz-form-label>
+                  <nz-form-label><img src="./../../assets/images/pin-fill.png" class="pin-icon" height="22"/> Pinned Comments</nz-form-label>
                   <div class="frozen-div m-t-5">
-                      <aavantan-app-activity [taskId]="taskId ? taskId : ''"></aavantan-app-activity>
+                    <nz-spin nzTip="Loading..." [nzSpinning]="getCommentInProcess">
+                      <aavantan-app-activity *ngIf="pinnedCommentsList && pinnedCommentsList.length>0" [taskId]="taskId" [commentsList]="pinnedCommentsList"></aavantan-app-activity>
+                      <div *ngIf="pinnedCommentsList && pinnedCommentsList.length===0">
+                        <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                        <ng-template #contentActivity>
+                          <span> No Pinned Comments</span>
+                        </ng-template>
+                      </div>
+                    </nz-spin>
                   </div>
               </div>
             </div>
@@ -330,16 +338,24 @@
 
         <section>
             <nz-tabset nzSize="small">
-                <nz-tab nzTitle="Activity">
+                <nz-tab nzTitle="Comments">
 
                     <div *ngIf="taskId">
-                        <aavantan-app-activity [enablePinButton]="true" [taskId]="taskId ? taskId : ''"></aavantan-app-activity>
+                        <nz-spin nzTip="Loading..." [nzSpinning]="getCommentInProcess">
+                          <aavantan-app-activity *ngIf="commentsList && commentsList.length>0" [taskId]="taskId" [enablePinButton]="true" (isPinnedSuccess)="pinnedSuccess()" [commentsList]="commentsList"></aavantan-app-activity>
+                          <div *ngIf="commentsList && commentsList.length===0">
+                            <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                            <ng-template #contentActivity>
+                              <span> No Pinned Comments</span>
+                            </ng-template>
+                          </div>
+                        </nz-spin>
                     </div>
 
                     <div *ngIf="!taskId">
                         <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
                         <ng-template #contentActivity>
-                            <span> No Activities</span>
+                            <span> No Comments</span>
                         </ng-template>
                     </div>
 
@@ -347,7 +363,15 @@
                 <nz-tab nzSize="small" nzTitle="History">
 
                     <div *ngIf="taskId">
-                        <aavantan-app-history [taskId]="taskId"></aavantan-app-history>
+                      <nz-spin nzTip="Loading..." [nzSpinning]="getHistoryInProcess">
+                        <aavantan-app-history *ngIf="historyList && historyList.length>0" [taskId]="taskId" [historyList]="historyList"></aavantan-app-history>
+                        <div *ngIf="historyList && historyList.length===0">
+                          <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                          <ng-template #contentActivity>
+                            <span> No History</span>
+                          </ng-template>
+                        </div>
+                      </nz-spin>
                     </div>
 
                     <div *ngIf="!taskId">

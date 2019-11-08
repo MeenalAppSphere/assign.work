@@ -29,7 +29,7 @@
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='status'}"
          (click)="activeTab('status', 'Status')">
-        <i class="fas fa-bars"></i>
+        <i class="fas fa-battery-half"></i>
         Status
       </a>
     </li>
@@ -144,7 +144,7 @@
 
                 <nz-form-label>Stage title<span class="text-danger">*</span></nz-form-label>
                 <nz-form-control>
-                  <input nz-input nzSize="small" formControlName="name" placeholder="Enter Stage title"
+                  <input nz-input statusListnzSize="small" formControlName="name" placeholder="Enter Stage title"
                          maxlength="30"/>
                 </nz-form-control>
 
@@ -166,7 +166,7 @@
 
               <ul class="stages-list">
                 <li *ngFor="let item of stagesList"><span>{{item.name}}</span>
-<!--                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
                 </li>
               </ul>
 

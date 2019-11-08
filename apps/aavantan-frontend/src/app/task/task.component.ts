@@ -7,7 +7,7 @@ import {
   ProjectPriority,
   ProjectStages, ProjectStatus,
   Sprint,
-  Task, TaskComments,
+  Task, TaskComments, TaskHistory,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -31,7 +31,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public currentUser: User;
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
-  public assigneeTo: ProjectMembers;
+  public selectedAssignee: ProjectMembers;
   public selectedRelatedItem: Task;
   public selectedDependentItem: Task;
   public selectedTaskType: TaskType;
@@ -43,6 +43,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public createTaskInProcess: boolean = false;
   public createCommentInProcess: boolean = false;
   public getTaskInProcess:boolean = false;
+  public getCommentInProcess:boolean = false;
+  public getHistoryInProcess:boolean =  false;
 
   public defaultFileList = [
     {
@@ -72,6 +74,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   public assigneeDataSource: ProjectMembers[] = [];
   public relatedTaskDataSource: Task[] = [];
   public dependentTaskDataSource: Task[] = [];
+  public commentsRes:BaseResponseModel<TaskComments[]>;
+  public commentsList:TaskComments[] = [];
+  public historyRes:BaseResponseModel<TaskHistory[]>;
+  public historyList:TaskHistory[] = [];
+  public pinnedCommentsList:TaskComments[] = [];
   public sprintDataSource: Sprint[] = [
     {
       id: '1',
@@ -178,6 +185,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskTypeDataSource = res.settings.taskTypes;
         this.assigneeDataSource = res.members;
         this.priorityDataSource = res.settings.priorities;
+        this.statusDataSource = res.settings.status;
 
         if (this.taskTypeDataSource && this.displayName) {
 
@@ -234,20 +242,57 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.taskForm.reset();
   }
 
+  public pinnedSuccess(){
+    this.getMessage(true);
+  }
+
   async getTask(){
     this.getTaskInProcess = true;
     try {
 
-      this.taskData= await this._taskService.getTask(this.displayName).toPromise();
+      this.taskData = await this._taskService.getTask(this.displayName).toPromise();
       this.taskForm.patchValue(this.taskData.data);
       this.taskId = this.taskData.data.id;
-
+      this.getMessage();
+      this.getHistory();
       this.selectTaskType(this.taskData.data.taskType as TaskType);
       this.selectPriority(this.taskData.data.priority as ProjectPriority);
+      this.selectAssigneeTypeahead(this.taskData.data.assignee as ProjectMembers);
 
       this.getTaskInProcess = false;
     } catch (e) {
       this.getTaskInProcess = false;
+    }
+  }
+
+  async getMessage(hideLoader?:boolean){
+    if(!hideLoader){
+      this.getCommentInProcess=true;
+    }
+
+    try {
+      this.commentsRes = await this._taskService.getComments(this.taskId).toPromise();
+      this.commentsList = this.commentsRes.data;
+      this.pinnedCommentsList = this.commentsRes.data.filter((ele)=>{
+        return ele.isPinned===true;
+      });
+      this.getCommentInProcess = false;
+    } catch (e) {
+      this.getCommentInProcess = false;
+    }
+  }
+
+  async getHistory(hideLoader?:boolean){
+    if(!hideLoader){
+      this.getHistoryInProcess=true;
+    }
+
+    try {
+      this.historyRes = await this._taskService.getHistory(this.taskId).toPromise();
+      this.historyList = this.historyRes.data;
+      this.getHistoryInProcess = false;
+    } catch (e) {
+      this.getHistoryInProcess = false;
     }
   }
 
@@ -258,6 +303,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
     task.taskType = this.selectedTaskType.id;
+    task.assigneeId = this.selectedAssignee.userDetails.id || this.selectedAssignee.userId;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
@@ -266,6 +312,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this.createTaskInProcess = true;
     try {
+
       if(this.taskId){
         await this._taskService.updateTask(task).toPromise();
       }else{
@@ -286,8 +333,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectAssigneeTypeahead(user: ProjectMembers) {
     if (user) {
-      this.assigneeTo = user;
-      this.taskForm.get('assigneeId').patchValue(user.userId);
+      this.selectedAssignee = user;
     }
   }
 
@@ -297,7 +343,6 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectPriority(item: ProjectPriority) {
     this.selectedPriority = item;
-    this.taskForm.get('priority').patchValue(item.id);
   }
 
   public selectStage(item: ProjectStages) {
