@@ -27,6 +27,14 @@
     </li>
 
     <li>
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='status'}"
+         (click)="activeTab('status', 'Status')">
+        <i class="fas fa-bars"></i>
+        Status
+      </a>
+    </li>
+
+    <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='priority'}"
          (click)="activeTab('priority', 'Priority')">
         <i class="fas fa-arrow-up"></i>
@@ -171,6 +179,52 @@
 
       <!-- end stages -->
 
+      <ng-container *ngIf="activeView.view==='status'">
+
+        <section class="row">
+
+          <aside class="col-md-3">
+
+            <form nz-form (submit)="addStatus()" [formGroup]="statusForm">
+
+              <nz-form-item>
+
+                <nz-form-label>Status title<span class="text-danger">*</span></nz-form-label>
+                <nz-form-control>
+                  <input nz-input nzSize="small" formControlName="name" placeholder="Enter Status title"
+                         maxlength="30"/>
+                </nz-form-control>
+
+              </nz-form-item>
+
+              <nz-form-item>
+                <button nz-button nzType="primary" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
+              </nz-form-item>
+
+            </form>
+
+          </aside>
+
+          <aside class="col-md-3">
+
+            <nz-form-label>Default Status</nz-form-label>
+
+            <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
+
+              <ul class="stages-list">
+                <li *ngFor="let item of statusList"><span>{{item.name}}</span>
+                  <!--                  <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+                </li>
+              </ul>
+
+            </nz-spin>
+
+          </aside>
+
+        </section>
+      </ng-container>
+
+      <!-- end status -->
       <ng-container *ngIf="activeView.view==='priority'">
 
         <section class="row task-type-section">

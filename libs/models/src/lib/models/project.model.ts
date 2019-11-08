@@ -41,6 +41,12 @@ export class ProjectStages {
   alias?: string;
 }
 
+export class ProjectStatus {
+  id?: string;
+  name: string;
+  alias?: string;
+}
+
 export interface ProjectPriority {
   id?: string;
   name: string;

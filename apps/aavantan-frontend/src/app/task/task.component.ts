@@ -5,7 +5,7 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages,
+  ProjectStages, ProjectStatus,
   Sprint,
   Task, TaskComments,
   TaskType,
@@ -37,6 +37,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectedTaskType: TaskType;
   public selectedPriority: ProjectPriority;
   public selectedStage: ProjectStages;
+  public selectedStatus: ProjectStatus;
   public timelogModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
   public createTaskInProcess: boolean = false;
@@ -116,6 +117,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public taskTypeDataSource: TaskType[] = [];
   public stagesDataSource: ProjectStages[] = [];
+  public statusDataSource: ProjectStatus[] = [];
   public priorityDataSource: ProjectPriority[] = [];
   public displayName: string;
   public taskData:BaseResponseModel<Task>;
@@ -300,6 +302,10 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectStage(item: ProjectStages) {
     this.selectedStage = item;
+  }
+
+  public selectStatus(item: ProjectStatus) {
+    this.selectedStatus = item;
   }
 
   /* comment */

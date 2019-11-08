@@ -1,5 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { User, TaskType, Project, ProjectStages, ProjectMembers, ProjectPriority } from '@aavantan-app/models';
+import {
+  User,
+  TaskType,
+  Project,
+  ProjectStages,
+  ProjectMembers,
+  ProjectPriority,
+  ProjectStatus
+} from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { TypeaheadMatch } from 'ngx-bootstrap';
@@ -23,6 +31,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public userDataSource:User[]=[];
   public enableInviteBtn: boolean;
   public stageForm: FormGroup;
+  public statusForm: FormGroup;
   public projectForm: FormGroup;
   public taskTypeForm: FormGroup;
   public priorityForm:FormGroup;
@@ -40,6 +49,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public addCollaboratorsInProcess: boolean = false;
   public updateRequestInProcess: boolean = false;
   public deleteStageInProcess: boolean = false;
+  public deleteStatusInProcess: boolean = false;
   public deleteTaskTypeInProcess: boolean = false;
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
@@ -63,6 +73,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     this.stageForm = this.FB.group({
+      name: new FormControl(null, [Validators.required])
+    });
+
+    this.statusForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
 
@@ -188,6 +202,29 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.deleteStageInProcess = false;
     }), (error => {
       this.deleteStageInProcess = false;
+    }));
+  }
+
+  public addStatus() {
+    if(this.statusForm.invalid){
+      this.notification.error('Error', 'Please check Status title');
+      return;
+    }
+    this.updateRequestInProcess = true;
+    this._projectService.addStatus(this.currentProject.id, this.statusForm.value).subscribe((res => {
+      this.statusForm.reset();
+      this.updateRequestInProcess = false;
+    }), (error => {
+      this.updateRequestInProcess = false;
+    }));
+  }
+
+  public removeStatus(status: ProjectStatus) {
+    this.deleteStatusInProcess = true;
+    this._projectService.removeStatus(this.currentProject.id, status.id).subscribe((res => {
+      this.deleteStatusInProcess = false;
+    }), (error => {
+      this.deleteStatusInProcess = false;
     }));
   }
 

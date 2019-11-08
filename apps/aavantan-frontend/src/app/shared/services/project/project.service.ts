@@ -11,7 +11,7 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages,
+  ProjectStages, ProjectStatus,
   TaskType
 } from '@aavantan-app/models';
 import { catchError, map } from 'rxjs/operators';
@@ -92,6 +92,33 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         map(res => {
           this.updateCurrentProjectState(res.data);
           this.notification.success('Success', 'Stage Deleted Successfully');
+          return res;
+        }),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+  addStatus(id: string, status: ProjectStatus): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.addStage.replace(':projectId', id), status)
+      .pipe(
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Status Created Successfully');
+          return res;
+        }),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+  removeStatus(id: string, statusId: string): Observable<BaseResponseModel<Project>> {
+    return this._http.delete(ProjectUrls.removeStage
+      .replace(':projectId', id)
+      .replace(':statusId', statusId)
+    )
+      .pipe(
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Status Deleted Successfully');
           return res;
         }),
         catchError(e => this.handleError(e))
