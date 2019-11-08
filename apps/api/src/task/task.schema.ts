@@ -59,7 +59,12 @@ export const taskSchema = new Schema({
 // options
 taskSchema
   .set('toObject', { virtuals: true })
-  .set('toJSON', { virtuals: true });
+  .set('toJSON', {
+    virtuals: true, transform: (doc, ret) => {
+      ret.id = ret._id;
+      return ret;
+    }
+  });
 
 // virtual
 taskSchema.virtual('project', {

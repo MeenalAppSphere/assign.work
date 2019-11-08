@@ -125,12 +125,20 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   async getComments(id: string): Promise<TaskComments[]> {
-    return await this._taskModel.findById(id).select('comments -_id').populate([{
+    const data = await this._taskModel.findById(id).select('comments -_id').populate([{
       path: 'comments.createdBy',
       select: '-_id firstName lastName profilePic'
     }, {
       path: 'comments.attachments'
     }]).lean().exec();
+
+    if (data && data.comments) {
+      return data.comments.map(c => {
+        c.id = c['_id'];
+        return c;
+      });
+    }
+    return data;
   }
 
   async addComment(id: string, comment: TaskComments): Promise<string> {
