@@ -24,8 +24,7 @@ const appRoutes: Routes = [
     path: 'dashboard',
     loadChildren: () =>
       import('./dashboard/dashboard.module').then(m => m.DashboardModule),
-    canActivate: [AuthGuard],
-    resolve: [DashboardDataResolver]
+    canActivate: [AuthGuard]
   },
   {
     path: 'middleware',

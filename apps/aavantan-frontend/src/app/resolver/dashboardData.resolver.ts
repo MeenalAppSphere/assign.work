@@ -15,6 +15,7 @@ export class DashboardDataResolver implements Resolve<any> {
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> | Promise<any> | any {
     const token = this.authQuery.getValue().token;
+
     if (token) {
       this._generalService.token = token;
       return this._userService.getProfile().pipe(

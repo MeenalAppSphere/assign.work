@@ -127,7 +127,8 @@ export class TaskService extends BaseService<Task & Document> {
   async getComments(id: string): Promise<TaskComments[]> {
     const data = await this._taskModel.findById(id).select('comments -_id').populate([{
       path: 'comments.createdBy',
-      select: '-_id firstName lastName profilePic'
+      select: '-_id firstName lastName profilePic',
+      justOne: true
     }, {
       path: 'comments.attachments'
     }]).lean().exec();
