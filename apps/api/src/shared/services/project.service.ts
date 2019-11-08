@@ -5,7 +5,7 @@ import {
   DbCollection,
   Project,
   ProjectMembers, ProjectPriority,
-  ProjectStages, ProjectWorkingCapacityUpdateDto,
+  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -34,6 +34,7 @@ export class ProjectService extends BaseService<Project & Document> {
     model.settings.taskTypes = [];
     model.settings.priorities = [];
     model.settings.stages = [];
+    model.settings.status = [];
     try {
       // create project and get project id from them
       const createdProject = await this.create([model], session);
@@ -248,6 +249,35 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     projectDetails.settings.taskTypes = projectDetails.settings.taskTypes.filter(f => f.id !== taskTypeId);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  async createStatus(id: string, status: ProjectStatus) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    if (!status.name) {
+      throw new BadRequestException('Please add name');
+    }
+
+    if (projectDetails.settings.status && projectDetails.settings.status.length) {
+      const isDuplicate = projectDetails.settings.status.some(s => s.name.toLowerCase() === status.name.toLowerCase());
+
+      if (isDuplicate) {
+        throw new BadRequestException('Status Name Already Exists');
+      }
+    } else {
+      projectDetails.settings.status = [];
+    }
+
+    status.id = new Types.ObjectId().toHexString();
+    projectDetails.settings.status.push(status);
+    return await this.updateProject(id, projectDetails);
+  }
+
+  async removeStatus(id: string, statusId: string) {
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    projectDetails.settings.status = projectDetails.settings.status.filter(f => f.id !== statusId);
     return await this.updateProject(id, projectDetails);
   }
 

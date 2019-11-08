@@ -12,7 +12,6 @@ export class Project {
   organization: string | Organization | Types.ObjectId;
   desc?: string;
   avatar?: string;
-  status?: string;
   progress?: number;
   template: ProjectTemplateEnum;
   createdBy?: string | User;
@@ -33,6 +32,7 @@ export class ProjectSettings {
   stages: ProjectStages[];
   taskTypes: TaskType[];
   priorities: ProjectPriority[];
+  status?: ProjectStatus[];
 }
 
 export class ProjectStages {
