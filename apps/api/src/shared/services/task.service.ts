@@ -162,18 +162,18 @@ export class TaskService extends BaseService<Task & Document> {
     return 'Comment Updated Successfully';
   }
 
-  async pinComment(id: string, commentId: string, isPinned: boolean): Promise<string> {
+  async pinComment(id: string, modal: { commentId: string, isPinned: boolean }): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
     taskDetails.comments = taskDetails.comments.map(com => {
-      if (com.id === commentId) {
-        com.isPinned = isPinned;
+      if (com.id === modal.commentId) {
+        com.isPinned = modal.isPinned;
       }
       return com;
     });
 
     await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentPinned);
-    return `Comment ${isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
+    return `Comment ${modal.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
   }
 
   async deleteComment(id: string, commentId: string) {

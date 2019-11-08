@@ -55,8 +55,8 @@ export class TaskController {
   }
 
   @Post(':id/pin-comment')
-  async pinComment(@Param('id') id: string, @Param('commentId') commentId: string, isPinned: boolean) {
-    return await this._taskService.pinComment(id, commentId, isPinned);
+  async pinComment(@Param('id') id: string, @Body() request: { commentId: string, isPinned: boolean }) {
+    return await this._taskService.pinComment(id, request);
   }
 
   @Delete(':id/delete-comment/:commentId')
