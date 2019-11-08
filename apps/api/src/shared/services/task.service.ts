@@ -168,6 +168,7 @@ export class TaskService extends BaseService<Task & Document> {
 
     taskDetails.comments = taskDetails.comments.map(com => {
       if (com.id === modal.commentId) {
+        com.updatedAt = new Date();
         com.isPinned = modal.isPinned;
       }
       return com;
