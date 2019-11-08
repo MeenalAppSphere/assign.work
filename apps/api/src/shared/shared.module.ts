@@ -14,7 +14,8 @@ import { TaskHistoryService } from './services/task-history.service';
 import { attachmentSchema } from '../attachment/attachment.schema';
 import { AttachmentService } from './services/attachment.service';
 import { EasyconfigModule } from 'nestjs-easyconfig';
-import * as path from "path";
+import * as path from 'path';
+import { GeneralService } from './services/general.service';
 
 @Global()
 @Module({
@@ -53,7 +54,8 @@ import * as path from "path";
     OrganizationService,
     TaskService,
     TaskHistoryService,
-    AttachmentService
+    AttachmentService,
+    GeneralService
   ],
   providers: [
     UsersService,
@@ -61,7 +63,8 @@ import * as path from "path";
     OrganizationService,
     TaskService,
     TaskHistoryService,
-    AttachmentService
+    AttachmentService,
+    GeneralService
   ]
 })
 export class SharedModule {

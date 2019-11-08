@@ -5,6 +5,27 @@ import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/sc
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
 
+
+const commentSchema = new Schema({
+  comment: { type: String },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  createdAt: { type: Date, default: new Date() },
+  attachments: { type: Schema.Types.ObjectId, ref: DbCollection.attachments },
+  isPinned: { type: Boolean, default: false }
+});
+
+commentSchema.virtual('attachmentsDetails', {
+  ref: DbCollection.attachments,
+  localField: 'attachments',
+  foreignField: '_id'
+});
+
+commentSchema.virtual('createdBy', {
+  ref: DbCollection.users,
+  localField: 'createdById',
+  foreignField: '_id'
+});
+
 export const taskSchema = new Schema({
   name: { type: String, required: [true, 'Please Add task title'] },
   displayName: { type: String },
@@ -17,7 +38,7 @@ export const taskSchema = new Schema({
   assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
   attachments: [],
   taskType: { type: String, required: [true, 'Please add task type'] },
-  comments: [],
+  comments: [commentSchema],
   estimatedTime: { type: Number },
   remainingTime: { type: Number },
   totalLoggedTime: { type: Number },
@@ -61,12 +82,6 @@ taskSchema.virtual('createdBy', {
 taskSchema.virtual('updatedBy', {
   ref: DbCollection.users,
   localField: 'updatedById',
-  foreignField: '_id'
-});
-
-taskSchema.virtual('comments.attachmentsDetails', {
-  ref: DbCollection.attachments,
-  localField: 'comments.attachments',
   foreignField: '_id'
 });
 

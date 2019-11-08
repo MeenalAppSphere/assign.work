@@ -5,6 +5,7 @@ export enum TaskHistoryActionEnum {
   commentAdded = 'Comment Added',
   commentPinned = 'Comment Pinned',
   commentUpdated = 'Comment Updated',
+  commentDeleted = 'Comment Deleted',
   attachmentAdded = 'Attachment Added',
   assigneeChanged = 'Assignee Changed',
   descUpdated = 'Description Updated',

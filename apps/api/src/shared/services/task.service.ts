@@ -12,13 +12,14 @@ import {
 import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
+import { GeneralService } from './general.service';
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> {
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    private _taskHistoryService: TaskHistoryService
+    private _taskHistoryService: TaskHistoryService, private _generalService: GeneralService
   ) {
     super(_taskModel);
   }
@@ -124,15 +125,19 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   async getComments(id: string): Promise<TaskComments[]> {
-    return await this._taskModel.findById(id).select('comments -_id').populate('comments.attachmentsDetails').lean().exec();
+    return await this._taskModel.findById(id).select('comments -_id').populate([{
+      path: 'comments.createdBy',
+      select: '-_id firstName lastName profilePic'
+    }, {
+      path: 'comments.attachments'
+    }]).lean().exec();
   }
 
   async addComment(id: string, comment: TaskComments): Promise<string> {
     const taskDetails = await this.getTaskDetails(id);
 
     comment.id = new Types.ObjectId().toHexString();
-    comment.createdAt = new Date();
-    comment.isPinned = false;
+    comment.createdById = this._generalService.userId;
 
     if (!taskDetails.comments.length) {
       taskDetails.comments = [comment];
@@ -171,6 +176,17 @@ export class TaskService extends BaseService<Task & Document> {
     return `Comment ${isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
   }
 
+  async deleteComment(id: string, commentId: string) {
+    const taskDetails = await this.getTaskDetails(id);
+
+    taskDetails.comments = taskDetails.comments.filter(com => {
+      return com.id !== commentId;
+    });
+
+    await this.updateHelper(id, taskDetails, TaskHistoryActionEnum.commentDeleted);
+    return `Comment Deleted Successfully`;
+  }
+
   private async getProjectDetails(id: string): Promise<Project> {
     const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
     if (!projectDetails) {
@@ -183,7 +199,7 @@ export class TaskService extends BaseService<Task & Document> {
     const taskDetails: Task = await this._taskModel.findById(id).lean().exec();
 
     if (!taskDetails) {
-      throw new NotFoundException('No Project Found');
+      throw new NotFoundException('No Task Found');
     }
     return taskDetails;
   }

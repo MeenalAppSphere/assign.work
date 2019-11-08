@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task.service';
-import { Task, TaskComments, TaskFilterDto } from '@aavantan-app/models';
+import { Task, TaskComments, TaskFilterDto, User } from '@aavantan-app/models';
 
 const taskBasicPopulation: any[] = [{
   path: 'project',
@@ -45,7 +45,7 @@ export class TaskController {
   }
 
   @Post(':id/add-comment')
-  async addComment(@Param('id') id: string, @Body() comment: TaskComments) {
+  async addComment(@Param('id') id: string, @Body() comment: TaskComments, @Request() req) {
     return await this._taskService.addComment(id, comment);
   }
 
@@ -59,8 +59,13 @@ export class TaskController {
     return await this._taskService.pinComment(id, commentId, isPinned);
   }
 
+  @Delete(':id/delete-comment/:commentId')
+  async deleteComment(@Param('id') id: string, @Param('commentId') commentId: string) {
+    return await this._taskService.deleteComment(id, commentId);
+  }
+
   @Delete(':id')
-  async deleteProject(@Param('id') id: string) {
+  async deleteTask(@Param('id') id: string) {
     return await this._taskService.delete(id);
   }
 
