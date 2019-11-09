@@ -381,7 +381,8 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     const comment: AddCommentModel = {
       comment: this.commentForm.getRawValue(),
-      projectId: this._generalService.currentProject.id
+      projectId: this._generalService.currentProject.id,
+      taskId: this.taskId
     };
 
     try {

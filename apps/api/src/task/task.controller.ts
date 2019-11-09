@@ -4,16 +4,15 @@ import { TaskService } from '../shared/services/task.service';
 import {
   AddCommentModel,
   CommentPinModel,
-  CreateTaskModel,
   DeleteCommentModel,
   DeleteTaskModel,
   GetAllTaskRequestModel,
   GetCommentsModel,
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
+  Task,
   TaskFilterDto,
-  UpdateCommentModel,
-  UpdateTaskModel
+  UpdateCommentModel
 } from '@aavantan-app/models';
 
 const taskBasicPopulation: any[] = [{
@@ -39,25 +38,30 @@ export class TaskController {
     return await this._taskService.getAllTasks(model);
   }
 
-  @Post('my-task')
+  @Post('my-tasks')
   async getMyTasks(@Body() model: GetMyTaskRequestModel) {
     model.populate = taskBasicPopulation;
     return await this._taskService.getMyTask(model);
   }
 
   @Post('add')
-  async createTask(@Body() task: CreateTaskModel) {
+  async createTask(@Body() task: Task) {
     return await this._taskService.addTask(task);
   }
 
   @Post('update')
-  async updateTask(@Body() model: UpdateTaskModel) {
+  async updateTask(@Body() model: Task) {
     return await this._taskService.updateTask(model);
   }
 
   @Post('get-comments')
   async getComments(@Body() model: GetCommentsModel) {
     return await this._taskService.getComments(model);
+  }
+
+  @Post('delete-task')
+  async deleteTask(@Body() model: DeleteTaskModel) {
+    return await this._taskService.delete(model.taskId);
   }
 
   @Post('add-comment')
@@ -78,11 +82,6 @@ export class TaskController {
   @Post('delete-comment')
   async deleteComment(@Body() model: DeleteCommentModel) {
     return await this._taskService.deleteComment(model);
-  }
-
-  @Post('delete-task')
-  async deleteTask(@Body() model: DeleteTaskModel) {
-    return await this._taskService.delete(model.taskId);
   }
 
   @Post('get-task')

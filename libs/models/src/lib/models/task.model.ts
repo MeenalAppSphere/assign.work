@@ -1,12 +1,9 @@
-import {
-  AttachmentModel, BaseErrorMessageClass, MongoosePaginateQuery,
-  Project,
-  ProjectPriority,
-  ProjectStatus,
-  TaskType,
-  User
-} from '@aavantan-app/models';
 import { TaskHistoryActionEnum } from '../enums/task.enum';
+import { Project, ProjectPriority, ProjectStatus } from './project.model';
+import { User } from './user.model';
+import { AttachmentModel } from './attachment.model';
+import { MongoosePaginateQuery } from '../queryOptions';
+import { TaskType } from './tasktype.model';
 
 export class Task {
   id?: string;
@@ -96,14 +93,6 @@ export class GetMyTaskRequestModel extends MongoosePaginateQuery {
 }
 
 export class GetTaskByIdOrDisplayNameModel extends BaseTaskRequestModel {
-}
-
-export class CreateTaskModel extends BaseTaskRequestModel {
-  task: Task;
-}
-
-export class UpdateTaskModel extends BaseTaskRequestModel {
-  task: Task;
 }
 
 export class DeleteTaskModel extends BaseTaskRequestModel {

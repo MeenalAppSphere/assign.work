@@ -73,10 +73,10 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-  addComment(comment: AddCommentModel): Observable<BaseResponseModel<Task>> {
+  addComment(comment: AddCommentModel): Observable<BaseResponseModel<string>> {
     return this._http.post(TaskUrls.addComment, comment).pipe(
-      map((res: BaseResponseModel<Task>) => {
-        this.notification.success('Success', 'Commented Successfully');
+      map((res: BaseResponseModel<string>) => {
+        this.notification.success('Success', res.data);
         return res;
       }),
       catchError(err => {
@@ -84,11 +84,11 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-  pinComment(comment: CommentPinModel): Observable<BaseResponseModel<Task>> {
+  pinComment(comment: CommentPinModel): Observable<BaseResponseModel<string>> {
     comment.projectId = this._generalService.currentProject.id;
     return this._http.post(TaskUrls.pinComment, comment).pipe(
-      map((res: BaseResponseModel<Task>) => {
-        this.notification.success('Success', 'Comment updated Successfully');
+      map((res: BaseResponseModel<string>) => {
+        this.notification.success('Success', res.data);
         return res;
       }),
       catchError(err => {

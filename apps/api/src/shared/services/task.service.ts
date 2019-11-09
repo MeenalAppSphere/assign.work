@@ -4,7 +4,6 @@ import {
   AddCommentModel,
   BasePaginatedResponse,
   CommentPinModel,
-  CreateTaskModel,
   DbCollection,
   DeleteCommentModel,
   GetAllTaskRequestModel,
@@ -18,7 +17,6 @@ import {
   TaskHistory,
   TaskHistoryActionEnum,
   UpdateCommentModel,
-  UpdateTaskModel,
   User
 } from '@aavantan-app/models';
 import { Document, Model, Query, Types } from 'mongoose';
@@ -49,7 +47,7 @@ export class TaskService extends BaseService<Task & Document> {
       filter = { projectId: model.projectId };
     }
 
-    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(onlyMyTask, model);
+    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
 
     result.items = result.items.map(task => {
       task.id = task['_id'];
@@ -70,20 +68,20 @@ export class TaskService extends BaseService<Task & Document> {
     return this.getAllTasks(model, true);
   }
 
-  async addTask(model: CreateTaskModel): Promise<Task> {
+  async addTask(model: Task): Promise<Task> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
     // validation
-    if (!model.task.taskType) {
+    if (!model.taskType) {
       throw new BadRequestException('Please add Task Type');
     }
 
     const lastTask = await this._taskModel.find({}).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
-    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.task.taskType);
+    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 
     if (!taskTypeDetails) {
       throw new BadRequestException('Please create Task Type');
@@ -92,14 +90,14 @@ export class TaskService extends BaseService<Task & Document> {
     if (lastTask[0]) {
       // tslint:disable-next-line:radix
       const lastInsertedNo = parseInt(lastTask[0].displayName.split('-')[1]);
-      model.task.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
+      model.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
     } else {
-      model.task.displayName = `${taskTypeDetails.displayName}-1`;
+      model.displayName = `${taskTypeDetails.displayName}-1`;
     }
 
     try {
-      const createdTask = await this.create([model.task], session);
-      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, model.task.createdById, createdTask[0].id);
+      const createdTask = await this.create([model], session);
+      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, model.createdById, createdTask[0].id);
       await this._taskHistoryService.addHistory(taskHistory, session);
       await session.commitTransaction();
       session.endSession();
@@ -111,11 +109,11 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async updateTask(model: UpdateTaskModel): Promise<Task> {
+  async updateTask(model: Task): Promise<Task> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    await this.updateHelper(model.taskId, model.task, null);
-    return this._taskModel.findById(model.taskId).lean();
+    await this.updateHelper(model.id, model, null);
+    return this._taskModel.findById(model.id).lean();
   }
 
   async deleteTask(model: DeleteCommentModel) {
@@ -148,7 +146,7 @@ export class TaskService extends BaseService<Task & Document> {
     task.id = task['_id'];
     task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
     task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
-    delete task['project']['settings'];
+    // delete task['project']['settings'];
     return task;
   }
 
