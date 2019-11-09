@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task.service';
-import { Task, TaskComments, TaskFilterDto, User } from '@aavantan-app/models';
+import { GetAllTaskRequestModel, Task, TaskComments, TaskFilterDto, User } from '@aavantan-app/models';
 
 const taskBasicPopulation: any[] = [{
   path: 'createdBy',
@@ -21,8 +21,9 @@ export class TaskController {
   }
 
   @Post('get-all')
-  async getAll(@Body('projectId') projectId: string) {
-    return await this._taskService.getAllTasks(projectId, taskBasicPopulation);
+  async getAll(@Body() model: GetAllTaskRequestModel) {
+    model.populate = taskBasicPopulation;
+    return await this._taskService.getAllTasks(model);
   }
 
   @Get('my-task/:projectId')

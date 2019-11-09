@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
-  DbCollection,
+  BasePaginatedResponse,
+  DbCollection, GetAllTaskRequestModel,
   Project,
   Task,
   TaskComments,
@@ -24,12 +25,12 @@ export class TaskService extends BaseService<Task & Document> {
     super(_taskModel);
   }
 
-  async getAllTasks(projectId: string, populate: Array<any> = []): Promise<Partial<Task[]>> {
-    const projectDetails = await this.getProjectDetails(projectId);
+  async getAllTasks(model: GetAllTaskRequestModel): Promise<Partial<BasePaginatedResponse<Task>>> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
 
-    let allTasks: Task[] = await this.getAll({ projectId }, populate);
+    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData({ projectId: model.projectId }, model);
 
-    allTasks = allTasks.map(task => {
+    result.items = result.items.map(task => {
       task.id = task['_id'];
       task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
       task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
@@ -41,7 +42,7 @@ export class TaskService extends BaseService<Task & Document> {
     //   delete task['project']['settings'];
     // });
 
-    return allTasks;
+    return result;
   }
 
   async getMyTask(projectId: string, populate: Array<any> = []): Promise<Partial<Task[]>> {

@@ -1,5 +1,5 @@
 import { ClientSession, Document, Model, Types } from 'mongoose';
-import { MongoosePaginateQuery } from '@aavantan-app/models';
+import { BasePaginatedResponse, MongoosePaginateQuery } from '@aavantan-app/models';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -56,8 +56,29 @@ export class BaseService<T extends Document> {
       .updateOne({ _id: id }, updatedDoc, { session }).exec();
   }
 
-  public async getAllPaginatedData(query: any = {}, options: Partial<MongoosePaginateQuery> | any) {
-    return (this.model as any).paginate(query, options);
+  public async getAllPaginatedData(filter: any = {}, options: Partial<MongoosePaginateQuery> | any): Promise<BasePaginatedResponse<any>> {
+    const query = this.model
+      .find({ ...filter, ...defaultQueryOptions })
+      .skip((options.count * options.page) - options.count)
+      .limit(options.count);
+
+    if (options.populate && options.populate.length) {
+      query.populate(options.populate);
+    }
+
+    const result = await query.lean().exec();
+    result.forEach((doc) => {
+      doc.id = String(doc._id);
+    });
+    const numberOfDocs = await this.model.count({ ...filter, ...defaultQueryOptions });
+
+    return {
+      page: options.page,
+      totalItems: numberOfDocs,
+      totalPages: Math.ceil(numberOfDocs / options.count),
+      count: options.count,
+      items: result
+    };
   }
 
   public async getAll(filter: any = {}, populate: Array<any> = []) {
@@ -66,6 +87,10 @@ export class BaseService<T extends Document> {
       query.populate(populate);
     }
     return query.lean().exec();
+  }
+
+  public async count(filter: any = {}): Promise<number> {
+    return this.model.count(filter);
   }
 
   public async delete(id: string): Promise<T> {

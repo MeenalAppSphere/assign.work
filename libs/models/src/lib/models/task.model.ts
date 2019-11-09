@@ -1,4 +1,12 @@
-import { AttachmentModel, Project, ProjectPriority, ProjectStatus, TaskType, User } from '@aavantan-app/models';
+import {
+  AttachmentModel,
+  BasePaginatedResponse, BaseRequestModel, MongoosePaginateQuery,
+  Project,
+  ProjectPriority,
+  ProjectStatus,
+  TaskType,
+  User
+} from '@aavantan-app/models';
 import { TaskHistoryActionEnum } from '../enums/task.enum';
 
 export class Task {
@@ -72,4 +80,17 @@ export class TaskFilterDto {
   sortBy?: string;
   startedAt?: Date;
   finishedAt?: Date;
+}
+
+export class BaseTaskRequestModel {
+  projectId: string;
+}
+
+export class GetAllTaskRequestModel extends MongoosePaginateQuery {
+  projectId: string;
+}
+
+export class AddCommentModel extends BaseTaskRequestModel {
+  projectId: string;
+  comment: TaskComments;
 }
