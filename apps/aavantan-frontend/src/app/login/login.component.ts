@@ -13,8 +13,8 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 export class LoginComponent implements OnInit, OnDestroy {
   public loginForm: FormGroup;
   public loginInProcess = false;
-  public responseMessage: Notice;
-
+  public responseMessage: Notice = {};
+  public isSubmitted: boolean;
   constructor(private _authService: AuthService, private _authQuery: AuthQuery, private router: Router) {
   }
 
@@ -28,6 +28,13 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginInProcess = res;
     });
 
+    this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (this.isSubmitted && !res){
+        this.responseMessage.message = "Invalid credentials";
+        this.responseMessage.type = "danger";
+      }
+    });
+
   }
 
   loginWithGoogle() {
@@ -37,6 +44,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   submitForm() {
+    this.isSubmitted = true;
     this._authService.login(this.loginForm.value).subscribe();
   }
 

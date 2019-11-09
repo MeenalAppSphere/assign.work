@@ -2,13 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   AddCommentModel,
-  BaseResponseModel, GetTaskRequestModel,
+  BaseResponseModel, GetTaskByIdOrDisplayNameModel,
   Project,
   ProjectMembers,
   ProjectPriority,
   ProjectStages, ProjectStatus,
   Sprint,
-  Task, TaskComments, TaskHistory, TaskPinRequest,
+  Task, TaskComments, TaskHistory, CommentPinModel,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -161,7 +161,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       dependentItem: [null],
       relatedItem: [null],
       tags: [null],
-      epic: [null]
+      epic: [null],
+      status:[null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -250,7 +251,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   async getTask(){
     this.getTaskInProcess = true;
     try {
-      const json:GetTaskRequestModel = {
+      const json:GetTaskByIdOrDisplayNameModel = {
+        projectId : this._generalService.currentProject.id,
         displayName :this.displayName,
         taskId : this.taskId
       }
@@ -275,7 +277,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getCommentInProcess=true;
     }
 
-    const json: TaskPinRequest = {
+    const json: CommentPinModel = {
       projectId : this._generalService.currentProject.id,
       taskId: this.taskId
     }
@@ -299,7 +301,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getHistoryInProcess=true;
     }
 
-    const json: TaskPinRequest ={
+    const json: CommentPinModel ={
       projectId : this._generalService.currentProject.id,
       taskId: this.taskId
     }
@@ -320,7 +322,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
     task.taskType = this.selectedTaskType.id;
-    task.assigneeId = this.selectedAssignee.userDetails.id || this.selectedAssignee.userId;
+    task.assigneeId = this.selectedAssignee.userId;
+    task.status = this.selectedStatus.id;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
@@ -335,6 +338,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       }else{
         await this._taskService.createTask(task).toPromise();
         this.taskForm.reset();
+        this.selectedStatus=null;
+        this.selectedPriority=null;
       }
 
       this.createTaskInProcess = false;

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Organization } from '@aavantan-app/models';
+import { Organization, Project } from '@aavantan-app/models';
 import { OrganizationService } from '../../services/organization/organization.service';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
@@ -18,7 +18,9 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public modalTitle = 'Create Organisation';
-  public organizations: any = [];
+  public organizations: Organization[];
+  public showCreateOrg:boolean = true;
+
   public organizationCreationInProcess: boolean = false;
 
   constructor(private FB: FormBuilder, private _organizationService: OrganizationService,
@@ -27,9 +29,17 @@ export class OrganisationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.orgForm = this.FB.group({
-      name: [null, [Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
+      name: [null, [Validators.required, Validators.pattern('^[a-zA-Z0-9 ]*$')]],
       description: [null, '']
     });
+
+    this.organizations= this._generalService.user.projects as Organization[];
+
+    if (this.organizations && this.organizations.length>0) {
+      this.showCreateOrg=false;
+    }else{
+      this.showCreateOrg=true;
+    }
 
     // listen for organization creation
     this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -42,9 +52,14 @@ export class OrganisationComponent implements OnInit, OnDestroy {
     this._organizationQuery.isCreateOrganizationInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
       this.organizationCreationInProcess = res;
     });
+
   }
 
-  public selectOrg(item) {
+  public addNewOrg(){
+    this.showCreateOrg=true;
+  }
+
+  public selectOrg(item:Organization) {
     console.log('Selected Org:', item.name);
   }
 

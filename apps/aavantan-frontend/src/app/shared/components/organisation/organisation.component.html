@@ -1,7 +1,30 @@
 <nz-modal [(nzVisible)]="organizationModalIsVisible" [nzTitle]="modalTitle" nzClassName="organisation-modal"
           nzFooter="#nzModalFooter" nzWidth="600" nzClosable="false">
 
-  <form nz-form class="register-form" [formGroup]="orgForm">
+  <div *ngIf="!showCreateOrg && organizations && organizations.length>0" style="height:350px;overflow: auto;">
+
+    <h5>Switch Organisation</h5>
+    <hr class="m-t-10 m-b-10">
+    <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+      <ng-template #item let-item>
+        <a class="font-size-15" href="javascript:void(0);" (click)="selectOrg(item)">
+          <nz-list-item>
+            <nz-list-item-meta
+              [nzTitle]="nzTitle">
+              <ng-template #nzTitle>
+                <nz-avatar class="m-r-10" nzText="AW"></nz-avatar>
+                {{item.name}}
+              </ng-template>
+            </nz-list-item-meta>
+          </nz-list-item>
+        </a>
+      </ng-template>
+    </nz-list>
+
+  </div>
+
+
+  <form nz-form class="register-form" [formGroup]="orgForm" *ngIf="showCreateOrg">
 
     <ng-container *ngIf="organizations?.length>0">
 
@@ -67,9 +90,12 @@
       </div>
 
       <div class="col">
-        <button nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
+        <button *ngIf="showCreateOrg" nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
           <span>Save</span>
         </button>
+
+        <button *ngIf="!showCreateOrg" nz-button nzType="primary" class="float-right" nzSize="small" (click)="addNewOrg()">+ Add New Organisation</button>
+
       </div>
 
     </div>

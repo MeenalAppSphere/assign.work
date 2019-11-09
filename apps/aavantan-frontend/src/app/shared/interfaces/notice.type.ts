@@ -1,4 +1,4 @@
 export interface Notice {
-	type?: 'error' | 'success' | 'info' | 'warning';
-	message: string;
+	type?: 'danger' | 'success' | 'info' | 'warning';
+	message?: string;
 }

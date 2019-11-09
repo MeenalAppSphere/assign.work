@@ -18,6 +18,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public allTaskList: Task[] = [];
   public view: String = 'listView';
   public taskTypeDataSource: TaskType[] = [];
+  public getTaskInProcess: boolean= true;
 
   constructor(protected notification: NzNotificationService,
               private _generalService: GeneralService,
@@ -39,6 +40,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
+        this.getTaskInProcess=false;
+
         this.allTaskList = res;
 
         this.myTaskList = this.allTaskList.filter((ele:Task) => {
@@ -46,6 +49,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
         });
 
       }
+
     });
 
     console.log('My Task', this.myTaskList.length);
@@ -54,14 +58,25 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
 
   public createTask(item?:TaskType) {
-    if(!item.displayName && this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
-      item.displayName=this.taskTypeDataSource[0].displayName;
+    let displayName:string = null;
+
+    if(item && item.displayName){
+      displayName = item.displayName;
     }
-    if(!item.displayName){
-      this.notification.error('Error', 'Please create task types from settings');
+
+    if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
+      displayName=this.taskTypeDataSource[0].displayName;
+    }
+
+    if(!displayName){
+      this.notification.error('Info', 'Please create task types from settings');
+      setTimeout(()=>{
+        this.router.navigateByUrl("dashboard/settings");
+      },1000);
       return
     }
-    this.router.navigateByUrl("dashboard/task/"+item.displayName);
+
+    this.router.navigateByUrl("dashboard/task/"+displayName);
   }
 
   public ngOnDestroy(){

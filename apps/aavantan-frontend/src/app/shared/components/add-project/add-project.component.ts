@@ -6,6 +6,8 @@ import { Organization, Project, ProjectMembers, ProjectTemplateEnum, User } from
 import { GeneralService } from '../../services/general.service';
 import { UserService } from '../../services/user/user.service';
 import { ProjectService } from '../../services/project/project.service';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserQuery } from '../../../queries/user/user.query';
 
 
 @Component({
@@ -18,7 +20,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public projectForm: FormGroup;
-  public switchStepCurrent = 1;
+  public switchStepCurrent = 0;
   public modalTitle = 'Project Details';
   public selectedCollaborators: User[] = [];
   public selectedCollaborator: string;
@@ -38,24 +40,42 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public members: User[] = [];
 
+  public showCreateProject:boolean;
+  public projectList:Project[]=[];
+
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
-              private _generalService: GeneralService, private _usersService: UserService, private _projectService: ProjectService) {
+              private _generalService: GeneralService, private _userQuery : UserQuery, private _usersService: UserService, private _projectService: ProjectService) {
     this.getAllUsers();
   }
 
   ngOnInit() {
     this.organizations = this._generalService.user && this._generalService.user.organizations as Organization[] || [];
     this.currentOrganization = this._generalService.currentOrganization;
+
+    this.projectList= this._generalService.user.projects as Project[];
+
+    if (this.projectList && this.projectList.length>0) {
+      this.showCreateProject=false;
+    }else{
+      this.showCreateProject=true;
+    }
+
     this.createFrom();
 
     if (this.currentOrganization) {
       this.projectForm.get('organization').patchValue(this.currentOrganization.id);
     }
+
+  }
+
+
+  public addNewProject(){
+    this.showCreateProject=true;
   }
 
   public createFrom() {
     this.projectForm = this.FB.group({
-      name: [null, [Validators.required, Validators.pattern('^$|^[A-Za-z0-9]+')]],
+      name: [null, [Validators.required, Validators.pattern('^[a-zA-Z0-9 ]*$')]],
       description: [null],
       organization: ['']
     });
@@ -97,10 +117,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   next(): void {
-    if (this.switchStepCurrent === 1) {
+    if (this.switchStepCurrent === 0) {
       // save project
       this.saveProject();
-    } else if (this.switchStepCurrent === 2) {
+    } else if (this.switchStepCurrent === 1) {
       // add members
       this.addMembers();
     } else {

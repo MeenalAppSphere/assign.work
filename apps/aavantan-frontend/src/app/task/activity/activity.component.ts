@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TaskComments, TaskPinRequest } from '@aavantan-app/models';
+import { TaskComments, CommentPinModel } from '@aavantan-app/models';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 
@@ -24,7 +24,7 @@ export class ActivityComponent implements OnInit {
 
   async pinMessage(item:TaskComments){
 
-    const json: TaskPinRequest ={
+    const json: CommentPinModel ={
       projectId: this._generalService.currentProject.id,
       taskId: this.taskId,
       commentId: item.id,

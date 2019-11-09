@@ -5,7 +5,7 @@ import { Observable, of } from 'rxjs';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { delay } from 'rxjs/operators';
 import { JoyrideService } from 'ngx-joyride';
-import { Organization } from '@aavantan-app/models';
+import { Organization, Project } from '@aavantan-app/models';
 import { GeneralService } from '../shared/services/general.service';
 import { OrganizationQuery } from '../queries/organization/organization.query';
 import { UserService } from '../shared/services/user/user.service';
@@ -14,6 +14,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { AuthService } from '../shared/services/auth.service';
 import { cloneDeep } from 'lodash';
+import { ProjectService } from '../shared/services/project/project.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -31,7 +32,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   selectedOrgId: string = null;
 
-
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
               private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
               private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService) {
@@ -42,7 +42,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // listen for user from store
     this._userQuery.user$.subscribe(res => {
       this._generalService.user = cloneDeep(res);
-
       this.initialCheck();
     });
 
@@ -62,6 +61,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.showLogoutWarning('Project');
     } else {
       this.projectModalIsVisible = !this.projectModalIsVisible;
+      this.router.navigate(['dashboard', 'project']);
     }
   }
 
@@ -176,7 +176,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.selectedOrgId = (lastOrganization as Organization).id;
           this.projectModalIsVisible = true;
         } else {
-          this.router.navigate(['dashboard', 'task']);
+          this.router.navigate(['dashboard', 'project']);
         }
       }
     }

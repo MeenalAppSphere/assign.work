@@ -11,8 +11,8 @@ import {
   Task,
   TaskComments,
   TaskHistory,
-  TaskPinRequest,
-  GetTaskRequestModel, GetAllTaskRequestModel, AddCommentModel
+  CommentPinModel,
+  GetTaskByIdOrDisplayNameModel, GetAllTaskRequestModel, AddCommentModel, BasePaginatedResponse
 } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
@@ -24,7 +24,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
   }
 
   createTask(task: Task): Observable<BaseResponseModel<Task>> {
-    return this._http.post(TaskUrls.base, task).pipe(
+    return this._http.post(TaskUrls.addTask, task).pipe(
       map((res: BaseResponseModel<Task>) => {
         this.notification.success('Success', 'Task Created Successfully');
         return res;
@@ -34,16 +34,16 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-  getAllTask(): Observable<BaseResponseModel<Task[]>> {
+  getAllTask(): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
     const json : GetAllTaskRequestModel= {
       projectId : this._generalService.currentProject.id,
       sort:'createdAt',
       sortBy:'desc'
     }
     return this._http.post(TaskUrls.getAllTask, json).pipe(
-      map((res: BaseResponseModel<Task[]>) => {
+      map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
 
-        this.updateState({ tasks:res.data, getTaskSuccess: true, getTaskInProcess: false });
+        this.updateState({ tasks:res.data.items, getTaskSuccess: true, getTaskInProcess: false });
 
         return res;
       }),
@@ -52,8 +52,8 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-  getTask(task: GetTaskRequestModel): Observable<BaseResponseModel<Task>> {
-    return this._http.get(TaskUrls.getTask.replace('displayName', task.displayName)).pipe(
+  getTask(task: GetTaskByIdOrDisplayNameModel): Observable<BaseResponseModel<Task>> {
+    return this._http.post(TaskUrls.getTask, task).pipe(
       map((res: BaseResponseModel<Task>) => {
         return res;
       }),
@@ -84,7 +84,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-  pinComment(comment: TaskPinRequest): Observable<BaseResponseModel<Task>> {
+  pinComment(comment: CommentPinModel): Observable<BaseResponseModel<Task>> {
     comment.projectId = this._generalService.currentProject.id;
     return this._http.post(TaskUrls.pinComment, comment).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -97,7 +97,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getComments(json: TaskPinRequest): Observable<BaseResponseModel<TaskComments[]>> {
+  getComments(json: CommentPinModel): Observable<BaseResponseModel<TaskComments[]>> {
     json.projectId = this._generalService.currentProject.id;
     return this._http.post(TaskUrls.getComments, json).pipe(
       map((res: BaseResponseModel<TaskComments[]>) => {
@@ -109,7 +109,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getHistory(json: TaskPinRequest): Observable<BaseResponseModel<TaskHistory[]>> {
+  getHistory(json: CommentPinModel): Observable<BaseResponseModel<TaskHistory[]>> {
     json.projectId = this._generalService.currentProject.id;
     return this._http.post(TaskUrls.getHistory, json).pipe(
       map((res: BaseResponseModel<TaskHistory[]>) => {

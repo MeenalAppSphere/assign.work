@@ -23,6 +23,9 @@
     <nz-tabset [nzTabBarExtraContent]="tabSwitchTemplate" nzSize="small">
       <nz-tab nzTitle="My Task">
         <ng-template nz-tab>
+
+          <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
+
           <ng-container *ngIf="myTaskList && myTaskList.length === 0">
             <nz-empty
               [nzNotFoundImage]="
@@ -42,6 +45,7 @@
               </ng-template>
             </nz-empty>
           </ng-container>
+
           <ng-container *ngIf="myTaskList && myTaskList.length > 0">
             <aavantan-task-list
               [taskByUser]="'my'"
@@ -49,40 +53,48 @@
               [view]="view"
             ></aavantan-task-list>
           </ng-container>
+          </nz-spin>
+
         </ng-template>
+
       </nz-tab>
 
       <nz-tab nzTitle="All">
         <ng-template nz-tab>
-          <ng-container *ngIf="allTaskList && allTaskList.length === 0">
-            <nz-empty
-              [nzNotFoundImage]="
-                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
-              [nzNotFoundFooter]="footerTpl"
-              [nzNotFoundContent]="contentTpl">
-              <ng-template #contentTpl>
-                <span> No Item Created</span>
-              </ng-template>
-              <ng-template #footerTpl>
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="createTask()">
-                  Create New
-                </button>
-              </ng-template>
-            </nz-empty>
-          </ng-container>
-          <ng-container *ngIf="allTaskList && allTaskList.length > 0">
-            <aavantan-task-list
-              [taskByUser]="'all'"
-              [taskList]="allTaskList"
-              [view]="view"
-            ></aavantan-task-list>
-          </ng-container>
+
+          <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
+            <ng-container *ngIf="allTaskList && allTaskList.length === 0">
+              <nz-empty
+                [nzNotFoundImage]="
+                  'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+                [nzNotFoundFooter]="footerTpl"
+                [nzNotFoundContent]="contentTpl">
+                <ng-template #contentTpl>
+                  <span> No Item Created</span>
+                </ng-template>
+                <ng-template #footerTpl>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="createTask()">
+                    Create New
+                  </button>
+                </ng-template>
+              </nz-empty>
+            </ng-container>
+            <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+              <aavantan-task-list
+                [taskByUser]="'all'"
+                [taskList]="allTaskList"
+                [view]="view"
+              ></aavantan-task-list>
+            </ng-container>
+          </nz-spin>
+
         </ng-template>
       </nz-tab>
     </nz-tabset>
+
     <ng-template #tabSwitchTemplate>
       <nz-radio-group [(ngModel)]="view" class="m-r-5">
         <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
