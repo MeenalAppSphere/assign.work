@@ -1,4 +1,4 @@
-import { AttachmentModel, Project, ProjectPriority, TaskType, User } from '@aavantan-app/models';
+import { AttachmentModel, Project, ProjectPriority, ProjectStatus, TaskType, User } from '@aavantan-app/models';
 import { TaskHistoryActionEnum } from '../enums/task.enum';
 
 export class Task {
@@ -22,7 +22,7 @@ export class Task {
   tags?: string[];
   url?: string;
   progress?: number;
-  status?: string;
+  status?: string | ProjectStatus;
   sprint?: string;
   createdById: string;
   createdBy?: User;

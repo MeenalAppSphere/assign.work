@@ -4,10 +4,6 @@ import { TaskService } from '../shared/services/task.service';
 import { Task, TaskComments, TaskFilterDto, User } from '@aavantan-app/models';
 
 const taskBasicPopulation: any[] = [{
-  path: 'project',
-  select: 'name description settings -_id',
-  justOne: true
-}, {
   path: 'createdBy',
   select: 'emailId userName firstName lastName -_id',
   justOne: true
@@ -24,9 +20,9 @@ export class TaskController {
 
   }
 
-  @Get(':projectId')
-  async getAll(@Param('projectId') projectId: string) {
-    return await this._taskService.getAllTasks({ projectId }, taskBasicPopulation);
+  @Post('get-all')
+  async getAll(@Body('projectId') projectId: string) {
+    return await this._taskService.getAllTasks(projectId, taskBasicPopulation);
   }
 
   @Get('my-task/:projectId')
@@ -74,9 +70,9 @@ export class TaskController {
     return await this._taskService.delete(id);
   }
 
-  @Get(':query')
-  async getByIdOrDisplayName(@Param('query') query: string) {
-    return this._taskService.getTaskByIdOrDisplayName(query, taskBasicPopulation);
+  @Get(':projectId/:query')
+  async getByIdOrDisplayName(@Param('query') projectId: string, @Param('query') query: string) {
+    return this._taskService.getTaskByIdOrDisplayName(projectId, query, taskBasicPopulation);
   }
 
   @Post('filter')

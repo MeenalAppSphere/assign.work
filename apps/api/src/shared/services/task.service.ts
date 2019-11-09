@@ -24,35 +24,33 @@ export class TaskService extends BaseService<Task & Document> {
     super(_taskModel);
   }
 
-  async getAllTasks(filter: any = {}, populate: Array<any> = []): Promise<Partial<Task[]>> {
-    let allTasks: Task[] = await this.getAll(filter, populate);
+  async getAllTasks(projectId: string, populate: Array<any> = []): Promise<Partial<Task[]>> {
+    const projectDetails = await this.getProjectDetails(projectId);
+
+    let allTasks: Task[] = await this.getAll({ projectId }, populate);
 
     allTasks = allTasks.map(task => {
       task.id = task['_id'];
-      task.taskType = task.project.settings.taskTypes.find(t => t.id === task.taskType);
-      task.priority = task.project.settings.priorities.find(t => t.id === task.priority);
+      task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
+      task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
+      task.status = projectDetails.settings.status.find(t => t.id === task.status);
       return task;
     });
 
-    allTasks.forEach(task => {
-      delete task['project']['settings'];
-    });
+    // allTasks.forEach(task => {
+    //   delete task['project']['settings'];
+    // });
 
     return allTasks;
   }
 
   async getMyTask(projectId: string, populate: Array<any> = []): Promise<Partial<Task[]>> {
     const projectDetails = await this.getProjectDetails(projectId);
-    const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User).id === this._generalService.userId;
-
-    if (!isMember) {
-      throw new BadRequestException('You are not a part of Project');
-    }
-
-    return this.getAllTasks({
-      projectId: projectId,
-      $or: [{ assigneeId: this._generalService.userId }, { createdById: this._generalService.userId }]
-    });
+    return [];
+    // return this.getAllTasks({
+    //   projectId: projectId,
+    //   $or: [{ assigneeId: this._generalService.userId }, { createdById: this._generalService.userId }]
+    // });
   }
 
   async addTask(task: Task): Promise<Task> {
@@ -117,7 +115,9 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async getTaskByIdOrDisplayName(q: string, populate: Array<any> = []) {
+  async getTaskByIdOrDisplayName(projectId: string, q: string, populate: Array<any> = []) {
+    const projectDetails = this.getProjectDetails(projectId);
+
     const queryObj = {};
     if (Types.ObjectId.isValid(q)) {
       queryObj['_id'] = q;
@@ -216,9 +216,16 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   private async getProjectDetails(id: string): Promise<Project> {
-    const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
+    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
+
     if (!projectDetails) {
       throw new NotFoundException('No Project Found');
+    } else {
+      const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
+
+      if (!isMember) {
+        throw new BadRequestException('You are not a part of Project');
+      }
     }
     return projectDetails;
   }
