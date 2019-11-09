@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TaskComments } from '@aavantan-app/models';
+import { TaskComments, TaskPinRequest } from '@aavantan-app/models';
 import { TaskService } from '../../shared/services/task/task.service';
+import { GeneralService } from '../../shared/services/general.service';
 
 @Component({
   selector: 'aavantan-app-activity',
@@ -15,22 +16,28 @@ export class ActivityComponent implements OnInit {
 
   public pinInProcess: boolean = false;
 
-  constructor(private _taskService: TaskService) { }
+  constructor(private _taskService: TaskService, private _generalService: GeneralService) { }
 
   ngOnInit() {
 
   }
 
   async pinMessage(item:TaskComments){
-    const json={
-      commentId:item.id,
-      isPinned:!item.isPinned
+
+    const json: TaskPinRequest ={
+      projectId: this._generalService.currentProject.id,
+      taskId: this.taskId,
+      commentId: item.id,
+      isPinned: !item.isPinned
     }
+
     this.pinInProcess=true;
     try {
-      await this._taskService.pinComment(this.taskId, json).toPromise();
+
+      await this._taskService.pinComment(json).toPromise();
       this.isPinnedSuccess.emit();
       this.pinInProcess = false;
+
     } catch (e) {
       this.pinInProcess = false;
     }

@@ -1,6 +1,5 @@
 import {
-  AttachmentModel,
-  BasePaginatedResponse, BaseRequestModel, MongoosePaginateQuery,
+  AttachmentModel, MongoosePaginateQuery,
   Project,
   ProjectPriority,
   ProjectStatus,
@@ -52,6 +51,18 @@ export class TaskComments {
   isPinned: boolean;
 }
 
+export class TaskPinRequest {
+  projectId:string;
+  taskId?:string;
+  commentId?: string;
+  isPinned?: boolean;
+}
+
+export class GetTaskRequestModel {
+  displayName?: string;
+  taskId?: string;
+}
+
 export class TaskHistory {
   taskId: string;
   task?: Task;
@@ -94,3 +105,4 @@ export class AddCommentModel extends BaseTaskRequestModel {
   projectId: string;
   comment: TaskComments;
 }
+

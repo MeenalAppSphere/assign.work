@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
-  BaseResponseModel,
+  AddCommentModel,
+  BaseResponseModel, GetTaskRequestModel,
   Project,
   ProjectMembers,
   ProjectPriority,
   ProjectStages, ProjectStatus,
   Sprint,
-  Task, TaskComments, TaskHistory,
+  Task, TaskComments, TaskHistory, TaskPinRequest,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -249,8 +250,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   async getTask(){
     this.getTaskInProcess = true;
     try {
-
-      this.taskData = await this._taskService.getTask(this.displayName).toPromise();
+      const json:GetTaskRequestModel = {
+        displayName :this.displayName,
+        taskId : this.taskId
+      }
+      this.taskData = await this._taskService.getTask(json).toPromise();
       this.taskForm.patchValue(this.taskData.data);
       this.taskId = this.taskData.data.id;
       this.getMessage();
@@ -266,17 +270,25 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   async getMessage(hideLoader?:boolean){
+
     if(!hideLoader){
       this.getCommentInProcess=true;
     }
 
+    const json: TaskPinRequest = {
+      projectId : this._generalService.currentProject.id,
+      taskId: this.taskId
+    }
+
     try {
-      this.commentsRes = await this._taskService.getComments(this.taskId).toPromise();
+
+      this.commentsRes = await this._taskService.getComments(json).toPromise();
       this.commentsList = this.commentsRes.data;
       this.pinnedCommentsList = this.commentsRes.data.filter((ele)=>{
         return ele.isPinned===true;
       });
       this.getCommentInProcess = false;
+
     } catch (e) {
       this.getCommentInProcess = false;
     }
@@ -287,8 +299,13 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getHistoryInProcess=true;
     }
 
+    const json: TaskPinRequest ={
+      projectId : this._generalService.currentProject.id,
+      taskId: this.taskId
+    }
+
     try {
-      this.historyRes = await this._taskService.getHistory(this.taskId).toPromise();
+      this.historyRes = await this._taskService.getHistory(json).toPromise();
       this.historyList = this.historyRes.data;
       this.getHistoryInProcess = false;
     } catch (e) {
@@ -357,10 +374,13 @@ export class TaskComponent implements OnInit, OnDestroy {
   async saveComment() {
     this.createCommentInProcess = true;
 
-    const comment: TaskComments = { ...this.commentForm.getRawValue() };
+    const comment: AddCommentModel = {
+      comment: this.commentForm.getRawValue(),
+      projectId: this._generalService.currentProject.id
+    };
 
     try {
-      await this._taskService.addComment(this.taskId, comment).toPromise();
+      await this._taskService.addComment(comment).toPromise();
       this.commentForm.reset();
       this.createCommentInProcess = false;
     } catch (e) {
