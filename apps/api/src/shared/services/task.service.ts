@@ -1,14 +1,25 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
+  AddCommentModel,
   BasePaginatedResponse,
-  DbCollection, GetAllTaskRequestModel,
+  CommentPinModel,
+  CreateTaskModel,
+  DbCollection,
+  DeleteCommentModel,
+  GetAllTaskRequestModel,
+  GetCommentsModel,
+  GetMyTaskRequestModel,
+  GetTaskByIdOrDisplayNameModel,
   Project,
   Task,
   TaskComments,
   TaskFilterDto,
   TaskHistory,
-  TaskHistoryActionEnum, User
+  TaskHistoryActionEnum,
+  UpdateCommentModel,
+  UpdateTaskModel,
+  User
 } from '@aavantan-app/models';
 import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,10 +36,20 @@ export class TaskService extends BaseService<Task & Document> {
     super(_taskModel);
   }
 
-  async getAllTasks(model: GetAllTaskRequestModel): Promise<Partial<BasePaginatedResponse<Task>>> {
+  async getAllTasks(model: GetAllTaskRequestModel, onlyMyTask: boolean = false): Promise<Partial<BasePaginatedResponse<Task>>> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData({ projectId: model.projectId }, model);
+    let filter = {};
+    if (onlyMyTask) {
+      filter = {
+        projectId: model.projectId,
+        $or: [{ assigneeId: this._generalService.userId }, { createdById: this._generalService.userId }]
+      };
+    } else {
+      filter = { projectId: model.projectId };
+    }
+
+    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(onlyMyTask, model);
 
     result.items = result.items.map(task => {
       task.id = task['_id'];
@@ -45,29 +66,24 @@ export class TaskService extends BaseService<Task & Document> {
     return result;
   }
 
-  async getMyTask(projectId: string, populate: Array<any> = []): Promise<Partial<Task[]>> {
-    const projectDetails = await this.getProjectDetails(projectId);
-    return [];
-    // return this.getAllTasks({
-    //   projectId: projectId,
-    //   $or: [{ assigneeId: this._generalService.userId }, { createdById: this._generalService.userId }]
-    // });
+  async getMyTask(model: GetMyTaskRequestModel): Promise<Partial<BasePaginatedResponse<Task>>> {
+    return this.getAllTasks(model, true);
   }
 
-  async addTask(task: Task): Promise<Task> {
+  async addTask(model: CreateTaskModel): Promise<Task> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
-    const projectDetails = await this.getProjectDetails(task.projectId);
-
     // validation
-    if (!task.taskType) {
+    if (!model.task.taskType) {
       throw new BadRequestException('Please add Task Type');
     }
 
     const lastTask = await this._taskModel.find({}).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
-    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === task.taskType);
+    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.task.taskType);
 
     if (!taskTypeDetails) {
       throw new BadRequestException('Please create Task Type');
@@ -76,14 +92,14 @@ export class TaskService extends BaseService<Task & Document> {
     if (lastTask[0]) {
       // tslint:disable-next-line:radix
       const lastInsertedNo = parseInt(lastTask[0].displayName.split('-')[1]);
-      task.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
+      model.task.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
     } else {
-      task.displayName = `${taskTypeDetails.displayName}-1`;
+      model.task.displayName = `${taskTypeDetails.displayName}-1`;
     }
 
     try {
-      const createdTask = await this.create([task], session);
-      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, task.createdById, createdTask[0].id);
+      const createdTask = await this.create([model.task], session);
+      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, model.task.createdById, createdTask[0].id);
       await this._taskHistoryService.addHistory(taskHistory, session);
       await session.commitTransaction();
       session.endSession();
@@ -95,17 +111,20 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async updateTask(id: string, task: Partial<Task>): Promise<Task> {
-    await this.updateHelper(id, task, null);
-    return this._taskModel.findById(id).lean();
+  async updateTask(model: UpdateTaskModel): Promise<Task> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
+    await this.updateHelper(model.taskId, model.task, null);
+    return this._taskModel.findById(model.taskId).lean();
   }
 
-  async deleteTask(id: string) {
+  async deleteTask(model: DeleteCommentModel) {
+    const projectDetails = await this.getProjectDetails(model.projectId);
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
     try {
-      await this.delete(id);
+      await this.delete(model.taskId);
       await session.commitTransaction();
       session.endSession();
       return 'Task Deleted Successfully!';
@@ -116,19 +135,19 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async getTaskByIdOrDisplayName(projectId: string, q: string, populate: Array<any> = []) {
-    const projectDetails = this.getProjectDetails(projectId);
+  async getTaskByIdOrDisplayName(model: GetTaskByIdOrDisplayNameModel, populate: Array<any> = []) {
+    const projectDetails = await this.getProjectDetails(model.projectId);
 
     const queryObj = {};
-    if (Types.ObjectId.isValid(q)) {
-      queryObj['_id'] = q;
+    if (Types.ObjectId.isValid(model.taskId)) {
+      queryObj['_id'] = model.taskId;
     } else {
-      queryObj['displayName'] = q;
+      queryObj['displayName'] = model.displayName;
     }
     const task: Task = await this._taskModel.findOne(queryObj).populate(populate).select('-comments').lean().exec();
     task.id = task['_id'];
-    task.taskType = task.project.settings.taskTypes.find(t => t.id === task.taskType);
-    task.priority = task.project.settings.priorities.find(t => t.id === task.priority);
+    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
+    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
     delete task['project']['settings'];
     return task;
   }
@@ -139,8 +158,10 @@ export class TaskService extends BaseService<Task & Document> {
     return this._taskModel.find(query);
   }
 
-  async getComments(id: string): Promise<TaskComments[]> {
-    const data = await this._taskModel.findById(id).select('comments -_id').populate([{
+  async getComments(model: GetCommentsModel): Promise<TaskComments[]> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
+    const data = await this._taskModel.findById(model.taskId).select('comments -_id').populate([{
       path: 'comments.createdBy',
       select: '-_id firstName lastName profilePic',
       justOne: true
@@ -148,71 +169,78 @@ export class TaskService extends BaseService<Task & Document> {
       path: 'comments.attachments'
     }]).lean().exec();
 
-    if (data && data.comments) {
+    if (data) {
       return data.comments.map(c => {
         c.id = c['_id'];
         return c;
       });
+    } else {
+      throw new NotFoundException('Task Not Found');
     }
-    return data;
   }
 
-  async addComment(id: string, comment: TaskComments): Promise<string> {
-    const taskDetails = await this.getTaskDetails(id);
+  async addComment(model: AddCommentModel): Promise<string> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
 
-    comment.createdById = this._generalService.userId;
-    comment.createdAt = new Date();
+    const taskDetails = await this.getTaskDetails(model.taskId);
+
+    model.comment.createdById = this._generalService.userId;
+    model.comment.createdAt = new Date();
 
     if (!taskDetails.comments.length) {
-      taskDetails.comments = [comment];
+      taskDetails.comments = [model.comment];
     } else {
-      taskDetails.comments.push(comment);
+      taskDetails.comments.push(model.comment);
     }
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, this._generalService.userId, id);
-    await this.updateHelper(id, taskDetails, taskHistory);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, this._generalService.userId, model.taskId);
+    await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return 'Comment Added Successfully';
   }
 
-  async updateComment(id: string, comment: TaskComments): Promise<string> {
-    const taskDetails = await this.getTaskDetails(id);
+  async updateComment(model: UpdateCommentModel): Promise<string> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
+    const taskDetails = await this.getTaskDetails(model.taskId);
 
     taskDetails.comments = taskDetails.comments.map(com => {
-      if (com.id === comment.id) {
-        comment.updatedAt = new Date();
-        return comment;
+      if (com.id === model.comment.id) {
+        model.comment.updatedAt = new Date();
+        return model.comment;
       }
       return com;
     });
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, this._generalService.userId, id);
-    await this.updateHelper(id, taskDetails, taskHistory);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, this._generalService.userId, model.taskId);
+    await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return 'Comment Updated Successfully';
   }
 
-  async pinComment(id: string, modal: { commentId: string, isPinned: boolean }): Promise<string> {
-    const taskDetails = await this.getTaskDetails(id);
+  async pinComment(model: CommentPinModel): Promise<string> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+    const taskDetails = await this.getTaskDetails(model.taskId);
 
     taskDetails.comments = taskDetails.comments.map(com => {
-      if (com['_id'].toString() === modal.commentId) {
+      if (com['_id'].toString() === model.commentId) {
         com.updatedAt = new Date();
-        com.isPinned = modal.isPinned;
+        com.isPinned = model.isPinned;
       }
       return com;
     });
 
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, this._generalService.userId, id);
-    await this.updateHelper(id, taskDetails, taskHistory);
-    return `Comment ${modal.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, this._generalService.userId, model.taskId);
+    await this.updateHelper(model.taskId, taskDetails, taskHistory);
+    return `Comment ${model.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
   }
 
-  async deleteComment(id: string, commentId: string) {
-    const taskDetails = await this.getTaskDetails(id);
+  async deleteComment(model: DeleteCommentModel) {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+    const taskDetails = await this.getTaskDetails(model.taskId);
 
     taskDetails.comments = taskDetails.comments.filter(com => {
-      return com.id !== commentId;
+      return com.id !== model.commentId;
     });
 
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentDeleted, this._generalService.userId, id);
-    await this.updateHelper(id, taskDetails, taskHistory);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentDeleted, this._generalService.userId, model.taskId);
+    await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return `Comment Deleted Successfully`;
   }
 
@@ -241,6 +269,11 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   private async updateHelper(id: string, task: Partial<Task>, history: TaskHistory): Promise<string> {
+
+    if (!id) {
+      throw new BadRequestException('invalid request');
+    }
+
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
@@ -249,7 +282,7 @@ export class TaskService extends BaseService<Task & Document> {
       await this._taskHistoryService.addHistory(history, session);
       await session.commitTransaction();
       session.endSession();
-      return id;
+      return task.id;
     } catch (e) {
       await session.abortTransaction();
       session.endSession();

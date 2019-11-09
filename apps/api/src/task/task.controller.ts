@@ -1,7 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task.service';
-import { GetAllTaskRequestModel, Task, TaskComments, TaskFilterDto, User } from '@aavantan-app/models';
+import {
+  AddCommentModel,
+  CommentPinModel,
+  CreateTaskModel,
+  DeleteCommentModel,
+  DeleteTaskModel,
+  GetAllTaskRequestModel,
+  GetCommentsModel,
+  GetMyTaskRequestModel,
+  GetTaskByIdOrDisplayNameModel,
+  TaskFilterDto,
+  UpdateCommentModel,
+  UpdateTaskModel
+} from '@aavantan-app/models';
 
 const taskBasicPopulation: any[] = [{
   path: 'createdBy',
@@ -26,54 +39,55 @@ export class TaskController {
     return await this._taskService.getAllTasks(model);
   }
 
-  @Get('my-task/:projectId')
-  async getMyTasks(@Param('projectId') projectId: string) {
-    return await this._taskService.getMyTask(projectId, taskBasicPopulation);
+  @Post('my-task')
+  async getMyTasks(@Body() model: GetMyTaskRequestModel) {
+    model.populate = taskBasicPopulation;
+    return await this._taskService.getMyTask(model);
   }
 
-  @Post()
-  async createTask(@Body() task: Task) {
+  @Post('add')
+  async createTask(@Body() task: CreateTaskModel) {
     return await this._taskService.addTask(task);
   }
 
-  @Put(':id')
-  async updateTask(@Param('id') id: string, @Body() task: Task) {
-    return await this._taskService.updateTask(id, task);
+  @Post('update')
+  async updateTask(@Body() model: UpdateTaskModel) {
+    return await this._taskService.updateTask(model);
   }
 
-  @Get(':id/get-comments')
-  async getComments(@Param('id') id: string) {
-    return await this._taskService.getComments(id);
+  @Post('get-comments')
+  async getComments(@Body() model: GetCommentsModel) {
+    return await this._taskService.getComments(model);
   }
 
-  @Post(':id/add-comment')
-  async addComment(@Param('id') id: string, @Body() comment: TaskComments, @Request() req) {
-    return await this._taskService.addComment(id, comment);
+  @Post('add-comment')
+  async addComment(@Body() model: AddCommentModel) {
+    return await this._taskService.addComment(model);
   }
 
-  @Post(':id/update-comment')
-  async updateComment(@Param('id') id: string, @Body() comment: TaskComments) {
-    return await this._taskService.updateComment(id, comment);
+  @Post('update-comment')
+  async updateComment(@Body() model: UpdateCommentModel) {
+    return await this._taskService.updateComment(model);
   }
 
-  @Post(':id/pin-comment')
-  async pinComment(@Param('id') id: string, @Body() request: { commentId: string, isPinned: boolean }) {
-    return await this._taskService.pinComment(id, request);
+  @Post('pin-comment')
+  async pinComment(@Body() model: CommentPinModel) {
+    return await this._taskService.pinComment(model);
   }
 
-  @Delete(':id/delete-comment/:commentId')
-  async deleteComment(@Param('id') id: string, @Param('commentId') commentId: string) {
-    return await this._taskService.deleteComment(id, commentId);
+  @Post('delete-comment')
+  async deleteComment(@Body() model: DeleteCommentModel) {
+    return await this._taskService.deleteComment(model);
   }
 
-  @Delete(':id')
-  async deleteTask(@Param('id') id: string) {
-    return await this._taskService.delete(id);
+  @Post('delete-task')
+  async deleteTask(@Body() model: DeleteTaskModel) {
+    return await this._taskService.delete(model.taskId);
   }
 
-  @Get(':projectId/:query')
-  async getByIdOrDisplayName(@Param('query') projectId: string, @Param('query') query: string) {
-    return this._taskService.getTaskByIdOrDisplayName(projectId, query, taskBasicPopulation);
+  @Post('get-task')
+  async getByIdOrDisplayName(@Body() model: GetTaskByIdOrDisplayNameModel) {
+    return this._taskService.getTaskByIdOrDisplayName(model, taskBasicPopulation);
   }
 
   @Post('filter')

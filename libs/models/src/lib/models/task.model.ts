@@ -1,5 +1,5 @@
 import {
-  AttachmentModel, MongoosePaginateQuery,
+  AttachmentModel, BaseErrorMessageClass, MongoosePaginateQuery,
   Project,
   ProjectPriority,
   ProjectStatus,
@@ -51,18 +51,6 @@ export class TaskComments {
   isPinned: boolean;
 }
 
-export class TaskPinRequest {
-  projectId:string;
-  taskId?:string;
-  commentId?: string;
-  isPinned?: boolean;
-}
-
-export class GetTaskRequestModel {
-  displayName?: string;
-  taskId?: string;
-}
-
 export class TaskHistory {
   taskId: string;
   task?: Task;
@@ -95,14 +83,48 @@ export class TaskFilterDto {
 
 export class BaseTaskRequestModel {
   projectId: string;
+  taskId?: string;
+  displayName?: string;
 }
 
 export class GetAllTaskRequestModel extends MongoosePaginateQuery {
   projectId: string;
 }
 
-export class AddCommentModel extends BaseTaskRequestModel {
+export class GetMyTaskRequestModel extends MongoosePaginateQuery {
   projectId: string;
+}
+
+export class GetTaskByIdOrDisplayNameModel extends BaseTaskRequestModel {
+}
+
+export class CreateTaskModel extends BaseTaskRequestModel {
+  task: Task;
+}
+
+export class UpdateTaskModel extends BaseTaskRequestModel {
+  task: Task;
+}
+
+export class DeleteTaskModel extends BaseTaskRequestModel {
+}
+
+export class GetCommentsModel extends BaseTaskRequestModel {
+}
+
+export class AddCommentModel extends BaseTaskRequestModel {
   comment: TaskComments;
 }
 
+export class UpdateCommentModel extends BaseTaskRequestModel {
+  comment: TaskComments;
+}
+
+export class DeleteCommentModel extends BaseTaskRequestModel {
+  commentId: string;
+}
+
+export class CommentPinModel extends BaseTaskRequestModel {
+  commentId?: string;
+  isPinned?: boolean;
+}

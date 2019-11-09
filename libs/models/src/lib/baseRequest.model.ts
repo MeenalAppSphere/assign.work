@@ -4,6 +4,13 @@ export class BaseRequestModel {
   public q?: string;
   public from?: string;
   public to?: string;
-  public page? = 1;
-  public count? = 10;
+  public page?: number = 1;
+  public count?: number = 10;
+
+  constructor() {
+    this.page = 1;
+    this.count = 10;
+    this.sortBy = 'asc';
+  }
+
 }
