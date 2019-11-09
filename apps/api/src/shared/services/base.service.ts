@@ -69,11 +69,15 @@ export class BaseService<T extends Document> {
       query.populate(options.populate);
     }
 
+    if (options.select) {
+      query.select(options.select);
+    }
+
     const result = await query.lean().exec();
     result.forEach((doc) => {
       doc.id = String(doc._id);
     });
-    const numberOfDocs = await this.model.count({ ...filter, ...defaultQueryOptions });
+    const numberOfDocs = await this.model.countDocuments({ ...filter, ...defaultQueryOptions });
 
     return {
       page: options.page,

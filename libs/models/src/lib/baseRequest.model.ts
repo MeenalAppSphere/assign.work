@@ -1,6 +1,6 @@
 export class BaseRequestModel {
-  public sort: string;
-  public sortBy: 'asc' | 'desc' = 'asc';
+  public sort?: string;
+  public sortBy?: 'asc' | 'desc' = 'asc';
   public q?: string;
   public from?: string;
   public to?: string;

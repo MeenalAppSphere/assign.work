@@ -117,3 +117,8 @@ export class CommentPinModel extends BaseTaskRequestModel {
   commentId?: string;
   isPinned?: boolean;
 }
+
+export class GetTaskHistoryModel extends MongoosePaginateQuery {
+  projectId: string;
+  taskId?: string;
+}

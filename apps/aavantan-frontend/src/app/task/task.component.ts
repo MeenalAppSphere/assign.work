@@ -10,7 +10,7 @@ import {
   Sprint,
   Task, TaskComments, TaskHistory, CommentPinModel,
   TaskType,
-  User
+  User, GetTaskHistoryModel, BasePaginatedResponse
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -43,9 +43,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public isOpenActivitySidebar: boolean = true;
   public createTaskInProcess: boolean = false;
   public createCommentInProcess: boolean = false;
-  public getTaskInProcess:boolean = false;
-  public getCommentInProcess:boolean = false;
-  public getHistoryInProcess:boolean =  false;
+  public getTaskInProcess: boolean = false;
+  public getCommentInProcess: boolean = false;
+  public getHistoryInProcess: boolean = false;
 
   public defaultFileList = [
     {
@@ -75,11 +75,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   public assigneeDataSource: ProjectMembers[] = [];
   public relatedTaskDataSource: Task[] = [];
   public dependentTaskDataSource: Task[] = [];
-  public commentsRes:BaseResponseModel<TaskComments[]>;
-  public commentsList:TaskComments[] = [];
-  public historyRes:BaseResponseModel<TaskHistory[]>;
-  public historyList:TaskHistory[] = [];
-  public pinnedCommentsList:TaskComments[] = [];
+  public commentsRes: BaseResponseModel<TaskComments[]>;
+  public commentsList: TaskComments[] = [];
+  public historyRes: BaseResponseModel<BasePaginatedResponse<TaskHistory>>;
+  public historyList: TaskHistory[] = [];
+  public pinnedCommentsList: TaskComments[] = [];
   public sprintDataSource: Sprint[] = [
     {
       id: '1',
@@ -128,8 +128,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public statusDataSource: ProjectStatus[] = [];
   public priorityDataSource: ProjectPriority[] = [];
   public displayName: string;
-  public taskData:BaseResponseModel<Task>;
-  public taskId : string;
+  public taskData: BaseResponseModel<Task>;
+  public taskId: string;
 
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
@@ -144,7 +144,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
 
-    if(this.displayName && this.displayName.split('-').length>1){
+    if (this.displayName && this.displayName.split('-').length > 1) {
       this.getTask();
     }
 
@@ -162,14 +162,14 @@ export class TaskComponent implements OnInit, OnDestroy {
       relatedItem: [null],
       tags: [null],
       epic: [null],
-      status:[null]
+      status: [null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.relatedTaskDataSource = res;
         this.dependentTaskDataSource = res;
-      }else{
+      } else {
         this._taskService.getAllTask().subscribe();
       }
     });
@@ -244,18 +244,18 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.taskForm.reset();
   }
 
-  public pinnedSuccess(){
+  public pinnedSuccess() {
     this.getMessage(true);
   }
 
-  async getTask(){
+  async getTask() {
     this.getTaskInProcess = true;
     try {
-      const json:GetTaskByIdOrDisplayNameModel = {
-        projectId : this._generalService.currentProject.id,
-        displayName :this.displayName,
-        taskId : this.taskId
-      }
+      const json: GetTaskByIdOrDisplayNameModel = {
+        projectId: this._generalService.currentProject.id,
+        displayName: this.displayName,
+        taskId: this.taskId
+      };
       this.taskData = await this._taskService.getTask(json).toPromise();
       this.taskForm.patchValue(this.taskData.data);
       this.taskId = this.taskData.data.id;
@@ -271,23 +271,23 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getMessage(hideLoader?:boolean){
+  async getMessage(hideLoader?: boolean) {
 
-    if(!hideLoader){
-      this.getCommentInProcess=true;
+    if (!hideLoader) {
+      this.getCommentInProcess = true;
     }
 
     const json: CommentPinModel = {
-      projectId : this._generalService.currentProject.id,
+      projectId: this._generalService.currentProject.id,
       taskId: this.taskId
-    }
+    };
 
     try {
 
       this.commentsRes = await this._taskService.getComments(json).toPromise();
       this.commentsList = this.commentsRes.data;
-      this.pinnedCommentsList = this.commentsRes.data.filter((ele)=>{
-        return ele.isPinned===true;
+      this.pinnedCommentsList = this.commentsRes.data.filter((ele) => {
+        return ele.isPinned === true;
       });
       this.getCommentInProcess = false;
 
@@ -296,19 +296,19 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getHistory(hideLoader?:boolean){
-    if(!hideLoader){
-      this.getHistoryInProcess=true;
+  async getHistory(hideLoader?: boolean) {
+    if (!hideLoader) {
+      this.getHistoryInProcess = true;
     }
 
-    const json: CommentPinModel ={
-      projectId : this._generalService.currentProject.id,
+    const json: GetTaskHistoryModel = {
+      projectId: this._generalService.currentProject.id,
       taskId: this.taskId
-    }
+    };
 
     try {
       this.historyRes = await this._taskService.getHistory(json).toPromise();
-      this.historyList = this.historyRes.data;
+      this.historyList = this.historyRes.data.items;
       this.getHistoryInProcess = false;
     } catch (e) {
       this.getHistoryInProcess = false;
@@ -333,13 +333,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.createTaskInProcess = true;
     try {
 
-      if(this.taskId){
+      if (this.taskId) {
         await this._taskService.updateTask(task).toPromise();
-      }else{
+      } else {
         await this._taskService.createTask(task).toPromise();
         this.taskForm.reset();
-        this.selectedStatus=null;
-        this.selectedPriority=null;
+        this.selectedStatus = null;
+        this.selectedPriority = null;
       }
 
       this.createTaskInProcess = false;

@@ -12,7 +12,7 @@ import {
   TaskComments,
   TaskHistory,
   CommentPinModel,
-  GetTaskByIdOrDisplayNameModel, GetAllTaskRequestModel, AddCommentModel, BasePaginatedResponse
+  GetTaskByIdOrDisplayNameModel, GetAllTaskRequestModel, AddCommentModel, BasePaginatedResponse, GetTaskHistoryModel
 } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
@@ -34,16 +34,17 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   getAllTask(): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
-    const json : GetAllTaskRequestModel= {
-      projectId : this._generalService.currentProject.id,
-      sort:'createdAt',
-      sortBy:'desc'
-    }
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc'
+    };
     return this._http.post(TaskUrls.getAllTask, json).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
 
-        this.updateState({ tasks:res.data.items, getTaskSuccess: true, getTaskInProcess: false });
+        this.updateState({ tasks: res.data.items, getTaskSuccess: true, getTaskInProcess: false });
 
         return res;
       }),
@@ -52,6 +53,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   getTask(task: GetTaskByIdOrDisplayNameModel): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.getTask, task).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -62,6 +64,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   updateTask(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.put(TaskUrls.base, task).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -73,6 +76,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   addComment(comment: AddCommentModel): Observable<BaseResponseModel<string>> {
     return this._http.post(TaskUrls.addComment, comment).pipe(
       map((res: BaseResponseModel<string>) => {
@@ -84,6 +88,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   pinComment(comment: CommentPinModel): Observable<BaseResponseModel<string>> {
     comment.projectId = this._generalService.currentProject.id;
     return this._http.post(TaskUrls.pinComment, comment).pipe(
@@ -109,10 +114,10 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getHistory(json: CommentPinModel): Observable<BaseResponseModel<TaskHistory[]>> {
+  getHistory(json: GetTaskHistoryModel): Observable<BaseResponseModel<BasePaginatedResponse<TaskHistory>>> {
     json.projectId = this._generalService.currentProject.id;
     return this._http.post(TaskUrls.getHistory, json).pipe(
-      map((res: BaseResponseModel<TaskHistory[]>) => {
+      map((res: BaseResponseModel<BasePaginatedResponse<TaskHistory>>) => {
         return res;
       }),
       catchError(err => {
@@ -133,6 +138,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   addTimelog(timeLog: TimeLog, id: string): Observable<BaseResponseModel<TimeLog>> {
     return this._http.post(TaskUrls.base
       .replace(':taskId', id), timeLog).pipe(
