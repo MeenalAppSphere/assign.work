@@ -45,12 +45,18 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   switchProject(project:SwitchProjectRequest): Observable<BaseResponseModel<User>> {
+    project.organizationId = this._generalService.user.organization as string;
     return this._http.post(ProjectUrls.switchProject, project).pipe(
       map((res: BaseResponseModel<User>) => {
-        this.updateState({
-          user: res.data,
-          currentProject: res.data.currentProject
-        });
+
+        this.userStore.update((state => {
+          return {
+            ...state,
+            user:res.data,
+            currentProject: res.data.currentProject
+          };
+        }));
+
         this._generalService.user = cloneDeep(res.data);
         this.notification.success('Success', 'Current Project Changed Successfully');
         return res;
