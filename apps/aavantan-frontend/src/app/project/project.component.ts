@@ -60,12 +60,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public createTask(item?:TaskType) {
     let displayName:string = null;
 
-    if(item && item.displayName){
-      displayName = item.displayName;
-    }
-
     if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
       displayName=this.taskTypeDataSource[0].displayName;
+    }
+
+    if(item && item.displayName){
+      displayName = item.displayName;
     }
 
     if(!displayName){
