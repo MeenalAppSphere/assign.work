@@ -5,6 +5,8 @@ import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { Notice } from '../shared/interfaces/notice.type';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserLoginWithPasswordRequest } from '@aavantan-app/models';
+import { hashSync } from 'bcrypt';
 
 @Component({
   templateUrl: 'login.component.html'
@@ -15,6 +17,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   public loginInProcess = false;
   public responseMessage: Notice = {};
   public isSubmitted: boolean;
+
   constructor(private _authService: AuthService, private _authQuery: AuthQuery, private router: Router) {
   }
 
@@ -29,9 +32,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
 
     this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (this.isSubmitted && !res){
-        this.responseMessage.message = "Invalid credentials";
-        this.responseMessage.type = "danger";
+      if (this.isSubmitted && !res) {
+        this.responseMessage.message = 'Invalid credentials';
+        this.responseMessage.type = 'danger';
       }
     });
 
@@ -44,6 +47,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   submitForm() {
+    // const request = new UserLoginWithPasswordRequest();
+    // request.emailId = this.loginForm.value.emailId;
+    // request.password = hashSync(this.loginForm.value.password, 5);
+
     this.isSubmitted = true;
     this._authService.login(this.loginForm.value).subscribe();
   }

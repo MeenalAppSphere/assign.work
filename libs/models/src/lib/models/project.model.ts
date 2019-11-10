@@ -57,3 +57,8 @@ export class ProjectWorkingCapacityUpdateDto {
   userId: string;
   workingCapacity: number;
 }
+
+export class SwitchProjectRequest {
+  organizationId: string;
+  projectId: string;
+}

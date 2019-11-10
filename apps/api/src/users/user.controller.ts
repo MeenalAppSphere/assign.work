@@ -14,7 +14,7 @@ export class UserController {
     return await this._userService.findById(req.user.id, [{
       path: 'projects',
       select: 'name description'
-    }, 'organizations', {
+    }, { path: 'organizations' }, {
       path: 'currentProject',
       populate: {
         path: 'members.userDetails'

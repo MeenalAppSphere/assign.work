@@ -3,16 +3,20 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   BaseRequestModel,
   DbCollection,
+  Organization,
   Project,
-  ProjectMembers, ProjectPriority,
-  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto,
+  ProjectMembers,
+  ProjectPriority,
+  ProjectStages,
+  ProjectStatus,
+  ProjectWorkingCapacityUpdateDto,
+  SwitchProjectRequest,
   TaskType,
   User
 } from '@aavantan-app/models';
 import { Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
-import { OrganizationService } from './organization.service';
 import { GeneralService } from './general.service';
 
 @Injectable()
@@ -20,8 +24,8 @@ export class ProjectService extends BaseService<Project & Document> {
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
+    @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
-    @Inject(forwardRef(() => OrganizationService)) private readonly _organizationService: OrganizationService,
     private readonly _generalService: GeneralService
   ) {
     super(_projectModel);
@@ -316,6 +320,30 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(id, projectDetails);
   }
 
+  async switchProject(model: SwitchProjectRequest) {
+    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
+    const session = await this._projectModel.db.startSession();
+    session.startTransaction();
+
+    const populate = [{
+      path: 'projects', select: 'name description'
+    }, { path: 'currentProject', populate: { path: 'members.userDetails' }, justOne: true }, { path: 'organizations' }];
+
+    try {
+      const updatedUser = await this._userService.updateUser(this._generalService.userId, { currentProject: model.projectId }, session);
+      const result = await updatedUser.populate(populate).execPopulate();
+      await session.commitTransaction();
+      session.endSession();
+      return result;
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
+  }
+
   private async getProjectDetails(id: string): Promise<Project> {
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
@@ -329,5 +357,20 @@ export class ProjectService extends BaseService<Project & Document> {
       }
     }
     return projectDetails;
+  }
+
+  private async getOrganizationDetails(id: string) {
+    const organizationDetails: Organization = await this._organizationModel.findById(id).select('members createdBy updatedBy').lean().exec();
+
+    if (!organizationDetails) {
+      throw new NotFoundException('No Organization Found');
+    } else {
+      const isMember = organizationDetails.members.some(s => s.userId === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
+
+      if (!isMember) {
+        throw new BadRequestException('You are not a part of thi Organization');
+      }
+    }
+    return organizationDetails;
   }
 }

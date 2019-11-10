@@ -5,7 +5,7 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto,
+  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto, SwitchProjectRequest,
   TaskType
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
@@ -88,4 +88,8 @@ export class ProjectController {
     return await this._projectService.removePriority(id, priorityId);
   }
 
+  @Post('switch-project')
+  async switchProject(model: SwitchProjectRequest) {
+    return await this._projectService.switchProject(model);
+  }
 }
