@@ -368,7 +368,7 @@
                   <div class="cap-email"><small class="text-muted">{{item.emailId}}</small></div>
                 </td>
                 <td class="text-right">
-                  <input nz-input placeholder="Hours" numeric [(ngModel)]="item.workingCapacity" class="team-list-input" nzSize="small" maxlength="3"/>
+                  <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="3"/>
                 </td>
               </tr>
               <tr>

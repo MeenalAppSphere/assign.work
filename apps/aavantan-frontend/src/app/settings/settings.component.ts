@@ -71,6 +71,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.priorityList = res.settings.priorities;
         this.projectMembersList = cloneDeep(res.members);
 
+        this.totalCapacity=0;
         if(this.projectMembersList && this.projectMembersList.length>0){
           this.projectMembersList.forEach((ele)=>{
             this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
@@ -279,8 +280,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public saveCapacity(){
     const capacityList: ProjectWorkingCapacityUpdateDto[] = [];
-
+    this.totalCapacity = 0;
     this.projectMembersList.forEach((ele)=>{
+      this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
       const obj:ProjectWorkingCapacityUpdateDto = { userId : ele.userId, workingCapacity:ele.workingCapacity};
         capacityList.push(obj);
     });
@@ -292,6 +294,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }), (error => {
       this.updateRequestInProcess = false;
     }));
+  }
+
+  public calculateTotal(){
+    this.totalCapacity=0;
+    if(this.projectMembersList && this.projectMembersList.length>0){
+      this.projectMembersList.forEach((ele)=>{
+        this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
+      });
+    }
   }
 
   public updateProjectDetails(project: Partial<Project>) {
