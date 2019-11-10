@@ -158,8 +158,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       sprint: [null],
       priority: [null],
       watchers: [null],
-      dependentItem: [null],
-      relatedItem: [null],
+      dependentItemId: [null],
+      relatedItemId: [null],
       tags: [null],
       epic: [null],
       status: [null]
@@ -327,8 +327,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
     task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
 
-    task.relatedItem =  null;
-    task.dependentItem = null;
+    // task.relatedItem =  null;
+    // task.dependentItem = null;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
@@ -339,6 +339,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     try {
 
       if (this.taskId) {
+        task.id = this.taskId;
         await this._taskService.updateTask(task).toPromise();
       } else {
         await this._taskService.createTask(task).toPromise();

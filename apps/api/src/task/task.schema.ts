@@ -51,8 +51,8 @@ export const taskSchema = new Schema({
   progress: { type: Number },
   status: { type: String },
   sprint: { type: String },
-  // dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
-  // relatedItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
+  dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
+  relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false }],
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false }
@@ -93,11 +93,18 @@ taskSchema.virtual('updatedBy', {
   foreignField: '_id'
 });
 
-// taskSchema.virtual('', {
-//   ref: DbCollection.tasks,
-//   localField: 'dependentItemId',
-//   foreignField: '_id'
-// });
+taskSchema.virtual('dependentItem', {
+  ref: DbCollection.tasks,
+  localField: 'dependentItemId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('relatedItem', {
+  ref: DbCollection.tasks,
+  localField: 'relatedItemId',
+  foreignField: '_id'
+});
+
 
 // plugins
 taskSchema

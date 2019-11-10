@@ -23,6 +23,14 @@ const taskBasicPopulation: any[] = [{
   path: 'assignee',
   select: 'emailId userName firstName lastName -_id',
   justOne: true
+}, {
+  path: 'dependentItem',
+  select: 'name displayName description url',
+  justOne: true
+}, {
+  path: 'relatedItem',
+  select: 'name displayName description url',
+  justOne: true
 }];
 
 @Controller('task')

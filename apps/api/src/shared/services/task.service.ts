@@ -23,6 +23,7 @@ import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
+import { taskId } from 'aws-sdk/clients/datapipeline';
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> {
@@ -97,7 +98,7 @@ export class TaskService extends BaseService<Task & Document> {
 
     try {
       const createdTask = await this.create([model], session);
-      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, model.createdById, createdTask[0].id);
+      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, createdTask[0].id, createdTask[0]);
       await this._taskHistoryService.addHistory(taskHistory, session);
       await session.commitTransaction();
       session.endSession();
@@ -112,7 +113,8 @@ export class TaskService extends BaseService<Task & Document> {
   async updateTask(model: Task): Promise<Task> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    await this.updateHelper(model.id, model, null);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
+    await this.updateHelper(model.id, model, taskHistory);
     return this._taskModel.findById(model.id).lean();
   }
 
@@ -190,7 +192,7 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       taskDetails.comments.push(model.comment);
     }
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, this._generalService.userId, model.taskId);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
     await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return 'Comment Added Successfully';
   }
@@ -207,7 +209,7 @@ export class TaskService extends BaseService<Task & Document> {
       }
       return com;
     });
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, this._generalService.userId, model.taskId);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, model.taskId, taskDetails);
     await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return 'Comment Updated Successfully';
   }
@@ -224,7 +226,7 @@ export class TaskService extends BaseService<Task & Document> {
       return com;
     });
 
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, this._generalService.userId, model.taskId);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, model.taskId, taskDetails);
     await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return `Comment ${model.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
   }
@@ -237,7 +239,7 @@ export class TaskService extends BaseService<Task & Document> {
       return com.id !== model.commentId;
     });
 
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentDeleted, this._generalService.userId, model.taskId);
+    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentDeleted, model.taskId, taskDetails);
     await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return `Comment Deleted Successfully`;
   }
@@ -288,9 +290,10 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  private taskHistoryObjectHelper(action: TaskHistoryActionEnum, createdById: string, taskId: string) {
+  // tslint:disable-next-line:no-shadowed-variable
+  private taskHistoryObjectHelper(action: TaskHistoryActionEnum, taskId: string, task?: Task) {
     return {
-      action, createdById, taskId
+      action, createdById: this._generalService.userId, taskId, task
     } as TaskHistory;
   }
 

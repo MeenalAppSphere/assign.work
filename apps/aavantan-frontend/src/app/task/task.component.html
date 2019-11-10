@@ -178,7 +178,7 @@
                               <i class="fas fa-circle m-r-10"
                                  [ngStyle]="{'color':selectedDependentItem && selectedDependentItem.taskType ? selectedDependentItem.taskType.color : '' }"></i>
                             </span>
-                            <input placeholder="Search/Select Dependent Item" formControlName="dependentItem" (ngModelChange)="selectDependentItemTypeahead($event)"  nz-input nzSize="small" [nzAutocomplete]="autoDependentItem" />
+                            <input placeholder="Search/Select Dependent Item" formControlName="dependentItemId" (ngModelChange)="selectDependentItemTypeahead($event)"  nz-input nzSize="small" [nzAutocomplete]="autoDependentItem" />
                             <nz-autocomplete #autoDependentItem>
                                 <nz-auto-option *ngFor="let option of dependentTaskDataSource" [nzLabel]="option.name" [nzValue]="option">
                                     <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
@@ -196,7 +196,7 @@
                 <i class="fas fa-circle m-r-10"
                    [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
               </span>
-                            <input placeholder="Search/Select Related Item" formControlName="relatedItem" nz-input (ngModelChange)="selectRelatedItemTypeahead($event)" nzSize="small" [nzAutocomplete]="autoRelatedItem" />
+                            <input placeholder="Search/Select Related Item" formControlName="relatedItemId" nz-input (ngModelChange)="selectRelatedItemTypeahead($event)" nzSize="small" [nzAutocomplete]="autoRelatedItem" />
                             <nz-autocomplete #autoRelatedItem>
                                 <nz-auto-option *ngFor="let option of relatedTaskDataSource" [nzLabel]="option.name" [nzValue]="option">
                                     <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
