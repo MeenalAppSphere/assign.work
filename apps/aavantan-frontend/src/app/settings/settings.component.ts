@@ -160,7 +160,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async addMembers() {
     this.addCollaboratorsInProcess = true;
     const members: ProjectMembers[] = [];
@@ -173,6 +172,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     try {
       await this._projectService.addCollaborators(this.currentProject.id, members).toPromise();
+      this.selectedCollaborators = [];
       this.addCollaboratorsInProcess = false;
     } catch (e) {
       this.addCollaboratorsInProcess = false;

@@ -32,6 +32,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public currentUser: User;
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
+  public listOfSelectedRelatedItems:string[]=[];
   public selectedAssignee: ProjectMembers;
   public selectedRelatedItem: Task;
   public selectedDependentItem: Task;
@@ -232,14 +233,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
-  public selectDependentItemTypeahead(e: Task) {
-    this.selectedDependentItem = e;
-  }
-
-  public selectRelatedItemTypeahead(e: Task) {
-    this.selectedRelatedItem = e;
-  }
-
   public cancelTaskForm() {
     this.taskForm.reset();
   }
@@ -264,6 +257,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.selectTaskType(this.taskData.data.taskType as TaskType);
       this.selectPriority(this.taskData.data.priority as ProjectPriority);
       this.selectAssigneeTypeahead(this.taskData.data.assignee as ProjectMembers);
+      this.selectDependentItemTypeahead(this.taskData.data.dependentItem as Task);
 
       this.getTaskInProcess = false;
     } catch (e) {
@@ -326,9 +320,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.userId ? this.selectedAssignee.userId : null;
     task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
     task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
-
-    // task.relatedItem =  null;
-    // task.dependentItem = null;
+    task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
+    task.relatedItemId = this.listOfSelectedRelatedItems;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
@@ -381,6 +374,18 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectStatus(item: ProjectStatus) {
     this.selectedStatus = item;
   }
+
+  public selectDependentItemTypeahead(task: Task) {
+    if(task && task.name){
+      this.selectedDependentItem = task;
+      this.taskForm.get('dependentItemId').patchValue(task.name);
+    }
+  }
+
+  public selectRelatedItemTypeahead(task: Task) {
+    // this.selectedRelatedItem = task;
+  }
+
 
   /* comment */
   async saveComment() {

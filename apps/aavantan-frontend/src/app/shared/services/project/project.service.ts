@@ -12,11 +12,13 @@ import {
   ProjectMembers,
   ProjectPriority,
   ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto, SwitchProjectRequest,
-  TaskType
+  TaskType,
+  User
 } from '@aavantan-app/models';
 import { catchError, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { UserStore } from '../../../store/user/user.store';
+import { cloneDeep } from 'lodash';
 
 
 @Injectable()
@@ -42,10 +44,14 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  switchProject(project:SwitchProjectRequest): Observable<BaseResponseModel<Project>> {
+  switchProject(project:SwitchProjectRequest): Observable<BaseResponseModel<User>> {
     return this._http.post(ProjectUrls.switchProject, project).pipe(
-      map((res: BaseResponseModel<Project>) => {
-        this.updateCurrentProjectState(res.data);
+      map((res: BaseResponseModel<User>) => {
+        this.updateState({
+          user: res.data,
+          currentProject: res.data.currentProject
+        });
+        this._generalService.user = cloneDeep(res.data);
         this.notification.success('Success', 'Current Project Changed Successfully');
         return res;
       }),

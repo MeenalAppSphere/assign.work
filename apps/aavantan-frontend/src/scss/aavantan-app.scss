@@ -10,6 +10,19 @@
   --red: #dc3545;
 }
 
+
+.btn-float-new-task{
+  position: fixed;
+  z-index: 9999;
+  bottom: 20px;
+  left: 5px;
+  height: 35px;
+  background: #f28e3e;
+  color: #fff;
+  border: #f28d3e;
+  font-weight: 500;
+}
+
 #logo{ // floral library
   display: none!important;
 }
