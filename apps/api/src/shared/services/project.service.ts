@@ -13,6 +13,7 @@ import { Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
 import { OrganizationService } from './organization.service';
+import { GeneralService } from './general.service';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -20,7 +21,8 @@ export class ProjectService extends BaseService<Project & Document> {
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
-    @Inject(forwardRef(() => OrganizationService)) private readonly _organizationService: OrganizationService
+    @Inject(forwardRef(() => OrganizationService)) private readonly _organizationService: OrganizationService,
+    private readonly _generalService: GeneralService
   ) {
     super(_projectModel);
   }
@@ -315,9 +317,16 @@ export class ProjectService extends BaseService<Project & Document> {
   }
 
   private async getProjectDetails(id: string): Promise<Project> {
-    const projectDetails: Project = await this._projectModel.findById(id).lean().exec();
+    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
+
     if (!projectDetails) {
       throw new NotFoundException('No Project Found');
+    } else {
+      const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
+
+      if (!isMember) {
+        throw new BadRequestException('You are not a part of Project');
+      }
     }
     return projectDetails;
   }
