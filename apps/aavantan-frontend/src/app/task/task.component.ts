@@ -321,9 +321,14 @@ export class TaskComponent implements OnInit, OnDestroy {
     const task: Task = { ...this.taskForm.getRawValue() };
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
-    task.taskType = this.selectedTaskType.id;
-    task.assigneeId = this.selectedAssignee.userId;
-    task.status = this.selectedStatus.id;
+
+    task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
+    task.assigneeId = this.selectedAssignee && this.selectedAssignee.userId ? this.selectedAssignee.userId : null;
+    task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
+    task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
+
+    task.relatedItem =  null;
+    task.dependentItem = null;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
