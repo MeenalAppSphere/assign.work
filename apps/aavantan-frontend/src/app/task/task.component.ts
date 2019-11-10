@@ -359,8 +359,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public selectAssigneeTypeahead(user: ProjectMembers) {
-    if (user) {
+    if (user && user.emailId) {
       this.selectedAssignee = user;
+      this.taskForm.get('assigneeId').patchValue(user.emailId);
     }
   }
 
@@ -393,6 +394,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     try {
       await this._taskService.addComment(comment).toPromise();
       this.commentForm.reset();
+      this.getMessage(true);
       this.createCommentInProcess = false;
     } catch (e) {
       this.createCommentInProcess = false;

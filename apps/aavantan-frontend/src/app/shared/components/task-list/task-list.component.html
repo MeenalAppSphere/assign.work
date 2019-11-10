@@ -13,7 +13,7 @@
             </div>
           </div>
         </div>
-        <p class="m-t-5 card-desc-height" nz-paragraph nzEllipsis nzEllipsisRows="3" [nzContent]="item.description | safeHtml" ></p>
+        <p class="m-t-5 card-desc-height" nz-paragraph nzEllipsis nzEllipsisRows="3" [innerHTML]="item.description | safeHtml" ></p>
         <p class="">{{item.totalLoggedTime}}hr
           <a  *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
         </p>
