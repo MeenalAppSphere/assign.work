@@ -89,7 +89,7 @@ export class ProjectController {
   }
 
   @Post('switch-project')
-  async switchProject(model: SwitchProjectRequest) {
+  async switchProject(@Body() model: SwitchProjectRequest) {
     return await this._projectService.switchProject(model);
   }
 }

@@ -332,8 +332,8 @@ export class ProjectService extends BaseService<Project & Document> {
     }, { path: 'currentProject', populate: { path: 'members.userDetails' }, justOne: true }, { path: 'organizations' }];
 
     try {
-      const updatedUser = await this._userService.updateUser(this._generalService.userId, { currentProject: model.projectId }, session);
-      const result = await updatedUser.populate(populate).execPopulate();
+      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, session);
+      const result = await this._userModel.findById(this._generalService.userId).populate(populate).exec();
       await session.commitTransaction();
       session.endSession();
       return result;
