@@ -28,6 +28,10 @@ export class Task {
   progress?: number;
   status?: string | ProjectStatus;
   sprint?: string;
+  relatedItemId?: string[];
+  relatedItem?:Task[];
+  dependentItemId?: string;
+  dependentItem?: Task;
   createdById: string;
   createdBy?: User;
   updatedById?: string;

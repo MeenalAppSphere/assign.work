@@ -11,7 +11,7 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectStatus,
+  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto,
   TaskType
 } from '@aavantan-app/models';
 import { catchError, map } from 'rxjs/operators';
@@ -155,6 +155,18 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         map(res => {
           this.updateCurrentProjectState(res.data);
           this.notification.success('Success', 'Task Type Created Successfully');
+          return res;
+        }),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+  updateCapacity(projectId: string, json: ProjectWorkingCapacityUpdateDto[]): Observable<BaseResponseModel<Project>> {
+    return this._http.put(ProjectUrls.updateCapacity.replace(':projectId', projectId), json)
+      .pipe(
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Updated Successfully');
           return res;
         }),
         catchError(e => this.handleError(e))

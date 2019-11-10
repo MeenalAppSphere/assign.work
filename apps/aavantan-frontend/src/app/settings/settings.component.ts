@@ -6,7 +6,7 @@ import {
   ProjectStages,
   ProjectMembers,
   ProjectPriority,
-  ProjectStatus
+  ProjectStatus, ProjectWorkingCapacityUpdateDto
 } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
@@ -16,6 +16,7 @@ import { ProjectService } from '../shared/services/project/project.service';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzNotificationService } from 'ng-zorro-antd';
+import { cloneDeep } from 'lodash';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -53,6 +54,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public deleteStatusInProcess: boolean = false;
   public deleteTaskTypeInProcess: boolean = false;
 
+  public totalCapacity: number = 0;
+
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
               private _projectService: ProjectService, private _userQuery: UserQuery) {
   }
@@ -66,7 +69,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.statusList = res.settings.status;
         this.typesList = res.settings.taskTypes;
         this.priorityList = res.settings.priorities;
-        this.projectMembersList = res.members;
+        this.projectMembersList = cloneDeep(res.members);
+
+        if(this.projectMembersList && this.projectMembersList.length>0){
+          this.projectMembersList.forEach((ele)=>{
+            this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
+          });
+        }
+
       }
     });
 
@@ -264,6 +274,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.deleteTaskTypeInProcess = false;
     }), (error => {
       this.deleteTaskTypeInProcess = false;
+    }));
+  }
+
+  public saveCapacity(){
+    const capacityList: ProjectWorkingCapacityUpdateDto[] = [];
+
+    this.projectMembersList.forEach((ele)=>{
+      const obj:ProjectWorkingCapacityUpdateDto = { userId : ele.userId, workingCapacity:ele.workingCapacity};
+        capacityList.push(obj);
+    });
+
+    this.updateRequestInProcess = true;
+    this._projectService.updateCapacity(this.currentProject.id, capacityList).subscribe((res => {
+      this.taskTypeForm.reset();
+      this.updateRequestInProcess = false;
+    }), (error => {
+      this.updateRequestInProcess = false;
     }));
   }
 
