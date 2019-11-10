@@ -1,13 +1,14 @@
 <nz-modal [(nzVisible)]="projectModalIsVisible" nzFooter="#nzModalFooter" nzWidth="700" nzClosable="false">
 
 
+  <nz-spin nzTip="Setting up..." [nzSpinning]="switchingProjectInProcess">
 
   <div *ngIf="!showCreateProject && projectList && projectList.length>0" style="height:350px;overflow: auto;">
     <h5>Switch Project</h5>
     <hr class="m-t-10 m-b-10">
     <nz-list [nzDataSource]="projectList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
       <ng-template #item let-item>
-        <a class="font-size-15" href="javascript:void(0);">
+        <a class="font-size-15" href="javascript:void(0);" (click)="switchProject(item)">
           <nz-list-item>
             <nz-list-item-meta
               [nzTitle]="nzTitle">
@@ -22,7 +23,6 @@
     </nz-list>
 
   </div>
-
 
 
   <div class="steps-action" *ngIf="showCreateProject">
@@ -159,4 +159,5 @@
       </div>
     </div>
   </div>
+  </nz-spin>
 </nz-modal>

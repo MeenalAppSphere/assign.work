@@ -2,6 +2,7 @@ import { createUrl } from '../apiUrls/base.url';
 
 export const ProjectUrls = {
   base: `${createUrl('project')}`,
+  switchProject: `${createUrl('project/switch-project')}`,
   updateProject: `${createUrl('project/:projectId')}`,
   addCollaborators: `${createUrl('project/:projectId/add-collaborators')}`,
   addStage: `${createUrl('project/:projectId/add-stage')}`,

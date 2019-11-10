@@ -2,7 +2,14 @@ import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Outpu
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
-import { Organization, Project, ProjectMembers, ProjectTemplateEnum, User } from '@aavantan-app/models';
+import {
+  Organization,
+  Project,
+  ProjectMembers,
+  ProjectTemplateEnum,
+  SwitchProjectRequest,
+  User
+} from '@aavantan-app/models';
 import { GeneralService } from '../../services/general.service';
 import { UserService } from '../../services/user/user.service';
 import { ProjectService } from '../../services/project/project.service';
@@ -37,6 +44,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public addCollaboratorsInProcess: boolean = false;
   public selectTemplateInProcess: boolean = false;
+  public switchingProjectInProcess:boolean;
 
   public members: User[] = [];
 
@@ -68,6 +76,23 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   }
 
+  async switchProject(project:Project){
+
+    const json: SwitchProjectRequest ={
+      organizationId: this._generalService.currentProject.organization as string,
+      projectId: project.id
+    }
+
+    try {
+      this.switchingProjectInProcess = true;
+      await this._projectService.switchProject(json).toPromise();
+      this.switchingProjectInProcess = false;
+      this.toggleShow.emit();
+    } catch (e) {
+      this.switchingProjectInProcess = false;
+    }
+
+  }
 
   public addNewProject(){
     this.showCreateProject=true;
