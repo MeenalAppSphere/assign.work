@@ -56,7 +56,7 @@
         <nz-form-item>
           <nz-form-label nzRequired nzFor="name">Organization Name</nz-form-label>
           <nz-form-control [nzValidatingTip]="errorTpl">
-            <input nz-input formControlName="name" placeholder="Organization Name" maxlength="100"
+            <input nz-input formControlName="name" placeholder="Enter an Organization Name, eg: Facebook" maxlength="100"
                    autocomplete="Off" nzSize="small" id="name">
             <ng-template #errorTpl let-control>
               <ng-container *ngIf="orgForm.hasError('required')">

@@ -51,6 +51,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public showCreateProject:boolean;
   public projectList:Project[]=[];
 
+  public loadingProjects:boolean;
+  public projectSource:Project[]=[];
+
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery : UserQuery, private _usersService: UserService, private _projectService: ProjectService) {
     this.getAllUsers();
@@ -73,6 +76,27 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     if (this.currentOrganization) {
       this.projectForm.get('organization').patchValue(this.currentOrganization.id);
     }
+
+    this.projectSource = [
+      {
+        name:'Project 1',
+        members:null,
+        organization:'2d93479n93749n7979',
+        template:this.selectedTemplate
+      },
+      {
+        name:'Project 2',
+        members:null,
+        organization:'2d93479n93749n7976',
+        template:this.selectedTemplate
+      },
+      {
+        name:'Project 3',
+        members:null,
+        organization:'2d93479n93749n7976',
+        template:this.selectedTemplate
+      }
+    ];
 
   }
 
@@ -139,6 +163,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   pre(): void {
     this.switchStepCurrent -= 1;
+  }
+
+  skip():void {
+    this.switchStepCurrent += 1;
   }
 
   next(): void {

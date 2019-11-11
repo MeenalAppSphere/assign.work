@@ -17,7 +17,7 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   @Input() public organizationModalIsVisible: Boolean = false;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
-  public modalTitle = 'Create Organisation';
+  public modalTitle = 'Create Organization';
   public organizations: Organization[];
   public showCreateOrg:boolean = true;
 
