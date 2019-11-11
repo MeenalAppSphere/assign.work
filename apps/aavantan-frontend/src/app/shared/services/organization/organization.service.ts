@@ -16,6 +16,9 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
   constructor(private readonly _organizationStore: OrganizationStore, private _httpWrapper: HttpWrapperService,
               private _userStore: UserStore, private _generalService: GeneralService, protected notification: NzNotificationService) {
     super(_organizationStore, notification);
+    this.notification.config({
+      nzPlacement: 'bottomRight'
+    });
   }
 
   createOrganization(org: Organization) {

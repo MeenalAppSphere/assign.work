@@ -266,7 +266,9 @@
               <ul class="stages-list">
 
                 <li *ngFor="let item of priorityList">
-                  <div [ngStyle]="{'border-left':'6px solid'+ item.color}" class="p-l-10"><span>{{item.name}}</span></div>
+                  <div>
+                    <i nz-tooltip [nzTitle]="item.color"  [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
+                    <span class="p-l-10">{{item.name}}</span></div>
 <!--                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                 </li>
 
@@ -328,7 +330,7 @@
               <ul class="stages-list">
 
                 <li *ngFor="let item of typesList">
-                  <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
+                  <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color" [ngStyle]="{'color':item.color}"></i>
                   <span>{{item.name}}</span>
 <!--                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                 </li>

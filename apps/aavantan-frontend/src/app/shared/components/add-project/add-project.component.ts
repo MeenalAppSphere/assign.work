@@ -15,6 +15,7 @@ import { UserService } from '../../services/user/user.service';
 import { ProjectService } from '../../services/project/project.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../../queries/user/user.query';
+import { NzNotificationService } from 'ng-zorro-antd';
 
 
 @Component({
@@ -55,7 +56,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public projectSource:Project[]=[];
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
-              private _generalService: GeneralService, private _userQuery : UserQuery, private _usersService: UserService, private _projectService: ProjectService) {
+              private _generalService: GeneralService, private _userQuery : UserQuery,
+               private _usersService: UserService, private _projectService: ProjectService
+               ,protected notification: NzNotificationService) {
     this.getAllUsers();
   }
 
@@ -186,6 +189,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   async saveProject() {
+    if(this.projectForm.invalid){
+      this.notification.error('Error', 'Please Enter Project Name');
+      return;
+    }
     this.createProjectInProcess = true;
     const project: Project = { ...this.projectForm.getRawValue() };
     project.createdBy = this._generalService.user.id;

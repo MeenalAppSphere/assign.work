@@ -58,6 +58,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
               private _projectService: ProjectService, private _userQuery: UserQuery) {
+    this.notification.config({
+      nzPlacement: 'bottomRight'
+    });
   }
 
   ngOnInit(): void {
@@ -246,6 +249,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.notification.error('Error', 'Please check Color and Priority');
       return;
     }
+
+    const dup:ProjectPriority[] = this.priorityList.filter((ele)=>{
+      if(ele.color === this.priorityForm.value.color || ele.name === this.priorityForm.value.name){
+        return ele;
+      }
+    });
+
+    if(dup && dup.length>0){
+      this.notification.error('Error', 'Duplicate color or name');
+      return;
+    }
+
     this.updateRequestInProcess = true;
     this._projectService.addPriority(this.currentProject.id, this.priorityForm.value).subscribe((res => {
       this.priorityForm.reset();
@@ -258,6 +273,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public saveTaskType() {
     if(this.taskTypeForm.invalid){
       this.notification.error('Error', 'Please check Display name, Color and Task type');
+      return;
+    }
+    const dup:TaskType[] = this.typesList.filter((ele)=>{
+      if(ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName){
+        return ele;
+      }
+    });
+
+    if(dup && dup.length>0){
+      this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
       return;
     }
     this.updateRequestInProcess = true;

@@ -17,6 +17,9 @@ export class UserService extends BaseService<UserStore, UserState> {
   constructor(protected userStore: UserStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
               protected notification: NzNotificationService) {
     super(userStore, notification);
+    this.notification.config({
+      nzPlacement: 'bottomRight'
+    });
   }
 
   getProfile() {

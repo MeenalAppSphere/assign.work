@@ -21,6 +21,9 @@ import { Observable } from 'rxjs';
 export class TaskService extends BaseService<TaskStore, TaskState> {
   constructor(protected notification: NzNotificationService, protected taskStore: TaskStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
     super(taskStore, notification);
+    this.notification.config({
+      nzPlacement: 'bottomRight'
+    });
   }
 
   createTask(task: Task): Observable<BaseResponseModel<Task>> {

@@ -21,6 +21,9 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
   constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
               protected notification: NzNotificationService) {
     super(authStore, notification);
+    this.notification.config({
+      nzPlacement: 'bottomRight'
+    });
   }
 
   login(request: UserLoginWithPasswordRequest) {

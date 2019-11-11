@@ -139,6 +139,9 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _generalService: GeneralService,
               private _userQuery: UserQuery,
               private _taskQuery: TaskQuery) {
+    this.notification.config({
+      nzPlacement: 'bottomRight'
+    });
   }
 
   ngOnInit() {
