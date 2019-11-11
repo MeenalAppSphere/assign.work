@@ -36,7 +36,7 @@
                 <nz-form-item class="m-b-5">
                     <nz-form-control>
                         <nz-input-group [nzSuffix]="suffixIconSearch">
-                            <input placeholder="Search Project" (ngModelChange)="selectProjectTypeahead($event)" nz-input nzSize="small" />
+                            <input placeholder="Search Project" [(ngModel)]="searchProjectText" (keyup)="typeahead()" nz-input nzSize="small" />
                         </nz-input-group>
                         <ng-template #suffixIconSearch>
                             <i nz-icon nzType="search"></i>
@@ -44,7 +44,7 @@
                     </nz-form-control>
                 </nz-form-item>
                 <div class="search-list">
-                    <nz-list [nzDataSource]="projectSource" [nzRenderItem]="item1" [nzItemLayout]="'horizontal'">
+                    <nz-list [nzDataSource]="projectListSearch" [nzRenderItem]="item1" [nzItemLayout]="'horizontal'">
                         <ng-template #item1 let-item>
 
                             <nz-list-item (click)="switchProject(item)">

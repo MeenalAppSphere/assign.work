@@ -16,6 +16,7 @@ import { ProjectService } from '../../services/project/project.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../../queries/user/user.query';
 import { NzNotificationService } from 'ng-zorro-antd';
+import { cloneDeep } from '@babel/types';
 
 
 @Component({
@@ -54,6 +55,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public loadingProjects:boolean;
   public projectSource:Project[]=[];
+  public projectListSearch:Project[]=[];
+  public searchProjectText:string;
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery : UserQuery,
@@ -101,6 +104,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       }
     ];
 
+    this.projectListSearch = this.projectSource;
+
   }
 
   async switchProject(project:Project){
@@ -119,6 +124,16 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this.switchingProjectInProcess = false;
     }
 
+  }
+
+  public typeahead(){
+
+    this.projectListSearch = this.projectSource.filter((ele)=>{
+        if(ele.name.includes(this.searchProjectText)){
+          return ele;
+        }
+    })
+    console.log('Found: ',this.projectListSearch);
   }
 
   public addNewProject(){
