@@ -355,7 +355,22 @@
 
       <ng-container *ngIf="activeView.view==='capacity'">
         <aside class="col-md-4">
-          <div class="capacity-table">
+          <div *ngIf="!projectMembersList || projectMembersList.length===0">
+            <nz-empty
+              [nzNotFoundImage]=" 'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+              [nzNotFoundContent]="contentTpl"
+              [nzNotFoundFooter]="footerTpl"
+            >
+              <ng-template #contentTpl>
+                <span>Please add collaborator to add capacity</span>
+              </ng-template>
+              <ng-template #footerTpl>
+                <button nz-button nzSize="small" nzType="primary" (click)="activeTab('collaborators', 'Collaborators')">Go to Collaborators Tab</button>
+              </ng-template>
+            </nz-empty>
+          </div>
+          <div class="capacity-table"
+               *ngIf="projectMembersList && projectMembersList.length>0">
             <nz-table
               [nzData]="projectMembersList"
               [nzShowPagination]="false">
