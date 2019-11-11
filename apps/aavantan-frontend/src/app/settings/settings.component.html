@@ -61,8 +61,13 @@
 
   <section>
 
-    <nz-card nzTitle="{{activeView.title}}" style="min-height:420px; overflow: scroll;">
-
+    <nz-card [nzTitle]="templateTitle" style="min-height:420px; overflow: scroll;">
+      <ng-template #templateTitle>
+        {{activeView.title}} <i nz-icon nz-tooltip [nzTitle]="templateTitleText" nzType="info-circle" class="text-info" theme="outline"></i>
+      </ng-template>
+      <ng-template #templateTitleText>
+        About {{activeView.title}}
+      </ng-template>
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
           <aside class="col-md-3">
