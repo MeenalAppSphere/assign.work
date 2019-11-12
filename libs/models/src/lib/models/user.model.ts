@@ -41,7 +41,7 @@ export class User {
   timezoneInfo?: UserTimeZoneInfo;
   organizations?: string[] | Organization[];
   projects?: string[] | Project[];
-  currentOrganizationId: string;
+  currentOrganizationId?: string;
   currentOrganization?: Organization;
   currentProject?: Project;
   status?: UserStatus;

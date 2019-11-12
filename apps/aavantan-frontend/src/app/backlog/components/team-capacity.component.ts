@@ -22,21 +22,24 @@ export class TeamCapacityComponent implements OnInit {
         firstName: 'Pradeep',
         lastName: 'Kumar',
         profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
+          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg',
+        currentOrganizationId: ''
       },
       {
         id: '2',
         firstName: 'Vishal',
         lastName: 'Kumar',
         profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
+          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg',
+        currentOrganizationId: ''
       },
       {
         id: '3',
         firstName: 'Aashsih',
         lastName: 'Patil',
         profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
+          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg',
+        currentOrganizationId: ''
       }
     ];
   }

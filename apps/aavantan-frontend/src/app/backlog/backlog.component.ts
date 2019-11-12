@@ -48,7 +48,8 @@ export class BacklogComponent implements OnInit {
         id: '1212' + (i + 1),
         emailId: 'abc' + (i + 1) + '@gmail.com',
         firstName: 'Pradeep',
-        profilePic: '../../assets/images/avatars/thumb-4.jpg'
+        profilePic: '../../assets/images/avatars/thumb-4.jpg',
+        currentOrganizationId: ''
       };
       this.taskObj = {
         id: '100' + i,
@@ -82,17 +83,20 @@ export class BacklogComponent implements OnInit {
     this.projectTeams = [{
       id: '1',
       firstName: 'Pradeep',
-      profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg'
+      profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg',
+      currentOrganizationId: ''
     },
       {
         id: '2',
         firstName: 'Vishal',
-        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg'
+        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg',
+        currentOrganizationId: ''
       },
       {
         id: '3',
         firstName: 'Aashsih',
-        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg'
+        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg',
+        currentOrganizationId: ''
       }];
   }
 
