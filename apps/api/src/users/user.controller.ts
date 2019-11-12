@@ -43,9 +43,4 @@ export class UserController {
   async updateUserProfile(@Body() id: string, @Body() user: Partial<User>) {
     return await this._userService.updateUser(id, user, null);
   }
-
-  @Post('switch-project')
-  async switchProject(@Body() id: string, @Request() req) {
-    return await this._userService.switchProject(id, req.user.id);
-  }
 }

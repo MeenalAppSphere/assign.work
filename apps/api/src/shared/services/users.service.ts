@@ -73,7 +73,7 @@ export class UsersService extends BaseService<User & Document> {
         }]).lean();
 
     // get only current organization project
-    // filter current project
+    // filter out current project
     // sort by updated at
     // limit only recent two projects
 
@@ -83,6 +83,11 @@ export class UsersService extends BaseService<User & Document> {
       (project) => {
         return moment(project.updatedAt).toDate();
       }, 'asc'), 0, 2);
+
+    // get only current user organization
+    // filter current project
+    // sort by updated at
+    // limit only recent two organization
 
     userDetails.organizations = slice(orderBy(userDetails.organizations
         .filter(f => f._id !== userDetails.currentOrganizationId.toString()),
@@ -100,16 +105,5 @@ export class UsersService extends BaseService<User & Document> {
 
 
     return userDetails;
-  }
-
-  async switchProject(id: string, userId: string) {
-    const project = await this._projectService.findById(id);
-
-    if (!project) {
-      throw new BadRequestException('No Project Found');
-    }
-    const user = await this._userModel.findById(userId);
-    user.currentProject = project;
-    return this.updateUser(userId, user);
   }
 }
