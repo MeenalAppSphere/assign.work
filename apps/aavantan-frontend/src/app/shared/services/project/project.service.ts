@@ -34,9 +34,19 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   createProject(model: Project): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.base, model).pipe(
       map((res: BaseResponseModel<Project>) => {
+
         if (!this._generalService.user.projects.length) {
-          this.updateCurrentProjectState(res.data);
+          this.userStore.update((state => {
+            return {
+              ...state,
+              currentProject: res.data,
+              user: Object.assign({}, state.user, {
+                projects: [...state.user.projects, res.data]
+              })
+            };
+          }));
         }
+
         this._generalService.user.projects.push(res.data as any);
         this.notification.success('Success', 'Project Created Successfully');
         return res;
@@ -47,7 +57,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  switchProject(project:SwitchProjectRequest): Observable<BaseResponseModel<User>> {
+  switchProject(project: SwitchProjectRequest): Observable<BaseResponseModel<User>> {
     project.organizationId = this._generalService.currentProject.organization as string;
     return this._http.post(ProjectUrls.switchProject, project).pipe(
       map((res: BaseResponseModel<User>) => {
@@ -55,7 +65,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         this.userStore.update((state => {
           return {
             ...state,
-            user:res.data,
+            user: res.data,
             currentProject: res.data.currentProject
           };
         }));

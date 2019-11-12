@@ -14,12 +14,13 @@ import { GeneralService } from './general.service';
 import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { of } from 'rxjs';
+import { UserStore } from '../../store/user/user.store';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
   constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              protected notification: NzNotificationService) {
+              protected notification: NzNotificationService, protected userStore: UserStore) {
     super(authStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -89,8 +90,18 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
 
   logOut() {
     this.updateState({ token: null });
-    this._generalService.token = null;
-    this._generalService.user = null;
+    this.userStore.update((state) => {
+      return {
+        ...state,
+        user: null,
+        currentOrganization: null,
+        currentProject: null
+      };
+    });
+    // this._generalService.token = null;
+    // this._generalService.user = null;
+    // this._generalService.currentProject = null;
+    // this._generalService.currentOrganization = null;
     this.router.navigate(['/login']);
   }
 

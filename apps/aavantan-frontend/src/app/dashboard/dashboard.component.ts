@@ -5,7 +5,6 @@ import { Observable, of } from 'rxjs';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { delay } from 'rxjs/operators';
 import { JoyrideService } from 'ngx-joyride';
-import { Organization, Project } from '@aavantan-app/models';
 import { GeneralService } from '../shared/services/general.service';
 import { OrganizationQuery } from '../queries/organization/organization.query';
 import { UserService } from '../shared/services/user/user.service';
@@ -14,7 +13,6 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzModalService } from 'ng-zorro-antd';
 import { AuthService } from '../shared/services/auth.service';
 import { cloneDeep } from 'lodash';
-import { ProjectService } from '../shared/services/project/project.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -29,8 +27,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedHeaderColor: string;
   projectModalIsVisible: boolean = false;
   organizationModalIsVisible: boolean = false;
-
-  selectedOrgId: string = null;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
               private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
@@ -172,13 +168,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private initialCheck() {
     if (this._generalService.user) {
-      if (!this._generalService.user.organizations.length) {
+      if (!this._generalService.user.organizations.length && !this._generalService.user.currentOrganization) {
         this.organizationModalIsVisible = true;
       } else {
-        if (!this._generalService.user.projects.length) {
-          // if user have no projects show create project dialog
-          const lastOrganization = this._generalService.user.organizations[this._generalService.user.organizations.length - 1];
-          this.selectedOrgId = (lastOrganization as Organization).id;
+        if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
           this.projectModalIsVisible = true;
         } else {
           this.router.navigate(['dashboard', 'project']);

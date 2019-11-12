@@ -36,7 +36,8 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
           return {
             ...state,
             user: Object.assign({}, state.user, {
-              organizations: [...state.user.organizations, res.data]
+              organizations: [...state.user.organizations, res.data],
+              currentOrganization: !state.user.organizations.length ? res.data : state.user.organizations
             })
           };
         });

@@ -77,23 +77,39 @@ export class UsersService extends BaseService<User & Document> {
     // sort by updated at
     // limit only recent two projects
 
-    userDetails.projects = slice(orderBy(userDetails.projects
-        .filter(f => f.organization.toString() === userDetails.currentOrganizationId.toString())
-        .filter(f => f._id.toString() !== userDetails.currentProject._id.toString()),
-      (project) => {
-        return moment(project.updatedAt).toDate();
-      }, 'asc'), 0, 2);
+    userDetails.projects =
+      slice(
+        orderBy(userDetails.projects
+            .filter(f => f.organization.toString() === userDetails.currentOrganizationId.toString())
+            .filter(f => f._id.toString() !== userDetails.currentProject._id.toString()),
+          (project) => {
+            return moment(project.updatedAt).toDate();
+          }, 'asc'), 0, 2
+      )
+        .map(pro => {
+          pro.id = pro._id;
+          return pro;
+        });
 
     // get only current user organization
     // filter current project
     // sort by updated at
     // limit only recent two organization
 
-    userDetails.organizations = slice(orderBy(userDetails.organizations
-        .filter(f => f._id !== userDetails.currentOrganizationId.toString()),
-      (organization) => {
-        return moment(organization.updatedAt).toDate();
-      }, 'desc'), 0, 2);
+    userDetails.organizations =
+      slice(
+        orderBy(userDetails.organizations
+            .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()),
+          (organization) => {
+            return moment(organization.updatedAt).toDate();
+          }, 'desc'), 0, 2
+      )
+        .map(org => {
+          org.id = org._id;
+          return org;
+        });
+
+    userDetails.id = userDetails._id;
 
     if (userDetails.currentProject) {
       userDetails.currentProject.id = userDetails.currentProject._id;
@@ -102,7 +118,6 @@ export class UsersService extends BaseService<User & Document> {
     if (userDetails.currentOrganization) {
       userDetails.currentOrganization.id = userDetails.currentOrganization._id;
     }
-
 
     return userDetails;
   }
