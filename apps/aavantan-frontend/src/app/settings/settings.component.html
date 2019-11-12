@@ -131,7 +131,11 @@
                 <span>{{item.emailId}}</span>
                 <div class="p-l-30 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
                 </a>
-<!--                <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="float-right"></i>-->
+                <span class="p-l-50 float-right">
+                  <span class="text-warning" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span> (<span (click)="resendInvitation(item)" class="text-info">Resend <i nz-icon nzType="mail" theme="outline"></i></span>
+                  <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
+<!--                  <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>-->
+                </span>
               </li>
             </ul>
           </aside>

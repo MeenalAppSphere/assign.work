@@ -49,19 +49,27 @@
   }
   .frozen-div {
     min-height: 250px;
-    max-height: 300px;
+    max-height: 500px;
     overflow: auto;
-    background: #f9f9f9;
-    padding: 10px;
+    background: #ffffff;
+    padding: 0px;
     border-radius: 4px;
     box-shadow: 2px 8px 3px -6px #dce0e6;
   }
+
 }
 
 #sidebar {
   /* for the animation */
+  height: calc(100vh - 80px);
   transition: margin 0.3s ease;
   box-shadow: -2px 0px 4px -3px #b3b3b3;
+}
+
+.comment-history-scrollable{
+  height: calc(100vh - 340px);
+  overflow: auto;
+  overflow-x: hidden;
 }
 
 .collapsed {

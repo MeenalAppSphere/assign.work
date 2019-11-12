@@ -90,11 +90,11 @@
       </div>
 
       <div class="col">
-        <button *ngIf="showCreateOrg" nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
+        <button *ngIf="showCreateOrg" [disabled]="orgForm.invalid" nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
           <span>Save</span>
         </button>
 
-        <button *ngIf="!showCreateOrg" nz-button nzType="primary" class="float-right" nzSize="small" (click)="addNewOrg()">+ Add New Organisation</button>
+        <button *ngIf="!showCreateOrg"  nz-button nzType="primary" class="float-right" nzSize="small" (click)="addNewOrg()">+ Add New Organisation</button>
 
       </div>
 

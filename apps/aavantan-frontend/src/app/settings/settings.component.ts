@@ -129,6 +129,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.selectedCollaborators = this.selectedCollaborators.filter(item => item.emailId !== user.emailId);
   }
 
+  public resendInvitation(user: User){
+    console.log('Resend Invitation');
+  }
+
   public typeaheadOnSelect(e: TypeaheadMatch): void {
     if (this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length === 0) {
       this.selectedCollaborators.push(e.item);

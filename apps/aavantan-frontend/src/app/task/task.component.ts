@@ -41,6 +41,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectedStage: ProjectStages;
   public selectedStatus: ProjectStatus;
   public timelogModalIsVisible: boolean = false;
+  public epicModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
   public createTaskInProcess: boolean = false;
   public createCommentInProcess: boolean = false;
@@ -81,20 +82,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public historyRes: BaseResponseModel<BasePaginatedResponse<TaskHistory>>;
   public historyList: TaskHistory[] = [];
   public pinnedCommentsList: TaskComments[] = [];
-  public sprintDataSource: Sprint[] = [
-    {
-      id: '1',
-      name: 'Sprint 1'
-    },
-    {
-      id: '2',
-      name: 'Sprint 2'
-    },
-    {
-      id: '3',
-      name: 'Sprint 3'
-    }
-  ];
+  public sprintDataSource: Sprint[] = [];
   public tagsDataSource = [
     {
       id: 1,
@@ -109,20 +97,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       name: 'Tag 3'
     }
   ];
-  public epicDataSource = [
-    {
-      id: 1,
-      name: 'Epic 1'
-    },
-    {
-      id: 2,
-      name: 'Epic 2'
-    },
-    {
-      id: 3,
-      name: 'Epic 3'
-    }
-  ];
+  public epicDataSource = [];
 
   public taskTypeDataSource: TaskType[] = [];
   public stagesDataSource: ProjectStages[] = [];
@@ -166,7 +141,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       relatedItemId: [null],
       tags: [null],
       epic: [null],
-      status: [null]
+      status: [null],
+      estimateTime:[null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -228,8 +204,17 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public assignedToMe() {
-    // this.taskForm.get('assignedTo').patchValue(this.userDetails.fullName);
-    // this.taskForm.value.assignedTo = this.userDetails.id;
+    const user: ProjectMembers={
+      userId:  this._generalService.user.id,
+      emailId: this._generalService.user.emailId,
+      userDetails: this._generalService.user
+    };
+    this.selectedAssignee = user;
+    this.taskForm.get('assigneeId').patchValue(this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId);
+  }
+
+  public toggleNewEpicModal(){
+    this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
   public openTimeLogModal() {

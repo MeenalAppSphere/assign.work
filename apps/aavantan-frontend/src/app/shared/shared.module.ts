@@ -14,6 +14,8 @@ import { DateAgoPipe } from './pipes/dateago.pipe';
 import { Safe } from './pipes/safehtml.pipe';
 import { OrganisationComponent } from './components/organisation/organisation.component';
 import { NumericDirective } from './directives/numbers-only.directive';
+import { AddEpicComponent } from './components/add-epic/add-epic.component';
+import { EditorModule } from '@tinymce/tinymce-angular';
 
 @NgModule({
   exports: [
@@ -31,7 +33,8 @@ import { NumericDirective } from './directives/numbers-only.directive';
     LoaderComponent,
     DateAgoPipe,
     Safe,
-    NumericDirective
+    NumericDirective,
+    AddEpicComponent
   ],
   imports: [
     CommonModule,
@@ -40,7 +43,8 @@ import { NumericDirective } from './directives/numbers-only.directive';
     NgZorroAntdModule,
     PerfectScrollbarModule,
     TypeaheadModule,
-    PopoverModule
+    PopoverModule,
+    EditorModule
   ],
   declarations: [
     AddProjectComponent,
@@ -51,7 +55,8 @@ import { NumericDirective } from './directives/numbers-only.directive';
     LoaderComponent,
     DateAgoPipe,
     Safe,
-    NumericDirective
+    NumericDirective,
+    AddEpicComponent
   ]
 })
 export class SharedModule {
