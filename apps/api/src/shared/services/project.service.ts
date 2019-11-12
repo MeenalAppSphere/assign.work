@@ -249,11 +249,17 @@ export class ProjectService extends BaseService<Project & Document> {
     }
 
     if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
-      const isDuplicate = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
+      const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
+      const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
 
-      if (isDuplicate) {
-        throw new BadRequestException('Tasktype Name Already Exists');
+      if (isDuplicateName) {
+        throw new BadRequestException('Tasktype Name Already Exists...');
       }
+
+      if (isDuplicateColor) {
+        throw new BadRequestException('Tasktype Color Already Exists...');
+      }
+
     } else {
       projectDetails.settings.taskTypes = [];
     }

@@ -29,7 +29,8 @@ export class UserService extends BaseService<UserStore, UserState> {
         this.updateState({
           getUserProfileInProcess: false,
           user: res.data,
-          currentProject: res.data.currentProject
+          currentProject: res.data.currentProject,
+          currentOrganization: res.data.currentOrganization
         });
         this._generalService.user = cloneDeep(res.data);
         return res;
@@ -38,7 +39,8 @@ export class UserService extends BaseService<UserStore, UserState> {
         this.updateState({
           getUserProfileInProcess: false,
           user: null,
-          currentProject: null
+          currentProject: null,
+          currentOrganization: null
         });
         this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);

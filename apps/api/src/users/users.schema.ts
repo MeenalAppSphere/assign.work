@@ -53,21 +53,24 @@ userSchema.set('toJSON', {
     ret.id = ret._id;
     delete ret._id;
     delete ret.__v;
-  }
+  },
+  virtuals: true
 });
 userSchema.set('toObject', {
   transform: function(doc, ret) {
     ret.id = ret._id;
     delete ret._id;
     delete ret.__v;
-  }
+  },
+  virtuals: true
 });
 
 // virtual
 userSchema.virtual('currentOrganization', {
   ref: DbCollection.organizations,
   localField: 'currentOrganizationId',
-  foreignField: '_id'
+  foreignField: '_id',
+  justOne: true
 });
 
 

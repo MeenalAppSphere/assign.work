@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
-import { Project, User } from '@aavantan-app/models';
+import { Organization, Project, User } from '@aavantan-app/models';
 
 export interface UserState {
   getUserProfileInProcess: boolean;
@@ -8,6 +8,7 @@ export interface UserState {
   switchProjectInProcess: boolean;
   switchProjectSuccess: boolean;
   currentProject: Project;
+  currentOrganization: Organization;
 }
 
 const initialState: UserState = {
@@ -15,7 +16,8 @@ const initialState: UserState = {
   user: null,
   switchProjectInProcess: false,
   switchProjectSuccess: false,
-  currentProject: null
+  currentProject: null,
+  currentOrganization: null
 };
 
 @Injectable({ providedIn: 'root' })

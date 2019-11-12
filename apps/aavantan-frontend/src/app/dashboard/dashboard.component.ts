@@ -50,6 +50,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this._generalService.currentProject = cloneDeep(res);
     });
 
+    // listen for current organization
+    this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
+      this._generalService.currentOrganization = cloneDeep(res);
+    });
+
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
     this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
