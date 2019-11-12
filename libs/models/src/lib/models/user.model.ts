@@ -26,7 +26,7 @@ export class UserTimeZoneInfo {
 }
 
 export class User {
-  id?:string;
+  id?: string;
   emailId?: string;
   password?: string;
   firstName?: string;
@@ -41,10 +41,11 @@ export class User {
   timezoneInfo?: UserTimeZoneInfo;
   organizations?: string[] | Organization[];
   projects?: string[] | Project[];
-  defaultOrganization?: string;
+  currentOrganizationId: string;
+  currentOrganization?: Organization;
   currentProject?: Project;
   status?: UserStatus;
   mobileNumber?: string;
   username?: string;
-  isEmailSent?:boolean;
+  isEmailSent?: boolean;
 }

@@ -71,11 +71,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this.projectList = this._generalService.user.projects as Project[];
 
-    if (this.projectList && this.projectList.length > 0) {
-      this.showCreateProject = false;
-    } else {
-      this.showCreateProject = true;
-    }
+    this.showCreateProject = !(this.projectList && this.projectList.length > 0);
 
     this.createFrom();
 

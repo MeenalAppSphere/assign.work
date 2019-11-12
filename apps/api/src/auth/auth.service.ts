@@ -57,6 +57,7 @@ export class AuthService {
       const payload = { sub: userDetails.emailId, id: userDetails.id };
       await session.commitTransaction();
       session.endSession();
+
       return {
         user: userDetails.toJSON(),
         access_token: this.jwtService.sign(payload)

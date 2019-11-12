@@ -22,6 +22,12 @@ export class OrganizationService extends BaseService<Organization & Document> {
 
       // update user
       const userDetails = await this._userService.findById(organization.createdBy as string);
+
+      // if user have created first organization then set it to as current organization
+      if (!userDetails.organizations.length) {
+        userDetails.currentOrganizationId = result[0].id;
+      }
+
       userDetails.organizations.push(result[0].id);
       await this._userService.updateUser(userDetails.id, userDetails, session);
 

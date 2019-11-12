@@ -2,6 +2,7 @@ import { Schema } from 'mongoose';
 import { DbCollection, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 import { MemberTypes } from '@aavantan-app/models';
+import { taskSchema } from '../task/task.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -29,8 +30,7 @@ export const userSchema = new Schema(
     },
     organizations: [{
       type: Schema.Types.ObjectId,
-      ref: DbCollection.organizations,
-      required: [true, 'Please select Organization.']
+      ref: DbCollection.organizations
     }],
     projects: [
       {
@@ -38,7 +38,7 @@ export const userSchema = new Schema(
         ref: DbCollection.projects
       }
     ],
-    defaultOrganization: { type: Schema.Types.ObjectId, ref: DbCollection.organizations },
+    currentOrganizationId: { type: Schema.Types.ObjectId, ref: DbCollection.organizations },
     currentProject: {
       type: Schema.Types.ObjectId,
       ref: DbCollection.projects
@@ -47,7 +47,7 @@ export const userSchema = new Schema(
   }, schemaOptions
 );
 
-// virtual
+// options
 userSchema.set('toJSON', {
   transform: function(doc, ret) {
     ret.id = ret._id;
@@ -63,10 +63,16 @@ userSchema.set('toObject', {
   }
 });
 
+// virtual
+userSchema.virtual('currentOrganization', {
+  ref: DbCollection.organizations,
+  localField: 'currentOrganizationId',
+  foreignField: '_id'
+});
+
 
 // plugins
 userSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
   .plugin(paginate);
 
-// hooks
