@@ -46,22 +46,22 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public addCollaboratorsInProcess: boolean = false;
   public selectTemplateInProcess: boolean = false;
-  public switchingProjectInProcess:boolean;
+  public switchingProjectInProcess: boolean;
 
   public members: User[] = [];
 
-  public showCreateProject:boolean;
-  public projectList:Project[]=[];
+  public showCreateProject: boolean;
+  public projectList: Project[] = [];
 
-  public loadingProjects:boolean;
-  public projectSource:Project[]=[];
-  public projectListSearch:Project[]=[];
-  public searchProjectText:string;
+  public loadingProjects: boolean;
+  public projectSource: Project[] = [];
+  public projectListSearch: Project[] = [];
+  public searchProjectText: string;
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
-              private _generalService: GeneralService, private _userQuery : UserQuery,
-               private _usersService: UserService, private _projectService: ProjectService
-               ,protected notification: NzNotificationService) {
+              private _generalService: GeneralService, private _userQuery: UserQuery,
+              private _usersService: UserService, private _projectService: ProjectService
+    , protected notification: NzNotificationService) {
     this.getAllUsers();
   }
 
@@ -69,12 +69,12 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.organizations = this._generalService.user && this._generalService.user.organizations as Organization[] || [];
     this.currentOrganization = this._generalService.currentOrganization;
 
-    this.projectList= this._generalService.user.projects as Project[];
+    this.projectList = this._generalService.user.projects as Project[];
 
-    if (this.projectList && this.projectList.length>0) {
-      this.showCreateProject=false;
-    }else{
-      this.showCreateProject=true;
+    if (this.projectList && this.projectList.length > 0) {
+      this.showCreateProject = false;
+    } else {
+      this.showCreateProject = true;
     }
 
     this.createFrom();
@@ -85,22 +85,22 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this.projectSource = [
       {
-        name:'Project 1',
-        members:null,
-        organization:'2d93479n93749n7979',
-        template:this.selectedTemplate
+        name: 'Project 1',
+        members: null,
+        organization: '2d93479n93749n7979',
+        template: this.selectedTemplate
       },
       {
-        name:'Project 2',
-        members:null,
-        organization:'2d93479n93749n7976',
-        template:this.selectedTemplate
+        name: 'Project 2',
+        members: null,
+        organization: '2d93479n93749n7976',
+        template: this.selectedTemplate
       },
       {
-        name:'Project 3',
-        members:null,
-        organization:'2d93479n93749n7976',
-        template:this.selectedTemplate
+        name: 'Project 3',
+        members: null,
+        organization: '2d93479n93749n7976',
+        template: this.selectedTemplate
       }
     ];
 
@@ -108,12 +108,12 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   }
 
-  async switchProject(project:Project){
+  async switchProject(project: Project) {
 
-    const json: SwitchProjectRequest ={
+    const json: SwitchProjectRequest = {
       organizationId: this._generalService.currentProject.organization as string,
       projectId: project.id
-    }
+    };
 
     try {
       this.switchingProjectInProcess = true;
@@ -126,18 +126,18 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   }
 
-  public typeahead(){
+  public typeahead() {
 
-    this.projectListSearch = this.projectSource.filter((ele)=>{
-        if(ele.name.includes(this.searchProjectText)){
-          return ele;
-        }
-    })
-    console.log('Found: ',this.projectListSearch);
+    this.projectListSearch = this.projectSource.filter((ele) => {
+      if (ele.name.includes(this.searchProjectText)) {
+        return ele;
+      }
+    });
+    console.log('Found: ', this.projectListSearch);
   }
 
-  public addNewProject(){
-    this.showCreateProject=true;
+  public addNewProject() {
+    this.showCreateProject = true;
   }
 
   public createFrom() {
@@ -183,7 +183,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.switchStepCurrent -= 1;
   }
 
-  skip():void {
+  skip(): void {
     this.switchStepCurrent += 1;
   }
 
@@ -204,10 +204,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   async saveProject() {
-    if(this.projectForm.invalid){
+    if (this.projectForm.invalid) {
       this.notification.error('Error', 'Please Enter Project Name');
       return;
     }
+
     this.createProjectInProcess = true;
     const project: Project = { ...this.projectForm.getRawValue() };
     project.createdBy = this._generalService.user.id;

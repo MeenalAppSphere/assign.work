@@ -34,6 +34,16 @@ export class ProjectService extends BaseService<Project & Document> {
   async addProject(model: Project) {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
+
+    // validations
+    if (model.name && !model.name.trim()) {
+      throw new BadRequestException('Please Enter Project Name');
+    }
+
+    if (!model.organization || !Types.ObjectId.isValid(model.organization as string)) {
+      throw new BadRequestException('Please Choose An Organization');
+    }
+
     const organizationId = model.organization;
     model = new this._projectModel(model);
     model.organization = this.toObjectId(model.organization as string);
@@ -41,13 +51,15 @@ export class ProjectService extends BaseService<Project & Document> {
     model.settings.priorities = [];
     model.settings.stages = [];
     model.settings.status = [];
+
+
     try {
       // create project and get project id from them
       const createdProject = await this.create([model], session);
 
       const userDetails = await this._userService.findById(createdProject[0].createdBy as string);
 
-      // if user is creating first project then mark it as
+      // if user is creating first project then mark it as current project
       if (!userDetails.projects.length) {
         userDetails.currentProject = createdProject[0].id;
       }

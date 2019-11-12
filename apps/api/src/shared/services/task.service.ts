@@ -23,7 +23,6 @@ import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
-import { taskId } from 'aws-sdk/clients/datapipeline';
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> {

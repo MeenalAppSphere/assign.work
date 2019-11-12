@@ -24,7 +24,7 @@ export const projectSchema = new Schema({
   },
   template: {
     type: String,
-    required: [false, 'Please Select Project Template'],
+    required: false,
     enum: Object.values(ProjectTemplateEnum)
   },
   settings: {
@@ -32,7 +32,7 @@ export const projectSchema = new Schema({
     taskTypes: [],
     priorities: [],
     status: [],
-    required: false,
+    required: false
   },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
