@@ -340,7 +340,7 @@ export class ProjectService extends BaseService<Project & Document> {
 
   async switchProject(model: SwitchProjectRequest) {
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
-    const projectDetails = await this.getProjectDetails(model.projectId, model.organizationId);
+    const projectDetails = await this.getProjectDetails(model.projectId);
 
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
@@ -358,10 +358,8 @@ export class ProjectService extends BaseService<Project & Document> {
     }
   }
 
-  private async getProjectDetails(id: string, organizationId?: string): Promise<Project> {
-    const projectDetails: Project = await this._projectModel.findOne({
-      _id: this.toObjectId(id), organization: this.toObjectId(organizationId)
-    }).select('members settings createdBy updatedBy').lean().exec();
+  private async getProjectDetails(id: string): Promise<Project> {
+    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
     if (!projectDetails) {
       throw new NotFoundException('No Project Found');
