@@ -72,6 +72,21 @@ export class UsersService extends BaseService<User & Document> {
           justOne: true
         }]).lean();
 
+    userDetails.id = userDetails._id;
+
+    if (userDetails.currentProject) {
+      userDetails.currentProject.id = userDetails.currentProject._id.toString();
+    }
+
+    if (userDetails.currentOrganization) {
+      userDetails.currentOrganization.id = userDetails.currentOrganization._id.toString();
+      userDetails.currentOrganizationId = userDetails.currentOrganization.id;
+    } else if (userDetails.organizations.length) {
+      userDetails.currentOrganization = userDetails.organizations[0];
+      userDetails.currentOrganization.id = userDetails.currentOrganization._id.toString();
+      userDetails.currentOrganizationId = userDetails.currentOrganization.id;
+    }
+
     // get only current organization project
     // filter out current project
     // sort by updated at
@@ -80,8 +95,8 @@ export class UsersService extends BaseService<User & Document> {
     userDetails.projects =
       slice(
         orderBy(userDetails.projects
-            .filter(f => f.organization.toString() === userDetails.currentOrganizationId.toString())
-            .filter(f => f._id.toString() !== userDetails.currentProject._id.toString()),
+            .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
+            .filter(f => f._id.toString() !== userDetails.currentProject.id),
           (project) => {
             return moment(project.updatedAt).toDate();
           }, 'asc'), 0, 2
@@ -108,16 +123,6 @@ export class UsersService extends BaseService<User & Document> {
           org.id = org._id;
           return org;
         });
-
-    userDetails.id = userDetails._id;
-
-    if (userDetails.currentProject) {
-      userDetails.currentProject.id = userDetails.currentProject._id;
-    }
-
-    if (userDetails.currentOrganization) {
-      userDetails.currentOrganization.id = userDetails.currentOrganization._id;
-    }
 
     return userDetails;
   }

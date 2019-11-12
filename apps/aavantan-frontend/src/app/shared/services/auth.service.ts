@@ -98,10 +98,6 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         currentProject: null
       };
     });
-    // this._generalService.token = null;
-    // this._generalService.user = null;
-    // this._generalService.currentProject = null;
-    // this._generalService.currentOrganization = null;
     this.router.navigate(['/login']);
   }
 
