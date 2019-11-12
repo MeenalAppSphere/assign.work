@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { DraftSprint, Task, TaskType } from '@aavantan-app/models';
+import { DraftSprint, Task, TaskFilterDto, TaskType } from '@aavantan-app/models';
 import { Router } from '@angular/router';
 
 @Component({
@@ -19,6 +19,10 @@ export class TaskListComponent implements OnInit {
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;
+  public sortingRequest: TaskFilterDto = {
+    sort:'', sortBy:''
+  };
+
   //backlog page
   public tasksSelected: DraftSprint = {
     ids: [],
@@ -60,4 +64,12 @@ export class TaskListComponent implements OnInit {
     }
     this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
   }
+
+  public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {
+    this.sortingRequest.sort = type;
+    this.sortingRequest.sortBy = columnName;
+
+    console.log('Sorting Request: ',this.sortingRequest);
+  }
+
 }

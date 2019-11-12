@@ -58,9 +58,25 @@
         <thead>
             <tr>
                 <th class="text-center" width="20" *ngIf="showCheckboxOption">#</th>
-                <th>Title</th>
+                <th class="text-center" width="90">
+                  <span>Priority</span>
+                  <span class="p-l-10">
+                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
+                  </span>
+                </th>
+                <th>
+                  <span>Title/Task Type</span>
+                  <span class="p-l-10">
+                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'name'}"></ng-container>
+                  </span>
+                </th>
                 <th class="text-center" *ngIf="showProgressOption">Progress</th>
-                <th class="text-center">Status</th>
+                <th class="text-center">
+                  <span>Status</span>
+                  <span class="p-l-10">
+                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'status'}"></ng-container>
+                  </span>
+                </th>
                 <th class="text-left">Member</th>
                 <th class="text-right">Estimate<span *ngIf="showLogOption">/Log Time</span></th>
             </tr>
@@ -71,10 +87,14 @@
                     <label nz-checkbox [(ngModel)]="item.selectedForSprint" (nzCheckedChange)="selectTaskForSprint(item)"></label>
                 </td>
 
+                <td data-label="Priority" class="text-center">
+                  <i *ngIf="item.priority && item.priority.color" [ngStyle]="{'border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
+                  <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff', 'height':'18px' }"></i>
+                  {{item.priority && item.priority.name ? item.priority.name : '-'}}
+                </td>
+
                 <td data-label="Title" style="width:50%;">
                     <div class="media align-items-center">
-                        <i *ngIf="item.priority && item.priority.color" [nzTitle]="item.priority.name" nz-tooltip [ngStyle]="{'border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
-                        <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff', 'height':'18px' }"></i>
                         <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5"></i>
                         <div class="m-l-10">
 
@@ -118,5 +138,18 @@
         </tbody>
     </nz-table>
 </div>
+
+
+<!-- sorting icon template -->
+<ng-template #sortTemplate let-column="column">
+
+  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest.sortBy !== column" (click)="sortButtonClicked('asc', column)" [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'asc'}"></i>
+
+  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest.sortBy === column && sortingRequest.sort === 'asc'" (click)="sortButtonClicked('desc', column)" [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'asc'}"></i>
+
+  <i class="fas fa-long-arrow-alt-down" *ngIf="sortingRequest.sortBy === column && sortingRequest.sort === 'desc'" (click)="sortButtonClicked('asc', column)" [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'desc'}"></i>
+
+</ng-template>
+<!-- sorting -->
 
 <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem" (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>

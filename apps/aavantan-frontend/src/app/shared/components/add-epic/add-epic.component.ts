@@ -62,7 +62,7 @@ export class AddEpicComponent implements OnInit {
 
     const task: Task = { ...this.epicForm.getRawValue() };
     task.projectId = this._generalService.currentProject.id;
-    task.createdById = this._generalService.user._id;
+    task.createdById = this._generalService.user.id;
 
     task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.userId ? this.selectedAssignee.userId : null;
