@@ -38,12 +38,8 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getAllTask(): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
-    const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
-      sort: 'createdAt',
-      sortBy: 'desc'
-    };
+  getAllTask(json: GetAllTaskRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
+
     return this._http.post(TaskUrls.getAllTask, json).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
 

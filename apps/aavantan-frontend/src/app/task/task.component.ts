@@ -10,16 +10,16 @@ import {
   Sprint,
   Task, TaskComments, TaskHistory, CommentPinModel,
   TaskType,
-  User, GetTaskHistoryModel, BasePaginatedResponse
+  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ActivatedRoute } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { NzNotificationService, UploadChangeParam } from 'ng-zorro-antd';
 import { TaskQuery } from '../queries/task/task.query';
-
+import { TaskUrls } from '../shared/services/task/task.url';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -49,27 +49,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public getCommentInProcess: boolean = false;
   public getHistoryInProcess: boolean = false;
 
-  public defaultFileList = [
-    {
-      uid: -1,
-      name: 'abc.png',
-      status: 'done',
-      url:
-        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      thumbUrl:
-        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
-    },
-    {
-      uid: -2,
-      name: 'yyy.png',
-      status: 'done',
-      url:
-        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-      thumbUrl:
-        'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
-    }
-  ];
-
+  public defaultFileList = [];
   public fileList2 = [...this.defaultFileList];
 
   public taskForm: FormGroup;
@@ -106,6 +86,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public displayName: string;
   public taskData: BaseResponseModel<Task>;
   public taskId: string;
+  public attachementHeader:any;
+  public attachementUrl:string;
+  public attachementIds:string[]=[];
 
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
@@ -120,6 +103,12 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
+    this.attachementUrl = TaskUrls.attachement;
+
+    this.attachementHeader = {
+      Authorization : 'Bearer '+this._generalService.token
+    }
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
 
@@ -150,7 +139,12 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.relatedTaskDataSource = res;
         this.dependentTaskDataSource = res;
       } else {
-        this._taskService.getAllTask().subscribe();
+        const json: GetAllTaskRequestModel = {
+          projectId: this._generalService.currentProject.id,
+          sort: 'createdAt',
+          sortBy: 'desc'
+        };
+        this._taskService.getAllTask(json).subscribe();
       }
     });
 
@@ -297,9 +291,24 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  handleChange({ file, fileList }): void {
+    const status = file.status;
+    if (status !== 'uploading') {
+      console.log(file, fileList);
+    }
+    if (status === 'done') {
+
+      if(file.response && file.response.data.id){
+        this.attachementIds.push(file.response.data.id);
+      }
+
+      this.notification.success('Success', `${file.name} file uploaded successfully.`);
+    } else if (status === 'error') {
+      this.notification.error('Error',`${file.name} file upload failed.`);
+    }
+  }
 
   async saveForm() {
-
     const task: Task = { ...this.taskForm.getRawValue() };
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
@@ -310,6 +319,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
     task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
     task.relatedItemId = this.listOfSelectedRelatedItems;
+    task.attachments = this.attachementIds;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
@@ -327,6 +337,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskForm.reset();
         this.selectedStatus = null;
         this.selectedPriority = null;
+        this.attachementIds = [];
       }
 
       this.createTaskInProcess = false;

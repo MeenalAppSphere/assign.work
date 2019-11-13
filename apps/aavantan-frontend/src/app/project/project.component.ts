@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Task, TaskType, User } from '@aavantan-app/models';
+import { GetAllTaskRequestModel, Task, TaskType, User } from '@aavantan-app/models';
 import { NavigationExtras, Router } from '@angular/router';
 import { TaskService } from '../shared/services/task/task.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -36,7 +36,12 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
     });
 
-    this._taskService.getAllTask().subscribe();
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc'
+    };
+    this._taskService.getAllTask(json).subscribe();
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {

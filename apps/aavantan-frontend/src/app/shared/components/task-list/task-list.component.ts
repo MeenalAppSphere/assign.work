@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { DraftSprint, Task, TaskFilterDto, TaskType } from '@aavantan-app/models';
+import { DraftSprint, GetAllTaskRequestModel, Task, TaskFilterDto, TaskType } from '@aavantan-app/models';
 import { Router } from '@angular/router';
+import { GeneralService } from '../../services/general.service';
+import { TaskService } from '../../services/task/task.service';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -30,7 +32,7 @@ export class TaskListComponent implements OnInit {
     duration: 0
   };
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private _generalService : GeneralService, private _taskService:TaskService) {
   }
 
   ngOnInit() {
@@ -68,7 +70,12 @@ export class TaskListComponent implements OnInit {
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {
     this.sortingRequest.sort = type;
     this.sortingRequest.sortBy = columnName;
-
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: columnName,
+      sortBy: type
+    };
+    this._taskService.getAllTask(json).subscribe();
     console.log('Sorting Request: ',this.sortingRequest);
   }
 
