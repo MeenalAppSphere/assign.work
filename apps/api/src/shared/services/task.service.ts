@@ -23,6 +23,8 @@ import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
+import { orderBy } from 'lodash';
+import * as moment from 'moment';
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> {
@@ -171,10 +173,12 @@ export class TaskService extends BaseService<Task & Document> {
     }]).lean().exec();
 
     if (data) {
-      return data.comments.map(c => {
+      return orderBy(data.comments.map(c => {
         c.id = c['_id'];
         return c;
-      });
+      }), (cmnt) => {
+        return moment(cmnt.updatedAt).toDate();
+      }, 'desc');
     } else {
       throw new NotFoundException('Task Not Found');
     }
@@ -301,15 +305,19 @@ export class TaskService extends BaseService<Task & Document> {
   private prepareFilterQuery(model: TaskFilterDto) {
     const query = new Query();
     const otherKeys: Array<{ key: string, value: string }> = [];
+    const filter = {
+      $or: []
+    };
 
     Object.keys(model).forEach(key => {
       if (Array.isArray(model[key])) {
-        query.setQuery({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
+        filter.$or.push({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
       } else {
-        query.setQuery({ [key]: { $regex: new RegExp(model[key]), $options: 'i' } });
+        filter.$or.push({ [key]: { $regex: new RegExp(model[key]), $options: 'i' } });
       }
     });
 
+    query.setQuery(filter);
     if (model.sort) {
       query.sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 });
     }
