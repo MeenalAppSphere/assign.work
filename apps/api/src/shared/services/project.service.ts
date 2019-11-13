@@ -360,7 +360,7 @@ export class ProjectService extends BaseService<Project & Document> {
   }
 
   async searchProject(model: SearchProjectRequest) {
-    const organizationDetails = this.getOrganizationDetails(model.organizationId);
+    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
 
     return this._projectModel.find({
       organization: model.organizationId,
@@ -375,6 +375,10 @@ export class ProjectService extends BaseService<Project & Document> {
   }
 
   private async getProjectDetails(id: string): Promise<Project> {
+    if (!this.isValidId(id)) {
+      throw new NotFoundException('No Project Found');
+    }
+
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
     if (!projectDetails) {
@@ -390,6 +394,9 @@ export class ProjectService extends BaseService<Project & Document> {
   }
 
   private async getOrganizationDetails(id: string) {
+    if (!this.isValidId(id)) {
+      throw new NotFoundException('No Organization Found');
+    }
     const organizationDetails: Organization = await this._organizationModel.findById(id).select('members createdBy updatedBy').lean().exec();
 
     if (!organizationDetails) {
@@ -403,4 +410,5 @@ export class ProjectService extends BaseService<Project & Document> {
     }
     return organizationDetails;
   }
+
 }
