@@ -11,7 +11,7 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto, SwitchProjectRequest,
+  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto, SearchProjectRequest, SwitchProjectRequest,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -84,6 +84,22 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     return this._http.get(ProjectUrls.base).pipe(
       map((res: BaseResponseModel<Project[]>) => {
         this.notification.success('Success', 'Found');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  searchProject(text:string): Observable<BaseResponseModel<Project[]>> {
+    const json :SearchProjectRequest ={
+      organizationId : this._generalService.currentOrganization.id,
+      q: text
+    }
+    return this._http.post(ProjectUrls.searchProject, json).pipe(
+      map((res: BaseResponseModel<Project[]>) => {
+        // this.notification.success('Success', 'Found');
         return res;
       }),
       catchError(err => {

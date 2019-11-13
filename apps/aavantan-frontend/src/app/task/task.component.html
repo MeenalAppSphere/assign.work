@@ -5,7 +5,7 @@
     }">
         <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
             <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
-                <h5>{{taskId ? 'Update Task' : 'Create Task'}}</h5>
+                <h5>{{taskId ? displayName : 'Create Task'}}</h5>
                 <hr class="m-t-5 m-b-5" />
                 <!-- row 1-->
                 <div class="row row-1">

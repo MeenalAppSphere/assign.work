@@ -4,6 +4,7 @@ export const ProjectUrls = {
   base: `${createUrl('project')}`,
   switchProject: `${createUrl('project/switch-project')}`,
   updateProject: `${createUrl('project/:projectId')}`,
+  searchProject: `${createUrl('project/search')}`,
   addCollaborators: `${createUrl('project/:projectId/add-collaborators')}`,
   addStage: `${createUrl('project/:projectId/add-stage')}`,
   removeStage: `${createUrl('project/:projectId/remove-stage/:stageId')}`,

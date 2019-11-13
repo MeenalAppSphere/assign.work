@@ -122,7 +122,7 @@
               <p>Note: If user not available into list then you type email id and then invite them directly.</p>
             </form>
           </aside>
-          <aside class="col-md-3">
+          <aside class="col-md-6">
             <nz-form-label>Collaborators</nz-form-label>
             <ul class="stages-list">
               <li *ngFor="let item of projectMembersList">
@@ -131,8 +131,8 @@
                 <span>{{item.emailId}}</span>
                 <div class="p-l-30 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
                 </a>
-                <span class="p-l-50 float-right">
-                  <span class="text-warning" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span> (<span (click)="resendInvitation(item)" class="text-info">Resend <i nz-icon nzType="mail" theme="outline"></i></span>
+                <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
+                  <span class="text-warning" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span> <span (click)="resendInvitation(item)" class="text-info"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
                   <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
 <!--                  <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>-->
                 </span>

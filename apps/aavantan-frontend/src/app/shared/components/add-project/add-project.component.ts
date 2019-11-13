@@ -17,6 +17,8 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../../queries/user/user.query';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { cloneDeep } from '@babel/types';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 
 @Component({
@@ -57,6 +59,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public projectSource: Project[] = [];
   public projectListSearch: Project[] = [];
   public searchProjectText: string;
+
+  public modelChanged = new Subject<string>();
+  public isSearching:boolean;
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery: UserQuery,
@@ -100,9 +105,24 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       }
     ];
 
-    this.projectListSearch = this.projectSource;
+    this.modelChanged
+      .pipe(
+        debounceTime(300))
+      .subscribe(() => {
+        this.isSearching = true;
+        this._projectService.searchProject(this.searchProjectText).subscribe((data)=>{
+          this.projectListSearch = data.data
+          this.isSearching = false;
+        });
+
+      })
 
   }
+
+  changed() {
+    this.modelChanged.next();
+  }
+
 
   async switchProject(project: Project) {
 

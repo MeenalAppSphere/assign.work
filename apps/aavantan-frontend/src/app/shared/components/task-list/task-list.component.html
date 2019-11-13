@@ -90,7 +90,7 @@
                 <td data-label="Priority" class="text-center">
                   <i *ngIf="item.priority && item.priority.color" [ngStyle]="{'border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
                   <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff', 'height':'18px' }"></i>
-                  {{item.priority && item.priority.name ? item.priority.name : '-'}}
+                  <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>
                 </td>
 
                 <td data-label="Title" style="width:50%;">

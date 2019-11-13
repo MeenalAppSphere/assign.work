@@ -36,10 +36,11 @@
                 <nz-form-item class="m-b-5">
                     <nz-form-control>
                         <nz-input-group [nzSuffix]="suffixIconSearch">
-                            <input placeholder="Search Project" [(ngModel)]="searchProjectText" (keyup)="typeahead()" nz-input nzSize="small" />
+                            <input placeholder="Search Project" (ngModelChange)="changed()" [(ngModel)]="searchProjectText" nz-input nzSize="small" />
                         </nz-input-group>
                         <ng-template #suffixIconSearch>
-                            <i nz-icon nzType="search"></i>
+                            <i nz-icon nzType="search" *ngIf="!isSearching"></i>
+                          <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
                         </ng-template>
                     </nz-form-control>
                 </nz-form-item>

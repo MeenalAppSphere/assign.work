@@ -354,7 +354,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectAssigneeTypeahead(user: ProjectMembers) {
     if (user && user.emailId) {
       this.selectedAssignee = user;
-      this.taskForm.get('assigneeId').patchValue(user.emailId);
+      this.taskForm.get('assigneeId').patchValue(user.userDetails && user.userDetails.firstName ? user.userDetails.firstName : user.emailId);
     }
   }
 
