@@ -62,14 +62,14 @@ export class TaskController {
     return await this._taskService.updateTask(model);
   }
 
-  @Post('get-comments')
-  async getComments(@Body() model: GetCommentsModel) {
-    return await this._taskService.getComments(model);
-  }
-
   @Post('delete-task')
   async deleteTask(@Body() model: DeleteTaskModel) {
     return await this._taskService.delete(model.taskId);
+  }
+
+  @Post('get-comments')
+  async getComments(@Body() model: GetCommentsModel) {
+    return await this._taskService.getComments(model);
   }
 
   @Post('add-comment')

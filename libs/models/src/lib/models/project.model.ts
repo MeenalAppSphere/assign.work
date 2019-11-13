@@ -62,3 +62,8 @@ export class SwitchProjectRequest {
   organizationId: string;
   projectId: string;
 }
+
+export class SearchProjectRequest {
+  organizationId: string;
+  q: string;
+}

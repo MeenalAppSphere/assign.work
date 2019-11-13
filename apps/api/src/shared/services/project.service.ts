@@ -10,6 +10,7 @@ import {
   ProjectStages,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
+  SearchProjectRequest,
   SwitchProjectRequest,
   TaskType,
   User
@@ -356,6 +357,21 @@ export class ProjectService extends BaseService<Project & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  async searchProject(model: SearchProjectRequest) {
+    const organizationDetails = this.getOrganizationDetails(model.organizationId);
+
+    return this._projectModel.find({
+      organization: model.organizationId,
+      createdBy: this._generalService.userId,
+      $or: [
+        { name: { $regex: new RegExp(model.q), $options: 'i' } },
+        { description: { $regex: new RegExp(model.q), $options: 'i' } },
+        { template: { $regex: new RegExp(model.q), $options: 'i' } }
+      ]
+    }).select('name description template');
+
   }
 
   private async getProjectDetails(id: string): Promise<Project> {

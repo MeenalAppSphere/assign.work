@@ -79,7 +79,9 @@ export class TaskService extends BaseService<Task & Document> {
       throw new BadRequestException('Please add Task Type');
     }
 
-    const lastTask = await this._taskModel.find({}).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
+    const lastTask = await this._taskModel.find({
+      projectId: model.projectId
+    }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
     const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 
@@ -301,15 +303,16 @@ export class TaskService extends BaseService<Task & Document> {
     const otherKeys: Array<{ key: string, value: string }> = [];
 
     Object.keys(model).forEach(key => {
-      if (['taskTypeId', ''].includes(key)) {
-
-      }
       if (Array.isArray(model[key])) {
         query.setQuery({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
       } else {
         query.setQuery({ [key]: { $regex: new RegExp(model[key]), $options: 'i' } });
       }
     });
+
+    if (model.sort) {
+      query.sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 });
+    }
 
     return query.lean();
   }
