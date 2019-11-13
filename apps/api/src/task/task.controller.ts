@@ -31,6 +31,8 @@ const taskBasicPopulation: any[] = [{
   path: 'relatedItem',
   select: 'name displayName description url',
   justOne: true
+}, {
+  path: 'attachments'
 }];
 
 @Controller('task')
