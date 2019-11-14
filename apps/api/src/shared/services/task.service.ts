@@ -149,10 +149,14 @@ export class TaskService extends BaseService<Task & Document> {
     }
     const task: Task = await this._taskModel.findOne(queryObj).populate(populate).select('-comments').lean().exec();
     task.id = task['_id'];
+
     task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
     task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
     task.status = projectDetails.settings.status.find(t => t.id === task.status);
-    // delete task['project']['settings'];
+
+    task.attachmentsDetails.forEach(attachment => {
+      attachment.id = attachment['_id'];
+    });
     return task;
   }
 

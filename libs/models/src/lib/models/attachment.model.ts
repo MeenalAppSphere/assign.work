@@ -5,5 +5,6 @@ export class AttachmentModel {
   name: string;
   mimeType?: string;
   url: string;
-  createdBy: string | User;
+  createdById: string;
+  createdBy?: User;
 }

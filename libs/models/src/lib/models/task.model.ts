@@ -14,7 +14,8 @@ export class Task {
   project?: Project;
   assigneeId?: string;
   assignee?: User;
-  attachments?:string[] | AttachmentModel[];
+  attachments?: string[];
+  attachmentsDetails?: AttachmentModel[];
   taskType: string | TaskType;
   comments?: TaskComments[];
   estimateTime?: number;
@@ -29,7 +30,7 @@ export class Task {
   status?: string | ProjectStatus;
   sprint?: string;
   relatedItemId?: string[];
-  relatedItem?:Task[];
+  relatedItem?: Task[];
   dependentItemId?: string;
   dependentItem?: Task;
   createdById: string;

@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { attachmentSchema } from '../attachment/attachment.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -11,7 +12,7 @@ const commentSchema = new Schema({
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   createdAt: { type: Date },
   updatedAt: { type: Date },
-  attachments: { type: Schema.Types.ObjectId, ref: DbCollection.attachments },
+  attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
   isPinned: { type: Boolean, default: false }
 });
 
@@ -37,7 +38,7 @@ export const taskSchema = new Schema({
     required: [true, 'Please Select Project First!']
   },
   assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
-  attachments: [],
+  attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
   taskType: { type: String, required: [true, 'Please add task type'] },
   comments: [commentSchema],
   estimatedTime: { type: Number },
@@ -105,6 +106,11 @@ taskSchema.virtual('relatedItem', {
   foreignField: '_id'
 });
 
+taskSchema.virtual('attachmentsDetails', {
+  ref: DbCollection.attachments,
+  localField: 'attachments',
+  foreignField: '_id'
+});
 
 // plugins
 taskSchema

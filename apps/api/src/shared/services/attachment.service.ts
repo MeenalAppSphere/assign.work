@@ -5,13 +5,15 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as aws from 'aws-sdk';
 import { S3Client } from './S3Client.service';
+import { GeneralService } from './general.service';
 
 @Injectable()
 export class AttachmentService extends BaseService<AttachmentModel & Document> {
   s3Client: S3Client;
 
   constructor(
-    @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>
+    @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
+    private _generalService: GeneralService
   ) {
     super(_attachmentModel);
     aws.config.update({
@@ -21,7 +23,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
     this.s3Client = new S3Client(new aws.S3({ region: 'us-east-1' }), 'image.assign.work', '');
   }
 
-  async addAttachment(moduleName: string, files, userId: string): Promise<{ id: string, url: string }> {
+  async addAttachment(moduleName: string, files): Promise<{ id: string, url: string }> {
     const file = files[0];
     const mimeType = file.mimetype.split('/')[0];
     const fileType = mimeType.includes('image') ? 'images' : mimeType.includes('video') ? 'videos' : 'others';
@@ -44,7 +46,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
 
     try {
       const result = await this.create([new this._attachmentModel({
-        name: file.originalname, url: fileUrl, createdBy: userId, mimeType: file.mimetype
+        name: file.originalname, url: fileUrl, createdById: this._generalService.userId, mimeType: file.mimetype
       })], session);
       await session.commitTransaction();
       session.endSession();

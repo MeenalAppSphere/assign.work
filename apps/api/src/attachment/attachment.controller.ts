@@ -12,8 +12,8 @@ export class AttachmentController {
 
   @Post(':module/add')
   @UseInterceptors(AnyFilesInterceptor())
-  async createTask(@UploadedFiles() files, @Param('module') module: string, @Request() req) {
-    return await this._attachmentService.addAttachment(module, files, req.user.id);
+  async createTask(@UploadedFiles() files, @Param('module') module: string) {
+    return await this._attachmentService.addAttachment(module, files);
   }
 
   @Delete(':id')

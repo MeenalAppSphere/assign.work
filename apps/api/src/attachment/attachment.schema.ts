@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { taskSchema } from '../task/task.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -9,7 +10,7 @@ export const attachmentSchema = new Schema({
   name: { type: String },
   mimeType: { type: String },
   url: { type: String },
-  createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
@@ -23,3 +24,10 @@ attachmentSchema
 attachmentSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
   .plugin(paginate);
+
+// virtual
+attachmentSchema.virtual('createdBy', {
+  ref: DbCollection.users,
+  localField: 'createdById',
+  foreignField: '_id'
+});
