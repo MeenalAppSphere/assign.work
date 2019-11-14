@@ -151,6 +151,7 @@ export class TaskService extends BaseService<Task & Document> {
     task.id = task['_id'];
     task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
     task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
+    task.status = projectDetails.settings.status.find(t => t.id === task.status);
     // delete task['project']['settings'];
     return task;
   }

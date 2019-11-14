@@ -17,11 +17,11 @@ import {
 
 const taskBasicPopulation: any[] = [{
   path: 'createdBy',
-  select: 'emailId userName firstName lastName -_id',
+  select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
   path: 'assignee',
-  select: 'emailId userName firstName lastName -_id',
+  select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
   path: 'dependentItem',
@@ -31,8 +31,6 @@ const taskBasicPopulation: any[] = [{
   path: 'relatedItem',
   select: 'name displayName description url',
   justOne: true
-}, {
-  path: 'attachments'
 }];
 
 @Controller('task')

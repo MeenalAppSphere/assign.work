@@ -370,7 +370,9 @@ export class ProjectService extends BaseService<Project & Document> {
         { description: { $regex: new RegExp(model.q), $options: 'i' } },
         { template: { $regex: new RegExp(model.q), $options: 'i' } }
       ]
-    }).select('name description template');
+    })
+      .select('name description template createdAt updatedAt')
+      .populate({ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' });
 
   }
 
