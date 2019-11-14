@@ -18,7 +18,7 @@ export class AttachmentController {
 
   @Delete(':id')
   async deleteAttachment(@Param() id: string) {
-    return await this._attachmentService.delete(id);
+    return await this._attachmentService.deleteAttachment(id);
   }
 
 }
