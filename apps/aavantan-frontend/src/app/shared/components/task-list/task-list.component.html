@@ -58,7 +58,7 @@
         <thead>
             <tr>
                 <th class="text-center" width="20" *ngIf="showCheckboxOption">#</th>
-                <th class="text-center" width="90">
+                <th class="text-left" width="90">
                   <span>Priority</span>
                   <span class="p-l-10">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
@@ -87,7 +87,7 @@
                     <label nz-checkbox [(ngModel)]="item.selectedForSprint" (nzCheckedChange)="selectTaskForSprint(item)"></label>
                 </td>
 
-                <td data-label="Priority" class="text-center">
+                <td data-label="Priority" class="text-left">
                   <i *ngIf="item.priority && item.priority.color" [ngStyle]="{'border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
                   <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff', 'height':'18px' }"></i>
                   <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>

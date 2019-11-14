@@ -10,7 +10,7 @@ import {
   Sprint,
   Task, TaskComments, TaskHistory, CommentPinModel,
   TaskType,
-  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel
+  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel, AttachmentModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -20,6 +20,7 @@ import { TaskService } from '../shared/services/task/task.service';
 import { NzNotificationService, UploadChangeParam } from 'ng-zorro-antd';
 import { TaskQuery } from '../queries/task/task.query';
 import { TaskUrls } from '../shared/services/task/task.url';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -33,7 +34,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
   public listOfSelectedRelatedItems:string[]=[];
-  public selectedAssignee: ProjectMembers;
+  public selectedAssignee: User = {};
   public selectedRelatedItem: Task;
   public selectedDependentItem: Task;
   public selectedTaskType: TaskType;
@@ -49,12 +50,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   public getCommentInProcess: boolean = false;
   public getHistoryInProcess: boolean = false;
 
-  public defaultFileList = [];
-  public fileList2 = [...this.defaultFileList];
+  public fileList2 = [];
 
   public taskForm: FormGroup;
   public commentForm: FormGroup;
-  public assigneeDataSource: ProjectMembers[] = [];
+  public assigneeDataSource: User[] = [];
   public relatedTaskDataSource: Task[] = [];
   public dependentTaskDataSource: Task[] = [];
   public commentsRes: BaseResponseModel<TaskComments[]>;
@@ -203,7 +203,9 @@ export class TaskComponent implements OnInit, OnDestroy {
       emailId: this._generalService.user.emailId,
       userDetails: this._generalService.user
     };
-    this.selectedAssignee = user;
+    this.selectedAssignee.id = this._generalService.user.id;
+    this.selectedAssignee.firstName = this._generalService.user.firstName;
+    this.selectedAssignee.lastName = this._generalService.user.lastName ? this._generalService.user.lastName : null;
     this.taskForm.get('assigneeId').patchValue(this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId);
   }
 
@@ -216,10 +218,14 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public cancelTaskForm() {
+    this.taskId = null;
     this.taskForm.reset();
+    this.selectedStatus = null;
+    this.selectedPriority = null;
+    this.attachementIds = [];
   }
 
-  public pinnedSuccess() {
+  public updateCommentSuccess() {
     this.getMessage(true);
   }
 
@@ -237,9 +243,16 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getMessage();
       this.getHistory();
       this.selectTaskType(this.taskData.data.taskType as TaskType);
+      this.selectStatus(this.taskData.data.status as ProjectStatus);
       this.selectPriority(this.taskData.data.priority as ProjectPriority);
-      this.selectAssigneeTypeahead(this.taskData.data.assignee as ProjectMembers);
       this.selectDependentItemTypeahead(this.taskData.data.dependentItem as Task);
+      if(this.taskData.data.assignee && this.taskData.data.assigneeId){
+        this.taskData.data.assignee.id = this.taskData.data.assigneeId;
+        this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
+      }
+
+      this.attachementIds = this.taskData.data.attachments;
+      this.fileList2 = this.taskData.data.attachmentsDetails;
 
       this.getTaskInProcess = false;
     } catch (e) {
@@ -308,13 +321,32 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  handleRemove= (file: any) => new Observable<boolean>((obs) => {
+    // console.log(file);
+
+
+    //this._taskService.removeAttachment(file.id).subscribe();
+
+    this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
+    this.fileList2 = this.fileList2.filter((ele)=>{
+      if(ele.id !== file.id){
+        return ele;
+      }
+    });
+
+
+    // console.log('this.handleRemove instanceof Observable', this.handleRemove instanceof Observable)
+    // console.log(obs)
+    obs.next(false)
+  });
+
   async saveForm() {
     const task: Task = { ...this.taskForm.getRawValue() };
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
 
     task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
-    task.assigneeId = this.selectedAssignee && this.selectedAssignee.userId ? this.selectedAssignee.userId : null;
+    task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
     task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
     task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
     task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
@@ -351,10 +383,10 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.commentForm.reset();
   }
 
-  public selectAssigneeTypeahead(user: ProjectMembers) {
+  public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
       this.selectedAssignee = user;
-      this.taskForm.get('assigneeId').patchValue(user.userDetails && user.userDetails.firstName ? user.userDetails.firstName : user.emailId);
+      this.taskForm.get('assigneeId').patchValue(user && user.firstName ? user.firstName : user.emailId);
     }
   }
 

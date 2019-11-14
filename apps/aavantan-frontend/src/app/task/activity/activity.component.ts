@@ -12,8 +12,10 @@ export class ActivityComponent implements OnInit {
   @Input() public enablePinButton: Boolean=false;
   @Input() public commentsList: TaskComments[]=[];
   @Input() public taskId: string;
-  @Output() public isPinnedSuccess: EventEmitter<boolean> = new EventEmitter(true);
+  @Output() public isUpdateSuccess: EventEmitter<boolean> = new EventEmitter(true);
 
+  public editCommentModalIsVisible:boolean;
+  public commentData:TaskComments;
   public pinInProcess: boolean = false;
 
   constructor(private _taskService: TaskService, private _generalService: GeneralService) { }
@@ -35,12 +37,18 @@ export class ActivityComponent implements OnInit {
     try {
 
       await this._taskService.pinComment(json).toPromise();
-      this.isPinnedSuccess.emit();
+      this.isUpdateSuccess.emit();
       this.pinInProcess = false;
 
     } catch (e) {
       this.pinInProcess = false;
     }
+  }
+
+  public toggleEditModel(item:TaskComments){
+    this.commentData=item;
+    this.editCommentModalIsVisible=!this.editCommentModalIsVisible;
+    this.isUpdateSuccess.emit();
   }
 
 }

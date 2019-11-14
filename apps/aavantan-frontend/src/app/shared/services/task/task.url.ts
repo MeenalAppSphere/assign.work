@@ -13,9 +13,10 @@ export const TaskUrls = {
   addComment: `${createUrl('task/add-comment')}`,
   getComments: `${createUrl('task/get-comments')}`,
   updateComment: `${createUrl('task/update-comment')}`,
-
   pinComment: `${createUrl('task/pin-comment')}`,
+
   attachement: `${createUrl('attachment/task/add')}`,
+  removeAttachement: `${createUrl('attachment/:id')}`,
 
   getHistory: `${createUrl('task-history/get-history')}`,
   addTimelog: `${createUrl('task/addtimelog/:taskId')}`,

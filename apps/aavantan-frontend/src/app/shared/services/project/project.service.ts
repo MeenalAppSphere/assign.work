@@ -58,7 +58,6 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   switchProject(project: SwitchProjectRequest): Observable<BaseResponseModel<User>> {
-    project.organizationId = this._generalService.currentProject.organization as string;
     return this._http.post(ProjectUrls.switchProject, project).pipe(
       map((res: BaseResponseModel<User>) => {
 

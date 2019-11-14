@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { Organization, Project } from '@aavantan-app/models';
+import { Organization, Project, User } from '@aavantan-app/models';
 import { UserService } from '../../services/user/user.service';
 import { UserQuery } from '../../../queries/user/user.query';
 
@@ -17,6 +17,7 @@ import { UserQuery } from '../../../queries/user/user.query';
 
 export class HeaderComponent implements OnInit, OnDestroy {
   public currentProject: Project = null;
+  public currentUser: User = null;
 
   constructor(private themeService: ThemeConstantService, private router: Router, private readonly _authService: AuthService,
               private readonly _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
@@ -63,6 +64,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentProject = res;
+      }
+    });
+    this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUser = res;
       }
     });
 

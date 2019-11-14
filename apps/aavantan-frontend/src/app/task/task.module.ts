@@ -7,6 +7,7 @@ import { TypeaheadModule } from 'ngx-bootstrap';
 import { ActivityComponent } from './activity/activity.component';
 import { HistoryComponent } from './history/history.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
+import { EditCommentComponent } from './edit-comment/edit-comment.component';
 
 const routes: Routes = [
   { path: '', component: TaskComponent},
@@ -25,7 +26,8 @@ const routes: Routes = [
   declarations: [
     TaskComponent,
     ActivityComponent,
-    HistoryComponent
+    HistoryComponent,
+    EditCommentComponent
   ]
 })
 export class TaskModule {

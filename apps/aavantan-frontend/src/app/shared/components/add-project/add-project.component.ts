@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
 import {
+  GetAllTaskRequestModel,
   Organization,
   Project,
   ProjectMembers,
@@ -19,6 +20,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { cloneDeep } from '@babel/types';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { TaskService } from '../../services/task/task.service';
 
 
 @Component({
@@ -65,8 +67,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery: UserQuery,
-              private _usersService: UserService, private _projectService: ProjectService
-    , protected notification: NzNotificationService) {
+              private _usersService: UserService, private _projectService: ProjectService,
+              protected notification: NzNotificationService, private _taskService : TaskService) {
     this.getAllUsers();
   }
 
@@ -84,26 +86,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this.projectForm.get('organization').patchValue(this.currentOrganization.id);
     }
 
-    this.projectSource = [
-      {
-        name: 'Project 1',
-        members: null,
-        organization: '2d93479n93749n7979',
-        template: this.selectedTemplate
-      },
-      {
-        name: 'Project 2',
-        members: null,
-        organization: '2d93479n93749n7976',
-        template: this.selectedTemplate
-      },
-      {
-        name: 'Project 3',
-        members: null,
-        organization: '2d93479n93749n7976',
-        template: this.selectedTemplate
-      }
-    ];
+    this.projectSource = [];
 
     this.modelChanged
       .pipe(
@@ -127,7 +110,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   async switchProject(project: Project) {
 
     const json: SwitchProjectRequest = {
-      organizationId: this._generalService.currentProject.organization as string,
+      organizationId: this._generalService.currentOrganization.id,
       projectId: project.id
     };
 
@@ -135,6 +118,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this.switchingProjectInProcess = true;
       await this._projectService.switchProject(json).toPromise();
       this.switchingProjectInProcess = false;
+      this.getTasks();
       this.toggleShow.emit();
     } catch (e) {
       this.switchingProjectInProcess = false;
@@ -266,10 +250,20 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     try {
       await this._projectService.updateProject(this.createdProjectId, { template: this.selectedTemplate }).toPromise();
       this.selectTemplateInProcess = false;
+      this.getTasks();
       this.toggleShow.emit();
     } catch (e) {
       this.selectTemplateInProcess = false;
     }
+  }
+
+  public getTasks(){
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc'
+    };
+    this._taskService.getAllTask(json).subscribe();
   }
 
   private getAllUsers() {

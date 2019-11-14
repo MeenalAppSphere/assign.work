@@ -1,0 +1,19 @@
+<nz-modal [(nzVisible)]="editCommentModalIsVisible" [nzTitle]="titleTemp" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="600" nzClosable="false">
+  <form [formGroup]="commentForm" autocomplete="off" nz-form>
+    <div>
+      <nz-form-item>
+        <nz-form-label nzFor="comment">Comment</nz-form-label>
+        <nz-form-control nzValidatingTip="Please enter some comment">
+          <editor formControlName="comment" apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div *nzModalFooter>
+      <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button nz-button nzSize="small" nzType="primary" (click)="save()" [nzLoading]="savingInProcess">Save</button>
+    </div>
+    <ng-template #titleTemp>
+      <span>Edit Comment</span>
+    </ng-template>
+  </form>
+</nz-modal>

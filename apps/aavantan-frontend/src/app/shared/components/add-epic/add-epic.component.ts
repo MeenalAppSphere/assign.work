@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { Project, ProjectMembers, Task, TaskType, TimeLog } from '@aavantan-app/models';
+import { Project, ProjectMembers, Task, TaskType, TimeLog, User } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task/task.service';
 import { GeneralService } from '../../services/general.service';
@@ -17,8 +17,8 @@ export class AddEpicComponent implements OnInit {
   @Output() toggleEpicShow: EventEmitter<any> = new EventEmitter<any>();
 
   public listOfSelectedWatchers: any = [];
-  public assigneeDataSource: ProjectMembers[] = [];
-  public selectedAssignee: ProjectMembers;
+  public assigneeDataSource: User[] = [];
+  public selectedAssignee: User = {};
   public addEpicInProcess:boolean;
   public taskId: string;
 
@@ -52,10 +52,13 @@ export class AddEpicComponent implements OnInit {
   public assignedToMe() {
     const user: ProjectMembers={
       userId:  this._generalService.user.id,
-      emailId: this._generalService.user.emailId
+      emailId: this._generalService.user.emailId,
+      userDetails: this._generalService.user
     };
-    this.selectedAssignee = user;
-    this.epicForm.get('assigneeId').patchValue(this._generalService.user.emailId);
+    this.selectedAssignee.id=this._generalService.user.id;
+    this.selectedAssignee.firstName = this._generalService.user.firstName;
+    this.selectedAssignee.lastName = this._generalService.user.lastName ? this._generalService.user.lastName : null;
+    this.epicForm.get('assigneeId').patchValue(this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId);
   }
 
   async saveForm() {
@@ -65,7 +68,7 @@ export class AddEpicComponent implements OnInit {
     task.createdById = this._generalService.user.id;
 
     task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
-    task.assigneeId = this.selectedAssignee && this.selectedAssignee.userId ? this.selectedAssignee.userId : null;
+    task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');

@@ -3,9 +3,21 @@
   padding-bottom: 5px;
   position: relative;
 }
-.pin-activity{
+.edit-comment{
   position: absolute;
   right: 0px;
+  top: 0px;
+  height: 22px;
+  width: 22px;
+  font-size: 17px;
+  &:hover{
+    color:#000000;
+    cursor: pointer;
+  }
+}
+.pin-activity{
+  position: absolute;
+  right: 25px;
   top: 0px;
   height: 22px;
   width: 22px;

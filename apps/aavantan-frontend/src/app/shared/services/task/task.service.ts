@@ -12,7 +12,12 @@ import {
   TaskComments,
   TaskHistory,
   CommentPinModel,
-  GetTaskByIdOrDisplayNameModel, GetAllTaskRequestModel, AddCommentModel, BasePaginatedResponse, GetTaskHistoryModel
+  GetTaskByIdOrDisplayNameModel,
+  GetAllTaskRequestModel,
+  AddCommentModel,
+  BasePaginatedResponse,
+  GetTaskHistoryModel,
+  UpdateCommentModel
 } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
@@ -75,9 +80,33 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+  removeAttachment(id: string): Observable<BaseResponseModel<Task>> {
+    return this._http.delete(TaskUrls.removeAttachement.replace(':id', id)).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        this.notification.success('Success', 'Attachment removed Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
 
   addComment(comment: AddCommentModel): Observable<BaseResponseModel<string>> {
     return this._http.post(TaskUrls.addComment, comment).pipe(
+      map((res: BaseResponseModel<string>) => {
+        this.notification.success('Success', res.data);
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  updateComment(comment: UpdateCommentModel): Observable<BaseResponseModel<string>> {
+
+    return this._http.post(TaskUrls.updateComment, comment).pipe(
       map((res: BaseResponseModel<string>) => {
         this.notification.success('Success', res.data);
         return res;
