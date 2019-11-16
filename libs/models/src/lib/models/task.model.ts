@@ -39,6 +39,7 @@ export class Task {
   updatedBy?: User;
   createdAt?: Date;
   updatedAt?: Date;
+  isSelected?:boolean;
 }
 
 export class TaskComments {
@@ -83,6 +84,9 @@ export class TaskFilterDto {
   finishedAt?: Date;
 }
 
+export class TaskForSprint extends Task{
+  selectedForSprint: boolean = false;
+}
 export class BaseTaskRequestModel {
   projectId: string;
   taskId?: string;

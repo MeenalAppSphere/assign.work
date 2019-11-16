@@ -1,19 +1,25 @@
-import { Component, OnInit } from '@angular/core';
-import { DraftSprint, Sprint, Task, User } from '@aavantan-app/models';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DraftSprint, GetAllTaskRequestModel, Sprint, Task, TaskType, User } from '@aavantan-app/models';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { GeneralService } from '../shared/services/general.service';
+import { TaskService } from '../shared/services/task/task.service';
+import { TaskQuery } from '../queries/task/task.query';
+import { UserQuery } from '../queries/user/user.query';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'aavantan-app-backlog',
   templateUrl: './backlog.component.html',
   styleUrls: ['./backlog.component.scss']
 })
-export class BacklogComponent implements OnInit {
+export class BacklogComponent implements OnInit, OnDestroy {
   public allTaskList: Task[] = [];
   public draftTaskList: Task[] = [];
   public taskObj: Task;
   public memberObj: User;
   public view: String = 'listView';
   public totalDuration: Number = 0;
-  public isDisabledCraeteBtn: boolean = true;
+  public isDisabledCreateBtn: boolean = true;
   public draftSprint: DraftSprint;
   public draftData: Task[] = [];
   public showStartWizard: boolean;
@@ -23,6 +29,7 @@ export class BacklogComponent implements OnInit {
   public dateFormat = 'mm/dd/yyyy';
   public sprintData: any;
   public teamCapacityModalIsVisible: boolean;
+  public getTaskInProcess: boolean;
   public sprintDataSource: Sprint[] = [
     {
       id: '1',
@@ -38,40 +45,23 @@ export class BacklogComponent implements OnInit {
     }
   ];
 
-  constructor() {
+  constructor(private _generalService: GeneralService,
+              private _taskService: TaskService,
+              private _taskQuery: TaskQuery,
+              private _userQuery: UserQuery) {
   }
 
   ngOnInit() {
 
-    for (let i = 0; i < 50; i++) {
-      this.memberObj = {
-        id: '1212' + (i + 1),
-        emailId: 'abc' + (i + 1) + '@gmail.com',
-        firstName: 'Pradeep',
-        profilePic: '../../assets/images/avatars/thumb-4.jpg',
-        currentOrganizationId: ''
-      };
-      this.taskObj = {
-        id: '100' + i,
-        displayName: 'BUG-10' + i,
-        name: 'You can create sprint by selecting multiple tasks' + i + '.',
-        progress: (i * 10),
-        createdAt: new Date(),
-        description: 'task description here, A responsive table that stacks into cardstask description here, A responsive table that stacks into cards',
-        status: 'TO DO',
-        assignee: this.memberObj,
-        estimateTime: 2,
-        priority: 'low',
-        sprint: null,
-        projectId: '',
-        taskType: {
-          name: 'bug',
-          color: '#ddee00'
-        },
-        createdById: ''
-      };
-      this.allTaskList.push(this.taskObj);
-    }
+    this.getAllTask();
+
+    // get current project from store
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.projectTeams = res.members;
+      }
+    });
+
     if (this.allTaskList && this.allTaskList.length > 0) {
       this.countTotalDuration();
     }
@@ -80,29 +70,31 @@ export class BacklogComponent implements OnInit {
     this.sprintData = {
       title: 'Sprint 1'
     };
-    this.projectTeams = [{
-      id: '1',
-      firstName: 'Pradeep',
-      profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg',
-      currentOrganizationId: ''
-    },
-      {
-        id: '2',
-        firstName: 'Vishal',
-        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg',
-        currentOrganizationId: ''
-      },
-      {
-        id: '3',
-        firstName: 'Aashsih',
-        profilePic: 'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg',
-        currentOrganizationId: ''
-      }];
+
+  }
+
+  public getAllTask(){
+
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc'
+    };
+    this._taskService.getAllTask(json).subscribe();
+
+    this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.getTaskInProcess=false;
+
+        this.allTaskList = cloneDeep(res);
+
+      }
+    });
   }
 
   public countTotalDuration() {
     this.allTaskList.forEach((ele) => {
-      const duration = ele.estimateTime;
+      const duration = ele.estimateTime ? ele.estimateTime : 0;
       // @ts-ignore
       this.totalDuration += Number(duration);
     });
@@ -111,10 +103,10 @@ export class BacklogComponent implements OnInit {
   public getTasksSelectedForSprint(ev: DraftSprint) {
     this.draftSprint = ev;
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
-      this.isDisabledCraeteBtn = false;
+      this.isDisabledCreateBtn = false;
       this.prepareDraftSprint();
     } else {
-      this.isDisabledCraeteBtn = true;
+      this.isDisabledCreateBtn = true;
     }
   }
 
@@ -176,6 +168,10 @@ export class BacklogComponent implements OnInit {
 
   public showTeamCapacity() {
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
+  }
+
+  public ngOnDestroy(){
+
   }
 
 }

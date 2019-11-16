@@ -49,20 +49,35 @@ export class TaskListComponent implements OnInit {
 
   public selectTaskForSprint(task: Task) {
     const duration = task.estimateTime;
-    if (task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 1) {
+    if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 1) {
+
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);
-      this.tasksSelected.duration =
-        this.tasksSelected.duration + Number(duration);
+
+      if(duration){
+        this.tasksSelected.duration =
+          this.tasksSelected.duration + Number(duration);
+      }
+
     } else {
+
       this.tasksSelected.ids = this.tasksSelected.ids.filter(ele => {
         return ele !== task.id;
       });
+
       this.tasksSelected.tasks = this.tasksSelected.tasks.filter(ele => {
         return ele.id !== task.id;
       });
-      this.tasksSelected.duration =
-        this.tasksSelected.duration - Number(duration);
+
+      this.taskList = this.tasksSelected.tasks.filter(ele => {
+        return ele.id !== task.id;
+      });
+
+      if(duration){
+        this.tasksSelected.duration =
+          this.tasksSelected.duration - Number(duration);
+      }
+
     }
     this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
   }

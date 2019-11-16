@@ -84,7 +84,7 @@
         <tbody>
             <tr *ngFor="let item of listViewTable.data">
                 <td data-label="#" *ngIf="showCheckboxOption" class="text-center">
-                    <label nz-checkbox [(ngModel)]="item.selectedForSprint" (nzCheckedChange)="selectTaskForSprint(item)"></label>
+                    <label nz-checkbox [(ngModel)]="item.isSelected" (nzCheckedChange)="selectTaskForSprint(item)"></label>
                 </td>
 
                 <td data-label="Priority" class="text-left">
