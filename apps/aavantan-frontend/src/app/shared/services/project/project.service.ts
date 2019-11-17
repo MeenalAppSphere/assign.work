@@ -82,7 +82,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   getAllProject(): Observable<BaseResponseModel<Project[]>> {
     return this._http.get(ProjectUrls.base).pipe(
       map((res: BaseResponseModel<Project[]>) => {
-        this.notification.success('Success', 'Found');
+        //this.notification.success('Success', 'Found');
         return res;
       }),
       catchError(err => {
