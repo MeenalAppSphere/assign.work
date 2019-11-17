@@ -54,7 +54,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
 
 
         this._generalService.token = null;
-        return this.handleError(err.error);
+        return this.handleError(err);
       })
     );
   }

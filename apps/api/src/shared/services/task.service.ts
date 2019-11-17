@@ -39,6 +39,20 @@ export class TaskService extends BaseService<Task & Document> {
   async getAllTasks(model: GetAllTaskRequestModel, onlyMyTask: boolean = false): Promise<Partial<BasePaginatedResponse<Task>>> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
+    // set populate fields
+    model.populate = [{
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }, {
+      path: 'assignee',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }];
+
+    // set selection fields
+    model.select = '_id name taskType priority status createdById assigneeId progress totalLoggedTime estimatedTime remainingTime displayName';
+
     let filter = {};
     if (onlyMyTask) {
       filter = {
@@ -278,7 +292,7 @@ export class TaskService extends BaseService<Task & Document> {
     return taskDetails;
   }
 
-  private async updateHelper(id: string, task: Partial<Task>, history: TaskHistory): Promise<string> {
+  private async updateHelper(id: string, task: any, history: TaskHistory): Promise<string> {
 
     if (!id) {
       throw new BadRequestException('invalid request');

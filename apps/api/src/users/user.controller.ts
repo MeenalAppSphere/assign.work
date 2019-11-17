@@ -11,26 +11,6 @@ export class UserController {
 
   @Get('profile')
   async getUser(@Request() req) {
-    // return await this._userService.findById(req.user.id, [{
-    //   path: 'projects',
-    //   select: 'name description'
-    // },
-    //   {
-    //     path: 'organizations',
-    //     select: 'name description'
-    //   },
-    //   {
-    //     path: 'currentProject',
-    //     populate: {
-    //       path: 'members.userDetails'
-    //     },
-    //     justOne: true
-    //   }, {
-    //     path: 'currentOrganization',
-    //     select: 'name description displayName logoUrl',
-    //     justOne: true
-    //   }]);
-
     return await this._userService.getUserProfile(req.user.id);
   }
 

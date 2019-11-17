@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DbCollection, MongoosePaginateQuery, User } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
@@ -71,6 +71,10 @@ export class UsersService extends BaseService<User & Document> {
           select: 'name description displayName logoUrl',
           justOne: true
         }]).lean();
+
+    if (!userDetails) {
+      throw new UnauthorizedException();
+    }
 
     userDetails.id = userDetails._id;
 

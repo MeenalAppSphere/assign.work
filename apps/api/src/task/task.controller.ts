@@ -44,13 +44,11 @@ export class TaskController {
 
   @Post('get-all')
   async getAll(@Body() model: GetAllTaskRequestModel) {
-    model.populate = taskBasicPopulation;
     return await this._taskService.getAllTasks(model);
   }
 
   @Post('my-tasks')
   async getMyTasks(@Body() model: GetMyTaskRequestModel) {
-    model.populate = taskBasicPopulation;
     return await this._taskService.getMyTask(model);
   }
 
