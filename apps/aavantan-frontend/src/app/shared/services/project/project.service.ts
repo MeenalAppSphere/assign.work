@@ -47,7 +47,6 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
           }));
         }
 
-        this._generalService.user.projects.push(res.data as any);
         this.notification.success('Success', 'Project Created Successfully');
         return res;
       }),
@@ -91,11 +90,11 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  searchProject(text:string): Observable<BaseResponseModel<Project[]>> {
-    const json :SearchProjectRequest ={
-      organizationId : this._generalService.currentOrganization.id,
+  searchProject(text: string): Observable<BaseResponseModel<Project[]>> {
+    const json: SearchProjectRequest = {
+      organizationId: this._generalService.currentOrganization.id,
       q: text
-    }
+    };
     return this._http.post(ProjectUrls.searchProject, json).pipe(
       map((res: BaseResponseModel<Project[]>) => {
         // this.notification.success('Success', 'Found');
