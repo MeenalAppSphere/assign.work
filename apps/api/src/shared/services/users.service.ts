@@ -6,11 +6,13 @@ import { BaseService } from './base.service';
 import { ProjectService } from './project.service';
 import { sortBy, slice, orderBy } from 'lodash';
 import * as moment from 'moment';
+import { GeneralService } from './general.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> {
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
-              @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService) {
+              @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService,
+              private _generalService: GeneralService) {
     super(_userModel);
   }
 
@@ -21,8 +23,18 @@ export class UsersService extends BaseService<User & Document> {
     return await this.getAllPaginatedData({}, paginationRequest);
   }
 
-  async getAll() {
-    return this.find();
+  async getAll(query: string) {
+    return this.find({
+      isDeleted: false,
+      $or: [
+        { emailId: { $regex: new RegExp(query), $options: 'i' } },
+        { firstName: { $regex: new RegExp(query), $options: 'i' } },
+        { lastName: { $regex: new RegExp(query), $options: 'i' } }
+      ],
+      _id: {
+        $nin: [this.toObjectId(this._generalService.userId)]
+      }
+    });
   }
 
   async createUser(user: Partial<User> | Array<Partial<User>>, session: ClientSession) {

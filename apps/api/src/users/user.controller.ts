@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request, Put, Body, Query, Post } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Put, Body, Query, Post, Param } from '@nestjs/common';
 import { UsersService } from '../shared/services/users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '@aavantan-app/models';
@@ -15,8 +15,8 @@ export class UserController {
   }
 
   @Get('')
-  async getAll() {
-    return await this._userService.getAll();
+  async getAll(@Query('query') query: string) {
+    return await this._userService.getAll(query);
   }
 
   @Put('profile')

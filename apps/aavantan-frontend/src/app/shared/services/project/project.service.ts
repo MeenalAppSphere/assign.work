@@ -41,7 +41,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
               ...state,
               currentProject: res.data,
               user: Object.assign({}, state.user, {
-                projects: [...state.user.projects, res.data]
+                projects: [...state.user.projects, res.data],
               })
             };
           }));

@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   projectModalShow(): void {
-    if (!this._generalService.user.currentProject) {
+    if (!this._generalService.currentProject) {
       this.showLogoutWarning('Project');
     } else {
       this.projectModalIsVisible = !this.projectModalIsVisible;

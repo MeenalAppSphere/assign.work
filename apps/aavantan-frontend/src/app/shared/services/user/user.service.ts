@@ -32,7 +32,6 @@ export class UserService extends BaseService<UserStore, UserState> {
           currentProject: res.data.currentProject,
           currentOrganization: res.data.currentOrganization
         });
-        this._generalService.user = cloneDeep(res.data);
         return res;
       }),
       catchError(err => {
@@ -42,7 +41,6 @@ export class UserService extends BaseService<UserStore, UserState> {
           currentProject: null,
           currentOrganization: null
         });
-        this._generalService.user = null;
         this.notification.error('Error', err.error.error.message);
         return of(err);
       })
