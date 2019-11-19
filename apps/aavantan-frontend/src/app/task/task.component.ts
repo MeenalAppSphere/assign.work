@@ -10,17 +10,19 @@ import {
   Sprint,
   Task, TaskComments, TaskHistory, CommentPinModel,
   TaskType,
-  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel, AttachmentModel
+  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ActivatedRoute } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
-import { NzNotificationService, UploadChangeParam } from 'ng-zorro-antd';
+import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskQuery } from '../queries/task/task.query';
 import { TaskUrls } from '../shared/services/task/task.url';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { UserService } from '../shared/services/user/user.service';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -63,20 +65,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public historyList: TaskHistory[] = [];
   public pinnedCommentsList: TaskComments[] = [];
   public sprintDataSource: Sprint[] = [];
-  public tagsDataSource = [
-    {
-      id: 1,
-      name: 'Tag 1'
-    },
-    {
-      id: 2,
-      name: 'Tag 2'
-    },
-    {
-      id: 3,
-      name: 'Tag 3'
-    }
-  ];
+  public tagsDataSource = ['Tag 1', 'Tag 2'];
+
   public epicDataSource = [];
 
   public taskTypeDataSource: TaskType[] = [];
@@ -90,13 +80,23 @@ export class TaskComponent implements OnInit, OnDestroy {
   public attachementUrl:string;
   public attachementIds:string[]=[];
 
+  public modelChanged = new Subject<string>();
+  public modelChangedWatchers = new Subject<string>();
+
+  public nzFilterOption = () => true;
+
+  public isSearching:boolean;
+  public isSearchingWatchers:boolean;
+
+
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
               private FB: FormBuilder,
               private _taskService: TaskService,
               private _generalService: GeneralService,
               private _userQuery: UserQuery,
-              private _taskQuery: TaskQuery) {
+              private _taskQuery: TaskQuery,
+              private _userService: UserService) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -186,7 +186,54 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
+
+    // search assignee
+    this.modelChanged
+      .pipe(
+        debounceTime(300))
+      .subscribe(() => {
+        const queryText = this.taskForm.get('assigneeId').value;
+        const name = this.selectedAssignee.firstName +' '+ this.selectedAssignee.lastName;
+        if(!queryText || this.taskForm.get('assigneeId').value === name){
+          return;
+        }
+        this.isSearching = true;
+        this._userService.searchUser(queryText).subscribe((data) => {
+          this.isSearching = false;
+          this.assigneeDataSource = data.data;
+        });
+
+      })
+      // end search assignee
+
+    // search watchers
+    this.modelChangedWatchers
+      .pipe(
+        debounceTime(300))
+      .subscribe(() => {
+        const queryText = this.taskForm.get('assigneeId').value;
+        if(!queryText){
+          return;
+        }
+        this.isSearchingWatchers = true;
+        this._userService.searchUser(queryText).subscribe((data) => {
+          this.isSearchingWatchers = false;
+          this.assigneeDataSource = data.data;
+        });
+
+      })
+    // end search watchers
+
   }
+
+  search(value: string): void {
+    this.isSearchingWatchers = true;
+    this._userService.searchUser(value).subscribe((data) => {
+      this.isSearchingWatchers = false;
+      this.assigneeDataSource = data.data;
+    });
+  }
+
 
   public toggleActivitySidebar(el: HTMLElement) {
     this.isOpenActivitySidebar = !this.isOpenActivitySidebar;
@@ -206,7 +253,12 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.selectedAssignee.id = this._generalService.user.id;
     this.selectedAssignee.firstName = this._generalService.user.firstName;
     this.selectedAssignee.lastName = this._generalService.user.lastName ? this._generalService.user.lastName : null;
-    this.taskForm.get('assigneeId').patchValue(this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId);
+
+    let userName = this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId;
+    if(this._generalService.user.firstName && this._generalService.user.lastName){
+      userName = userName + ' ' + this._generalService.user.lastName;
+    }
+    this.taskForm.get('assigneeId').patchValue(userName);
   }
 
   public toggleNewEpicModal(){
@@ -259,6 +311,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getTaskInProcess = false;
     }
   }
+
 
   async getMessage(hideLoader?: boolean) {
 
@@ -386,8 +439,13 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
       this.selectedAssignee = user;
-      this.taskForm.get('assigneeId').patchValue(user && user.firstName ? user.firstName : user.emailId);
+      let userName = user && user.firstName ? user.firstName : user.emailId;
+      if(user && user.firstName && user && user.lastName){
+        userName = userName + ' ' + user.lastName;
+      }
+      this.taskForm.get('assigneeId').patchValue(userName);
     }
+    this.modelChanged.next();
   }
 
   public selectTaskType(item: TaskType) {
@@ -400,6 +458,16 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectStage(item: ProjectStages) {
     this.selectedStage = item;
+  }
+
+  public addNewTag(event){
+    if (event.key === 'Enter' && event.target.value) {
+      this.listOfSelectedTags=this.taskForm.get('tags').value;
+      this.listOfSelectedTags.push(event.target.value);
+      this.taskForm.get('tags').patchValue(this.listOfSelectedTags);
+      this.tagsDataSource.push(event.target.value);
+      event.target.value=null;
+    }
   }
 
   public selectStatus(item: ProjectStatus) {

@@ -82,6 +82,7 @@ nz-modal {
 }
 .ant-input{
   border: 1px solid #d1d9e4;
+  padding: 3px 11px!important;
 }
 .ant-checkbox-inner {
   border: 1px solid #bcbcbc;
@@ -122,6 +123,18 @@ button:focus{
   padding: 5px 10px;
 }
 
+.ant-select-selection--multiple{
+  min-height: 32px!important;
+  padding-bottom: 0px!important;
+}
+.ant-select-selection__rendered {
+  line-height: 1.6rem;
+}
+.ant-select-selection--multiple .ant-select-selection__rendered > ul > li {
+  height: 1.6rem;
+  margin: .1rem;
+  line-height: 1.3rem;
+}
 .ant-upload.ant-upload-select {
   display: block!important;
 }

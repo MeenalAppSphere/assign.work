@@ -49,3 +49,8 @@ export class User {
   username?: string;
   isEmailSent?: boolean;
 }
+
+export class SearchUserRequest {
+  organizationId: string;
+  q: string;
+}
