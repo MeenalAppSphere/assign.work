@@ -1,5 +1,5 @@
 import { ClientSession, Document, Model, Types } from 'mongoose';
-import { BasePaginatedResponse, MongoosePaginateQuery } from '@aavantan-app/models';
+import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -17,11 +17,21 @@ export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
   }
 
-  public async find(filter: any = {}, populate: Array<any> = []): Promise<T[]> {
-    const query = this.model.find({ ...filter, ...defaultQueryOptions });
-    if (populate && populate.length) {
-      query.populate(populate);
+  public async find(model: MongooseQueryModel): Promise<T[]> {
+    const query = this.model.find({ ...model.filter, ...defaultQueryOptions });
+
+    if (model.populate && model.populate.length) {
+      query.populate(model.populate);
     }
+
+    if (model.select) {
+      query.select(model.select);
+    }
+
+    if (model.lean) {
+      query.lean();
+    }
+
     return query.exec();
   }
 

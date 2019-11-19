@@ -23,7 +23,7 @@ import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
-import { orderBy } from 'lodash';
+import { orderBy, xor } from 'lodash';
 import * as moment from 'moment';
 
 @Injectable()
@@ -111,6 +111,15 @@ export class TaskService extends BaseService<Task & Document> {
       model.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
     } else {
       model.displayName = `${taskTypeDetails.displayName}-1`;
+    }
+
+    // tags processing
+    // if any tag found that is not in projectDetails then need to add that in project
+    if (model.tags && model.tags.length) {
+      const newTags = xor(projectDetails.settings.tags.map(m => m.id), model.tags);
+      if (newTags.length) {
+        // add new tags to project
+      }
     }
 
     try {

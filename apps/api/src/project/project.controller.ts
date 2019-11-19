@@ -5,7 +5,12 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto, SearchProjectRequest, SwitchProjectRequest,
+  ProjectStages,
+  ProjectStatus,
+  ProjectWorkingCapacityUpdateDto,
+  SearchProjectRequest,
+  SearchProjectTags,
+  SwitchProjectRequest,
   TaskType
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
@@ -96,5 +101,10 @@ export class ProjectController {
   @Post('search')
   async searchProjects(@Body() model: SearchProjectRequest) {
     return await this._projectService.searchProject(model);
+  }
+
+  @Post('search-tags')
+  async searchProjectTags(@Body() model: SearchProjectTags) {
+
   }
 }

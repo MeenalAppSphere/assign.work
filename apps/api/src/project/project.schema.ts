@@ -5,6 +5,11 @@ import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/sc
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
 
+const projectTagsSchema = new Schema({
+  name: String,
+  isDeleted: { type: Boolean, default: false }
+});
+
 export const projectSchema = new Schema({
   name: { type: String, required: [true, 'Project Name is required'] },
   description: { type: String },
@@ -32,6 +37,7 @@ export const projectSchema = new Schema({
     taskTypes: [],
     priorities: [],
     status: [],
+    tags: [projectTagsSchema],
     required: false
   },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },

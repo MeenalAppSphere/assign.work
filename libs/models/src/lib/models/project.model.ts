@@ -33,6 +33,7 @@ export class ProjectSettings {
   taskTypes: TaskType[];
   priorities: ProjectPriority[];
   status?: ProjectStatus[];
+  tags?: ProjectTags[];
 }
 
 export class ProjectStages {
@@ -53,6 +54,11 @@ export interface ProjectPriority {
   color: string;
 }
 
+export class ProjectTags {
+  name: string;
+  id?: string;
+}
+
 export class ProjectWorkingCapacityUpdateDto {
   userId: string;
   workingCapacity: number;
@@ -65,5 +71,11 @@ export class SwitchProjectRequest {
 
 export class SearchProjectRequest {
   organizationId: string;
-  q: string;
+  query: string;
+}
+
+export class SearchProjectTags {
+  organizationId: string;
+  projectId: string;
+  query: string;
 }

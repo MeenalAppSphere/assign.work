@@ -25,15 +25,17 @@ export class UsersService extends BaseService<User & Document> {
 
   async getAll(query: string) {
     return this.find({
-      isDeleted: false,
-      $or: [
-        { emailId: { $regex: new RegExp(query), $options: 'i' } },
-        { firstName: { $regex: new RegExp(query), $options: 'i' } },
-        { lastName: { $regex: new RegExp(query), $options: 'i' } }
-      ],
-      _id: {
-        $nin: [this.toObjectId(this._generalService.userId)]
-      }
+      filter: {
+        $or: [
+          { emailId: { $regex: new RegExp(query), $options: 'i' } },
+          { firstName: { $regex: new RegExp(query), $options: 'i' } },
+          { lastName: { $regex: new RegExp(query), $options: 'i' } }
+        ],
+        _id: {
+          $nin: [this.toObjectId(this._generalService.userId)]
+        }
+      },
+      select: 'emailId firstName lastName profilePic _id'
     });
   }
 

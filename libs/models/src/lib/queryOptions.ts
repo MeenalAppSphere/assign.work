@@ -5,3 +5,10 @@ export class MongoosePaginateQuery extends BaseRequestModel {
   select?: any;
   lean?: boolean;
 }
+
+export class MongooseQueryModel {
+  filter: any;
+  populate?: any;
+  select?: string;
+  lean?: boolean;
+}

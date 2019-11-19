@@ -8,9 +8,9 @@ import {
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
-  ProjectStatus,
+  ProjectStatus, ProjectTags,
   ProjectWorkingCapacityUpdateDto,
-  SearchProjectRequest,
+  SearchProjectRequest, SearchProjectTags,
   SwitchProjectRequest,
   TaskType,
   User
@@ -52,6 +52,7 @@ export class ProjectService extends BaseService<Project & Document> {
     model.settings.priorities = [];
     model.settings.stages = [];
     model.settings.status = [];
+    model.settings.tags = [];
 
 
     try {
@@ -366,14 +367,27 @@ export class ProjectService extends BaseService<Project & Document> {
       organization: model.organizationId,
       createdBy: this._generalService.userId,
       $or: [
-        { name: { $regex: new RegExp(model.q), $options: 'i' } },
-        { description: { $regex: new RegExp(model.q), $options: 'i' } },
-        { template: { $regex: new RegExp(model.q), $options: 'i' } }
+        { name: { $regex: new RegExp(model.query), $options: 'i' } },
+        { description: { $regex: new RegExp(model.query), $options: 'i' } },
+        { template: { $regex: new RegExp(model.query), $options: 'i' } }
       ]
     })
       .select('name description template createdAt updatedAt')
       .populate({ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' });
 
+  }
+
+  async searchTags(model: SearchProjectTags): Promise<ProjectTags[]> {
+    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
+
+    return this.find({
+      filter: {
+        _id: model.projectId,
+        'tags.name': { $regex: new RegExp(model.query), $options: 'i' }
+      },
+      select: 'tags',
+      lean: true
+    });
   }
 
   private async getProjectDetails(id: string): Promise<Project> {

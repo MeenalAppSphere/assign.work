@@ -93,7 +93,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   searchProject(text: string): Observable<BaseResponseModel<Project[]>> {
     const json: SearchProjectRequest = {
       organizationId: this._generalService.currentOrganization.id,
-      q: text
+      query: text
     };
     return this._http.post(ProjectUrls.searchProject, json).pipe(
       map((res: BaseResponseModel<Project[]>) => {
