@@ -167,17 +167,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private initialCheck() {
-    if (this._generalService.user) {
-      if (!this._generalService.user.organizations.length && !this._generalService.user.currentOrganization) {
-        this.organizationModalIsVisible = true;
+   
+    try{
+      if (this._generalService.user) {
+      const TaskUrl = this.router.routerState.snapshot.url;
+      if(TaskUrl.includes('task/')){
+        this.router.navigateByUrl(TaskUrl);
       } else {
-        if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
-          this.projectModalIsVisible = true;
-        } else {
-          this.router.navigate(['dashboard', 'project']);
+          if (!this._generalService.user.organizations.length && !this._generalService.user.currentOrganization) {
+            this.organizationModalIsVisible = true;
+          } else {
+            if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
+              this.projectModalIsVisible = true;
+            } else {
+              this.router.navigate(['dashboard', 'project']);
+            }
+          }
         }
       }
+    }catch (e) {
+
     }
+
   }
 
   ngOnDestroy(): void {
