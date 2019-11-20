@@ -23,7 +23,7 @@ import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
-import { orderBy, xor } from 'lodash';
+import { orderBy, xor, uniqWith, isEqual } from 'lodash';
 import * as moment from 'moment';
 
 @Injectable()
@@ -115,10 +115,11 @@ export class TaskService extends BaseService<Task & Document> {
 
     // tags processing
     // if any tag found that is not in projectDetails then need to add that in project
-    if (model.tags && model.tags.length) {
-      const newTags = xor(projectDetails.settings.tags.map(m => m.id), model.tags);
-      if (newTags.length) {
-        // add new tags to project
+    const newTags = model.tags.filter(f => !f.id);
+    if (newTags.length) {
+      const uniqueTags = uniqWith([...newTags, projectDetails.settings.tags], isEqual);
+      if (uniqueTags.length) {
+        projectDetails.settings.tags.push(...uniqueTags);
       }
     }
 
@@ -138,6 +139,14 @@ export class TaskService extends BaseService<Task & Document> {
 
   async updateTask(model: Task): Promise<Task> {
     const projectDetails = await this.getProjectDetails(model.projectId);
+    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
+
+    // check if task type changed than update task display name
+    const separateDisplayName = model.displayName.split('-');
+    const mainDisplayName = separateDisplayName[0];
+    if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name) {
+      model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
+    }
 
     const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
     await this.updateHelper(model.id, model, taskHistory);

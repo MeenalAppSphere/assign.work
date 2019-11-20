@@ -1,5 +1,5 @@
 import { TaskHistoryActionEnum } from '../enums/task.enum';
-import { Project, ProjectPriority, ProjectStatus } from './project.model';
+import { Project, ProjectPriority, ProjectStatus, ProjectTags } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';
 import { MongoosePaginateQuery } from '../queryOptions';
@@ -24,7 +24,7 @@ export class Task {
   startedAt?: Date;
   finishedAt?: Date;
   priority?: string | ProjectPriority;
-  tags?: string[];
+  tags?: ProjectTags[];
   url?: string;
   progress?: number;
   status?: string | ProjectStatus;
@@ -39,7 +39,7 @@ export class Task {
   updatedBy?: User;
   createdAt?: Date;
   updatedAt?: Date;
-  isSelected?:boolean;
+  isSelected?: boolean;
 }
 
 export class TaskComments {
@@ -84,9 +84,10 @@ export class TaskFilterDto {
   finishedAt?: Date;
 }
 
-export class TaskForSprint extends Task{
+export class TaskForSprint extends Task {
   selectedForSprint: boolean = false;
 }
+
 export class BaseTaskRequestModel {
   projectId: string;
   taskId?: string;
