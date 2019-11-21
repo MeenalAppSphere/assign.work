@@ -3,11 +3,16 @@
         <div class="row align-items-center">
             <div class="col-md-7">
                 <div class="d-md-flex align-items-center">
-                    <div class="text-center text-sm-left ">
+                    <div class="text-center text-sm-left avatar-box">
                         <nz-avatar class="shadow-sm m-v-15" [nzSize]="120"
-                                   style="color:#f56a00; background-color:#fde3cf;"
+                                   class="avatar-bg"
                                    [nzText]="initialName"
                                    nzSrc="{{currentUser.profilePic}}"></nz-avatar>
+
+                      <div class="camera-box">
+                        <input type="file"/>
+                        <i nz-icon nzType="camera" theme="outline"></i>
+                      </div>
                     </div>
                     <div class="text-center text-sm-left m-v-15 p-l-30">
                         <h2 class="m-b-5">{{currentUser.firstName}} {{currentUser.lastName}}</h2>
@@ -46,7 +51,7 @@
             <nz-card>
 
                 <h5>Specialilty</h5>
-                <div class="m-t-20">
+                <div class="m-t-20" style="overflow: auto; max-height: 235px; min-height: 235px;">
                     <nz-tag *ngFor="let item of skillListData">{{item}}</nz-tag>
                 </div>
                 <hr>
@@ -56,26 +61,8 @@
         </div>
         <div class="col-md-4">
             <nz-card>
-                <h5>Team Mates</h5>
-                <div class="m-t-20">
-                    <nz-list [nzDataSource]="projectMembers" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-                        <ng-template #item let-item>
-                            <nz-list-item class="border-bottom-0">
-                                <nz-list-item-meta
-                                    [nzTitle]="nzTitle"
-                                    [nzAvatar]="item.profilePic">
-                                    <ng-template #nzTitle>
-                                        <a class="font-size-15" href="">{{item.name}}</a>
-                                    </ng-template>
-                                </nz-list-item-meta>
-                            </nz-list-item>
-                        </ng-template>
-                    </nz-list>
-                </div>
-            </nz-card>
-            <nz-card>
                 <h5>Projects</h5>
-                <div class="m-t-20" style="overflow: auto; max-height: 300px;">
+                <div class="m-t-20" style="overflow: auto; max-height: 300px; min-height: 300px;">
                     <div class="m-b-10 p-b-10 border-bottom" *ngFor="let item of projectListData">
                         <div class="media align-items-center">
                           <nz-avatar class="shadow-smm-r-10" nzText="AW"></nz-avatar>

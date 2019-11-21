@@ -5,7 +5,8 @@ import { Project, User } from '@aavantan-app/models';
 import { ProjectService } from '../shared/services/project/project.service';
 
 @Component({
-    templateUrl: './profile.component.html'
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.scss']
 })
 
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -32,11 +33,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
       });
 
-      this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-          if (res) {
-            this.projectMembers = res.members;
-          }
-        });
     }
 
   ngOnDestroy (){

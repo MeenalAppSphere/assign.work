@@ -1,0 +1,32 @@
+.avatar-box{
+  cursor: pointer;
+  position: relative;
+  input{
+    opacity: 0;
+    position: absolute;
+    cursor: pointer;
+    left: 0;
+    top: 0;
+    height: 120px;
+    width: 120px;
+  }
+  .camera-box{
+    display: none;
+  }
+  &:hover .camera-box {
+    display: block;
+
+    position: absolute;
+    bottom: 15px;
+    text-align: center;
+    height: 120px;
+    width: 120px;
+    align-items: center;
+    background: #2c6d6d9e;
+    border-radius: 50%;
+    border: 2px dotted #0fb7cc;
+    color: #fff;
+    font-size: 20px;
+    padding-top: 42px;
+  }
+}
