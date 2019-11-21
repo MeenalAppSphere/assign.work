@@ -11,6 +11,7 @@ import {
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   Project,
+  ProjectTags,
   Task,
   TaskComments,
   TaskFilterDto,
@@ -23,7 +24,7 @@ import { Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
-import { orderBy, xor, uniqWith, isEqual } from 'lodash';
+import { isEqual, orderBy, uniqWith } from 'lodash';
 import * as moment from 'moment';
 
 @Injectable()
@@ -102,28 +103,46 @@ export class TaskService extends BaseService<Task & Document> {
     const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 
     if (!taskTypeDetails) {
-      throw new BadRequestException('Please create Task Type');
-    }
-
-    if (lastTask[0]) {
-      // tslint:disable-next-line:radix
-      const lastInsertedNo = parseInt(lastTask[0].displayName.split('-')[1]);
-      model.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
-    } else {
-      model.displayName = `${taskTypeDetails.displayName}-1`;
-    }
-
-    // tags processing
-    // if any tag found that is not in projectDetails then need to add that in project
-    const newTags = model.tags.filter(f => !f.id);
-    if (newTags.length) {
-      const uniqueTags = uniqWith([...newTags, projectDetails.settings.tags], isEqual);
-      if (uniqueTags.length) {
-        projectDetails.settings.tags.push(...uniqueTags);
-      }
+      throw new BadRequestException('Task Type not found');
     }
 
     try {
+      // display name processing
+      if (lastTask[0]) {
+        // tslint:disable-next-line:radix
+        const lastInsertedNo = parseInt(lastTask[0].displayName.split('-')[1]);
+        model.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
+      } else {
+        model.displayName = `${taskTypeDetails.displayName}-1`;
+      }
+
+      // tags processing
+      // if any tag found that is not in projectDetails then need to add that in project
+      const newTags = model.tags.filter(f => !f.id);
+
+      if (newTags.length) {
+        const uniqueTags = uniqWith([...newTags, projectDetails.settings.tags], isEqual);
+
+        if (uniqueTags.length) {
+
+          const tagsModel: ProjectTags[] = uniqueTags.map(tag => {
+            return {
+              name: tag,
+              id: new Types.ObjectId().toHexString()
+            };
+          });
+
+          // check if tags is undefined assign blank array to that, check for old data
+          projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
+          projectDetails.settings.tags.push(...tagsModel);
+
+          await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+            settings: { tags: projectDetails.settings.tags }
+          });
+
+        }
+      }
+
       const createdTask = await this.create([model], session);
       const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, createdTask[0].id, createdTask[0]);
       await this._taskHistoryService.addHistory(taskHistory, session);
@@ -144,8 +163,19 @@ export class TaskService extends BaseService<Task & Document> {
     // check if task type changed than update task display name
     const separateDisplayName = model.displayName.split('-');
     const mainDisplayName = separateDisplayName[0];
+
     if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name) {
       model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
+    }
+
+    // tags processing
+    // if any tag found that is not in projectDetails then need to add that in project
+    const newTags = model.tags.filter(f => !f.id);
+    if (newTags.length) {
+      const uniqueTags = uniqWith([...newTags, projectDetails.settings.tags], isEqual);
+      if (uniqueTags.length) {
+        projectDetails.settings.tags.push(...uniqueTags);
+      }
     }
 
     const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
