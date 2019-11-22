@@ -35,7 +35,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public currentUser: User;
   public listOfSelectedWatchers: any = [];
   public listOfSelectedTags: any = [];
-  public listOfSelectedRelatedItems:string[]=[];
+  public listOfSelectedRelatedItems: string[] = [];
   public selectedAssignee: User = {};
   public selectedRelatedItem: Task;
   public selectedDependentItem: Task;
@@ -76,17 +76,17 @@ export class TaskComponent implements OnInit, OnDestroy {
   public displayName: string;
   public taskData: BaseResponseModel<Task>;
   public taskId: string;
-  public attachementHeader:any;
-  public attachementUrl:string;
-  public attachementIds:string[]=[];
+  public attachementHeader: any;
+  public attachementUrl: string;
+  public attachementIds: string[] = [];
 
   public modelChanged = new Subject<string>();
   public modelChangedWatchers = new Subject<string>();
 
   public nzFilterOption = () => true;
 
-  public isSearching:boolean;
-  public isSearchingWatchers:boolean;
+  public isSearching: boolean;
+  public isSearchingWatchers: boolean;
 
 
   constructor(private  _activatedRouter: ActivatedRoute,
@@ -107,8 +107,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.attachementUrl = TaskUrls.attachement;
 
     this.attachementHeader = {
-      Authorization : 'Bearer '+this._generalService.token
-    }
+      Authorization: 'Bearer ' + this._generalService.token
+    };
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
 
@@ -131,7 +131,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       tags: [null],
       epic: [null],
       status: [null],
-      estimateTime:[null]
+      estimateTime: [null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -193,8 +193,8 @@ export class TaskComponent implements OnInit, OnDestroy {
         debounceTime(300))
       .subscribe(() => {
         const queryText = this.taskForm.get('assigneeId').value;
-        const name = this.selectedAssignee.firstName +' '+ this.selectedAssignee.lastName;
-        if(!queryText || this.taskForm.get('assigneeId').value === name){
+        const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
+        if (!queryText || this.taskForm.get('assigneeId').value === name) {
           return;
         }
         this.isSearching = true;
@@ -203,8 +203,8 @@ export class TaskComponent implements OnInit, OnDestroy {
           this.assigneeDataSource = data.data;
         });
 
-      })
-      // end search assignee
+      });
+    // end search assignee
 
     // search watchers
     this.modelChangedWatchers
@@ -212,7 +212,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         debounceTime(300))
       .subscribe(() => {
         const queryText = this.taskForm.get('assigneeId').value;
-        if(!queryText){
+        if (!queryText) {
           return;
         }
         this.isSearchingWatchers = true;
@@ -221,7 +221,7 @@ export class TaskComponent implements OnInit, OnDestroy {
           this.assigneeDataSource = data.data;
         });
 
-      })
+      });
     // end search watchers
 
   }
@@ -245,8 +245,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public assignedToMe() {
-    const user: ProjectMembers={
-      userId:  this._generalService.user.id,
+    const user: ProjectMembers = {
+      userId: this._generalService.user.id,
       emailId: this._generalService.user.emailId,
       userDetails: this._generalService.user
     };
@@ -255,13 +255,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.selectedAssignee.lastName = this._generalService.user.lastName ? this._generalService.user.lastName : null;
 
     let userName = this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId;
-    if(this._generalService.user.firstName && this._generalService.user.lastName){
+    if (this._generalService.user.firstName && this._generalService.user.lastName) {
       userName = userName + ' ' + this._generalService.user.lastName;
     }
     this.taskForm.get('assigneeId').patchValue(userName);
   }
 
-  public toggleNewEpicModal(){
+  public toggleNewEpicModal() {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
@@ -298,7 +298,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.selectStatus(this.taskData.data.status as ProjectStatus);
       this.selectPriority(this.taskData.data.priority as ProjectPriority);
       this.selectDependentItemTypeahead(this.taskData.data.dependentItem as Task);
-      if(this.taskData.data.assignee && this.taskData.data.assigneeId){
+      if (this.taskData.data.assignee && this.taskData.data.assigneeId) {
         this.taskData.data.assignee.id = this.taskData.data.assigneeId;
         this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
       }
@@ -364,25 +364,25 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
     if (status === 'done') {
 
-      if(file.response && file.response.data.id){
+      if (file.response && file.response.data.id) {
         this.attachementIds.push(file.response.data.id);
       }
 
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
     } else if (status === 'error') {
-      this.notification.error('Error',`${file.name} file upload failed.`);
+      this.notification.error('Error', `${file.name} file upload failed.`);
     }
   }
 
-  handleRemove= (file: any) => new Observable<boolean>((obs) => {
+  handleRemove = (file: any) => new Observable<boolean>((obs) => {
     // console.log(file);
 
 
     //this._taskService.removeAttachment(file.id).subscribe();
 
     this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
-    this.fileList2 = this.fileList2.filter((ele)=>{
-      if(ele.id !== file.id){
+    this.fileList2 = this.fileList2.filter((ele) => {
+      if (ele.id !== file.id) {
         return ele;
       }
     });
@@ -390,7 +390,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     // console.log('this.handleRemove instanceof Observable', this.handleRemove instanceof Observable)
     // console.log(obs)
-    obs.next(false)
+    obs.next(false);
   });
 
   async saveForm() {
@@ -416,10 +416,11 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       if (this.taskId) {
         task.id = this.taskId;
+        task.displayName = this.displayName;
         await this._taskService.updateTask(task).toPromise();
       } else {
         await this._taskService.createTask(task).toPromise();
-        this.taskForm.reset();
+        this.taskForm.reset({ tags: [] });
         this.selectedStatus = null;
         this.selectedPriority = null;
         this.attachementIds = [];
@@ -440,7 +441,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     if (user && user.emailId) {
       this.selectedAssignee = user;
       let userName = user && user.firstName ? user.firstName : user.emailId;
-      if(user && user.firstName && user && user.lastName){
+      if (user && user.firstName && user && user.lastName) {
         userName = userName + ' ' + user.lastName;
       }
       this.taskForm.get('assigneeId').patchValue(userName);
@@ -460,13 +461,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.selectedStage = item;
   }
 
-  public addNewTag(event){
+  public addNewTag(event) {
     if (event.key === 'Enter' && event.target.value) {
-      this.listOfSelectedTags=this.taskForm.get('tags').value;
+      this.listOfSelectedTags = this.taskForm.get('tags').value;
       this.listOfSelectedTags.push(event.target.value);
       this.taskForm.get('tags').patchValue(this.listOfSelectedTags);
       this.tagsDataSource.push(event.target.value);
-      event.target.value=null;
+      event.target.value = null;
     }
   }
 
@@ -475,7 +476,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public selectDependentItemTypeahead(task: Task) {
-    if(task && task.name){
+    if (task && task.name) {
       this.selectedDependentItem = task;
       this.taskForm.get('dependentItemId').patchValue(task.name);
     }

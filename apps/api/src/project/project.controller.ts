@@ -105,6 +105,6 @@ export class ProjectController {
 
   @Post('search-tags')
   async searchProjectTags(@Body() model: SearchProjectTags) {
-
+    return await this._projectService.searchTags(model);
   }
 }

@@ -382,10 +382,10 @@ export class ProjectService extends BaseService<Project & Document> {
 
     return this.find({
       filter: {
-        _id: model.projectId,
-        'tags.name': { $regex: new RegExp(model.query), $options: 'i' }
+        _id: this.toObjectId(model.projectId),
+        'settings': { tags: { $elemMatch: { 'name': { $regex: new RegExp(model.query), $options: 'i' } } } }
       },
-      select: 'tags',
+      select: 'settings.tags',
       lean: true
     });
   }

@@ -20,11 +20,11 @@ import {
   UpdateCommentModel,
   User
 } from '@aavantan-app/models';
-import { Document, Model, Query, Types } from 'mongoose';
+import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
-import { isEqual, orderBy, uniqWith } from 'lodash';
+import { isEqual, orderBy, uniqWith, xor, xorWith } from 'lodash';
 import * as moment from 'moment';
 
 @Injectable()
@@ -118,29 +118,26 @@ export class TaskService extends BaseService<Task & Document> {
 
       // tags processing
       // if any tag found that is not in projectDetails then need to add that in project
-      const newTags = model.tags.filter(f => !f.id);
+
+      const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
 
       if (newTags.length) {
-        const uniqueTags = uniqWith([...newTags, projectDetails.settings.tags], isEqual);
 
-        if (uniqueTags.length) {
+        const tagsModel: ProjectTags[] = newTags.map(tag => {
+          return {
+            name: tag,
+            id: new Types.ObjectId().toHexString()
+          };
+        });
 
-          const tagsModel: ProjectTags[] = uniqueTags.map(tag => {
-            return {
-              name: tag,
-              id: new Types.ObjectId().toHexString()
-            };
-          });
+        // check if tags is undefined assign blank array to that, this is the check for old data
+        projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
+        projectDetails.settings.tags.push(...tagsModel);
 
-          // check if tags is undefined assign blank array to that, check for old data
-          projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
-          projectDetails.settings.tags.push(...tagsModel);
+        await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+          $set: { 'settings.tags': projectDetails.settings.tags }
+        }, session);
 
-          await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
-            settings: { tags: projectDetails.settings.tags }
-          });
-
-        }
       }
 
       const createdTask = await this.create([model], session);
@@ -158,6 +155,10 @@ export class TaskService extends BaseService<Task & Document> {
 
   async updateTask(model: Task): Promise<Task> {
     const projectDetails = await this.getProjectDetails(model.projectId);
+
+    const session = await this._taskModel.db.startSession();
+    session.startTransaction();
+
     const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 
     // check if task type changed than update task display name
@@ -170,16 +171,26 @@ export class TaskService extends BaseService<Task & Document> {
 
     // tags processing
     // if any tag found that is not in projectDetails then need to add that in project
-    const newTags = model.tags.filter(f => !f.id);
+    const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
     if (newTags.length) {
-      const uniqueTags = uniqWith([...newTags, projectDetails.settings.tags], isEqual);
-      if (uniqueTags.length) {
-        projectDetails.settings.tags.push(...uniqueTags);
-      }
+      const tagsModel: ProjectTags[] = newTags.map(tag => {
+        return {
+          name: tag,
+          id: new Types.ObjectId().toHexString()
+        };
+      });
+
+      // check if tags is undefined assign blank array to that, this is the check for old data
+      projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
+      projectDetails.settings.tags.push(...tagsModel);
+
+      await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+        $set: { 'settings.tags': projectDetails.settings.tags }
+      }, session);
     }
 
     const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
-    await this.updateHelper(model.id, model, taskHistory);
+    await this.updateHelper(model.id, model, taskHistory, session);
     return this._taskModel.findById(model.id).lean();
   }
 
@@ -340,14 +351,19 @@ export class TaskService extends BaseService<Task & Document> {
     return taskDetails;
   }
 
-  private async updateHelper(id: string, task: any, history: TaskHistory): Promise<string> {
+  private async updateHelper(id: string, task: any, history: TaskHistory, sessionObj?: ClientSession): Promise<string> {
 
     if (!id) {
       throw new BadRequestException('invalid request');
     }
 
-    const session = await this._taskModel.db.startSession();
-    session.startTransaction();
+    let session;
+    if (sessionObj) {
+      session = sessionObj;
+    } else {
+      session = await this._taskModel.db.startSession();
+      session.startTransaction();
+    }
 
     try {
       await this.update(id, task, session);

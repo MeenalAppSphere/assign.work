@@ -24,7 +24,7 @@ export class Task {
   startedAt?: Date;
   finishedAt?: Date;
   priority?: string | ProjectPriority;
-  tags?: ProjectTags[];
+  tags?: string[];
   url?: string;
   progress?: number;
   status?: string | ProjectStatus;
