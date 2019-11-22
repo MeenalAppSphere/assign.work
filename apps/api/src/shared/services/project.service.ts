@@ -380,14 +380,16 @@ export class ProjectService extends BaseService<Project & Document> {
   async searchTags(model: SearchProjectTags): Promise<ProjectTags[]> {
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
 
-    return this.find({
-      filter: {
-        _id: this.toObjectId(model.projectId),
-        'settings': { tags: { $elemMatch: { 'name': { $regex: new RegExp(model.query), $options: 'i' } } } }
-      },
-      select: 'settings.tags',
-      lean: true
-    });
+    const project: any = await this._projectModel.findOne({
+      _id: this.toObjectId(model.projectId)
+      // 'settings.tags': { 'name': { $regex: new RegExp(model.query), $options: 'i' } }
+    }).select('settings.tags').lean();
+
+    if (project && project.settings && project.settings.tags) {
+      return project.settings.tags.filter(tag => !tag.isDeleted && tag.name.toLowerCase().includes(model.query.toLowerCase()));
+    } else {
+      return [];
+    }
   }
 
   private async getProjectDetails(id: string): Promise<Project> {
