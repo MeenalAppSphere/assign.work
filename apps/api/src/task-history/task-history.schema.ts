@@ -3,7 +3,6 @@ import { DbCollection } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const paginate = require('mongoose-paginate-v2');
 
 export const taskHistorySchema = new Schema({
   taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
@@ -36,5 +35,4 @@ taskHistorySchema.virtual('createdBy', {
 
 // plugins
 taskHistorySchema
-  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(paginate);
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

@@ -1,8 +1,6 @@
 import { Schema } from 'mongoose';
-import { DbCollection, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
-import { MemberTypes } from '@aavantan-app/models';
-import { taskSchema } from '../task/task.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -18,9 +16,9 @@ export const userSchema = new Schema(
     confirmed: { type: Boolean, default: false },
     locale: { type: String },
     mobileNumber: { type: String },
-    status: { type: String, enum: Object.keys(UserStatus) },
-    lastLoginProvider: { type: String, enum: Object.keys(UserLoginProviderEnum) },
-    memberType: { type: String, enum: Object.keys(MemberTypes) },
+    status: { type: String, enum: Object.values(UserStatus) },
+    lastLoginProvider: { type: String, enum: Object.values(UserLoginProviderEnum) },
+    memberType: { type: String, enum: Object.values(MemberTypes) },
     oneTimeMessagesDismissed: { type: Array },
     timezoneInfo: {
       type: Schema.Types.Mixed

@@ -1,15 +1,33 @@
 import { Task } from './task.model';
-import { User } from '@aavantan-app/models';
+import { SprintStatusEnum } from '../enums/sprint.enum';
+import { User } from './user.model';
 
-export interface Sprint {
-  id:string,
+export class Sprint {
+  id?: string;
   name: string;
-  duration?:number;
-  members?:User[];
+  createdById: string;
+  createdBy?: User;
+  updatedById?: string;
+  updatedBy?: User;
+  goal: string;
+  startedAt: Date;
+  endAt: Date;
+  autoUpdate?: SprintAutoUpdate;
+  sprintStatus: SprintStatus;
+}
+
+export class SprintAutoUpdate {
+  isAllowed: boolean;
+  autoUpdateAt: Date;
+}
+
+export class SprintStatus {
+  status: SprintStatusEnum;
+  updatedAt: Date;
 }
 
 export interface DraftSprint {
-  ids:String[],
+  ids: string[];
   tasks: Task[];
-  duration:number;
+  duration: number;
 }

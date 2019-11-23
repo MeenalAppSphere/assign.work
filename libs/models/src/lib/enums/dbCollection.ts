@@ -4,5 +4,7 @@ export enum DbCollection {
   organizations = 'organizations',
   tasks = 'tasks',
   taskHistory = 'task-history',
+  taskTimeLog = 'task-time-log',
+  sprint = 'sprint',
   attachments = 'attachments'
 }

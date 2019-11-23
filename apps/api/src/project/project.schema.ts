@@ -8,7 +8,7 @@ const paginate = require('mongoose-paginate-v2');
 const projectTagsSchema = new Schema({
   name: String,
   isDeleted: { type: Boolean, default: false }
-});
+}, schemaOptions);
 
 export const projectSchema = new Schema({
   name: { type: String, required: [true, 'Project Name is required'] },
