@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Sprint, Task } from '@aavantan-app/models';
+import { Sprint, SprintStatusEnum, Task } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -16,15 +16,39 @@ export class BoardComponent implements OnInit {
   public sprintDataSource:Sprint[] = [
     {
       id: '1',
-      name: 'Sprint 1'
+      name: 'Sprint 1',
+      createdById: '',
+      goal: '',
+      startedAt: new Date(),
+      endAt: new Date(),
+      sprintStatus: {
+        status: SprintStatusEnum.inProgress,
+        updatedAt: new Date()
+      }
     },
     {
       id: '2',
-      name: 'Sprint 2'
+      name: 'Sprint 2',
+      createdById: '',
+      goal: '',
+      startedAt: new Date(),
+      endAt: new Date(),
+      sprintStatus: {
+        status: SprintStatusEnum.inProgress,
+        updatedAt: new Date()
+      }
     },
     {
       id: '3',
-      name: 'Sprint 3'
+      name: 'Sprint 3',
+      createdById: '',
+      goal: '',
+      startedAt: new Date(),
+      endAt: new Date(),
+      sprintStatus: {
+        status: SprintStatusEnum.inProgress,
+        updatedAt: new Date()
+      }
     }
   ];
   itemStringsTODO = [

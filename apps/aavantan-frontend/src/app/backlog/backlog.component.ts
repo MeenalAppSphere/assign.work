@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DraftSprint, GetAllTaskRequestModel, Sprint, Task, TaskType, User } from '@aavantan-app/models';
+import { DraftSprint, GetAllTaskRequestModel, Sprint, SprintStatusEnum, Task, User } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
@@ -33,15 +33,39 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public sprintDataSource: Sprint[] = [
     {
       id: '1',
-      name: 'Sprint 1'
+      name: 'Sprint 1',
+      createdById: '',
+      goal: '',
+      startedAt: new Date(),
+      endAt: new Date(),
+      sprintStatus: {
+        status: SprintStatusEnum.inProgress,
+        updatedAt: new Date()
+      }
     },
     {
       id: '2',
-      name: 'Sprint 2'
+      name: 'Sprint 2',
+      createdById: '',
+      goal: '',
+      startedAt: new Date(),
+      endAt: new Date(),
+      sprintStatus: {
+        status: SprintStatusEnum.inProgress,
+        updatedAt: new Date()
+      }
     },
     {
       id: '3',
-      name: 'Sprint 3'
+      name: 'Sprint 3',
+      createdById: '',
+      goal: '',
+      startedAt: new Date(),
+      endAt: new Date(),
+      sprintStatus: {
+        status: SprintStatusEnum.inProgress,
+        updatedAt: new Date()
+      }
     }
   ];
 
