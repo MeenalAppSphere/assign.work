@@ -4,7 +4,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task/task.service';
 import { GeneralService } from '../../services/general.service';
 import { NzNotificationService } from 'ng-zorro-antd';
-import * as humanizeDuration from 'humanize-duration';
 
 @Component({
   selector: 'app-timelog',
@@ -45,7 +44,7 @@ export class TimelogComponent implements OnInit {
     this.addTimelogInProcess = true;
     const timeLog: TimeLog = { ...this.timeLogForm.getRawValue() };
     timeLog.createdBy = this._generalService.user;
-    const taskId = '23';//this.selectedTaskItem.id;
+    const taskId = this.selectedTaskItem.id;
 
     try {
       await this._taskService.addTimelog(timeLog, taskId).toPromise();
