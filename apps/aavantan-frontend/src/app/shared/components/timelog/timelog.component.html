@@ -4,7 +4,7 @@
         <nz-form-item>
           <nz-form-control nzValidatingTip="Description">
               <nz-form-label>Description<span class="text-danger">*</span></nz-form-label>
-              <textarea  formControlName="description" nz-input rows="2" maxlength="500" placeholder="What you have done..."></textarea>
+              <textarea  formControlName="desc" nz-input rows="2" maxlength="500" placeholder="What you have done..."></textarea>
           </nz-form-control>
         </nz-form-item>
 
@@ -17,7 +17,10 @@
               <div class="col pr-1">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input numeric numericType="decimal" maxlength="5" (keyup)="calcRemaining()" formControlName="loggedTime" nzSize="small" type="text" placeholder="5h" />
+                  <nz-input-number
+                    [nzFormatter]="loggedTimeFormatter"
+                    [nzParser]="loggedTimeParse" maxlength="5" (keyup)="calcRemaining()" formControlName="loggedTime" nzSize="small" type="text" placeholder="5h" >
+                  </nz-input-number>
                 </nz-form-control>
               </div>
               <div class="col pl-1">

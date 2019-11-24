@@ -3,6 +3,8 @@ import { Task, User } from '@aavantan-app/models';
 export class TaskTimeLog {
   taskId: string;
   task?: Task;
+  startedAt: Date;
+  endAt: Date;
   createdById: string;
   createdBy?: User;
   updatedById?: string;
@@ -10,9 +12,14 @@ export class TaskTimeLog {
   createdAt?: Date;
   updatedAt?: Date;
   desc: string;
-  spentTime: number;
-  spentTimeReadable?: string;
+  loggedTime: number;
+  loggedTimeReadable?: string;
   remainingTime: number;
   remainingTimeReadable?: string;
   isDeleted?: boolean;
+}
+
+export class AddTaskTimeModel {
+  projectId: string;
+  timeLog: TaskTimeLog;
 }

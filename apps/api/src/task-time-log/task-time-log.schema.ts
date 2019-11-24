@@ -8,10 +8,10 @@ const mongooseValidationErrorTransform = require('mongoose-validation-error-tran
 export const taskTimeLogSchema = new Schema({
   taskId: { type: Schema.Types.ObjectId, required: [true, 'Please Select Task'], ref: DbCollection.tasks },
   desc: { type: String, required: [true, 'Please add description'] },
-  spentTime: { type: Number, default: 0 },
+  loggedTime: { type: Number, default: 0 },
   remainingTime: { type: Number, default: 0 },
-  startedAt: { type: Date },
-  endAt: { type: Date },
+  startedAt: { type: Date, required: [true, 'Please add Started At'] },
+  endAt: { type: Date, required: [true, 'Please Add End At'] },
   isDeleted: { type: Boolean, default: false },
   createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
