@@ -5,6 +5,7 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
+import { stringToSeconds } from '../helpers/helpers';
 
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
@@ -18,19 +19,22 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
   }
 
   async addTimeLog(model: AddTaskTimeModel) {
+    if (!model) {
+      throw new BadRequestException('invalid json');
+    }
     const projectDetails = await this.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.timeLog.taskId);
 
     // validation
-    if (!model.timeLog.createdBy) {
+    if (!model.timeLog.createdById) {
       throw new BadRequestException('Please select Created By');
     }
 
-    if (!model.timeLog.loggedTime) {
+    if (!model.timeLog.loggedTimeReadable) {
       throw new BadRequestException('Please add Spent Time');
     }
 
-    if (!model.timeLog.remainingTime) {
+    if (!model.timeLog.remainingTimeReadable) {
       throw new BadRequestException('Please add Remaining Time');
     }
 
@@ -56,12 +60,17 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       throw new BadRequestException('Started Date can not be after End Date');
     }
 
-
     const session = await this._taskTimeLogModel.db.startSession();
     session.startTransaction();
 
+    model.timeLog.loggedTime = stringToSeconds(model.timeLog.loggedTimeReadable);
+    model.timeLog.remainingTime = stringToSeconds(model.timeLog.remainingTimeReadable);
+
     try {
-      await this._taskTimeLogModel.create([model], session);
+      await this._taskTimeLogModel.create([model.timeLog], session);
+      await session.commitTransaction();
+      session.endSession();
+      return 'Time Logged Successfully';
     } catch (e) {
       await session.abortTransaction();
       session.endSession();

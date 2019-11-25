@@ -31,14 +31,14 @@ taskTimeLogSchema.virtual('task', {
   justOne: true
 });
 
-taskHistorySchema.virtual('createdBy', {
+taskTimeLogSchema.virtual('createdBy', {
   ref: DbCollection.users,
   localField: 'createdById',
   foreignField: '_id',
   justOne: true
 });
 
-taskHistorySchema.virtual('updatedBy', {
+taskTimeLogSchema.virtual('updatedBy', {
   ref: DbCollection.users,
   localField: 'updatedById',
   foreignField: '_id',
@@ -46,5 +46,5 @@ taskHistorySchema.virtual('updatedBy', {
 });
 
 // plugins
-taskHistorySchema
+taskTimeLogSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

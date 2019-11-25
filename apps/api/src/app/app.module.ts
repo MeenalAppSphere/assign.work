@@ -11,6 +11,7 @@ import { AttachmentModule } from '../attachment/attachment.module';
 import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as winston from 'winston';
 import { TaskHistoryModule } from '../task-history/task-history.module';
+import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { TaskHistoryModule } from '../task-history/task-history.module';
     OrganizationModule,
     TaskModule,
     TaskHistoryModule,
-    AttachmentModule
+    AttachmentModule,
+    TaskTimeLogModule
   ],
   controllers: [],
   providers: []

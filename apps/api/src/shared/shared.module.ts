@@ -16,6 +16,8 @@ import { AttachmentService } from './services/attachment.service';
 import { EasyconfigModule } from 'nestjs-easyconfig';
 import * as path from 'path';
 import { GeneralService } from './services/general.service';
+import { TaskTimeLogService } from './services/task-time-log.service';
+import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
 
 @Global()
 @Module({
@@ -45,6 +47,10 @@ import { GeneralService } from './services/general.service';
       name: DbCollection.attachments,
       schema: attachmentSchema,
       collection: DbCollection.attachments
+    }, {
+      name: DbCollection.taskTimeLog,
+      schema: taskTimeLogSchema,
+      collection: DbCollection.taskTimeLog
     }])
   ],
   exports: [
@@ -55,7 +61,8 @@ import { GeneralService } from './services/general.service';
     TaskService,
     TaskHistoryService,
     AttachmentService,
-    GeneralService
+    GeneralService,
+    TaskTimeLogService
   ],
   providers: [
     UsersService,
@@ -64,7 +71,8 @@ import { GeneralService } from './services/general.service';
     TaskService,
     TaskHistoryService,
     AttachmentService,
-    GeneralService
+    GeneralService,
+    TaskTimeLogService
   ]
 })
 export class SharedModule {

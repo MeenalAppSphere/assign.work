@@ -12,10 +12,10 @@ export class TaskTimeLog {
   createdAt?: Date;
   updatedAt?: Date;
   desc: string;
-  loggedTime: number;
-  loggedTimeReadable?: string;
-  remainingTime: number;
-  remainingTimeReadable?: string;
+  loggedTime?: number;
+  loggedTimeReadable: string;
+  remainingTime?: number;
+  remainingTimeReadable: string;
   isDeleted?: boolean;
 }
 
