@@ -80,13 +80,15 @@ export class TaskComponent implements OnInit, OnDestroy {
   public attachementUrl: string;
   public attachementIds: string[] = [];
 
+  public isSearching: boolean;
+  public isSearchingWatchers: boolean;
+
   public modelChanged = new Subject<string>();
   public modelChangedWatchers = new Subject<string>();
 
   public nzFilterOption = () => true;
 
-  public isSearching: boolean;
-  public isSearchingWatchers: boolean;
+
 
 
   constructor(private  _activatedRouter: ActivatedRoute,

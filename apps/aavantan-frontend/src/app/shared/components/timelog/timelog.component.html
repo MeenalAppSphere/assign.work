@@ -4,37 +4,43 @@
         <nz-form-item>
           <nz-form-control nzValidatingTip="Description">
               <nz-form-label>Description<span class="text-danger">*</span></nz-form-label>
-              <textarea  formControlName="desc" nz-input rows="2" maxlength="500" placeholder="What you have done..."></textarea>
+              <textarea  formControlName="desc" tabindex="1" nz-input rows="2" maxlength="500" placeholder="What you have done..."></textarea>
           </nz-form-control>
         </nz-form-item>
 
         <nz-form-item>
           <nz-form-label>Start-End<span class="text-danger">*</span></nz-form-label>
-                <nz-range-picker formControlName="loggedDate" [nzFormat]="dateFormat" ></nz-range-picker>
+                <nz-range-picker formControlName="loggedDate"  tabindex="1" [nzFormat]="dateFormat" ></nz-range-picker>
         </nz-form-item>
         <nz-form-item>
           <div class="row">
-              <div class="col pr-1">
+              <div class="col pr-0">
                 <nz-form-control nzValidatingTip="Spent Time">
-                  <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
-                  <nz-input-number
-                    [nzFormatter]="loggedTimeFormatter"
-                    [nzParser]="loggedTimeParse" maxlength="5" (keyup)="calcRemaining()" formControlName="loggedTime" nzSize="small" type="text" placeholder="5h" >
-                  </nz-input-number>
+                  <nz-form-label>Hours<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input numeric numericType="number" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="5h" />
                 </nz-form-control>
               </div>
+              <div class="col pr-1">
+                <nz-form-control nzValidatingTip="Spent Time">
+                  <nz-form-label>Min<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input numeric numericType="number" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedMinutes" nzSize="small" type="text" placeholder="30h" />
+                </nz-form-control>
+              </div>
+
               <div class="col pl-1">
                 <nz-form-control nzValidatingTip="Remaining Time">
                   <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input disabled numeric numericType="decimal" maxlength="5" formControlName="remainingTime" nzSize="small" type="text" placeholder="3h" />
+                  <input style="width:49%" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3h" />
+                  <input style="width:49%" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30m" />
                 </nz-form-control>
               </div>
+
           </div>
         </nz-form-item>
       </div>
       <div *nzModalFooter>
         <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
-        <button nz-button nzSize="small" nzType="primary" (click)="save()" [nzLoading]="addTimelogInProcess">Save</button>
+        <button nz-button nzSize="small" nzType="primary" [disabled]="timeLogForm.invalid" (click)="save()" [nzLoading]="addTimelogInProcess">Save</button>
       </div>
     <ng-template #titleTemp>
       <span>{{selectedTaskItem && selectedTaskItem.displayName ? selectedTaskItem.displayName : 'TIME LOG'}}</span>

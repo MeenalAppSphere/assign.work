@@ -17,7 +17,7 @@ import {
   AddCommentModel,
   BasePaginatedResponse,
   GetTaskHistoryModel,
-  UpdateCommentModel
+  UpdateCommentModel, TaskTimeLog
 } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
@@ -167,10 +167,10 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  addTimelog(timeLog: TimeLog, id: string): Observable<BaseResponseModel<TimeLog>> {
+  addTimelog(timeLog: TaskTimeLog, id: string): Observable<BaseResponseModel<TaskTimeLog>> {
     return this._http.post(TaskUrls.base
       .replace(':taskId', id), timeLog).pipe(
-      map((res: BaseResponseModel<TimeLog>) => {
+      map((res: BaseResponseModel<TaskTimeLog>) => {
         this.notification.success('Success', 'Time Logged Successfully');
         return res;
       }),
