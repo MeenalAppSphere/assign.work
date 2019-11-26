@@ -67,10 +67,28 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
     model.timeLog.remainingTime = stringToSeconds(model.timeLog.remainingTimeReadable);
 
     try {
+      // add task log to db
       await this._taskTimeLogModel.create([model.timeLog], session);
+
+      // update task
+      taskDetails.totalLoggedTime =  (taskDetails.totalLoggedTime || 0) +  model.timeLog.loggedTime || 0;
+
+      if (model.timeLog.remainingTime) {
+        taskDetails.estimateTime = (taskDetails.estimateTime || 0) +  model.timeLog.remainingTime || 0;
+      }
+      taskDetails.progress = ((100 * taskDetails.totalLoggedTime) / taskDetails.estimateTime);
+
+      // update task total logged time and total estimated time
+      await this._taskModel.updateOne({ _id: this.toObjectId(model.timeLog.taskId) }, taskDetails, session);
+
       await session.commitTransaction();
       session.endSession();
-      return 'Time Logged Successfully';
+      return {
+        taskId: model.timeLog.taskId,
+        progress: taskDetails.progress,
+        estimatedTime: taskDetails.estimateTime,
+        totalLoggedTime: taskDetails.totalLoggedTime
+      };
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
