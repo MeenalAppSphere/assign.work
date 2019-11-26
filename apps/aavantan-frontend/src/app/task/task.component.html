@@ -454,7 +454,7 @@
                 </nz-tab>
             </nz-tabset>
         </section>
-        <app-timelog [timelogModalIsVisible]="timelogModalIsVisible && taskData && taskData.data" [selectedTaskItem]="taskData.data"></app-timelog>
+        <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" (toggleTimeLogShow)="timeLog()" [selectedTaskItem]="currentTask"></app-timelog>
     </aside>
 
   <app-add-epic *ngIf="epicModalIsVisible" (toggleEpicShow)="toggleNewEpicModal()" [selectedTaskType]="selectedTaskType" [taskTypeDataSource]="taskTypeDataSource" [epicModalIsVisible]="epicModalIsVisible"></app-add-epic>

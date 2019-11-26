@@ -51,6 +51,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public getTaskInProcess: boolean = false;
   public getCommentInProcess: boolean = false;
   public getHistoryInProcess: boolean = false;
+  public currentTask : Task;
 
   public fileList2 = [];
 
@@ -283,6 +284,10 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.getMessage(true);
   }
 
+  public timeLog() {
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
+  }
+
   async getTask() {
     this.getTaskInProcess = true;
     try {
@@ -292,6 +297,8 @@ export class TaskComponent implements OnInit, OnDestroy {
         taskId: this.taskId
       };
       this.taskData = await this._taskService.getTask(json).toPromise();
+      this.currentTask = this.taskData.data;
+
       this.taskForm.patchValue(this.taskData.data);
       this.taskId = this.taskData.data.id;
       this.getMessage();
