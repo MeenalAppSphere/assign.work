@@ -14,6 +14,7 @@ export const ProjectUrls = {
   addPriority: `${createUrl('project/:projectId/add-priority')}`,
   removeTaskType: `${createUrl('project/:projectId/remove-task-type/:taskTypeId')}`,
 
-  updateCapacity: `${createUrl('project/:projectId/update-working-capacity')}`
+  updateCapacity: `${createUrl('project/:projectId/update-working-capacity')}`,
+  searchTags: `${createUrl('project/search-tags')}`
 
 };

@@ -23,6 +23,7 @@ import { TaskUrls } from '../shared/services/task/task.url';
 import { Observable, Subject } from 'rxjs';
 import { UserService } from '../shared/services/user/user.service';
 import { debounceTime } from 'rxjs/operators';
+import { ProjectService } from '../shared/services/project/project.service';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -66,7 +67,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public historyList: TaskHistory[] = [];
   public pinnedCommentsList: TaskComments[] = [];
   public sprintDataSource: Sprint[] = [];
-  public tagsDataSource = ['Tag 1', 'Tag 2'];
+  public tagsDataSource: string[];
 
   public epicDataSource = [];
 
@@ -84,6 +85,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public isSearching: boolean;
   public isSearchingWatchers: boolean;
 
+  public isSearchingTags: boolean;
+
   public modelChanged = new Subject<string>();
   public modelChangedWatchers = new Subject<string>();
 
@@ -99,7 +102,8 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _generalService: GeneralService,
               private _userQuery: UserQuery,
               private _taskQuery: TaskQuery,
-              private _userService: UserService) {
+              private _userService: UserService,
+              private _projectService: ProjectService) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -229,7 +233,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   }
 
-  search(value: string): void {
+  public searchWatchers(value: string): void {
     this.isSearchingWatchers = true;
     this._userService.searchUser(value).subscribe((data) => {
       this.isSearchingWatchers = false;
@@ -237,6 +241,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
   }
 
+  public searchTags(value: string): void {
+    this.isSearchingTags = true;
+    this._projectService.searchTags(value).subscribe((data) => {
+      this.isSearchingTags = false;
+      this.tagsDataSource = data.data;
+    });
+  }
 
   public toggleActivitySidebar(el: HTMLElement) {
     this.isOpenActivitySidebar = !this.isOpenActivitySidebar;
