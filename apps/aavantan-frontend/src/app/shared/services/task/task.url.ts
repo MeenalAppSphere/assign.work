@@ -19,5 +19,5 @@ export const TaskUrls = {
   removeAttachement: `${createUrl('attachment/:id')}`,
 
   getHistory: `${createUrl('task-history/get-history')}`,
-  addTimelog: `${createUrl('task/addtimelog/:taskId')}`,
+  addTimelog: `${createUrl('task-time-log/log')}`,
 };
