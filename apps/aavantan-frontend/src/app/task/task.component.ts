@@ -235,40 +235,40 @@ export class TaskComponent implements OnInit, OnDestroy {
     // end search watchers
 
     // search tags
-    // this.modelChangedTags
-    //   .pipe(
-    //     debounceTime(500))
-    //   .subscribe(() => {
-    //     const queryText = this.taskForm.get('tags').value;
-    //     if (!queryText) {
-    //       return;
-    //     }
-    //     this.isSearchingTags = true;
-    //     this._projectService.searchTags(queryText).subscribe((data) => {
-    //       this.isSearchingTags = false;
-    //       this.tagsDataSource = data.data;
-    //     });
-    //   });
+    this.modelChangedTags
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        const queryText = this.taskForm.get('tags').value;
+        if (!queryText) {
+          return;
+        }
+        this.isSearchingTags = true;
+        this._projectService.searchTags(queryText).subscribe((data) => {
+          this.isSearchingTags = false;
+          this.tagsDataSource = data.data;
+        });
+      });
     // end search tags
-
-
-
+    
   }
 
   public searchWatchers(value: string): void {
-    this.isSearchingWatchers = true;
-    this._userService.searchUser(value).subscribe((data) => {
-      this.isSearchingWatchers = false;
-      this.assigneeDataSource = data.data;
-    });
+    this.modelChangedWatchers.next();
+    // this.isSearchingWatchers = true;
+    // this._userService.searchUser(value).subscribe((data) => {
+    //   this.isSearchingWatchers = false;
+    //   this.assigneeDataSource = data.data;
+    // });
   }
 
   public searchTags(value: string): void {
-    this.isSearchingTags = true;
-    this._projectService.searchTags(value).subscribe((data) => {
-      this.isSearchingTags = false;
-      this.tagsDataSource = data.data;
-    });
+    this.modelChangedTags.next();
+    // this.isSearchingTags = true;
+    // this._projectService.searchTags(value).subscribe((data) => {
+    //   this.isSearchingTags = false;
+    //   this.tagsDataSource = data.data;
+    // });
   }
 
   public toggleActivitySidebar(el: HTMLElement) {
