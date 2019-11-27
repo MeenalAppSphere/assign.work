@@ -89,6 +89,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public modelChanged = new Subject<string>();
   public modelChangedWatchers = new Subject<string>();
+  public modelChangedTags = new Subject<string>();
 
   public nzFilterOption = () => true;
 
@@ -199,7 +200,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     // search assignee
     this.modelChanged
       .pipe(
-        debounceTime(300))
+        debounceTime(500))
       .subscribe(() => {
         const queryText = this.taskForm.get('assigneeId').value;
         const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
@@ -218,7 +219,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     // search watchers
     this.modelChangedWatchers
       .pipe(
-        debounceTime(300))
+        debounceTime(500))
       .subscribe(() => {
         const queryText = this.taskForm.get('assigneeId').value;
         if (!queryText) {
@@ -232,6 +233,25 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       });
     // end search watchers
+
+    // search tags
+    // this.modelChangedTags
+    //   .pipe(
+    //     debounceTime(500))
+    //   .subscribe(() => {
+    //     const queryText = this.taskForm.get('tags').value;
+    //     if (!queryText) {
+    //       return;
+    //     }
+    //     this.isSearchingTags = true;
+    //     this._projectService.searchTags(queryText).subscribe((data) => {
+    //       this.isSearchingTags = false;
+    //       this.tagsDataSource = data.data;
+    //     });
+    //   });
+    // end search tags
+
+
 
   }
 
@@ -428,9 +448,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.relatedItemId = this.listOfSelectedRelatedItems;
     task.attachments = this.attachementIds;
 
-    const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value+'h ' : '0h ';
-    const minutes = this.taskForm.get('remainingMinutes').value+'m' ? this.taskForm.get('remainingMinutes').value+'m' : '0m';
-    task.remainingTimeReadable = hours + minutes;
+    const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
+    const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
+    task.remainingTimeReadable = hours+'h '+ +minutes+'m';
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');

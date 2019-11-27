@@ -285,7 +285,7 @@
                     </div>
                   <div class="col-md-4">
 
-                    <nz-form-item>
+                    <nz-form-item *ngIf="taskId">
                       <nz-form-label>Estimate Time</nz-form-label>
                       <nz-form-control>
                           <input style="max-width:60px; margin-right: 5px;" nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3h" />

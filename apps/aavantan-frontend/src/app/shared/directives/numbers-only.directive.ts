@@ -19,7 +19,7 @@ export class NumericDirective {
     number: new RegExp(/^\d+$/),
     decimal: new RegExp(/^[0-9]+(\.[0-9]*){0,1}$/g),
     hours: new RegExp(/\b(0?[1-9]|1[0-9]|2[0-4])\b/g),
-    minutes: new RegExp(/\b(0?[1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])\b/g),
+    minutes: new RegExp(/^[1-5]?[0-9]$/),
   };
 
   private specialKeys = {
