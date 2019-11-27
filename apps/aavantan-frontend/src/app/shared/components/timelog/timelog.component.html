@@ -14,12 +14,14 @@
         </nz-form-item>
         <nz-form-item>
           <div class="row">
+
               <div class="col pr-0" style="width: 30px">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Hours<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input numeric numericType="hours" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="5h" />
+                  <input nz-input numeric numericType="number" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="5h" />
                 </nz-form-control>
               </div>
+
               <div class="col pr-1" style="width: 30px">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Min<span class="text-danger">*</span></nz-form-label>
