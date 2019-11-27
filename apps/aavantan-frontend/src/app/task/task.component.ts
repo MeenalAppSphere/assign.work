@@ -138,7 +138,9 @@ export class TaskComponent implements OnInit, OnDestroy {
       tags: [null],
       epic: [null],
       status: [null],
-      estimateTime: [null]
+      estimateTime: [null],
+      remainingHours:[null],
+      remainingMinutes:[null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -425,6 +427,10 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
     task.relatedItemId = this.listOfSelectedRelatedItems;
     task.attachments = this.attachementIds;
+
+    const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value+'h ' : '0h ';
+    const minutes = this.taskForm.get('remainingMinutes').value+'m' ? this.taskForm.get('remainingMinutes').value+'m' : '0m';
+    task.remainingTimeReadable = hours + minutes;
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');

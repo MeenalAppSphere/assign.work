@@ -13,16 +13,20 @@ import {Directive, ElementRef, HostListener, Input} from '@angular/core';
 
 export class NumericDirective {
 
-  @Input('numericType') numericType: string; // number | decimal
+  @Input('numericType') numericType: string; // number | decimal | hours | minutes
 
   private regex = {
     number: new RegExp(/^\d+$/),
-    decimal: new RegExp(/^[0-9]+(\.[0-9]*){0,1}$/g)
+    decimal: new RegExp(/^[0-9]+(\.[0-9]*){0,1}$/g),
+    hours: new RegExp(/\b(0?[1-9]|1[0-9]|2[0-4])\b/g),
+    minutes: new RegExp(/\b(0?[1-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])\b/g),
   };
 
   private specialKeys = {
     number: [ 'Backspace', 'Tab', 'End', 'Home', 'ArrowLeft', 'ArrowRight' ],
     decimal: [ 'Backspace', 'Tab', 'End', 'Home', 'ArrowLeft', 'ArrowRight' ],
+    hours: [ 'Backspace', 'Tab', 'End', 'Home', 'ArrowLeft', 'ArrowRight' ],
+    minutes: [ 'Backspace', 'Tab', 'End', 'Home', 'ArrowLeft', 'ArrowRight' ],
   };
 
   constructor(private el: ElementRef) {

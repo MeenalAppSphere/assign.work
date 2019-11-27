@@ -17,21 +17,21 @@
               <div class="col pr-0" style="width: 30px">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Hours<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input numeric numericType="number" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="5h" />
+                  <input nz-input numeric numericType="hours" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="5h" />
                 </nz-form-control>
               </div>
               <div class="col pr-1" style="width: 30px">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Min<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input numeric numericType="number" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedMinutes" nzSize="small" type="text" placeholder="30h" />
+                  <input nz-input numeric numericType="minutes" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedMinutes" nzSize="small" type="text" placeholder="30h" />
                 </nz-form-control>
               </div>
 
-              <div class="col pl-1" >
+              <div class="col pl-1">
                 <nz-form-control nzValidatingTip="Remaining Time">
                   <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
-                  <input style="width:44%; margin-right: 6%;" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3h" />
-                  <input style="width:45%" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30m" />
+                  <input style="width:45%; margin-right: 5%;" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3h" />
+                  <input style="width:45%" nz-input disabled numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30m" />
                 </nz-form-control>
               </div>
 

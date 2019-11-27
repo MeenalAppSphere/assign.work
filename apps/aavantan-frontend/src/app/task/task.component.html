@@ -248,7 +248,8 @@
                         </nz-form-item>
                     </div>
 
-                    <div class="col-md-12">
+                    <div class="col-md-8">
+
                         <nz-form-item>
                             <nz-form-label nzFor="dependentItem">Dependent Item</nz-form-label>
                             <nz-form-control class="relative input-relative-group">
@@ -265,8 +266,7 @@
                                 </nz-autocomplete>
                             </nz-form-control>
                         </nz-form-item>
-                    </div>
-                    <div class="col-md-12">
+
                         <nz-form-item>
                             <nz-form-label nzFor="relatedItemId">Related Items</nz-form-label>
                             <nz-form-control class="relative input-relative-group">
@@ -282,23 +282,18 @@
                             </nz-form-control>
                         </nz-form-item>
 
-                        <!--<nz-form-item>
-                            <nz-form-label nzFor="relatedItem">Related Item</nz-form-label>
-                            <nz-form-control class="relative input-relative-group">
-                                <span class="assigned-user-icon">
-                              <i class="fas fa-circle m-r-10"
-                                 [ngStyle]="{'color':selectedRelatedItem && selectedRelatedItem.taskType ? selectedRelatedItem.taskType.color : '' }"></i>
-                            </span>
-                                <input placeholder="Search/Select Related Item" formControlName="relatedItemId" nz-input (ngModelChange)="selectRelatedItemTypeahead($event)" nzSize="small" [nzAutocomplete]="autoRelatedItem" />
-                                <nz-autocomplete #autoRelatedItem>
-                                    <nz-auto-option *ngFor="let option of relatedTaskDataSource" [nzLabel]="option.name" [nzValue]="option">
-                                        <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
-                                        <span>{{ option.name }}</span>
-                                    </nz-auto-option>
-                                </nz-autocomplete>
-                            </nz-form-control>
-                        </nz-form-item>-->
                     </div>
+                  <div class="col-md-4">
+
+                    <nz-form-item>
+                      <nz-form-label>Estimate Time</nz-form-label>
+                      <nz-form-control>
+                          <input style="max-width:60px; margin-right: 5px;" nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3h" />
+                          <input style="max-width:60px;" nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30m" />
+                      </nz-form-control>
+                    </nz-form-item>
+
+                  </div>
                 </div>
 
 

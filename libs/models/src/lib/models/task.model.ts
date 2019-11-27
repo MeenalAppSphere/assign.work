@@ -40,6 +40,7 @@ export class Task {
   createdAt?: Date;
   updatedAt?: Date;
   isSelected?: boolean;
+  remainingTimeReadable?: string;
 }
 
 export class TaskComments {
