@@ -26,3 +26,25 @@ export const stringToSeconds = (val: string): number => {
     return second + converters[key](value);
   }, 0);
 };
+
+
+export const secondsToString = (seconds: number): string => {
+  if (typeof seconds !== 'number') {
+    throw new TypeError('Expected a number');
+  }
+
+  const roundOff = seconds > 0 ? Math.floor : Math.ceil;
+
+  const converters = {
+    d: value => roundOff(value / (3600 * 24)),
+    h: value => roundOff(value % (3600 * 24) / 3600),
+    m: value => roundOff(value % 3600 / 60)
+  };
+
+  Object.entries(converters).reduce((readable, [key, fn]) => {
+    const convertedRes = fn(seconds);
+    return readable + ' ' + (convertedRes > 0 ? convertedRes + key : '');
+  }, '');
+
+  return '';
+};

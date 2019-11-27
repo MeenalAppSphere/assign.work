@@ -71,12 +71,15 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       await this._taskTimeLogModel.create([model.timeLog], session);
 
       // update task
-      taskDetails.totalLoggedTime =  (taskDetails.totalLoggedTime || 0) +  model.timeLog.loggedTime || 0;
+      taskDetails.totalLoggedTime = (taskDetails.totalLoggedTime || 0) + model.timeLog.loggedTime || 0;
+      taskDetails.estimateTime = (taskDetails.estimateTime || 0) + model.timeLog.remainingTime || 0;
 
-      if (model.timeLog.remainingTime) {
-        taskDetails.estimateTime = (taskDetails.estimateTime || 0) +  model.timeLog.remainingTime || 0;
+      if (!taskDetails.estimateTime) {
+        // if not estimate time means one haven't added any estimate so progress will be 100 %
+        taskDetails.progress = 100;
+      } else {
+        taskDetails.progress = ((100 * taskDetails.totalLoggedTime) / taskDetails.estimateTime);
       }
-      taskDetails.progress = ((100 * taskDetails.totalLoggedTime) / taskDetails.estimateTime);
 
       // update task total logged time and total estimated time
       await this._taskModel.updateOne({ _id: this.toObjectId(model.timeLog.taskId) }, taskDetails, session);
@@ -86,7 +89,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       return {
         taskId: model.timeLog.taskId,
         progress: taskDetails.progress,
-        estimatedTime: taskDetails.estimateTime,
+        totalEstimatedTime: taskDetails.estimateTime,
         totalLoggedTime: taskDetails.totalLoggedTime
       };
     } catch (e) {
