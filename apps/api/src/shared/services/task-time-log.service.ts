@@ -91,12 +91,26 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         progress: taskDetails.progress,
         totalEstimatedTime: taskDetails.estimateTime,
         totalLoggedTime: taskDetails.totalLoggedTime
+
       };
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
       throw e;
     }
+  }
+
+  async getAllLogs(model): Promise<TaskTimeLog[]> {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
+    return this._taskTimeLogModel.find({
+      taskId: this.toObjectId(model.taskId),
+      isDeleted: false
+    }).populate({
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }).lean(true);
   }
 
   private async getProjectDetails(id: string): Promise<Project> {

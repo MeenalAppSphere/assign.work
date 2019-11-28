@@ -14,4 +14,9 @@ export class TaskTimeLogController {
   async logTime(@Body() model: AddTaskTimeModel) {
     return await this._taskTimeLogService.addTimeLog(model);
   }
+
+  @Post('getall')
+  async getAll(@Body() model) {
+    return await this._taskTimeLogService.getAllLogs(model);
+  }
 }
