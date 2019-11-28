@@ -92,7 +92,7 @@ export class TaskService extends BaseService<Task & Document> {
     session.startTransaction();
 
     // validation
-    if (!model.taskType) {
+    if (!model || !model.taskType) {
       throw new BadRequestException('Please add Task Type');
     }
 
@@ -116,9 +116,11 @@ export class TaskService extends BaseService<Task & Document> {
         model.displayName = `${taskTypeDetails.displayName}-1`;
       }
 
+      // check if tags is undefined assign blank array to that, this is the check for old data
+      projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
+
       // tags processing
       // if any tag found that is not in projectDetails then need to add that in project
-
       const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
 
       if (newTags.length) {
@@ -130,8 +132,6 @@ export class TaskService extends BaseService<Task & Document> {
           };
         });
 
-        // check if tags is undefined assign blank array to that, this is the check for old data
-        projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
         projectDetails.settings.tags.push(...tagsModel);
 
         await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
@@ -169,6 +169,9 @@ export class TaskService extends BaseService<Task & Document> {
       model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
     }
 
+    // check if tags is undefined assign blank array to that, this is the check for old data
+    projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
+
     // tags processing
     // if any tag found that is not in projectDetails then need to add that in project
     const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
@@ -180,8 +183,6 @@ export class TaskService extends BaseService<Task & Document> {
         };
       });
 
-      // check if tags is undefined assign blank array to that, this is the check for old data
-      projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
       projectDetails.settings.tags.push(...tagsModel);
 
       await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
