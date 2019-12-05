@@ -23,6 +23,8 @@ export class Task {
   remainingTime?: number;
   remainingTimeReadable?: string;
   totalLoggedTime?: number;
+  overLoggedTime?: number;
+  overLoggedTimeReadable?: string;
   startedAt?: Date;
   finishedAt?: Date;
   priority?: string | ProjectPriority;

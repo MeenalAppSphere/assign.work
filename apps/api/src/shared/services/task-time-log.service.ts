@@ -72,7 +72,6 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
       // update task
       taskDetails.totalLoggedTime = (taskDetails.totalLoggedTime || 0) + model.timeLog.loggedTime || 0;
-      taskDetails.estimatedTime = (taskDetails.estimatedTime || 0) + model.timeLog.remainingTime || 0;
 
       if (!taskDetails.estimatedTime) {
         // if not estimate time means one haven't added any estimate so progress will be 100 %
