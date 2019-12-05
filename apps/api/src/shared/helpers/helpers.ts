@@ -5,12 +5,16 @@
  */
 export const stringToSeconds = (val: string): number => {
   // separate given string with space
-  const separatedVal = val.split(/\s/);
+  const separatedVal = val.trim().split(/\s/);
 
   // parse string to object like { d: 1, h: 2, m: 3 }
-  const parsedObject = separatedVal.reduce((acc, cur) => {
+  const parsedObject = separatedVal.filter(value => value).reduce((acc, cur) => {
+    // separate string and number from 1h 3m etc..
     const parsedStringAndNumber = cur.match(/[a-z]+|[^a-z]+/gi);
-    acc[parsedStringAndNumber[1]] = Number(parsedStringAndNumber[0]);
+
+    if (parsedStringAndNumber) {
+      acc[parsedStringAndNumber[1]] = Number(parsedStringAndNumber[0]);
+    }
     return acc;
   }, {});
 
@@ -23,6 +27,10 @@ export const stringToSeconds = (val: string): number => {
 
   // convert to second
   return Object.entries(parsedObject).reduce((second, [key, value]) => {
+    // extra check for invalid string character like 1n 2u
+    if (!converters[key]) {
+      return second;
+    }
     return second + converters[key](value);
   }, 0);
 };

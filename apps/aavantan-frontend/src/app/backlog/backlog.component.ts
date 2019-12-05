@@ -118,7 +118,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public countTotalDuration() {
     this.allTaskList.forEach((ele) => {
-      const duration = ele.estimateTime ? ele.estimateTime : 0;
+      const duration = ele.estimatedTime ? ele.estimatedTime : 0;
       // @ts-ignore
       this.totalDuration += Number(duration);
     });

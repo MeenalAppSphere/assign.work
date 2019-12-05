@@ -26,6 +26,7 @@ import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
 import { isEqual, orderBy, uniqWith, xor, xorWith } from 'lodash';
 import * as moment from 'moment';
+import { stringToSeconds } from '../helpers/helpers';
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> {
@@ -154,19 +155,31 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   async updateTask(model: Task): Promise<Task> {
+    if (!model) {
+      throw new BadRequestException();
+    }
+
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
-    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
+    // estimate time is present then it should be in string parse it to seconds
+    if (model.estimatedTimeReadable) {
+      model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
+    }
 
-    // check if task type changed than update task display name
-    const separateDisplayName = model.displayName.split('-');
-    const mainDisplayName = separateDisplayName[0];
+    // model task-type and model display-name changed then re assign display-name with new task-type
+    if (model.taskType && model.displayName) {
+      const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 
-    if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name) {
-      model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
+      // check if task type changed than update task display name
+      const separateDisplayName = model.displayName.split('-');
+      const mainDisplayName = separateDisplayName[0];
+
+      if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name) {
+        model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
+      }
     }
 
     // check if tags is undefined assign blank array to that, this is the check for old data

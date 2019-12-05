@@ -378,6 +378,14 @@ export class ProjectService extends BaseService<Project & Document> {
   }
 
   async searchTags(model: SearchProjectTags): Promise<ProjectTags[]> {
+    if (!model) {
+      throw new BadRequestException('invalid request');
+    }
+
+    if (typeof model.query !== 'string') {
+      throw new BadRequestException('invalid request query should be type of string');
+    }
+
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
 
     const project: any = await this._projectModel.findOne({

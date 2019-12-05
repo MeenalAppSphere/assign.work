@@ -18,8 +18,10 @@ export class Task {
   attachmentsDetails?: AttachmentModel[];
   taskType: any;
   comments?: TaskComments[];
-  estimateTime?: number;
+  estimatedTime?: number;
+  estimatedTimeReadable?: string;
   remainingTime?: number;
+  remainingTimeReadable?: string;
   totalLoggedTime?: number;
   startedAt?: Date;
   finishedAt?: Date;
@@ -40,7 +42,6 @@ export class Task {
   createdAt?: Date;
   updatedAt?: Date;
   isSelected?: boolean;
-  remainingTimeReadable?: string;
 }
 
 export class TaskComments {

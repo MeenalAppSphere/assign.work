@@ -72,13 +72,13 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
       // update task
       taskDetails.totalLoggedTime = (taskDetails.totalLoggedTime || 0) + model.timeLog.loggedTime || 0;
-      taskDetails.estimateTime = (taskDetails.estimateTime || 0) + model.timeLog.remainingTime || 0;
+      taskDetails.estimatedTime = (taskDetails.estimatedTime || 0) + model.timeLog.remainingTime || 0;
 
-      if (!taskDetails.estimateTime) {
+      if (!taskDetails.estimatedTime) {
         // if not estimate time means one haven't added any estimate so progress will be 100 %
         taskDetails.progress = 100;
       } else {
-        taskDetails.progress = ((100 * taskDetails.totalLoggedTime) / taskDetails.estimateTime);
+        taskDetails.progress = ((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime);
       }
 
       // update task total logged time and total estimated time
@@ -89,7 +89,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       return {
         taskId: model.timeLog.taskId,
         progress: taskDetails.progress,
-        totalEstimatedTime: taskDetails.estimateTime,
+        totalEstimatedTime: taskDetails.estimatedTime,
         totalLoggedTime: taskDetails.totalLoggedTime
       };
     } catch (e) {
