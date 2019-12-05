@@ -250,7 +250,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         });
       });
     // end search tags
-    
+
   }
 
   public searchWatchers(value: string): void {
@@ -344,6 +344,9 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskData.data.assignee.id = this.taskData.data.assigneeId;
         this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
       }
+      if(this.taskData.data.estimateTime){
+          this.setHoursMinutes(this.taskData.data.estimateTime);
+      }
 
       this.attachementIds = this.taskData.data.attachments;
       this.fileList2 = this.taskData.data.attachmentsDetails;
@@ -353,7 +356,6 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getTaskInProcess = false;
     }
   }
-
 
   async getMessage(hideLoader?: boolean) {
 
@@ -481,6 +483,20 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public resetCommentForm() {
     this.commentForm.reset();
+  }
+
+  public setHoursMinutes(seconds:number){
+    const num = seconds/60;
+    const hours = (num / 60);
+    const rhours = Math.floor(hours);
+    const minutes = (hours - rhours) * 60;
+    const rminutes = Math.round(minutes);
+    this.taskForm.get('remainingHours').patchValue(rhours);
+    this.taskForm.get('remainingMinutes').patchValue(rminutes);
+    return {
+      h: rhours,
+      m: rminutes
+    }
   }
 
   public selectAssigneeTypeahead(user: User) {
