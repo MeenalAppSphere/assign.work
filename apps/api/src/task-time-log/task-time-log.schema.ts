@@ -1,7 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
-import { taskHistorySchema } from '../task-history/task-history.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 

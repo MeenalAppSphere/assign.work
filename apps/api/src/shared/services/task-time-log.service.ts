@@ -91,7 +91,6 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         progress: taskDetails.progress,
         totalEstimatedTime: taskDetails.estimateTime,
         totalLoggedTime: taskDetails.totalLoggedTime
-
       };
     } catch (e) {
       await session.abortTransaction();
