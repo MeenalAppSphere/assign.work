@@ -94,11 +94,11 @@ export class TimelogComponent implements OnInit, OnDestroy {
     this.timeLogForm.get('remainingMinutes').patchValue(remainingMinutes);
   }
 
-  timeConvertToSec(h, m) {
+  public timeConvertToSec(h, m) {
     return (h * 60 * 60) + (m * 60);
   }
-   timeConvert(n) {
-    const num = n/60;
+  public timeConvert(seconds:number) {
+    const num = seconds/60;
     const hours = (num / 60);
     const rhours = Math.floor(hours);
     const minutes = (hours - rhours) * 60;

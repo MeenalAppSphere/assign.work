@@ -406,22 +406,30 @@
             </div>
 
             <div class="duration-box m-t-15">
-                <div class=" ">
+                <div class="">
                     <nz-form-item>
-                        <nz-form-label for="TimeTracking">Estimated Time</nz-form-label>
+                        <nz-form-label style="line-height: 12px; margin-top: 5px;">Estimated Time</nz-form-label>
                         <div class="progress" style="height: 6px; background: #e5e2e2;">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-info" nzTitle="8h" nzTooltipPlacement="top" nz-tooltip role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                         <small class="text-muted">8h</small>
                     </nz-form-item>
                 </div>
                 <div class="">
                     <nz-form-item>
-                        <nz-form-label for="TimeTracking">Time Tracking</nz-form-label>
+                        <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
                         <div class="progress" style="height: 6px; background: #e5e2e2;">
-                            <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar" role="progressbar" nzTitle="8h" nzTooltipPlacement="top" nz-tooltip style="width: 100%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <small class="text-muted">2h logged</small>
+                        <small class="text-muted">8h</small>
+                    </nz-form-item>
+
+                    <nz-form-item>
+                      <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Exceeded</nz-form-label>
+                      <div class="progress" style="height: 6px; background: #e5e2e2;">
+                        <div class="progress-bar" role="progressbar" nzTitle="2h" nzTooltipPlacement="top" nz-tooltip style="width: 100%; background:red;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <small class="text-muted">2h</small>
                     </nz-form-item>
                 </div>
             </div>

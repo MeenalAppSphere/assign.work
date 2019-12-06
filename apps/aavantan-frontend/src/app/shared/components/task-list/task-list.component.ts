@@ -48,8 +48,8 @@ export class TaskListComponent implements OnInit {
   }
 
   public selectTaskForSprint(task: Task) {
-    const duration = task.estimatedTime;
-    if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 1) {
+    const duration = task.estimateTime;
+    if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 0) {
 
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);
@@ -69,9 +69,11 @@ export class TaskListComponent implements OnInit {
         return ele.id !== task.id;
       });
 
-      this.taskList = this.tasksSelected.tasks.filter(ele => {
-        return ele.id !== task.id;
-      });
+      // this.taskList = this.tasksSelected.tasks.filter(ele => {
+      //   return ele.id !== task.id;
+      // });
+
+      task.isSelected = false;
 
       if(duration){
         this.tasksSelected.duration =

@@ -90,6 +90,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public modelChanged = new Subject<string>();
   public modelChangedWatchers = new Subject<string>();
   public modelChangedTags = new Subject<string>();
+  public tagsQueryText : string = null;
+  public watchersQueryText : string = null;
 
   public nzFilterOption = () => true;
 
@@ -221,12 +223,12 @@ export class TaskComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(500))
       .subscribe(() => {
-        const queryText = this.taskForm.get('assigneeId').value;
-        if (!queryText) {
+
+        if (!this.watchersQueryText) {
           return;
         }
         this.isSearchingWatchers = true;
-        this._userService.searchUser(queryText).subscribe((data) => {
+        this._userService.searchUser(this.watchersQueryText).subscribe((data) => {
           this.isSearchingWatchers = false;
           this.assigneeDataSource = data.data;
         });
@@ -239,21 +241,21 @@ export class TaskComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(500))
       .subscribe(() => {
-        const queryText = this.taskForm.get('tags').value;
-        if (!queryText) {
+        if (!this.tagsQueryText) {
           return;
         }
         this.isSearchingTags = true;
-        this._projectService.searchTags(queryText).subscribe((data) => {
+        this._projectService.searchTags(this.tagsQueryText).subscribe((data) => {
           this.isSearchingTags = false;
           this.tagsDataSource = data.data;
         });
       });
     // end search tags
-    
+
   }
 
   public searchWatchers(value: string): void {
+    this.watchersQueryText = value;
     this.modelChangedWatchers.next();
     // this.isSearchingWatchers = true;
     // this._userService.searchUser(value).subscribe((data) => {
@@ -263,6 +265,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public searchTags(value: string): void {
+    this.tagsQueryText = value;
     this.modelChangedTags.next();
     // this.isSearchingTags = true;
     // this._projectService.searchTags(value).subscribe((data) => {
@@ -344,6 +347,9 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskData.data.assignee.id = this.taskData.data.assigneeId;
         this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
       }
+      if(this.taskData.data.estimateTime){
+          this.setHoursMinutes(this.taskData.data.estimateTime);
+      }
 
       this.attachementIds = this.taskData.data.attachments;
       this.fileList2 = this.taskData.data.attachmentsDetails;
@@ -353,7 +359,6 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getTaskInProcess = false;
     }
   }
-
 
   async getMessage(hideLoader?: boolean) {
 
@@ -419,7 +424,6 @@ export class TaskComponent implements OnInit, OnDestroy {
   handleRemove = (file: any) => new Observable<boolean>((obs) => {
     // console.log(file);
 
-
     //this._taskService.removeAttachment(file.id).subscribe();
 
     this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
@@ -483,6 +487,20 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.commentForm.reset();
   }
 
+  public setHoursMinutes(seconds:number){
+    const num = seconds/60;
+    const hours = (num / 60);
+    const rhours = Math.floor(hours);
+    const minutes = (hours - rhours) * 60;
+    const rminutes = Math.round(minutes);
+    this.taskForm.get('remainingHours').patchValue(rhours);
+    this.taskForm.get('remainingMinutes').patchValue(rminutes);
+    return {
+      h: rhours,
+      m: rminutes
+    }
+  }
+
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
       this.selectedAssignee = user;
@@ -508,6 +526,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public addNewTag(event) {
+    this.tagsQueryText = null;
     if (event.key === 'Enter' && event.target.value) {
       this.listOfSelectedTags = this.taskForm.get('tags').value;
       this.listOfSelectedTags.push(event.target.value);
