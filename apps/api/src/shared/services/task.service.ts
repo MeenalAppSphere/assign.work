@@ -24,7 +24,7 @@ import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
-import { isEqual, orderBy, uniqWith, xor, xorWith } from 'lodash';
+import { orderBy } from 'lodash';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 
@@ -128,23 +128,26 @@ export class TaskService extends BaseService<Task & Document> {
 
       // tags processing
       // if any tag found that is not in projectDetails then need to add that in project
-      const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
+      const isNewTag = model.tags.some(s => {
+        return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
+      });
 
-      if (newTags.length) {
+      if (isNewTag) {
+        const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
 
-        const tagsModel: ProjectTags[] = newTags.map(tag => {
-          return {
-            name: tag,
-            id: new Types.ObjectId().toHexString()
-          };
-        });
+        // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
+        if (newTags.length) {
+          projectDetails.settings.tags = newTags.map(tag => {
+            return {
+              name: tag,
+              id: new Types.ObjectId().toHexString()
+            };
+          });
 
-        projectDetails.settings.tags.push(...tagsModel);
-
-        await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
-          $set: { 'settings.tags': projectDetails.settings.tags }
-        }, session);
-
+          await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+            $set: { 'settings.tags': projectDetails.settings.tags }
+          }, session);
+        }
       }
 
       const createdTask = await this.create([model], session);
@@ -192,21 +195,28 @@ export class TaskService extends BaseService<Task & Document> {
     projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
 
     // tags processing
-    // if any tag found that is not in projectDetails then need to add that in project
-    const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
-    if (newTags.length) {
-      const tagsModel: ProjectTags[] = newTags.map(tag => {
-        return {
-          name: tag,
-          id: new Types.ObjectId().toHexString()
-        };
-      });
+    // if any new tag found that is not in projectDetails then need to add that in project
 
-      projectDetails.settings.tags.push(...tagsModel);
+    const isNewTag = model.tags.some(s => {
+      return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
+    });
 
-      await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
-        $set: { 'settings.tags': projectDetails.settings.tags }
-      }, session);
+    if (isNewTag) {
+      const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
+
+      // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
+      if (newTags.length) {
+        projectDetails.settings.tags = newTags.map(tag => {
+          return {
+            name: tag,
+            id: new Types.ObjectId().toHexString()
+          };
+        });
+
+        await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+          $set: { 'settings.tags': projectDetails.settings.tags }
+        }, session);
+      }
     }
 
     const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
