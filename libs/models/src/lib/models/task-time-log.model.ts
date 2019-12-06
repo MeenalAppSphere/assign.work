@@ -23,3 +23,13 @@ export class AddTaskTimeModel {
   projectId: string;
   timeLog: TaskTimeLog;
 }
+
+export class TaskTimeLogResponse {
+  taskId: string;
+  progress: number;
+  totalLoggedTime: number;
+  totalLoggedTimeReadable: string;
+  overLoggedTime: number;
+  overLoggedTimeReadable: string;
+  overProgress: number;
+}

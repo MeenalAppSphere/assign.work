@@ -1,11 +1,19 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { AddTaskTimeModel, DbCollection, Project, Task, TaskTimeLog, User } from '@aavantan-app/models';
+import {
+  AddTaskTimeModel,
+  DbCollection,
+  Project,
+  Task,
+  TaskTimeLog,
+  TaskTimeLogResponse,
+  User
+} from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
-import { stringToSeconds } from '../helpers/helpers';
+import { secondsToString, stringToSeconds } from '../helpers/helpers';
 
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
@@ -18,7 +26,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
     super(_taskTimeLogModel);
   }
 
-  async addTimeLog(model: AddTaskTimeModel) {
+  async addTimeLog(model: AddTaskTimeModel): Promise<TaskTimeLogResponse> {
     if (!model) {
       throw new BadRequestException('invalid json');
     }
@@ -77,7 +85,12 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         // if not estimate time means one haven't added any estimate so progress will be 100 %
         taskDetails.progress = 100;
       } else {
-        taskDetails.progress = ((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime);
+        taskDetails.progress = Number(((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+        if (taskDetails.totalLoggedTime > taskDetails.estimatedTime) {
+          taskDetails.overLoggedTime = taskDetails.totalLoggedTime - taskDetails.estimatedTime;
+        } else {
+          taskDetails.overLoggedTime = 0;
+        }
       }
 
       // update task total logged time and total estimated time
@@ -88,8 +101,11 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       return {
         taskId: model.timeLog.taskId,
         progress: taskDetails.progress,
-        totalEstimatedTime: taskDetails.estimatedTime,
-        totalLoggedTime: taskDetails.totalLoggedTime
+        totalLoggedTime: taskDetails.totalLoggedTime,
+        totalLoggedTimeReadable: secondsToString(taskDetails.totalLoggedTime),
+        overLoggedTime: taskDetails.overLoggedTime,
+        overLoggedTimeReadable: secondsToString(taskDetails.overLoggedTime),
+        overProgress: taskDetails.progress > 100 ? taskDetails.progress - 100 : 0
       };
     } catch (e) {
       await session.abortTransaction();
