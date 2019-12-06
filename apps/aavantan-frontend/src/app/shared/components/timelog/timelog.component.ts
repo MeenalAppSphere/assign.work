@@ -72,7 +72,7 @@ export class TimelogComponent implements OnInit, OnDestroy {
   public calcRemaining() {
     const workingHoursPerDay = 3600*8; // 8 hrs in seconds
 
-    const estimatedTimeInSeconds = 5600;  //replace with this.selectedTaskItem.estimateTime;
+    const estimatedTimeInSeconds = this.selectedTaskItem.estimatedTime;
 
     const loggedHours = Number(this.timeLogForm.get('loggedHours').value);
     const loggedMinutes = Number(this.timeLogForm.get('loggedMinutes').value);
