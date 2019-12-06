@@ -454,7 +454,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
     const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
-    task.remainingTimeReadable = hours+'h '+ +minutes+'m';
+    task.estimatedTimeReadable = hours+'h '+ +minutes+'m';
 
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');

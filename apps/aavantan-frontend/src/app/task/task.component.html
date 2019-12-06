@@ -409,25 +409,22 @@
                 <div class="">
                     <nz-form-item>
                         <nz-form-label style="line-height: 12px; margin-top: 5px;">Estimated Time</nz-form-label>
-                        <div class="progress" style="height: 6px; background: #e5e2e2;">
-                            <div class="progress-bar bg-info" nzTitle="8h" nzTooltipPlacement="top" nz-tooltip role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted">8h</small>
+                          <nz-progress [nzPercent]="100" nzStatus="active" [nzShowInfo]="false"></nz-progress>
+                          <small class="text-muted">{{currentTask.estimatedTimeReadable}}</small>
                     </nz-form-item>
                 </div>
                 <div class="">
                     <nz-form-item>
                         <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
-                        <div class="progress" style="height: 6px; background: #e5e2e2;">
-                            <div class="progress-bar" role="progressbar" nzTitle="8h" nzTooltipPlacement="top" nz-tooltip style="width: 100%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted">8h</small>
+                        <nz-progress [nzPercent]="currentTask.progress" nzStatus="active" class="progress-success"></nz-progress>
+                        <small class="text-muted">{{taskData.data.totalLoggedTimeReadable}}</small>
                     </nz-form-item>
 
-                    <nz-form-item>
+                    <nz-form-item *ngIf="taskData.data.overLoggedTime">
                       <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Exceeded</nz-form-label>
+
                       <div class="progress" style="height: 6px; background: #e5e2e2;">
-                        <div class="progress-bar" role="progressbar" nzTitle="2h" nzTooltipPlacement="top" nz-tooltip style="width: 100%; background:red;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" role="progressbar" nzTitle="2h" nzTooltipPlacement="top" nz-tooltip style="width: {{taskData.data.overLoggedTime}}%; background:red;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                       </div>
                       <small class="text-muted">2h</small>
                     </nz-form-item>

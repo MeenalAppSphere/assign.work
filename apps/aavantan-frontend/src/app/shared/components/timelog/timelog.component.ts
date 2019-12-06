@@ -72,15 +72,15 @@ export class TimelogComponent implements OnInit, OnDestroy {
   public calcRemaining() {
     const workingHoursPerDay = 3600*8; // 8 hrs in seconds
 
-    const estimatedTimeInSeconds = this.selectedTaskItem.estimatedTime;
+    const remainingTimeInSeconds = this.selectedTaskItem.remainingTime;
 
     const loggedHours = Number(this.timeLogForm.get('loggedHours').value);
     const loggedMinutes = Number(this.timeLogForm.get('loggedMinutes').value);
 
     const loggedIntoSec = this.timeConvertToSec(loggedHours, loggedMinutes);
 
-    let remainingHours = this.timeConvert(estimatedTimeInSeconds).h;
-    let remainingMinutes = this.timeConvert(estimatedTimeInSeconds).m;
+    let remainingHours = this.timeConvert(remainingTimeInSeconds).h;
+    let remainingMinutes = this.timeConvert(remainingTimeInSeconds).m;
 
     if(loggedIntoSec > workingHoursPerDay){
        this.errorMessage = 'Exceeded logging duration';
