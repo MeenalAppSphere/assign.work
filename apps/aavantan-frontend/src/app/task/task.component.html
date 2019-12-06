@@ -417,7 +417,7 @@
                     <nz-form-item>
                         <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
                         <nz-progress [nzPercent]="currentTask.progress" nzStatus="active" class="progress-success"></nz-progress>
-                        <small class="text-muted">{{taskData.data.totalLoggedTimeReadable}}</small>
+                        <small class="text-muted">{{currentTask.totalLoggedTimeReadable}}</small>
                     </nz-form-item>
 
                     <nz-form-item *ngIf="taskData.data.overLoggedTime">
