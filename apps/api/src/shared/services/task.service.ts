@@ -26,7 +26,7 @@ import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
 import { isEqual, orderBy, uniqWith, xor, xorWith } from 'lodash';
 import * as moment from 'moment';
-import { stringToSeconds } from '../helpers/helpers';
+import { secondsToString, stringToSeconds } from '../helpers/helpers';
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> {
@@ -72,6 +72,12 @@ export class TaskService extends BaseService<Task & Document> {
       task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
       task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
       task.status = projectDetails.settings.status.find(t => t.id === task.status);
+
+      // convert all time keys to string from seconds
+      task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
+      task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
+      task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
+      task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
       return task;
     });
 
@@ -240,6 +246,12 @@ export class TaskService extends BaseService<Task & Document> {
     task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
     task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
     task.status = projectDetails.settings.status.find(t => t.id === task.status);
+
+    // convert all time keys to string from seconds
+    task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
+    task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
+    task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
+    task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
 
     task.attachmentsDetails.forEach(attachment => {
       attachment.id = attachment['_id'];

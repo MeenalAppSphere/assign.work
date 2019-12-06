@@ -394,7 +394,7 @@ export class ProjectService extends BaseService<Project & Document> {
     }).select('settings.tags').lean();
 
     if (project && project.settings && project.settings.tags) {
-      return project.settings.tags.filter(tag => !tag.isDeleted && tag.name.toLowerCase().includes(model.query.toLowerCase()));
+      return project.settings.tags.filter(tag => !tag.isDeleted && tag.name.toLowerCase().includes(model.query.toLowerCase())).map(tag => tag.name);
     } else {
       return [];
     }

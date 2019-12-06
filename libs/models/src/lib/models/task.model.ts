@@ -23,6 +23,7 @@ export class Task {
   remainingTime?: number;
   remainingTimeReadable?: string;
   totalLoggedTime?: number;
+  totalLoggedTimeReadable?: string;
   overLoggedTime?: number;
   overLoggedTimeReadable?: string;
   startedAt?: Date;

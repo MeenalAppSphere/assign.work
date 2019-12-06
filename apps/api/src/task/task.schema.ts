@@ -43,6 +43,7 @@ export const taskSchema = new Schema({
   comments: [commentSchema],
   estimatedTime: { type: Number, default: 0 },
   remainingTime: { type: Number, default: 0 },
+  overLoggedTime: { type: Number, default: 0 },
   totalLoggedTime: { type: Number, default: 0 },
   startedAt: { type: Date },
   finishedAt: { type: Date },
