@@ -132,7 +132,7 @@
                     <!--          </a>-->
                 </td>
                 <td data-label="Estimate" class="text-right">
-                    <span>{{item.totalLoggedTime ? item.totalLoggedTime : 0 }}</span>hr&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (click)="timeLog(item)"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                    <span>{{item.estimatedTimeReadable }}</span>&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
                 </td>
             </tr>
         </tbody>

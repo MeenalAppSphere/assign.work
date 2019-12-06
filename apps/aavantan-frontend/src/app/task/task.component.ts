@@ -141,7 +141,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       tags: [null],
       epic: [null],
       status: [null],
-      estimateTime: [null],
+      estimatedTime: [null],
       remainingHours:[null],
       remainingMinutes:[null]
     });
@@ -347,8 +347,8 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskData.data.assignee.id = this.taskData.data.assigneeId;
         this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
       }
-      if(this.taskData.data.estimateTime){
-          this.setHoursMinutes(this.taskData.data.estimateTime);
+      if(this.taskData.data.estimatedTime){
+          this.setHoursMinutes(this.taskData.data.estimatedTime);
       }
 
       this.attachementIds = this.taskData.data.attachments;
