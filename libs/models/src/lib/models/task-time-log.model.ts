@@ -29,6 +29,8 @@ export class TaskTimeLogResponse {
   progress: number;
   totalLoggedTime: number;
   totalLoggedTimeReadable: string;
+  remainingTime?: number;
+  remainingTimeReadable: string;
   overLoggedTime: number;
   overLoggedTimeReadable: string;
   overProgress: number;
