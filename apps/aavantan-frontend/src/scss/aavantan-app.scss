@@ -432,3 +432,8 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     background-color: #0bbc4a!important;
   }
 }
+.progress-exception{
+  .ant-progress-bg{
+    background-color: red!important;
+  }
+}

@@ -25,7 +25,7 @@ export class AddTaskTimeModel {
 }
 
 export class TaskTimeLogResponse {
-  taskId: string;
+  taskId?: string;
   progress: number;
   totalLoggedTime: number;
   totalLoggedTimeReadable: string;

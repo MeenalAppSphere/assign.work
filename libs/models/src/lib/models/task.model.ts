@@ -32,6 +32,7 @@ export class Task {
   tags?: string[];
   url?: string;
   progress?: number;
+  overProgress?: number;
   status?: string | ProjectStatus;
   sprint?: string;
   relatedItemId?: string[];

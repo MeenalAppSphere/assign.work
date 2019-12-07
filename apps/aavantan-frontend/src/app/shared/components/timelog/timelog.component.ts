@@ -59,9 +59,9 @@ export class TimelogComponent implements OnInit, OnDestroy {
       }
 
     try {
-      await this._taskService.addTimelog(timeLogRequest).toPromise();
+      const data = await this._taskService.addTimelog(timeLogRequest).toPromise();
       this.addTimelogInProcess = false;
-      this.toggleTimeLogShow.emit();
+      this.toggleTimeLogShow.emit(data.data);
     } catch (e) {
       this.addTimelogInProcess = false;
       this.toggleTimeLogShow.emit();

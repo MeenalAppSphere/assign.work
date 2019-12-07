@@ -393,7 +393,7 @@
         </div>
     </aside>
     <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }" class="col-md-4 p-t-15 m-b-20 p-r-10 p-l-10 bg-white border-radius-4">
-        <section class="first-section">
+        <section class="first-section" *ngIf="progressData">
             <div class="row">
                 <div class="col ">
 
@@ -409,24 +409,21 @@
                 <div class="">
                     <nz-form-item>
                         <nz-form-label style="line-height: 12px; margin-top: 5px;">Estimated Time</nz-form-label>
-                          <nz-progress [nzPercent]="100" nzStatus="active" [nzShowInfo]="false"></nz-progress>
-                          <small class="text-muted">{{currentTask.estimatedTimeReadable}}</small>
+                          <nz-progress [nzPercent]="currentTask && currentTask.estimatedTime ? 100 : 0" nzStatus="active" [nzShowInfo]="false"></nz-progress>
+                          <small class="text-muted">{{currentTask && currentTask.estimatedTimeReadable ? currentTask.estimatedTimeReadable : '0h'}}</small>
                     </nz-form-item>
                 </div>
                 <div class="">
                     <nz-form-item>
                         <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
-                        <nz-progress [nzPercent]="currentTask.progress" nzStatus="active" class="progress-success"></nz-progress>
-                        <small class="text-muted">{{currentTask.totalLoggedTimeReadable}}</small>
+                        <nz-progress [nzPercent]="progressData.progress" nzStatus="active" class="progress-success"></nz-progress>
+                        <small class="text-muted">{{currentTask && currentTask.totalLoggedTimeReadable ? currentTask.totalLoggedTimeReadable : '0h'}}</small>
                     </nz-form-item>
 
-                    <nz-form-item *ngIf="taskData.data.overLoggedTime">
+                    <nz-form-item *ngIf="progressData.overProgress">
                       <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Exceeded</nz-form-label>
-
-                      <div class="progress" style="height: 6px; background: #e5e2e2;">
-                        <div class="progress-bar" role="progressbar" nzTitle="2h" nzTooltipPlacement="top" nz-tooltip style="width: {{taskData.data.overLoggedTime}}%; background:red;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <small class="text-muted">2h</small>
+                        <nz-progress [nzPercent]="progressData.overProgress" nzStatus="exception" [nzShowInfo]="false" class="progress-exception"></nz-progress>
+                      <small class="text-muted">{{currentTask && currentTask.overLoggedTimeReadable ? currentTask.overLoggedTimeReadable : '0h'}}</small>
                     </nz-form-item>
                 </div>
             </div>
@@ -485,7 +482,7 @@
                 </nz-tab>
             </nz-tabset>
         </section>
-        <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" (toggleTimeLogShow)="timeLog()" [selectedTaskItem]="currentTask"></app-timelog>
+        <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" (toggleTimeLogShow)="timeLog($event)" [selectedTaskItem]="currentTask"></app-timelog>
     </aside>
 
   <app-add-epic *ngIf="epicModalIsVisible" (toggleEpicShow)="toggleNewEpicModal()" [selectedTaskType]="selectedTaskType" [taskTypeDataSource]="taskTypeDataSource" [epicModalIsVisible]="epicModalIsVisible"></app-add-epic>

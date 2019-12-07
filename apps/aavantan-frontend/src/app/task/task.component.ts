@@ -10,7 +10,7 @@ import {
   Sprint,
   Task, TaskComments, TaskHistory, CommentPinModel,
   TaskType,
-  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel
+  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel, TaskTimeLogResponse
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -92,6 +92,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public modelChangedTags = new Subject<string>();
   public tagsQueryText : string = null;
   public watchersQueryText : string = null;
+
+  public progressData:TaskTimeLogResponse;
 
   public nzFilterOption = () => true;
 
@@ -320,7 +322,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.getMessage(true);
   }
 
-  public timeLog() {
+  public timeLog(data:TaskTimeLogResponse) {
+    this.progressData = data;
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
@@ -349,6 +352,20 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
       if(this.taskData.data.estimatedTime){
           this.setHoursMinutes(this.taskData.data.estimatedTime);
+      }
+
+      if(this.taskData.data && this.taskData.data.progress){
+
+        this.progressData = {
+          progress: this.taskData.data.progress,
+          totalLoggedTime: this.taskData.data.totalLoggedTime,
+          totalLoggedTimeReadable: this.taskData.data.totalLoggedTimeReadable,
+          remainingTimeReadable: this.taskData.data.remainingTimeReadable,
+          overLoggedTime: this.taskData.data.overLoggedTime,
+          overLoggedTimeReadable: this.taskData.data.overLoggedTimeReadable,
+          overProgress: this.taskData.data.overProgress
+        };
+
       }
 
       this.attachementIds = this.taskData.data.attachments;

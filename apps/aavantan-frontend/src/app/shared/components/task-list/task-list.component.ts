@@ -1,5 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { DraftSprint, GetAllTaskRequestModel, Task, TaskFilterDto, TaskType } from '@aavantan-app/models';
+import {
+  DraftSprint,
+  GetAllTaskRequestModel,
+  Task,
+  TaskFilterDto,
+  TaskTimeLogResponse,
+  TaskType
+} from '@aavantan-app/models';
 import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { TaskService } from '../../services/task/task.service';
@@ -41,6 +48,9 @@ export class TaskListComponent implements OnInit {
   public timeLog(item: Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTaskItem = item;
+  }
+  public toggleTimeLog(data:TaskTimeLogResponse, item:Task){
+    item.progress = data.progress
   }
 
   public viewTask(task: Task) {
