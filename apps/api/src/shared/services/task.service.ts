@@ -263,7 +263,7 @@ export class TaskService extends BaseService<Task & Document> {
     if (Types.ObjectId.isValid(model.taskId)) {
       queryObj['_id'] = model.taskId;
     } else {
-      queryObj['displayName'] = model.displayName;
+      queryObj['displayName'] = model.displayName.toLowerCase();
     }
     const task: Task = await this._taskModel.findOne(queryObj).populate(taskBasicPopulation).select('-comments').lean().exec();
     return this.parseTaskObjectForUi(task, projectDetails);
