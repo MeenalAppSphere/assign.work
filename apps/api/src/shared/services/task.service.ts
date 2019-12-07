@@ -11,7 +11,6 @@ import {
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   Project,
-  ProjectTags,
   Task,
   TaskComments,
   TaskFilterDto,
@@ -28,6 +27,29 @@ import { orderBy } from 'lodash';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 
+/**
+ * common task population object
+ */
+const taskBasicPopulation: any[] = [{
+  path: 'createdBy',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
+  path: 'assignee',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
+  path: 'dependentItem',
+  select: 'name displayName description url',
+  justOne: true
+}, {
+  path: 'relatedItem',
+  select: 'name displayName description url',
+  justOne: true
+}, {
+  path: 'attachmentsDetails'
+}];
+
 @Injectable()
 export class TaskService extends BaseService<Task & Document> {
   constructor(
@@ -38,6 +60,11 @@ export class TaskService extends BaseService<Task & Document> {
     super(_taskModel);
   }
 
+  /**
+   * get all tasks
+   * @param model : request model includes project id and filter params
+   * @param onlyMyTask: show only my task
+   */
   async getAllTasks(model: GetAllTaskRequestModel, onlyMyTask: boolean = false): Promise<Partial<BasePaginatedResponse<Task>>> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
@@ -68,22 +95,8 @@ export class TaskService extends BaseService<Task & Document> {
     const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
 
     result.items = result.items.map(task => {
-      task.id = task['_id'];
-      task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
-      task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
-      task.status = projectDetails.settings.status.find(t => t.id === task.status);
-
-      // convert all time keys to string from seconds
-      task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
-      task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
-      task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
-      task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
-      return task;
+      return this.parseTaskObjectForUi(task, projectDetails);
     });
-
-    // allTasks.forEach(task => {
-    //   delete task['project']['settings'];
-    // });
 
     return result;
   }
@@ -221,7 +234,9 @@ export class TaskService extends BaseService<Task & Document> {
 
     const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
     await this.updateHelper(model.id, model, taskHistory, session);
-    return this._taskModel.findById(model.id).lean();
+
+    const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
+    return this.parseTaskObjectForUi(task, projectDetails);
   }
 
   async deleteTask(model: DeleteCommentModel) {
@@ -241,7 +256,7 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  async getTaskByIdOrDisplayName(model: GetTaskByIdOrDisplayNameModel, populate: Array<any> = []) {
+  async getTaskByIdOrDisplayName(model: GetTaskByIdOrDisplayNameModel) {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     const queryObj = {};
@@ -250,28 +265,13 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       queryObj['displayName'] = model.displayName;
     }
-    const task: Task = await this._taskModel.findOne(queryObj).populate(populate).select('-comments').lean().exec();
-    task.id = task['_id'];
-
-    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
-    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
-    task.status = projectDetails.settings.status.find(t => t.id === task.status);
-
-    // convert all time keys to string from seconds
-    task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
-    task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
-    task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
-    task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
-
-    task.attachmentsDetails.forEach(attachment => {
-      attachment.id = attachment['_id'];
-    });
-    return task;
+    const task: Task = await this._taskModel.findOne(queryObj).populate(taskBasicPopulation).select('-comments').lean().exec();
+    return this.parseTaskObjectForUi(task, projectDetails);
   }
 
-  async getTasks(model: TaskFilterDto, populate: Array<any> = []) {
+  async getTasks(model: TaskFilterDto) {
     const query = this.prepareFilterQuery(model);
-    query.populate(populate);
+    query.populate(taskBasicPopulation);
     return this._taskModel.find(query);
   }
 
@@ -363,6 +363,10 @@ export class TaskService extends BaseService<Task & Document> {
     return `Comment Deleted Successfully`;
   }
 
+  /**
+   * get project details by id
+   * @param id: project id
+   */
   private async getProjectDetails(id: string): Promise<Project> {
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
@@ -378,6 +382,10 @@ export class TaskService extends BaseService<Task & Document> {
     return projectDetails;
   }
 
+  /**
+   * get task details by id
+   * @param id: task id
+   */
   private async getTaskDetails(id: string): Promise<Task> {
     const taskDetails: Task = await this._taskModel.findById(id).lean().exec();
 
@@ -387,6 +395,13 @@ export class TaskService extends BaseService<Task & Document> {
     return taskDetails;
   }
 
+  /**
+   * common update method for updating task
+   * @param id: task id
+   * @param task: task model
+   * @param history: history object
+   * @param sessionObj: session for transaction
+   */
   private async updateHelper(id: string, task: any, history: TaskHistory, sessionObj?: ClientSession): Promise<string> {
 
     if (!id) {
@@ -414,13 +429,22 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
-  // tslint:disable-next-line:no-shadowed-variable
+  /**
+   * create task history from given input
+   * @param action : TaskHistoryActionEnum
+   * @param taskId : string
+   * @param task : Task
+   */
   private taskHistoryObjectHelper(action: TaskHistoryActionEnum, taskId: string, task?: Task) {
     return {
       action, createdById: this._generalService.userId, taskId, task
     } as TaskHistory;
   }
 
+  /**
+   * prepare filter query for task filtering
+   * @param model : TaskFilterDto
+   */
   private prepareFilterQuery(model: TaskFilterDto) {
     const query = new Query();
     const otherKeys: Array<{ key: string, value: string }> = [];
@@ -442,6 +466,32 @@ export class TaskService extends BaseService<Task & Document> {
     }
 
     return query.lean();
+  }
+
+  /**
+   * parse task object, convert seconds to readable string, fill task type, priority, status etc..
+   * @param task : Task
+   * @param projectDetails: Project
+   */
+  private parseTaskObjectForUi(task: Task, projectDetails: Project) {
+    task.id = task['_id'];
+
+    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
+    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
+    task.status = projectDetails.settings.status.find(t => t.id === task.status);
+
+    // convert all time keys to string from seconds
+    task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
+    task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
+    task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
+    task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
+
+    if (task.attachmentsDetails) {
+      task.attachmentsDetails.forEach(attachment => {
+        attachment.id = attachment['_id'];
+      });
+    }
+    return task;
   }
 
 }
