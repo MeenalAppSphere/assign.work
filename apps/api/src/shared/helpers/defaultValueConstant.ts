@@ -1,6 +1,6 @@
-// default project template type
 import { ProjectTemplateEnum } from '@aavantan-app/models';
 
+// default project template type
 export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.software;
 
 // default working capacity
