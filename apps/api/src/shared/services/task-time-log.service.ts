@@ -42,7 +42,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
     // region validations
     if (!model.timeLog.createdById) {
-      throw new BadRequestException('Please select Created By');
+      throw new BadRequestException('Please add Created By');
     }
 
     if (!model.timeLog.loggedTimeReadable) {
@@ -107,18 +107,22 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         taskDetails.progress = 100;
         model.timeLog.remainingTime = 0;
       } else {
-        taskDetails.progress = Number(((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+        const progress: number = Number(((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime).toFixed(2));
 
-        // if logged time is grater than estimated time then over time is added
-        // in this case calculate overtime and set remaing time to 0
-        if (taskDetails.totalLoggedTime > taskDetails.estimatedTime) {
+        // if process is grater 100 then over time is added
+        // in this case calculate overtime and set remaining time to 0
+        if (progress > 100) {
+          taskDetails.progress = 100;
           taskDetails.remainingTime = 0;
           taskDetails.overLoggedTime = taskDetails.totalLoggedTime - taskDetails.estimatedTime;
+          taskDetails.overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(2));
         } else {
           // normal time logged
           // set overtime 0 and calculate remaining time
+          taskDetails.progress = progress;
           taskDetails.remainingTime = taskDetails.estimatedTime - taskDetails.totalLoggedTime;
           taskDetails.overLoggedTime = 0;
+          taskDetails.overProgress = 0;
         }
       }
       // endregion
@@ -148,7 +152,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         remainingTimeReadable: secondsToString(taskDetails.remainingTime),
         overLoggedTime: taskDetails.overLoggedTime,
         overLoggedTimeReadable: secondsToString(taskDetails.overLoggedTime),
-        overProgress: taskDetails.progress > 100 ? taskDetails.progress - 100 : 0
+        overProgress: taskDetails.overProgress
       };
     } catch (e) {
       await session.abortTransaction();

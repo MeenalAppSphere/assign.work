@@ -43,20 +43,20 @@ export class TimelogComponent implements OnInit, OnDestroy {
     const timeLog = { ...this.timeLogForm.getRawValue() };
 
     // @ts-ignore
-    const log : TaskTimeLog = {
-        taskId : this.selectedTaskItem.id,
-        createdById:this.selectedTaskItem.id,
-        startedAt:timeLog.loggedDate[0],
-        endAt:timeLog.loggedDate[0],
-        desc:timeLog.desc,
-        remainingTimeReadable:timeLog.remainingHours+'h '+timeLog.remainingHours+'m',
-        loggedTimeReadable:timeLog.loggedHours+'h '+timeLog.loggedMinutes+'m',
-      }
+    const log: TaskTimeLog = {
+      taskId: this.selectedTaskItem.id,
+      createdById: this._generalService.user.id,
+      startedAt: timeLog.loggedDate[0],
+      endAt: timeLog.loggedDate[0],
+      desc: timeLog.desc,
+      remainingTimeReadable: timeLog.remainingHours + 'h ' + timeLog.remainingHours + 'm',
+      loggedTimeReadable: timeLog.loggedHours + 'h ' + timeLog.loggedMinutes + 'm'
+    };
 
-      const timeLogRequest : AddTaskTimeModel = {
-        projectId : this._generalService.currentProject.id,
-        timeLog : log
-      }
+    const timeLogRequest: AddTaskTimeModel = {
+      projectId: this._generalService.currentProject.id,
+      timeLog: log
+    };
 
     try {
       const data = await this._taskService.addTimelog(timeLogRequest).toPromise();
@@ -70,7 +70,7 @@ export class TimelogComponent implements OnInit, OnDestroy {
   }
 
   public calcRemaining() {
-    const workingHoursPerDay = 3600*8; // 8 hrs in seconds
+    const workingHoursPerDay = 3600 * 8; // 8 hrs in seconds
 
     const remainingTimeInSeconds = this.selectedTaskItem.remainingTime;
 
@@ -82,9 +82,9 @@ export class TimelogComponent implements OnInit, OnDestroy {
     let remainingHours = this.timeConvert(remainingTimeInSeconds).h;
     let remainingMinutes = this.timeConvert(remainingTimeInSeconds).m;
 
-    if(loggedIntoSec > workingHoursPerDay){
-       this.errorMessage = 'Exceeded logging duration';
-    }else{
+    if (loggedIntoSec > workingHoursPerDay) {
+      this.errorMessage = 'Exceeded logging duration';
+    } else {
       this.errorMessage = null;
     }
 
@@ -97,8 +97,9 @@ export class TimelogComponent implements OnInit, OnDestroy {
   public timeConvertToSec(h, m) {
     return (h * 60 * 60) + (m * 60);
   }
-  public timeConvert(seconds:number) {
-    const num = seconds/60;
+
+  public timeConvert(seconds: number) {
+    const num = seconds / 60;
     const hours = (num / 60);
     const rhours = Math.floor(hours);
     const minutes = (hours - rhours) * 60;
@@ -106,8 +107,9 @@ export class TimelogComponent implements OnInit, OnDestroy {
     return {
       h: rhours,
       m: rminutes
-    }
+    };
   }
+
   handleCancel(): void {
     this.timelogModalIsVisible = false;
   }

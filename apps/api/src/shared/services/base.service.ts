@@ -67,7 +67,7 @@ export class BaseService<T extends Document> {
   }
 
   public async getAllPaginatedData(filter: any = {}, options: Partial<MongoosePaginateQuery> | any): Promise<BasePaginatedResponse<any>> {
-    options.count = options.count || 10;
+    options.count = options.count || 20;
     options.page = options.page || 1;
 
     const query = this.model

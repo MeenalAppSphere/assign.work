@@ -80,7 +80,7 @@ export class TaskService extends BaseService<Task & Document> {
     }];
 
     // set selection fields
-    model.select = '_id name taskType priority status createdById assigneeId progress totalLoggedTime estimatedTime remainingTime displayName';
+    model.select = '_id name taskType priority status createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName';
 
     let filter = {};
     if (onlyMyTask) {
