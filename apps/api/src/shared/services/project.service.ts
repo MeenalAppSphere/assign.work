@@ -8,9 +8,11 @@ import {
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
-  ProjectStatus, ProjectTags,
+  ProjectStatus,
+  ProjectTags,
   ProjectWorkingCapacityUpdateDto,
-  SearchProjectRequest, SearchProjectTags,
+  SearchProjectRequest,
+  SearchProjectTags,
   SwitchProjectRequest,
   TaskType,
   User
@@ -169,19 +171,25 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(projectId, projectDetails);
   }
 
+  /**
+   * update collaborator working capacity
+   * @param id: project id
+   * @param dto: Array of ProjectWorkingCapacityUpdateDto
+   */
   async updateCollaboratorWorkingCapacity(id: string, dto: ProjectWorkingCapacityUpdateDto[]) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
-    // check data
+    // check if all users are part of project
     const everyBodyThere = dto.every(ddt => projectDetails.members.some(pd => pd.userId === ddt.userId));
     if (!everyBodyThere) {
-      throw new BadRequestException('One of Collaborator not found, Please try again');
+      throw new BadRequestException('One of Collaborator is not found in Project!');
     }
 
     projectDetails.members = projectDetails.members.map(pd => {
       const indexInDto = dto.findIndex(f => f.userId === pd.userId);
       if (indexInDto > -1) {
         pd.workingCapacity = dto[indexInDto].workingCapacity || 0;
+        pd.workingCapacityPerDay = dto[indexInDto].workingCapacityPerDay || 0;
       }
       return pd;
     });
@@ -400,6 +408,10 @@ export class ProjectService extends BaseService<Project & Document> {
     }
   }
 
+  /**
+   * get project details by id
+   * @param id: project id
+   */
   private async getProjectDetails(id: string): Promise<Project> {
     if (!this.isValidId(id)) {
       throw new NotFoundException('No Project Found');
@@ -419,6 +431,10 @@ export class ProjectService extends BaseService<Project & Document> {
     return projectDetails;
   }
 
+  /**
+   * get organization details by id
+   * @param id: organization id
+   */
   private async getOrganizationDetails(id: string) {
     if (!this.isValidId(id)) {
       throw new NotFoundException('No Organization Found');

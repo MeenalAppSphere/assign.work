@@ -17,6 +17,7 @@ export class TaskTimeLog {
   remainingTime?: number;
   remainingTimeReadable: string;
   isDeleted?: boolean;
+  isPeriod?: boolean;
 }
 
 export class AddTaskTimeModel {

@@ -20,7 +20,8 @@ export const projectSchema = new Schema({
     emailId: { type: String },
     isEmailSent: { type: Boolean },
     isInviteAccepted: { type: Boolean },
-    workingCapacity: { type: Number, default: 40 }
+    workingCapacity: { type: Number, default: 40 },
+    workingCapacityPerDay: { type: Number, default: 8 }
   },
   organization: {
     type: Schema.Types.ObjectId,

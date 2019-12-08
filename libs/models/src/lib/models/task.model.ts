@@ -1,9 +1,8 @@
 import { TaskHistoryActionEnum } from '../enums/task.enum';
-import { Project, ProjectPriority, ProjectStatus, ProjectTags } from './project.model';
+import { Project, ProjectPriority, ProjectStatus } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';
 import { MongoosePaginateQuery } from '../queryOptions';
-import { TaskType } from './tasktype.model';
 
 export class Task {
   id?: string;

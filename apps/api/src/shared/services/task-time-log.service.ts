@@ -61,7 +61,8 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       throw new BadRequestException('Please select Start date');
     }
 
-    if (!model.timeLog.endAt) {
+    // if one have worked periodically then check end date is provided or not
+    if (model.timeLog.isPeriod && !model.timeLog.endAt) {
       throw new BadRequestException('Please select End date');
     }
 
@@ -71,23 +72,62 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       throw new BadRequestException('Started Date can not be before Task Creation Date');
     }
 
-    // Started date validation is after time log end date
-    const isStartDateGraterThenEndDate = moment(model.timeLog.startedAt).isAfter(model.timeLog.endAt);
-    if (isStartDateGraterThenEndDate) {
-      throw new BadRequestException('Started Date can not be after End Date');
+    // check if one have worked periodically and logged time then check start and end date validations
+    if (model.timeLog.isPeriod) {
+
+      // Started date validation is after time log end date
+      const isStartDateGraterThenEndDate = moment(model.timeLog.startedAt).isAfter(model.timeLog.endAt);
+      if (isStartDateGraterThenEndDate) {
+        throw new BadRequestException('Started Date can not be after End Date');
+      }
+
+      // End date validation is before task created date
+      const isEndDateBeforeTaskCreatedAt = moment(model.timeLog.endAt).isBefore(taskDetails.createdAt);
+      if (isEndDateBeforeTaskCreatedAt) {
+        throw new BadRequestException('End Date can not be before Task Creation Date');
+      }
+
+      // End date validation is before time log start date
+      const isEndDateBeforeThenStartDate = moment(model.timeLog.endAt).isBefore(model.timeLog.startedAt);
+      if (isEndDateBeforeThenStartDate) {
+        throw new BadRequestException('End Date can not be before Start Date');
+      }
+
     }
 
-    // End date validation is before task created date
-    const isEndDateBeforeTaskCreatedAt = moment(model.timeLog.endAt).isBefore(taskDetails.createdAt);
-    if (isEndDateBeforeTaskCreatedAt) {
-      throw new BadRequestException('End Date can not be before Task Creation Date');
-    }
+    // region working capacity check
 
-    // End date validation is before time log start date
-    const isEndDateBeforeThenStartDate = moment(model.timeLog.endAt).isBefore(model.timeLog.startedAt);
-    if (isEndDateBeforeThenStartDate) {
-      throw new BadRequestException('End Date can not be before Start Date');
+    // get user details from project members
+    const userDetails = projectDetails.members.find(member => {
+      return member.userId === model.timeLog.createdById;
+    });
+
+    // convert startedAt to date object
+    const startedDate = moment(model.timeLog.startedAt);
+    // convert endAt to date object, if isPeriod true else use startedAt
+    const endDate = moment(model.timeLog.isPeriod ? model.timeLog.endAt : model.timeLog.startedAt);
+
+    // find last logged items in between start and end date
+    const lastLogs = await this._taskTimeLogModel.find({
+      createdById: this.toObjectId(model.timeLog.createdById),
+      startedAt: { '$gte': startedDate.startOf('day').toDate() },
+      endAt: { '$lt': endDate.endOf('day').toDate() },
+      isDeleted: false
+    }).lean();
+
+    // if last logs found
+    // the one have already logged in between given start and end date
+    if (lastLogs && lastLogs.length) {
+      const totalLoggedTime = lastLogs.reduce((acc, cur) => {
+        return acc + cur.loggedTime;
+      }, 0);
+
+      if (totalLoggedTime > (userDetails.workingCapacityPerDay * 3600)) {
+        throw new BadRequestException('your logging limit exceeded for Given date!');
+      }
     }
+    // endregion
+
     // endregion
 
     const session = await this._taskTimeLogModel.db.startSession();
@@ -115,7 +155,8 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
           taskDetails.progress = 100;
           taskDetails.remainingTime = 0;
           taskDetails.overLoggedTime = taskDetails.totalLoggedTime - taskDetails.estimatedTime;
-          taskDetails.overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+          const overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+          taskDetails.overProgress = overProgress > 100 ? 100 : overProgress;
         } else {
           // normal time logged
           // set overtime 0 and calculate remaining time

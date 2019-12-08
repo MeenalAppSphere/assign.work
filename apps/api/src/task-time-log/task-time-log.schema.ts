@@ -9,8 +9,9 @@ export const taskTimeLogSchema = new Schema({
   desc: { type: String, required: [true, 'Please add description'] },
   loggedTime: { type: Number, default: 0 },
   remainingTime: { type: Number, default: 0 },
+  isPeriod: { type: Boolean, default: false },
   startedAt: { type: Date, required: [true, 'Please add Started At'] },
-  endAt: { type: Date, required: [true, 'Please Add End At'] },
+  endAt: { type: Date },
   isDeleted: { type: Boolean, default: false },
   createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }

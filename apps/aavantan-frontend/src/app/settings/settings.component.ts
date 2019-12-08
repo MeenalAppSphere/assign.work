@@ -1,12 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  User,
-  TaskType,
   Project,
-  ProjectStages,
   ProjectMembers,
   ProjectPriority,
-  ProjectStatus, ProjectWorkingCapacityUpdateDto
+  ProjectStages,
+  ProjectStatus,
+  ProjectWorkingCapacityUpdateDto,
+  TaskType,
+  User
 } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
@@ -29,23 +30,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public selectedCollaborator: string;
   public selectedCollaborators: User[] = [];
-  public userDataSource:User[]=[];
+  public userDataSource: User[] = [];
   public enableInviteBtn: boolean;
   public stageForm: FormGroup;
   public statusForm: FormGroup;
   public projectForm: FormGroup;
   public taskTypeForm: FormGroup;
-  public priorityForm:FormGroup;
+  public priorityForm: FormGroup;
 
   public activeView: any = {
     title: 'Project',
     view: 'project'
   };
   public stagesList: any = [];
-  public statusList: ProjectStatus[]=[];
+  public statusList: ProjectStatus[] = [];
   public typesList: TaskType[] = [];
-  public priorityList: ProjectPriority[]=[];
-  public projectMembersList: ProjectMembers[]=[];
+  public priorityList: ProjectPriority[] = [];
+  public projectMembersList: ProjectMembers[] = [];
 
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
@@ -74,9 +75,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.priorityList = res.settings.priorities;
         this.projectMembersList = cloneDeep(res.members);
 
-        this.totalCapacity=0;
-        if(this.projectMembersList && this.projectMembersList.length>0){
-          this.projectMembersList.forEach((ele)=>{
+        this.totalCapacity = 0;
+        if (this.projectMembersList && this.projectMembersList.length > 0) {
+          this.projectMembersList.forEach((ele) => {
             this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
           });
         }
@@ -129,7 +130,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.selectedCollaborators = this.selectedCollaborators.filter(item => item.emailId !== user.emailId);
   }
 
-  public resendInvitation(user: User){
+  public resendInvitation(user: User) {
     console.log('Resend Invitation');
   }
 
@@ -203,7 +204,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public addStage() {
-    if(this.stageForm.invalid){
+    if (this.stageForm.invalid) {
       this.notification.error('Error', 'Please check Stage title');
       return;
     }
@@ -226,7 +227,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public addStatus() {
-    if(this.statusForm.invalid){
+    if (this.statusForm.invalid) {
       this.notification.error('Error', 'Please check Status title');
       return;
     }
@@ -249,18 +250,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public savePriority() {
-    if(this.priorityForm.invalid){
+    if (this.priorityForm.invalid) {
       this.notification.error('Error', 'Please check Color and Priority');
       return;
     }
 
-    const dup:ProjectPriority[] = this.priorityList.filter((ele)=>{
-      if(ele.color === this.priorityForm.value.color || ele.name === this.priorityForm.value.name){
+    const dup: ProjectPriority[] = this.priorityList.filter((ele) => {
+      if (ele.color === this.priorityForm.value.color || ele.name === this.priorityForm.value.name) {
         return ele;
       }
     });
 
-    if(dup && dup.length>0){
+    if (dup && dup.length > 0) {
       this.notification.error('Error', 'Duplicate color or name');
       return;
     }
@@ -275,17 +276,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public saveTaskType() {
-    if(this.taskTypeForm.invalid){
+    if (this.taskTypeForm.invalid) {
       this.notification.error('Error', 'Please check Display name, Color and Task type');
       return;
     }
-    const dup:TaskType[] = this.typesList.filter((ele)=>{
-      if(ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName){
+    const dup: TaskType[] = this.typesList.filter((ele) => {
+      if (ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName) {
         return ele;
       }
     });
 
-    if(dup && dup.length>0){
+    if (dup && dup.length > 0) {
       this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
       return;
     }
@@ -307,13 +308,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public saveCapacity(){
+  public saveCapacity() {
     const capacityList: ProjectWorkingCapacityUpdateDto[] = [];
     this.totalCapacity = 0;
-    this.projectMembersList.forEach((ele)=>{
+    this.projectMembersList.forEach((ele) => {
       this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
-      const obj:ProjectWorkingCapacityUpdateDto = { userId : ele.userId, workingCapacity:ele.workingCapacity};
-        capacityList.push(obj);
+      const obj: ProjectWorkingCapacityUpdateDto = { userId: ele.userId, workingCapacity: ele.workingCapacity };
+      capacityList.push(obj);
     });
 
     this.updateRequestInProcess = true;
@@ -325,10 +326,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public calculateTotal(){
-    this.totalCapacity=0;
-    if(this.projectMembersList && this.projectMembersList.length>0){
-      this.projectMembersList.forEach((ele)=>{
+  public calculateTotal() {
+    this.totalCapacity = 0;
+    if (this.projectMembersList && this.projectMembersList.length > 0) {
+      this.projectMembersList.forEach((ele) => {
         this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
       });
     }

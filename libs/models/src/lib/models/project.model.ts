@@ -26,6 +26,7 @@ export class ProjectMembers {
   isInviteAccepted?: boolean;
   userDetails?: User;
   workingCapacity?: number;
+  workingCapacityPerDay?: number;
 }
 
 export class ProjectSettings {
@@ -62,6 +63,7 @@ export class ProjectTags {
 export class ProjectWorkingCapacityUpdateDto {
   userId: string;
   workingCapacity: number;
+  workingCapacityPerDay?: number;
 }
 
 export class SwitchProjectRequest {
