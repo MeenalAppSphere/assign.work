@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GeneralService {
+
   get userId(): string {
     return this._userId;
   }

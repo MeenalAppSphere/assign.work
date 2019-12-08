@@ -21,6 +21,7 @@ import { Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
 import { GeneralService } from './general.service';
+import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../helpers/defaultValueConstant';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -37,6 +38,8 @@ export class ProjectService extends BaseService<Project & Document> {
   async addProject(model: Project) {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
+
+    const userDetails = await this._userService.findById(model.createdBy as string);
 
     // validations
     if (model.name && !model.name.trim()) {
@@ -56,12 +59,18 @@ export class ProjectService extends BaseService<Project & Document> {
     model.settings.status = [];
     model.settings.tags = [];
 
+    // add project creator as project collaborator when new project is created
+    model.members.push({
+      userId: userDetails.id,
+      emailId: userDetails.emailId,
+      isInviteAccepted: true,
+      workingCapacity: DEFAULT_WORKING_CAPACITY,
+      workingCapacityPerDay: DEFAULT_WORKING_CAPACITY_PER_DAY
+    });
 
     try {
       // create project and get project id from them
       const createdProject = await this.create([model], session);
-
-      const userDetails = await this._userService.findById(createdProject[0].createdBy as string);
 
       // if user is creating first project then mark it as current project
       if (!userDetails.projects.length) {
@@ -114,6 +123,7 @@ export class ProjectService extends BaseService<Project & Document> {
 
     try {
       members.forEach(member => {
+        // if user id is available then user is registered in database but not a collaborator in project
         if (member.userId) {
           const inProject = projectDetails.members.some(s => s.userId === member.userId);
           if (!inProject) {

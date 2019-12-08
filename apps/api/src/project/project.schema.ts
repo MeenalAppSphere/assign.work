@@ -1,6 +1,11 @@
 import { Schema } from 'mongoose';
 import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import {
+  DEFAULT_PROJECT_TEMPLATE_TYPE,
+  DEFAULT_WORKING_CAPACITY,
+  DEFAULT_WORKING_CAPACITY_PER_DAY
+} from '../shared/helpers/defaultValueConstant';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');
@@ -20,8 +25,8 @@ export const projectSchema = new Schema({
     emailId: { type: String },
     isEmailSent: { type: Boolean },
     isInviteAccepted: { type: Boolean },
-    workingCapacity: { type: Number, default: 40 },
-    workingCapacityPerDay: { type: Number, default: 8 }
+    workingCapacity: { type: Number, default: DEFAULT_WORKING_CAPACITY },
+    workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY }
   },
   organization: {
     type: Schema.Types.ObjectId,
@@ -31,7 +36,8 @@ export const projectSchema = new Schema({
   template: {
     type: String,
     required: false,
-    enum: Object.values(ProjectTemplateEnum)
+    enum: Object.values(ProjectTemplateEnum),
+    default: DEFAULT_PROJECT_TEMPLATE_TYPE
   },
   settings: {
     stages: [],
