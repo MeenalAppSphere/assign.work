@@ -182,6 +182,7 @@ export class TaskService extends BaseService<Task & Document> {
     }
 
     const projectDetails = await this.getProjectDetails(model.projectId);
+    const taskDetails = await this.getTaskDetails(model.id);
 
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
@@ -189,6 +190,30 @@ export class TaskService extends BaseService<Task & Document> {
     // estimate time is present then it should be in string parse it to seconds
     if (model.estimatedTimeReadable) {
       model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
+
+      // ensure estimated time is changed
+      if (model.estimatedTime !== taskDetails.estimatedTime) {
+        // calculate progress and over progress
+        const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(2));
+
+        // if process is grater 100 then over time is added
+        // in this case calculate overtime and set remaining time to 0
+        if (progress > 100) {
+          model.progress = 100;
+          model.remainingTime = 0;
+          model.overLoggedTime = taskDetails.totalLoggedTime - model.estimatedTime;
+
+          const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(2));
+          model.overProgress = overProgress > 100 ? 100 : overProgress;
+        } else {
+          // normal time logged
+          // set overtime 0 and calculate remaining time
+          model.progress = progress;
+          model.remainingTime = model.estimatedTime - taskDetails.totalLoggedTime;
+          model.overLoggedTime = 0;
+          model.overProgress = 0;
+        }
+      }
     }
 
     // model task-type and model display-name changed then re assign display-name with new task-type
@@ -267,7 +292,7 @@ export class TaskService extends BaseService<Task & Document> {
     }
     const task: Task = await this._taskModel.findOne(queryObj).populate(taskBasicPopulation).select('-comments').lean().exec();
     if (!task) {
-      throw new BadRequestException('task not found')
+      throw new BadRequestException('task not found');
     }
     return this.parseTaskObjectForUi(task, projectDetails);
   }

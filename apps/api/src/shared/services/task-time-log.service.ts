@@ -155,6 +155,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
           taskDetails.progress = 100;
           taskDetails.remainingTime = 0;
           taskDetails.overLoggedTime = taskDetails.totalLoggedTime - taskDetails.estimatedTime;
+
           const overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(2));
           taskDetails.overProgress = overProgress > 100 ? 100 : overProgress;
         } else {
