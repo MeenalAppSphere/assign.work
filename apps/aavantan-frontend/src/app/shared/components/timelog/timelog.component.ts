@@ -47,9 +47,9 @@ export class TimelogComponent implements OnInit, OnDestroy {
       taskId: this.selectedTaskItem.id,
       createdById: this._generalService.user.id,
       startedAt: timeLog.loggedDate[0],
-      endAt: timeLog.loggedDate[0],
+      endAt: timeLog.loggedDate[1],
       desc: timeLog.desc,
-      remainingTimeReadable: timeLog.remainingHours + 'h ' + timeLog.remainingHours + 'm',
+      remainingTimeReadable: timeLog.remainingHours + 'h ' + timeLog.remainingMinutes + 'm',
       loggedTimeReadable: timeLog.loggedHours + 'h ' + timeLog.loggedMinutes + 'm'
     };
 
@@ -83,15 +83,18 @@ export class TimelogComponent implements OnInit, OnDestroy {
     let remainingMinutes = this.timeConvert(remainingTimeInSeconds).m;
 
     if (loggedIntoSec > workingHoursPerDay) {
-      this.errorMessage = 'Exceeded logging duration';
+      this.errorMessage = 'Exceeded daily logging duration';
     } else {
       this.errorMessage = null;
     }
 
+
     remainingHours = remainingHours - loggedHours;
-    this.timeLogForm.get('remainingHours').patchValue(remainingHours);
     remainingMinutes = remainingMinutes - loggedMinutes;
-    this.timeLogForm.get('remainingMinutes').patchValue(remainingMinutes);
+    const remainingIntoSec = this.timeConvertToSec(remainingHours, remainingMinutes);
+
+    this.timeLogForm.get('remainingHours').patchValue(this.timeConvert(remainingIntoSec).h);
+    this.timeLogForm.get('remainingMinutes').patchValue(this.timeConvert(remainingIntoSec).m);
   }
 
   public timeConvertToSec(h, m) {

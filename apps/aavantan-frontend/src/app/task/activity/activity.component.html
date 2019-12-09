@@ -16,7 +16,7 @@
             </div>
           </div>
           <div *ngIf="enablePinButton" class="float-right pin-activity" (click)="pinMessage(item)" [ngClass]="{'pinned':item.isPinned}"></div>
-          <div *ngIf="enablePinButton" class="float-right edit-comment" (click)="toggleEditModel(item)"><i nz-icon nzType="edit" class="text-warning" theme="fill"></i></div>
+          <div *ngIf="enablePinButton && (currentUser.id===item.createdBy.id)" class="float-right edit-comment" (click)="toggleEditModel(item)"><i nz-icon nzType="edit" class="text-warning" theme="fill"></i></div>
         </div>
       </nz-list-item>
     </ng-template>

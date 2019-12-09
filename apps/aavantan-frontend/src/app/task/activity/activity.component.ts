@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TaskComments, CommentPinModel } from '@aavantan-app/models';
+import { TaskComments, CommentPinModel, User } from '@aavantan-app/models';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 
@@ -17,11 +17,12 @@ export class ActivityComponent implements OnInit {
   public editCommentModalIsVisible:boolean;
   public commentData:TaskComments;
   public pinInProcess: boolean = false;
+  public currentUser : User;
 
   constructor(private _taskService: TaskService, private _generalService: GeneralService) { }
 
   ngOnInit() {
-
+    this.currentUser = this._generalService.user;
   }
 
   async pinMessage(item:TaskComments){

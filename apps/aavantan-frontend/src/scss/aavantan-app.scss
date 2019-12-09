@@ -142,6 +142,11 @@ button:focus{
 .ant-input{
   border:1px solid #cccccc!important;
 }
+.ant-input:disabled {
+  background-color: #ededed4d;
+  color: #656565;
+}
+
 /* table */
 .ant-table-tbody > tr > td {
   padding: 5px 15px;

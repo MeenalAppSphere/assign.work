@@ -393,7 +393,7 @@
         </div>
     </aside>
     <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }" class="col-md-4 p-t-15 m-b-20 p-r-10 p-l-10 bg-white border-radius-4">
-        <section class="first-section" *ngIf="progressData">
+        <section class="first-section">
             <div class="row">
                 <div class="col ">
 
@@ -405,25 +405,25 @@
                 </div>
             </div>
 
-            <div class="duration-box m-t-15">
-                <div class="">
+            <div class="duration-box m-t-15" >
+                <div>
                     <nz-form-item>
                         <nz-form-label style="line-height: 12px; margin-top: 5px;">Estimated Time</nz-form-label>
                           <nz-progress [nzPercent]="currentTask && currentTask.estimatedTime ? 100 : 0" nzStatus="active" [nzShowInfo]="false"></nz-progress>
                           <small class="text-muted">{{currentTask && currentTask.estimatedTimeReadable ? currentTask.estimatedTimeReadable : '0h'}}</small>
                     </nz-form-item>
                 </div>
-                <div class="">
+                <div *ngIf="progressData">
                     <nz-form-item>
                         <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
                         <nz-progress [nzPercent]="progressData.progress" nzStatus="active" class="progress-success"></nz-progress>
-                        <small class="text-muted">{{currentTask && currentTask.totalLoggedTimeReadable ? currentTask.totalLoggedTimeReadable : '0h'}}</small>
+                        <small class="text-muted">{{progressData && progressData.totalLoggedTimeReadable ? progressData.totalLoggedTimeReadable : '0h'}}</small>
                     </nz-form-item>
 
                     <nz-form-item *ngIf="progressData.overProgress">
                       <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Exceeded</nz-form-label>
                         <nz-progress [nzPercent]="progressData.overProgress" nzStatus="exception" [nzShowInfo]="false" class="progress-exception"></nz-progress>
-                      <small class="text-muted">{{currentTask && currentTask.overLoggedTimeReadable ? currentTask.overLoggedTimeReadable : '0h'}}</small>
+                        <small class="text-muted">{{progressData && progressData.overLoggedTimeReadable ? progressData.overLoggedTimeReadable : '0h'}}</small>
                     </nz-form-item>
                 </div>
             </div>

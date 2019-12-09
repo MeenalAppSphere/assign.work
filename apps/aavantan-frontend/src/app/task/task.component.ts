@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   AddCommentModel,
@@ -92,13 +92,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public modelChangedTags = new Subject<string>();
   public tagsQueryText : string = null;
   public watchersQueryText : string = null;
-
   public progressData:TaskTimeLogResponse;
 
   public nzFilterOption = () => true;
-
-
-
 
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
@@ -323,8 +319,10 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public timeLog(data:TaskTimeLogResponse) {
-    this.progressData = data;
-    this.timelogModalIsVisible = !this.timelogModalIsVisible;
+    if(data) {
+      this.progressData = data;
+      this.timelogModalIsVisible = !this.timelogModalIsVisible;
+    }
   }
 
   async getTask() {
@@ -484,7 +482,20 @@ export class TaskComponent implements OnInit, OnDestroy {
       if (this.taskId) {
         task.id = this.taskId;
         task.displayName = this.displayName;
-        await this._taskService.updateTask(task).toPromise();
+        const data = await this._taskService.updateTask(task).toPromise();
+
+        if(data && data.data && data.data.progress){
+          this.progressData = {
+            progress: data.data.progress,
+            totalLoggedTime: data.data.totalLoggedTime,
+            totalLoggedTimeReadable: data.data.totalLoggedTimeReadable,
+            remainingTimeReadable: data.data.remainingTimeReadable,
+            overLoggedTime: data.data.overLoggedTime,
+            overLoggedTimeReadable: data.data.overLoggedTimeReadable,
+            overProgress: data.data.overProgress
+          };
+        }
+
       } else {
         await this._taskService.createTask(task).toPromise();
         this.taskForm.reset({ tags: [] });
