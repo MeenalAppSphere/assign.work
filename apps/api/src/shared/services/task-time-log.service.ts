@@ -40,6 +40,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
     const projectDetails = await this.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.timeLog.taskId);
 
+
     // region validations
     if (!model.timeLog.createdById) {
       throw new BadRequestException('Please add Created By');
@@ -95,6 +96,11 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
     }
 
+    // endregion
+
+    // convert logged time to seconds
+    model.timeLog.loggedTime = stringToSeconds(model.timeLog.loggedTimeReadable);
+
     // region working capacity check
 
     // get user details from project members
@@ -122,18 +128,25 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         return acc + cur.loggedTime;
       }, 0);
 
-      if (totalLoggedTime > (userDetails.workingCapacityPerDay * 3600)) {
-        throw new BadRequestException('your logging limit exceeded for Given date!');
+      if (!model.timeLog.isPeriod) {
+        // logged only for a certain day
+        if ((totalLoggedTime + model.timeLog.loggedTime) > (userDetails.workingCapacityPerDay * 3600)) {
+          throw new BadRequestException('your logging limit exceeded for Given date!');
+        }
+      } else {
+        // logged for a period of a time
+        const countTotalDay = startedDate.diff(endDate, 'd');
+
+        // logged only for a multiple days ( periodically )
+        if ((totalLoggedTime + model.timeLog.loggedTime) > ((userDetails.workingCapacityPerDay * countTotalDay) * 3600)) {
+          throw new BadRequestException('your logging limit exceeded for Given dates!');
+        }
       }
     }
     // endregion
 
-    // endregion
-
     const session = await this._taskTimeLogModel.db.startSession();
     session.startTransaction();
-
-    model.timeLog.loggedTime = stringToSeconds(model.timeLog.loggedTimeReadable);
 
     try {
       // add task log to db
