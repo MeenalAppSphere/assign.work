@@ -13,14 +13,16 @@ import { NzNotificationService } from 'ng-zorro-antd';
 export class TimelogComponent implements OnInit, OnDestroy {
   public dateFormat = 'MM/dd/yyyy';
   public today = null;
+  public todaySingleDate= null;
   public timeLogForm: FormGroup;
   public errorMessage = null;
+  public workingHoursPerDay:number;
+  public addTimelogInProcess: boolean;
+  public isPeriod:boolean;
+
   @Input() public timelogModalIsVisible: Boolean = false;
   @Input() public selectedTaskItem: Task;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
-
-
-  public addTimelogInProcess: boolean;
 
   constructor(protected notification: NzNotificationService, private _taskService: TaskService, private _generalService: GeneralService) {
   }
@@ -28,13 +30,23 @@ export class TimelogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.timeLogForm = new FormGroup({
       desc: new FormControl(null, [Validators.required]),
-      loggedDate: new FormControl(null, [Validators.required]),
+      loggedSingleDate:new FormControl(null, [Validators.required]),
+      loggedDate: new FormControl(null, []),
       loggedHours: new FormControl(null, [Validators.required]),
       loggedMinutes: new FormControl(null, [Validators.required]),
       remainingHours: new FormControl(null),
-      remainingMinutes: new FormControl(null)
+      remainingMinutes: new FormControl(null),
+      isPeriod:new FormControl(null),
     });
     this.today = [new Date(), new Date()];
+    this.todaySingleDate=new Date();
+    this.workingHoursPerDay = 3600 * 8; // 8 hrs in seconds
+    this._generalService.currentProject.members.forEach((ele)=>{
+      if(ele.userId===this._generalService.user.id){
+        this.workingHoursPerDay = ele.workingCapacityPerDay;
+        // console.log('workingHoursPerDay',this.workingHoursPerDay);
+      }
+    })
   }
 
   async save() {
@@ -46,12 +58,17 @@ export class TimelogComponent implements OnInit, OnDestroy {
     const log: TaskTimeLog = {
       taskId: this.selectedTaskItem.id,
       createdById: this._generalService.user.id,
-      startedAt: timeLog.loggedDate[0],
-      endAt: timeLog.loggedDate[1],
       desc: timeLog.desc,
       remainingTimeReadable: timeLog.remainingHours + 'h ' + timeLog.remainingMinutes + 'm',
       loggedTimeReadable: timeLog.loggedHours + 'h ' + timeLog.loggedMinutes + 'm'
     };
+
+    if(this.isPeriod){
+      log.startedAt= timeLog.loggedDate[0];
+      log.endAt= timeLog.loggedDate[1];
+    }else{
+      log.startedAt= timeLog.loggedSingleDate;
+    }
 
     const timeLogRequest: AddTaskTimeModel = {
       projectId: this._generalService.currentProject.id,
@@ -70,7 +87,6 @@ export class TimelogComponent implements OnInit, OnDestroy {
   }
 
   public calcRemaining() {
-    const workingHoursPerDay = 3600 * 8; // 8 hrs in seconds
 
     const remainingTimeInSeconds = this.selectedTaskItem.remainingTime;
 
@@ -82,12 +98,12 @@ export class TimelogComponent implements OnInit, OnDestroy {
     let remainingHours = this.timeConvert(remainingTimeInSeconds).h;
     let remainingMinutes = this.timeConvert(remainingTimeInSeconds).m;
 
-    if (loggedIntoSec > workingHoursPerDay) {
-      this.errorMessage = 'Exceeded daily logging duration';
-    } else {
-      this.errorMessage = null;
-    }
-
+    // handling server side
+    // if (loggedIntoSec > this.workingHoursPerDay) {
+    //   this.errorMessage = 'Your logging limit exceeded for Given date!';
+    // } else {
+    //   this.errorMessage = null;
+    // }
 
     remainingHours = remainingHours - loggedHours;
     remainingMinutes = remainingMinutes - loggedMinutes;
@@ -115,6 +131,19 @@ export class TimelogComponent implements OnInit, OnDestroy {
 
   handleCancel(): void {
     this.timelogModalIsVisible = false;
+  }
+
+  public isPeriodChanged(){
+    this.today = [new Date(), new Date()];
+    this.todaySingleDate=new Date();
+    this.isPeriod=!this.isPeriod;
+    if(this.isPeriod){
+      this.timeLogForm.get('loggedSingleDate').setValidators(null);
+      this.timeLogForm.get('loggedDate').setValidators([Validators.required]);
+    }else{
+      this.timeLogForm.get('loggedDate').setValidators(null);
+      this.timeLogForm.get('loggedSingleDate').setValidators([Validators.required]);
+    }
   }
 
   ngOnDestroy() {

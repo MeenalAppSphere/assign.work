@@ -9,8 +9,15 @@
         </nz-form-item>
 
         <nz-form-item>
+          <label nz-checkbox formControlName="isPeriod" (ngModelChange)="isPeriodChanged()"> Is Period</label>
+        </nz-form-item>
+        <nz-form-item *ngIf="isPeriod" class="mb-1">
           <nz-form-label>Start-End<span class="text-danger">*</span></nz-form-label>
                 <nz-range-picker formControlName="loggedDate" [ngModel]="today" tabindex="1" [nzShowToday]="true" [nzFormat]="dateFormat" ></nz-range-picker>
+        </nz-form-item>
+        <nz-form-item *ngIf="!isPeriod" class="mb-1">
+          <nz-form-label style="display: block;text-align: left;">Date<span class="text-danger">*</span></nz-form-label>
+          <nz-date-picker [(ngModel)]="todaySingleDate" formControlName="loggedSingleDate" [nzFormat]="dateFormat"></nz-date-picker>
         </nz-form-item>
         <nz-form-item>
           <div class="row">

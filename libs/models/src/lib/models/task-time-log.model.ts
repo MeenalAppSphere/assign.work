@@ -4,7 +4,7 @@ export class TaskTimeLog {
   taskId: string;
   task?: Task;
   startedAt: Date;
-  endAt: Date;
+  endAt?: Date;
   createdById: string;
   createdBy?: User;
   updatedById?: string;
