@@ -136,6 +136,16 @@ export class TaskService extends BaseService<Task & Document> {
         model.displayName = `${taskTypeDetails.displayName}-1`;
       }
 
+      // check if watchers added or not
+      model.watchers = model.watchers || [];
+      model.watchers = [
+        ...new Set([
+          this._generalService.userId,
+          model.assigneeId ? model.assigneeId : '',
+          ...model.watchers
+        ])
+      ].filter(watcher => watcher);
+
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
 

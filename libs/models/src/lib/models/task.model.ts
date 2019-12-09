@@ -25,6 +25,7 @@ export class Task {
   totalLoggedTimeReadable?: string;
   overLoggedTime?: number;
   overLoggedTimeReadable?: string;
+  watchers?: string[];
   startedAt?: Date;
   finishedAt?: Date;
   priority?: string | ProjectPriority;
@@ -45,6 +46,7 @@ export class Task {
   createdAt?: Date;
   updatedAt?: Date;
   isSelected?: boolean;
+  watchersDetails?: User[];
 }
 
 export class TaskComments {

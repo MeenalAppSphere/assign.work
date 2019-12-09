@@ -37,6 +37,7 @@ export const taskSchema = new Schema({
     required: [true, 'Please Select Project First!']
   },
   assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+  watchers: [{ type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }],
   attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
   taskType: { type: String, required: [true, 'Please add task type'] },
   comments: [commentSchema],
@@ -80,6 +81,12 @@ taskSchema.virtual('project', {
 taskSchema.virtual('assignee', {
   ref: DbCollection.users,
   localField: 'assigneeId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('watchersDetails', {
+  ref: DbCollection.tasks,
+  localField: 'watchers',
   foreignField: '_id'
 });
 
