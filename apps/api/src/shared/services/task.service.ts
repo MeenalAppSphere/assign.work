@@ -105,6 +105,10 @@ export class TaskService extends BaseService<Task & Document> {
     return this.getAllTasks(model, true);
   }
 
+  /**
+   * add task service accept a single parameter task object
+   * @param model: Task
+   */
   async addTask(model: Task): Promise<Task> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
@@ -136,8 +140,10 @@ export class TaskService extends BaseService<Task & Document> {
         model.displayName = `${taskTypeDetails.displayName}-1`;
       }
 
-      // check if watchers added or not
+      // check if watchers added or not if not then assign blank array
       model.watchers = model.watchers || [];
+
+      // add task creator and assignee as default watcher
       model.watchers = [
         ...new Set([
           this._generalService.userId,
