@@ -346,6 +346,11 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   async addComment(model: AddCommentModel): Promise<string> {
+
+    if (!model || !model.comment) {
+      throw new BadRequestException('please add comment');
+    }
+
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     const taskDetails = await this.getTaskDetails(model.taskId);
@@ -364,14 +369,25 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   async updateComment(model: UpdateCommentModel): Promise<string> {
+    if (!model || !model.comment) {
+      throw new BadRequestException('please add comment');
+    }
+
+    if (!model.comment.id) {
+      throw new BadRequestException('invalid request');
+    }
+
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     const taskDetails = await this.getTaskDetails(model.taskId);
 
     taskDetails.comments = taskDetails.comments.map(com => {
       if (com.id === model.comment.id) {
-        model.comment.updatedAt = new Date();
-        return model.comment;
+        return {
+          ...com,
+          ...model.comment,
+          updatedAt: new Date()
+        };
       }
       return com;
     });

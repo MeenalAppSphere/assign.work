@@ -14,6 +14,22 @@ export class Sprint {
   endAt: Date;
   autoUpdate?: SprintAutoUpdate;
   sprintStatus: SprintStatus;
+  stages?: SprintStages[];
+}
+
+export class SprintStages {
+  status: string[];
+  tasks: SprintStagesTask[];
+}
+
+export class SprintStagesTask {
+  taskId: string;
+  description: string;
+  sequenceNumber: string;
+  addedAt: Date;
+  updatedAt: Date;
+  addedById: string;
+  addedBy?: User;
 }
 
 export class SprintAutoUpdate {
@@ -30,4 +46,9 @@ export interface DraftSprint {
   ids: string[];
   tasks: Task[];
   duration: number;
+}
+
+export class CreateSprintModel {
+  projectId: string;
+  sprint: Sprint;
 }

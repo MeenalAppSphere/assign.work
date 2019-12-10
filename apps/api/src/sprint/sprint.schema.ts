@@ -15,11 +15,33 @@ export const sprintSchema = new Schema({
     status: {
       type: String,
       enum: Object.values(SprintStatus)
+    },
+    updatedAt: { type: Date }
+  },
+  stages: {
+    type: Array,
+    default: [],
+    status: [],
+    tasks: {
+      type: Array,
+      default: [],
+      taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
+      description: { type: String },
+      sequenceNumber: { type: Number },
+      addedAt: { type: Date },
+      updatedAt: { type: Date }
     }
   },
-  stages: [
-
-  ],
   createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
 }, schemaOptions);
+
+// options
+sprintSchema
+  .set('toObject', { virtuals: true })
+  .set('toJSON', {
+    virtuals: true, transform: (doc, ret) => {
+      ret.id = ret._id;
+      return ret;
+    }
+  });

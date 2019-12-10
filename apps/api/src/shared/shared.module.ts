@@ -18,6 +18,7 @@ import * as path from 'path';
 import { GeneralService } from './services/general.service';
 import { TaskTimeLogService } from './services/task-time-log.service';
 import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
+import { sprintSchema } from '../sprint/sprint.schema';
 
 @Global()
 @Module({
@@ -51,6 +52,10 @@ import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
       name: DbCollection.taskTimeLog,
       schema: taskTimeLogSchema,
       collection: DbCollection.taskTimeLog
+    }, {
+      name: DbCollection.sprint,
+      schema: sprintSchema,
+      collection: DbCollection.sprint
     }])
   ],
   exports: [
