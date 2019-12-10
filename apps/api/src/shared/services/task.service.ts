@@ -39,6 +39,9 @@ const taskBasicPopulation: any[] = [{
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
+  path: 'watchersDetails',
+  select: 'emailId userName firstName lastName profilePic -_id'
+}, {
   path: 'dependentItem',
   select: 'name displayName description url',
   justOne: true
