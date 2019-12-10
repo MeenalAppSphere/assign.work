@@ -10,7 +10,7 @@
     </div>
     <div *nzModalFooter>
       <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
-      <button nz-button nzSize="small" nzType="primary" (click)="save()" [nzLoading]="savingInProcess">Save</button>
+      <button nz-button nzSize="small" nzType="primary" [disabled]="commentForm.invalid" (click)="save()" [nzLoading]="savingInProcess">Save</button>
     </div>
     <ng-template #titleTemp>
       <span>Edit Comment</span>

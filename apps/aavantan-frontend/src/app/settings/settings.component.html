@@ -168,7 +168,7 @@
 
           </aside>
 
-          <aside class="col-md-3">
+          <aside class="col-md-3" *ngIf="stagesList && stagesList.length>0">
 
             <nz-form-label>Default Stages</nz-form-label>
 
@@ -215,7 +215,7 @@
 
           </aside>
 
-          <aside class="col-md-3">
+          <aside class="col-md-3" *ngIf="statusList && statusList.length>0">
 
             <nz-form-label>Default Status</nz-form-label>
 
@@ -267,7 +267,7 @@
 
           </aside>
 
-          <aside class="col-md-3">
+          <aside class="col-md-3" *ngIf="priorityList && priorityList.length>0">
 
             <nz-form-label>Default Priorities</nz-form-label>
 
@@ -331,7 +331,7 @@
 
           </aside>
 
-          <aside class="col-md-3">
+          <aside class="col-md-3" *ngIf="typesList && typesList.length>0">
 
             <nz-form-label>Default Types</nz-form-label>
 

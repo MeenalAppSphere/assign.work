@@ -20,13 +20,15 @@ export class EditCommentComponent implements OnInit {
 
   constructor(private _taskService:TaskService, private _generalService :GeneralService) {
     this.commentForm = new FormGroup({
-      comment:new FormControl(null, [Validators.required])
+      comment:new FormControl(null, [Validators.required]),
+      id:new FormControl(null, [Validators.required])
     });
 
   }
 
   ngOnInit() {
     this.commentForm.get('comment').patchValue(this.comment.comment);
+    this.commentForm.get('id').patchValue(this.comment.id);
   }
 
   async save() {
@@ -34,7 +36,8 @@ export class EditCommentComponent implements OnInit {
 
     const comment: UpdateCommentModel = {
       projectId: this._generalService.currentProject.id,
-      comment : this.commentForm.getRawValue()
+      comment : this.commentForm.getRawValue(),
+
     };
     comment.taskId = this.taskId;
 
