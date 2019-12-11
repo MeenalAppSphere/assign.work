@@ -4,7 +4,9 @@
             <nz-card nzSize="small">
                 <div class="d-flex justify-content-between">
                     <div class="media">
-                        <i *ngIf="item.priority && item.priority.color" [nzTitle]="item.priority.name" nz-tooltip [ngStyle]="{'margin-top': '2px','border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
+                        <span *ngIf="item && item.priority">
+                          <i [nzTitle]="item.priority.name" nz-tooltip [ngStyle]="{'margin-top': '2px','border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
+                        </span>
                         <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff','margin-top': '4px', 'height':'18px' }"></i>
                         <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5 m-t-5"></i>
                         <div class="m-l-10">
@@ -16,8 +18,11 @@
                         </div>
                     </div>
                 </div>
-                <p class="m-t-5 card-desc-height" nz-paragraph nzEllipsis nzEllipsisRows="3" [innerHTML]="item.description | safeHtml"></p>
-                <p class=""><span>{{item.totalLoggedTime ? item.totalLoggedTime : 0 }}</span>hr
+
+                <p *ngIf="item.description" class="m-t-5 card-desc-height" nz-paragraph nzEllipsis nzEllipsisRows="3" [innerHTML]="item.description | safeHtml"></p>
+                <p *ngIf="!item.description" class="m-t-5 card-desc-height text-muted" nz-paragraph nzEllipsis nzEllipsisRows="3">NA</p>
+
+                <p class=""><span>{{item.estimatedTimeReadable ? item.estimatedTimeReadable : 0 }}</span>
                     <a *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
                 </p>
                 <div *ngIf="showProgressOption && item.progress">
@@ -25,8 +30,10 @@
                         <span class="font-weight-semibold">Progress</span>
                         <span class="font-weight-semibold">{{item.progress}}%</span>
                     </div>
-                    <nz-progress *ngIf="item.progress && item.status && item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>
-                    <nz-progress *ngIf="item.progress && item.status && item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>
+                    <div style="height:20px;">
+                      <nz-progress *ngIf="item.progress && item.status && item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>
+                      <nz-progress *ngIf="item.progress && item.status && item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>
+                    </div>
                 </div>
                 <div class="m-t-10">
                     <div class="d-flex justify-content-between align-items-center" style="min-height:24px;">
@@ -88,7 +95,9 @@
                 </td>
 
                 <td data-label="Priority" class="text-left">
-                  <i *ngIf="item.priority && item.priority.color" [ngStyle]="{'border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
+                  <span *ngIf="item && item.priority">
+                    <i [ngStyle]="{'border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
+                  </span>
                   <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff', 'height':'18px' }"></i>
                   <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>
                 </td>
@@ -101,8 +110,8 @@
                             <h6 class="m-b-0">
                                 <p class="m-0" style="max-width: 500px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
                                     <a href="javascript:void(0)" (click)="viewTask(item)">
-                    {{item.displayName}}: {{item.name}}
-                  </a>
+                                      {{item.displayName}}: {{item.name}}
+                                    </a>
                                 </p>
                             </h6>
 

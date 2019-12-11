@@ -6,6 +6,7 @@ import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
 import { cloneDeep } from 'lodash';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -30,44 +31,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public sprintData: any;
   public teamCapacityModalIsVisible: boolean;
   public getTaskInProcess: boolean;
-  public sprintDataSource: Sprint[] = [
-    {
-      id: '1',
-      name: 'Sprint 1',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '2',
-      name: 'Sprint 2',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '3',
-      name: 'Sprint 3',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    }
-  ];
+  public sprintForm: FormGroup;
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -90,6 +54,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.countTotalDuration();
     }
 
+    this.sprintForm = new FormGroup({
+      title: new FormControl(null, [Validators.required]),
+      duration: new FormControl(null, [Validators.required]),
+      goal: new FormControl(null, [Validators.required]),
+    });
     // dummy sprint wizard data
     this.sprintData = {
       title: 'Sprint 1'
@@ -145,6 +114,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public editSprint() {
+    console.log(this.sprintForm.getRawValue());
     this.showStartWizard = true;
   }
 

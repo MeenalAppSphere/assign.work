@@ -15,27 +15,21 @@
         Total Backlogs: {{totalDuration}} hrs
       </button>
       <nz-button-group>
-        <button [disabled]="isDisabledCreateBtn" nzType="primary" nzSize="small" nz-button (click)="createSprint()">Create Sprint</button>
+        <button [disabled]="isDisabledCreateBtn" nzType="primary" nzSize="small" nz-button (click)="createSprint()">Publish Sprint</button>
       </nz-button-group>
     </ng-template>
 
 
     <section class="m-b-20">
-      <div class="clearfix" *ngIf="sprintData && sprintData.id">
+      <div class="clearfix m-b-5" *ngIf="sprintData && sprintData.id">
       <label>{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
         <span class="float-right" >
-          <span class="text-warning">Current Capacity 120hrs</span> <span class="p-l-10 p-r-10">|</span> <a href="javascript:void(0);" (click)="showTeamCapacity()" class="p-r-10">Edit Capacity </a>
-            <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomRight">
-              <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button >Sprint 1
-                <i nz-icon nzType="caret-down" class="m-l-10"></i>
-              </button>
-            </nz-button-group>
-            <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">
-              <ul nz-menu>
-                <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>
-              </ul>
-            </nz-dropdown-menu>
-          </span>
+          <span class="text-warning">Current Capacity 120hrs</span>
+          <span class="p-l-10 p-r-10">|</span>
+          <a href="javascript:void(0);" (click)="showTeamCapacity()" class="p-r-10">Edit Capacity </a>
+          <span class="p-l-10 p-r-10">|</span>
+          <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button (click)="editSprint()">Edit {{sprintData.title}}</button>
+        </span>
       </div>
       <div class="draft-sprint-box" *ngIf="!showStartWizard && sprintData && sprintData.id && draftData && draftData.length===0">
           <nz-empty
@@ -83,16 +77,21 @@
 
           <div class="steps-content m-t-15 m-b-15">
             <ng-container *ngIf="wizardIndex===0">
-              <form nz-row>
+              <form [formGroup]="sprintForm" autocomplete="off" nz-form>
                 <div class="offset-md-4 col-md-4 col-sm-12">
                   <nz-form-item>
-                    <nz-form-label>Title</nz-form-label>
-                    <input nz-input placeholder="Enter Sprint Title" nzSize="small" maxlength="100"/>
+                    <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
+                    <input nz-input formControlName="title" placeholder="Enter Sprint Title" nzSize="small" maxlength="50"/>
                     </nz-form-item>
                   <nz-form-item>
-                  <nz-form-label>Duration (Start - End Date)</nz-form-label>
+                  <nz-form-item>
+                    <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
+                    <input nz-input formControlName="goal" placeholder="Enter Sprint Goal" nzSize="small" maxlength="100"/>
+                  </nz-form-item>
+                  <nz-form-item>
+                  <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
                     <div class="sprint-duration-datepicker">
-                        <nz-range-picker [nzFormat]="dateFormat"></nz-range-picker>
+                        <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
                     </div>
                   </nz-form-item>
                 </div>
