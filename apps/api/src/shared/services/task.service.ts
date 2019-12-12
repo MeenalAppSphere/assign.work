@@ -195,6 +195,12 @@ export class TaskService extends BaseService<Task & Document> {
     }
   }
 
+  /**
+   * update task
+   * if task type changed than update display name too
+   * if estimate has been added after one have logged overs re calculate progress and over progress
+   * @param model: Task
+   */
   async updateTask(model: Task): Promise<Task> {
     if (!model || !model.id) {
       throw new BadRequestException();
@@ -206,8 +212,9 @@ export class TaskService extends BaseService<Task & Document> {
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
 
+    // check if estimated time updated and one have already logged in this task
+    if (model.estimatedTimeReadable && taskDetails.totalLoggedTime > 0) {
     // estimate time is present then it should be in string parse it to seconds
-    if (model.estimatedTimeReadable) {
       model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
 
       // ensure estimated time is changed
