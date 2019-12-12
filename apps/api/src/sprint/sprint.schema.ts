@@ -16,7 +16,8 @@ export const sprintSchema = new Schema({
       type: String,
       enum: Object.values(SprintStatus)
     },
-    updatedAt: { type: Date }
+    updatedAt: { type: Date },
+    id: { type: String }
   },
   stages: {
     type: Array,

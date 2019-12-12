@@ -228,12 +228,17 @@ export class ProjectService extends BaseService<Project & Document> {
     }
   }
 
+  /**
+   * create new stage
+   * @param id: string Project Id
+   * @param stage: ProjectStages Stage Object
+   */
   async createStage(id: string, stage: ProjectStages) {
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (!stage.name) {
-      throw new BadRequestException('Please add name');
+    if (!stage || !stage.name) {
+      throw new BadRequestException('Please add stage name');
     }
+
+    const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.stages) {
       const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase() === stage.name.toLowerCase());
@@ -257,16 +262,21 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(id, projectDetails);
   }
 
+  /**
+   * create task type
+   * @param id: string project id
+   * @param taskType: TaskType TaskType request Model
+   */
   async createTaskType(id: string, taskType: TaskType) {
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (!taskType.name) {
-      throw new BadRequestException('Please add name');
+    if (!taskType || !taskType.name) {
+      throw new BadRequestException('Please add Task Type name');
     }
 
     if (!taskType.color) {
-      throw new BadRequestException('Please select color');
+      throw new BadRequestException('Please choose color');
     }
+
+    const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
       const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
@@ -296,12 +306,18 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(id, projectDetails);
   }
 
+  /**
+   * create project status
+   * @param id: string Project Id
+   * @param status: ProjectStatus Project Status Model
+   */
   async createStatus(id: string, status: ProjectStatus) {
-    const projectDetails: Project = await this.getProjectDetails(id);
 
     if (!status.name) {
       throw new BadRequestException('Please add Status name');
     }
+
+    const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.status && projectDetails.settings.status.length) {
       const isDuplicate = projectDetails.settings.status.some(s => s.name.toLowerCase() === status.name.toLowerCase());
@@ -325,16 +341,21 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(id, projectDetails);
   }
 
+  /**
+   * create project priority
+   * @param id: string project id
+   * @param priority: ProjectPriority Project Priority Model
+   */
   async createPriority(id: string, priority: ProjectPriority) {
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (!priority.name) {
+    if (!priority || !priority.name) {
       throw new BadRequestException('Please add name');
     }
 
     if (!priority.color) {
       throw new BadRequestException('Please select color');
     }
+
+    const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.priorities) {
       const isDuplicate = projectDetails.settings.priorities.some(s => s.name.toLowerCase() === priority.name.toLowerCase());

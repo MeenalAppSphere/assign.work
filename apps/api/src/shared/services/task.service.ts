@@ -196,7 +196,7 @@ export class TaskService extends BaseService<Task & Document> {
   }
 
   async updateTask(model: Task): Promise<Task> {
-    if (!model) {
+    if (!model || !model.id) {
       throw new BadRequestException();
     }
 
@@ -243,10 +243,13 @@ export class TaskService extends BaseService<Task & Document> {
       const separateDisplayName = model.displayName.split('-');
       const mainDisplayName = separateDisplayName[0];
 
-      if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name) {
+      if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name.toLowerCase()) {
         model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
       }
     }
+
+    model.progress = model.progress || 0;
+    model.overProgress = model.overProgress || 0;
 
     // check if tags is undefined assign blank array to that, this is the check for old data
     projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
@@ -309,6 +312,8 @@ export class TaskService extends BaseService<Task & Document> {
     } else {
       queryObj['displayName'] = { '$regex': new RegExp('^' + model.displayName.toLowerCase() + '$'), $options: 'i' };
     }
+    queryObj['projectId'] = this.toObjectId(model.projectId);
+
     const task: Task = await this._taskModel.findOne(queryObj).populate(taskBasicPopulation).select('-comments').lean().exec();
     if (!task) {
       throw new BadRequestException('task not found');
@@ -368,6 +373,10 @@ export class TaskService extends BaseService<Task & Document> {
     return 'Comment Added Successfully';
   }
 
+  /**
+   * update comment
+   * @param model: UpdateCommentModel
+   */
   async updateComment(model: UpdateCommentModel): Promise<string> {
     if (!model || !model.comment) {
       throw new BadRequestException('please add comment');
@@ -381,8 +390,9 @@ export class TaskService extends BaseService<Task & Document> {
 
     const taskDetails = await this.getTaskDetails(model.taskId);
 
+    // find comment and update it
     taskDetails.comments = taskDetails.comments.map(com => {
-      if (com.id === model.comment.id) {
+      if (com['_id'].toString() === model.comment.id) {
         return {
           ...com,
           ...model.comment,
@@ -391,12 +401,16 @@ export class TaskService extends BaseService<Task & Document> {
       }
       return com;
     });
+
     const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, model.taskId, taskDetails);
     await this.updateHelper(model.taskId, taskDetails, taskHistory);
     return 'Comment Updated Successfully';
   }
 
   async pinComment(model: CommentPinModel): Promise<string> {
+    if (!model || !model.commentId) {
+      throw new BadRequestException('invalid request');
+    }
     const projectDetails = await this.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.taskId);
 

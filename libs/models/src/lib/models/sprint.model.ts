@@ -14,15 +14,16 @@ export class Sprint {
   endAt: Date;
   autoUpdate?: SprintAutoUpdate;
   sprintStatus: SprintStatus;
-  stages?: SprintStages[];
+  stages?: SprintStage[];
 }
 
-export class SprintStages {
+export class SprintStage {
+  id: string;
   status: string[];
-  tasks: SprintStagesTask[];
+  tasks: SprintStageTask[];
 }
 
-export class SprintStagesTask {
+export class SprintStageTask {
   taskId: string;
   description: string;
   sequenceNumber: string;

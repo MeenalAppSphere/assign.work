@@ -41,6 +41,7 @@ export class ProjectStages {
   id?: string;
   name: string;
   alias?: string;
+  sequenceNumber?: number;
 }
 
 export class ProjectStatus {
