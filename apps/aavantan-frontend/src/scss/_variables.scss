@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Poppins:300,400,500,700');
+@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
 
 // Custom Color
 $custom-1: #fff !default;
@@ -200,7 +200,7 @@ $spacers: map-merge(
 // Fonts
 //
 // Font-weight, line-height, font-size
-$font-family-sans-serif:    'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-sans-serif:    'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $font-family-base:          $font-family-sans-serif !default;
 
 $font-weight-light:         300 !default;
