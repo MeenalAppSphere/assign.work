@@ -8,6 +8,7 @@ import {
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
+  ProjectStageSequenceChangeRequest,
   ProjectStatus,
   ProjectTags,
   ProjectWorkingCapacityUpdateDto,
@@ -251,8 +252,40 @@ export class ProjectService extends BaseService<Project & Document> {
     }
 
     stage.id = new Types.ObjectId().toHexString();
+
+    // set stage sequence number from length
+    stage.sequenceNumber = projectDetails.settings.stages.length + 1;
+
     projectDetails.settings.stages.push(stage);
     return await this.updateProject(id, projectDetails);
+  }
+
+  /**
+   * change sequence of stage in project stages array
+   * @param model: ProjectStageSequenceChangeRequest
+   */
+  async changeStageSequence(model: ProjectStageSequenceChangeRequest) {
+    if (!model || !model.projectId) {
+      throw new BadRequestException('Project not Found');
+    }
+
+    if (!model.stageId) {
+      throw new BadRequestException('Stage Not Found');
+    }
+
+    if (model.sequenceNo === undefined || model.sequenceNo === null) {
+      throw new BadRequestException('Sequence no not found');
+    }
+
+    const projectDetails = await this.getProjectDetails(model.projectId);
+    const existingIndex = projectDetails.settings.stages.findIndex(stage => stage.id === model.stageId);
+    projectDetails.settings.stages.splice(model.sequenceNo, 0, projectDetails.settings.stages.splice(existingIndex, 1)[0]);
+
+    projectDetails.settings.stages.forEach((stage, index) => {
+      stage.sequenceNumber = index;
+    });
+
+    return await this.updateProject(model.projectId, projectDetails);
   }
 
   async removeStage(id: string, stageId: string) {

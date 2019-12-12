@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ProjectService } from '../shared/services/project.service';
 import {
-  MongoosePaginateQuery,
   Project,
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
+  ProjectStageSequenceChangeRequest,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
   SearchProjectRequest,
@@ -14,6 +14,7 @@ import {
   TaskType
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiImplicitBody } from '@nestjs/swagger';
 
 @Controller('project')
 @UseGuards(AuthGuard('jwt'))
@@ -51,6 +52,12 @@ export class ProjectController {
   @Post(':id/add-stage')
   async addStage(@Param('id') id: string, @Body() stage: ProjectStages) {
     return await this._projectService.createStage(id, stage);
+  }
+
+  @ApiImplicitBody({ type: ProjectStageSequenceChangeRequest, name: 'stageSequenceChangeModel' })
+  @Post('change-stage-sequence')
+  async changeStageSequence(@Body() stageSequenceChangeModel: ProjectStageSequenceChangeRequest) {
+    return await this._projectService.changeStageSequence(stageSequenceChangeModel);
   }
 
   @Delete(':id/remove-stage/:stageId')

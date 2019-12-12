@@ -82,3 +82,9 @@ export class SearchProjectTags {
   projectId: string;
   query: string;
 }
+
+export class ProjectStageSequenceChangeRequest {
+  projectId: string;
+  stageId: string;
+  sequenceNo: number;
+}
