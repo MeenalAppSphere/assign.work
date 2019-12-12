@@ -22,14 +22,16 @@ export class SprintStage {
   id: string;
   status: string[];
   tasks: SprintStageTask[];
+  totalEstimation: number;
+  totalEstimationReadable?: string;
 }
 
 export class SprintStageTask {
   taskId: string;
-  description: string;
-  sequenceNumber: string;
+  description?: string;
+  sequenceNumber?: string;
   addedAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
   addedById: string;
   addedBy?: User;
 }
@@ -56,7 +58,8 @@ export class SprintErrorResponse {
 }
 
 export class SprintErrorResponseItem {
-  name: string;
+  id: string;
+  name?: string;
   reason: SprintErrorEnum;
 }
 
@@ -74,5 +77,19 @@ export class CreateSprintModel {
 export class AddTaskToSprintModel {
   projectId: string;
   sprintId: string;
-  tasks: Task[];
+  tasks: string[];
+}
+
+export class MoveTaskToStage {
+  projectId: string;
+  sprintId: string;
+  stageId: string;
+  taskId: string;
+}
+
+export class TaskAssigneeMap {
+  memberId: string;
+  totalEstimation: number;
+  workingCapacityPerDay: number;
+  alreadyLoggedTime: number;
 }

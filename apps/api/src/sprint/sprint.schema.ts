@@ -24,6 +24,7 @@ export const sprintSchema = new Schema({
     type: Array,
     default: [],
     status: [],
+    totalEstimation: { type: Number, default: 0 },
     tasks: {
       type: Array,
       default: [],
