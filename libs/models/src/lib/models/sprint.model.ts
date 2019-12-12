@@ -1,5 +1,5 @@
 import { Task } from './task.model';
-import { SprintStatusEnum } from '../enums/sprint.enum';
+import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
 
 export class Sprint {
@@ -15,6 +15,7 @@ export class Sprint {
   autoUpdate?: SprintAutoUpdate;
   sprintStatus: SprintStatus;
   stages?: SprintStage[];
+  membersCapacity?: SprintMembersCapacity[];
 }
 
 export class SprintStage {
@@ -43,6 +44,22 @@ export class SprintStatus {
   updatedAt: Date;
 }
 
+export class SprintMembersCapacity {
+  userId: string;
+  workingCapacity: number;
+  workingCapacityPerDay?: number;
+}
+
+export class SprintErrorResponse {
+  tasksErrors: SprintErrorResponseItem[];
+  membersErrors: SprintErrorResponseItem[];
+}
+
+export class SprintErrorResponseItem {
+  name: string;
+  reason: SprintErrorEnum;
+}
+
 export interface DraftSprint {
   ids: string[];
   tasks: Task[];
@@ -52,4 +69,10 @@ export interface DraftSprint {
 export class CreateSprintModel {
   projectId: string;
   sprint: Sprint;
+}
+
+export class AddTaskToSprintModel {
+  projectId: string;
+  sprintId: string;
+  tasks: Task[];
 }

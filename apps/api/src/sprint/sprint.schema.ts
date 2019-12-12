@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import { schemaOptions } from '../shared/schema/base.schema';
 import { DbCollection, SprintStatus } from '@aavantan-app/models';
+import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../shared/helpers/defaultValueConstant';
 
 export const sprintSchema = new Schema({
   name: { type: String, required: [true, 'Sprint Name is required'] },
@@ -32,6 +33,12 @@ export const sprintSchema = new Schema({
       addedAt: { type: Date },
       updatedAt: { type: Date }
     }
+  },
+  membersCapacity: {
+    type: Array,
+    userId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+    workingCapacity: { type: Number, default: DEFAULT_WORKING_CAPACITY },
+    workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY }
   },
   createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }

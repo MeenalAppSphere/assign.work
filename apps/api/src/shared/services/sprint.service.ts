@@ -1,6 +1,18 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { CreateSprintModel, DbCollection, Project, Sprint, SprintStage, User } from '@aavantan-app/models';
+import {
+  AddTaskToSprintModel,
+  CreateSprintModel,
+  DbCollection,
+  Project,
+  Sprint,
+  SprintErrorEnum,
+  SprintErrorResponse,
+  SprintErrorResponseItem,
+  SprintStage,
+  Task,
+  User
+} from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
@@ -51,6 +63,15 @@ export class SprintService extends BaseService<Sprint & Document> {
     // get project details and check if current user is member of project
     const projectDetails = await this.getProjectDetails(model.projectId);
 
+    // add all project collaborators as sprint member and add their's work capacity
+    projectDetails.members.forEach(member => {
+      model.sprint.membersCapacity.push({
+        userId: member.userId,
+        workingCapacity: member.workingCapacity,
+        workingCapacityPerDay: member.workingCapacityPerDay
+      });
+    });
+
     // create stages array for sprint from project
     projectDetails.settings.stages.forEach(stage => {
       const sprintStage = new SprintStage();
@@ -60,7 +81,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       model.sprint.stages.push(sprintStage);
     });
 
-
+    // create session and use it for whole transaction
     const session = await this._sprintModel.db.startSession();
     session.startTransaction();
 
@@ -70,6 +91,80 @@ export class SprintService extends BaseService<Sprint & Document> {
       await session.abortTransaction();
       session.endSession();
       throw e;
+    }
+  }
+
+  public async addTaskToSprint(model: AddTaskToSprintModel) {
+    if (!model || !model.projectId) {
+      throw new BadRequestException('Project Not Found');
+    }
+
+    if (!model.sprintId) {
+      throw new BadRequestException('Sprint Not Found');
+    }
+
+    if (!model.tasks || !model.tasks.length) {
+      throw new BadRequestException('Please Add At Least One Task');
+    }
+
+    try {
+      const sprintError: SprintErrorResponse = new SprintErrorResponse();
+      const taskAssigneeMap: Array<{ memberId: string, totalEstimation: number }> = [];
+
+      model.tasks.forEach(task => {
+        const checkTask = this.checkTaskIsAllowedToAddInSprint(task);
+
+        if (checkTask instanceof SprintErrorResponseItem) {
+          sprintError.tasksErrors.push(checkTask);
+        } else {
+          const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === task.assigneeId);
+          if (assigneeIndex > -1) {
+            taskAssigneeMap[assigneeIndex].totalEstimation += task.estimatedTime;
+          } else {
+            taskAssigneeMap.push({
+              memberId: task.assigneeId,
+              totalEstimation: task.estimatedTime
+            });
+          }
+        }
+      });
+
+      // check if we found some errors while checking tasks
+      if (sprintError.tasksErrors.length) {
+        return sprintError;
+      }
+
+      const projectDetails = await this.getProjectDetails(model.projectId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId);
+
+      const sprintDaysCount = moment(sprintDetails.startedAt).diff(sprintDetails.endAt, 'd') || 1;
+    } catch (e) {
+    }
+
+  }
+
+  private checkTaskIsAllowedToAddInSprint(task: Task): boolean | SprintErrorResponseItem {
+    if (task) {
+      const sprintError = new SprintErrorResponseItem();
+      sprintError.name = task.displayName;
+
+      if (!task.assigneeId) {
+        sprintError.reason = SprintErrorEnum.taskNoAssignee;
+      }
+
+      if (!task.estimatedTime) {
+        sprintError.reason = SprintErrorEnum.taskNoEstimate;
+      }
+
+      if (sprintError.reason) {
+        return sprintError;
+      }
+      return true;
+    } else {
+      return {
+        name: task.displayName,
+        reason: SprintErrorEnum.taskNotFound
+      };
     }
   }
 
@@ -90,5 +185,18 @@ export class SprintService extends BaseService<Sprint & Document> {
       }
     }
     return projectDetails;
+  }
+
+  /**
+   * get sprint details by sprint id
+   * @param id: string sprint id
+   */
+  private async getSprintDetails(id: string) {
+    const sprintDetails: Sprint = await this._sprintModel.findById(id).select('name startedAt endAt stages membersCapacity').lean().exec();
+
+    if (!sprintDetails) {
+      throw new NotFoundException('Sprint Not Found');
+    }
+    return sprintDetails;
   }
 }
