@@ -19,6 +19,19 @@ import { GeneralService } from './services/general.service';
 import { TaskTimeLogService } from './services/task-time-log.service';
 import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
 import { sprintSchema } from '../sprint/sprint.schema';
+import { SprintService } from './services/sprint.service';
+
+const providers = [
+  UsersService,
+  ProjectService,
+  OrganizationService,
+  TaskService,
+  TaskHistoryService,
+  AttachmentService,
+  GeneralService,
+  TaskTimeLogService,
+  SprintService
+];
 
 @Global()
 @Module({
@@ -60,24 +73,10 @@ import { sprintSchema } from '../sprint/sprint.schema';
   ],
   exports: [
     MongooseModule,
-    UsersService,
-    ProjectService,
-    OrganizationService,
-    TaskService,
-    TaskHistoryService,
-    AttachmentService,
-    GeneralService,
-    TaskTimeLogService
+    ...providers
   ],
   providers: [
-    UsersService,
-    ProjectService,
-    OrganizationService,
-    TaskService,
-    TaskHistoryService,
-    AttachmentService,
-    GeneralService,
-    TaskTimeLogService
+    ...providers
   ]
 })
 export class SharedModule {

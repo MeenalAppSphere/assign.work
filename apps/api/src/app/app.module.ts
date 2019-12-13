@@ -8,10 +8,11 @@ import { ProjectModule } from '../project/project.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { TaskModule } from '../task/task.module';
 import { AttachmentModule } from '../attachment/attachment.module';
-import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston';
+import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { TaskHistoryModule } from '../task-history/task-history.module';
 import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
+import { SprintModule } from '../sprint/sprint.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
     TaskModule,
     TaskHistoryModule,
     AttachmentModule,
-    TaskTimeLogModule
+    TaskTimeLogModule,
+    SprintModule
   ],
   controllers: [],
   providers: []

@@ -138,7 +138,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
         // count for how many days one is logging
         // if count is 0 then one is logging is for the same date then mark it as 1
-        const countTotalDay = startedDate.diff(endDate, 'd') || 1;
+        const countTotalDay = endDate.diff(startedDate, 'd') || 1;
 
         // logged only for a multiple days ( periodically )
         if ((totalLoggedTime + model.timeLog.loggedTime) > ((userDetails.workingCapacityPerDay * countTotalDay) * 3600)) {

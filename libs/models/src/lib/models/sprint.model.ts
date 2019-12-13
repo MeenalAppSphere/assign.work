@@ -1,10 +1,13 @@
 import { Task } from './task.model';
 import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
+import { Project } from './project.model';
 
 export class Sprint {
   id?: string;
   name: string;
+  projectId: string;
+  project?: Project;
   createdById: string;
   createdBy?: User;
   updatedById?: string;
@@ -70,7 +73,6 @@ export interface DraftSprint {
 }
 
 export class CreateSprintModel {
-  projectId: string;
   sprint: Sprint;
 }
 

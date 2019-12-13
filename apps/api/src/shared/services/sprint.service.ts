@@ -41,27 +41,42 @@ export class SprintService extends BaseService<Sprint & Document> {
 
     // region validations
 
-    if (!model || !model.projectId) {
+    // blank model
+    if (!model) {
       throw new BadRequestException('invalid request');
     }
 
+    // sprint
+    if (!model.sprint) {
+      throw new BadRequestException('invalid request sprint details missing');
+    }
+
+    if (!model.sprint.projectId) {
+      throw new BadRequestException('Please Select Project First');
+    }
+
+    // sprint name
     if (!model.sprint.name) {
       throw new BadRequestException('Sprint Name is compulsory');
     }
 
+    // sprint started at
     if (!model.sprint.startedAt) {
       throw new BadRequestException('Please select Sprint Start Date');
     }
 
+    // sprint end at
     if (!model.sprint.endAt) {
-      throw new BadRequestException('Please select Sprint Start Date');
+      throw new BadRequestException('Please select Sprint End Date');
     }
 
-    const isStartDateBeforeToday = moment(model.sprint.startedAt).isBefore(moment());
+    // started date can not be before today
+    const isStartDateBeforeToday = moment(model.sprint.startedAt).isBefore(moment().startOf('d'));
     if (isStartDateBeforeToday) {
       throw new BadRequestException('Sprint Started date can not be Before Today');
     }
 
+    // end date can not be before start date
     const isEndDateBeforeTaskStartDate = moment(model.sprint.endAt).isBefore(model.sprint.startedAt);
     if (isEndDateBeforeTaskStartDate) {
       throw new BadRequestException('Sprint End Date can not be before Sprint Start Date');
@@ -70,9 +85,10 @@ export class SprintService extends BaseService<Sprint & Document> {
     // endregion
 
     // get project details and check if current user is member of project
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    const projectDetails = await this.getProjectDetails(model.sprint.projectId);
 
     // add all project collaborators as sprint member and add their's work capacity
+    model.sprint.membersCapacity = [];
     projectDetails.members.forEach(member => {
       model.sprint.membersCapacity.push({
         userId: member.userId,
@@ -82,6 +98,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     });
 
     // create stages array for sprint from project
+    model.sprint.stages = [];
     projectDetails.settings.stages.forEach(stage => {
       const sprintStage = new SprintStage();
       sprintStage.id = stage.id;
@@ -90,12 +107,18 @@ export class SprintService extends BaseService<Sprint & Document> {
       model.sprint.stages.push(sprintStage);
     });
 
+    // set sprint created by id
+    model.sprint.createdById = this._generalService.userId;
+
     // create session and use it for whole transaction
     const session = await this._sprintModel.db.startSession();
     session.startTransaction();
 
     try {
-      return await this.create([model], session);
+      const newSprint = await this.create([model.sprint], session);
+      await session.commitTransaction();
+      session.endSession();
+      return newSprint[0];
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -144,11 +167,17 @@ export class SprintService extends BaseService<Sprint & Document> {
       // check if there any task found
       if (!taskDetails.length) {
         // if no return an error
-        return new BadRequestException('no tasks found');
+        throw new BadRequestException('no tasks found');
+      }
+
+      if (taskDetails.length < model.tasks.length) {
+        throw new BadRequestException('one of tasks not found');
       }
 
       // sprint error holder variable
       const sprintError: SprintErrorResponse = new SprintErrorResponse();
+      sprintError.tasksErrors = [];
+      sprintError.membersErrors = [];
 
       // task assignee details holder variable
       const taskAssigneeMap: TaskAssigneeMap[] = [];
@@ -173,7 +202,8 @@ export class SprintService extends BaseService<Sprint & Document> {
           } else {
             // push assignee to assignee task map holder variable
             taskAssigneeMap.push({
-              memberId: task.assigneeId,
+              // convert object id to string
+              memberId: (task.assigneeId as any).toHexString(),
               totalEstimation: task.estimatedTime,
               workingCapacityPerDay: 0,
               alreadyLoggedTime: 0
@@ -191,7 +221,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       const sprintDetails = await this.getSprintDetails(model.sprintId);
 
       // get sprint count days from sprint start date and end date
-      const sprintDaysCount = moment(sprintDetails.startedAt).diff(sprintDetails.endAt, 'd') || 1;
+      const sprintDaysCount = moment(sprintDetails.endAt).diff(sprintDetails.startedAt, 'd') || 1;
 
       // fill member working capacity from sprint details in assignee task map holder variable
       sprintDetails.membersCapacity.forEach(member => {
@@ -249,7 +279,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       await this.update(model.sprintId, sprintDetails, session);
       await session.commitTransaction();
       session.endSession();
-      return 'Sprint Created Successfully';
+      return await this._sprintModel.findById(model.sprintId).lean().populate([]);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -361,6 +391,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     if (task) {
       const sprintError = new SprintErrorResponseItem();
       sprintError.name = task.displayName;
+      sprintError.id = task['_id'];
 
       // check task assignee
       if (!task.assigneeId) {
@@ -393,6 +424,11 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param id: project id
    */
   private async getProjectDetails(id: string): Promise<Project> {
+    try {
+      id = this.toObjectId(id).toHexString();
+    } catch (e) {
+      throw new BadRequestException('Invalid Project Id');
+    }
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
     if (!projectDetails) {

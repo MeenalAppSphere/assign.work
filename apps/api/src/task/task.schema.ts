@@ -3,8 +3,6 @@ import { DbCollection } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const paginate = require('mongoose-paginate-v2');
-
 
 const commentSchema = new Schema({
   comment: { type: String },
@@ -122,5 +120,4 @@ taskSchema.virtual('attachmentsDetails', {
 
 // plugins
 taskSchema
-  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(paginate);
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

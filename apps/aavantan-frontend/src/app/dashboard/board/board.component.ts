@@ -17,6 +17,7 @@ export class BoardComponent implements OnInit {
     {
       id: '1',
       name: 'Sprint 1',
+      projectId: '',
       createdById: '',
       goal: '',
       startedAt: new Date(),
@@ -29,6 +30,7 @@ export class BoardComponent implements OnInit {
     {
       id: '2',
       name: 'Sprint 2',
+      projectId: '',
       createdById: '',
       goal: '',
       startedAt: new Date(),
@@ -41,6 +43,7 @@ export class BoardComponent implements OnInit {
     {
       id: '3',
       name: 'Sprint 3',
+      projectId: '',
       createdById: '',
       goal: '',
       startedAt: new Date(),

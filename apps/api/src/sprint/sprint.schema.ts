@@ -1,13 +1,20 @@
 import { Schema } from 'mongoose';
-import { schemaOptions } from '../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 import { DbCollection, SprintStatus } from '@aavantan-app/models';
 import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../shared/helpers/defaultValueConstant';
 
+const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
+
 export const sprintSchema = new Schema({
-  name: { type: String, required: [true, 'Sprint Name is required'] },
+  name: { type: String, required: [true, 'Sprint Name is required'], unique: true },
   startedAt: { type: Date, required: [true, 'Sprint start time is required'] },
   endAt: { type: Date, required: [true, 'Sprint end time is required'] },
   goal: { type: String, required: [true, 'Sprint goal is required'] },
+  projectId: {
+    type: Schema.Types.ObjectId,
+    ref: DbCollection.projects,
+    required: [true, 'Please Select Project First!']
+  },
   autoUpdate: {
     isAllowed: { type: Boolean, default: false },
     autoUpdateAt: { type: Date }
@@ -54,3 +61,7 @@ sprintSchema
       return ret;
     }
   });
+
+// plugins
+sprintSchema
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);
