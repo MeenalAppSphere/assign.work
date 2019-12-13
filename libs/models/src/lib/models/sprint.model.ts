@@ -2,6 +2,7 @@ import { Task } from './task.model';
 import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
 import { Project } from './project.model';
+import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Sprint {
   id?: string;
@@ -31,6 +32,7 @@ export class SprintStage {
 
 export class SprintStageTask {
   taskId: string;
+  task?: Task;
   description?: string;
   sequenceNumber?: string;
   addedAt: Date;
@@ -51,6 +53,7 @@ export class SprintStatus {
 
 export class SprintMembersCapacity {
   userId: string;
+  user?: User;
   workingCapacity: number;
   workingCapacityPerDay?: number;
 }
@@ -76,15 +79,16 @@ export class CreateSprintModel {
   sprint: Sprint;
 }
 
-export class AddTaskToSprintModel {
+export class SprintBaseRequest {
   projectId: string;
   sprintId: string;
+}
+
+export class AddTaskToSprintModel extends SprintBaseRequest {
   tasks: string[];
 }
 
-export class MoveTaskToStage {
-  projectId: string;
-  sprintId: string;
+export class MoveTaskToStage extends SprintBaseRequest {
   stageId: string;
   taskId: string;
 }
@@ -94,4 +98,11 @@ export class TaskAssigneeMap {
   totalEstimation: number;
   workingCapacityPerDay: number;
   alreadyLoggedTime: number;
+}
+
+export class GetAllSprintRequestModel extends MongoosePaginateQuery {
+  projectId: string;
+}
+
+export class GetSprintByIdRequestModel extends SprintBaseRequest {
 }
