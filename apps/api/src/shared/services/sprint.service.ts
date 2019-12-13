@@ -104,6 +104,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       sprintStage.id = stage.id;
       sprintStage.status = [];
       sprintStage.tasks = [];
+      sprintStage.totalEstimation = 0;
       model.sprint.stages.push(sprintStage);
     });
 
@@ -184,6 +185,7 @@ export class SprintService extends BaseService<Sprint & Document> {
 
       // loop over all the tasks
       taskDetails.forEach(task => {
+        task.id = task['_id'];
         // check if task is allowed to added to sprint
         const checkTask = this.checkTaskIsAllowedToAddInSprint(task);
 
@@ -266,14 +268,16 @@ export class SprintService extends BaseService<Sprint & Document> {
       }
 
       // now all validations have been completed add task to sprint
-      taskDetails.forEach(task => {
-        sprintDetails.stages[0].totalEstimation += task.estimatedTime;
+      for (let i = 0; i < taskDetails.length; i++) {
+        await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, session);
+
+        sprintDetails.stages[0].totalEstimation += taskDetails[i].estimatedTime;
         sprintDetails.stages[0].tasks.push({
-          taskId: task.id,
+          taskId: taskDetails[i].id,
           addedAt: new Date(),
           addedById: this._generalService.userId
         });
-      });
+      }
 
       // update sprint
       await this.update(model.sprintId, sprintDetails, session);
@@ -327,6 +331,13 @@ export class SprintService extends BaseService<Sprint & Document> {
       // get sprint details from sprint id
       const sprintDetails = await this.getSprintDetails(model.sprintId);
 
+      // check task is in sprint or not
+      const isTaskInSprint = sprintDetails.stages.some(stage => stage.tasks.some(task => task.taskId.toString() === model.taskId));
+
+      if (!isTaskInSprint) {
+        throw new BadRequestException('This Task is not added in sprint');
+      }
+
       // get all tasks details from given tasks array
       const taskDetail: Task = await this._taskModel.findOne({
         projectId: this.toObjectId(model.projectId),
@@ -335,27 +346,34 @@ export class SprintService extends BaseService<Sprint & Document> {
       }).lean();
 
       if (!taskDetail) {
-        return new BadRequestException('Task not found');
+        throw new BadRequestException('Task not found');
       }
 
+      // check task is in given sprint
+      if (taskDetail.sprintId.toString() !== model.sprintId) {
+        throw new BadRequestException('This Task is not added in sprint');
+      }
+
+      taskDetail.id = taskDetail['_id'].toString();
+      // check task validity for moving in sprint
       const checkTaskIsAllowedToMove = this.checkTaskIsAllowedToAddInSprint(taskDetail);
 
+      // if any error found in task validity checking return it
       if (checkTaskIsAllowedToMove instanceof SprintErrorResponseItem) {
         return checkTaskIsAllowedToMove;
       }
 
       // find current stage id where task is already added
       const currentStageId = sprintDetails.stages.find(stage => {
-        return stage.tasks.some(task => task.taskId === model.taskId);
+        return stage.tasks.some(task => task.taskId.toString() === model.taskId);
       }).id;
 
       // loop over stages
       sprintDetails.stages.forEach((stage) => {
-
         // remove task from current stage and minus estimation time from total stage estimation time
         if (stage.id === currentStageId) {
           stage.totalEstimation -= taskDetail.estimatedTime;
-          stage.tasks = stage.tasks.filter(task => !task.taskId !== taskDetail['_id']);
+          stage.tasks = stage.tasks.filter(task => task.taskId.toString() !== taskDetail.id);
         }
 
         // add task to new stage id and also add task estimation to stage total estimation
@@ -372,9 +390,13 @@ export class SprintService extends BaseService<Sprint & Document> {
 
       // update sprint
       await this.update(model.sprintId, sprintDetails, session);
+
+      // update task status
+      // will be done later
+
       await session.commitTransaction();
       session.endSession();
-      return 'Task Moved Successfully';
+      return await this._sprintModel.findById(model.sprintId);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -391,7 +413,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     if (task) {
       const sprintError = new SprintErrorResponseItem();
       sprintError.name = task.displayName;
-      sprintError.id = task['_id'];
+      sprintError.id = task.id;
 
       // check task assignee
       if (!task.assigneeId) {

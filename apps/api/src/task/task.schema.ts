@@ -51,7 +51,7 @@ export const taskSchema = new Schema({
   progress: { type: Number, default: 0 },
   overProgress: { type: Number, default: 0 },
   status: { type: String },
-  sprint: { type: String },
+  sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
   relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false }],
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
@@ -115,6 +115,12 @@ taskSchema.virtual('relatedItem', {
 taskSchema.virtual('attachmentsDetails', {
   ref: DbCollection.attachments,
   localField: 'attachments',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('sprint', {
+  ref: DbCollection.sprint,
+  localField: 'sprintId',
   foreignField: '_id'
 });
 

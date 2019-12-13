@@ -51,6 +51,10 @@ const taskBasicPopulation: any[] = [{
   justOne: true
 }, {
   path: 'attachmentsDetails'
+}, {
+  path: 'sprint',
+  select: 'name goal',
+  justOne: true
 }];
 
 @Injectable()
@@ -214,7 +218,7 @@ export class TaskService extends BaseService<Task & Document> {
 
     // check if estimated time updated and one have already logged in this task
     if (model.estimatedTimeReadable && taskDetails.totalLoggedTime > 0) {
-    // estimate time is present then it should be in string parse it to seconds
+      // estimate time is present then it should be in string parse it to seconds
       model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
 
       // ensure estimated time is changed
