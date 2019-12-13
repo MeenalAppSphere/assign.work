@@ -67,3 +67,10 @@ $border: #dddddd;
   color: #999fa1;
   font-weight: 500;
 }
+
+.upload-list-inline .ant-upload-list-item {
+  background: #ffffff!important;
+  img{
+    border-radius: 3px!important;
+  }
+}
