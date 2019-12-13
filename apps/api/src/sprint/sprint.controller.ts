@@ -1,7 +1,13 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { SprintService } from '../shared/services/sprint.service';
-import { AddTaskToSprintModel, CreateSprintModel, MoveTaskToStage } from '@aavantan-app/models';
+import {
+  AddTaskToSprintModel,
+  CreateSprintModel,
+  GetAllSprintRequestModel,
+  GetSprintByIdRequestModel,
+  MoveTaskToStage
+} from '@aavantan-app/models';
 
 @Controller('sprint')
 @UseGuards(AuthGuard('jwt'))
@@ -23,5 +29,15 @@ export class SprintController {
   @Post('move-task')
   async moveTask(@Body() model: MoveTaskToStage) {
     return await this._sprintService.moveTaskToStage(model);
+  }
+
+  @Post('all')
+  async getAllSprints(@Body() model: GetAllSprintRequestModel) {
+    return await this._sprintService.getAllSprints(model);
+  }
+
+  @Post('get-sprint')
+  async getActiveSprint(@Body() model: GetSprintByIdRequestModel) {
+    return await this._sprintService.getSprintById(model);
   }
 }

@@ -39,7 +39,8 @@ export const sprintSchema = new Schema({
       description: { type: String },
       sequenceNumber: { type: Number },
       addedAt: { type: Date },
-      updatedAt: { type: Date }
+      updatedAt: { type: Date },
+      addedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
     }
   },
   membersCapacity: {
@@ -49,7 +50,8 @@ export const sprintSchema = new Schema({
     workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY }
   },
   createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
+  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+  isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
 // options
@@ -61,6 +63,43 @@ sprintSchema
       return ret;
     }
   });
+
+// virtual
+sprintSchema.virtual('project', {
+  ref: DbCollection.projects,
+  localField: 'projectId',
+  foreignField: '_id'
+});
+
+sprintSchema.virtual('createdBy', {
+  ref: DbCollection.users,
+  localField: 'createdById',
+  foreignField: '_id'
+});
+
+sprintSchema.virtual('updatedBy', {
+  ref: DbCollection.users,
+  localField: 'updatedById',
+  foreignField: '_id'
+});
+
+sprintSchema.virtual('stages.tasks.task', {
+  ref: DbCollection.tasks,
+  localField: 'stages.tasks.taskId',
+  foreignField: '_id'
+});
+
+sprintSchema.virtual('stages.tasks.addedBy', {
+  ref: DbCollection.users,
+  localField: 'stages.tasks.addedById',
+  foreignField: '_id'
+});
+
+sprintSchema.virtual('membersCapacity.user', {
+  ref: DbCollection.users,
+  localField: 'membersCapacity.userId',
+  foreignField: '_id'
+});
 
 // plugins
 sprintSchema

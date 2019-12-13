@@ -2,8 +2,11 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { BaseService } from './base.service';
 import {
   AddTaskToSprintModel,
+  BasePaginatedResponse,
   CreateSprintModel,
   DbCollection,
+  GetAllSprintRequestModel,
+  GetSprintByIdRequestModel,
   MoveTaskToStage,
   Project,
   Sprint,
@@ -31,6 +34,77 @@ export class SprintService extends BaseService<Sprint & Document> {
     private _generalService: GeneralService
   ) {
     super(_sprintModel);
+  }
+
+  /**
+   * get all sprints
+   * with pagination
+   * @param model
+   */
+  public async getAllSprints(model: GetAllSprintRequestModel) {
+    if (!model) {
+      throw new BadRequestException('please add project id');
+    }
+
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
+    // set populate fields
+    model.populate = [{
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }];
+
+    // set selection fields
+    model.select = '_id name startedAt endAt goal projectId sprintStatus createdById';
+
+    const filter = {
+      projectId: this.toObjectId(model.projectId)
+    };
+    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
+    return result;
+  }
+
+  /**
+   * get sprint by sprint id
+   * model: GetSprintByIdRequestModel
+   */
+  public async getSprintById(model: GetSprintByIdRequestModel) {
+    if (!model) {
+      throw new BadRequestException('please add project id');
+    }
+
+    const projectDetails = await this.getProjectDetails(model.projectId);
+
+    const query = this._sprintModel.findOne({
+      _id: model.sprintId,
+      projectId: model.projectId,
+      isDeleted: false
+    });
+
+    query.populate([{
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }, {
+      path: 'updatedBy',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }, {
+      path: 'stages.tasks.addedBy',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }, {
+      path: 'membersCapacity.userId',
+      select: 'emailId userName firstName lastName profilePic -_id',
+      justOne: true
+    }, {
+      path: 'stages.tasks.task',
+      select: 'name displayName description createdBy',
+      justOne: true
+    }]);
+    query.lean();
+    return query;
   }
 
   /**
