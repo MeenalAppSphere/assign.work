@@ -23,7 +23,10 @@ $side-nav-bg :#0B1B31;
 .ant-menu{
   background: $side-nav-bg;
   .ant-menu-item>a{
-    color:#ffffff;
+    color:#6E829C;
+  }
+  .ant-menu-item>a:hover{
+    color:#fff;
   }
 }
 
