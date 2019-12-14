@@ -43,7 +43,7 @@ export class TaskListComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.taskList);
+
   }
 
   public timeLog(item: Task) {

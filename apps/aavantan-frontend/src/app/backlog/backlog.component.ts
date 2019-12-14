@@ -1,5 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DraftSprint, GetAllTaskRequestModel, Sprint, SprintStatusEnum, Task, User } from '@aavantan-app/models';
+import {
+  CreateSprintModel,
+  DraftSprint, GetAllSprintRequestModel,
+  GetAllTaskRequestModel,
+  Project,
+  Sprint,
+  SprintStatusEnum,
+  Task,
+  User
+} from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
@@ -7,6 +16,8 @@ import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
 import { cloneDeep } from 'lodash';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { NzNotificationService } from 'ng-zorro-antd';
+import { SprintService } from '../shared/services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -28,20 +39,28 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public wizardTitle = 'Title';
   public projectTeams: User[] = [];
   public dateFormat = 'mm/dd/yyyy';
-  public sprintData: any;
+  public sprintData: Sprint;
+  public sprintList: Sprint[];
   public teamCapacityModalIsVisible: boolean;
   public getTaskInProcess: boolean;
   public sprintForm: FormGroup;
+  public createdSprintId: string = null;
+  public createSprintInProcess: boolean;
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
-              private _userQuery: UserQuery) {
+              private _userQuery: UserQuery,
+              private _sprintService: SprintService,
+              protected notification: NzNotificationService) {
   }
 
   ngOnInit() {
 
-    this.getAllTask();
+    if(this._generalService.currentProject && this._generalService.currentProject.id) {
+      this.getAllSprint();
+      this.getAllTask();
+    }
 
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -55,16 +74,44 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
 
     this.sprintForm = new FormGroup({
-      title: new FormControl(null, [Validators.required]),
-      duration: new FormControl(null, [Validators.required]),
+      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
+      createdById: new FormControl(this._generalService.user.id, [Validators.required]),
+      name: new FormControl(null, [Validators.required]),
       goal: new FormControl(null, [Validators.required]),
+      sprintStatus: new FormControl(null, []),
+      duration: new FormControl(null, [Validators.required]),
+      startedAt: new FormControl(null, []),
+      endAt: new FormControl(null, []),
     });
-    // dummy sprint wizard data
+
+    // Sprint wizard data
     this.sprintData = {
-      title: 'Sprint 1'
+      name: null,
+      projectId: this._generalService.currentProject.id,
+      createdById: this._generalService.user.id,
+      goal: null,
+      startedAt: null,
+      endAt: null,
+      sprintStatus:null
     };
 
   }
+
+  async getAllSprint(){
+
+    const json: GetAllSprintRequestModel = {
+      projectId: this._generalService.currentProject.id
+    };
+
+    this._sprintService.getAllSprint(json).subscribe(data=>{
+      this.sprintList = data.data.items
+      if(this.sprintList && this.sprintList.length>0){
+        this.sprintData = this.sprintList[0];
+      }
+    });
+
+  }
+
 
   public getAllTask(){
 
@@ -114,13 +161,20 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public editSprint() {
-    console.log(this.sprintForm.getRawValue());
+
+    this.sprintForm.get('name').patchValue(this.sprintData.name);
+    this.sprintForm.get('goal').patchValue(this.sprintData.goal);
+    this.sprintForm.get('startedAt').patchValue(this.sprintData.startedAt);
+    this.sprintForm.get('endAt').patchValue(this.sprintData.endAt);
+    this.sprintForm.get('duration').patchValue([this.sprintData.startedAt,this.sprintData.endAt]);
+
     this.showStartWizard = true;
   }
 
   public cancel(): void {
     this.showStartWizard = false;
     this.wizardIndex = 0;
+    this.sprintForm.reset();
     this.changeContent();
   }
 
@@ -132,12 +186,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public next(): void {
     this.wizardIndex += 1;
     this.changeContent();
-  }
-
-  public done(): void {
-    this.showStartWizard = false;
-    this.wizardIndex = 0;
-    this.sprintData.id = '1';
   }
 
   changeContent(): void {
@@ -156,11 +204,38 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  public createSprint() {
-    console.log('Create Sprint For Tasks ', this.sprintForm.getRawValue());
+  async createSprint() {
 
+    if (this.sprintForm.invalid) {
+      this.notification.error('Error', 'Please check all mandatory fields');
+      return;
+    }
 
+    const sprintForm = this.sprintForm.getRawValue();
 
+    if(sprintForm.duration) {
+      sprintForm.startedAt = sprintForm.duration[0];
+      sprintForm.endAt = sprintForm.duration[1];
+    }
+
+    this.createSprintInProcess = true;
+    const sprint: CreateSprintModel = {
+      sprint : sprintForm
+    };
+
+    try {
+      const createdSprint = await this._sprintService.createSprint(sprint).toPromise();
+
+      this.showStartWizard = false;
+      this.wizardIndex = 0;
+      this.sprintData = createdSprint.data;
+
+      this.createSprintInProcess = false;
+
+    } catch (e) {
+      this.createdSprintId = null;
+      this.createSprintInProcess = false;
+    }
 
   }
 

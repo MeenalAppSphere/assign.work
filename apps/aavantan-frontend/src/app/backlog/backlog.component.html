@@ -22,13 +22,12 @@
 
     <section class="m-b-20">
       <div class="clearfix m-b-5" *ngIf="sprintData && sprintData.id">
-      <label>{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
+      <label>{{sprintData.name}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}}</span></label>
         <span class="float-right" >
           <span class="text-warning">Current Capacity 120hrs</span>
           <span class="p-l-10 p-r-10">|</span>
           <a href="javascript:void(0);" (click)="showTeamCapacity()" class="p-r-10">Edit Capacity </a>
-          <span class="p-l-10 p-r-10">|</span>
-          <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button (click)="editSprint()">Edit {{sprintData.title}}</button>
+          <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button (click)="editSprint()">Edit {{sprintData.name}}</button>
         </span>
       </div>
       <div class="draft-sprint-box" *ngIf="!showStartWizard && sprintData && sprintData.id && draftData && draftData.length===0">
@@ -37,10 +36,10 @@
             [nzNotFoundContent]="contentTpl"
             [nzNotFoundFooter]="footerTpl">
             <ng-template #contentTpl>
-              <span>Select backlog items to move into <strong>{{sprintData.title}}</strong></span>
+              <span>Select backlog items to move into <strong>{{sprintData.name}}</strong></span>
             </ng-template>
             <ng-template #footerTpl>
-              <button nz-button nzSize="small" nzType="primary" (click)="editSprint()">Edit {{sprintData.title}}</button>
+              <button nz-button nzSize="small" nzType="primary" (click)="editSprint()">Edit {{sprintData.name}}</button>
             </ng-template>
           </nz-empty>
       </div>
@@ -77,11 +76,11 @@
 
           <div class="steps-content m-t-15 m-b-15">
             <ng-container *ngIf="wizardIndex===0">
-              <form [formGroup]="sprintForm" (ngSubmit)="createSprint()" autocomplete="off" nz-form>
+              <form [formGroup]="sprintForm" autocomplete="off" nz-form>
                 <div class="offset-md-4 col-md-4 col-sm-12">
                   <nz-form-item>
                     <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
-                    <input nz-input formControlName="title" placeholder="Enter Sprint Title" nzSize="small" maxlength="50"/>
+                    <input nz-input formControlName="name" placeholder="Enter Sprint Title" nzSize="small" maxlength="50"/>
                   </nz-form-item>
                   <nz-form-item>
                     <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
@@ -94,22 +93,22 @@
                     </div>
                   </nz-form-item>
                 </div>
+                <div class="steps-action text-right">
+                  <div nz-row>
+                    <div class="offset-md-4 col-md-4 col-sm-12">
+                      <button class="btn btn-sm btn-default float-left" (click)="cancel()">
+                        <span>Cancel</span>
+                      </button>
+                      <button class="m-l-5" nzType="primary" nzSize="small" (click)="createSprint()" nz-button [nzLoading]="createSprintInProcess">
+                        <span>Save</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </form>
             </ng-container>
           </div>
 
-          <div class="steps-action text-right">
-            <div nz-row>
-              <div class="offset-md-4 col-md-4 col-sm-12">
-                <button class="btn btn-sm btn-default float-left" (click)="cancel()">
-                  <span>Cancel</span>
-                </button>
-                <button class="btn btn-sm btn-success m-l-5" (click)="done()">
-                  <span>Save</span>
-                </button>
-              </div>
-            </div>
-          </div>
         </section>
       </ng-container>
     </section>

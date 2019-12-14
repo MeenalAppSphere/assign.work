@@ -4,10 +4,18 @@ import { TaskState, TaskStore } from '../../../store/task/task.store';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
-import { BaseResponseModel, Sprint } from '@aavantan-app/models';
+import {
+  BasePaginatedResponse,
+  BaseResponseModel,
+  CreateSprintModel,
+  GetAllSprintRequestModel,
+  GetAllTaskRequestModel,
+  Sprint, Task
+} from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
 import { catchError, map } from 'rxjs/operators';
+import { TaskUrls } from '../task/task.url';
 
 @Injectable()
 export class SprintService extends BaseService<TaskStore, TaskState> {
@@ -18,7 +26,7 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     });
   }
 
-  createSprint(sprint: Sprint): Observable<BaseResponseModel<Sprint>> {
+  createSprint(sprint: CreateSprintModel): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.addSprint, sprint).pipe(
       map((res: BaseResponseModel<Sprint>) => {
         this.notification.success('Success', 'Sprint Created Successfully');
@@ -33,6 +41,29 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.getSprint, sprint).pipe(
       map((res: BaseResponseModel<Sprint>) => {
         // this.notification.success('Success', 'Found Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  getAllSprint(sprint: GetAllSprintRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<Sprint>>> {
+    return this._http.post(SprintUrls.getAllSprint, sprint).pipe(
+      map((res: BaseResponseModel<BasePaginatedResponse<Sprint>>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  addTaskToSprint(sprint: Sprint): Observable<BaseResponseModel<Sprint[]>> {
+    return this._http.post(SprintUrls.addTaskToSprint, sprint).pipe(
+      map((res: BaseResponseModel<Sprint[]>) => {
+        this.notification.success('Success', 'Found Successfully');
         return res;
       }),
       catchError(err => {
