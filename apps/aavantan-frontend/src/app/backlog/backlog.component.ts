@@ -157,7 +157,15 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public createSprint() {
-    console.log('Create Sprint For Tasks ', this.draftSprint.ids);
+    console.log('Create Sprint For Tasks ', this.sprintForm.getRawValue());
+
+
+
+
+  }
+
+  public publishSprint() {
+    console.log('Publish Sprint For Tasks ', this.draftSprint.ids);
   }
 
   public showTeamCapacity() {

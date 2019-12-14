@@ -2,9 +2,9 @@
   <div class="row">
 
     <div class="col">
-      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomRight">
-        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button >Sprint 1
-          <i nz-icon nzType="caret-down" class="m-l-10"></i>
+      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">
+        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>Sprint 1
+          <img src="../../../assets/images/arrow-point-to-down.svg" class="p-l-10" height="5"/>
         </button>
       </nz-button-group>
       <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">
@@ -14,11 +14,15 @@
       </nz-dropdown-menu>
     </div>
     <div class="col text-right">
-      <nz-avatar nzText="U" nzSize="" nzTitle="Umesh Kumar" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
-      <nz-avatar nzIcon="user" nzSize="" nzTitle="Pradeep" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
-      <nz-avatar nzIcon="user" class="active-avatar" nzSize="" nzTitle="Sameer" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
-      <nz-avatar nzIcon="user" nzSize="" nzTitle="Vishal" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+      <span>
+        <nz-avatar nzText="U" nzSize="" nzTitle="Umesh Kumar" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
+        <nz-avatar nzIcon="user" nzSize="" nzTitle="Pradeep" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+        <nz-avatar nzIcon="user" class="active-avatar" nzSize="" nzTitle="Sameer" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+        <nz-avatar nzIcon="user" nzSize="" nzTitle="Vishal" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+      </span>
+      <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30">+ Add Task</button>
     </div>
+
   </div>
 </section>
 
@@ -27,7 +31,8 @@
     <div class="row flex-row flex-nowrap">
       <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of tasks; let last">
         <div class="card card-block">
-          <div class="card-header">{{item.name}} <span class="pull-right "><small class="text-muted">Total hours&nbsp;</small>&nbsp;14<i class="pl-3 fa fa-ellipsis-v"></i></span></div>
+          <div class="card-header">{{item.name}} <span class="pull-right">
+            <small class="text-muted font-size-12">Total hours&nbsp;</small>&nbsp;<span class="font-size-14">14</span><i class="pl-3 fa fa-ellipsis-v"></i></span></div>
           <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
           </bs-sortable>
 <!--          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>-->
@@ -42,15 +47,15 @@
 </div>
 
 <ng-template #itemTemplate let-item="item" let-index="index">
-  <div class="task-card" [ngStyle]="{'border-left': '5px solid '+item.value.proirity.color}">
-    <h6 [ngStyle]="{'color': item.value.proirity.color}">{{item.value.proirity.name}}
+  <div class="task-card" [ngStyle]="{'border-left': '4px solid '+ item.value.proirity.color}">
+    <h6 [ngStyle]="{'color': item.value.taskType.color}">#{{item.value.displayName}}
       <span class="float-right duration">{{item.value.createdAt | dateAgo }}</span>
     </h6>
     <div class="task-body">
       <div>
       <a href="" class="task-title">
 <!--        <i [ngStyle]="{'color': item.value.taskType.color}" [nzTitle]="item.value.taskType.name" class="fas fa-circle m-r-10" nz-tooltip></i>-->
-        <span class="font-weight-semibold">{{item.value.taskId}}</span>: {{item.value.name}}
+        {{item.value.name}}
       </a>
       </div>
     </div>

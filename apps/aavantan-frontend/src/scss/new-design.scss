@@ -6,7 +6,12 @@ $theme-blue:#1F71DC;
 $side-nav-bg :#0B1B31;
 $board-card-header: #ebebeb;
 $board-card-body: #ebebeb;
-$color-black:#0F0F0F;
+$color-black:#000000;
+
+/* common */
+.common-layout .page-container .main-content {
+  padding: calc(70px + 10px) 25px 10px 25px;
+}
 
 /* header */
 .header {
@@ -142,7 +147,9 @@ $color-black:#0F0F0F;
 
 /* board page */
 .collaborators-avatar{
-  padding: 20px 0px;
+  padding: 10px 0px 15px 0px;
+  border-bottom: 1px solid #DED9D9;
+  margin-bottom: 20px;
   background: none;
   box-shadow: none;
   .ant-btn:not(.ant-btn-circle):not(.ant-btn-circle-outline).ant-btn-icon-only {
@@ -150,21 +157,21 @@ $color-black:#0F0F0F;
   }
   .ant-avatar{
     cursor: pointer;
-    margin-right: -3px;
+    margin-right: 0px;
     border: 2px solid #e5e5e5;
     font-size: 15px;
     height: 35px;
     width: 35px;
     line-height: 31px;
     &:hover{
-      border: 2px solid #247fe0!important;
+      border: 2px solid $orange-dark!important;
     }
   }
   .ant-avatar-sm > * {
     line-height: 1.8rem;
   }
   .active-avatar{
-    border: 2px solid #247fe0!important;
+    border: 2px solid $orange-dark!important;
   }
 }
 
@@ -182,9 +189,9 @@ $color-black:#0F0F0F;
       float: right;
     }
     .card-header {
-      padding: 3px 10px;
+      padding: 3px 24px 0px 24px;
       line-height: 37px;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
       border:none;
       background: $board-card-header;
@@ -204,29 +211,34 @@ $color-black:#0F0F0F;
       max-height: calc(100vh - 240px);
       overflow: auto;
       background: $board-card-body;
-      padding: 7px;
+      padding: 3px 7px 7px 7px;
       border-radius: 4px;
       border-top-left-radius: 0px;
       border-top-right-radius: 0px;
       .task-card {
         height: 105px;
-        padding: 8px 8px 0px 10px;
+        padding: 8px 10px 0px 10px;
         box-shadow: 1px 1px 3px -2px #a19e9e;
         margin-bottom: 10px;
         border-radius: 4px;
         background: #ffffff;
         h6 {
-          font-size: 10px;
+          font-size: 12px;
+          font-weight: 500;
           margin-bottom: 0px;
         }
         .duration {
-          color: #DEE3EB;
+          font-size: 10px;
+          font-weight: 400;
+          color: #182230;
+          opacity: 0.5;
         }
       }
       .task-body {
         height: 43px;
-        font-size: 13px;
+        font-size: 14px;
         color: $theme-blue;
+        line-height: 21px;
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
@@ -238,8 +250,8 @@ $color-black:#0F0F0F;
       }
       .task-footer {
         margin-top: 10px;
-        height: 20px;
-        font-size: 11px;
+        height: 21px;
+        font-size: 12px;
         color: var(--gray-light);
       }
     }
@@ -255,8 +267,8 @@ $color-black:#0F0F0F;
       }
     }
     .ant-avatar{
-      height: 20px!important;
-      width: 20px!important;
+      height: 16px!important;
+      width: 16px!important;
     }
   }
 }

@@ -15,7 +15,7 @@
         Total Backlogs: {{totalDuration}} hrs
       </button>
       <nz-button-group>
-        <button [disabled]="isDisabledCreateBtn" nzType="primary" nzSize="small" nz-button (click)="createSprint()">Publish Sprint</button>
+        <button [disabled]="isDisabledCreateBtn" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
       </nz-button-group>
     </ng-template>
 
@@ -77,7 +77,7 @@
 
           <div class="steps-content m-t-15 m-b-15">
             <ng-container *ngIf="wizardIndex===0">
-              <form [formGroup]="sprintForm" autocomplete="off" nz-form>
+              <form [formGroup]="sprintForm" (ngSubmit)="createSprint()" autocomplete="off" nz-form>
                 <div class="offset-md-4 col-md-4 col-sm-12">
                   <nz-form-item>
                     <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
