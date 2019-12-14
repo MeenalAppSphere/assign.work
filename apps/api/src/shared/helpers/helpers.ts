@@ -3,7 +3,7 @@
  * @param val
  * ex: '1d 2h 34'
  */
-export const stringToSeconds = (val: string): number => {
+export const stringToSeconds = (val: string = ''): number => {
   // separate given string with space
   const separatedVal = val.trim().split(/\s/);
 
@@ -36,7 +36,7 @@ export const stringToSeconds = (val: string): number => {
 };
 
 
-export const secondsToString = (seconds: number): string => {
+export const secondsToString = (seconds: number = 0): string => {
   if (typeof seconds !== 'number') {
     throw new TypeError('Expected a number');
   }

@@ -6,7 +6,8 @@ import {
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
-  MoveTaskToStage
+  MoveTaskToStage,
+  UpdateSprintMemberWorkingCapacity
 } from '@aavantan-app/models';
 
 @Controller('sprint')
@@ -39,5 +40,10 @@ export class SprintController {
   @Post('get-sprint')
   async getActiveSprint(@Body() model: GetSprintByIdRequestModel) {
     return await this._sprintService.getSprintById(model);
+  }
+
+  @Post('update-working-capacity')
+  async updateMemberWorkingCapacity(@Body() model: UpdateSprintMemberWorkingCapacity) {
+    return await this._sprintService.updateSprintMemberWorkingCapacity(model);
   }
 }

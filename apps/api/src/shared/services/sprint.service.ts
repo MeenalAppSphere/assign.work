@@ -17,12 +17,14 @@ import {
   Task,
   TaskAssigneeMap,
   TaskTimeLog,
+  UpdateSprintMemberWorkingCapacity,
   User
 } from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
+import { stringToSeconds } from '../helpers/helpers';
 
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> {
@@ -476,6 +478,53 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  /**
+   * update member working capacity for sprint
+   * @param model: UpdateSprintMemberWorkingCapacity
+   */
+  public async updateSprintMemberWorkingCapacity(model: UpdateSprintMemberWorkingCapacity) {
+    if (!model || !model.projectId) {
+      throw new BadRequestException('project not found');
+    }
+
+    if (!model.sprintId) {
+      throw new BadRequestException('sprint not found');
+    }
+
+    if (!model.memberId) {
+      throw new BadRequestException('member not found');
+    }
+
+    const projectDetails = await this.getProjectDetails(model.projectId);
+    const isMemberOfProject = projectDetails.members.some(member => member.userId === model.memberId);
+
+    if (!isMemberOfProject) {
+      throw new BadRequestException('Member is not Project Collaborator');
+    }
+
+    const sprintDetails = await this.getSprintDetails(model.sprintId);
+    const memberOfSprintIndex = sprintDetails.membersCapacity.findIndex(memberCapacity => memberCapacity.userId === model.memberId);
+
+    if (memberOfSprintIndex === -1) {
+      throw new BadRequestException('Member is not Part of Sprint');
+    }
+
+    const session = await this._sprintModel.db.startSession();
+    session.startTransaction();
+    try {
+      const updateObject = { $set: { [`membersCapacity.${memberOfSprintIndex}.workingCapacityPerDay`]: stringToSeconds(model.workingCapacityPerDayReadable) } };
+      const updateResult = await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
+      await session.commitTransaction();
+      session.endSession();
+      return updateResult;
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
+
   }
 
   /**
