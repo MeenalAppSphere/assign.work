@@ -217,31 +217,37 @@ export class TaskService extends BaseService<Task & Document> {
     session.startTransaction();
 
     // check if estimated time updated and one have already logged in this task
-    if (model.estimatedTimeReadable && taskDetails.totalLoggedTime > 0) {
-      // estimate time is present then it should be in string parse it to seconds
-      model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
+    if (model.estimatedTimeReadable) {
+      // check if task is in the sprint you can't update estimate
+      if (taskDetails.sprintId) {
+        throw new BadRequestException('task is in sprint you can\'t update estimate time');
+      }
+      if (taskDetails.totalLoggedTime > 0) {
+        // estimate time is present then it should be in string parse it to seconds
+        model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
 
-      // ensure estimated time is changed
-      if (model.estimatedTime !== taskDetails.estimatedTime) {
-        // calculate progress and over progress
-        const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(2));
+        // ensure estimated time is changed
+        if (model.estimatedTime !== taskDetails.estimatedTime) {
+          // calculate progress and over progress
+          const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(2));
 
-        // if process is grater 100 then over time is added
-        // in this case calculate overtime and set remaining time to 0
-        if (progress > 100) {
-          model.progress = 100;
-          model.remainingTime = 0;
-          model.overLoggedTime = taskDetails.totalLoggedTime - model.estimatedTime;
+          // if process is grater 100 then over time is added
+          // in this case calculate overtime and set remaining time to 0
+          if (progress > 100) {
+            model.progress = 100;
+            model.remainingTime = 0;
+            model.overLoggedTime = taskDetails.totalLoggedTime - model.estimatedTime;
 
-          const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(2));
-          model.overProgress = overProgress > 100 ? 100 : overProgress;
-        } else {
-          // normal time logged
-          // set overtime 0 and calculate remaining time
-          model.progress = progress;
-          model.remainingTime = model.estimatedTime - taskDetails.totalLoggedTime;
-          model.overLoggedTime = 0;
-          model.overProgress = 0;
+            const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(2));
+            model.overProgress = overProgress > 100 ? 100 : overProgress;
+          } else {
+            // normal time logged
+            // set overtime 0 and calculate remaining time
+            model.progress = progress;
+            model.remainingTime = model.estimatedTime - taskDetails.totalLoggedTime;
+            model.overLoggedTime = 0;
+            model.overProgress = 0;
+          }
         }
       }
     }
