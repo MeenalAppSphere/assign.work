@@ -4,7 +4,7 @@ import { Sprint, SprintStatusEnum, Task } from '@aavantan-app/models';
 @Component({
   selector: 'aavantan-app-board',
   templateUrl: './board.component.html',
-  styleUrls: ['./board.component.scss']
+  // styleUrls: ['./board.component.scss'] commented du to for new design
 })
 export class BoardComponent implements OnInit {
 

@@ -1,12 +1,7 @@
 <section class="collaborators-avatar">
   <div class="row">
+
     <div class="col">
-    <nz-avatar nzText="U" nzSize="" nzTitle="Umesh Kumar" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
-    <nz-avatar nzIcon="user" nzSize="" nzTitle="Pradeep" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
-    <nz-avatar nzIcon="user" class="active-avatar" nzSize="" nzTitle="Sameer" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
-    <nz-avatar nzIcon="user" nzSize="" nzTitle="Vishal" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
-    </div>
-    <div class="col text-right">
       <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomRight">
         <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button >Sprint 1
           <i nz-icon nzType="caret-down" class="m-l-10"></i>
@@ -18,6 +13,12 @@
         </ul>
       </nz-dropdown-menu>
     </div>
+    <div class="col text-right">
+      <nz-avatar nzText="U" nzSize="" nzTitle="Umesh Kumar" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
+      <nz-avatar nzIcon="user" nzSize="" nzTitle="Pradeep" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+      <nz-avatar nzIcon="user" class="active-avatar" nzSize="" nzTitle="Sameer" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+      <nz-avatar nzIcon="user" nzSize="" nzTitle="Vishal" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+    </div>
   </div>
 </section>
 
@@ -26,7 +27,7 @@
     <div class="row flex-row flex-nowrap">
       <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of tasks; let last">
         <div class="card card-block">
-          <div class="card-header">{{item.name}} <span class="pull-right "><span class="text-warning">Total hours : 14</span><i class="pl-2 fa fa-ellipsis-v"></i></span></div>
+          <div class="card-header">{{item.name}} <span class="pull-right "><small class="text-muted">Total hours&nbsp;</small>&nbsp;14<i class="pl-3 fa fa-ellipsis-v"></i></span></div>
           <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
           </bs-sortable>
 <!--          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>-->
@@ -42,16 +43,20 @@
 
 <ng-template #itemTemplate let-item="item" let-index="index">
   <div class="task-card" [ngStyle]="{'border-left': '5px solid '+item.value.proirity.color}">
+    <h6 [ngStyle]="{'color': item.value.proirity.color}">{{item.value.proirity.name}}
+      <span class="float-right duration">{{item.value.createdAt | dateAgo }}</span>
+    </h6>
     <div class="task-body">
-      <a href="">
-        <i [ngStyle]="{'color': item.value.taskType.color}" [nzTitle]="item.value.taskType.name" class="fas fa-circle m-r-10" nz-tooltip></i>
-<!--        <i class="far fa-arrow-alt-circle-up m-r-5" [ngStyle]="{'color': item.value.taskType.color}"></i>-->
+      <div>
+      <a href="" class="task-title">
+<!--        <i [ngStyle]="{'color': item.value.taskType.color}" [nzTitle]="item.value.taskType.name" class="fas fa-circle m-r-10" nz-tooltip></i>-->
         <span class="font-weight-semibold">{{item.value.taskId}}</span>: {{item.value.name}}
       </a>
+      </div>
     </div>
     <div class="task-footer">
-      <span>{{item.value.createdAt | dateAgo }}</span>
-      <span class="pull-right"><nz-avatar class="m-r-10" nzIcon="user" nzSrc="{{item.value.assigned.profilePic}}" nzShape="circle"></nz-avatar>  {{item.value.assigned.firstName}}<span class="p-l-5 p-r-5">|</span> <a (click)="timeLog(item.value)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
+      <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{item.value.assigned.profilePic}}" nzShape="circle"></nz-avatar>{{item.value.assigned.firstName}}</span>
+      <span class="pull-right"> <a (click)="timeLog(item.value)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
     </div>
   </div>
 </ng-template>

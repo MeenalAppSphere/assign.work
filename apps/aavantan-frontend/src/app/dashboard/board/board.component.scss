@@ -106,3 +106,106 @@
     }
   }
 }
+
+
+/*****************************/
+/******** new design *********/
+/*****************************/
+$brand-default-btn: #dedfe2;
+$border: #dddddd;
+$orange-dark: #FF5757;
+$orange-light:#FF941A;
+$theme-blue:#1F71DC;
+$side-nav-bg :#0B1B31;
+$board-card-header: #DEE3EB;
+$color-black:#0F0F0F;
+/* board page */
+.collaborators-avatar {
+  padding: 20px 0px;
+  background: none;
+  box-shadow: none;
+}
+
+.sprintboard-container {
+  padding: 0px;
+  background: none;
+  .column {
+    margin-right: 20px;
+  }
+  .card-block {
+    width: 281px;
+    border: 1px solid #DEE3EB;
+    border-radius: 5px;
+    .pull-right{
+      float: right;
+    }
+    .card-header {
+      padding: 1px 10px;
+      line-height: 21px;
+      font-size: 14px;
+      font-weight: 500;
+      border:none;
+      background: $board-card-header;
+      color: $color-black;
+      i {
+        font-size: 11px;
+        padding: 9px 0px;
+        line-height: 20px;
+        float: right;
+      }
+      i:hover {
+        cursor: pointer;
+        color: $theme-blue;
+      }
+    }
+    .card-body {
+      max-height: calc(100vh - 240px);
+      overflow: auto;
+      background: #FFFFFF;
+      padding: 7px;
+      border-radius: 4px;
+      .task-card {
+        height: 105px;
+        padding: 8px 8px 0px 10px;
+        box-shadow: 0px 1px 3px -2px #a19e9e;
+        margin-bottom: 10px;
+        border-radius: 4px;
+      }
+      .task-body {
+        height: 60px;
+        font-size: 13px;
+        color: $theme-blue;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical!important;
+        .task-title{
+          color: $color-black;
+        }
+      }
+      .task-footer {
+        margin-top: 10px;
+        height: 20px;
+        font-size: 11px;
+        color: var(--gray-light);
+      }
+    }
+    .card-footer {
+      cursor: pointer;
+      padding: 7px 10px;
+      background: var(--gray-very-light);
+      color: $color-black;
+      border: none;
+      &:hover{
+        background: $theme-blue;
+        color: #ffffff;
+      }
+    }
+    .ant-avatar{
+      height: 20px!important;
+      width: 20px!important;
+    }
+  }
+}
+
