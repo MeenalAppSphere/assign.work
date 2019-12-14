@@ -1,7 +1,67 @@
 $brand-default-btn: #dedfe2;
 $border: #dddddd;
+$orange-dark: #FF5757;
+$orange-light:#FF941A;
+$theme-blue:#1F71DC;
+$side-nav-bg :#0B1B31;
 
 
+/* header */
+.header {
+  border-bottom: 0px solid #edf2f9;
+  box-shadow: 0px 2px 6px #0000000D;
+}
+/* .side-nav */
+.side-nav {
+  background-color: $side-nav-bg;
+  border-right: 0px;
+}
+
+.is-folded .side-nav {
+  width: 70px;
+}
+.ant-menu{
+  background: $side-nav-bg;
+  .ant-menu-item>a{
+    color:#ffffff;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  .is-folded .header .logo {
+    width: 70px;
+  }
+  .common-layout.is-folded .page-container {
+    padding-left: 70px;
+  }
+}
+.ant-menu-inline-collapsed { // collapsed width
+  width: 70px;
+  padding-top: 30px;
+}
+.ant-menu-root.ant-menu-inline{ // full width
+  padding-top: 30px;
+}
+.ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title {
+  padding: 0px!important;
+  text-align: center;
+  background: $side-nav-bg;
+  color: #ffffff;
+}
+.ant-menu-inline .ant-menu-submenu-title {
+  width: calc(100% + 0px)!important;
+}
+.ant-menu-inline-collapsed>.ant-menu-item{
+  padding: 0px!important;
+  text-align: center;
+}
+
+.ant-menu-inline .ant-menu-item:after{
+  border-right: 4px solid #ffffff;
+}
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected a {
+  color: #ffffff;
+}
 .ant-btn {
   border-radius: 25px;
   padding: 0.45rem 1rem!important;
@@ -11,9 +71,9 @@ $border: #dddddd;
   }
 }
 .ant-btn.ant-btn-primary {
-  background: linear-gradient(to top left, #ff512f 0%, #f09819 100%)!important;
+  background: linear-gradient(to top left, $orange-dark  0%, $orange-light 100%)!important;
   &:hover{
-    background: linear-gradient(to top left, #ff512f 30%, #f09819 100%)!important;
+    background: linear-gradient(to top left, $orange-dark 30%, $orange-light 100%)!important;
   }
 }
 
@@ -22,9 +82,9 @@ $border: #dddddd;
 }
 
 .ant-btn.ant-btn-link{
-  border: 1px solid $brand-primary;
+  border: 1px solid $theme-blue;
   background: $white!important;
-  color: $brand-primary;
+  color: $theme-blue;
   padding: 0.45rem 1rem;
 }
 .ant-form-item{
