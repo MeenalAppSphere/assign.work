@@ -63,7 +63,8 @@
 
     <nz-card [nzTitle]="templateTitle" style="min-height:420px; overflow: scroll;">
       <ng-template #templateTitle>
-        {{activeView.title}} <i nz-icon nz-tooltip [nzTitle]="templateTitleText" nzType="info-circle" class="text-info" theme="outline"></i>
+        {{activeView.title}}
+        <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTitle]="templateTitleText"/>
       </ng-template>
       <ng-template #templateTitleText>
         About {{activeView.title}}

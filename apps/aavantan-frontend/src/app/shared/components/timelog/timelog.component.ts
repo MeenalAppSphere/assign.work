@@ -125,7 +125,8 @@ export class TimelogComponent implements OnInit, OnDestroy {
     const rminutes = Math.round(minutes);
     return {
       h: rhours,
-      m: rminutes
+      m: rminutes,
+      readable: rhours+'h '+rminutes+'m'
     };
   }
 

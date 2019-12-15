@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  AddTaskToSprintModel,
   CreateSprintModel,
   DraftSprint, GetAllSprintRequestModel,
   GetAllTaskRequestModel,
   Project,
-  Sprint,
+  Sprint, SprintErrorResponse,
   SprintStatusEnum,
   Task,
   User
@@ -31,21 +32,20 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public memberObj: User;
   public view: String = 'listView';
   public totalDuration: Number = 0;
+  public durationData:any;
   public isDisabledCreateBtn: boolean = true;
   public draftSprint: DraftSprint;
   public draftData: Task[] = [];
-  public showStartWizard: boolean;
-  public wizardIndex = 0;
-  public wizardTitle = 'Title';
+  public sprintModalIsVisible: boolean;
   public projectTeams: User[] = [];
-  public dateFormat = 'mm/dd/yyyy';
   public sprintData: Sprint;
   public sprintList: Sprint[];
   public teamCapacityModalIsVisible: boolean;
   public getTaskInProcess: boolean;
-  public sprintForm: FormGroup;
   public createdSprintId: string = null;
-  public createSprintInProcess: boolean;
+  public publishSprintInProcess: boolean;
+  public AddedTaskToSprintData:any;
+
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -73,17 +73,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.countTotalDuration();
     }
 
-    this.sprintForm = new FormGroup({
-      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
-      createdById: new FormControl(this._generalService.user.id, [Validators.required]),
-      name: new FormControl(null, [Validators.required]),
-      goal: new FormControl(null, [Validators.required]),
-      sprintStatus: new FormControl(null, []),
-      duration: new FormControl(null, [Validators.required]),
-      startedAt: new FormControl(null, []),
-      endAt: new FormControl(null, []),
-    });
-
     // Sprint wizard data
     this.sprintData = {
       name: null,
@@ -106,7 +95,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this._sprintService.getAllSprint(json).subscribe(data=>{
       this.sprintList = data.data.items
       if(this.sprintList && this.sprintList.length>0){
-        this.sprintData = this.sprintList[0];
+         // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
       }
     });
 
@@ -137,6 +126,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
       const duration = ele.estimatedTime ? ele.estimatedTime : 0;
       // @ts-ignore
       this.totalDuration += Number(duration);
+
+      this.durationData = this._generalService.secondsToReadable(Number(this.totalDuration));
+
     });
   }
 
@@ -144,103 +136,64 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.draftSprint = ev;
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
       this.isDisabledCreateBtn = false;
-      this.prepareDraftSprint();
     } else {
       this.isDisabledCreateBtn = true;
     }
+    this.prepareDraftSprint();
   }
 
   public prepareDraftSprint() {
     this.draftData = this.draftSprint.tasks.filter((item) => {
-      return item;
+      if(item.isSelected){
+        return item;
+      }
     });
   }
 
   public startNewSprint() {
-    this.showStartWizard = true;
+    this.sprintModalIsVisible = true;
   }
 
   public editSprint() {
-
-    this.sprintForm.get('name').patchValue(this.sprintData.name);
-    this.sprintForm.get('goal').patchValue(this.sprintData.goal);
-    this.sprintForm.get('startedAt').patchValue(this.sprintData.startedAt);
-    this.sprintForm.get('endAt').patchValue(this.sprintData.endAt);
-    this.sprintForm.get('duration').patchValue([this.sprintData.startedAt,this.sprintData.endAt]);
-
-    this.showStartWizard = true;
+    this.sprintModalIsVisible = true;
   }
 
-  public cancel(): void {
-    this.showStartWizard = false;
-    this.wizardIndex = 0;
-    this.sprintForm.reset();
-    this.changeContent();
-  }
 
-  public pre(): void {
-    this.wizardIndex -= 1;
-    this.changeContent();
-  }
+  async publishSprint() {
 
-  public next(): void {
-    this.wizardIndex += 1;
-    this.changeContent();
-  }
-
-  changeContent(): void {
-    switch (this.wizardIndex) {
-      case 0: {
-        this.wizardTitle = 'Title and Duration';
-        break;
-      }
-      case 1: {
-        this.wizardTitle = 'Team';
-        break;
-      }
-      default: {
-        this.wizardTitle = 'error';
-      }
-    }
-  }
-
-  async createSprint() {
-
-    if (this.sprintForm.invalid) {
-      this.notification.error('Error', 'Please check all mandatory fields');
-      return;
-    }
-
-    const sprintForm = this.sprintForm.getRawValue();
-
-    if(sprintForm.duration) {
-      sprintForm.startedAt = sprintForm.duration[0];
-      sprintForm.endAt = sprintForm.duration[1];
-    }
-
-    this.createSprintInProcess = true;
-    const sprint: CreateSprintModel = {
-      sprint : sprintForm
-    };
+    console.log('Publish Sprint For Tasks ', this.draftSprint.ids);
 
     try {
-      const createdSprint = await this._sprintService.createSprint(sprint).toPromise();
 
-      this.showStartWizard = false;
-      this.wizardIndex = 0;
-      this.sprintData = createdSprint.data;
+      const sprintData : AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        tasks : this.draftSprint.ids
+      }
 
-      this.createSprintInProcess = false;
+      this.publishSprintInProcess = true;
+      const createdSprint = await this._sprintService.addTaskToSprint(sprintData).toPromise();
+      this.AddedTaskToSprintData = (createdSprint.data instanceof SprintErrorResponse);
+      if(this.AddedTaskToSprintData.tasksErrors && this.AddedTaskToSprintData.tasksErrors.length>0){
+
+        for(let i=0; i<this.draftData.length; i++){
+          for(let j=0; j<this.AddedTaskToSprintData.tasksErrors.length; j++){
+            if(this.draftData[i].id===this.AddedTaskToSprintData.tasksErrors[j].id){
+              this.draftData[i].hasError = this.AddedTaskToSprintData.tasksErrors[j].reason;
+            }
+          }
+        }
+
+        this.draftData = cloneDeep(this.draftData);
+
+      }
+      this.publishSprintInProcess = false;
 
     } catch (e) {
       this.createdSprintId = null;
-      this.createSprintInProcess = false;
+      this.publishSprintInProcess = false;
     }
 
-  }
-
-  public publishSprint() {
-    console.log('Publish Sprint For Tasks ', this.draftSprint.ids);
   }
 
   public showTeamCapacity() {

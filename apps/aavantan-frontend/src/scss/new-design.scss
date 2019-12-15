@@ -7,10 +7,20 @@ $side-nav-bg :#0B1B31;
 $board-card-header: #ebebeb;
 $board-card-body: #ebebeb;
 $color-black:#000000;
+$color-red:#F82222;
+$color-gray-light: #6E829C;
 
 /* common */
 .common-layout .page-container .main-content {
   padding: calc(70px + 10px) 25px 10px 25px;
+}
+
+.ant-card-small>.ant-card-head {
+  padding: 6px 24px;
+  font-size: 18px;
+}
+.ant-card-small>.ant-card-body {
+  padding: 24px;
 }
 
 /* header */
@@ -77,6 +87,7 @@ $color-black:#000000;
   min-width: 80px;
   padding: 0.45rem 1rem!important;
   border: 0px;
+  font-weight: 300;
   &:hover {
     box-shadow: 0px 3px 4px -2px #9b9b9b;
   }
@@ -98,6 +109,11 @@ $color-black:#000000;
   color: $theme-blue;
   padding: 0.45rem 1rem;
 }
+
+.btn-medium {
+  height: 38px;
+}
+
 .ant-form-item{
   .ant-btn.ant-btn-default{
     background: $white!important;
@@ -114,6 +130,7 @@ $color-black:#000000;
 .ddls-btn i{
   font-size: 10px;
   top: 8px;
+  right: 7px;
 }
 .p-0{
   padding: 0px;
@@ -273,3 +290,47 @@ $color-black:#000000;
     }
   }
 }
+
+
+/* backlog page */
+.draft-sprint-box {
+  .ant-empty{
+    margin: 0px;
+  }
+  .ant-empty-image {
+    display: none !important;
+  }
+
+  .ant-empty-description {
+    margin-top: 33px !important;
+    color:$color-black;
+  }
+
+  .ant-empty-footer {
+    margin-top: 10px;
+  }
+}
+
+/* task-list */
+.ant-table-thead > tr > th {
+  color: $color-gray-light;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.96px;
+  padding: 13px 8px!important;
+}
+
+/* font and text */
+.text-black{
+  color: $color-black!important;
+}
+.text-red{
+  color: $color-red!important;
+}
+.text-gray-light{
+  color: $color-gray-light!important;
+}
+
+
+

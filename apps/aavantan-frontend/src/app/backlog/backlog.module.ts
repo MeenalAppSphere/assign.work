@@ -4,6 +4,7 @@ import { BacklogComponent } from './backlog.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { TeamCapacityComponent } from './components/team-capacity.component';
+import { AddSprintComponent } from './components/add-sprint/add-sprint.component';
 
 const routes: Routes = [
   { path: '', component: BacklogComponent }
@@ -18,7 +19,8 @@ const routes: Routes = [
   exports: [],
   declarations: [
     BacklogComponent,
-    TeamCapacityComponent
+    TeamCapacityComponent,
+    AddSprintComponent
   ]
 })
 export class BacklogModule {

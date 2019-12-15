@@ -23,6 +23,7 @@ export class TaskListComponent implements OnInit {
   @Input() public showLogOption: Boolean = true;
   @Input() public showCheckboxOption: Boolean = false;
   @Input() public showProgressOption: Boolean = true;
+  @Input() public showSorting: Boolean = false;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
@@ -36,14 +37,15 @@ export class TaskListComponent implements OnInit {
   public tasksSelected: DraftSprint = {
     ids: [],
     tasks: [],
-    duration: 0
+    duration: 0,
+    durationReadable:""
   };
 
   constructor(private router: Router, private _generalService : GeneralService, private _taskService:TaskService) {
   }
 
   ngOnInit() {
-
+    console.log(this.taskList);
   }
 
   public timeLog(item: Task) {
@@ -68,6 +70,7 @@ export class TaskListComponent implements OnInit {
       if(duration){
         this.tasksSelected.duration =
           this.tasksSelected.duration + Number(duration);
+          this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
       }
 
     } else {
@@ -89,6 +92,7 @@ export class TaskListComponent implements OnInit {
       if(duration){
         this.tasksSelected.duration =
           this.tasksSelected.duration - Number(duration);
+          this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
       }
 
     }

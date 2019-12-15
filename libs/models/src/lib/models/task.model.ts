@@ -49,6 +49,7 @@ export class Task {
   updatedAt?: Date;
   isSelected?: boolean;
   watchersDetails?: User[];
+  hasError?:string;
 }
 
 export class TaskComments {

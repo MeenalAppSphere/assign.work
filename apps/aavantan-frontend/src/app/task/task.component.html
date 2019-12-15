@@ -66,8 +66,8 @@
                         <nz-form-item>
                             <nz-form-label nzFor="taskType">Status</nz-form-label>
                             <nz-form-control class="issue-type-btn-grp">
-                                <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight">
-                                    <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button>
+                                <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight" style="width:100%!important;">
+                                    <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width:100%!important;">
                                 {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}} <i nz-icon nzType="caret-down" theme="outline"></i>
                               </button>
                                 </nz-button-group>
@@ -85,9 +85,10 @@
                         <nz-form-item>
                             <nz-form-label>Priority</nz-form-label>
                             <nz-form-control class="issue-type-btn-grp">
-                                <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzPlacement="bottomRight">
-                                    <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button>
+                                <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzPlacement="bottomRight" style="width:100%!important;">
+                                    <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width:100%!important;">
                                   <span class="fas fa-square m-r-5" [ngStyle]="{'color': selectedPriority && selectedPriority.color ? selectedPriority.color :'#f3f3f3'}"></span> {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
+                                      <i nz-icon nzType="caret-down" theme="outline"></i>
                                 </button>
                                 </nz-button-group>
                                 <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
@@ -289,11 +290,11 @@
                       <nz-form-label>Estimate Time</nz-form-label>
                       <nz-form-control class="estimate-box">
                         <div>
-                          <input nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3h" />
+                          <input nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3" />
                           <span>Hrs</span>
                         </div>
                         <div>
-                          <input nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30m" />
+                          <input nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30" />
                           <span>Mins</span>
                         </div>
                       </nz-form-control>
