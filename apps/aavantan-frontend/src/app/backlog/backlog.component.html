@@ -35,11 +35,11 @@
 
           <span class="float-right font-weight-light" >
             <a href="javascript:void(0);" (click)="editSprint()" class="p-r-25">Edit Sprint </a>
-            <a href="javascript:void(0);" (click)="showTeamCapacity()">Edit Capacity </a>
+            <a href="javascript:void(0);" (click)="toggleTeamCapacity()">Edit Capacity </a>
           </span>
 
       </div>
-      <div class="draft-sprint-box" *ngIf="!sprintModalIsVisible && sprintData && sprintData.id && draftData && draftData.length===0">
+      <div class="draft-sprint-box" *ngIf="sprintData && sprintData.id && draftData && draftData.length===0">
           <nz-empty
             [nzNotFoundImage]="false"
             [nzNotFoundContent]="contentTpl"
@@ -64,7 +64,7 @@
             ></aavantan-task-list>
         </div>
       </ng-container>
-      <ng-container *ngIf="!sprintModalIsVisible && sprintData && !sprintData.id && draftData && draftData.length===0">
+      <ng-container *ngIf="sprintData && !sprintData.id && draftData && draftData.length===0">
         <nz-empty
           class="draft-sprint-box p-20"
           [nzNotFoundImage]="false"
@@ -74,7 +74,7 @@
             <span class="font-size-16">You have <span class="text-danger">16 task</span> in backlog</span>
           </ng-template>
           <ng-template #footerTpl>
-            <button nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="startNewSprint()">+ Create Sprint</button>
+            <button nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">+ Create Sprint</button>
           </ng-template>
         </nz-empty>
       </ng-container>
@@ -99,11 +99,11 @@
 
 <aavantan-team-capacity
   [teamCapacityModalIsVisible]="teamCapacityModalIsVisible"
-  (toggleShow)="showTeamCapacity()">
+  (toggleShow)="toggleTeamCapacity()">
 </aavantan-team-capacity>
 
 <aavantan-app-add-sprint
   [sprintData]="sprintData"
   [sprintModalIsVisible]="sprintModalIsVisible"
-  (toggleShow)="showTeamCapacity()">
+  (toggleShow)="toggleAddSprint()">
 </aavantan-app-add-sprint>

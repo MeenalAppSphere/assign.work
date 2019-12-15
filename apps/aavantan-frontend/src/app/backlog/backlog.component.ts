@@ -150,8 +150,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
     });
   }
 
-  public startNewSprint() {
-    this.sprintModalIsVisible = true;
+  public toggleAddSprint() {
+    this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
   public editSprint() {
@@ -196,7 +196,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
-  public showTeamCapacity() {
+  public toggleTeamCapacity() {
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 

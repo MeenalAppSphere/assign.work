@@ -16,6 +16,7 @@ export class AddSprintComponent implements OnInit, OnDestroy {
   @Input() public sprintModalIsVisible: boolean = false;
   @Input() public sprintData:Sprint;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
+
   public dateFormat = 'mm/dd/yyyy';
   public sprintForm: FormGroup;
   public createSprintInProcess: boolean;
@@ -88,6 +89,7 @@ export class AddSprintComponent implements OnInit, OnDestroy {
 
 
   handleCancel(): void {
+    this.toggleShow.emit();
     this.sprintModalIsVisible = false;
     this.sprintForm.reset();
   }
