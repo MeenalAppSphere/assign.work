@@ -21,14 +21,15 @@
       margin-top: 10px;
       a {
         text-align: center;
-        background: #ffffff;
+        background: #ffffff!important;
         border: 1px solid #87878a;
         height: 100px;
         min-width: 116px;
-        padding: 25px 5px 5px 5px;
+        padding: 25px 5px 5px 5px!important;
         font-weight: 300;
         font-size: 14px;
         box-shadow: 2px 3px 5px -1px #5f5f5fc4;
+        border-radius: 5px;
         &:hover{
           border: 1px solid #007bff;
           color: #007bff;

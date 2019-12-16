@@ -78,20 +78,26 @@
                     </span>
                 </th>
                 <th style="min-width: 400px; max-width: 40%;">
-                  <span>Title/Task Type</span>
-                  <span class="p-l-10" *ngIf="showSorting">
-                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'name'}"></ng-container>
-                  </span>
+                  <span>Title</span>
+<!--                  <span class="p-l-10" *ngIf="showSorting">-->
+<!--                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'name'}"></ng-container>-->
+<!--                  </span>-->
                 </th>
                 <th class="text-center" *ngIf="showProgressOption">Progress</th>
                 <th class="text-center" width="110">
                   <span>Status</span>
-                  <span class="p-l-10" *ngIf="showSorting">
-                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'status'}"></ng-container>
-                  </span>
+<!--                  <span class="p-l-10" *ngIf="showSorting">-->
+<!--                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'status'}"></ng-container>-->
+<!--                  </span>-->
                 </th>
                 <th class="text-left" width="160">Member</th>
-                <th class="text-right" width="195">Estimate<span *ngIf="showLogOption">/Log Time</span></th>
+              <th class="text-right" width="195">
+                  <span>Estimate</span>
+                  <span *ngIf="showLogOption">/Log Time</span>
+                  <span class="p-l-10" *ngIf="showSorting">
+                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'estimatedTime'}"></ng-container>
+                  </span>
+                </th>
             </tr>
         </thead>
         <tbody>

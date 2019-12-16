@@ -23,6 +23,16 @@ $color-gray-light: #6E829C;
   padding: 24px;
 }
 
+.ant-form-item-label label {
+  color: $color-gray-light;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.12px;
+  font-size: 13px;
+  line-height: 13px;
+  margin-bottom: 2px;
+}
+
 /* header */
 .header {
   border-bottom: 0px solid #edf2f9;

@@ -151,7 +151,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public toggleAddSprint(data?:Sprint) {
-    this.sprintData = data;
+    if(data){
+      this.sprintData = data;
+    }
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
