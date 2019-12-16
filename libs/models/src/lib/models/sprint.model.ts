@@ -70,6 +70,7 @@ export class SprintErrorResponseItem {
 }
 
 export interface DraftSprint {
+  sprintId: string;
   ids: string[];
   tasks: Task[];
   duration: number;

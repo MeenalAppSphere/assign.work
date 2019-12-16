@@ -10,13 +10,11 @@ import {
   BaseResponseModel,
   CreateSprintModel,
   GetAllSprintRequestModel,
-  GetAllTaskRequestModel,
-  Sprint, SprintErrorResponse, Task
+  Sprint, SprintErrorResponse,
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
 import { catchError, map } from 'rxjs/operators';
-import { TaskUrls } from '../task/task.url';
 
 @Injectable()
 export class SprintService extends BaseService<TaskStore, TaskState> {

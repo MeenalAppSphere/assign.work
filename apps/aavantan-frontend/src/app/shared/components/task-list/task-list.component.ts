@@ -10,6 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { TaskService } from '../../services/task/task.service';
+import { NzNotificationService } from 'ng-zorro-antd';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -24,6 +25,7 @@ export class TaskListComponent implements OnInit {
   @Input() public showCheckboxOption: Boolean = false;
   @Input() public showProgressOption: Boolean = true;
   @Input() public showSorting: Boolean = false;
+  @Input() public sprintId: string;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
@@ -35,17 +37,29 @@ export class TaskListComponent implements OnInit {
 
   //backlog page
   public tasksSelected: DraftSprint = {
+    sprintId:null,
     ids: [],
     tasks: [],
     duration: 0,
     durationReadable:""
   };
 
-  constructor(private router: Router, private _generalService : GeneralService, private _taskService:TaskService) {
+  constructor(protected notification: NzNotificationService, private router: Router, private _generalService : GeneralService, private _taskService:TaskService) {
   }
 
   ngOnInit() {
+
+    this.tasksSelected = {
+      sprintId:this.sprintId,
+      ids: [],
+      tasks: [],
+      duration: 0,
+      durationReadable:""
+    };
+
     console.log(this.taskList);
+    console.log(this.tasksSelected);
+
   }
 
   public timeLog(item: Task) {
@@ -61,6 +75,10 @@ export class TaskListComponent implements OnInit {
   }
 
   public selectTaskForSprint(task: Task) {
+    if(!this.tasksSelected.sprintId){
+      this.notification.error('Error', 'Create a new Sprint to add tasks');
+      return;
+    }
     const duration = task.estimatedTime;
     if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 0) {
 

@@ -150,7 +150,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
     });
   }
 
-  public toggleAddSprint() {
+  public toggleAddSprint(data?:Sprint) {
+    this.sprintData = data;
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
@@ -161,7 +162,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   async publishSprint() {
 
-    console.log('Publish Sprint For Tasks ', this.draftSprint.ids);
+    console.log('Publish Sprint For Tasks ', this.draftSprint);
 
     try {
 

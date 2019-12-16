@@ -84,6 +84,18 @@
       <label class="font-size-18"><span class="text-black">Backlogs</span> <small class="p-l-25 font-size-14"><span class="text-gray-light">Total </span><span class="text-black">{{durationData?.readable}}</span></small></label>
       <ng-container *ngIf="allTaskList && allTaskList.length > 0">
         <aavantan-task-list
+          *ngIf="sprintData && sprintData.id"
+          [sprintId]="sprintData.id"
+          [taskByUser]="'all'"
+          [taskList]="allTaskList"
+          [view]="view"
+          [showLogOption]="false"
+          [showCheckboxOption]="true"
+          [showProgressOption]="false"
+          (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
+        ></aavantan-task-list>
+        <aavantan-task-list
+          *ngIf="sprintData && !sprintData.id"
           [taskByUser]="'all'"
           [taskList]="allTaskList"
           [view]="view"
@@ -105,5 +117,5 @@
 <aavantan-app-add-sprint
   [sprintData]="sprintData"
   [sprintModalIsVisible]="sprintModalIsVisible"
-  (toggleShow)="toggleAddSprint()">
+  (toggleShow)="toggleAddSprint($event)">
 </aavantan-app-add-sprint>
