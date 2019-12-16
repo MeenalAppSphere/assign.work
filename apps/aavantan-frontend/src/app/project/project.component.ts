@@ -57,8 +57,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     });
 
-    console.log('My Task', this.myTaskList.length);
-    console.log('All Task', this.allTaskList.length);
+    // console.log('My Task', this.myTaskList.length);
+    // console.log('All Task', this.allTaskList.length);
   }
 
 

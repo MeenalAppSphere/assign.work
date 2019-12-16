@@ -3,6 +3,7 @@ import { Project, ProjectPriority, ProjectStatus } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';
 import { MongoosePaginateQuery } from '../queryOptions';
+import { Sprint } from './sprint.model';
 
 export class Task {
   id?: string;
@@ -34,7 +35,8 @@ export class Task {
   progress?: number;
   overProgress?: number;
   status?: string | ProjectStatus;
-  sprint?: string;
+  sprintId?: string;
+  sprint?: Sprint;
   relatedItemId?: string[];
   relatedItem?: Task[];
   dependentItemId?: string;
@@ -47,6 +49,7 @@ export class Task {
   updatedAt?: Date;
   isSelected?: boolean;
   watchersDetails?: User[];
+  hasError?:string;
 }
 
 export class TaskComments {

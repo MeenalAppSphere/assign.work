@@ -1,10 +1,14 @@
 import { Task } from './task.model';
 import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
+import { Project } from './project.model';
+import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Sprint {
   id?: string;
   name: string;
+  projectId: string;
+  project?: Project;
   createdById: string;
   createdBy?: User;
   updatedById?: string;
@@ -22,14 +26,17 @@ export class SprintStage {
   id: string;
   status: string[];
   tasks: SprintStageTask[];
+  totalEstimation: number;
+  totalEstimationReadable?: string;
 }
 
 export class SprintStageTask {
   taskId: string;
-  description: string;
-  sequenceNumber: string;
+  task?: Task;
+  description?: string;
+  sequenceNumber?: string;
   addedAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
   addedById: string;
   addedBy?: User;
 }
@@ -46,6 +53,7 @@ export class SprintStatus {
 
 export class SprintMembersCapacity {
   userId: string;
+  user?: User;
   workingCapacity: number;
   workingCapacityPerDay?: number;
 }
@@ -56,23 +64,52 @@ export class SprintErrorResponse {
 }
 
 export class SprintErrorResponseItem {
-  name: string;
+  id: string;
+  name?: string;
   reason: SprintErrorEnum;
 }
 
 export interface DraftSprint {
+  sprintId: string;
   ids: string[];
   tasks: Task[];
   duration: number;
+  durationReadable: string;
 }
 
 export class CreateSprintModel {
-  projectId: string;
   sprint: Sprint;
 }
 
-export class AddTaskToSprintModel {
+export class SprintBaseRequest {
   projectId: string;
   sprintId: string;
-  tasks: Task[];
+}
+
+export class AddTaskToSprintModel extends SprintBaseRequest {
+  tasks: string[];
+}
+
+export class MoveTaskToStage extends SprintBaseRequest {
+  stageId: string;
+  taskId: string;
+}
+
+export class TaskAssigneeMap {
+  memberId: string;
+  totalEstimation: number;
+  workingCapacityPerDay: number;
+  alreadyLoggedTime: number;
+}
+
+export class GetAllSprintRequestModel extends MongoosePaginateQuery {
+  projectId: string;
+}
+
+export class GetSprintByIdRequestModel extends SprintBaseRequest {
+}
+
+export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {
+  memberId: string;
+  workingCapacityPerDayReadable: string;
 }

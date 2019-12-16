@@ -10,6 +10,8 @@
   --red: #dc3545;
 }
 
+$body-bg-color:#F8F8F8;
+$text-black:#111111;
 
 .btn-float-new-task{
   position: fixed;
@@ -21,6 +23,10 @@
   color: #fff;
   border: #f28d3e;
   font-weight: 500;
+}
+
+body{
+  background: $body-bg-color;
 }
 
 #logo{ // floral library
@@ -418,7 +424,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 
 .ddls-btn {
   text-align: left;
-  min-width: 130px!important;
+  min-width: 100px!important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

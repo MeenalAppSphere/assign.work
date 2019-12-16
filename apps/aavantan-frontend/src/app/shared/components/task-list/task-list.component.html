@@ -64,53 +64,63 @@
     <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'" nzSize="small">
         <thead>
             <tr>
-                <th class="text-center" width="20" *ngIf="showCheckboxOption">#</th>
-                <th class="text-left" width="90">
+                <th class="text-center" width="20" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId">#</th>
+                <th class="text-left" width="115">
                   <span>Priority</span>
-                  <span class="p-l-10">
+                  <span class="p-l-10" *ngIf="showSorting">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
                   </span>
                 </th>
-                <th>
+                <th class="text-left" width="155">
+                  <span>Task Type</span>
+                  <span class="p-l-10" *ngIf="showSorting">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'taskType'}"></ng-container>
+                    </span>
+                </th>
+                <th style="min-width: 400px; max-width: 40%;">
                   <span>Title/Task Type</span>
-                  <span class="p-l-10">
+                  <span class="p-l-10" *ngIf="showSorting">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'name'}"></ng-container>
                   </span>
                 </th>
                 <th class="text-center" *ngIf="showProgressOption">Progress</th>
-                <th class="text-center">
+                <th class="text-center" width="110">
                   <span>Status</span>
-                  <span class="p-l-10">
+                  <span class="p-l-10" *ngIf="showSorting">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'status'}"></ng-container>
                   </span>
                 </th>
-                <th class="text-left">Member</th>
-                <th class="text-right">Estimate<span *ngIf="showLogOption">/Log Time</span></th>
+                <th class="text-left" width="160">Member</th>
+                <th class="text-right" width="195">Estimate<span *ngIf="showLogOption">/Log Time</span></th>
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let item of listViewTable.data">
-                <td data-label="#" *ngIf="showCheckboxOption" class="text-center">
+            <tr *ngFor="let item of listViewTable.data" [ngClass]="{'tr-has-error': item.hasError}">
+                <td data-label="#" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId" class="text-center">
                     <label nz-checkbox [(ngModel)]="item.isSelected" (nzCheckedChange)="selectTaskForSprint(item)"></label>
                 </td>
 
                 <td data-label="Priority" class="text-left">
                   <span *ngIf="item && item.priority">
-                    <i [ngStyle]="{'border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
+                    <i [ngStyle]="{'border-left':'solid 3px '+item.priority.color+'', 'height':'15px' }"></i>
                   </span>
-                  <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff', 'height':'18px' }"></i>
+                  <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 3px #ffffff', 'height':'15px' }"></i>
                   <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>
                 </td>
-
-                <td data-label="Title" style="width:50%;">
+                <td data-label="Task Type" class="text-left">
+                  <span *ngIf="!item.taskType">-</span>
+                  <span *ngIf="item.taskType && item.taskType.name" [ngStyle]="{'color': item.taskType.color}">#{{item.taskType.name}}</span>
+                </td>
+                <td data-label="Title">
                     <div class="media align-items-center">
-                        <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5"></i>
-                        <div class="m-l-10">
+<!--                        <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5"></i>-->
+                        <div class="">
 
                             <h6 class="m-b-0">
-                                <p class="m-0" style="max-width: 500px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                                    <a href="javascript:void(0)" (click)="viewTask(item)">
-                                      {{item.displayName}}: {{item.name}}
+                                <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
+                                    <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black">
+<!--                                      {{item.displayName}}: -->
+                                      {{item.name}}
                                     </a>
                                 </p>
                             </h6>
@@ -128,9 +138,9 @@
                     <nz-tag class="m-b-0" *ngIf="item.status && item.status && item.status.name === 'In Progress'" [nzColor]="'green'">{{item.status.name}}</nz-tag>
                     <nz-tag class="m-b-0" *ngIf="item.status && item.status && item.status.name !== 'In Progress'" [nzColor]="'orange'">{{item.status.name}}</nz-tag>
                 </td>
-                <td data-label="Members" class="text-left">
+                <td data-label="Members" class="text-left text-black">
                     <span *ngIf="!item.assignee">-</span>
-                    <span *ngIf="item.assignee"> <nz-avatar nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar>{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</span>
+                  <span *ngIf="item.assignee"> <nz-avatar nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar><p class="assignee-name" nz-paragraph nzEllipsis [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
 
                     <!--          <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let itm of (item.assignee ? item.assignee.slice(0,2): [])">-->
                     <!--            <nz-avatar  nzSize="small" [nzSrc]="itm.profilePic" nz-tooltip [nzTitle]="itm.firstName"></nz-avatar>-->
@@ -141,7 +151,7 @@
                     <!--          </a>-->
                 </td>
                 <td data-label="Estimate" class="text-right">
-                    <span>{{item.estimatedTimeReadable }}</span>&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (toggleTimeLogShow)="toggleTimeLog($event, item)" (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                    <span class="text-black">{{item.estimatedTimeReadable}}</span>&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (toggleTimeLogShow)="toggleTimeLog($event, item)" (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
                 </td>
             </tr>
         </tbody>

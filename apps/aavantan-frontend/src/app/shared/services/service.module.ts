@@ -9,6 +9,7 @@ import { UserService } from './user/user.service';
 import { OrganizationService } from './organization/organization.service';
 import { ProjectService } from './project/project.service';
 import { TaskService } from './task/task.service';
+import { SprintService } from './sprint/sprint.service';
 
 @NgModule()
 export class ServiceModule {
@@ -26,7 +27,8 @@ export class ServiceModule {
         UserService,
         OrganizationService,
         ProjectService,
-        TaskService
+        TaskService,
+        SprintService
       ]
     };
   }

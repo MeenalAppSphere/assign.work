@@ -1,5 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DraftSprint, GetAllTaskRequestModel, Sprint, SprintStatusEnum, Task, User } from '@aavantan-app/models';
+import {
+  AddTaskToSprintModel,
+  CreateSprintModel,
+  DraftSprint, GetAllSprintRequestModel,
+  GetAllTaskRequestModel,
+  Project,
+  Sprint, SprintErrorResponse,
+  SprintStatusEnum,
+  Task,
+  User
+} from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
@@ -7,6 +17,8 @@ import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
 import { cloneDeep } from 'lodash';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { NzNotificationService } from 'ng-zorro-antd';
+import { SprintService } from '../shared/services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -20,28 +32,35 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public memberObj: User;
   public view: String = 'listView';
   public totalDuration: Number = 0;
+  public durationData:any;
   public isDisabledCreateBtn: boolean = true;
   public draftSprint: DraftSprint;
   public draftData: Task[] = [];
-  public showStartWizard: boolean;
-  public wizardIndex = 0;
-  public wizardTitle = 'Title';
+  public sprintModalIsVisible: boolean;
   public projectTeams: User[] = [];
-  public dateFormat = 'mm/dd/yyyy';
-  public sprintData: any;
+  public sprintData: Sprint;
+  public sprintList: Sprint[];
   public teamCapacityModalIsVisible: boolean;
   public getTaskInProcess: boolean;
-  public sprintForm: FormGroup;
+  public createdSprintId: string = null;
+  public publishSprintInProcess: boolean;
+  public AddedTaskToSprintData:any;
+
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
-              private _userQuery: UserQuery) {
+              private _userQuery: UserQuery,
+              private _sprintService: SprintService,
+              protected notification: NzNotificationService) {
   }
 
   ngOnInit() {
 
-    this.getAllTask();
+    if(this._generalService.currentProject && this._generalService.currentProject.id) {
+      this.getAllSprint();
+      this.getAllTask();
+    }
 
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -54,17 +73,34 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.countTotalDuration();
     }
 
-    this.sprintForm = new FormGroup({
-      title: new FormControl(null, [Validators.required]),
-      duration: new FormControl(null, [Validators.required]),
-      goal: new FormControl(null, [Validators.required]),
-    });
-    // dummy sprint wizard data
+    // Sprint wizard data
     this.sprintData = {
-      title: 'Sprint 1'
+      name: null,
+      projectId: this._generalService.currentProject.id,
+      createdById: this._generalService.user.id,
+      goal: null,
+      startedAt: null,
+      endAt: null,
+      sprintStatus:null
     };
 
   }
+
+  async getAllSprint(){
+
+    const json: GetAllSprintRequestModel = {
+      projectId: this._generalService.currentProject.id
+    };
+
+    this._sprintService.getAllSprint(json).subscribe(data=>{
+      this.sprintList = data.data.items
+      if(this.sprintList && this.sprintList.length>0){
+         // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
+      }
+    });
+
+  }
+
 
   public getAllTask(){
 
@@ -90,6 +126,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
       const duration = ele.estimatedTime ? ele.estimatedTime : 0;
       // @ts-ignore
       this.totalDuration += Number(duration);
+
+      this.durationData = this._generalService.secondsToReadable(Number(this.totalDuration));
+
     });
   }
 
@@ -97,70 +136,68 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.draftSprint = ev;
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
       this.isDisabledCreateBtn = false;
-      this.prepareDraftSprint();
     } else {
       this.isDisabledCreateBtn = true;
     }
+    this.prepareDraftSprint();
   }
 
   public prepareDraftSprint() {
     this.draftData = this.draftSprint.tasks.filter((item) => {
-      return item;
+      if(item.isSelected){
+        return item;
+      }
     });
   }
 
-  public startNewSprint() {
-    this.showStartWizard = true;
+  public toggleAddSprint(data?:Sprint) {
+    this.sprintData = data;
+    this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
   public editSprint() {
-    console.log(this.sprintForm.getRawValue());
-    this.showStartWizard = true;
+    this.sprintModalIsVisible = true;
   }
 
-  public cancel(): void {
-    this.showStartWizard = false;
-    this.wizardIndex = 0;
-    this.changeContent();
-  }
 
-  public pre(): void {
-    this.wizardIndex -= 1;
-    this.changeContent();
-  }
+  async publishSprint() {
 
-  public next(): void {
-    this.wizardIndex += 1;
-    this.changeContent();
-  }
+    console.log('Publish Sprint For Tasks ', this.draftSprint);
 
-  public done(): void {
-    this.showStartWizard = false;
-    this.wizardIndex = 0;
-    this.sprintData.id = '1';
-  }
+    try {
 
-  changeContent(): void {
-    switch (this.wizardIndex) {
-      case 0: {
-        this.wizardTitle = 'Title and Duration';
-        break;
+      const sprintData : AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        tasks : this.draftSprint.ids
       }
-      case 1: {
-        this.wizardTitle = 'Team';
-        break;
+
+      this.publishSprintInProcess = true;
+      const createdSprint = await this._sprintService.addTaskToSprint(sprintData).toPromise();
+      this.AddedTaskToSprintData = (createdSprint.data instanceof SprintErrorResponse);
+      if(this.AddedTaskToSprintData.tasksErrors && this.AddedTaskToSprintData.tasksErrors.length>0){
+
+        for(let i=0; i<this.draftData.length; i++){
+          for(let j=0; j<this.AddedTaskToSprintData.tasksErrors.length; j++){
+            if(this.draftData[i].id===this.AddedTaskToSprintData.tasksErrors[j].id){
+              this.draftData[i].hasError = this.AddedTaskToSprintData.tasksErrors[j].reason;
+            }
+          }
+        }
+
+        this.draftData = cloneDeep(this.draftData);
+
       }
-      default: {
-        this.wizardTitle = 'error';
-      }
+      this.publishSprintInProcess = false;
+
+    } catch (e) {
+      this.createdSprintId = null;
+      this.publishSprintInProcess = false;
     }
+
   }
 
-  public createSprint() {
-    console.log('Create Sprint For Tasks ', this.draftSprint.ids);
-  }
-
-  public showTeamCapacity() {
+  public toggleTeamCapacity() {
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 

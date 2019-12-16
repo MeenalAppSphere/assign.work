@@ -1,0 +1,38 @@
+<nz-modal [(nzVisible)]="sprintModalIsVisible" [nzTitle]="titleTemp" nzClassName="sprint-modal" nzFooter="nzModalFooter" nzWidth="600" nzClosable="false">
+  <form [formGroup]="sprintForm" autocomplete="off" nz-form>
+    <ng-container>
+      <section class="draft-sprint-box">
+
+        <div class="steps-content m-t-15 m-b-15">
+
+              <div class="offset-md-3 col-md-6 col-sm-12">
+                <nz-form-item>
+                  <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input formControlName="name" placeholder="Enter Sprint Title" nzSize="small" maxlength="50"/>
+                </nz-form-item>
+                <nz-form-item>
+                  <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input formControlName="goal" placeholder="Enter Sprint Goal" nzSize="small" maxlength="100"/>
+                </nz-form-item>
+                <nz-form-item>
+                  <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
+                  <div class="sprint-duration-datepicker">
+                    <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
+                  </div>
+                </nz-form-item>
+              </div>
+
+        </div>
+
+      </section>
+    </ng-container>
+
+    <div *nzModalFooter>
+      <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button nz-button nzSize="small" nzType="primary" [disabled]="sprintForm.invalid" (click)="createSprint()" [nzLoading]="createSprintInProcess">Save</button>
+    </div>
+    <ng-template #titleTemp>
+      <span>Create Sprint</span>
+    </ng-template>
+  </form>
+</nz-modal>
