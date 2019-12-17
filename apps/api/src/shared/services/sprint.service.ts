@@ -603,6 +603,31 @@ export class SprintService extends BaseService<Sprint & Document> {
 
   }
 
+
+  /**
+   * get un-published sprint details
+   * sptint which is not published yet and it's end date is after today
+   * @param projectId
+   * @returns {Promise<DocumentQuery<(Sprint & Document)[], Sprint & Document> & {}>}
+   */
+  public async getUnPublishSprint(projectId: string) {
+    // project
+    if (!projectId) {
+      throw new BadRequestException('project not found');
+    }
+
+    const projectDetails = await this.getProjectDetails(projectId);
+
+    const queryObjectForUnPublishedSprint = {
+      isDeleted: false,
+      projectId: projectId,
+      endAt: { $gt: moment().startOf('d').toDate() },
+      sprintStatus: { status: { $in: [undefined, null] } }
+    };
+
+    return this._sprintModel.find(queryObjectForUnPublishedSprint);
+  }
+
   /**
    * check whether task is valid or not to add in sprint or move in a stage
    * @param task
