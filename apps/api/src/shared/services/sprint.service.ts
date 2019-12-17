@@ -618,6 +618,7 @@ export class SprintService extends BaseService<Sprint & Document> {
 
     const projectDetails = await this.getProjectDetails(projectId);
 
+    // create query object for sprint
     const queryObjectForUnPublishedSprint = {
       isDeleted: false,
       projectId: projectId,
@@ -625,6 +626,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       sprintStatus: { status: { $in: [undefined, null] } }
     };
 
+    // return founded sprint
     return this._sprintModel.find(queryObjectForUnPublishedSprint);
   }
 
