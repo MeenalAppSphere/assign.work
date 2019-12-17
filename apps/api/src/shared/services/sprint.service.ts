@@ -484,43 +484,62 @@ export class SprintService extends BaseService<Sprint & Document> {
 
   /**
    * update member working capacity for sprint
-   * @param model: UpdateSprintMemberWorkingCapacity
+   * @param model: UpdateSprintMemberWorkingCapacity[]
    */
   public async updateSprintMemberWorkingCapacity(model: UpdateSprintMemberWorkingCapacity) {
     if (!model || !model.projectId) {
       throw new BadRequestException('project not found');
     }
 
+    // check sprint
     if (!model.sprintId) {
       throw new BadRequestException('sprint not found');
     }
 
-    if (!model.memberId) {
-      throw new BadRequestException('member not found');
+    // check capacity object is present or not
+    if (!model.capacity || !model.capacity.length) {
+      throw new BadRequestException('please add at least one member capacity');
     }
 
+    // get project details
     const projectDetails = await this.getProjectDetails(model.projectId);
-    const isMemberOfProject = projectDetails.members.some(member => member.userId === model.memberId);
 
-    if (!isMemberOfProject) {
-      throw new BadRequestException('Member is not Project Collaborator');
+    // check if all members are part of the project
+    const everyMemberThere = model.capacity.every(member => projectDetails.members.some(proejctMember => proejctMember.userId === member.memberId));
+    if (!everyMemberThere) {
+      throw new BadRequestException('One of member is not found in Project!');
     }
 
+    // get sprint details by id
     const sprintDetails = await this.getSprintDetails(model.sprintId);
-    const memberOfSprintIndex = sprintDetails.membersCapacity.findIndex(memberCapacity => memberCapacity.userId === model.memberId);
 
-    if (memberOfSprintIndex === -1) {
-      throw new BadRequestException('Member is not Part of Sprint');
+    // check if all members are part of the sprint
+    const everyMemberThereInSprint = model.capacity.every(member => sprintDetails.membersCapacity.some(proejctMember => proejctMember.userId === member.memberId));
+    if (!everyMemberThereInSprint) {
+      throw new BadRequestException('One of member is not member in Sprint!');
     }
+
+    // update members capacity in sprint details model
+    sprintDetails.membersCapacity.forEach(sprintMember => {
+      const indexOfMemberInRequestedModal = model.capacity.findIndex(capacity => capacity.memberId === sprintMember.userId);
+
+      if (indexOfMemberInRequestedModal > -1) {
+        sprintMember.workingCapacityPerDay = stringToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDayReadable);
+      }
+    });
 
     const session = await this._sprintModel.db.startSession();
     session.startTransaction();
     try {
-      const updateObject = { $set: { [`membersCapacity.${memberOfSprintIndex}.workingCapacityPerDay`]: stringToSeconds(model.workingCapacityPerDayReadable) } };
+      // update object for sprint member capacity
+      const updateObject = { $set: { membersCapacity: sprintDetails.membersCapacity } };
+      // update sprint in database
       const updateResult = await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
       await session.commitTransaction();
       session.endSession();
-      return updateResult;
+
+      // return sprint details
+      return this.findById(model.sprintId);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
