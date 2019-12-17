@@ -226,7 +226,7 @@ export class TaskService extends BaseService<Task & Document> {
         throw new BadRequestException('task is in sprint you can\'t update estimate time');
       }
 
-      // if one time is logged in this task then and then only re calculate task overall progress
+      // if time is logged in this task then and then only re calculate task overall progress
       if (taskDetails.totalLoggedTime > 0) {
 
         // ensure estimated time is changed

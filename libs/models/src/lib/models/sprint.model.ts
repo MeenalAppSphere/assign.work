@@ -109,6 +109,9 @@ export class GetAllSprintRequestModel extends MongoosePaginateQuery {
 export class GetSprintByIdRequestModel extends SprintBaseRequest {
 }
 
+export class PublishSprintModel extends SprintBaseRequest{
+}
+
 export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {
   memberId: string;
   workingCapacityPerDayReadable: string;

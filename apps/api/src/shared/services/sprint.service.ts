@@ -9,11 +9,13 @@ import {
   GetSprintByIdRequestModel,
   MoveTaskToStage,
   Project,
+  PublishSprintModel,
   Sprint,
   SprintErrorEnum,
   SprintErrorResponse,
   SprintErrorResponseItem,
   SprintStage,
+  SprintStatusEnum,
   Task,
   TaskAssigneeMap,
   TaskTimeLog,
@@ -524,6 +526,61 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
       throw e;
     }
+  }
+
+  /**
+   * publish sprint
+   * this will publish a requested sprint
+   * check the basic validation like valid sprint id, valid project id, valid member
+   * then advance validations like start date can not be before today, end date cannot be before today, published date can not be in between sprint start and end date
+   * update sprint status to in progress and send mail to all the sprint members
+   * @param model: PublishSprintModel
+   */
+  public async publishSprint(model: PublishSprintModel) {
+    // basic validation
+
+    // project
+    if (!model || !model.projectId) {
+      throw new BadRequestException('project not found');
+    }
+
+    // sprint
+    if (!model.sprintId) {
+      throw new BadRequestException('sprint not found');
+    }
+
+    const projectDetails = await this.getProjectDetails(model.projectId);
+    const sprintDetails = await this.getSprintDetails(model.sprintId);
+
+    // advance validation
+    const sprintStartDate = moment(sprintDetails.startedAt);
+    const sprintEndDate = moment(sprintDetails.endAt);
+
+    // sprint start date is before today
+    if (sprintStartDate.isBefore(moment(), 'd')) {
+      throw new BadRequestException('Sprint start date is before today!');
+    }
+
+    // sprint end date can not be before today
+    if (sprintEndDate.isBefore(moment(), 'd')) {
+      throw new BadRequestException('Sprint end date is passed!');
+    }
+
+    // update sprint status
+    const updateSprintObject = {
+      status: SprintStatusEnum.inProgress, updatedAt: new Date()
+    };
+
+    // send mail
+
+    try {
+      // update sprint
+      await this._sprintModel.updateOne({ _id: model.sprintId }, { sprintStatus: updateSprintObject });
+      // return sprint details
+      return await this._sprintModel.findById(model.sprintId);
+    } catch (e) {
+      throw e;
+    }
 
   }
 
@@ -592,7 +649,7 @@ export class SprintService extends BaseService<Sprint & Document> {
    * get sprint details by sprint id
    * @param id: string sprint id
    */
-  private async getSprintDetails(id: string) {
+  private async getSprintDetails(id: string): Promise<Sprint> {
     const sprintDetails: Sprint = await this._sprintModel.findById(id).select('name startedAt endAt stages membersCapacity').lean().exec();
 
     if (!sprintDetails) {
