@@ -90,9 +90,7 @@ export class AddSprintComponent implements OnInit, OnDestroy {
 
 
   handleCancel(): void {
-    this.toggleShow.emit();
     this.sprintModalIsVisible = false;
-    this.sprintForm.reset();
   }
 
 }

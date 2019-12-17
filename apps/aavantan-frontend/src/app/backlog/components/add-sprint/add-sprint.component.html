@@ -1,24 +1,31 @@
-<nz-modal [(nzVisible)]="sprintModalIsVisible" [nzTitle]="titleTemp" nzClassName="sprint-modal" nzFooter="nzModalFooter" nzWidth="600" nzClosable="false">
+<nz-modal [(nzVisible)]="sprintModalIsVisible" [nzTitle]="titleTemp" nzClassName="sprint-modal" nzFooter="nzModalFooter" nzWidth="650" nzClosable="false">
   <form [formGroup]="sprintForm" autocomplete="off" nz-form>
     <ng-container>
       <section class="draft-sprint-box">
 
-        <div class="steps-content m-t-15 m-b-15">
+        <div class="steps-content row">
 
-              <div class="offset-md-3 col-md-6 col-sm-12">
+              <div class="col-md-7 col-sm-12">
                 <nz-form-item>
                   <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
                   <input nz-input formControlName="name" placeholder="Enter Sprint Title" nzSize="small" maxlength="50"/>
                 </nz-form-item>
-                <nz-form-item>
-                  <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input formControlName="goal" placeholder="Enter Sprint Goal" nzSize="small" maxlength="100"/>
-                </nz-form-item>
+              </div>
+
+              <div class="col-md-5 col-sm-12">
                 <nz-form-item>
                   <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
                   <div class="sprint-duration-datepicker">
                     <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
                   </div>
+                </nz-form-item>
+              </div>
+
+
+              <div class="col-md-12">
+                <nz-form-item class="no-margin">
+                  <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
+                  <textarea formControlName="goal" nz-input [rows]="3" placeholder="Enter Sprint Goal (max 250 character)" nzSize="small" maxlength="250"></textarea>
                 </nz-form-item>
               </div>
 

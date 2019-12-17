@@ -218,13 +218,16 @@ export class TaskService extends BaseService<Task & Document> {
 
     // check if estimated time updated and one have already logged in this task
     if (model.estimatedTimeReadable) {
+      // estimate time is present then it should be in string parse it to seconds
+      model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
+
       // check if task is in the sprint you can't update estimate
       if (taskDetails.sprintId) {
         throw new BadRequestException('task is in sprint you can\'t update estimate time');
       }
+
+      // if one time is logged in this task then and then only re calculate task overall progress
       if (taskDetails.totalLoggedTime > 0) {
-        // estimate time is present then it should be in string parse it to seconds
-        model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
 
         // ensure estimated time is changed
         if (model.estimatedTime !== taskDetails.estimatedTime) {

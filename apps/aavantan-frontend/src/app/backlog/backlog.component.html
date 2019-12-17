@@ -19,6 +19,8 @@
     </ng-template>
     <ng-template #createSprintBtnTemplate>
 
+      <button nzType="link" nzSize="small" class="btn-medium m-r-10" nz-button (click)="publishSprint()">Save Sprint</button>
+
       <button [disabled]="isDisabledCreateBtn" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" class="btn-medium" nz-button (click)="publishSprint()">Publish Sprint</button>
 
     </ng-template>
@@ -86,6 +88,7 @@
         <aavantan-task-list
           *ngIf="sprintData && sprintData.id"
           [sprintId]="sprintData.id"
+          [showSorting]="true"
           [taskByUser]="'all'"
           [taskList]="allTaskList"
           [view]="view"
@@ -97,6 +100,7 @@
         <aavantan-task-list
           *ngIf="sprintData && !sprintData.id"
           [taskByUser]="'all'"
+          [showSorting]="true"
           [taskList]="allTaskList"
           [view]="view"
           [showLogOption]="false"
