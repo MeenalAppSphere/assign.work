@@ -1,12 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AddTaskToSprintModel,
-  CreateSprintModel,
   DraftSprint, GetAllSprintRequestModel,
   GetAllTaskRequestModel,
-  Project,
   Sprint, SprintErrorResponse,
-  SprintStatusEnum,
   Task,
   User
 } from '@aavantan-app/models';
@@ -16,7 +13,6 @@ import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
 import { cloneDeep } from 'lodash';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 
@@ -27,6 +23,7 @@ import { SprintService } from '../shared/services/sprint/sprint.service';
 })
 export class BacklogComponent implements OnInit, OnDestroy {
   public allTaskList: Task[] = [];
+  public allTaskListBackup: Task[] = [];
   public draftTaskList: Task[] = [];
   public taskObj: Task;
   public memberObj: User;
@@ -45,6 +42,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
   public AddedTaskToSprintData:any;
+
+  public searchValue: string;
+  public searchTaskListInProgress: boolean;
 
 
   constructor(private _generalService: GeneralService,
@@ -95,12 +95,36 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this._sprintService.getAllSprint(json).subscribe(data=>{
       this.sprintList = data.data.items
       if(this.sprintList && this.sprintList.length>0){
-         // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
+         this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
       }
     });
 
   }
 
+
+  public onChangeSearch(value: any): void {
+    this.searchTaskListInProgress = true;
+    this.allTaskList = this.allTaskListBackup;
+    if(value){
+      this.allTaskList = this.allTaskList.filter((ele)=>{
+        let taskTypeName = '';
+        let profileName = '';
+        if(ele.taskType && ele.taskType.name){
+          taskTypeName = ele.taskType.name.toLowerCase();
+        }
+        if(ele.assignee && ele.assignee.firstName || ele.assignee && ele.assignee.lastName){
+          profileName = (ele.assignee.firstName + ' ' +ele.assignee.lastName).toLowerCase();
+        }
+        if(ele.name.toLowerCase().includes(value) || taskTypeName.includes(value) || profileName.includes(value)) {
+          return ele;
+        }
+      });
+    }else{
+      this.allTaskList = this.allTaskListBackup;
+    }
+    this.searchTaskListInProgress = false;
+
+  }
 
   public getAllTask(){
 
@@ -116,6 +140,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
         this.getTaskInProcess=false;
 
         this.allTaskList = cloneDeep(res);
+        this.allTaskListBackup = cloneDeep(res);
 
       }
     });
@@ -156,11 +181,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
-
-  public editSprint() {
-    this.sprintModalIsVisible = true;
-  }
-
 
   async publishSprint() {
 

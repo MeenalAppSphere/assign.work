@@ -2,7 +2,8 @@ $brand-default-btn: #dedfe2;
 $border: #dddddd;
 $orange-dark: #FF5757;
 $orange-light:#FF941A;
-$theme-blue:#1F71DC;
+$theme-blue:#2680EB;
+$theme-blue-hover:#358DEB;
 $side-nav-bg :#0B1B31;
 $board-card-header: #ebebeb;
 $board-card-body: #ebebeb;
@@ -103,9 +104,9 @@ $color-gray-light: #6E829C;
   }
 }
 .ant-btn.ant-btn-primary {
-  background: linear-gradient(to top left, $orange-dark  0%, $orange-light 100%)!important;
+  background: $theme-blue; //linear-gradient(to top left, $orange-dark  0%, $orange-light 100%)!important;
   &:hover{
-    background: linear-gradient(to top left, $orange-dark 30%, $orange-light 100%)!important;
+    background: $theme-blue-hover; //linear-gradient(to top left, $orange-dark 30%, $orange-light 100%)!important;
   }
 }
 
@@ -325,7 +326,7 @@ $color-gray-light: #6E829C;
 .ant-table-thead > tr > th {
   color: $color-gray-light;
   font-size: 13px;
-  font-weight: 400;
+  font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.96px;
   padding: 13px 8px!important;

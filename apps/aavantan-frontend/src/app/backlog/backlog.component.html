@@ -32,11 +32,12 @@
           <span class="font-size-14 font-weight-light">
             <span class="font-size-18 m-r-30 text-black font-weight-normal">{{sprintData.name}}</span>
             <span class="text-success m-r-25" *ngIf="draftSprint && draftSprint.durationReadable"><span>Total</span><span class="p-l-5 font-weight-normal">{{draftSprint?.durationReadable}}</span></span>
+            <span class="text-success m-r-25" *ngIf="draftSprint && draftSprint.durationRemainingReadable"><span>Total Remaining capacity</span><span class="p-l-5 font-weight-normal">{{draftSprint?.durationRemainingReadable}}</span></span>
             <span class="text-gray-light">Capacity <span class="text-black font-weight-normal">120h 30m</span></span>
           </span>
 
           <span class="float-right font-weight-light" >
-            <a href="javascript:void(0);" (click)="editSprint()" class="p-r-25">Edit Sprint </a>
+            <a href="javascript:void(0);" (click)="toggleAddSprint()" class="p-r-25">Edit Sprint </a>
             <a href="javascript:void(0);" (click)="toggleTeamCapacity()">Edit Capacity </a>
           </span>
 
@@ -50,7 +51,7 @@
               <span>Select backlog items to move into <strong>{{sprintData.name}}</strong></span>
             </ng-template>
             <ng-template #footerTpl>
-              <button nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="editSprint()">Edit {{sprintData.name}}</button>
+              <button nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">Edit {{sprintData.name}}</button>
             </ng-template>
           </nz-empty>
       </div>
@@ -83,8 +84,26 @@
 
     </section>
     <section>
-      <label class="font-size-18"><span class="text-black">Backlogs</span> <small class="p-l-25 font-size-14"><span class="text-gray-light">Total </span><span class="text-black">{{durationData?.readable}}</span></small></label>
+
+      <div class="row">
+        <div class="col">
+          <label class="font-size-18"><span class="text-black">Backlogs</span> <small class="p-l-25 font-size-14"><span class="text-gray-light">Total </span><span class="text-black">{{durationData?.readable}}</span></small></label>
+        </div>
+        <div class="col text-right" style="max-width: 320px;">
+
+          <nz-input-group [nzSuffix]="suffixIcon">
+            <input placeholder="Search By Title, Task type, Assignee" nzSize="small" nz-input [(ngModel)]="searchValue" (ngModelChange)="onChangeSearch($event)" style="height:29px;"/>
+          </nz-input-group>
+          <ng-template #suffixIcon>
+            <i nz-icon nzType="search" *ngIf="!searchTaskListInProgress"></i>
+            <i class="fas fa-spin fa-spinner" *ngIf="searchTaskListInProgress"></i>
+          </ng-template>
+
+        </div>
+      </div>
+
       <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+
         <aavantan-task-list
           *ngIf="sprintData && sprintData.id"
           [sprintId]="sprintData.id"
@@ -108,7 +127,15 @@
           [showProgressOption]="false"
           (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
         ></aavantan-task-list>
+
       </ng-container>
+
+      <ng-container *ngIf="allTaskList && allTaskList.length === 0">
+        <div class="text-center text-muted p-t-50 p-t-20">
+          <h3>No Data Found</h3>
+        </div>
+      </ng-container>
+
     </section>
   </nz-card>
 </nz-spin>

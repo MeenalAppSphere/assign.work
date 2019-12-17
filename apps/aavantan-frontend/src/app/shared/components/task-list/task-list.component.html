@@ -101,9 +101,10 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let item of listViewTable.data" [ngClass]="{'tr-has-error': item.hasError}">
+            <tr *ngFor="let item of listViewTable.data">
                 <td data-label="#" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId" class="text-center">
-                    <label nz-checkbox [(ngModel)]="item.isSelected" (nzCheckedChange)="selectTaskForSprint(item)"></label>
+                  <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox [(ngModel)]="item.isSelected" (nzCheckedChange)="selectTaskForSprint(item)"></label>
+                  <label *ngIf="!item.assignee || !item.estimatedTime" nz-checkbox nzTooltipPlacement="rightTop"  nz-tooltip nzTitle="Assignee or Estimated time missing" [(ngModel)]="item.isSelected" [disabled]="!item.assignee || !item.estimatedTime"></label>
                 </td>
 
                 <td data-label="Priority" class="text-left">
@@ -141,8 +142,7 @@
                 </td>
                 <td data-label="Status" class="text-center">
                     <span *ngIf="!item.status">-</span>
-                    <nz-tag class="m-b-0" *ngIf="item.status && item.status && item.status.name === 'In Progress'" [nzColor]="'green'">{{item.status.name}}</nz-tag>
-                    <nz-tag class="m-b-0" *ngIf="item.status && item.status && item.status.name !== 'In Progress'" [nzColor]="'orange'">{{item.status.name}}</nz-tag>
+                    <strong *ngIf="item.status && item.status.name">{{item.status.name}}</strong>
                 </td>
                 <td data-label="Members" class="text-left text-black">
                     <span *ngIf="!item.assignee">-</span>

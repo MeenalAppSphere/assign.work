@@ -41,7 +41,8 @@ export class TaskListComponent implements OnInit {
     ids: [],
     tasks: [],
     duration: 0,
-    durationReadable:""
+    durationReadable:"",
+    durationRemainingReadable:""
   };
 
   constructor(protected notification: NzNotificationService, private router: Router, private _generalService : GeneralService, private _taskService:TaskService) {
@@ -54,7 +55,8 @@ export class TaskListComponent implements OnInit {
       ids: [],
       tasks: [],
       duration: 0,
-      durationReadable:""
+      durationReadable:"",
+      durationRemainingReadable:""
     };
 
     console.log(this.taskList);
@@ -89,6 +91,7 @@ export class TaskListComponent implements OnInit {
         this.tasksSelected.duration =
           this.tasksSelected.duration + Number(duration);
           this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+          this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
       }
 
     } else {
@@ -111,6 +114,7 @@ export class TaskListComponent implements OnInit {
         this.tasksSelected.duration =
           this.tasksSelected.duration - Number(duration);
           this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+        this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
       }
 
     }

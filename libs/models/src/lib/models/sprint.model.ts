@@ -75,6 +75,7 @@ export interface DraftSprint {
   tasks: Task[];
   duration: number;
   durationReadable: string;
+  durationRemainingReadable: string;
 }
 
 export class CreateSprintModel {
