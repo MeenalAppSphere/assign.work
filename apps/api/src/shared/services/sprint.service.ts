@@ -9,11 +9,13 @@ import {
   GetSprintByIdRequestModel,
   MoveTaskToStage,
   Project,
+  PublishSprintModel,
   Sprint,
   SprintErrorEnum,
   SprintErrorResponse,
   SprintErrorResponseItem,
   SprintStage,
+  SprintStatusEnum,
   Task,
   TaskAssigneeMap,
   TaskTimeLog,
@@ -482,49 +484,150 @@ export class SprintService extends BaseService<Sprint & Document> {
 
   /**
    * update member working capacity for sprint
-   * @param model: UpdateSprintMemberWorkingCapacity
+   * @param model: UpdateSprintMemberWorkingCapacity[]
    */
   public async updateSprintMemberWorkingCapacity(model: UpdateSprintMemberWorkingCapacity) {
     if (!model || !model.projectId) {
       throw new BadRequestException('project not found');
     }
 
+    // check sprint
     if (!model.sprintId) {
       throw new BadRequestException('sprint not found');
     }
 
-    if (!model.memberId) {
-      throw new BadRequestException('member not found');
+    // check capacity object is present or not
+    if (!model.capacity || !model.capacity.length) {
+      throw new BadRequestException('please add at least one member capacity');
     }
 
+    // get project details
     const projectDetails = await this.getProjectDetails(model.projectId);
-    const isMemberOfProject = projectDetails.members.some(member => member.userId === model.memberId);
 
-    if (!isMemberOfProject) {
-      throw new BadRequestException('Member is not Project Collaborator');
+    // check if all members are part of the project
+    const everyMemberThere = model.capacity.every(member => projectDetails.members.some(proejctMember => proejctMember.userId === member.memberId));
+    if (!everyMemberThere) {
+      throw new BadRequestException('One of member is not found in Project!');
     }
 
+    // get sprint details by id
     const sprintDetails = await this.getSprintDetails(model.sprintId);
-    const memberOfSprintIndex = sprintDetails.membersCapacity.findIndex(memberCapacity => memberCapacity.userId === model.memberId);
 
-    if (memberOfSprintIndex === -1) {
-      throw new BadRequestException('Member is not Part of Sprint');
+    // check if all members are part of the sprint
+    const everyMemberThereInSprint = model.capacity.every(member => sprintDetails.membersCapacity.some(proejctMember => proejctMember.userId === member.memberId));
+    if (!everyMemberThereInSprint) {
+      throw new BadRequestException('One of member is not member in Sprint!');
     }
+
+    // update members capacity in sprint details model
+    sprintDetails.membersCapacity.forEach(sprintMember => {
+      const indexOfMemberInRequestedModal = model.capacity.findIndex(capacity => capacity.memberId === sprintMember.userId);
+
+      if (indexOfMemberInRequestedModal > -1) {
+        sprintMember.workingCapacityPerDay = stringToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDayReadable);
+      }
+    });
 
     const session = await this._sprintModel.db.startSession();
     session.startTransaction();
     try {
-      const updateObject = { $set: { [`membersCapacity.${memberOfSprintIndex}.workingCapacityPerDay`]: stringToSeconds(model.workingCapacityPerDayReadable) } };
+      // update object for sprint member capacity
+      const updateObject = { $set: { membersCapacity: sprintDetails.membersCapacity } };
+      // update sprint in database
       const updateResult = await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
       await session.commitTransaction();
       session.endSession();
-      return updateResult;
+
+      // return sprint details
+      return this.findById(model.sprintId);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
       throw e;
     }
+  }
 
+  /**
+   * publish sprint
+   * this will publish a requested sprint
+   * check the basic validation like valid sprint id, valid project id, valid member
+   * then advance validations like start date can not be before today, end date cannot be before today, published date can not be in between sprint start and end date
+   * update sprint status to in progress and send mail to all the sprint members
+   * @param model: PublishSprintModel
+   */
+  public async publishSprint(model: PublishSprintModel) {
+    // basic validation
+
+    // project
+    if (!model || !model.projectId) {
+      throw new BadRequestException('project not found');
+    }
+
+    // sprint
+    if (!model.sprintId) {
+      throw new BadRequestException('sprint not found');
+    }
+
+    const projectDetails = await this.getProjectDetails(model.projectId);
+    const sprintDetails = await this.getSprintDetails(model.sprintId);
+
+    // advance validation
+    const sprintStartDate = moment(sprintDetails.startedAt);
+    const sprintEndDate = moment(sprintDetails.endAt);
+
+    // sprint start date is before today
+    if (sprintStartDate.isBefore(moment(), 'd')) {
+      throw new BadRequestException('Sprint start date is before today!');
+    }
+
+    // sprint end date can not be before today
+    if (sprintEndDate.isBefore(moment(), 'd')) {
+      throw new BadRequestException('Sprint end date is passed!');
+    }
+
+    // update sprint status
+    const updateSprintObject = {
+      status: SprintStatusEnum.inProgress, updatedAt: new Date()
+    };
+
+    // send mail
+
+    try {
+      // update sprint
+      await this._sprintModel.updateOne({ _id: model.sprintId }, { sprintStatus: updateSprintObject });
+      // return sprint details
+      return await this._sprintModel.findById(model.sprintId);
+    } catch (e) {
+      throw e;
+    }
+
+  }
+
+
+  /**
+   * get un-published sprint details
+   * sptint which is not published yet and it's end date is after today
+   * @param projectId
+   * @returns {Promise<DocumentQuery<(Sprint & Document)[], Sprint & Document> & {}>}
+   */
+  public async getUnPublishSprint(projectId: string) {
+    // project
+    if (!projectId) {
+      throw new BadRequestException('project not found');
+    }
+
+    const projectDetails = await this.getProjectDetails(projectId);
+
+    // create query object for sprint
+    const queryObjectForUnPublishedSprint = {
+      isDeleted: false,
+      projectId: projectId,
+      endAt: { $gt: moment().startOf('d').toDate() },
+      sprintStatus: { status: { $in: [undefined, null] } }
+    };
+
+    // return founded sprint
+    return this._sprintModel.find(queryObjectForUnPublishedSprint);
   }
 
   /**
@@ -592,7 +695,7 @@ export class SprintService extends BaseService<Sprint & Document> {
    * get sprint details by sprint id
    * @param id: string sprint id
    */
-  private async getSprintDetails(id: string) {
+  private async getSprintDetails(id: string): Promise<Sprint> {
     const sprintDetails: Sprint = await this._sprintModel.findById(id).select('name startedAt endAt stages membersCapacity').lean().exec();
 
     if (!sprintDetails) {
