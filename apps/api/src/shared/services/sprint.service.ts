@@ -581,14 +581,11 @@ export class SprintService extends BaseService<Sprint & Document> {
       isDeleted: false,
       projectId: projectId,
       endAt: { $gt: moment().startOf('d').toDate() },
-      $or: [{
-        // sprintStatus: { $in: [undefined, null] },
-        'sprintStatus.status': { $in: [undefined, null] }
-      }]
+      'sprintStatus.status': { $in: [undefined, null] }
     };
 
     // return founded sprint
-    return this._sprintModel.find(queryObjectForUnPublishedSprint).populate(commonPopulation);
+    return this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(commonPopulation).sort('-createdAt');
   }
 
   /**
