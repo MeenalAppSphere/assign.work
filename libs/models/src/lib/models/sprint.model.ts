@@ -119,6 +119,10 @@ export class GetAllSprintRequestModel extends MongoosePaginateQuery {
   projectId: string;
 }
 
+export class GetUnpublishedRequestModel {
+  projectId: string;
+}
+
 export class GetSprintByIdRequestModel extends SprintBaseRequest {
 }
 

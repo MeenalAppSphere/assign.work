@@ -21,11 +21,12 @@ export class TaskListComponent implements OnInit {
   @Input() public taskByUser: string;
   @Input() public taskList: Task[];
   @Input() public view: string;
-  @Input() public showLogOption: Boolean = true;
-  @Input() public showCheckboxOption: Boolean = false;
-  @Input() public showProgressOption: Boolean = true;
-  @Input() public showSorting: Boolean = false;
+  @Input() public showLogOption: boolean = true;
+  @Input() public showCheckboxOption: boolean = false;
+  @Input() public showProgressOption: boolean = true;
+  @Input() public showSorting: boolean = false;
   @Input() public sprintId: string;
+  @Input() public showRemoveIcon: boolean;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();

@@ -14,7 +14,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 })
 export class AddSprintComponent implements OnInit, OnDestroy {
   @Input() public sprintModalIsVisible: boolean = false;
-  @Input() public sprintData:Sprint;
+  @Input() public sprintData: Sprint;
   @Output() toggleShow: EventEmitter<Sprint> = new EventEmitter<Sprint>();
 
   public dateFormat = 'mm/dd/yyyy';
@@ -83,7 +83,7 @@ export class AddSprintComponent implements OnInit, OnDestroy {
       this.toggleShow.emit(this.sprintData);
 
     } catch (e) {
-      // this.createSprintInProcess = false;
+      this.createSprintInProcess = false;
     }
 
   }

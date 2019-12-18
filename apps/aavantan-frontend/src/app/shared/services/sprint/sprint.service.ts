@@ -9,8 +9,8 @@ import {
   BasePaginatedResponse,
   BaseResponseModel,
   CreateSprintModel,
-  GetAllSprintRequestModel,
-  Sprint, SprintErrorResponse,
+  GetAllSprintRequestModel, GetUnpublishedRequestModel,
+  Sprint, SprintErrorResponse
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
@@ -51,6 +51,16 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
   getAllSprint(sprintData: GetAllSprintRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<Sprint>>> {
     return this._http.post(SprintUrls.getAllSprint, sprintData).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Sprint>>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+  getUnpublishedSprint(sprintData: GetUnpublishedRequestModel): Observable<BaseResponseModel<Sprint>> {
+    return this._http.post(SprintUrls.getUnpublishedSprint, sprintData).pipe(
+      map((res: BaseResponseModel<Sprint>) => {
         return res;
       }),
       catchError(err => {

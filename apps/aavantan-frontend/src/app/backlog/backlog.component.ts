@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AddTaskToSprintModel,
   DraftSprint, GetAllSprintRequestModel,
-  GetAllTaskRequestModel,
+  GetAllTaskRequestModel, GetUnpublishedRequestModel,
   Sprint, SprintErrorResponse,
   Task,
   User
@@ -39,6 +39,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public sprintList: Sprint[];
   public teamCapacityModalIsVisible: boolean;
   public getTaskInProcess: boolean;
+  public gettingUnpublishedInProcess: boolean;
+  public gettingAllSprintInProcess: boolean;
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
   public AddedTaskToSprintData:any;
@@ -58,8 +60,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     if(this._generalService.currentProject && this._generalService.currentProject.id) {
-      this.getAllSprint();
+      // this.getAllSprint();
       this.getAllTask();
+      this.getUnpublishedSprint();
     }
 
     // get current project from store
@@ -87,17 +90,40 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   async getAllSprint(){
+    try {
 
-    const json: GetAllSprintRequestModel = {
-      projectId: this._generalService.currentProject.id
-    };
+      this.gettingAllSprintInProcess = true;
+      const json: GetAllSprintRequestModel = {
+        projectId: this._generalService.currentProject.id
+      };
 
-    this._sprintService.getAllSprint(json).subscribe(data=>{
-      this.sprintList = data.data.items
-      if(this.sprintList && this.sprintList.length>0){
-         this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
+        this._sprintService.getAllSprint(json).subscribe(data=>{
+          this.sprintList = data.data.items
+          if(this.sprintList && this.sprintList.length>0){
+             // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
+          }
+        });
+
+      }catch (e) {
+        this.gettingAllSprintInProcess = false;
       }
-    });
+
+  }
+
+  async getUnpublishedSprint(){
+    this.gettingUnpublishedInProcess=true;
+    try {
+      const json: GetUnpublishedRequestModel = {
+        projectId: this._generalService.currentProject.id
+      };
+
+      this._sprintService.getUnpublishedSprint(json).subscribe(data => {
+        this.sprintData = data.data
+        this.gettingUnpublishedInProcess = false;
+      });
+    }catch (e) {
+      this.gettingUnpublishedInProcess = false;
+    }
 
   }
 
@@ -219,7 +245,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
-  public toggleTeamCapacity() {
+  public toggleTeamCapacity(data?:Sprint) {
+    if(data){
+      this.sprintData = data;
+    }
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 

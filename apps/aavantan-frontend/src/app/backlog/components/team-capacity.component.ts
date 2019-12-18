@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Organization, User } from '@aavantan-app/models';
+import { Organization, Sprint, User } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-team-capacity',
@@ -8,45 +8,27 @@ import { Organization, User } from '@aavantan-app/models';
 })
 export class TeamCapacityComponent implements OnInit {
   @Input() public teamCapacityModalIsVisible: boolean;
+  @Input() public sprintData: Sprint;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
   public response: any;
   public organizations: Organization[];
-  public sprintMembers: User[] = [];
 
   constructor() {}
 
   ngOnInit() {
-    this.sprintMembers = [
-      {
-        id: '1',
-        firstName: 'Pradeep',
-        lastName: 'Kumar',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg',
-        currentOrganizationId: ''
-      },
-      {
-        id: '2',
-        firstName: 'Vishal',
-        lastName: 'Kumar',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg',
-        currentOrganizationId: ''
-      },
-      {
-        id: '3',
-        firstName: 'Aashsih',
-        lastName: 'Patil',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg',
-        currentOrganizationId: ''
-      }
-    ];
+
   }
 
   public saveForm(){
-
+    this.toggleShow.emit(this.sprintData);
   }
+  public calculateTotalCapacity(){
+    for(let i=0; i<this.sprintData.membersCapacity.length;i++){
+      this.sprintData.totalCapacity = this.sprintData.membersCapacity[i].workingCapacity;
+      this.sprintData.totalCapacityReadable = this.sprintData.totalCapacity.toString();
+    }
+  }
+
   public basicModalHandleCancel() {
     this.toggleShow.emit();
   }

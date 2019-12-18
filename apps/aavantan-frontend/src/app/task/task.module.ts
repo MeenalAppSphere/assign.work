@@ -8,6 +8,7 @@ import { ActivityComponent } from './activity/activity.component';
 import { HistoryComponent } from './history/history.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { EditCommentComponent } from './edit-comment/edit-comment.component';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
 
 const routes: Routes = [
   { path: '', component: TaskComponent},
@@ -20,7 +21,8 @@ const routes: Routes = [
     CommonModule,
     SharedModule,
     TypeaheadModule,
-    EditorModule
+    EditorModule,
+    NzPopoverModule
   ],
   exports: [],
   declarations: [

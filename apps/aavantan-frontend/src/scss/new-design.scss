@@ -34,6 +34,11 @@ $color-gray-light: #6E829C;
   margin-bottom: 2px;
 }
 
+.ant-tag{
+  margin: 0px;
+  border:0px;
+}
+
 /* header */
 .header {
   border-bottom: 0px solid #edf2f9;
@@ -331,6 +336,13 @@ $color-gray-light: #6E829C;
   letter-spacing: 0.96px;
   padding: 13px 8px!important;
 }
+.has-missing-data{
+  background: #FFF3F3;
+  td{
+    border-top:1px solid $color-red!important;
+    border-bottom:1px solid $color-red!important;
+  }
+}
 
 /* font and text */
 .text-black{
@@ -342,6 +354,4 @@ $color-gray-light: #6E829C;
 .text-gray-light{
   color: $color-gray-light!important;
 }
-
-
 
