@@ -20,6 +20,17 @@ export class Sprint {
   sprintStatus: SprintStatus;
   stages?: SprintStage[];
   membersCapacity?: SprintMembersCapacity[];
+  totalCapacity?: number;
+  totalCapacityReadable?: string;
+  totalRemainingCapacity?: number;
+  totalRemainingCapacityReadable?: string;
+  totalEstimation?: number;
+  totalEstimationReadable?: string;
+  totalLoggedTime?: number;
+  totalLoggedTimeReadable?: string;
+  totalRemainingTime?: number;
+  totalRemainingTimeReadable?: string;
+  progress?: number;
 }
 
 export class SprintStage {
@@ -56,6 +67,7 @@ export class SprintMembersCapacity {
   user?: User;
   workingCapacity: number;
   workingCapacityPerDay?: number;
+  workingCapacityPerDayReadable?: string;
 }
 
 export class SprintErrorResponse {

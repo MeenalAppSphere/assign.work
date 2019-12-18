@@ -26,7 +26,7 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
-import { stringToSeconds } from '../helpers/helpers';
+import { secondsToString, stringToSeconds } from '../helpers/helpers';
 
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> {
@@ -99,7 +99,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       select: 'emailId userName firstName lastName profilePic -_id',
       justOne: true
     }, {
-      path: 'membersCapacity.userId',
+      path: 'membersCapacity.user',
       select: 'emailId userName firstName lastName profilePic -_id',
       justOne: true
     }, {
@@ -108,7 +108,9 @@ export class SprintService extends BaseService<Sprint & Document> {
       justOne: true
     }]);
     query.lean();
-    return query;
+
+    const sprint = await query.exec();
+    return this.prepareSprintVm(sprint);
   }
 
   /**
@@ -165,14 +167,17 @@ export class SprintService extends BaseService<Sprint & Document> {
     // get project details and check if current user is member of project
     const projectDetails = await this.getProjectDetails(model.sprint.projectId);
 
-    // add all project collaborators as sprint member and add their's work capacity
+    // add all project collaborators as sprint member and add their's work capacity to total capacity
     model.sprint.membersCapacity = [];
+    model.sprint.totalCapacity = 0;
+
     projectDetails.members.forEach(member => {
       model.sprint.membersCapacity.push({
         userId: member.userId,
         workingCapacity: member.workingCapacity,
         workingCapacityPerDay: member.workingCapacityPerDay
       });
+      model.sprint.totalCapacity += member.workingCapacityPerDay;
     });
 
     // create stages array for sprint from project
@@ -346,8 +351,12 @@ export class SprintService extends BaseService<Sprint & Document> {
       }
 
       // now all validations have been completed add task to sprint
+      sprintDetails.totalEstimation = 0;
+
       for (let i = 0; i < taskDetails.length; i++) {
         await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, session);
+
+        sprintDetails.totalEstimation += taskDetails[i].estimatedTime;
 
         sprintDetails.stages[0].totalEstimation += taskDetails[i].estimatedTime;
         sprintDetails.stages[0].tasks.push({
@@ -356,6 +365,10 @@ export class SprintService extends BaseService<Sprint & Document> {
           addedById: this._generalService.userId
         });
       }
+
+      // set total remaining capacity by dividing sprint members totalCapacity - totalEstimation
+      sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
+      sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
 
       // update sprint
       await this.update(model.sprintId, sprintDetails, session);
@@ -519,6 +532,9 @@ export class SprintService extends BaseService<Sprint & Document> {
       throw new BadRequestException('One of member is not member in Sprint!');
     }
 
+    // total working capacity holder variable
+    let totalWorkingCapacity = 0;
+
     // update members capacity in sprint details model
     sprintDetails.membersCapacity.forEach(sprintMember => {
       const indexOfMemberInRequestedModal = model.capacity.findIndex(capacity => capacity.memberId === sprintMember.userId);
@@ -526,6 +542,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       if (indexOfMemberInRequestedModal > -1) {
         sprintMember.workingCapacityPerDay = stringToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDayReadable);
       }
+      totalWorkingCapacity += sprintMember.workingCapacityPerDay;
     });
 
     const session = await this._sprintModel.db.startSession();
@@ -603,10 +620,9 @@ export class SprintService extends BaseService<Sprint & Document> {
 
   }
 
-
   /**
    * get un-published sprint details
-   * sptint which is not published yet and it's end date is after today
+   * sprint which is not published yet and it's end date is after today
    * @param projectId
    * @returns {Promise<DocumentQuery<(Sprint & Document)[], Sprint & Document> & {}>}
    */
@@ -650,6 +666,12 @@ export class SprintService extends BaseService<Sprint & Document> {
       if (!task.estimatedTime) {
         sprintError.reason = SprintErrorEnum.taskNoEstimate;
       }
+
+      // commented out because currently we ony support single sprint
+      // check if task is already in sprint
+      // if (task.sprintId) {
+      //   sprintError.reason = SprintErrorEnum.alreadyInSprint;
+      // }
 
       // if there any error return error
       if (sprintError.reason) {
@@ -702,5 +724,43 @@ export class SprintService extends BaseService<Sprint & Document> {
       throw new NotFoundException('Sprint Not Found');
     }
     return sprintDetails;
+  }
+
+  /**
+   * convert sprint object to it's view model
+   * @param sprint
+   * @returns {Sprint}
+   */
+  private prepareSprintVm(sprint: Sprint): Sprint {
+    // convert total capacity in readable format
+    sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
+
+    // convert estimation time in readable format
+    sprint.totalEstimationReadable = secondsToString(sprint.totalEstimation);
+
+    // calculate total remaining capacity
+    sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation || 0;
+    sprint.totalRemainingCapacityReadable = secondsToString(sprint.totalRemainingCapacity);
+
+    // convert total logged time in readable format
+    sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
+
+    // calculate total remaining time
+    sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
+    sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
+
+    // calculate progress
+    sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(2)) || 0;
+
+    // loop over stages and convert total estimation time to readable format
+    sprint.stages.forEach(stage => {
+      stage.totalEstimationReadable = secondsToString(stage.totalEstimation);
+    });
+
+    // loop over sprint members and convert working capacity to readable format
+    sprint.membersCapacity.forEach(member => {
+      member.workingCapacityPerDayReadable = secondsToString(member.workingCapacityPerDay);
+    });
+    return sprint;
   }
 }

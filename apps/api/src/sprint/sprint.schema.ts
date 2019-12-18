@@ -49,6 +49,9 @@ export const sprintSchema = new Schema({
     workingCapacity: { type: Number, default: DEFAULT_WORKING_CAPACITY },
     workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY }
   },
+  totalCapacity: { type: Number, default: 0 },
+  totalEstimation: { type: Number, default: 0 },
+  totalLoggedTime: { type: Number, default: 0 },
   createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
   isDeleted: { type: Boolean, default: false }
