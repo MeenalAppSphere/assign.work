@@ -46,4 +46,9 @@ export class SprintController {
   async updateMemberWorkingCapacity(@Body() model: UpdateSprintMemberWorkingCapacity) {
     return await this._sprintService.updateSprintMemberWorkingCapacity(model);
   }
+
+  @Post('get-unpublished-sprint')
+  async getUnPublishedSprint(@Body() projectId: string) {
+    return await this._sprintService.getUnPublishSprint(projectId);
+  }
 }
