@@ -477,7 +477,7 @@ export class ProjectService extends BaseService<Project & Document> {
    * @param id: project id
    */
   private async getProjectDetails(id: string): Promise<Project> {
-    if (!this.isValidId(id)) {
+    if (!this.isValidObjectId(id)) {
       throw new NotFoundException('No Project Found');
     }
 
@@ -500,7 +500,7 @@ export class ProjectService extends BaseService<Project & Document> {
    * @param id: organization id
    */
   private async getOrganizationDetails(id: string) {
-    if (!this.isValidId(id)) {
+    if (!this.isValidObjectId(id)) {
       throw new NotFoundException('No Organization Found');
     }
     const organizationDetails: Organization = await this._organizationModel.findById(id).select('members createdBy updatedBy').lean().exec();

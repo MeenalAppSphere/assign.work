@@ -465,10 +465,13 @@ export class TaskService extends BaseService<Task & Document> {
    * @param id: project id
    */
   private async getProjectDetails(id: string): Promise<Project> {
+    if (!this.isValidObjectId(id)) {
+      throw new BadRequestException('Project not found');
+    }
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
     if (!projectDetails) {
-      throw new NotFoundException('No Project Found');
+      throw new NotFoundException('Project not found');
     } else {
       const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
 
@@ -484,10 +487,13 @@ export class TaskService extends BaseService<Task & Document> {
    * @param id: task id
    */
   private async getTaskDetails(id: string): Promise<Task> {
+    if (!this.isValidObjectId(id)) {
+      throw new BadRequestException('Task not found');
+    }
     const taskDetails: Task = await this._taskModel.findById(id).lean().exec();
 
     if (!taskDetails) {
-      throw new NotFoundException('No Task Found');
+      throw new NotFoundException('Task not found');
     }
     return taskDetails;
   }

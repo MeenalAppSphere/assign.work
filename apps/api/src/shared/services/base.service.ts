@@ -133,7 +133,7 @@ export class BaseService<T extends Document> {
     return new Types.ObjectId(id);
   }
 
-  public isValidId(id: string) {
+  public isValidObjectId(id: string) {
     return Types.ObjectId.isValid(id);
   }
 

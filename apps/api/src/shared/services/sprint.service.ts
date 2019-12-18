@@ -46,10 +46,6 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param model
    */
   public async getAllSprints(model: GetAllSprintRequestModel) {
-    if (!model) {
-      throw new BadRequestException('please add project id');
-    }
-
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     // set populate fields
@@ -79,10 +75,6 @@ export class SprintService extends BaseService<Sprint & Document> {
    * model: GetSprintByIdRequestModel
    */
   public async getSprintById(model: GetSprintByIdRequestModel) {
-    if (!model) {
-      throw new BadRequestException('please add project id');
-    }
-
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     const query = this._sprintModel.findOne({
@@ -123,21 +115,10 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param model: CreateSprintModel
    */
   public async createSprint(model: CreateSprintModel) {
-
     // region validations
-
-    // blank model
-    if (!model) {
-      throw new BadRequestException('invalid request');
-    }
-
     // sprint
     if (!model.sprint) {
       throw new BadRequestException('invalid request sprint details missing');
-    }
-
-    if (!model.sprint.projectId) {
-      throw new BadRequestException('Please Select Project First');
     }
 
     // sprint name
@@ -221,16 +202,6 @@ export class SprintService extends BaseService<Sprint & Document> {
    */
   public async addTaskToSprint(model: AddTaskToSprintModel) {
     // region basic validation
-
-    // project id
-    if (!model || !model.projectId) {
-      throw new BadRequestException('Project Not Found');
-    }
-
-    // sprint id
-    if (!model.sprintId) {
-      throw new BadRequestException('Sprint Not Found');
-    }
 
     // tasks array
     if (!model.tasks || !model.tasks.length) {
@@ -395,16 +366,6 @@ export class SprintService extends BaseService<Sprint & Document> {
   public async moveTaskToStage(model: MoveTaskToStage) {
     // region validation
 
-    // project id
-    if (!model || !model.projectId) {
-      throw new BadRequestException('Project not found');
-    }
-
-    // sprint id
-    if (!model.sprintId) {
-      throw new BadRequestException('Sprint not found');
-    }
-
     // stage id
     if (!model.stageId) {
       throw new BadRequestException('Stage not found');
@@ -505,15 +466,6 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param model: UpdateSprintMemberWorkingCapacity[]
    */
   public async updateSprintMemberWorkingCapacity(model: UpdateSprintMemberWorkingCapacity) {
-    if (!model || !model.projectId) {
-      throw new BadRequestException('project not found');
-    }
-
-    // check sprint
-    if (!model.sprintId) {
-      throw new BadRequestException('sprint not found');
-    }
-
     // check capacity object is present or not
     if (!model.capacity || !model.capacity.length) {
       throw new BadRequestException('please add at least one member capacity');
@@ -578,22 +530,10 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param model: PublishSprintModel
    */
   public async publishSprint(model: PublishSprintModel) {
-    // basic validation
-
-    // project
-    if (!model || !model.projectId) {
-      throw new BadRequestException('project not found');
-    }
-
-    // sprint
-    if (!model.sprintId) {
-      throw new BadRequestException('sprint not found');
-    }
-
     const projectDetails = await this.getProjectDetails(model.projectId);
     const sprintDetails = await this.getSprintDetails(model.sprintId);
 
-    // advance validation
+    // validation
     const sprintStartDate = moment(sprintDetails.startedAt);
     const sprintEndDate = moment(sprintDetails.endAt);
 
@@ -699,15 +639,13 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param id: project id
    */
   private async getProjectDetails(id: string): Promise<Project> {
-    try {
-      id = this.toObjectId(id).toHexString();
-    } catch (e) {
-      throw new BadRequestException('Invalid Project Id');
+    if (!this.isValidObjectId(id)) {
+      throw new BadRequestException('Project Not Found');
     }
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
     if (!projectDetails) {
-      throw new NotFoundException('No Project Found');
+      throw new NotFoundException('Project Not Found');
     } else {
       const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
 
@@ -723,6 +661,9 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param id: string sprint id
    */
   private async getSprintDetails(id: string): Promise<Sprint> {
+    if (!this.isValidObjectId(id)) {
+      throw new BadRequestException('Sprint Not Found');
+    }
     const sprintDetails: Sprint = await this._sprintModel.findById(id).select('name startedAt endAt stages membersCapacity').lean().exec();
 
     if (!sprintDetails) {
