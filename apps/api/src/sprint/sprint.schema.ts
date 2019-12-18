@@ -4,9 +4,15 @@ import { DbCollection, SprintStatus } from '@aavantan-app/models';
 import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../shared/helpers/defaultValueConstant';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
+const uniqueValidator = require('mongoose-unique-validator');
 
 export const sprintSchema = new Schema({
-  name: { type: String, required: [true, 'Sprint Name is required'], unique: true },
+  name: {
+    type: String,
+    required: [true, 'Sprint Name is required'],
+    index: { unique: true, partialFilterExpression: { isDeleted: false } },
+    uniqueCaseInsensitive: true
+  },
   startedAt: { type: Date, required: [true, 'Sprint start time is required'] },
   endAt: { type: Date, required: [true, 'Sprint end time is required'] },
   goal: { type: String, required: [true, 'Sprint goal is required'] },
@@ -106,4 +112,6 @@ sprintSchema.virtual('membersCapacity.user', {
 
 // plugins
 sprintSchema
-  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
+  .plugin(uniqueValidator, { message: '{PATH} already exists' })
+;
