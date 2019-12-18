@@ -28,6 +28,28 @@ import { GeneralService } from './general.service';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 
+const commonPopulation = [{
+  path: 'createdBy',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
+  path: 'updatedBy',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
+  path: 'stages.tasks.addedBy',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
+  path: 'membersCapacity.user',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
+  path: 'stages.tasks.task',
+  select: 'name displayName description createdBy',
+  justOne: true
+}];
+
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> {
   constructor(
@@ -83,27 +105,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       isDeleted: false
     });
 
-    query.populate([{
-      path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
-      justOne: true
-    }, {
-      path: 'updatedBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
-      justOne: true
-    }, {
-      path: 'stages.tasks.addedBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
-      justOne: true
-    }, {
-      path: 'membersCapacity.user',
-      select: 'emailId userName firstName lastName profilePic -_id',
-      justOne: true
-    }, {
-      path: 'stages.tasks.task',
-      select: 'name displayName description createdBy',
-      justOne: true
-    }]);
+    query.populate(commonPopulation);
     query.lean();
 
     const sprint = await query.exec();
@@ -188,7 +190,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       const newSprint = await this.create([model.sprint], session);
       await session.commitTransaction();
       session.endSession();
-      return newSprint[0];
+      return this._sprintModel.findById(newSprint[0]['_id']).populate(commonPopulation);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
