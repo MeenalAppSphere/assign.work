@@ -7,6 +7,7 @@ import {
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
   MoveTaskToStage,
+  PublishSprintModel,
   UpdateSprintMemberWorkingCapacity
 } from '@aavantan-app/models';
 
@@ -47,8 +48,13 @@ export class SprintController {
     return await this._sprintService.updateSprintMemberWorkingCapacity(model);
   }
 
+  @Post('publish-sprint')
+  async publishSprint(@Body() model: PublishSprintModel) {
+    return await this._sprintService.publishSprint(model);
+  }
+
   @Post('get-unpublished-sprint')
-  async getUnPublishedSprint(@Body() projectId: string) {
+  async getUnPublishedSprint(@Body('projectId') projectId: string) {
     return await this._sprintService.getUnPublishSprint(projectId);
   }
 }

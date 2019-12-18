@@ -574,11 +574,6 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @returns {Promise<DocumentQuery<(Sprint & Document)[], Sprint & Document> & {}>}
    */
   public async getUnPublishSprint(projectId: string) {
-    // project
-    if (!projectId) {
-      throw new BadRequestException('project not found');
-    }
-
     const projectDetails = await this.getProjectDetails(projectId);
 
     // create query object for sprint
@@ -586,7 +581,10 @@ export class SprintService extends BaseService<Sprint & Document> {
       isDeleted: false,
       projectId: projectId,
       endAt: { $gt: moment().startOf('d').toDate() },
-      sprintStatus: { status: { $in: [undefined, null] } }
+      $or: [{
+        // sprintStatus: { $in: [undefined, null] },
+        'sprintStatus.status': { $in: [undefined, null] }
+      }]
     };
 
     // return founded sprint
