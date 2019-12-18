@@ -590,7 +590,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     };
 
     // return founded sprint
-    return this._sprintModel.find(queryObjectForUnPublishedSprint);
+    return this._sprintModel.find(queryObjectForUnPublishedSprint).populate(commonPopulation);
   }
 
   /**
