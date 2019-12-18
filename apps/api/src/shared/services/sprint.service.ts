@@ -65,7 +65,12 @@ export class SprintService extends BaseService<Sprint & Document> {
     const filter = {
       projectId: this.toObjectId(model.projectId)
     };
-    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
+    const result: BasePaginatedResponse<Sprint> = await this.getAllPaginatedData(filter, model);
+
+    // loop over sprints array and prepare vm object for all sprints
+    result.items.forEach(sprint => {
+      sprint = this.prepareSprintVm(sprint);
+    });
     return result;
   }
 
@@ -753,14 +758,19 @@ export class SprintService extends BaseService<Sprint & Document> {
     sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(2)) || 0;
 
     // loop over stages and convert total estimation time to readable format
-    sprint.stages.forEach(stage => {
-      stage.totalEstimationReadable = secondsToString(stage.totalEstimation);
-    });
+    if (sprint.stages) {
+      sprint.stages.forEach(stage => {
+        stage.totalEstimationReadable = secondsToString(stage.totalEstimation);
+      });
+    }
 
     // loop over sprint members and convert working capacity to readable format
-    sprint.membersCapacity.forEach(member => {
-      member.workingCapacityPerDayReadable = secondsToString(member.workingCapacityPerDay);
-    });
-    return sprint;
+    if (sprint.membersCapacity) {
+      sprint.membersCapacity.forEach(member => {
+        member.workingCapacityPerDayReadable = secondsToString(member.workingCapacityPerDay);
+      });
+      return sprint;
+    }
   }
+
 }
