@@ -27,7 +27,7 @@
 
 
     <section class="m-b-20">
-      <nz-spin nzTip="Getting Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
+      <nz-spin nzTip="Checking Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
         <div class="clearfix m-b-10" *ngIf="sprintData && sprintData.id">
 
             <span class="font-size-14 font-weight-light">
@@ -58,15 +58,18 @@
         </div>
         <ng-container *ngIf="draftData && draftData.length>0">
           <div>
+
               <aavantan-task-list
                 [taskByUser]="'all'"
                 [taskList]="draftData"
+                [sprintId]="sprintData.id"
                 [showRemoveIcon]="true"
                 [view]="view"
                 [showLogOption]="false"
                 [showCheckboxOption]="false"
                 [showProgressOption]="false"
               ></aavantan-task-list>
+
           </div>
         </ng-container>
         <ng-container *ngIf="sprintData && !sprintData.id && draftData && draftData.length===0">

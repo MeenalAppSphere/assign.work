@@ -10,7 +10,7 @@ import {
   BaseResponseModel,
   CreateSprintModel,
   GetAllSprintRequestModel, GetUnpublishedRequestModel,
-  Sprint, SprintErrorResponse
+  Sprint, SprintErrorResponse, UpdateSprintMemberWorkingCapacity
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
@@ -87,4 +87,15 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
+  updateSprintWorkingCapacity(sprintData: UpdateSprintMemberWorkingCapacity): Observable<BaseResponseModel<Sprint>> {
+    return this._http.post(SprintUrls.updateWorkingCapacity, sprintData).pipe(
+      map((res: BaseResponseModel<Sprint>) => {
+        this.notification.success('Success', 'Sprint working capacity updated Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
 }

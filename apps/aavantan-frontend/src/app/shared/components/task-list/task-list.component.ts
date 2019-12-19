@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
+  AddTaskToSprintModel,
   DraftSprint,
-  GetAllTaskRequestModel,
+  GetAllTaskRequestModel, SprintErrorResponse,
   Task,
   TaskFilterDto,
   TaskTimeLogResponse,
@@ -11,6 +12,7 @@ import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { TaskService } from '../../services/task/task.service';
 import { NzNotificationService } from 'ng-zorro-antd';
+import { SprintService } from '../../services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -46,22 +48,34 @@ export class TaskListComponent implements OnInit {
     durationRemainingReadable:""
   };
 
-  constructor(protected notification: NzNotificationService, private router: Router, private _generalService : GeneralService, private _taskService:TaskService) {
+  constructor(protected notification: NzNotificationService,
+              private router: Router,
+              private _generalService : GeneralService,
+              private _sprintService: SprintService,
+              private _taskService:TaskService) {
   }
 
   ngOnInit() {
 
-    this.tasksSelected = {
-      sprintId:this.sprintId,
-      ids: [],
-      tasks: [],
-      duration: 0,
-      durationReadable:"",
-      durationRemainingReadable:""
-    };
+    if(this.taskList && this.taskList.length>0 && this.taskList[0].isSelected){
+      this.taskList.forEach((ele)=>{
+        this.tasksSelected.ids.push(ele.id);
+        this.tasksSelected.tasks.push(ele);
+      })
+      this.tasksSelected.sprintId = this.sprintId;
+    }else{
+      this.tasksSelected = {
+        sprintId:this.sprintId,
+        ids: [],
+        tasks: [],
+        duration: 0,
+        durationReadable:"",
+        durationRemainingReadable:""
+      };
+    }
 
     console.log(this.taskList);
-    console.log(this.tasksSelected);
+    console.log(new Date(),this.tasksSelected);
 
   }
 
@@ -77,6 +91,12 @@ export class TaskListComponent implements OnInit {
     this.router.navigateByUrl("dashboard/task/"+task.displayName);
   }
 
+  public deselectTaskFromSprint(task: Task) {
+    task.isSelected = false;
+    this.selectTaskForSprint(task); // api call to remove task from sprint
+  }
+
+
   public selectTaskForSprint(task: Task) {
     if(!this.tasksSelected.sprintId){
       this.notification.error('Error', 'Create a new Sprint to add tasks');
@@ -89,11 +109,12 @@ export class TaskListComponent implements OnInit {
       this.tasksSelected.ids.push(task.id);
 
       if(duration){
-        this.tasksSelected.duration =
-          this.tasksSelected.duration + Number(duration);
-          this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-          this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+        this.tasksSelected.duration = this.tasksSelected.duration + Number(duration);
+        this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+        this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
       }
+
+      this.addTaskToSprintModel(task); // api call to add task into sprint
 
     } else {
 
@@ -105,21 +126,52 @@ export class TaskListComponent implements OnInit {
         return ele.id !== task.id;
       });
 
-      // this.taskList = this.tasksSelected.tasks.filter(ele => {
-      //   return ele.id !== task.id;
-      // });
-
       task.isSelected = false;
 
       if(duration){
-        this.tasksSelected.duration =
-          this.tasksSelected.duration - Number(duration);
-          this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+        this.tasksSelected.duration = this.tasksSelected.duration - Number(duration);
+        this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
         this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
       }
 
+      this.removeTaskFromSprint(task); // api call to remove task from sprint
+
     }
     this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
+  }
+
+  public addTaskToSprintModel(task:Task){
+
+    try {
+
+      const sprintData : AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.tasksSelected.sprintId,
+        tasks : [task.id]
+      }
+
+      this._sprintService.addTaskToSprint(sprintData).toPromise();
+
+    } catch (e) {
+    }
+
+  }
+
+  public removeTaskFromSprint(task:Task){
+
+    try {
+
+      const sprintData : AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.tasksSelected.sprintId,
+        tasks : [task.id]
+      }
+
+      this._sprintService.addTaskToSprint(sprintData).toPromise();
+
+    } catch (e) {
+    }
+
   }
 
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {

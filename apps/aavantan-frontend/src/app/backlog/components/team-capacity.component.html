@@ -33,7 +33,7 @@
         <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()">
           <span>Cancel</span>
         </button>
-        <button nz-button nzType="primary" nzSize="small" (click)="saveForm()">
+        <button nz-button nzType="primary" nzSize="small" [nzLoading]="isCapacityUpdateInProgress" (click)="saveForm()">
           <span>Save</span>
         </button>
       </div>
