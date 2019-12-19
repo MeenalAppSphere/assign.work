@@ -590,6 +590,7 @@ export class TaskService extends BaseService<Task & Document> {
     task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
     task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
     task.status = projectDetails.settings.status.find(t => t.id === task.status);
+    task.isSelected = !!task.sprintId;
 
     // convert all time keys to string from seconds
     task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
