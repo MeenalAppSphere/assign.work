@@ -28,7 +28,7 @@ import { GeneralService } from './general.service';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 
-const commonPopulation = [{
+const commonPopulationForSprint = [{
   path: 'createdBy',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
@@ -37,11 +37,13 @@ const commonPopulation = [{
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
-  path: 'stages.tasks.addedBy',
+  path: 'membersCapacity.user',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
-}, {
-  path: 'membersCapacity.user',
+}];
+
+const detailedPopulationForSprint = [...commonPopulationForSprint, {
+  path: 'stages.tasks.addedBy',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
@@ -49,6 +51,9 @@ const commonPopulation = [{
   select: 'name displayName description createdBy',
   justOne: true
 }];
+
+const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime createdById updatedById';
+const detailedFiledSelection = `${commonFieldSelection} stages `;
 
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> {
@@ -105,10 +110,10 @@ export class SprintService extends BaseService<Sprint & Document> {
       isDeleted: false
     });
 
-    query.populate(commonPopulation);
+    query.populate(detailedPopulationForSprint);
     query.lean();
 
-    const sprint = await query.exec();
+    const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
     return this.prepareSprintVm(sprint);
   }
 
@@ -190,7 +195,9 @@ export class SprintService extends BaseService<Sprint & Document> {
       const newSprint = await this.create([model.sprint], session);
       await session.commitTransaction();
       session.endSession();
-      return this._sprintModel.findById(newSprint[0]['_id']).populate(commonPopulation);
+
+      const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
+      return this.prepareSprintVm(sprint);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -352,7 +359,9 @@ export class SprintService extends BaseService<Sprint & Document> {
       await this.update(model.sprintId, sprintDetails, session);
       await session.commitTransaction();
       session.endSession();
-      return await this._sprintModel.findById(model.sprintId).lean().populate([]);
+
+      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
+      return this.prepareSprintVm(sprint);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -455,7 +464,9 @@ export class SprintService extends BaseService<Sprint & Document> {
 
       await session.commitTransaction();
       session.endSession();
-      return await this._sprintModel.findById(model.sprintId);
+
+      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, detailedFiledSelection);
+      return this.prepareSprintVm(sprint);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -515,7 +526,8 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       // return sprint details
-      return this.findById(model.sprintId);
+      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
+      return this.prepareSprintVm(sprint);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -560,11 +572,10 @@ export class SprintService extends BaseService<Sprint & Document> {
       // update sprint
       await this._sprintModel.updateOne({ _id: model.sprintId }, { sprintStatus: updateSprintObject });
       // return sprint details
-      return await this._sprintModel.findById(model.sprintId);
+      return 'Sprint Published Successfully';
     } catch (e) {
       throw e;
     }
-
   }
 
   /**
@@ -585,7 +596,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     };
 
     // return founded sprint
-    return this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(commonPopulation).sort('-createdAt');
+    return this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(commonPopulationForSprint).sort('-createdAt');
   }
 
   /**
@@ -656,12 +667,18 @@ export class SprintService extends BaseService<Sprint & Document> {
   /**
    * get sprint details by sprint id
    * @param id: string sprint id
+   * @param populate: population array
+   * @param select: filed selection string
    */
-  private async getSprintDetails(id: string): Promise<Sprint> {
+  private async getSprintDetails(id: string, populate: any[] = [], select: string = detailedFiledSelection): Promise<Sprint> {
     if (!this.isValidObjectId(id)) {
       throw new BadRequestException('Sprint Not Found');
     }
-    const sprintDetails: Sprint = await this._sprintModel.findById(id).select('name startedAt endAt stages membersCapacity').lean().exec();
+    const sprintDetails: Sprint = await this._sprintModel.findOne({ _id: id, isDeleted: false })
+      .populate(populate)
+      .select(select)
+      .lean()
+      .exec();
 
     if (!sprintDetails) {
       throw new NotFoundException('Sprint Not Found');
@@ -675,6 +692,7 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @returns {Sprint}
    */
   private prepareSprintVm(sprint: Sprint): Sprint {
+    sprint.id = sprint['_id'];
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
 
