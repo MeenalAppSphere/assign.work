@@ -111,6 +111,7 @@
                 <td data-label="#" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId" class="text-center">
 
                   <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox [(ngModel)]="item.isSelected" (nzCheckedChange)="selectTaskForSprint(item)"></label>
+
                   <i *ngIf="(tasksSelected && tasksSelected.sprintId) && (!item.assignee || !item.estimatedTime)"
                      class="text-red"
                      nz-icon nz-tooltip nzTitle="Assignee or Estimated time is missing" nzType="exclamation-circle"
@@ -126,7 +127,7 @@
                 </td>
                 <td data-label="Task Type" class="text-left">
                   <span *ngIf="!item.taskType">-</span>
-                  <span *ngIf="item.taskType && item.taskType.name" [ngStyle]="{'color': item.taskType.color}">#{{item.taskType.name}}</span>
+                  <a href="javascript:void(0);" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name" [ngStyle]="{'color': item.taskType.color}">#{{item.displayName}}</a>
                 </td>
                 <td data-label="Title">
                     <div class="media align-items-center">

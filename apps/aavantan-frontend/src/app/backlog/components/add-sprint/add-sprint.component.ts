@@ -42,17 +42,11 @@ export class AddSprintComponent implements OnInit, OnDestroy {
       startedAt: new FormControl(null, []),
       endAt: new FormControl(null, []),
     });
-
-    // Sprint wizard data
-    this.sprintData = {
-      name: null,
-      projectId: this._generalService.currentProject.id,
-      createdById: this._generalService.user.id,
-      goal: null,
-      startedAt: null,
-      endAt: null,
-      sprintStatus:null
-    };
+    if(this.sprintData.name) {
+      this.sprintForm.get('name').patchValue(this.sprintData.name);
+      this.sprintForm.get('goal').patchValue(this.sprintData.goal);
+      this.sprintForm.get('duration').patchValue([this.sprintData.startedAt, this.sprintData.endAt]);
+    }
   }
 
   async createSprint() {
