@@ -456,6 +456,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   async saveForm() {
     const task: Task = { ...this.taskForm.getRawValue() };
+
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
 
@@ -471,8 +472,17 @@ export class TaskComponent implements OnInit, OnDestroy {
     const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
     task.estimatedTimeReadable = hours+'h '+ +minutes+'m';
 
-    if (!task.name || !task.taskType) {
-      this.notification.error('Error', 'Please check all mandatory fields');
+
+    if (!task.taskType) {
+      this.notification.error('Error', 'Please select task type');
+      return;
+    }
+    if(!task.assigneeId){
+      this.notification.error('Error', 'Please select assignee');
+      return;
+    }
+    if (!task.name) {
+      this.notification.error('Error', 'Please enter task title');
       return;
     }
 
