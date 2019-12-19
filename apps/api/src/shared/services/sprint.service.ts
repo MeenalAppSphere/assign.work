@@ -160,11 +160,23 @@ export class SprintService extends BaseService<Sprint & Document> {
     // get project details and check if current user is member of project
     const projectDetails = await this.getProjectDetails(model.sprint.projectId);
 
+    // sprint unique name validation per project
+    const isSprintNameAlreadyExits = await this._sprintModel.find({
+      name: { $regex: new RegExp(`^${model.sprint.name}$`), $options: 'i' },
+      isDeleted: false,
+      projectId: model.sprint.projectId
+    }).select('name').countDocuments();
+
+    if (isSprintNameAlreadyExits > 0) {
+      throw new BadRequestException('Sprint Name Already Exit');
+    }
+
     // add all project collaborators as sprint member and add their's work capacity to total capacity
     model.sprint.membersCapacity = [];
     model.sprint.totalCapacity = 0;
 
-    projectDetails.members.forEach(member => {
+    // add only those members who accepted invitation of project means active collaborator of project
+    projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
       model.sprint.membersCapacity.push({
         userId: member.userId,
         workingCapacity: member.workingCapacity,
@@ -275,7 +287,7 @@ export class SprintService extends BaseService<Sprint & Document> {
               // convert object id to string
               memberId: (task.assigneeId as any).toHexString(),
               totalEstimation: task.estimatedTime,
-              workingCapacityPerDay: 0,
+              workingCapacity: 0,
               alreadyLoggedTime: 0
             });
           }
@@ -297,7 +309,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       sprintDetails.membersCapacity.forEach(member => {
         // find assignee index and update it's working capacity from sprint details
         const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === member.userId);
-        taskAssigneeMap[assigneeIndex].workingCapacityPerDay = member.workingCapacityPerDay;
+        taskAssigneeMap[assigneeIndex].workingCapacity = member.workingCapacity;
       });
 
       // loop over assignee's and get their logged time
@@ -317,16 +329,21 @@ export class SprintService extends BaseService<Sprint & Document> {
           }, 0);
         }
 
+        // region check exact capacity for sprint commented out for version 2
         // if assignee already logged time + assignee's total estimation from above sprint tasks
         // is greater
         // assignee working limit per sprint
         // return error ( member working capacity exceed )
-        if ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > ((taskAssigneeMap[i].workingCapacityPerDay * 3600) * sprintDaysCount)) {
-          sprintError.membersErrors.push({
-            id: taskAssigneeMap[i].memberId,
-            reason: SprintErrorEnum.memberCapacityExceed
-          });
-        }
+
+        // ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > ((taskAssigneeMap[i].workingCapacity * 3600) * sprintDaysCount))
+
+        // if ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > (taskAssigneeMap[i].workingCapacity)) {
+        //   sprintError.membersErrors.push({
+        //     id: taskAssigneeMap[i].memberId,
+        //     reason: SprintErrorEnum.memberCapacityExceed
+        //   });
+        // }
+        // endregion
 
       }
 
@@ -596,7 +613,11 @@ export class SprintService extends BaseService<Sprint & Document> {
     };
 
     // return founded sprint
-    return this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(commonPopulationForSprint).sort('-createdAt');
+    const sprint = await this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(commonPopulationForSprint).sort('-createdAt').lean();
+    if (!sprint) {
+      return 'No Unpublished Sprint Found';
+    }
+    return this.prepareSprintVm(sprint);
   }
 
   /**
@@ -692,6 +713,10 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @returns {Sprint}
    */
   private prepareSprintVm(sprint: Sprint): Sprint {
+    if (!sprint) {
+      return sprint;
+    }
+
     sprint.id = sprint['_id'];
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);

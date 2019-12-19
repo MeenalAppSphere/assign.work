@@ -16,7 +16,8 @@ import {
   SearchProjectTags,
   SwitchProjectRequest,
   TaskType,
-  User
+  User,
+  UserStatus
 } from '@aavantan-app/models';
 import { Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
@@ -123,6 +124,7 @@ export class ProjectService extends BaseService<Project & Document> {
     let finalMembers: ProjectMembers[] = [];
 
     try {
+      // separate registered collaborators and unregister collaborators
       members.forEach(member => {
         // if user id is available then user is registered in database but not a collaborator in project
         if (member.userId) {
@@ -134,6 +136,24 @@ export class ProjectService extends BaseService<Project & Document> {
           unRegisteredMembers.push(member);
         }
       });
+
+      /**
+       * special case when one have created a project and added one collaborator who is not part of our system,
+       * so, we create an user and add it to project member array with inviteAccepted false
+       * now if some one creates a new project and search for that user who is added as collaborator for project one but he/she
+       * not accepted project joining invitation, then we need to check the status of that user if it's active then mark him/her
+       * active user and invite accepted for now
+       */
+      // loop over already registered collaborators and check if there's status is active
+      // if active then consider them as invited accepted otherwise keep invited accepted as false
+      for (let i = 0; i < alreadyRegisteredMembers.length; i++) {
+        const userDetails = await this._userModel.findOne({
+          _id: alreadyRegisteredMembers[i].userId,
+          status: UserStatus.Active
+        }).lean();
+        alreadyRegisteredMembers[i].isEmailSent = !!userDetails;
+        alreadyRegisteredMembers[i].isInviteAccepted = !!userDetails;
+      }
 
       finalMembers = [...alreadyRegisteredMembers];
 
@@ -152,14 +172,17 @@ export class ProjectService extends BaseService<Project & Document> {
         finalMembers.push(...createdUsers.map(m => {
           return {
             userId: m.id,
-            emailId: m.emailId
+            emailId: m.emailId,
+            isEmailSent: false,
+            isInviteAccepted: false
           };
         }));
       }
 
+      // add members default working capacity
       const membersModel: ProjectMembers[] = finalMembers.map(member => {
-        member.isEmailSent = false;
-        member.isInviteAccepted = false;
+        member.workingCapacity = DEFAULT_WORKING_CAPACITY;
+        member.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
         return member;
       });
 

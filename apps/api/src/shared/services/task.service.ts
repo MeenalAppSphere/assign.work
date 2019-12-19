@@ -147,6 +147,10 @@ export class TaskService extends BaseService<Task & Document> {
         model.displayName = `${taskTypeDetails.displayName}-1`;
       }
 
+      // check if task assignee id is available or not
+      // if not then assign it to task creator
+      model.assigneeId = model.assigneeId || this._generalService.userId;
+
       // check if watchers added or not if not then assign blank array
       model.watchers = model.watchers || [];
 
@@ -215,6 +219,10 @@ export class TaskService extends BaseService<Task & Document> {
 
     const session = await this._taskModel.db.startSession();
     session.startTransaction();
+
+    // check if task assignee id is available or not
+    // if not then assign it to task creator
+    model.assigneeId = model.assigneeId || this._generalService.userId;
 
     // check if estimated time updated and one have already logged in this task
     if (model.estimatedTimeReadable) {

@@ -3,11 +3,14 @@ import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from '@a
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const paginate = require('mongoose-paginate-v2');
+const uniqueValidator = require('mongoose-unique-validator');
 
 export const userSchema = new Schema(
   {
-    emailId: { type: String, required: true, unique: true },
+    emailId: {
+      type: String, required: true, index: { unique: true, partialFilterExpression: { isDeleted: false } },
+      uniqueCaseInsensitive: true
+    },
     userName: { type: String },
     password: { type: String },
     firstName: { type: String },
@@ -75,5 +78,5 @@ userSchema.virtual('currentOrganization', {
 // plugins
 userSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(paginate);
+  .plugin(uniqueValidator, { message: '{PATH} already exists :- {VALUE}' });
 

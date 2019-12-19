@@ -9,9 +9,7 @@ const uniqueValidator = require('mongoose-unique-validator');
 export const sprintSchema = new Schema({
   name: {
     type: String,
-    required: [true, 'Sprint Name is required'],
-    index: { unique: true, partialFilterExpression: { isDeleted: false } },
-    uniqueCaseInsensitive: true
+    required: [true, 'Sprint Name is required']
   },
   startedAt: { type: Date, required: [true, 'Sprint start time is required'] },
   endAt: { type: Date, required: [true, 'Sprint end time is required'] },
@@ -112,6 +110,4 @@ sprintSchema.virtual('membersCapacity.user', {
 
 // plugins
 sprintSchema
-  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(uniqueValidator, { message: '{PATH} already exists' })
-;
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

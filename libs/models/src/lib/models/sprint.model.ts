@@ -66,6 +66,7 @@ export class SprintMembersCapacity {
   userId: string;
   user?: User;
   workingCapacity: number;
+  workingCapacityReadable?: number;
   workingCapacityPerDay?: number;
   workingCapacityPerDayReadable?: string;
 }
@@ -111,7 +112,7 @@ export class MoveTaskToStage extends SprintBaseRequest {
 export class TaskAssigneeMap {
   memberId: string;
   totalEstimation: number;
-  workingCapacityPerDay: number;
+  workingCapacity: number;
   alreadyLoggedTime: number;
 }
 
