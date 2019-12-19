@@ -229,16 +229,16 @@ export class TaskService extends BaseService<Task & Document> {
       // estimate time is present then it should be in string parse it to seconds
       model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
 
-      // check if task is in the sprint you can't update estimate
-      if (taskDetails.sprintId) {
-        throw new BadRequestException('task is in sprint you can\'t update estimate time');
-      }
+      // ensure estimated time is changed
+      if (model.estimatedTime !== taskDetails.estimatedTime) {
+        // check if task is in the sprint you can't update estimate
+        if (taskDetails.sprintId) {
+          throw new BadRequestException('task is in sprint you can\'t update estimate time');
+        }
 
-      // if time is logged in this task then and then only re calculate task overall progress
-      if (taskDetails.totalLoggedTime > 0) {
+        // if time is logged in this task then and then only re calculate task overall progress
+        if (taskDetails.totalLoggedTime > 0) {
 
-        // ensure estimated time is changed
-        if (model.estimatedTime !== taskDetails.estimatedTime) {
           // calculate progress and over progress
           const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(2));
 
