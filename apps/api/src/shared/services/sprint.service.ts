@@ -543,7 +543,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       // return sprint details
-      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
+      const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, commonFieldSelection);
       return this.prepareSprintVm(sprint);
     } catch (e) {
       await session.abortTransaction();
