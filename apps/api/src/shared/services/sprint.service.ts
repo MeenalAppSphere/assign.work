@@ -543,7 +543,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       // return sprint details
-      const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, commonFieldSelection);
+      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
       return this.prepareSprintVm(sprint);
     } catch (e) {
       await session.abortTransaction();
@@ -613,7 +613,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     };
 
     // return founded sprint
-    const sprint = await this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(commonPopulationForSprint).sort('-createdAt').lean();
+    const sprint = await this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(detailedPopulationForSprint).sort('-createdAt').lean();
     if (!sprint) {
       return 'No Unpublished Sprint Found';
     }
