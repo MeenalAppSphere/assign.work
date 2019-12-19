@@ -38,7 +38,7 @@
                     <div class="col-md-5">
                         <nz-form-item class="relative">
                             <a href="javascript:void(0);"><small class="text-info float-right" (click)="assignedToMe()">Assign to Me</small></a>
-                            <nz-form-label nzFor="taskType">Assigned To</nz-form-label>
+                            <nz-form-label nzFor="taskType">Assigned To<span class="text-danger">*</span></nz-form-label>
                             <nz-form-control class="relative">
                                 <span class="assigned-user-icon">
                               <nz-avatar [nzSize]="16" nzIcon="user" [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null" ></nz-avatar>
