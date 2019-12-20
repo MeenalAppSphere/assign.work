@@ -46,7 +46,7 @@ export class TeamCapacityComponent implements OnInit {
 
       await this._sprintService.updateSprintWorkingCapacity(json).toPromise();
       this.isCapacityUpdateInProgress = false;
-      this.toggleShow.emit();
+      this.toggleShow.emit(this.sprintData);
 
     }catch (e) {
       this.isCapacityUpdateInProgress = false;

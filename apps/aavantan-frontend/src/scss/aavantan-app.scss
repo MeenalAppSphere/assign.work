@@ -241,7 +241,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 // th in left and data in right
 @media screen and (max-width: 768px) {
 
-  table {
+  .ant-table-body table {
     .text-center{
       text-align: left!important;
     }
