@@ -104,6 +104,10 @@ export class AddTaskToSprintModel extends SprintBaseRequest {
   tasks: string[];
 }
 
+export class RemoveTaskFromSprintModel extends SprintBaseRequest {
+  tasks: string[];
+}
+
 export class MoveTaskToStage extends SprintBaseRequest {
   stageId: string;
   taskId: string;

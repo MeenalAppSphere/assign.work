@@ -10,6 +10,7 @@ import {
   MoveTaskToStage,
   Project,
   PublishSprintModel,
+  RemoveTaskFromSprintModel,
   Sprint,
   SprintErrorEnum,
   SprintErrorResponse,
@@ -238,6 +239,9 @@ export class SprintService extends BaseService<Sprint & Document> {
       // get project details by project id
       const projectDetails = await this.getProjectDetails(model.projectId);
 
+      // get sprint details from sprint id
+      const sprintDetails = await this.getSprintDetails(model.sprintId);
+
       // get all tasks details from given tasks array
       const taskDetails: Task[] = await this._taskModel.find({
         projectId: this.toObjectId(model.projectId),
@@ -266,6 +270,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       // loop over all the tasks
       taskDetails.forEach(task => {
         task.id = task['_id'];
+
         // check if task is allowed to added to sprint
         const checkTask = this.checkTaskIsAllowedToAddInSprint(task);
 
@@ -299,9 +304,6 @@ export class SprintService extends BaseService<Sprint & Document> {
         return sprintError;
       }
 
-      // get sprint details from sprint id
-      const sprintDetails = await this.getSprintDetails(model.sprintId);
-
       // get sprint count days from sprint start date and end date
       const sprintDaysCount = moment(sprintDetails.endAt).diff(sprintDetails.startedAt, 'd') || 1;
 
@@ -309,7 +311,10 @@ export class SprintService extends BaseService<Sprint & Document> {
       sprintDetails.membersCapacity.forEach(member => {
         // find assignee index and update it's working capacity from sprint details
         const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === member.userId);
-        taskAssigneeMap[assigneeIndex].workingCapacity = member.workingCapacity;
+
+        if (assigneeIndex > -1) {
+          taskAssigneeMap[assigneeIndex].workingCapacity = member.workingCapacity;
+        }
       });
 
       // loop over assignee's and get their logged time
@@ -385,6 +390,88 @@ export class SprintService extends BaseService<Sprint & Document> {
       throw e;
     }
 
+  }
+
+  /**
+   * remove task from sprint
+   * get all tasks details, then minus theirs estimation from sprint total estimation
+   * filter it out from stage [0]
+   * update task and remove sprint Id from that task
+   * update sprint and return removed task id Array
+   * @param model: RemoveTaskFromSprintModel
+   * @return {Promise<void>}
+   */
+  public async removeTaskFromSprint(model: RemoveTaskFromSprintModel): Promise<string[]> {
+    // region basic validation
+
+    // tasks array
+    if (!model.tasks || !model.tasks.length) {
+      throw new BadRequestException('Please add at least one task for remove...');
+    }
+    // endregion
+
+    // start the session
+    const session = await this._sprintModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      // get project details by project id
+      const projectDetails = await this.getProjectDetails(model.projectId);
+
+      // get sprint details from sprint id
+      const sprintDetails = await this.getSprintDetails(model.sprintId);
+
+      // get all tasks details from given tasks array
+      const taskDetails: Task[] = await this._taskModel.find({
+        projectId: this.toObjectId(model.projectId),
+        // sprintId: this.toObjectId(model.sprintId),
+        _id: { $in: model.tasks },
+        isDeleted: false
+      }).lean();
+
+      // check if there any task found
+      if (!taskDetails.length) {
+        // if no return an error
+        throw new BadRequestException('no tasks found');
+      }
+
+      if (taskDetails.length < model.tasks.length) {
+        throw new BadRequestException('one of tasks not found');
+      }
+
+      // loop over all the tasks and minus estimation time from sprint total estimation
+      // update task in db set sprintId to null
+      for (let i = 0; i < taskDetails.length; i++) {
+        const task = taskDetails[i];
+        task.id = task['_id'];
+
+        // minus task estimation from stages[0].totalEstimation ( first stage )
+        sprintDetails.stages[0].totalEstimation -= task.estimatedTime;
+        sprintDetails.stages[0].tasks = sprintDetails.stages[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
+
+        // minus task estimation from sprint total estimation
+        sprintDetails.totalEstimation -= task.estimatedTime;
+
+        // update task model
+        await this._taskModel.updateOne({ _id: task.id }, { sprintId: null }, session);
+      }
+
+      // set total remaining capacity by dividing sprint members totalCapacity - totalEstimation
+      sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
+      sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
+
+      // update sprint
+      await this.update(model.sprintId, sprintDetails, session);
+      await session.commitTransaction();
+      session.endSession();
+
+      // return add deleted tasks id
+      return model.tasks;
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
   }
 
   /**
@@ -652,11 +739,10 @@ export class SprintService extends BaseService<Sprint & Document> {
         sprintError.reason = SprintErrorEnum.taskNoEstimate;
       }
 
-      // commented out because currently we ony support single sprint
       // check if task is already in sprint
-      // if (task.sprintId) {
-      //   sprintError.reason = SprintErrorEnum.alreadyInSprint;
-      // }
+      if (task.sprintId) {
+        sprintError.reason = SprintErrorEnum.alreadyInSprint;
+      }
 
       // if there any error return error
       if (sprintError.reason) {

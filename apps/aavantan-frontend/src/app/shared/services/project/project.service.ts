@@ -247,7 +247,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
 
   searchTags(text: string): Observable<BaseResponseModel<string[]>> {
     const json: SearchProjectTags ={
-      organizationId: this._generalService.currentOrganization.id,
+      // organizationId: this._generalService.currentOrganization.id,
       projectId: this._generalService.currentProject.id,
       query:text
     }
