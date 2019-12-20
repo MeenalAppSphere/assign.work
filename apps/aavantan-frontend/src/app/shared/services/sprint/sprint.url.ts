@@ -7,6 +7,7 @@ export const SprintUrls = {
   getAllSprint: createUrl('sprint/all'),
   getUnpublishedSprint: createUrl('sprint/get-unpublished-sprint'),
   addTaskToSprint: createUrl('sprint/add-tasks'),
+  removeTaskToSprint: createUrl('sprint/remove-tasks'),
   moveTask: createUrl('sprint/move-task'),
   updateWorkingCapacity: createUrl('sprint/update-working-capacity'),
 };

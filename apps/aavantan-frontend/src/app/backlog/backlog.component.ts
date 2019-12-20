@@ -118,7 +118,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
       };
 
       this._sprintService.getUnpublishedSprint(json).subscribe(data => {
-        this.sprintData = data.data
+        this.sprintData = data.data;
+
+        const taskArray : Task[] = [];
+        this.sprintData.stages[0].tasks.forEach((ele)=>{
+          taskArray.push(ele.task);
+        });
+
+        this.draftSprint = {
+          tasks: taskArray
+        }
+        this.draftData = taskArray;
         this.gettingUnpublishedInProcess = false;
       });
     }catch (e) {
@@ -184,13 +194,14 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
-    this.draftSprint = ev;
+    this.draftSprint.tasks = this.draftSprint.tasks.concat(ev.tasks);
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
       this.isDisabledCreateBtn = false;
     } else {
       this.isDisabledCreateBtn = true;
     }
     this.prepareDraftSprint();
+
   }
 
   public prepareDraftSprint() {

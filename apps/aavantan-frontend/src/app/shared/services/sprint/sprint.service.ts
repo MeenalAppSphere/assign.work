@@ -87,6 +87,25 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
+
+  removeTaskToSprint(sprintData: RemoveTaskFromSprintModel): Observable<BaseResponseModel<Sprint | SprintErrorResponse>> {
+    return this._http.post(SprintUrls.addTaskToSprint, sprintData).pipe(
+      map((res: BaseResponseModel<SprintErrorResponse>) => {
+
+        if((res.data.tasksErrors && res.data.tasksErrors.length>0) || (res.data.membersErrors && res.data.membersErrors.length>0)){
+          this.notification.error('Error', 'Task not removed from Sprint');
+        }else{
+          this.notification.success('Success', 'Task successfully removed to this Sprint');
+        }
+
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
   updateSprintWorkingCapacity(sprintData: UpdateSprintMemberWorkingCapacity): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.updateWorkingCapacity, sprintData).pipe(
       map((res: BaseResponseModel<Sprint>) => {

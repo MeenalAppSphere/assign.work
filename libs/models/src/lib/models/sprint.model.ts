@@ -83,12 +83,12 @@ export class SprintErrorResponseItem {
 }
 
 export interface DraftSprint {
-  sprintId: string;
-  ids: string[];
-  tasks: Task[];
-  duration: number;
-  durationReadable: string;
-  durationRemainingReadable: string;
+  sprintId?: string;
+  ids?: string[];
+  tasks?: Task[];
+  duration?: number;
+  durationReadable?: string;
+  durationRemainingReadable?: string;
 }
 
 export class CreateSprintModel {

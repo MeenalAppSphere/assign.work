@@ -167,7 +167,7 @@ export class TaskListComponent implements OnInit {
         tasks : [task.id]
       }
 
-      this._sprintService.addTaskToSprint(sprintData).toPromise();
+      this._sprintService.removeTaskToSprint(sprintData).toPromise();
 
     } catch (e) {
     }
