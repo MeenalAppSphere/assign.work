@@ -9,7 +9,7 @@ import {
   BasePaginatedResponse,
   BaseResponseModel,
   CreateSprintModel,
-  GetAllSprintRequestModel, GetUnpublishedRequestModel,
+  GetAllSprintRequestModel, GetUnpublishedRequestModel, RemoveTaskFromSprintModel,
   Sprint, SprintErrorResponse, UpdateSprintMemberWorkingCapacity
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';

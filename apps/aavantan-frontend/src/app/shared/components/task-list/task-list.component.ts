@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
   AddTaskToSprintModel,
   DraftSprint,
-  GetAllTaskRequestModel, SprintErrorResponse,
+  GetAllTaskRequestModel, RemoveTaskFromSprintModel, SprintErrorResponse,
   Task,
   TaskFilterDto,
   TaskTimeLogResponse,
@@ -161,7 +161,7 @@ export class TaskListComponent implements OnInit {
 
     try {
 
-      const sprintData : AddTaskToSprintModel = {
+      const sprintData : RemoveTaskFromSprintModel = {
         projectId: this._generalService.currentProject.id,
         sprintId: this.tasksSelected.sprintId,
         tasks : [task.id]
