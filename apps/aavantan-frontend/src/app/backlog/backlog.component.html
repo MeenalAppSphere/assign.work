@@ -150,6 +150,7 @@
 </nz-spin>
 
 <aavantan-team-capacity
+  *ngIf="teamCapacityModalIsVisible"
   [sprintData]="sprintData"
   [teamCapacityModalIsVisible]="teamCapacityModalIsVisible"
   (toggleShow)="toggleTeamCapacity($event)">
