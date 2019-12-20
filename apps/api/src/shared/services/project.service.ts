@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   BaseRequestModel,
   DbCollection,
+  MongooseQueryModel,
   Organization,
   Project,
   ProjectMembers,
@@ -12,6 +13,7 @@ import {
   ProjectStatus,
   ProjectTags,
   ProjectWorkingCapacityUpdateDto,
+  SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
@@ -472,24 +474,93 @@ export class ProjectService extends BaseService<Project & Document> {
 
   }
 
+  /**
+   * search project tags
+   * @param model
+   * @returns {Promise<ProjectTags[]>}
+   */
   async searchTags(model: SearchProjectTags): Promise<ProjectTags[]> {
-    if (!model) {
-      throw new BadRequestException('invalid request');
+    if (!this.isValidObjectId(model.projectId)) {
+      throw new NotFoundException('Project not found');
     }
 
     if (typeof model.query !== 'string') {
-      throw new BadRequestException('invalid request query should be type of string');
+      throw new BadRequestException('invalid search term');
     }
 
-    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
+    const query = new MongooseQueryModel();
 
-    const project: any = await this._projectModel.findOne({
-      _id: this.toObjectId(model.projectId)
-      // 'settings.tags': { 'name': { $regex: new RegExp(model.query), $options: 'i' } }
-    }).select('settings.tags').lean();
+    query.filter = {
+      _id: model.projectId
+    };
+
+    query.select = 'settings.tags';
+    query.lean = true;
+
+    // const organizationDetails = await this.getOrganizationDetails(model.organizationId);
+
+    const project: any = await this.findOne(query);
 
     if (project && project.settings && project.settings.tags) {
       return project.settings.tags.filter(tag => !tag.isDeleted && tag.name.toLowerCase().includes(model.query.toLowerCase())).map(tag => tag.name);
+    } else {
+      return [];
+    }
+  }
+
+  /**
+   * search project collaborators
+   * by collaborator first name, last name and email id
+   * first find project then filter out project members with request search query
+   * @param model: SearchProjectCollaborators
+   * @return {Promise<User[]>}
+   */
+  async searchProjectCollaborators(model: SearchProjectCollaborators) {
+    if (!this.isValidObjectId(model.projectId)) {
+      throw new NotFoundException('Project not found');
+    }
+
+    if (typeof model.query !== 'string') {
+      throw new BadRequestException('invalid search term');
+    }
+
+    const query = new MongooseQueryModel();
+
+    query.filter = {
+      _id: model.projectId
+    };
+
+    query.populate = [{
+      path: 'members.userDetails',
+      select: 'firstName lastName emailId profilePic _id isDeleted status'
+    }];
+
+    query.select = 'members';
+    query.lean = true;
+
+    const project = await this.findOne(query);
+    if (project && project.members && project.members.length) {
+      return project.members
+        .filter(member => {
+          // filter out members who are either deleted, or not accepted the invitation or not an active member
+          return !member.userDetails.isDeleted && member.isInviteAccepted && member.userDetails.status === UserStatus.Active;
+        })
+        .filter(member => {
+          // search in email id , first name or last name
+          return (
+            member.emailId.match(new RegExp(model.query, 'i')) ||
+            member.userDetails.firstName.match(new RegExp(model.query, 'i')) ||
+            member.userDetails.lastName.match(new RegExp(model.query, 'i'))
+          );
+        }).map(member => {
+          return {
+            id: member.userDetails['_id'],
+            emailId: member.userDetails.emailId,
+            firstName: member.userDetails.firstName,
+            lastName: member.userDetails.lastName,
+            profilePic: member.userDetails.profilePic
+          }
+        });
     } else {
       return [];
     }
@@ -501,13 +572,13 @@ export class ProjectService extends BaseService<Project & Document> {
    */
   private async getProjectDetails(id: string): Promise<Project> {
     if (!this.isValidObjectId(id)) {
-      throw new NotFoundException('No Project Found');
+      throw new NotFoundException('Project not found');
     }
 
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
     if (!projectDetails) {
-      throw new NotFoundException('No Project Found');
+      throw new NotFoundException('Project not found');
     } else {
       const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
 
@@ -524,12 +595,12 @@ export class ProjectService extends BaseService<Project & Document> {
    */
   private async getOrganizationDetails(id: string) {
     if (!this.isValidObjectId(id)) {
-      throw new NotFoundException('No Organization Found');
+      throw new NotFoundException('Organization not found');
     }
     const organizationDetails: Organization = await this._organizationModel.findById(id).select('members createdBy updatedBy').lean().exec();
 
     if (!organizationDetails) {
-      throw new NotFoundException('No Organization Found');
+      throw new NotFoundException('Organization not Found');
     } else {
       const isMember = organizationDetails.members.some(s => s.userId === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
 

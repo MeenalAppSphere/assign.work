@@ -78,7 +78,7 @@ export class SearchProjectRequest {
 }
 
 export class SearchProjectTags {
-  organizationId: string;
+  // organizationId: string;
   projectId: string;
   query: string;
 }
@@ -87,4 +87,9 @@ export class ProjectStageSequenceChangeRequest {
   projectId: string;
   stageId: string;
   sequenceNo: number;
+}
+
+export class SearchProjectCollaborators {
+  projectId: string;
+  query: string;
 }

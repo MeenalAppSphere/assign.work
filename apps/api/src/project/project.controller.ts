@@ -114,4 +114,9 @@ export class ProjectController {
   async searchProjectTags(@Body() model: SearchProjectTags) {
     return await this._projectService.searchTags(model);
   }
+
+  @Post('search-collaborator')
+  async searchProjectCollaborators(@Body() model) {
+    return await this._projectService.searchProjectCollaborators(model);
+  }
 }

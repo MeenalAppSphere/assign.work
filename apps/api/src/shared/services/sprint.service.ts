@@ -613,11 +613,22 @@ export class SprintService extends BaseService<Sprint & Document> {
     };
 
     // return founded sprint
-    const sprint = await this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(detailedPopulationForSprint).sort('-createdAt').lean();
+    let sprint: Sprint = await this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(detailedPopulationForSprint).sort('-createdAt').lean();
+
     if (!sprint) {
       return 'No Unpublished Sprint Found';
     }
-    return this.prepareSprintVm(sprint);
+
+    // prepare sprint vm model
+    sprint = this.prepareSprintVm(sprint);
+
+    // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
+    // tasks is only added in only first stage means stage[0]
+    sprint.stages[0].tasks.forEach(obj => {
+      obj.task = this.parseTaskObjectForUi(obj.task, projectDetails);
+    });
+
+    return sprint;
   }
 
   /**
@@ -752,6 +763,33 @@ export class SprintService extends BaseService<Sprint & Document> {
       });
       return sprint;
     }
+  }
+
+  /**
+   * parse task object, convert seconds to readable string, fill task type, priority, status etc..
+   * @param task : Task
+   * @param projectDetails: Project
+   */
+  private parseTaskObjectForUi(task: Task, projectDetails: Project) {
+    task.id = task['_id'];
+
+    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
+    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
+    task.status = projectDetails.settings.status.find(t => t.id === task.status);
+    task.isSelected = !!task.sprintId;
+
+    // convert all time keys to string from seconds
+    task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
+    task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
+    task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
+    task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
+
+    if (task.attachmentsDetails) {
+      task.attachmentsDetails.forEach(attachment => {
+        attachment.id = attachment['_id'];
+      });
+    }
+    return task;
   }
 
 }

@@ -1,5 +1,6 @@
 import { ClientSession, Document, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
+import { DEFAULT_QUERY_FILTER } from '../helpers/defaultValueConstant';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -9,16 +10,13 @@ const myPaginationLabels = {
   totalPages: 'totalPages'
 };
 
-const defaultQueryOptions = {
-  isDeleted: false
-};
 
 export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
   }
 
   public async find(model: MongooseQueryModel): Promise<T[]> {
-    const query = this.model.find({ ...model.filter, ...defaultQueryOptions });
+    const query = this.model.find({ ...model.filter, ...DEFAULT_QUERY_FILTER });
 
     if (model.populate && model.populate.length) {
       query.populate(model.populate);
@@ -36,7 +34,7 @@ export class BaseService<T extends Document> {
   }
 
   public async findById(id: string, populate: Array<any> = [], isLean = false): Promise<T> {
-    const query = this.model.findById(this.toObjectId(id)).where(defaultQueryOptions);
+    const query = this.model.findById(this.toObjectId(id)).where(DEFAULT_QUERY_FILTER);
 
     if (populate && populate.length) {
       query.populate(populate);
@@ -49,10 +47,19 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async findOne(filter: any = {}, populate: Array<any> = []): Promise<T> {
-    const query = this.model.findOne({ ...filter, ...defaultQueryOptions });
-    if (populate && populate.length) {
-      query.populate(populate);
+  public async findOne(model: MongooseQueryModel): Promise<T> {
+    const query = this.model.findOne({ ...model.filter, ...DEFAULT_QUERY_FILTER });
+
+    if (model.populate && model.populate.length) {
+      query.populate(model.populate);
+    }
+
+    if (model.select) {
+      query.select(model.select);
+    }
+
+    if (model.lean) {
+      query.lean();
     }
     return query.exec();
   }
@@ -71,7 +78,7 @@ export class BaseService<T extends Document> {
     options.page = options.page || 1;
 
     const query = this.model
-      .find({ ...filter, ...defaultQueryOptions })
+      .find({ ...filter, ...DEFAULT_QUERY_FILTER })
       .skip((options.count * options.page) - options.count)
       .limit(options.count);
 
@@ -87,7 +94,7 @@ export class BaseService<T extends Document> {
     result.forEach((doc) => {
       doc.id = String(doc._id);
     });
-    const numberOfDocs = await this.model.countDocuments({ ...filter, ...defaultQueryOptions });
+    const numberOfDocs = await this.model.countDocuments({ ...filter, ...DEFAULT_QUERY_FILTER });
 
     return {
       page: options.page,
@@ -99,7 +106,7 @@ export class BaseService<T extends Document> {
   }
 
   public async getAll(filter: any = {}, populate: Array<any> = []) {
-    const query = this.model.find({ ...filter, ...defaultQueryOptions });
+    const query = this.model.find({ ...filter, ...DEFAULT_QUERY_FILTER });
     if (populate && populate.length) {
       query.populate(populate);
     }
@@ -114,19 +121,6 @@ export class BaseService<T extends Document> {
     return this.model
       .update({ id: this.toObjectId(id) }, { isDeleted: true })
       .exec();
-  }
-
-  private transformPaginationObject(object: Partial<MongoosePaginateQuery>) {
-    return {
-      page: object.page,
-      limit: object.count,
-      sort: { [object.sortBy]: object.sort },
-      allowDiskUse: true,
-      customLabels: myPaginationLabels,
-      lean: true,
-      leanWithId: true,
-      populate: object.populate
-    };
   }
 
   public toObjectId(id: string | number): Types.ObjectId {

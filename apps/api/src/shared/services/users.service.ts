@@ -1,10 +1,10 @@
-import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DbCollection, MongoosePaginateQuery, User } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project.service';
-import { sortBy, slice, orderBy } from 'lodash';
+import { orderBy, slice } from 'lodash';
 import * as moment from 'moment';
 import { GeneralService } from './general.service';
 
@@ -23,6 +23,12 @@ export class UsersService extends BaseService<User & Document> {
     return await this.getAllPaginatedData({}, paginationRequest);
   }
 
+  /**
+   * search users
+   * with email id, first name or last name, don't include current user
+   * @param query
+   * @returns {Promise<User[]>}
+   */
   async getAll(query: string) {
     return this.find({
       filter: {

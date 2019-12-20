@@ -48,6 +48,7 @@ export class User {
   mobileNumber?: string;
   username?: string;
   isEmailSent?: boolean;
+  isDeleted?: boolean;
 }
 
 export class SearchUserRequest {

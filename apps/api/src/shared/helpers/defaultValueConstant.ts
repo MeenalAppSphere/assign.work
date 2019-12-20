@@ -1,5 +1,10 @@
 import { ProjectTemplateEnum } from '@aavantan-app/models';
 
+// default query filter
+export const DEFAULT_QUERY_FILTER = {
+  isDeleted: false
+};
+
 // default project template type
 export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.software;
 
