@@ -6,6 +6,21 @@
       [nzShowPagination]="false">
       <thead>
       <tr>
+        <th>
+          <nz-input-group [nzSuffix]="suffixIcon">
+            <input [(ngModel)]="searchUserInput" (ngModelChange)="onChangeSearch($event)" nz-input placeholder="Search User" style="text-align: left;max-width:100%; width:150px;"/>
+          </nz-input-group>
+          <ng-template #suffixIcon>
+            <i nz-icon nzType="search"></i>
+          </ng-template>
+        </th>
+        <th class="text-right" width="200">
+          <small *ngIf="switchShow0Capacity">Hide <b class="text-success">0h Only</b></small>
+          <small *ngIf="!switchShow0Capacity">Show <b class="text-success">0h Only</b></small>
+          <nz-switch nzSize="small" [(ngModel)]="switchShow0Capacity" (ngModelChange)="onChangeSwitchCapacity()" class="m-l-5"></nz-switch>
+        </th>
+      </tr>
+      <tr>
         <th>Name</th>
         <th class="text-right" width="200">Working hours</th>
       </tr>
