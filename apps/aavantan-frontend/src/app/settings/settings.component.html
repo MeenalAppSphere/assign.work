@@ -133,7 +133,7 @@
                 <div class="p-l-30 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
                 </a>
                 <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
-                  <span class="text-warning" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span> <span (click)="resendInvitation(item)" class="text-info"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
+                  <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span> <span (click)="resendInvitation(item)" class="text-info"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
                   <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
 <!--                  <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>-->
                 </span>
@@ -359,7 +359,7 @@
 
 
       <ng-container *ngIf="activeView.view==='capacity'">
-        <aside class="col-md-4">
+        <aside class="col-md-12">
           <div *ngIf="!projectMembersList || projectMembersList.length===0">
             <nz-empty
               [nzNotFoundImage]=" 'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
@@ -376,34 +376,47 @@
           </div>
           <div class="capacity-table"
                *ngIf="projectMembersList && projectMembersList.length>0">
-            <nz-table
-              [nzData]="projectMembersList"
-              [nzShowPagination]="false">
-              <thead>
-              <tr>
-                <th width="30">#</th>
-                <th class="text-left" colspan="2">Name</th>
-                <th class="text-right" width="140">Working hours</th>
-              </tr>
-              </thead>
-              <tbody>
 
-              <tr *ngFor="let item of projectMembersList; let i = index;">
-                <td>{{i+1}}.</td>
-                <td><nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar></td>
-                <td>
-                  <span *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
+              <div class="row">
+                <div class="col-md-4 col-lg-3 text-left" colspan="2">Name</div>
+                <div class="col-md-1 col-lg-1 text-right" width="140">Working hours</div>
+                <div class="col-md-2 col-lg-1 text-right" width="190">Per day</div>
+                <div class="col-md-5 col-lg-7 text-center">Working days</div>
+              </div>
+
+
+
+              <div class="row" *ngFor="let item of projectMembersList; let i = index;">
+
+                <div class="col-md-4 col-lg-3">
+                  <span class="sn">{{i+1}}.</span> <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+
+                  <span class="p-l-5" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
                   <div class="cap-email"><small class="text-muted">{{item.emailId}}</small></div>
-                </td>
-                <td class="text-right">
+
+                </div>
+                <div class="col-md-1 col-lg-1 text-right">
                   <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="3"/>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-right" colspan="4">Total Hours: {{totalCapacity}}</td>
-              </tr>
-              </tbody>
-            </nz-table>
+                </div>
+                <div class="col-md-2 col-lg-1 text-right">
+                  <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacityPerDay" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="2"/>
+                </div>
+                <div class="col-md-5 col-lg-7">
+                  <span *ngFor="let item of workingDays">
+                    <button *ngIf="item.selected" nz-button nzType="primary" nzSize="small" nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{item.day}}</button>
+                    <button *ngIf="!item.selected" nz-button nzType="link" nzSize="small" nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{item.day}}</button>
+                  </span>
+                </div>
+              </div>
+
+
+              <div class="row">
+                <div class="col-md-4 col-lg-3"></div>
+                <div class="col-md-1 col-lg-1 text-right">Total: {{totalCapacity}}</div>
+                <div class="col-md-2 col-lg-1 text-right">Total: {{totalCapacityPerDay}}</div>
+                <div class="col-md-5 col-lg-7"></div>
+              </div>
+
             <button (click)="saveCapacity()" [nzLoading]="updateRequestInProcess"  nz-button nzSize="small" nzType="primary">Save</button>
           </div>
         </aside>

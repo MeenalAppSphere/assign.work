@@ -56,6 +56,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public deleteTaskTypeInProcess: boolean = false;
 
   public totalCapacity: number = 0;
+  public totalCapacityPerDay: number = 0;
+  public workingDays : any =[
+    {
+      day :'Mon',
+      selected :true
+    },{
+      day :'Tue',
+      selected :true
+    },{
+      day :'Wed',
+      selected :true
+    },{
+      day :'Thur',
+      selected :true
+    },{
+      day :'Fri',
+      selected :true
+    },{
+      day :'Sat',
+      selected :false
+    },{
+      day :'Sun',
+      selected :false
+    }
+  ]
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
               private _projectService: ProjectService, private _userQuery: UserQuery) {
@@ -76,9 +101,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.projectMembersList = cloneDeep(res.members);
 
         this.totalCapacity = 0;
+        this.totalCapacityPerDay = 0;
         if (this.projectMembersList && this.projectMembersList.length > 0) {
           this.projectMembersList.forEach((ele) => {
             this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
+            this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
           });
         }
 
@@ -311,8 +338,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public saveCapacity() {
     const capacityList: ProjectWorkingCapacityUpdateDto[] = [];
     this.totalCapacity = 0;
+    this.totalCapacityPerDay = 0;
     this.projectMembersList.forEach((ele) => {
       this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
+      this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
       const obj: ProjectWorkingCapacityUpdateDto = { userId: ele.userId, workingCapacity: ele.workingCapacity };
       capacityList.push(obj);
     });
@@ -328,9 +357,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public calculateTotal() {
     this.totalCapacity = 0;
+    this.totalCapacityPerDay = 0;
     if (this.projectMembersList && this.projectMembersList.length > 0) {
       this.projectMembersList.forEach((ele) => {
         this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
+        this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
       });
     }
   }

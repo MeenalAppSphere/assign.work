@@ -112,6 +112,18 @@
   }
 
   .capacity-table{
+    .row{
+      border-bottom:1px solid #dddddd;
+      padding: 5px 0px;
+      .ant-btn {
+        border-radius: 25px;
+        min-width: 60px;
+        padding: 3px 10px!important;
+      }
+    }
+    .ant-btn>.anticon+span, .ant-btn>span+.anticon {
+      margin-left: 0px!important;
+    }
     .ant-modal-body{
       padding: 0px!important;
     }
@@ -131,6 +143,12 @@
     }
     .cap-email{
       line-height: 13px;
+      padding-left: 55px;
+    }
+    .sn{
+      min-width: 25px;
+      display: inline-block;
+      font-weight: bold;
     }
   }
 
