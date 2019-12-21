@@ -28,9 +28,12 @@ export class Sprint {
   totalEstimationReadable?: string;
   totalLoggedTime?: number;
   totalLoggedTimeReadable?: string;
+  totalOverLoggedTime?: number;
+  totalOverLoggedTimeReadable?: string;
   totalRemainingTime?: number;
   totalRemainingTimeReadable?: string;
   progress?: number;
+  overProgress?: number;
 }
 
 export class SprintStage {
@@ -137,6 +140,7 @@ export class PublishSprintModel extends SprintBaseRequest {
 export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {
   capacity: Array<{
     memberId: string;
-    workingCapacityPerDayReadable: string;
+    workingCapacityPerDayReadable?: string;
+    workingCapacity: number
   }>;
 }
