@@ -1,7 +1,7 @@
 /**
  * converts given string to seconds
- * @param val
- * ex: '1d 2h 34'
+ * @param val ex: '1d 2h 34'
+ * @return {number}
  */
 export const stringToSeconds = (val: string = ''): number => {
   // separate given string with space
@@ -35,7 +35,11 @@ export const stringToSeconds = (val: string = ''): number => {
   }, 0);
 };
 
-
+/**
+ * seconds to string converter
+ * @param seconds
+ * @returns {string} ( 1h 2m )
+ */
 export const secondsToString = (seconds: number = 0): string => {
   if (typeof seconds !== 'number') {
     throw new TypeError('Expected a number');
@@ -56,4 +60,16 @@ export const secondsToString = (seconds: number = 0): string => {
   });
 
   return readable.join(' ');
+};
+
+/**
+ * convert hour to seconds
+ * @param hour: number
+ * @return {number}
+ */
+export const hourToSeconds = (hour: number = 0): number => {
+  if (typeof hour !== 'number') {
+    throw new TypeError('Expected a number');
+  }
+  return hour * 3600;
 };

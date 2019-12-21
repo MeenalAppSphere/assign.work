@@ -4,6 +4,8 @@ import {
   AddTaskTimeModel,
   DbCollection,
   Project,
+  Sprint,
+  SprintStatusEnum,
   Task,
   TaskHistory,
   TaskHistoryActionEnum,
@@ -11,7 +13,7 @@ import {
   TaskTimeLogResponse,
   User
 } from '@aavantan-app/models';
-import { Document, Model } from 'mongoose';
+import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
@@ -24,6 +26,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
     @InjectModel(DbCollection.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
+    @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
     private _taskHistoryService: TaskHistoryService, private readonly _generalService: GeneralService
   ) {
     super(_taskTimeLogModel);
@@ -34,12 +37,9 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * @param model: model contains project id and timeLog model ( : TaskTimeLog )
    */
   async addTimeLog(model: AddTaskTimeModel): Promise<TaskTimeLogResponse> {
-    if (!model) {
-      throw new BadRequestException('invalid json');
-    }
+
     const projectDetails = await this.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.timeLog.taskId);
-
 
     // region validations
     if (!model.timeLog.createdById) {
@@ -130,6 +130,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
       if (!model.timeLog.isPeriod) {
         // logged only for a certain day
+        // check if user logged more than allowed for day
         if ((totalLoggedTime + model.timeLog.loggedTime) > (userDetails.workingCapacityPerDay * 3600)) {
           throw new BadRequestException('your logging limit exceeded for Given date!');
         }
@@ -155,46 +156,24 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       // add task log to db
       await this._taskTimeLogModel.create([model.timeLog], session);
 
-      // region task logged time calculation
-      taskDetails.totalLoggedTime = (taskDetails.totalLoggedTime || 0) + model.timeLog.loggedTime || 0;
+      // calculate task logs and update task
+      await this.calculateTaskLogs(taskDetails, model, session);
 
-      if (!taskDetails.estimatedTime) {
-        // if not estimate time means one haven't added any estimate so progress will be 100 %
-        taskDetails.progress = 100;
-        model.timeLog.remainingTime = 0;
-      } else {
-        const progress: number = Number(((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime).toFixed(2));
-
-        // if process is grater 100 then over time is added
-        // in this case calculate overtime and set remaining time to 0
-        if (progress > 100) {
-          taskDetails.progress = 100;
-          taskDetails.remainingTime = 0;
-          taskDetails.overLoggedTime = taskDetails.totalLoggedTime - taskDetails.estimatedTime;
-
-          const overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(2));
-          taskDetails.overProgress = overProgress > 100 ? 100 : overProgress;
-        } else {
-          // normal time logged
-          // set overtime 0 and calculate remaining time
-          taskDetails.progress = progress;
-          taskDetails.remainingTime = taskDetails.estimatedTime - taskDetails.totalLoggedTime;
-          taskDetails.overLoggedTime = 0;
-          taskDetails.overProgress = 0;
-        }
+      // region update sprint calculations
+      // ensure task is in sprint
+      if (taskDetails.sprintId) {
+        // calculate sprint calculations and update sprint
+        await this.calculateSprintLogs(taskDetails.sprintId, model, session);
       }
       // endregion
-
-      // update task total logged time and total estimated time
-      await this._taskModel.updateOne({ _id: this.toObjectId(model.timeLog.taskId) }, taskDetails, session);
 
       // create entry in task history collection
       // prepare task history modal
       const history = new TaskHistory();
-      history.action = TaskHistoryActionEnum.timeLogged;
+      history.action = taskDetails.sprintId ? TaskHistoryActionEnum.timeLoggedInSprint : TaskHistoryActionEnum.timeLogged;
       history.createdById = model.timeLog.createdById;
       history.taskId = model.timeLog.taskId;
-      history.desc = 'Time Logged';
+      history.desc = taskDetails.sprintId ? 'Time Logged in sprint' : 'Time Logged';
 
       // add task history
       await this._taskHistoryService.addHistory(history, session);
@@ -220,6 +199,104 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
   }
 
   /**
+   * calculate Task Logs
+   * calculate task logs and update task in db
+   * first add logged time to task, then calculate progress
+   * if progress grater than 100 means over logging done
+   * calculate progress and over progress
+   * finally update task
+   * @param taskDetails
+   * @param model
+   * @param session
+   */
+  private async calculateTaskLogs(taskDetails: Task, model: AddTaskTimeModel, session: ClientSession) {
+    // region task logged time calculation
+    taskDetails.totalLoggedTime = (taskDetails.totalLoggedTime || 0) + model.timeLog.loggedTime || 0;
+
+    if (!taskDetails.estimatedTime) {
+      // if not estimate time means one haven't added any estimate so progress will be 100 %
+      taskDetails.progress = 100;
+      model.timeLog.remainingTime = 0;
+    } else {
+      const progress: number = Number(((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+
+      // if process is grater 100 then over time is added
+      // in this case calculate overtime and set remaining time to 0
+      if (progress > 100) {
+        taskDetails.progress = 100;
+        taskDetails.remainingTime = 0;
+        taskDetails.overLoggedTime = taskDetails.totalLoggedTime - taskDetails.estimatedTime;
+
+        const overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+        taskDetails.overProgress = overProgress > 100 ? 100 : overProgress;
+      } else {
+        // normal time logged
+        // set overtime 0 and calculate remaining time
+        taskDetails.progress = progress;
+        taskDetails.remainingTime = taskDetails.estimatedTime - taskDetails.totalLoggedTime;
+        taskDetails.overLoggedTime = 0;
+        taskDetails.overProgress = 0;
+      }
+    }
+    // endregion
+
+    // update task total logged time and total estimated time
+    await this._taskModel.updateOne({ _id: this.toObjectId(model.timeLog.taskId) }, taskDetails, session);
+  }
+
+  /**
+   * calculate sprint logs
+   * first find sprint
+   * add logged time to sprint total logged time
+   * calculate progress, if progress grater than 100, means over logging done
+   * calculate over logging progress
+   * finally update sprint
+   * @param sprintId
+   * @param model
+   * @param session
+   */
+  private async calculateSprintLogs(sprintId: string, model: AddTaskTimeModel, session: ClientSession) {
+    const sprintDetails: Sprint = await this._sprintModel.findOne({
+      _id: sprintId,
+      projectId: model.projectId,
+      isDeleted: false,
+      'sprintStatus.status': SprintStatusEnum.inProgress
+    }).lean();
+
+    if (sprintDetails) {
+      // add logged time to sprint total logged time
+      sprintDetails.totalLoggedTime += model.timeLog.loggedTime || 0;
+
+      // calculate progress
+      const progress: number = Number(((100 * sprintDetails.totalLoggedTime) / sprintDetails.totalEstimation).toFixed(2));
+
+      if (progress > 100) {
+        // if progress > 100 means over logging happened
+        sprintDetails.totalRemainingTime = 0;
+        sprintDetails.progress = 100;
+
+        // calculate over logged time by deducting total estimation from total logged time
+        sprintDetails.totalOverLoggedTime = sprintDetails.totalLoggedTime - sprintDetails.totalEstimation;
+
+        // calculate over progress percentage
+        const overProgress = Number(((100 * sprintDetails.totalOverLoggedTime) / sprintDetails.totalEstimation).toFixed(2));
+        sprintDetails.overProgress = overProgress > 100 ? 100 : overProgress;
+      } else {
+        // if progress is lesser or equal to 100 means no over logging done
+        sprintDetails.totalRemainingTime = sprintDetails.totalRemainingTime - sprintDetails.totalLoggedTime;
+        sprintDetails.progress = progress;
+        sprintDetails.overProgress = 0;
+        sprintDetails.totalOverLoggedTime = 0;
+      }
+
+      return this._sprintModel.updateOne({ _id: sprintDetails.id }, {
+        totalLoggedTime: sprintDetails.totalLoggedTime, totalRemainingTime: sprintDetails.totalRemainingTime,
+        totalOverLoggedTime: sprintDetails.totalOverLoggedTime
+      }, session);
+    }
+  }
+
+  /**
    * get all time logs
    * @param model
    */
@@ -241,6 +318,10 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * @param id: project id
    */
   private async getProjectDetails(id: string): Promise<Project> {
+    if (!this.isValidObjectId(id)) {
+      throw new BadRequestException('Project Not Found');
+    }
+
     const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
 
     if (!projectDetails) {
@@ -260,10 +341,14 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * @param id: taskId
    */
   private async getTaskDetails(id: string): Promise<Task> {
+    if (!this.isValidObjectId(id)) {
+      throw new BadRequestException('Task Not Found');
+    }
+
     const taskDetails: Task = await this._taskModel.findOne({
       _id: this.toObjectId(id),
       isDeleted: false
-    }).lean().exec();
+    }).select('totalLoggedTime estimatedTime progress remainingTime overLoggedTime createdAt sprintId').lean().exec();
 
     if (!taskDetails) {
       throw new NotFoundException('No Task Found');

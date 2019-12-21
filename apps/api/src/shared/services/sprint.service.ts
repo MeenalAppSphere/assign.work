@@ -27,7 +27,7 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
-import { secondsToString, stringToSeconds } from '../helpers/helpers';
+import { hourToSeconds, secondsToString } from '../helpers/helpers';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -49,11 +49,16 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'stages.tasks.task',
-  select: 'name displayName description createdBy',
-  justOne: true
+  select: 'name displayName sprintId priority taskType status assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime',
+  justOne: true,
+  populate: {
+    path: 'assignee',
+    select: 'emailId userName firstName lastName profilePic -_id',
+    justOne: true
+  }
 }];
 
-const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime createdById updatedById';
+const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById';
 const detailedFiledSelection = `${commonFieldSelection} stages `;
 
 @Injectable()
@@ -105,14 +110,15 @@ export class SprintService extends BaseService<Sprint & Document> {
   public async getSprintById(model: GetSprintByIdRequestModel) {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    const query = this._sprintModel.findOne({
-      _id: model.sprintId,
-      projectId: model.projectId,
-      isDeleted: false
-    });
-
-    query.populate(detailedPopulationForSprint);
-    query.lean();
+    // const query = this._sprintModel.findOne({
+    //   _id: model.sprintId,
+    //   projectId: model.projectId,
+    //   isDeleted: false
+    // });
+    //
+    // query.populate(detailedPopulationForSprint);
+    // query.select(detailedFiledSelection);
+    // query.lean();
 
     const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
     return this.prepareSprintVm(sprint);
@@ -342,7 +348,7 @@ export class SprintService extends BaseService<Sprint & Document> {
 
         // ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > ((taskAssigneeMap[i].workingCapacity * 3600) * sprintDaysCount))
 
-        // if ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > (taskAssigneeMap[i].workingCapacity)) {
+        // if ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > hourToSeconds(taskAssigneeMap[i].workingCapacity)) {
         //   sprintError.membersErrors.push({
         //     id: taskAssigneeMap[i].memberId,
         //     reason: SprintErrorEnum.memberCapacityExceed
@@ -382,8 +388,9 @@ export class SprintService extends BaseService<Sprint & Document> {
       await session.commitTransaction();
       session.endSession();
 
-      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint);
+      // const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
+      // return this.prepareSprintVm(sprint);
+      return model.tasks;
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -606,26 +613,29 @@ export class SprintService extends BaseService<Sprint & Document> {
       throw new BadRequestException('One of member is not member in Sprint!');
     }
 
-    // total working capacity holder variable
-    let totalWorkingCapacity = 0;
-
-    // update members capacity in sprint details model
-    sprintDetails.membersCapacity.forEach(sprintMember => {
-      const indexOfMemberInRequestedModal = model.capacity.findIndex(capacity => capacity.memberId === sprintMember.userId);
-
-      if (indexOfMemberInRequestedModal > -1) {
-        sprintMember.workingCapacityPerDay = stringToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDayReadable);
-      }
-      totalWorkingCapacity += sprintMember.workingCapacityPerDay;
-    });
-
+    // crete db session and start transaction
     const session = await this._sprintModel.db.startSession();
     session.startTransaction();
+
     try {
+      // total working capacity holder variable
+      let totalWorkingCapacity = 0;
+
+      // update members capacity in sprint details model
+      sprintDetails.membersCapacity.forEach(sprintMember => {
+        const indexOfMemberInRequestedModal = model.capacity.findIndex(capacity => capacity.memberId === sprintMember.userId);
+
+        if (indexOfMemberInRequestedModal > -1) {
+          // convert member capacity hours to seconds
+          sprintMember.workingCapacity = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacity);
+        }
+        totalWorkingCapacity += sprintMember.workingCapacity;
+      });
+
       // update object for sprint member capacity
       const updateObject = { $set: { membersCapacity: sprintDetails.membersCapacity } };
       // update sprint in database
-      const updateResult = await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
+      await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
       await session.commitTransaction();
       session.endSession();
 
@@ -828,12 +838,18 @@ export class SprintService extends BaseService<Sprint & Document> {
     // convert total logged time in readable format
     sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
 
+    // convert total over logged time in readable format
+    sprint.totalOverLoggedTimeReadable = secondsToString(sprint.totalOverLoggedTime || 0);
+
     // calculate total remaining time
     sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
     sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
 
     // calculate progress
     sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(2)) || 0;
+
+    // calculate over progress
+    sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(2)) || 0;
 
     // loop over stages and convert total estimation time to readable format
     if (sprint.stages) {
