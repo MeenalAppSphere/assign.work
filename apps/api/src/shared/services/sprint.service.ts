@@ -49,8 +49,13 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'stages.tasks.task',
-  select: 'name displayName description createdBy',
-  justOne: true
+  select: 'name displayName description createdBy sprintId priority taskType status assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime',
+  justOne: true,
+  populate: {
+    path: 'assignee',
+    select: 'emailId userName firstName lastName profilePic -_id',
+    justOne: true
+  }
 }];
 
 const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime createdById updatedById';
@@ -105,14 +110,15 @@ export class SprintService extends BaseService<Sprint & Document> {
   public async getSprintById(model: GetSprintByIdRequestModel) {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    const query = this._sprintModel.findOne({
-      _id: model.sprintId,
-      projectId: model.projectId,
-      isDeleted: false
-    });
-
-    query.populate(detailedPopulationForSprint);
-    query.lean();
+    // const query = this._sprintModel.findOne({
+    //   _id: model.sprintId,
+    //   projectId: model.projectId,
+    //   isDeleted: false
+    // });
+    //
+    // query.populate(detailedPopulationForSprint);
+    // query.select(detailedFiledSelection);
+    // query.lean();
 
     const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
     return this.prepareSprintVm(sprint);
@@ -382,8 +388,9 @@ export class SprintService extends BaseService<Sprint & Document> {
       await session.commitTransaction();
       session.endSession();
 
-      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint);
+      // const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
+      // return this.prepareSprintVm(sprint);
+      return model.tasks;
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
