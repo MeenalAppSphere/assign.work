@@ -23,7 +23,7 @@ export const DEFAULT_WORKING_DAYS: ProjectWorkingDays[] = [{
 }, {
   day: 'wed', selected: true
 }, {
-  day: 'thr', selected: true
+  day: 'thu', selected: true
 }, {
   day: 'fri', selected: true
 }, {
