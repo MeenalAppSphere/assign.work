@@ -1,4 +1,5 @@
 import { ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
+import { hourToSeconds } from './helpers';
 
 // default query filter
 export const DEFAULT_QUERY_FILTER = {
@@ -9,10 +10,10 @@ export const DEFAULT_QUERY_FILTER = {
 export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.software;
 
 // default working capacity
-export const DEFAULT_WORKING_CAPACITY: number = 40;
+export const DEFAULT_WORKING_CAPACITY: number = hourToSeconds(40);
 
 // default working capacity per day
-export const DEFAULT_WORKING_CAPACITY_PER_DAY: number = 8;
+export const DEFAULT_WORKING_CAPACITY_PER_DAY: number = hourToSeconds(8);
 
 // default working days object
 export const DEFAULT_WORKING_DAYS: ProjectWorkingDays[] = [{

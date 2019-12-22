@@ -30,7 +30,7 @@ import {
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
-import { validWorkingDaysChecker } from '../helpers/helpers';
+import { hourToSeconds, validWorkingDaysChecker } from '../helpers/helpers';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -264,8 +264,8 @@ export class ProjectService extends BaseService<Project & Document> {
     projectDetails.members = projectDetails.members.map(pd => {
       const indexInDto = dto.findIndex(f => f.userId === pd.userId);
       if (indexInDto > -1) {
-        pd.workingCapacity = dto[indexInDto].workingCapacity || DEFAULT_WORKING_CAPACITY;
-        pd.workingCapacityPerDay = dto[indexInDto].workingCapacityPerDay || DEFAULT_WORKING_CAPACITY_PER_DAY;
+        pd.workingCapacity = hourToSeconds(dto[indexInDto].workingCapacity || DEFAULT_WORKING_CAPACITY);
+        pd.workingCapacityPerDay = hourToSeconds(dto[indexInDto].workingCapacityPerDay || DEFAULT_WORKING_CAPACITY_PER_DAY);
         pd.workingDays = dto[indexInDto].workingDays || DEFAULT_WORKING_DAYS;
       }
       return pd;
