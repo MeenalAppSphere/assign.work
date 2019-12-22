@@ -895,7 +895,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     // calculate total remaining capacity
     sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation || 0;
     sprint.totalRemainingCapacityReadable = secondsToString(sprint.totalRemainingCapacity);
-    sprint.totalRemainingCapacity = secondsToHours(sprint.totalCapacity);
+    sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
 
     // convert total logged time in readable format
     sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
