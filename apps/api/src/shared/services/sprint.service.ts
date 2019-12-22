@@ -639,8 +639,21 @@ export class SprintService extends BaseService<Sprint & Document> {
     // get sprint details by id
     const sprintDetails = await this.getSprintDetails(model.sprintId);
 
-    if (sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
-      throw new BadRequestException('Sprint is already published you can not change it\'s Capacity');
+    if (sprintDetails.sprintStatus) {
+      let msgStatus = '';
+      // switch over sprint status
+      switch (sprintDetails.sprintStatus.status) {
+        case SprintStatusEnum.inProgress:
+          msgStatus = 'Published';
+          break;
+        case SprintStatusEnum.closed:
+          msgStatus = 'Closed';
+          break;
+        case SprintStatusEnum.completed:
+          msgStatus = 'Completed';
+      }
+
+      throw new BadRequestException(`Sprint is already ${msgStatus}! You can not change it's Capacity`);
     }
 
     // check if all members are part of the sprint
