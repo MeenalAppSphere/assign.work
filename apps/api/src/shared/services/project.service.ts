@@ -79,6 +79,7 @@ export class ProjectService extends BaseService<Project & Document> {
     model.members.push({
       userId: userDetails.id,
       emailId: userDetails.emailId,
+      isEmailSent: true,
       isInviteAccepted: true,
       workingCapacity: DEFAULT_WORKING_CAPACITY,
       workingCapacityPerDay: DEFAULT_WORKING_CAPACITY_PER_DAY,
@@ -243,7 +244,9 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     // check if all users are part of project
-    const everyBodyThere = dto.every(ddt => projectDetails.members.some(pd => pd.userId === ddt.userId));
+    const everyBodyThere = dto.every(ddt => projectDetails.members.some(pd => {
+      return pd.userId === ddt.userId && pd.isInviteAccepted;
+    }));
     if (!everyBodyThere) {
       throw new BadRequestException('One of Collaborator is not found in Project!');
     }
