@@ -59,8 +59,10 @@ export class TaskListComponent implements OnInit {
 
     if(this.taskList && this.taskList.length>0 && this.taskList[0].isSelected){
       this.taskList.forEach((ele)=>{
-        this.tasksSelected.ids.push(ele.id);
-        this.tasksSelected.tasks.push(ele);
+        if(ele.isSelected){
+          this.tasksSelected.ids.push(ele.id);
+          this.tasksSelected.tasks.push(ele);
+        }
       })
       this.tasksSelected.sprintId = this.sprintId;
     }else{

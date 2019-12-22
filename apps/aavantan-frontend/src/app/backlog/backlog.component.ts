@@ -201,7 +201,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
-    this.draftSprint.tasks = this.draftSprint.tasks.concat(ev.tasks);
+
+    this.draftSprint.tasks = this.getUnique( this.draftSprint.tasks.concat(ev.tasks), 'id');
+
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
       this.isDisabledCreateBtn = false;
     } else {
@@ -272,6 +274,20 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy(){
 
+  }
+
+  public getUnique(arr, comp) {
+
+    const unique = arr
+      .map(e => e[comp])
+
+      // store the keys of the unique objects
+      .map((e, i, final) => final.indexOf(e) === i && i)
+
+      // eliminate the dead keys & store unique objects
+      .filter(e => arr[e]).map(e => arr[e]);
+
+    return unique;
   }
 
 }

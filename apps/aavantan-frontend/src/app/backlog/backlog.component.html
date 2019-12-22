@@ -34,7 +34,9 @@
               <span class="font-size-18 m-r-30 text-black font-weight-normal">{{sprintData.name}}</span>
               <span class="text-gray-light m-r-25">Capacity <span class="text-black font-weight-normal">{{sprintData.totalCapacityReadable}}</span></span>
               <span class="text-success m-r-10" *ngIf="sprintData.totalEstimationReadable"><span>Total</span><strong class="p-l-5">{{sprintData?.totalEstimationReadable}}</strong></span>
-              <span class="text-gray-light font-size-12" *ngIf="sprintData.totalRemainingCapacityReadable"><span>Remains</span><strong class="p-l-5">{{sprintData?.totalRemainingCapacityReadable}}</strong></span>
+              <span class="font-size-12" [ngClass]="{'text-gray-light': sprintData.totalRemainingCapacity>0, 'text-red': sprintData.totalRemainingCapacity<0}" *ngIf="sprintData.totalRemainingCapacityReadable"><span>Remains</span>
+                <strong class="p-l-5">{{sprintData?.totalRemainingCapacityReadable}}</strong>
+              </span>
             </span>
 
             <span class="float-right font-weight-light" >

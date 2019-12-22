@@ -89,7 +89,7 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
 
 
   removeTaskToSprint(sprintData: RemoveTaskFromSprintModel): Observable<BaseResponseModel<Sprint | SprintErrorResponse>> {
-    return this._http.post(SprintUrls.addTaskToSprint, sprintData).pipe(
+    return this._http.post(SprintUrls.removeTaskToSprint, sprintData).pipe(
       map((res: BaseResponseModel<SprintErrorResponse>) => {
 
         if((res.data.tasksErrors && res.data.tasksErrors.length>0) || (res.data.membersErrors && res.data.membersErrors.length>0)){

@@ -58,7 +58,8 @@ export class TeamCapacityComponent implements OnInit {
   }
   public calculateTotalCapacity(){
     for(let i=0; i<this.sprintData.membersCapacity.length;i++){
-      this.sprintData.totalCapacity = this.sprintData.membersCapacity[i].workingCapacity;
+      console.log(Number(this.sprintData.totalCapacity) +'--'+ Number(this.sprintData.membersCapacity[i].workingCapacity))
+      this.sprintData.totalCapacity = Number(this.sprintData.totalCapacity) + Number(this.sprintData.membersCapacity[i].workingCapacity);
       this.sprintData.totalCapacityReadable = this.sprintData.totalCapacity ? this.sprintData.totalCapacity+'h 0m' : '0h 0m';
     }
   }
