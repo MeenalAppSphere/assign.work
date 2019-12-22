@@ -12,7 +12,7 @@
       </span>
 
       <span class="badge backlog-badge">
-        <span class="text-red">Total Backlogs</span><span class="p-l-5 text-black">{{durationData?.readable}}</span>
+        <span class="text-red">Total Backlogs</span><span class="p-l-5 text-black">{{sprintData?.totalEstimationReadable}}</span>
       </span>
 
 
@@ -79,7 +79,7 @@
             [nzNotFoundContent]="contentTpl"
             [nzNotFoundFooter]="footerTpl">
             <ng-template #contentTpl>
-              <span class="font-size-16">You have <span class="text-danger">16 task</span> in backlog</span>
+              <span class="font-size-16">You have <span class="text-danger">{{allTaskList ? allTaskList.length : '0'}} task</span> in backlog</span>
             </ng-template>
             <ng-template #footerTpl>
               <button nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">+ Create Sprint</button>
@@ -96,7 +96,10 @@
 
       <div class="row">
         <div class="col">
-          <label class="font-size-18"><span class="text-black">Backlogs</span> <small class="p-l-25 font-size-14"><span class="text-gray-light">Total </span><span class="text-black">{{durationData?.readable}}</span></small></label>
+          <label class="font-size-18"><span class="text-black">Backlogs</span>
+            <small class="p-l-25 font-size-14" *ngIf="sprintData && sprintData.totalEstimationReadable">
+            <span class="text-gray-light">Total </span><span class="text-black">{{sprintData?.totalEstimationReadable}}</span></small>
+          </label>
         </div>
         <div class="col text-right" style="max-width: 320px;">
 

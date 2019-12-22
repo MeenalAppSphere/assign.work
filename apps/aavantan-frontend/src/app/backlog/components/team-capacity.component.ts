@@ -42,7 +42,7 @@ return ;
           const capacityReqObject = {
             memberId: this.sprintData.membersCapacity[i].userId,
             workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString(),
-            workingCapacity: 40
+            workingCapacity: this.sprintData.membersCapacity[i].workingCapacity
           }
           json.capacity.push(capacityReqObject);
         }

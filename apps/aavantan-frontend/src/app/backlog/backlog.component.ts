@@ -44,6 +44,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
   public AddedTaskToSprintData:any;
+  public taskMessage:string = '0';
 
   public searchValue: string;
   public searchTaskListInProgress: boolean;
@@ -118,18 +119,24 @@ export class BacklogComponent implements OnInit, OnDestroy {
       };
 
       this._sprintService.getUnpublishedSprint(json).subscribe(data => {
-        this.sprintData = data.data;
-
-        const taskArray : Task[] = [];
-        this.sprintData.stages[0].tasks.forEach((ele)=>{
-          taskArray.push(ele.task);
-        });
-
-        this.draftSprint = {
-          tasks: taskArray
-        }
-        this.draftData = taskArray;
         this.gettingUnpublishedInProcess = false;
+        console.log(typeof data.data);
+        if((typeof data.data) === "string"){
+
+        }else{
+          this.sprintData = data.data;
+
+          const taskArray : Task[] = [];
+          this.sprintData.stages[0].tasks.forEach((ele)=>{
+            taskArray.push(ele.task);
+          });
+
+          this.draftSprint = {
+            tasks: taskArray
+          }
+          this.draftData = taskArray;
+        }
+
       });
     }catch (e) {
       this.gettingUnpublishedInProcess = false;

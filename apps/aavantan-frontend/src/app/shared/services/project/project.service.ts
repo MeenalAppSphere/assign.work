@@ -222,7 +222,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     return this._http.put(ProjectUrls.updateCapacity.replace(':projectId', projectId), json)
       .pipe(
         map(res => {
-          this.updateCurrentProjectState(res.data);
+            this.updateCurrentProjectState(res.data);
           this.notification.success('Success', 'Updated Successfully');
           return res;
         }),

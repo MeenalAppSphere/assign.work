@@ -61,13 +61,16 @@
 
   <section>
 
-    <nz-card [nzTitle]="templateTitle" style="min-height:420px; overflow: scroll;">
+    <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:420px; overflow: scroll;">
       <ng-template #templateTitle>
         {{activeView.title}}
         <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTitle]="templateTitleText"/>
       </ng-template>
       <ng-template #templateTitleText>
         About {{activeView.title}}
+      </ng-template>
+      <ng-template #templateExtra>
+        <button nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project</button>
       </ng-template>
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
@@ -133,7 +136,8 @@
                 <div class="p-l-30 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
                 </a>
                 <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
-                  <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span> <span (click)="resendInvitation(item)" class="text-info"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
+                  <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
+                  <span (click)="resendInvitation(item)" class="text-info p-r-10"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
                   <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
 <!--                  <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>-->
                 </span>
@@ -360,7 +364,7 @@
 
       <ng-container *ngIf="activeView.view==='capacity'">
         <aside class="col-md-12">
-          <div *ngIf="!projectMembersList || projectMembersList.length===0">
+          <div *ngIf="!projectCapacityMembersList || projectCapacityMembersList.length===0">
             <nz-empty
               [nzNotFoundImage]=" 'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
               [nzNotFoundContent]="contentTpl"
@@ -375,7 +379,7 @@
             </nz-empty>
           </div>
           <div class="capacity-table"
-               *ngIf="projectMembersList && projectMembersList.length>0">
+               *ngIf="projectCapacityMembersList && projectCapacityMembersList.length>0">
 
               <div class="row">
                 <div class="col-md-4 col-lg-3 text-left" colspan="2">Name</div>
@@ -386,7 +390,7 @@
 
 
 
-              <div class="row" *ngFor="let item of projectMembersList; let i = index;">
+              <div class="row" *ngFor="let item of projectCapacityMembersList; let i = index;">
 
                 <div class="col-md-4 col-lg-3">
                   <span class="sn">{{i+1}}.</span> <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
@@ -396,15 +400,15 @@
 
                 </div>
                 <div class="col-md-1 col-lg-1 text-right">
-                  <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="3"/>
+                  <input nz-input placeholder="Hours" disabled numeric numericType="decimal" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="3"/>
                 </div>
                 <div class="col-md-2 col-lg-1 text-right">
                   <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacityPerDay" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="2"/>
                 </div>
                 <div class="col-md-5 col-lg-7">
-                  <span *ngFor="let item of workingDays">
-                    <button *ngIf="item.selected" nz-button nzType="primary" nzSize="small" nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{item.day}}</button>
-                    <button *ngIf="!item.selected" nz-button nzType="link" nzSize="small" nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{item.day}}</button>
+                  <span *ngFor="let wd of item.workingDays">
+                    <button *ngIf="wd.selected" (click)="selectDay(wd,item)" nz-button nzType="primary" nzSize="small" nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{wd.day}}</button>
+                    <button *ngIf="!wd.selected" (click)="selectDay(wd, item)" nz-button nzType="link" nzSize="small" nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{wd.day}}</button>
                   </span>
                 </div>
               </div>
@@ -425,6 +429,15 @@
 
     </nz-card>
   </section>
+
+  <!-- region add project -->
+  <ng-container *ngIf="projectModalIsVisible">
+    <aavantan-app-add-project
+      [projectModalIsVisible]="projectModalIsVisible"
+      (toggleShow)="projectModalShow()">
+    </aavantan-app-add-project>
+  </ng-container>
+  <!-- endregion -->
 
 </section>
 

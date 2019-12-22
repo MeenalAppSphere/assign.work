@@ -5,7 +5,7 @@ import {
   ProjectPriority,
   ProjectStages,
   ProjectStatus,
-  ProjectWorkingCapacityUpdateDto,
+  ProjectWorkingCapacityUpdateDto, ProjectWorkingDays,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -28,6 +28,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public response: any;
   public collaboratorForm: FormGroup;
 
+  public projectModalIsVisible:boolean;
   public selectedCollaborator: string;
   public selectedCollaborators: User[] = [];
   public userDataSource: User[] = [];
@@ -47,6 +48,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public typesList: TaskType[] = [];
   public priorityList: ProjectPriority[] = [];
   public projectMembersList: ProjectMembers[] = [];
+  public projectCapacityMembersList: ProjectMembers[] = [];
 
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
@@ -57,7 +59,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
-  public workingDays : any =[
+  public workingDays : ProjectWorkingDays[] = [
     {
       day :'Mon',
       selected :true
@@ -68,7 +70,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       day :'Wed',
       selected :true
     },{
-      day :'Thur',
+      day :'Thu',
       selected :true
     },{
       day :'Fri',
@@ -80,7 +82,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       day :'Sun',
       selected :false
     }
-  ]
+  ];
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
               private _projectService: ProjectService, private _userQuery: UserQuery) {
@@ -103,7 +105,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.totalCapacity = 0;
         this.totalCapacityPerDay = 0;
         if (this.projectMembersList && this.projectMembersList.length > 0) {
-          this.projectMembersList.forEach((ele) => {
+          this.projectCapacityMembersList = this.projectMembersList.filter((ele)=>{
+            if(ele.isInviteAccepted){
+              return ele;
+            }
+          })
+          this.projectCapacityMembersList.forEach((ele) => {
             this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
             this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
           });
@@ -276,6 +283,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
+  //================== Priority ==================//
   public savePriority() {
     if (this.priorityForm.invalid) {
       this.notification.error('Error', 'Please check Color and Priority');
@@ -302,6 +310,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
+  //================== task type ==================//
   public saveTaskType() {
     if (this.taskTypeForm.invalid) {
       this.notification.error('Error', 'Please check Display name, Color and Task type');
@@ -335,20 +344,37 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
+
+  //================== capacity ==================//
+  public selectDay(wd:ProjectWorkingDays, userRow:ProjectMembers){
+      if(wd.selected){
+        wd.selected = false;
+      } else{
+        wd.selected = true;
+      }
+      const countSelected = userRow.workingDays.filter((ele)=>{if(ele.selected){return ele;}});
+      userRow.workingCapacity =  userRow.workingCapacityPerDay * countSelected.length;
+      this.calculateTotal();
+  }
   public saveCapacity() {
     const capacityList: ProjectWorkingCapacityUpdateDto[] = [];
     this.totalCapacity = 0;
     this.totalCapacityPerDay = 0;
-    this.projectMembersList.forEach((ele) => {
+    this.projectCapacityMembersList.forEach((ele) => {
       this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
       this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
-      const obj: ProjectWorkingCapacityUpdateDto = { userId: ele.userId, workingCapacity: ele.workingCapacity };
+      const obj: ProjectWorkingCapacityUpdateDto = {
+        userId: ele.userId,
+        workingCapacityPerDay: ele.workingCapacityPerDay,
+        workingCapacity: ele.workingCapacity,
+        workingDays: ele.workingDays
+      };
       capacityList.push(obj);
     });
 
     this.updateRequestInProcess = true;
     this._projectService.updateCapacity(this.currentProject.id, capacityList).subscribe((res => {
-      this.taskTypeForm.reset();
+      // this.taskTypeForm.reset();
       this.updateRequestInProcess = false;
     }), (error => {
       this.updateRequestInProcess = false;
@@ -358,14 +384,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public calculateTotal() {
     this.totalCapacity = 0;
     this.totalCapacityPerDay = 0;
-    if (this.projectMembersList && this.projectMembersList.length > 0) {
-      this.projectMembersList.forEach((ele) => {
+
+    if (this.projectCapacityMembersList && this.projectMembersList.length > 0) {
+      this.projectCapacityMembersList.forEach((ele) => {
+
+        const countSelected = ele.workingDays.filter((ele1)=>{if(ele1.selected){return ele1;}});
+        ele.workingCapacity =  ele.workingCapacityPerDay * countSelected.length;
+
         this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
         this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
+
       });
     }
+
   }
 
+  //================== project tab ==================//
   public updateProjectDetails(project: Partial<Project>) {
     this.updateRequestInProcess = true;
     this._projectService.updateProject(this.currentProject.id, project).subscribe((res => {
@@ -374,6 +408,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.updateRequestInProcess = false;
     }));
 
+  }
+
+  projectModalShow(): void {
+      this.projectModalIsVisible = !this.projectModalIsVisible;
   }
 
   public ngOnDestroy(): void {
