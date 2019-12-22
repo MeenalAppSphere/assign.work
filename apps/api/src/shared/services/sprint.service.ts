@@ -169,7 +169,7 @@ export class SprintService extends BaseService<Sprint & Document> {
 
     // check if project have stages
     if (!projectDetails.settings.stages.length) {
-      throw new BadRequestException('No stages found in Project please create at least on  stage');
+      throw new BadRequestException('No stages found in Project please create at least one stage');
     }
 
     // sprint unique name validation per project
@@ -195,7 +195,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         workingCapacityPerDay: member.workingCapacityPerDay,
         workingDays: member.workingDays
       });
-      model.sprint.totalCapacity += member.workingCapacityPerDay;
+      model.sprint.totalCapacity += member.workingCapacity;
     });
 
     // create stages array for sprint from project
