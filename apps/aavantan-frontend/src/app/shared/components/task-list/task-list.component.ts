@@ -43,9 +43,7 @@ export class TaskListComponent implements OnInit {
     sprintId:null,
     ids: [],
     tasks: [],
-    duration: 0,
-    durationReadable:"",
-    durationRemainingReadable:""
+    duration: 0
   };
 
   constructor(protected notification: NzNotificationService,
@@ -70,9 +68,7 @@ export class TaskListComponent implements OnInit {
         sprintId:this.sprintId,
         ids: [],
         tasks: [],
-        duration: 0,
-        durationReadable:"",
-        durationRemainingReadable:""
+        duration: 0
       };
     }
 
@@ -110,11 +106,11 @@ export class TaskListComponent implements OnInit {
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);
 
-      if(duration){
-        this.tasksSelected.duration = this.tasksSelected.duration + Number(duration);
-        this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-        this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-      }
+      // if(duration){
+      //   this.tasksSelected.duration = this.tasksSelected.duration + Number(duration);
+      //   this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+      //   this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+      // }
 
       this.addTaskToSprintModel(task); // api call to add task into sprint
 
@@ -130,11 +126,11 @@ export class TaskListComponent implements OnInit {
 
       task.isSelected = false;
 
-      if(duration){
-        this.tasksSelected.duration = this.tasksSelected.duration - Number(duration);
-        this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-        this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-      }
+      // if(duration){
+      //   this.tasksSelected.duration = this.tasksSelected.duration - Number(duration);
+      //   this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+      //   this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
+      // }
 
       this.removeTaskFromSprint(task); // api call to remove task from sprint
 
