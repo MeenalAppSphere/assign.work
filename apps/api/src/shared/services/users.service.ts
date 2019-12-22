@@ -1,12 +1,13 @@
 import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DbCollection, MongoosePaginateQuery, User } from '@aavantan-app/models';
+import { DbCollection, MongoosePaginateQuery, Project, User } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project.service';
 import { orderBy, slice } from 'lodash';
 import * as moment from 'moment';
 import { GeneralService } from './general.service';
+import { secondsToHours } from '../helpers/helpers';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> {
@@ -82,7 +83,8 @@ export class UsersService extends BaseService<User & Document> {
         {
           path: 'currentProject',
           populate: {
-            path: 'members.userDetails'
+            path: 'members.userDetails',
+            select: 'firstName lastName emailId userName profilePic'
           },
           select: 'name description members settings template createdBy updatedBy',
           justOne: true
@@ -100,6 +102,7 @@ export class UsersService extends BaseService<User & Document> {
 
     if (userDetails.currentProject) {
       userDetails.currentProject.id = userDetails.currentProject._id.toString();
+      userDetails.currentProject = this.parseProjectToVm(userDetails.currentProject);
     }
 
     if (userDetails.currentOrganization) {
@@ -149,5 +152,19 @@ export class UsersService extends BaseService<User & Document> {
         });
 
     return userDetails;
+  }
+
+  private parseProjectToVm(project: Project): Project {
+    if (!project) {
+      return project;
+    }
+
+    project.members = project.members.map(member => {
+      member.workingCapacity = secondsToHours(member.workingCapacity);
+      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+      return member;
+    });
+
+    return project;
   }
 }
