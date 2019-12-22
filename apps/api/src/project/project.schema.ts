@@ -4,15 +4,21 @@ import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/sc
 import {
   DEFAULT_PROJECT_TEMPLATE_TYPE,
   DEFAULT_WORKING_CAPACITY,
-  DEFAULT_WORKING_CAPACITY_PER_DAY
+  DEFAULT_WORKING_CAPACITY_PER_DAY,
+  DEFAULT_WORKING_DAYS
 } from '../shared/helpers/defaultValueConstant';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const paginate = require('mongoose-paginate-v2');
 
 const projectTagsSchema = new Schema({
   name: String,
   isDeleted: { type: Boolean, default: false }
+}, schemaOptions);
+
+const projectTaskTypeSchema = new Schema({
+  name: { type: String, required: true },
+  color: { type: String, required: true },
+  displayName: { type: String, required: true }
 }, schemaOptions);
 
 export const projectSchema = new Schema({
@@ -26,7 +32,10 @@ export const projectSchema = new Schema({
     isEmailSent: { type: Boolean },
     isInviteAccepted: { type: Boolean },
     workingCapacity: { type: Number, default: DEFAULT_WORKING_CAPACITY },
-    workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY }
+    workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY },
+    workingDays: {
+      type: Array, default: DEFAULT_WORKING_DAYS
+    }
   },
   organization: {
     type: Schema.Types.ObjectId,
@@ -59,8 +68,7 @@ projectSchema
 
 // plugins
 projectSchema
-  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(paginate);
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);
 
 // virtual
 projectSchema

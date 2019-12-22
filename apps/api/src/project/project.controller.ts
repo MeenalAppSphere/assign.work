@@ -31,7 +31,7 @@ export class ProjectController {
 
   @Post()
   async createProject(@Body() model: Project) {
-    return await this._projectService.addProject(model);
+    return await this._projectService.createProject(model);
   }
 
   @Delete(':id')

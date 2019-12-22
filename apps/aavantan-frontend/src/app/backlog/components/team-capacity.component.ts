@@ -1,11 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import {
-  Organization,
-  Sprint,
-  SprintMembersCapacity,
-  UpdateSprintMemberWorkingCapacity,
-  User
-} from '@aavantan-app/models';
+import { Organization, Sprint, SprintMembersCapacity, UpdateSprintMemberWorkingCapacity } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
 
@@ -47,7 +41,8 @@ return ;
         for (let i = 0; i < this.sprintData.membersCapacity.length; i++) {
           const capacityReqObject = {
             memberId: this.sprintData.membersCapacity[i].userId,
-            workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString()
+            workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString(),
+            workingCapacity: 40
           }
           json.capacity.push(capacityReqObject);
         }

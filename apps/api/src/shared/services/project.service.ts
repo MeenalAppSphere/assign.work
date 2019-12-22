@@ -25,7 +25,11 @@ import { Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
 import { GeneralService } from './general.service';
-import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../helpers/defaultValueConstant';
+import {
+  DEFAULT_WORKING_CAPACITY,
+  DEFAULT_WORKING_CAPACITY_PER_DAY,
+  DEFAULT_WORKING_DAYS
+} from '../helpers/defaultValueConstant';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -39,7 +43,16 @@ export class ProjectService extends BaseService<Project & Document> {
     super(_projectModel);
   }
 
-  async addProject(model: Project) {
+  /**
+   * create project
+   * @param model: Project
+   * first check basic validations then set all default values
+   * then add project creator as collaborator
+   * if this is first project of a user than set it as current project of user
+   * update user object in db
+   * return {Project}
+   */
+  async createProject(model: Project) {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
 
@@ -54,7 +67,6 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new BadRequestException('Please Choose An Organization');
     }
 
-    const organizationId = model.organization;
     model = new this._projectModel(model);
     model.organization = this.toObjectId(model.organization as string);
     model.settings.taskTypes = [];
@@ -69,7 +81,8 @@ export class ProjectService extends BaseService<Project & Document> {
       emailId: userDetails.emailId,
       isInviteAccepted: true,
       workingCapacity: DEFAULT_WORKING_CAPACITY,
-      workingCapacityPerDay: DEFAULT_WORKING_CAPACITY_PER_DAY
+      workingCapacityPerDay: DEFAULT_WORKING_CAPACITY_PER_DAY,
+      workingDays: DEFAULT_WORKING_DAYS
     });
 
     try {
@@ -94,7 +107,7 @@ export class ProjectService extends BaseService<Project & Document> {
     }
   }
 
-  async updateProject(id: string, project: Partial<Project>) {
+  async updateProject(id: string, project) {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
 
@@ -110,6 +123,14 @@ export class ProjectService extends BaseService<Project & Document> {
     }
   }
 
+  /**
+   * add collaborator to project
+   * separate registered and unregistered collaborators
+   * create users in db from unregistered collaborators
+   * send project invitation to registered and unregistered collaborators
+   * @param id
+   * @param members
+   */
   async addCollaborators(id: string, members: ProjectMembers[]) {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
@@ -123,7 +144,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const alreadyRegisteredMembers: ProjectMembers[] = [];
     const unRegisteredMembers: ProjectMembers[] = [];
     const unregisteredMembersModel: Partial<User>[] = [];
-    let finalMembers: ProjectMembers[] = [];
+    let finalCollaborators: ProjectMembers[] = [];
 
     try {
       // separate registered collaborators and unregister collaborators
@@ -157,8 +178,10 @@ export class ProjectService extends BaseService<Project & Document> {
         alreadyRegisteredMembers[i].isInviteAccepted = !!userDetails;
       }
 
-      finalMembers = [...alreadyRegisteredMembers];
+      // push already registered collaborators to final collaborators array
+      finalCollaborators = [...alreadyRegisteredMembers];
 
+      // loop over unregistered collaborators and create users model for saving in user db
       unRegisteredMembers.forEach(f => {
         unregisteredMembersModel.push(
           new this._userModel({
@@ -168,10 +191,13 @@ export class ProjectService extends BaseService<Project & Document> {
         );
       });
 
+      // check if there any unregistered users
       if (unRegisteredMembers.length) {
+        // create users in database
         const createdUsers: any = await this._userService.createUser(unregisteredMembersModel, session);
 
-        finalMembers.push(...createdUsers.map(m => {
+        // push to final collaborators array
+        finalCollaborators.push(...createdUsers.map(m => {
           return {
             userId: m.id,
             emailId: m.emailId,
@@ -182,13 +208,14 @@ export class ProjectService extends BaseService<Project & Document> {
       }
 
       // add members default working capacity
-      const membersModel: ProjectMembers[] = finalMembers.map(member => {
+      const membersModel: ProjectMembers[] = finalCollaborators.map(member => {
         member.workingCapacity = DEFAULT_WORKING_CAPACITY;
         member.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
+        member.workingDays = DEFAULT_WORKING_DAYS;
         return member;
       });
 
-      const result = await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
+      await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
       await session.commitTransaction();
       session.endSession();
       return await this.findById(id);
@@ -221,16 +248,19 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new BadRequestException('One of Collaborator is not found in Project!');
     }
 
+    // loop over members and set details that we got in request
     projectDetails.members = projectDetails.members.map(pd => {
       const indexInDto = dto.findIndex(f => f.userId === pd.userId);
       if (indexInDto > -1) {
-        pd.workingCapacity = dto[indexInDto].workingCapacity || 0;
-        pd.workingCapacityPerDay = dto[indexInDto].workingCapacityPerDay || 0;
+        pd.workingCapacity = dto[indexInDto].workingCapacity || DEFAULT_WORKING_CAPACITY;
+        pd.workingCapacityPerDay = dto[indexInDto].workingCapacityPerDay || DEFAULT_WORKING_CAPACITY_PER_DAY;
+        pd.workingDays = dto[indexInDto].workingDays || DEFAULT_WORKING_DAYS;
       }
       return pd;
     });
 
-    return await this.updateProject(id, projectDetails);
+    // update project
+    return await this.updateProject(id, { $set: { members: projectDetails.members } });
   }
 
   async getAllProject(query: any, reuest: BaseRequestModel) {
@@ -347,14 +377,13 @@ export class ProjectService extends BaseService<Project & Document> {
       if (isDuplicateColor) {
         throw new BadRequestException('Tasktype Color Already Exists...');
       }
-
     } else {
       projectDetails.settings.taskTypes = [];
     }
 
     taskType.id = new Types.ObjectId().toHexString();
-    projectDetails.settings.taskTypes.push(taskType);
-    return await this.updateProject(id, projectDetails);
+    // projectDetails.settings.taskTypes.push(taskType);
+    return await this.updateProject(id, { $push: { 'settings.taskTypes': taskType } });
   }
 
   async removeTaskType(id: string, taskTypeId: string) {
@@ -559,7 +588,7 @@ export class ProjectService extends BaseService<Project & Document> {
             firstName: member.userDetails.firstName,
             lastName: member.userDetails.lastName,
             profilePic: member.userDetails.profilePic
-          }
+          };
         });
     } else {
       return [];

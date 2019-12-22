@@ -27,6 +27,7 @@ export class ProjectMembers {
   userDetails?: User;
   workingCapacity?: number;
   workingCapacityPerDay?: number;
+  workingDays?: ProjectWorkingDays[];
 }
 
 export class ProjectSettings {
@@ -65,6 +66,12 @@ export class ProjectWorkingCapacityUpdateDto {
   userId: string;
   workingCapacity: number;
   workingCapacityPerDay?: number;
+  workingDays?: ProjectWorkingDays[];
+}
+
+export class ProjectWorkingDays {
+  day: string;
+  selected: boolean;
 }
 
 export class SwitchProjectRequest {
