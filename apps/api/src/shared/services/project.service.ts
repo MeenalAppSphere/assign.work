@@ -276,8 +276,8 @@ export class ProjectService extends BaseService<Project & Document> {
     projectDetails.members = projectDetails.members.map(pd => {
       const indexInDto = dto.findIndex(f => f.userId === pd.userId);
       if (indexInDto > -1) {
-        pd.workingCapacity = hourToSeconds(dto[indexInDto].workingCapacity || DEFAULT_WORKING_CAPACITY);
-        pd.workingCapacityPerDay = hourToSeconds(dto[indexInDto].workingCapacityPerDay || DEFAULT_WORKING_CAPACITY_PER_DAY);
+        pd.workingCapacity = hourToSeconds(dto[indexInDto].workingCapacity) || DEFAULT_WORKING_CAPACITY;
+        pd.workingCapacityPerDay = hourToSeconds(dto[indexInDto].workingCapacityPerDay) || DEFAULT_WORKING_CAPACITY_PER_DAY;
         pd.workingDays = dto[indexInDto].workingDays || DEFAULT_WORKING_DAYS;
       }
       return pd;

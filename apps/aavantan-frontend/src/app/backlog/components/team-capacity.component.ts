@@ -28,7 +28,7 @@ export class TeamCapacityComponent implements OnInit {
 
   async saveForm(){
     console.log(this.sprintData);
-return ;
+//return ;
     try {
       this.isCapacityUpdateInProgress = true;
       const json: UpdateSprintMemberWorkingCapacity = {

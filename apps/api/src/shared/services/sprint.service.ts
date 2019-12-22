@@ -27,7 +27,7 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
-import { hourToSeconds, secondsToString } from '../helpers/helpers';
+import { hourToSeconds, secondsToString, validWorkingDaysChecker } from '../helpers/helpers';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -610,6 +610,13 @@ export class SprintService extends BaseService<Sprint & Document> {
       throw new BadRequestException('One of member is not found in Project!');
     }
 
+    // valid working days
+    const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
+
+    if (!validWorkingDays) {
+      throw new BadRequestException('One of Collaborator working days are invalid');
+    }
+
     // get sprint details by id
     const sprintDetails = await this.getSprintDetails(model.sprintId);
 
@@ -634,6 +641,8 @@ export class SprintService extends BaseService<Sprint & Document> {
         if (indexOfMemberInRequestedModal > -1) {
           // convert member capacity hours to seconds
           sprintMember.workingCapacity = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacity);
+          sprintMember.workingCapacityPerDay = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDay);
+          sprintMember.workingDays = model.capacity[indexOfMemberInRequestedModal].workingDays;
         }
         totalWorkingCapacity += sprintMember.workingCapacity;
       });
