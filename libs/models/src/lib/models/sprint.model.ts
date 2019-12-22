@@ -91,8 +91,18 @@ export interface DraftSprint {
   ids?: string[];
   tasks?: Task[];
   duration?: number;
-  durationReadable?: string;
-  durationRemainingReadable?: string;
+  totalCapacity?: number;
+  totalCapacityReadable?: string;
+  totalRemainingCapacity?: number;
+  totalRemainingCapacityReadable?: string;
+  totalEstimation?: number;
+  totalEstimationReadable?: string;
+  totalLoggedTime?: number;
+  totalLoggedTimeReadable?: string;
+  totalOverLoggedTime?: number;
+  totalOverLoggedTimeReadable?: string;
+  totalRemainingTime?: number;
+  totalRemainingTimeReadable?: string;
 }
 
 export class CreateSprintModel {

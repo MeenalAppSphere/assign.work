@@ -57,6 +57,7 @@ export class TeamCapacityComponent implements OnInit {
     }
   }
   public calculateTotalCapacity(){
+    this.sprintData.totalCapacity = 0;
     for(let i=0; i<this.sprintData.membersCapacity.length;i++){
       console.log(Number(this.sprintData.totalCapacity) +'--'+ Number(this.sprintData.membersCapacity[i].workingCapacity))
       this.sprintData.totalCapacity = Number(this.sprintData.totalCapacity) + Number(this.sprintData.membersCapacity[i].workingCapacity);
