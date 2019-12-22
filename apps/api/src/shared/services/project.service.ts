@@ -32,7 +32,10 @@ import {
 } from '../helpers/defaultValueConstant';
 import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
 
-const projectBasicPopulation = [{ path: 'members.userDetails', select: 'firstName lastName emailId userName profilePic' }];
+const projectBasicPopulation = [{
+  path: 'members.userDetails',
+  select: 'firstName lastName emailId userName profilePic'
+}];
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -111,15 +114,21 @@ export class ProjectService extends BaseService<Project & Document> {
     }
   }
 
+  /**
+   * update project by id
+   * @param id
+   * @param project
+   */
   async updateProject(id: string, project) {
     const session = await this._projectModel.db.startSession();
     session.startTransaction();
 
     try {
-      const result = await this.update(id, project, session);
+      await this.update(id, project, session);
       await session.commitTransaction();
       session.endSession();
-      return await this.findById(id, projectBasicPopulation);
+      const result = await this.findById(id, projectBasicPopulation);
+      return this.parseProjectToVm(result);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -661,6 +670,7 @@ export class ProjectService extends BaseService<Project & Document> {
 
     project.members = project.members.map(member => {
       member.workingCapacity = secondsToHours(member.workingCapacity);
+      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
       return member;
     });
 
