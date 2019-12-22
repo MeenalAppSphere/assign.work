@@ -70,10 +70,22 @@ export const secondsToString = (seconds: number = 0): string => {
  * @return {number}
  */
 export const hourToSeconds = (hour: number = 0): number => {
-  if (typeof hour !== 'number') {
+  if (Number.isNaN(Number(hour))) {
     throw new TypeError('Expected a number');
   }
   return hour * 3600;
+};
+
+/**
+ * convert seconds to hours
+ * @param seconds: number
+ * @return {number}
+ */
+export const secondsToHours = (seconds: number = 0): number => {
+  if (Number.isNaN(Number(seconds))) {
+    throw new TypeError('Expected a number');
+  }
+  return seconds * 3600;
 };
 
 /**

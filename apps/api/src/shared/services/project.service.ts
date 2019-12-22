@@ -30,7 +30,9 @@ import {
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
-import { hourToSeconds, validWorkingDaysChecker } from '../helpers/helpers';
+import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
+
+const projectBasicPopulation = [{ path: 'members.userDetails', select: 'firstName lastName emailId userName profilePic' }];
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -117,7 +119,7 @@ export class ProjectService extends BaseService<Project & Document> {
       const result = await this.update(id, project, session);
       await session.commitTransaction();
       session.endSession();
-      return await this.findById(id);
+      return await this.findById(id, projectBasicPopulation);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -650,6 +652,19 @@ export class ProjectService extends BaseService<Project & Document> {
       }
     }
     return organizationDetails;
+  }
+
+  private parseProjectToVm(project: Project): Project {
+    if (!project) {
+      return project;
+    }
+
+    project.members = project.members.map(member => {
+      member.workingCapacity = secondsToHours(member.workingCapacity);
+      return member;
+    });
+
+    return project;
   }
 
 }
