@@ -154,6 +154,11 @@ export class UsersService extends BaseService<User & Document> {
     return userDetails;
   }
 
+  /**
+   * parse project to view model
+   * @param project
+   * @returns {Project}
+   */
   private parseProjectToVm(project: Project): Project {
     if (!project) {
       return project;

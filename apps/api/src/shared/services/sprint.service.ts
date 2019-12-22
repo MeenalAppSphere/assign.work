@@ -167,6 +167,11 @@ export class SprintService extends BaseService<Sprint & Document> {
     // get project details and check if current user is member of project
     const projectDetails = await this.getProjectDetails(model.sprint.projectId);
 
+    // check if project have stages
+    if (!projectDetails.settings.stages.length) {
+      throw new BadRequestException('No stages found in Project please create at least on  stage');
+    }
+
     // sprint unique name validation per project
     const isSprintNameAlreadyExits = await this._sprintModel.find({
       name: { $regex: new RegExp(`^${model.sprint.name}$`), $options: 'i' },
@@ -187,7 +192,8 @@ export class SprintService extends BaseService<Sprint & Document> {
       model.sprint.membersCapacity.push({
         userId: member.userId,
         workingCapacity: member.workingCapacity,
-        workingCapacityPerDay: member.workingCapacityPerDay
+        workingCapacityPerDay: member.workingCapacityPerDay,
+        workingDays: member.workingDays
       });
       model.sprint.totalCapacity += member.workingCapacityPerDay;
     });
@@ -346,7 +352,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         // assignee working limit per sprint
         // return error ( member working capacity exceed )
 
-        // ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > ((taskAssigneeMap[i].workingCapacity * 3600) * sprintDaysCount))
+        // ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > ((taskAssigneeMap[i].workingCapacity) * sprintDaysCount))
 
         // if ((taskAssigneeMap[i].alreadyLoggedTime + taskAssigneeMap[i].totalEstimation) > hourToSeconds(taskAssigneeMap[i].workingCapacity)) {
         //   sprintError.membersErrors.push({

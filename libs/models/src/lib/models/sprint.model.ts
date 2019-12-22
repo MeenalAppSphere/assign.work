@@ -1,7 +1,7 @@
 import { Task } from './task.model';
 import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
-import { Project } from './project.model';
+import { Project, ProjectWorkingDays } from './project.model';
 import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Sprint {
@@ -72,6 +72,7 @@ export class SprintMembersCapacity {
   workingCapacityReadable?: number;
   workingCapacityPerDay?: number;
   workingCapacityPerDayReadable?: string;
+  workingDays?: ProjectWorkingDays[];
 }
 
 export class SprintErrorResponse {
