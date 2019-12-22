@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
+  AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
   BasePaginatedResponse,
   CreateSprintModel,
@@ -234,7 +235,7 @@ export class SprintService extends BaseService<Sprint & Document> {
    * add task to a sprint
    * @param model
    */
-  public async addTaskToSprint(model: AddTaskToSprintModel) {
+  public async addTaskToSprint(model: AddTaskToSprintModel): Promise<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse> {
     // region basic validation
 
     // tasks array
@@ -396,7 +397,15 @@ export class SprintService extends BaseService<Sprint & Document> {
 
       // const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
       // return this.prepareSprintVm(sprint);
-      return model.tasks;
+      return {
+        totalCapacity: sprintDetails.totalCapacity,
+        totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
+        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+        totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
+        totalEstimation: sprintDetails.totalEstimation,
+        totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
+        tasks: model.tasks
+      };
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -414,7 +423,7 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param model: RemoveTaskFromSprintModel
    * @return {Promise<void>}
    */
-  public async removeTaskFromSprint(model: RemoveTaskFromSprintModel): Promise<string[]> {
+  public async removeTaskFromSprint(model: RemoveTaskFromSprintModel): Promise<AddTaskRemoveTaskToSprintResponseModel> {
     // region basic validation
 
     // tasks array
@@ -479,7 +488,15 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       // return add deleted tasks id
-      return model.tasks;
+      return {
+        totalCapacity: sprintDetails.totalCapacity,
+        totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
+        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+        totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
+        totalEstimation: sprintDetails.totalEstimation,
+        totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
+        tasks: model.tasks
+      };
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -622,6 +639,10 @@ export class SprintService extends BaseService<Sprint & Document> {
     // get sprint details by id
     const sprintDetails = await this.getSprintDetails(model.sprintId);
 
+    if (sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
+      throw new BadRequestException('Sprint is already published you can not change it\'s Capacity');
+    }
+
     // check if all members are part of the sprint
     const everyMemberThereInSprint = model.capacity.every(member => sprintDetails.membersCapacity.some(proejctMember => proejctMember.userId === member.memberId));
     if (!everyMemberThereInSprint) {
@@ -649,8 +670,16 @@ export class SprintService extends BaseService<Sprint & Document> {
         totalWorkingCapacity += sprintMember.workingCapacity;
       });
 
+      sprintDetails.totalRemainingCapacity = totalWorkingCapacity - sprintDetails.totalEstimation;
+
       // update object for sprint member capacity
-      const updateObject = { $set: { membersCapacity: sprintDetails.membersCapacity, totalCapacity: totalWorkingCapacity } };
+      const updateObject = {
+        $set: {
+          membersCapacity: sprintDetails.membersCapacity,
+          totalCapacity: totalWorkingCapacity,
+          totalRemainingCapacity: sprintDetails.totalRemainingCapacity
+        }
+      };
       // update sprint in database
       await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
       await session.commitTransaction();

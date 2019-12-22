@@ -112,6 +112,16 @@ export class RemoveTaskFromSprintModel extends SprintBaseRequest {
   tasks: string[];
 }
 
+export class AddTaskRemoveTaskToSprintResponseModel {
+  totalCapacity: number;
+  totalCapacityReadable: string;
+  totalRemainingCapacity: number;
+  totalRemainingCapacityReadable: string;
+  totalEstimation: number;
+  totalEstimationReadable: string;
+  tasks: string[];
+}
+
 export class MoveTaskToStage extends SprintBaseRequest {
   stageId: string;
   taskId: string;
