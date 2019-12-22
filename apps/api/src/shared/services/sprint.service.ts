@@ -650,7 +650,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       });
 
       // update object for sprint member capacity
-      const updateObject = { $set: { membersCapacity: sprintDetails.membersCapacity } };
+      const updateObject = { $set: { membersCapacity: sprintDetails.membersCapacity, totalCapacity: totalWorkingCapacity } };
       // update sprint in database
       await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
       await session.commitTransaction();
