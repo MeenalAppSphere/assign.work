@@ -94,7 +94,7 @@ export const secondsToHours = (seconds: number = 0): number => {
  * @param days
  * return {boolean}
  */
-export const validWorkingDaysChecker = (days: ProjectWorkingDays[]) => {
+export const validWorkingDaysChecker = (days: ProjectWorkingDays[] = []) => {
   const daysArray = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   return days.length === 7 && daysArray.every(d => days.some(day => day.day === d));
 };
