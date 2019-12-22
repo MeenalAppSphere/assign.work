@@ -231,7 +231,8 @@ export class ProjectService extends BaseService<Project & Document> {
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
       await session.commitTransaction();
       session.endSession();
-      return await this.findById(id);
+      const result = await this.findById(id, projectBasicPopulation);
+      return this.parseProjectToVm(result);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();

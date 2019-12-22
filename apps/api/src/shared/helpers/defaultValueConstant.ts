@@ -31,3 +31,6 @@ export const DEFAULT_WORKING_DAYS: ProjectWorkingDays[] = [{
 }, {
   day: 'sun', selected: false
 }];
+
+// default decimal places
+export const DEFAULT_DECIMAL_PLACES = 2;
