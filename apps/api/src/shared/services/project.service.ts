@@ -30,6 +30,7 @@ import {
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
+import { validWorkingDaysChecker } from '../helpers/helpers';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -247,8 +248,16 @@ export class ProjectService extends BaseService<Project & Document> {
     const everyBodyThere = dto.every(ddt => projectDetails.members.some(pd => {
       return pd.userId === ddt.userId && pd.isInviteAccepted;
     }));
+
     if (!everyBodyThere) {
       throw new BadRequestException('One of Collaborator is not found in Project!');
+    }
+
+    // valid working days
+    const validWorkingDays = dto.every(ddt => validWorkingDaysChecker(ddt.workingDays));
+
+    if (!validWorkingDays) {
+      throw new BadRequestException('One of Collaborator working days are invalid');
     }
 
     // loop over members and set details that we got in request

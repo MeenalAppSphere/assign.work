@@ -3,6 +3,8 @@
  * @param val ex: '1d 2h 34'
  * @return {number}
  */
+import { ProjectWorkingDays } from '@aavantan-app/models';
+
 export const stringToSeconds = (val: string = ''): number => {
   // separate given string with space
   const separatedVal = val.trim().split(/\s/);
@@ -72,4 +74,15 @@ export const hourToSeconds = (hour: number = 0): number => {
     throw new TypeError('Expected a number');
   }
   return hour * 3600;
+};
+
+/**
+ * working days checker
+ * checks if all days are in available in give days
+ * @param days
+ * return {boolean}
+ */
+export const validWorkingDaysChecker = (days: ProjectWorkingDays[]) => {
+  const daysArray = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  return days.length === 7 && daysArray.every(d => days.some(day => day.day === d));
 };
