@@ -32,6 +32,7 @@ export class TaskListComponent implements OnInit {
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
+
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;
   public sortingRequest: TaskFilterDto = {
