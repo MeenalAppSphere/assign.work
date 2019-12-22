@@ -196,7 +196,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         workingCapacityPerDay: member.workingCapacityPerDay,
         workingDays: member.workingDays
       });
-      model.sprint.totalCapacity += member.workingCapacity;
+      model.sprint.totalCapacity += Number(member.workingCapacity);
     });
 
     // create stages array for sprint from project
@@ -326,7 +326,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === member.userId);
 
         if (assigneeIndex > -1) {
-          taskAssigneeMap[assigneeIndex].workingCapacity = member.workingCapacity;
+          taskAssigneeMap[assigneeIndex].workingCapacity = Number(member.workingCapacity);
         }
       });
 
@@ -371,7 +371,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       }
 
       // now all validations have been completed add task to sprint
-      sprintDetails.totalEstimation = 0;
+      // sprintDetails.totalEstimation = 0;
 
       for (let i = 0; i < taskDetails.length; i++) {
         await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, session);
@@ -873,23 +873,29 @@ export class SprintService extends BaseService<Sprint & Document> {
     sprint.id = sprint['_id'];
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
+    sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
 
     // convert estimation time in readable format
     sprint.totalEstimationReadable = secondsToString(sprint.totalEstimation);
+    sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
 
     // calculate total remaining capacity
     sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation || 0;
     sprint.totalRemainingCapacityReadable = secondsToString(sprint.totalRemainingCapacity);
+    sprint.totalRemainingCapacity = secondsToHours(sprint.totalCapacity);
 
     // convert total logged time in readable format
     sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
+    sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
 
     // convert total over logged time in readable format
     sprint.totalOverLoggedTimeReadable = secondsToString(sprint.totalOverLoggedTime || 0);
+    sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
 
     // calculate total remaining time
     sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
     sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
+    sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
 
     // calculate progress
     sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(2)) || 0;
