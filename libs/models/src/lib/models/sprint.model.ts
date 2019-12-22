@@ -142,6 +142,8 @@ export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {
   capacity: Array<{
     memberId: string;
     workingCapacityPerDayReadable?: string;
-    workingCapacity: number
+    workingCapacity: number,
+    workingCapacityPerDay?: number,
+    workingDays?: ProjectWorkingDays[];
   }>;
 }
