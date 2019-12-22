@@ -26,6 +26,7 @@ import { GeneralService } from './general.service';
 import { orderBy } from 'lodash';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
+import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 
 /**
  * common task population object
@@ -186,7 +187,7 @@ export class TaskService extends BaseService<Task & Document> {
 
           await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
             $set: { 'settings.tags': projectDetails.settings.tags }
-          }, session);
+          }, {session});
         }
       }
 
@@ -240,7 +241,7 @@ export class TaskService extends BaseService<Task & Document> {
         if (taskDetails.totalLoggedTime > 0) {
 
           // calculate progress and over progress
-          const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(2));
+          const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
 
           // if process is grater 100 then over time is added
           // in this case calculate overtime and set remaining time to 0
@@ -249,7 +250,7 @@ export class TaskService extends BaseService<Task & Document> {
             model.remainingTime = 0;
             model.overLoggedTime = taskDetails.totalLoggedTime - model.estimatedTime;
 
-            const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(2));
+            const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
             model.overProgress = overProgress > 100 ? 100 : overProgress;
           } else {
             // normal time logged
@@ -303,7 +304,7 @@ export class TaskService extends BaseService<Task & Document> {
 
         await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
           $set: { 'settings.tags': projectDetails.settings.tags }
-        }, session);
+        }, {session});
       }
     }
 

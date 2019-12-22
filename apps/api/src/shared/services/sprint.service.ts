@@ -29,6 +29,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
 import { hourToSeconds, secondsToHours, secondsToString } from '../helpers/helpers';
+import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -374,7 +375,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       // sprintDetails.totalEstimation = 0;
 
       for (let i = 0; i < taskDetails.length; i++) {
-        await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, session);
+        await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, { session });
 
         sprintDetails.totalEstimation += taskDetails[i].estimatedTime;
 
@@ -475,7 +476,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         sprintDetails.totalEstimation -= task.estimatedTime;
 
         // update task model
-        await this._taskModel.updateOne({ _id: task.id }, { sprintId: null }, session);
+        await this._taskModel.updateOne({ _id: task.id }, { sprintId: null }, {session});
       }
 
       // set total remaining capacity by dividing sprint members totalCapacity - totalEstimation
@@ -694,7 +695,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         }
       };
       // update sprint in database
-      await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, session);
+      await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, {session});
       await session.commitTransaction();
       session.endSession();
 
@@ -886,35 +887,29 @@ export class SprintService extends BaseService<Sprint & Document> {
     sprint.id = sprint['_id'];
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
-    sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
 
     // convert estimation time in readable format
     sprint.totalEstimationReadable = secondsToString(sprint.totalEstimation);
-    sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
 
     // calculate total remaining capacity
     sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation || 0;
     sprint.totalRemainingCapacityReadable = secondsToString(sprint.totalRemainingCapacity);
-    sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
 
     // convert total logged time in readable format
     sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
-    sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
 
     // convert total over logged time in readable format
     sprint.totalOverLoggedTimeReadable = secondsToString(sprint.totalOverLoggedTime || 0);
-    sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
 
     // calculate total remaining time
     sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
     sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
-    sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
 
     // calculate progress
-    sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(2)) || 0;
+    sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
 
     // calculate over progress
-    sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(2)) || 0;
+    sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
 
     // loop over stages and convert total estimation time to readable format
     if (sprint.stages) {
@@ -922,6 +917,14 @@ export class SprintService extends BaseService<Sprint & Document> {
         stage.totalEstimationReadable = secondsToString(stage.totalEstimation);
       });
     }
+
+    // seconds to hour for ui
+    sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
+    sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
+    sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
+    sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
+    sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
+    sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
 
     // loop over sprint members and convert working capacity to readable format
     if (sprint.membersCapacity) {

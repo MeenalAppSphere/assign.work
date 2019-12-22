@@ -19,6 +19,7 @@ import { GeneralService } from './general.service';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 import { TaskHistoryService } from './task-history.service';
+import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
@@ -218,7 +219,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       taskDetails.progress = 100;
       model.timeLog.remainingTime = 0;
     } else {
-      const progress: number = Number(((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+      const progress: number = Number(((100 * taskDetails.totalLoggedTime) / taskDetails.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
 
       // if process is grater 100 then over time is added
       // in this case calculate overtime and set remaining time to 0
@@ -227,7 +228,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         taskDetails.remainingTime = 0;
         taskDetails.overLoggedTime = taskDetails.totalLoggedTime - taskDetails.estimatedTime;
 
-        const overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(2));
+        const overProgress = Number(((100 * taskDetails.overLoggedTime) / taskDetails.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
         taskDetails.overProgress = overProgress > 100 ? 100 : overProgress;
       } else {
         // normal time logged
@@ -268,7 +269,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       sprintDetails.totalLoggedTime += model.timeLog.loggedTime || 0;
 
       // calculate progress
-      const progress: number = Number(((100 * sprintDetails.totalLoggedTime) / sprintDetails.totalEstimation).toFixed(2));
+      const progress: number = Number(((100 * sprintDetails.totalLoggedTime) / sprintDetails.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES));
 
       if (progress > 100) {
         // if progress > 100 means over logging happened
@@ -279,7 +280,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         sprintDetails.totalOverLoggedTime = sprintDetails.totalLoggedTime - sprintDetails.totalEstimation;
 
         // calculate over progress percentage
-        const overProgress = Number(((100 * sprintDetails.totalOverLoggedTime) / sprintDetails.totalEstimation).toFixed(2));
+        const overProgress = Number(((100 * sprintDetails.totalOverLoggedTime) / sprintDetails.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES));
         sprintDetails.overProgress = overProgress > 100 ? 100 : overProgress;
       } else {
         // if progress is lesser or equal to 100 means no over logging done

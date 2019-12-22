@@ -498,7 +498,7 @@ export class ProjectService extends BaseService<Project & Document> {
     session.startTransaction();
 
     try {
-      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, session);
+      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, {session});
       const result = await this._userService.getUserProfile(this._generalService.userId);
       await session.commitTransaction();
       session.endSession();

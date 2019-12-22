@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as aws from 'aws-sdk';
 import { S3Client } from './S3Client.service';
 import { GeneralService } from './general.service';
+import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 
 @Injectable()
 export class AttachmentService extends BaseService<AttachmentModel & Document> {
@@ -31,7 +32,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> {
     let fileUrl: string;
 
     // validations
-    if (Number((file.size / (1024 * 1024)).toFixed(2)) > 5) {
+    if (Number((file.size / (1024 * 1024)).toFixed(DEFAULT_DECIMAL_PLACES)) > 5) {
       throw new PayloadTooLargeException('File size limit exceeded');
     }
 
