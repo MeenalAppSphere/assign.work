@@ -27,7 +27,7 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
-import { hourToSeconds, secondsToString, validWorkingDaysChecker } from '../helpers/helpers';
+import { hourToSeconds, secondsToHours, secondsToString } from '../helpers/helpers';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -605,17 +605,19 @@ export class SprintService extends BaseService<Sprint & Document> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     // check if all members are part of the project
-    const everyMemberThere = model.capacity.every(member => projectDetails.members.some(proejctMember => proejctMember.userId === member.memberId));
+    const everyMemberThere = model.capacity.every(member => projectDetails.members.some(proejctMember => {
+      return proejctMember.userId === member.memberId && proejctMember.isInviteAccepted;
+    }));
     if (!everyMemberThere) {
       throw new BadRequestException('One of member is not found in Project!');
     }
 
     // valid working days
-    const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
-
-    if (!validWorkingDays) {
-      throw new BadRequestException('One of Collaborator working days are invalid');
-    }
+    // const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
+    //
+    // if (!validWorkingDays) {
+    //   throw new BadRequestException('One of Collaborator working days are invalid');
+    // }
 
     // get sprint details by id
     const sprintDetails = await this.getSprintDetails(model.sprintId);
@@ -641,8 +643,8 @@ export class SprintService extends BaseService<Sprint & Document> {
         if (indexOfMemberInRequestedModal > -1) {
           // convert member capacity hours to seconds
           sprintMember.workingCapacity = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacity);
-          sprintMember.workingCapacityPerDay = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDay);
-          sprintMember.workingDays = model.capacity[indexOfMemberInRequestedModal].workingDays;
+          // sprintMember.workingCapacityPerDay = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDay);
+          // sprintMember.workingDays = model.capacity[indexOfMemberInRequestedModal].workingDays;
         }
         totalWorkingCapacity += sprintMember.workingCapacity;
       });
@@ -876,7 +878,10 @@ export class SprintService extends BaseService<Sprint & Document> {
     // loop over sprint members and convert working capacity to readable format
     if (sprint.membersCapacity) {
       sprint.membersCapacity.forEach(member => {
-        member.workingCapacityPerDayReadable = secondsToString(member.workingCapacityPerDay);
+        // convert capacity to hours again
+        member.workingCapacity = secondsToHours(member.workingCapacity);
+        member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+        // member.workingCapacityPerDayReadable = secondsToString(member.workingCapacityPerDay);
       });
       return sprint;
     }
