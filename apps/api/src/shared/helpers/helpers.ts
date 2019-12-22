@@ -4,7 +4,6 @@
  * @return {number}
  */
 import { ProjectWorkingDays } from '@aavantan-app/models';
-import { DEFAULT_DECIMAL_PLACES } from './defaultValueConstant';
 
 export const stringToSeconds = (val: string = ''): number => {
   // separate given string with space
@@ -86,7 +85,7 @@ export const secondsToHours = (seconds: number = 0): number => {
   if (Number.isNaN(Number(seconds))) {
     throw new TypeError('Expected a number');
   }
-  return parseFloat((seconds / 3600).toFixed(DEFAULT_DECIMAL_PLACES));
+  return (seconds / 3600);
 };
 
 /**
