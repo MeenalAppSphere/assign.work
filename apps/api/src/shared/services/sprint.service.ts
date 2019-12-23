@@ -110,21 +110,37 @@ export class SprintService extends BaseService<Sprint & Document> {
    * get sprint by sprint id
    * model: GetSprintByIdRequestModel
    */
-  public async getSprintById(model: GetSprintByIdRequestModel) {
+  public async getSprintById(model: GetSprintByIdRequestModel, onlyPublished: boolean = false) {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    // const query = this._sprintModel.findOne({
-    //   _id: model.sprintId,
-    //   projectId: model.projectId,
-    //   isDeleted: false
-    // });
-    //
-    // query.populate(detailedPopulationForSprint);
-    // query.select(detailedFiledSelection);
-    // query.lean();
+    const filter = {
+      _id: model.sprintId,
+      projectId: model.projectId,
+      isDeleted: false
+    };
 
-    const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
-    return this.prepareSprintVm(sprint, projectDetails);
+    if (onlyPublished) {
+      filter['sprintStatus.status'] = SprintStatusEnum.inProgress;
+    }
+
+    let sprint = await this._sprintModel.findOne(filter).populate(detailedPopulationForSprint).select(detailedFiledSelection).lean().exec();
+    sprint = this.prepareSprintVm(sprint, projectDetails);
+
+    // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
+    // tasks is only added in only first stage means stage[0]
+    sprint.stages[0].tasks.forEach(obj => {
+      obj.task = this.parseTaskObjectForUi(obj.task, projectDetails);
+    });
+
+    return sprint;
+  }
+
+  /**
+   * get only published sprint
+   * @param model
+   */
+  public async getPublishedSprintById(model: GetSprintByIdRequestModel) {
+    return this.getSprintById(model, true);
   }
 
   /**

@@ -51,8 +51,13 @@ export class SprintController {
   }
 
   @Post('get-sprint')
-  async getActiveSprint(@Body() model: GetSprintByIdRequestModel) {
+  async getSprint(@Body() model: GetSprintByIdRequestModel) {
     return await this._sprintService.getSprintById(model);
+  }
+
+  @Post('get-published-sprint')
+  async getPublishedSprint(@Body() model: GetSprintByIdRequestModel) {
+    return await this._sprintService.getPublishedSprintById(model);
   }
 
   @Post('update-working-capacity')
