@@ -49,7 +49,7 @@ export class Task {
   updatedAt?: Date;
   isSelected?: boolean;
   watchersDetails?: User[];
-  hasError?:string;
+  hasError?: string;
 }
 
 export class TaskComments {
@@ -66,6 +66,7 @@ export class TaskComments {
 
 export class TaskHistory {
   taskId: string;
+  sprintId?: string;
   task?: Task;
   action: TaskHistoryActionEnum;
   createdById: string;
@@ -94,10 +95,6 @@ export class TaskFilterDto {
   finishedAt?: Date;
 }
 
-export class TaskForSprint extends Task {
-  selectedForSprint: boolean = false;
-}
-
 export class BaseTaskRequestModel {
   projectId: string;
   taskId?: string;
@@ -106,6 +103,8 @@ export class BaseTaskRequestModel {
 
 export class GetAllTaskRequestModel extends MongoosePaginateQuery {
   projectId: string;
+  onlyBackLog?: boolean;
+  sprintId?: string;
 }
 
 export class GetMyTaskRequestModel extends MongoosePaginateQuery {

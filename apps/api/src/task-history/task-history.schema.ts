@@ -6,6 +6,7 @@ const mongooseValidationErrorTransform = require('mongoose-validation-error-tran
 
 export const taskHistorySchema = new Schema({
   taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
+  sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   action: { type: String },
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   desc: {},

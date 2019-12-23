@@ -22,6 +22,7 @@ import {
   TaskAssigneeMap,
   TaskTimeLog,
   UpdateSprintMemberWorkingCapacity,
+  UpdateSprintModel,
   User
 } from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
@@ -137,33 +138,8 @@ export class SprintService extends BaseService<Sprint & Document> {
       throw new BadRequestException('invalid request sprint details missing');
     }
 
-    // sprint name
-    if (!model.sprint.name) {
-      throw new BadRequestException('Sprint Name is compulsory');
-    }
-
-    // sprint started at
-    if (!model.sprint.startedAt) {
-      throw new BadRequestException('Please select Sprint Start Date');
-    }
-
-    // sprint end at
-    if (!model.sprint.endAt) {
-      throw new BadRequestException('Please select Sprint End Date');
-    }
-
-    // started date can not be before today
-    const isStartDateBeforeToday = moment(model.sprint.startedAt).isBefore(moment().startOf('d'));
-    if (isStartDateBeforeToday) {
-      throw new BadRequestException('Sprint Started date can not be Before Today');
-    }
-
-    // end date can not be before start date
-    const isEndDateBeforeTaskStartDate = moment(model.sprint.endAt).isBefore(model.sprint.startedAt);
-    if (isEndDateBeforeTaskStartDate) {
-      throw new BadRequestException('Sprint End Date can not be before Sprint Start Date');
-    }
-
+    // perform common validations
+    this.commonSprintValidator(model.sprint);
     // endregion
 
     // get project details and check if current user is member of project
@@ -182,7 +158,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     }).select('name').countDocuments();
 
     if (isSprintNameAlreadyExits > 0) {
-      throw new BadRequestException('Sprint Name Already Exit');
+      throw new BadRequestException('Sprint name already exits');
     }
 
     // add all project collaborators as sprint member and add their's work capacity to total capacity
@@ -224,6 +200,92 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
+      return this.prepareSprintVm(sprint);
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
+  }
+
+  /**
+   * update sprint
+   * @param model: UpdateSprintModel
+   */
+  public async updateSprint(model: UpdateSprintModel) {
+    // basic validation
+    if (!model.sprint) {
+      throw new BadRequestException('invalid request sprint details missing');
+    }
+
+    if (!model.sprint.id) {
+      throw new BadRequestException('Sprint not found');
+    }
+
+    // perform common validations
+    this.commonSprintValidator(model.sprint);
+
+    // get project details
+    const projectDetails = await this.getProjectDetails(model.sprint.projectId);
+
+    // check if project have stages
+    if (!projectDetails.settings.stages.length) {
+      throw new BadRequestException('No stages found in Project please create at least one stage');
+    }
+
+    // sprint unique name validation per project
+    const isSprintNameAlreadyExits = await this._sprintModel.find({
+      name: { $regex: new RegExp(`^${model.sprint.name}$`), $options: 'i' },
+      _id: { $ne: model.sprint.id },
+      isDeleted: false,
+      projectId: model.sprint.projectId
+
+    }).select('name').countDocuments();
+
+    if (isSprintNameAlreadyExits > 0) {
+      throw new BadRequestException('Sprint name already exits');
+    }
+
+    const sprintDetails: Sprint = await this._sprintModel
+      .findOne({ _id: model.sprint.id, isDeleted: false })
+      .select('name startedAt endAt goal sprintStatus')
+      .lean()
+      .exec();
+
+    if (!sprintDetails) {
+      throw new BadRequestException('Sprint not found!');
+    }
+
+    if (sprintDetails.sprintStatus) {
+      let msgStatus = '';
+      // switch over sprint status
+      switch (sprintDetails.sprintStatus.status) {
+        case SprintStatusEnum.inProgress:
+          msgStatus = 'Published';
+          break;
+        case SprintStatusEnum.closed:
+          msgStatus = 'Closed';
+          break;
+        case SprintStatusEnum.completed:
+          msgStatus = 'Completed';
+      }
+
+      throw new BadRequestException(`Sprint is already ${msgStatus}! You can not update it`);
+    }
+
+    const session = await this._sprintModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      await this._sprintModel.updateOne({ _id: model.sprint.id }, {
+        $set: {
+          name: model.sprint.name, goal: model.sprint.goal, startedAt: model.sprint.startedAt, endAt: model.sprint.endAt
+        }
+      }, { session });
+      await session.commitTransaction();
+      session.endSession();
+
+      const sprint = await this.getSprintDetails(model.sprint.id, commonPopulationForSprint, commonFieldSelection);
       return this.prepareSprintVm(sprint);
     } catch (e) {
       await session.abortTransaction();
@@ -372,14 +434,14 @@ export class SprintService extends BaseService<Sprint & Document> {
       }
 
       // now all validations have been completed add task to sprint
-      // sprintDetails.totalEstimation = 0;
 
       for (let i = 0; i < taskDetails.length; i++) {
-        await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, { session });
-
+        // add task estimation to sprint total estimation
         sprintDetails.totalEstimation += taskDetails[i].estimatedTime;
 
+        // add task estimation to stage total estimation
         sprintDetails.stages[0].totalEstimation += taskDetails[i].estimatedTime;
+        // add task to stage
         sprintDetails.stages[0].tasks.push({
           taskId: taskDetails[i].id,
           addedAt: new Date(),
@@ -393,6 +455,12 @@ export class SprintService extends BaseService<Sprint & Document> {
 
       // update sprint
       await this.update(model.sprintId, sprintDetails, session);
+
+      // update task and set sprint id
+      for (let i = 0; i < taskDetails.length; i++) {
+        await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, { session });
+      }
+
       await session.commitTransaction();
       session.endSession();
 
@@ -447,7 +515,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       // get all tasks details from given tasks array
       const taskDetails: Task[] = await this._taskModel.find({
         projectId: this.toObjectId(model.projectId),
-        // sprintId: this.toObjectId(model.sprintId),
+        sprintId: this.toObjectId(model.sprintId),
         _id: { $in: model.tasks },
         isDeleted: false
       }).lean();
@@ -476,7 +544,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         sprintDetails.totalEstimation -= task.estimatedTime;
 
         // update task model
-        await this._taskModel.updateOne({ _id: task.id }, { sprintId: null }, {session});
+        await this._taskModel.updateOne({ _id: task.id }, { sprintId: null }, { session });
       }
 
       // set total remaining capacity by dividing sprint members totalCapacity - totalEstimation
@@ -695,7 +763,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         }
       };
       // update sprint in database
-      await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, {session});
+      await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, { session });
       await session.commitTransaction();
       session.endSession();
 
@@ -963,6 +1031,47 @@ export class SprintService extends BaseService<Sprint & Document> {
       });
     }
     return task;
+  }
+
+  /**
+   * common sprint related validations
+   * check name, started At, end At, goal present or not
+   * check sprint start date is not before today
+   * check sprint end date is not before start date
+   * @param sprint
+   */
+  private commonSprintValidator(sprint: Sprint) {
+    // sprint name
+    if (!sprint.name) {
+      throw new BadRequestException('Sprint Name is compulsory');
+    }
+
+    // sprint goal
+    if (!sprint.goal) {
+      throw new BadRequestException('Sprint goal is required');
+    }
+
+    // sprint started at
+    if (!sprint.startedAt) {
+      throw new BadRequestException('Please select Sprint Start Date');
+    }
+
+    // sprint end at
+    if (!sprint.endAt) {
+      throw new BadRequestException('Please select Sprint End Date');
+    }
+
+    // started date can not be before today
+    const isStartDateBeforeToday = moment(sprint.startedAt).isBefore(moment().startOf('d'));
+    if (isStartDateBeforeToday) {
+      throw new BadRequestException('Sprint Started date can not be Before Today');
+    }
+
+    // end date can not be before start date
+    const isEndDateBeforeTaskStartDate = moment(sprint.endAt).isBefore(sprint.startedAt);
+    if (isEndDateBeforeTaskStartDate) {
+      throw new BadRequestException('Sprint End Date can not be before Sprint Start Date');
+    }
   }
 
 }

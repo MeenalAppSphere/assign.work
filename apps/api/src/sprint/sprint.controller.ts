@@ -9,7 +9,8 @@ import {
   MoveTaskToStage,
   PublishSprintModel,
   RemoveTaskFromSprintModel,
-  UpdateSprintMemberWorkingCapacity
+  UpdateSprintMemberWorkingCapacity,
+  UpdateSprintModel
 } from '@aavantan-app/models';
 
 @Controller('sprint')
@@ -22,6 +23,11 @@ export class SprintController {
   @Post('create')
   async createSprint(@Body() model: CreateSprintModel) {
     return await this._sprintService.createSprint(model);
+  }
+
+  @Post('update')
+  async updateSprint(@Body() model: UpdateSprintModel) {
+    return await this._sprintService.updateSprint(model);
   }
 
   @Post('add-tasks')

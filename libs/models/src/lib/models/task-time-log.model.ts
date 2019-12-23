@@ -2,6 +2,7 @@ import { Task, User } from '@aavantan-app/models';
 
 export class TaskTimeLog {
   taskId: string;
+  sprintId?: string;
   task?: Task;
   startedAt: Date;
   endAt?: Date;
@@ -27,6 +28,7 @@ export class AddTaskTimeModel {
 
 export class TaskTimeLogResponse {
   taskId?: string;
+  sprintId?: string;
   progress: number;
   totalLoggedTime: number;
   totalLoggedTimeReadable: string;

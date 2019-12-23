@@ -100,6 +100,14 @@ export class TaskService extends BaseService<Task & Document> {
       filter = { projectId: model.projectId };
     }
 
+    // get task for only backlogs
+    if (model.onlyBackLog) {
+      filter = { ...filter, $or: [{ sprintId: { $exists: false } }, { sprintId: null }] };
+    } else if (model.sprintId) {
+      // get task of a specific sprint
+      filter = { sprintId: model.sprintId };
+    }
+
     const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
 
     result.items = result.items.map(task => {
@@ -187,7 +195,7 @@ export class TaskService extends BaseService<Task & Document> {
 
           await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
             $set: { 'settings.tags': projectDetails.settings.tags }
-          }, {session});
+          }, { session });
         }
       }
 
@@ -304,7 +312,7 @@ export class TaskService extends BaseService<Task & Document> {
 
         await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
           $set: { 'settings.tags': projectDetails.settings.tags }
-        }, {session});
+        }, { session });
       }
     }
 

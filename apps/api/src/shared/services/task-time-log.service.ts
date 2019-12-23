@@ -41,6 +41,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
     const projectDetails = await this.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.timeLog.taskId);
+    let sprintDetails: Sprint = null;
 
     // region validations
     if (!model.timeLog.createdById) {
@@ -150,6 +151,21 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
     }
     // endregion
 
+    // if task in sprint get sprint details
+    if (taskDetails.sprintId) {
+      sprintDetails = await this._sprintModel.findOne({
+        _id: taskDetails.sprintId,
+        projectId: model.projectId,
+        isDeleted: false,
+        'sprintStatus.status': SprintStatusEnum.inProgress
+      }).select('totalLoggedTime totalEstimation totalOverLoggedTime ').lean();
+
+      // assign sprint id to timelog model
+      model.timeLog.sprintId = taskDetails.sprintId;
+    } else {
+      delete model.timeLog['sprintId'];
+    }
+
     const session = await this._taskTimeLogModel.db.startSession();
     session.startTransaction();
 
@@ -162,19 +178,20 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
 
       // region update sprint calculations
       // ensure task is in sprint
-      if (taskDetails.sprintId) {
+      if (sprintDetails) {
         // calculate sprint calculations and update sprint
-        await this.calculateSprintLogs(taskDetails.sprintId, model, session);
+        await this.calculateSprintLogs(sprintDetails, taskDetails.sprintId, model, session);
       }
       // endregion
 
       // create entry in task history collection
       // prepare task history modal
       const history = new TaskHistory();
-      history.action = taskDetails.sprintId ? TaskHistoryActionEnum.timeLoggedInSprint : TaskHistoryActionEnum.timeLogged;
+      history.sprintId = taskDetails.sprintId;
+      history.action = history.sprintId ? TaskHistoryActionEnum.timeLoggedInSprint : TaskHistoryActionEnum.timeLogged;
       history.createdById = model.timeLog.createdById;
       history.taskId = model.timeLog.taskId;
-      history.desc = taskDetails.sprintId ? 'Time Logged in sprint' : 'Time Logged';
+      history.desc = history.sprintId ? 'Time Logged for a sprint' : 'Time Logged';
 
       // add task history
       await this._taskHistoryService.addHistory(history, session);
@@ -183,6 +200,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       session.endSession();
       return {
         taskId: model.timeLog.taskId,
+        sprintId: model.timeLog.sprintId,
         progress: taskDetails.progress,
         totalLoggedTime: taskDetails.totalLoggedTime,
         totalLoggedTimeReadable: secondsToString(taskDetails.totalLoggedTime),
@@ -242,27 +260,21 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
     // endregion
 
     // update task total logged time and total estimated time
-    await this._taskModel.updateOne({ _id: this.toObjectId(model.timeLog.taskId) }, taskDetails, session);
+    await this._taskModel.updateOne({ _id: model.timeLog.taskId }, taskDetails, { session });
   }
 
   /**
    * calculate sprint logs
-   * first find sprint
    * add logged time to sprint total logged time
    * calculate progress, if progress grater than 100, means over logging done
    * calculate over logging progress
    * finally update sprint
+   * @param sprintDetails: Sprint
    * @param sprintId
    * @param model
    * @param session
    */
-  private async calculateSprintLogs(sprintId: string, model: AddTaskTimeModel, session: ClientSession) {
-    const sprintDetails: Sprint = await this._sprintModel.findOne({
-      _id: sprintId,
-      projectId: model.projectId,
-      isDeleted: false,
-      'sprintStatus.status': SprintStatusEnum.inProgress
-    }).lean();
+  private async calculateSprintLogs(sprintDetails: Sprint, sprintId: string, model: AddTaskTimeModel, session: ClientSession) {
 
     if (sprintDetails) {
       // add logged time to sprint total logged time
@@ -293,7 +305,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       return this._sprintModel.updateOne({ _id: sprintDetails.id }, {
         totalLoggedTime: sprintDetails.totalLoggedTime, totalRemainingTime: sprintDetails.totalRemainingTime,
         totalOverLoggedTime: sprintDetails.totalOverLoggedTime
-      }, session);
+      }, { session });
     }
   }
 

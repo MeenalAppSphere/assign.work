@@ -109,6 +109,9 @@ export class CreateSprintModel {
   sprint: Sprint;
 }
 
+export class UpdateSprintModel extends CreateSprintModel {
+}
+
 export class SprintBaseRequest {
   projectId: string;
   sprintId: string;
