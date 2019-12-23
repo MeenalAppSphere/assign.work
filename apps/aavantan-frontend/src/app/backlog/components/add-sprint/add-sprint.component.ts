@@ -42,7 +42,7 @@ export class AddSprintComponent implements OnInit, OnDestroy {
       startedAt: new FormControl(null, []),
       endAt: new FormControl(null, []),
     });
-    if(this.sprintData.name) {
+    if(this.sprintData.id) {
       this.sprintForm.get('name').patchValue(this.sprintData.name);
       this.sprintForm.get('goal').patchValue(this.sprintData.goal);
       this.sprintForm.get('duration').patchValue([this.sprintData.startedAt, this.sprintData.endAt]);
@@ -69,7 +69,14 @@ export class AddSprintComponent implements OnInit, OnDestroy {
     };
 
     try {
-      const createdSprint = await this._sprintService.createSprint(sprint).toPromise();
+      let createdSprint = null;
+
+      if(this.sprintData.id) {
+        sprint.sprint.id = this.sprintData.id;
+        createdSprint = await this._sprintService.updateSprint(sprint).toPromise();
+      }else {
+        createdSprint = await this._sprintService.createSprint(sprint).toPromise();
+      }
 
       this.sprintModalIsVisible = false;
       this.sprintData = createdSprint.data;

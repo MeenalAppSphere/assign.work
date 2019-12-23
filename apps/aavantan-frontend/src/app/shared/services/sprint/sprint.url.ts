@@ -3,6 +3,7 @@ import { createUrl } from '../apiUrls/base.url';
 export const SprintUrls = {
   base: createUrl('sprint'),
   addSprint: createUrl('sprint/create'),
+  updateSprint: createUrl('sprint/update'),
   getSprint: createUrl('sprint/get-sprint'),
   getAllSprint: createUrl('sprint/all'),
   publishSprint: createUrl('sprint/publish-sprint'),

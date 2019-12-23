@@ -11,7 +11,7 @@ import {
   BaseResponseModel,
   CreateSprintModel,
   GetAllSprintRequestModel, GetUnpublishedRequestModel, RemoveTaskFromSprintModel,
-  Sprint, SprintBaseRequest, SprintErrorResponse, UpdateSprintMemberWorkingCapacity
+  Sprint, SprintBaseRequest, SprintErrorResponse, UpdateSprintMemberWorkingCapacity, UpdateSprintModel
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
@@ -37,6 +37,19 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
+  updateSprint(sprintData: UpdateSprintModel): Observable<BaseResponseModel<Sprint>> {
+    return this._http.post(SprintUrls.updateSprint, sprintData).pipe(
+      map((res: BaseResponseModel<Sprint>) => {
+        this.notification.success('Success', 'Sprint Updated Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
   getSprint(sprintData: Sprint): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.getSprint, sprintData).pipe(
       map((res: BaseResponseModel<Sprint>) => {
