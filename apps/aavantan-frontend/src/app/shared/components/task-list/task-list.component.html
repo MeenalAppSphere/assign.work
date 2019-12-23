@@ -1,62 +1,70 @@
 <div class="container-fluid p-0">
     <div class="row" *ngIf="view == 'cardView'">
         <div class="col-md-3" *ngFor="let item of taskList">
-            <nz-card nzSize="small">
-                <div class="d-flex justify-content-between">
+            <nz-card nzSize="small" class="card-view-card" [ngStyle]="{'border-left':'solid 4px '+ item.priority.color +'' }">
+
+              <div class="clearfix m-b-10 font-size-12">
+
+                <span [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''" nz-tooltip>{{item.displayName}}</span>
+
+                <span class="float-right">
+                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#DEDFE2'" style="text-transform: initial;" class="text-black">{{item.status.name}}</nz-tag>
+                  <nz-tag *ngIf="!item.status" [nzColor]="'#DEDFE2'" class="text-black">-</nz-tag>
+                </span>
+
+              </div>
+
+              <div class="d-flex justify-content-between m-b-10">
                     <div class="media">
-                        <span *ngIf="item && item.priority">
-                          <i [nzTitle]="item.priority.name" nz-tooltip [ngStyle]="{'margin-top': '2px','border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>
-                        </span>
-                        <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff','margin-top': '4px', 'height':'18px' }"></i>
-                        <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5 m-t-5"></i>
-                        <div class="m-l-10">
+<!--                        <span *ngIf="item && item.priority">-->
+<!--                          <i [nzTitle]="item.priority.name" nz-tooltip [ngStyle]="{'margin-top': '2px','border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>-->
+<!--                        </span>-->
+<!--                        <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff','margin-top': '4px', 'height':'18px' }"></i>-->
+<!--                        <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5 m-t-5"></i>-->
+                        <div>
                             <h6 class="m-b-0">
                                 <a href="javascript:void(0)" (click)="viewTask(item)">
-                                    <p class="ellipsis">{{item.displayName}}: {{item.name}}</p>
+                                    <p class="ellipsis text-black">{{item.displayName}}: {{item.name}}</p>
                                 </a>
                             </h6>
                         </div>
                     </div>
                 </div>
 
-                <p *ngIf="item.description" class="m-t-5 card-desc-height" nz-paragraph nzEllipsis nzEllipsisRows="3" [innerHTML]="item.description | safeHtml"></p>
-                <p *ngIf="!item.description" class="m-t-5 card-desc-height text-muted" nz-paragraph nzEllipsis nzEllipsisRows="3">NA</p>
 
-                <p class=""><span>{{item.estimatedTimeReadable ? item.estimatedTimeReadable : 0 }}</span>
-                    <a *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
-                </p>
-                <div *ngIf="showProgressOption && item.progress">
-                    <div class="d-flex justify-content-between">
-                        <span class="font-weight-semibold">Progress</span>
-                        <span class="font-weight-semibold">{{item.progress}}%</span>
-                    </div>
-                    <div style="height:20px;">
-                      <nz-progress *ngIf="item.progress && item.status && item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>
-                      <nz-progress *ngIf="item.progress && item.status && item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>
-                    </div>
-                </div>
-                <div class="m-t-10">
+
+                <div class="m-t-10 font-12">
                     <div class="d-flex justify-content-between align-items-center" style="min-height:24px;">
-                        <div *ngIf="!item.status">-</div>
-                        <div *ngIf="item.status">
-                            <nz-tag class="m-b-0" *ngIf="item.status && item.status.name == 'In Progress'" [nzColor]="'blue'">{{item.status.name}}</nz-tag>
-                            <nz-tag class="m-b-0" *ngIf="item.status && item.status.name !== 'Behind'" [nzColor]="'orange'">{{item.status.name}}</nz-tag>
-                        </div>
-                        <div *ngIf="!item.assignee">
-                            <nz-avatar nzSize="small" nzIcon="user"></nz-avatar>
-                        </div>
-                        <div *ngIf="item.assignee">
-                            <nz-avatar nzSize="small" nzIcon="user" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar>
-                            {{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}
-                            <!--              <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let item of (item.assignee ? item.assignee.slice(0,2): [])">-->
-                            <!--                <nz-avatar  nzSize="small" [nzSrc]="item.profilePic" nz-tooltip [nzTitle]="item.firstName"></nz-avatar>-->
-                            <!--              </a>-->
-                            <!--              <a *ngIf="item.assignee.length > 2">-->
-                            <!--                <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.assignee.length - 2].toString()" nz-tooltip [nzTitle]="[item.assignee.length - 2].toString() + ' More'"></nz-avatar>-->
-                            <!--              </a>-->
-                        </div>
+
+
+                      <span *ngIf="!item.assignee">
+                        <nz-avatar nzSize="small" nzIcon="user"></nz-avatar>
+                      </span>
+                      <span *ngIf="item.assignee" class="user-name">
+                        <nz-avatar nzSize="small" nzIcon="user" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar>
+                        {{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}
+                      </span>
+
+                      <span class="float-right clearfix">
+                        <span class="p-r-10">{{item.estimatedTimeReadable ? item.estimatedTimeReadable : 0 }}</span>
+                        <a *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                      </span>
+
+
                     </div>
                 </div>
+
+                <div *ngIf="showProgressOption && item.progress">
+                  <div class="d-flex justify-content-between">
+                    <span class="font-weight-semibold">Progress</span>
+                    <span class="font-weight-semibold">{{item.progress}}%</span>
+                  </div>
+                  <div style="height:20px;">
+                    <nz-progress *ngIf="item.progress && item.status && item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>
+                    <nz-progress *ngIf="item.progress && item.status && item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>
+                  </div>
+                </div>
+
             </nz-card>
         </div>
     </div>

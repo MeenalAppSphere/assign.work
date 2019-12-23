@@ -426,8 +426,6 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   }
 }
 
-
-
 .ddls-btn {
   text-align: left;
   min-width: 100px!important;
@@ -452,5 +450,12 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 .progress-exception{
   .ant-progress-bg{
     background-color: red!important;
+  }
+}
+
+
+.card-view-card{
+  .ant-card-body{
+    padding: 10px!important;
   }
 }
