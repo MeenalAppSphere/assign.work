@@ -79,3 +79,11 @@ projectSchema
     foreignField: '_id',
     justOne: true
   });
+
+projectSchema
+  .virtual('sprint', {
+    ref: DbCollection.sprint,
+    localField: 'sprintId',
+    foreignField: '_id',
+    justOne: true
+  });

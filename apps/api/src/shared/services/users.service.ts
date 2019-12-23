@@ -82,12 +82,15 @@ export class UsersService extends BaseService<User & Document> {
         },
         {
           path: 'currentProject',
-          populate: {
+          select: 'name description members settings template createdBy updatedBy sprintId',
+          justOne: true,
+          populate: [{
             path: 'members.userDetails',
-            select: 'firstName lastName emailId userName profilePic'
-          },
-          select: 'name description members settings template createdBy updatedBy',
-          justOne: true
+            select: 'firstName lastName emailId userName profilePic sprintId'
+          }, {
+            path: 'sprint',
+            select: 'name goal'
+          }]
         }, {
           path: 'currentOrganization',
           select: 'name description displayName logoUrl',

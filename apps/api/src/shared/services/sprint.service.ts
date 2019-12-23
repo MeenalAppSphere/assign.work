@@ -101,7 +101,7 @@ export class SprintService extends BaseService<Sprint & Document> {
 
     // loop over sprints array and prepare vm object for all sprints
     result.items.forEach(sprint => {
-      sprint = this.prepareSprintVm(sprint);
+      sprint = this.prepareSprintVm(sprint, projectDetails);
     });
     return result;
   }
@@ -124,7 +124,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     // query.lean();
 
     const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
-    return this.prepareSprintVm(sprint);
+    return this.prepareSprintVm(sprint, projectDetails);
   }
 
   /**
@@ -200,7 +200,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint);
+      return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -286,7 +286,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       const sprint = await this.getSprintDetails(model.sprint.id, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint);
+      return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -669,7 +669,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       session.endSession();
 
       const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, detailedFiledSelection);
-      return this.prepareSprintVm(sprint);
+      return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -769,7 +769,7 @@ export class SprintService extends BaseService<Sprint & Document> {
 
       // return sprint details
       const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint);
+      return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -817,7 +817,7 @@ export class SprintService extends BaseService<Sprint & Document> {
       await this.update(model.sprintId, { sprintStatus: updateSprintObject }, session);
 
       // update project and set published sprint as active sprint in project
-      await this._sprintModel.updateOne({ _id: model.projectId }, { $set: { sprintId: model.sprintId } }, { session });
+      await this._projectModel.updateOne({ _id: model.projectId }, { $set: { sprintId: model.sprintId } }, { session });
       await session.commitTransaction();
       session.endSession();
       return 'Sprint Published Successfully';
@@ -853,7 +853,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     }
 
     // prepare sprint vm model
-    sprint = this.prepareSprintVm(sprint);
+    sprint = this.prepareSprintVm(sprint, projectDetails);
 
     // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
     // tasks is only added in only first stage means stage[0]
@@ -954,8 +954,9 @@ export class SprintService extends BaseService<Sprint & Document> {
    * convert sprint object to it's view model
    * @param sprint
    * @returns {Sprint}
+   * @param projectDetails
    */
-  private prepareSprintVm(sprint: Sprint): Sprint {
+  private prepareSprintVm(sprint: Sprint, projectDetails: Project): Sprint {
     if (!sprint) {
       return sprint;
     }
@@ -990,6 +991,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     // loop over stages and convert total estimation time to readable format
     if (sprint.stages) {
       sprint.stages.forEach(stage => {
+        stage.stage = projectDetails.settings.stages.find(st => st.id === stage.id);
         stage.totalEstimationReadable = secondsToString(stage.totalEstimation);
       });
     }

@@ -1,7 +1,7 @@
 import { Task } from './task.model';
 import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
-import { Project, ProjectWorkingDays } from './project.model';
+import { Project, ProjectStages, ProjectWorkingDays } from './project.model';
 import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Sprint {
@@ -38,6 +38,7 @@ export class Sprint {
 
 export class SprintStage {
   id: string;
+  stage?: ProjectStages;
   status: string[];
   tasks: SprintStageTask[];
   totalEstimation: number;
