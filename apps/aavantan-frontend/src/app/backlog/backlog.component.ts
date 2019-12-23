@@ -43,8 +43,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public gettingAllSprintInProcess: boolean;
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
-  public AddedTaskToSprintData:any;
-  public taskMessage:string = '0';
+  public activeSprintData : Sprint;
+  public activeSprintId : string;
 
   public searchValue: string;
   public searchTaskListInProgress: boolean;
@@ -60,9 +60,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
+    this.activeSprintData = this._generalService.currentProject.sprint;
+    this.activeSprintId = this._generalService.currentProject.sprintId;
+
     if(this._generalService.currentProject && this._generalService.currentProject.id) {
       // this.getAllSprint();
-      this.getAllTask();
+      this.getAllBacklogTask();
       this.getUnpublishedSprint();
     }
 
@@ -175,24 +178,32 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
-  public getAllTask(){
+  async getAllBacklogTask(){
 
     const json: GetAllTaskRequestModel = {
       projectId: this._generalService.currentProject.id,
       sort: 'createdAt',
-      sortBy: 'desc'
+      sortBy: 'desc',
+      onlyBackLog: true
     };
-    this._taskService.getAllTask(json).subscribe();
 
-    this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.getTaskInProcess=false;
+    this.getTaskInProcess=true;
+    const data = await this._taskService.getAllBacklogTasks(json).toPromise();
+    if(data.data && data.data.items.length>0){
+      this.allTaskList = cloneDeep(data.data.items);
+      this.allTaskListBackup = cloneDeep(data.data.items);
+    }
 
-        this.allTaskList = cloneDeep(res);
-        this.allTaskListBackup = cloneDeep(res);
-
-      }
-    });
+    this.getTaskInProcess = false
+    // this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
+    //   if (res) {
+    //     this.getTaskInProcess=false;
+    //
+    //     this.allTaskList = cloneDeep(res);
+    //     this.allTaskListBackup = cloneDeep(res);
+    //
+    //   }
+    // });
   }
 
   public countTotalDuration() {

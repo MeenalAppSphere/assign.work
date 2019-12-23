@@ -10,12 +10,13 @@ import {
   BasePaginatedResponse,
   BaseResponseModel,
   CreateSprintModel,
-  GetAllSprintRequestModel, GetUnpublishedRequestModel, RemoveTaskFromSprintModel,
-  Sprint, SprintBaseRequest, SprintErrorResponse, UpdateSprintMemberWorkingCapacity, UpdateSprintModel
+  GetAllSprintRequestModel, GetAllTaskRequestModel, GetUnpublishedRequestModel, RemoveTaskFromSprintModel,
+  Sprint, SprintBaseRequest, SprintErrorResponse, SprintStage, UpdateSprintMemberWorkingCapacity, UpdateSprintModel
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
 import { catchError, map } from 'rxjs/operators';
+import { TaskUrls } from '../task/task.url';
 
 @Injectable()
 export class SprintService extends BaseService<TaskStore, TaskState> {
@@ -54,6 +55,18 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.getSprint, sprintData).pipe(
       map((res: BaseResponseModel<Sprint>) => {
         // this.notification.success('Success', 'Found Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+
+  getBoardData(json: GetAllTaskRequestModel): Observable<BaseResponseModel<Sprint>> {
+    return this._http.post(SprintUrls.getBoardData, json).pipe(
+      map((res: BaseResponseModel<Sprint>) => {
         return res;
       }),
       catchError(err => {

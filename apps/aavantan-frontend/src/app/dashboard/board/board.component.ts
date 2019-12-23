@@ -1,5 +1,8 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Sprint, SprintStatusEnum, Task } from '@aavantan-app/models';
+import { GetAllTaskRequestModel, Sprint, SprintStage, SprintStatusEnum, Task } from '@aavantan-app/models';
+import { GeneralService } from '../../shared/services/general.service';
+import { SprintService } from '../../shared/services/sprint/sprint.service';
+import { NzNotificationService } from 'ng-zorro-antd';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -8,11 +11,12 @@ import { Sprint, SprintStatusEnum, Task } from '@aavantan-app/models';
 })
 export class BoardComponent implements OnInit {
 
-  public tasks:any=[{"name":"TODO","position":0,"blockId":"21lwkj1231","tasks":[{"id":"5d76654c11992d0cffbc10e5","displayName":"BUG-111","blockId":"21lwkj1231","name":"Create Login api with google and Github","closed":false,"description":"Create a signup API","stageId":"5d76654af04b8710c4dafaa7","projectId":"5d76654a7c2bb5109e7280bf","position":1,"proirity":{"name":"Critical","color":"#F80647"},"comments":0,"taskType":{"name":"BUG","color":"#F80647"},"assigned":{"memberId":"59de14978d0fd81978d0fd81","fullName":"Pradeep Sharma","firstName":"Pradeep","lastName":"Sharma","initial":"PS","profilePic":"https://pbs.twimg.com/profile_images/1131596312825044993/ZJubr5eo_200x200.png"},"url":"https://trello.com/c/u1lc0kbq/1-signup-api","createdAt":"2019-09-09T14:50:55.104Z","updatedAt":"2019-09-09T14:50:55.104Z"},{"id":"5d76654c11992d0cffbc10e5","blockId":"21lwkj1231","displayName":"BUG-112","name":"Signup API","closed":false,"description":"Create a signup API","stageId":"5d76654af04b8710c4dafaa7","projectId":"5d76654a7c2bb5109e7280bf","position":1,"proirity":{"name":"Low","color":"green"},"comments":0,"taskType":{"name":"BUG","color":"#F80647"},"assigned":{"memberId":"59de14978d0fd81978d0fd81","fullName":"Pradeep Sharma","firstName":"Pradeep","lastName":"Sharma","initial":"PS","profilePic":"https://pbs.twimg.com/profile_images/1131596312825044993/ZJubr5eo_200x200.png"},"url":"https://trello.com/c/u1lc0kbq/1-signup-api","createdAt":"2019-09-09T14:50:55.104Z","updatedAt":"2019-09-09T14:50:55.104Z"}]},{"name":"In-Progress","position":1,"blockId":"21lwkj1232","tasks":[{"id":"5d76654c11992d0cffbc10e5","displayName":"CR-110","blockId":"21lwkj1232","name":"Signup API","closed":false,"description":"Create a signup API","stageId":"5d76654af04b8710c4dafaa7","projectId":"5d76654a7c2bb5109e7280bf","position":1,"proirity":{"name":"Medium","color":"#2196f3"},"comments":0,"taskType":{"name":"CR","color":"#F0CB2D"},"assigned":{"memberId":"59de14978d0fd81978d0fd81","fullName":"Pradeep Sharma","firstName":"Pradeep","lastName":"Sharma","initial":"PS","profilePic":"https://pbs.twimg.com/profile_images/1131596312825044993/ZJubr5eo_200x200.png"},"url":"https://trello.com/c/u1lc0kbq/1-signup-api","createdAt":"2019-09-09T14:50:55.104Z","updatedAt":"2019-09-09T14:50:55.104Z"}]},{"name":"Done","position":2,"blockId":"21lwkj1233","tasks":[{"id":"5d76654c11992d0cffbc10e5","displayName":"BUG-113","blockId":"21lwkj1233","name":"Signup API","closed":false,"description":"Create a signup API","stageId":"5d76654af04b8710c4dafaa7","projectId":"5d76654a7c2bb5109e7280bf","position":1,"proirity":{"name":"Medium","color":"#2196f3"},"comments":0,"taskType":{"name":"BUG","color":"#F80647"},"assigned":{"memberId":"59de14978d0fd81978d0fd81","fullName":"Pradeep Sharma","firstName":"Pradeep","lastName":"Sharma","initial":"PS","profilePic":"https://pbs.twimg.com/profile_images/1131596312825044993/ZJubr5eo_200x200.png"},"url":"https://trello.com/c/u1lc0kbq/1-signup-api","createdAt":"2019-09-09T14:50:55.104Z","updatedAt":"2019-09-09T14:50:55.104Z"}]}];
-  public tasksData=true;
+  public boardData: Sprint;
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   public selectedTaskItem:Task;
+  public getStageInProcess: boolean;
+  public activeSprintData:Sprint;
   public sprintDataSource:Sprint[] = [
     {
       id: '1',
@@ -54,28 +58,58 @@ export class BoardComponent implements OnInit {
       }
     }
   ];
-  itemStringsTODO = [
-    'Some quick example text to build on the card title and make up the bulk of the card\'s content',
-    'Task 2',
-    'Task 3',
-    'Task 4',
-    'Some quick example text to build on the card title and make up the bulk of the card\'s content',
-    'Task 6',
-    'Task 7',
-    'Task 8'
-  ];
 
-  itemStringsPROGRESS = ['Task 1-1', 'Task 1-2'];
-
-  itemStringsQA = ['Task 1-1', 'Task 1-2'];
-
-  itemStringsDONE = ['Task 1-1', 'Task 1-2'];
-
-  constructor() { }
+  constructor(private _generalService: GeneralService,
+              private _sprintService: SprintService,
+              protected notification: NzNotificationService) { }
 
   ngOnInit() {
+
+    this.activeSprintData = this._generalService.currentProject.sprint;
+
+    if(this._generalService.currentProject.sprintId && this._generalService.currentProject.id){
+      this.getBoardData();
+    }else{
+      this.notification.info('Info', 'Sprint not found');
+    }
   }
 
+  async getBoardData(){
+    try{
+
+      const json: GetAllTaskRequestModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this._generalService.currentProject.sprintId
+      };
+
+      this.getStageInProcess = true;
+      const data = await this._sprintService.getBoardData(json).toPromise();
+      if(data.data){
+
+        data.data.stages.forEach((stage)=>{
+          stage.tasks.forEach((task)=>{
+            if(!task.task.priority){
+              task.task.priority = {
+                name :null,
+                color:'#6E829C'
+              }
+            }
+            if(!task.task.taskType){
+              task.task.taskType = {
+                name :null,
+                color:'#6E829C'
+              }
+            }
+          })
+        })
+        this.boardData = data.data;
+      }
+      this.getStageInProcess = false;
+    }catch (e) {
+      this.getStageInProcess = false;
+    }
+
+  }
   public timeLog(item:Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTaskItem=item;

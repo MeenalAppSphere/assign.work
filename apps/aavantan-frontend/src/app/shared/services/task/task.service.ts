@@ -17,7 +17,7 @@ import {
   AddCommentModel,
   BasePaginatedResponse,
   GetTaskHistoryModel,
-  UpdateCommentModel, TaskTimeLog, AddTaskTimeModel
+  UpdateCommentModel, TaskTimeLog, AddTaskTimeModel, SprintStage
 } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
@@ -49,6 +49,20 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
 
         this.updateState({ tasks: res.data.items, getTaskSuccess: true, getTaskInProcess: false });
+
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+
+  getAllBacklogTasks(json: GetAllTaskRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
+
+    return this._http.post(TaskUrls.getAllBacklogTasks, json).pipe(
+      map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
 
         return res;
       }),

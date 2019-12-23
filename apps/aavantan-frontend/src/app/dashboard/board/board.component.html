@@ -2,23 +2,29 @@
   <div class="row">
 
     <div class="col">
-      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">
-        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>Sprint 1
-          <img src="../../../assets/images/icons/arrow-point-to-down.svg" class="p-l-10" height="5"/>
-        </button>
-      </nz-button-group>
-      <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">
-        <ul nz-menu>
-          <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>
-        </ul>
-      </nz-dropdown-menu>
+
+      <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}</button>
+
+<!--   once we allow multiple sprint   -->
+<!--      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">-->
+<!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>{{sprintData.name}}-->
+<!--          <img src="../../../assets/images/icons/arrow-point-to-down.svg" class="p-l-10" height="5"/>-->
+<!--        </button>-->
+<!--      </nz-button-group>-->
+<!--      <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">-->
+<!--        <ul nz-menu>-->
+<!--          <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>-->
+<!--        </ul>-->
+<!--      </nz-dropdown-menu>-->
+
     </div>
     <div class="col text-right">
-      <span>
-        <nz-avatar nzText="U" nzSize="" nzTitle="Umesh Kumar" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
-        <nz-avatar nzIcon="user" nzSize="" nzTitle="Pradeep" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
-        <nz-avatar nzIcon="user" class="active-avatar" nzSize="" nzTitle="Sameer" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
-        <nz-avatar nzIcon="user" nzSize="" nzTitle="Vishal" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>
+      <span *ngIf="boardData && boardData.membersCapacity?.length>0">
+        <nz-avatar *ngFor="let item of boardData.membersCapacity" nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}" nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
+
+<!--        <nz-avatar nzIcon="user" nzSize="" nzTitle="Pradeep" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>-->
+<!--        <nz-avatar nzIcon="user" class="active-avatar" nzSize="" nzTitle="Sameer" nzPlacement="top" nz-tooltip nzSrc="//zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"></nz-avatar>-->
+<!--        -->
       </span>
       <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30">+ Add Task</button>
     </div>
@@ -26,45 +32,42 @@
   </div>
 </section>
 
-<div class="sprintboard-container">
-  <div class="container-fluid">
-    <div class="row flex-row flex-nowrap">
-      <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of tasks; let last">
-        <div class="card card-block">
-          <div class="card-header">{{item.name}} <span class="pull-right">
-            <small class="text-muted font-size-12">Total hours&nbsp;</small>&nbsp;<span class="font-size-14">14</span><i class="pl-3 fa fa-ellipsis-v"></i></span></div>
-          <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
-          </bs-sortable>
-<!--          <div class="card-footer" [outsideClick]="true" [popover]="createTaskSummaryTemplate">+ Add Task</div>-->
-          <ng-template #createTaskSummaryTemplate>
-            <p>Task Popup here...</p>
-<!--            <app-create-task-summary isOpencreateTaskSummaryTemplate></app-create-task-summary>-->
-          </ng-template>
+<nz-spin nzTip="Getting Board Data..." [nzSpinning]="getStageInProcess">
+  <div class="sprintboard-container">
+    <div class="container-fluid">
+      <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.stages && boardData.stages.length>0">
+        <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of boardData.stages; let last">
+          <div class="card card-block">
+            <div class="card-header">{{item.stage.name}}<span class="pull-right">
+              <small class="text-muted font-size-12">Total hours&nbsp;</small>&nbsp;<span class="font-size-14">{{item.totalEstimationReadable}}</span><i class="pl-3 fa fa-ellipsis-v"></i></span></div>
+
+            <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
+            </bs-sortable>
+
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<ng-template #itemTemplate let-item="item" let-index="index">
-  <div class="task-card" [ngStyle]="{'border-left': '4px solid '+ item.value.proirity.color}">
-    <h6 [ngStyle]="{'color': item.value.taskType.color}">#{{item.value.displayName}}
-      <span class="float-right duration">{{item.value.createdAt | dateAgo }}</span>
-    </h6>
-    <div class="task-body">
-      <div>
-      <a href="" class="task-title">
-<!--        <i [ngStyle]="{'color': item.value.taskType.color}" [nzTitle]="item.value.taskType.name" class="fas fa-circle m-r-10" nz-tooltip></i>-->
-        {{item.value.name}}
-      </a>
+  <ng-template #itemTemplate let-item="item" let-index="index">
+    <div class="task-card" [ngStyle]="{'border-left': '4px solid '+ item.value.task.priority.color}">
+      <h6 [ngStyle]="{'color': item.value.task.taskType.color}">#{{item.value.task.displayName}}
+        <span class="float-right duration">{{item.value.task.createdAt | dateAgo }}</span>
+      </h6>
+      <div class="task-body">
+        <div>
+        <a href="" class="task-title">
+          {{item.value.task.name}}
+        </a>
+        </div>
+      </div>
+      <div class="task-footer">
+        <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{item.value.task.assignee.profilePic}}" nzShape="circle"></nz-avatar>{{item.value.task.assignee.firstName}}</span>
+        <span class="pull-right"> <a (click)="timeLog(item.value.task)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
       </div>
     </div>
-    <div class="task-footer">
-      <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{item.value.assigned.profilePic}}" nzShape="circle"></nz-avatar>{{item.value.assigned.firstName}}</span>
-      <span class="pull-right"> <a (click)="timeLog(item.value)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
-    </div>
-  </div>
-</ng-template>
-
+  </ng-template>
+</nz-spin>
 <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem" (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
 

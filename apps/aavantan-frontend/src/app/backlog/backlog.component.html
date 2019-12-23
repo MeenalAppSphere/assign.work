@@ -11,7 +11,7 @@
         <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Backlog page..."/>
       </span>
 
-      <span class="badge backlog-badge">
+      <span class="badge backlog-badge" *ngIf="sprintData && sprintData?.totalEstimationReadable">
         <span class="text-red">Total Backlogs</span><span class="p-l-5 text-black">{{sprintData?.totalEstimationReadable}}</span>
       </span>
 
@@ -21,7 +21,7 @@
 
 <!--  <button nzType="link" nzSize="small" class="btn-medium m-r-10" nz-button (click)="publishSprint()">Save Sprint</button>-->
 
-      <button [disabled]="isDisabledCreateBtn" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" class="btn-medium" nz-button (click)="publishSprint()">Publish Sprint</button>
+      <button [disabled]="isDisabledCreateBtn || activeSprintId" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" class="btn-medium" nz-button (click)="publishSprint()">Publish Sprint</button>
 
     </ng-template>
 
@@ -81,11 +81,18 @@
             [nzNotFoundImage]="false"
             [nzNotFoundContent]="contentTpl"
             [nzNotFoundFooter]="footerTpl">
+
             <ng-template #contentTpl>
-              <span class="font-size-16">You have <span class="text-danger">{{allTaskList ? allTaskList.length : '0'}} task</span> in backlog</span>
+
+              <span *ngIf="!activeSprintId" class="font-size-16">You have <span class="text-danger">{{allTaskList ? allTaskList.length : '0'}} task</span> in backlog</span>
+              <span *ngIf="activeSprintId" class="font-size-16"><span class="text-success">"{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}"</span> is already running
+                <br><span class="text-gray-light font-size-12">(You cannot start other Sprint before completing this active Sprint)</span>
+              </span>
+
             </ng-template>
+
             <ng-template #footerTpl>
-              <button nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">+ Create Sprint</button>
+              <button [disabled]="activeSprintId" nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">+ Create Sprint</button>
             </ng-template>
           </nz-empty>
         </ng-container>
