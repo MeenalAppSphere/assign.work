@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
+  AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
   DraftSprint,
   GetAllTaskRequestModel, RemoveTaskFromSprintModel, SprintErrorResponse,
@@ -101,17 +102,11 @@ export class TaskListComponent implements OnInit {
       this.notification.error('Error', 'Create a new Sprint to add tasks');
       return;
     }
-    const duration = task.estimatedTime;
+
     if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 0) {
 
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);
-
-      // if(duration){
-      //   this.tasksSelected.duration = this.tasksSelected.duration + Number(duration);
-      //   this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-      //   this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-      // }
 
       this.addTaskToSprintModel(task); // api call to add task into sprint
 
@@ -127,19 +122,13 @@ export class TaskListComponent implements OnInit {
 
       task.isSelected = false;
 
-      // if(duration){
-      //   this.tasksSelected.duration = this.tasksSelected.duration - Number(duration);
-      //   this.tasksSelected.durationReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-      //   this.tasksSelected.durationRemainingReadable = this._generalService.secondsToReadable(Number(this.tasksSelected.duration)).readable;
-      // }
-
       this.removeTaskFromSprint(task); // api call to remove task from sprint
 
     }
     this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
   }
 
-  public addTaskToSprintModel(task:Task){
+  async addTaskToSprintModel(task:Task){
 
     try {
 
@@ -149,14 +138,30 @@ export class TaskListComponent implements OnInit {
         tasks : [task.id]
       }
 
-      this._sprintService.addTaskToSprint(sprintData).toPromise();
+      const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
+      console.log('instance : ',data.data instanceof AddTaskRemoveTaskToSprintResponseModel);
+
+      // if(data.data instanceof AddTaskRemoveTaskToSprintResponseModel){
+      if (!(data.data instanceof SprintErrorResponse)) {
+        this.tasksSelected.totalCapacity = data.data.totalCapacity;
+        this.tasksSelected.totalCapacityReadable = data.data.totalCapacityReadable;
+        this.tasksSelected.totalEstimation = data.data.totalEstimation;
+        this.tasksSelected.totalEstimationReadable = data.data.totalEstimationReadable;
+        this.tasksSelected.totalRemainingCapacity = data.data.totalRemainingCapacity;
+        this.tasksSelected.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
+        this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
+      }
+
+      //}
+
+      return data.data;
 
     } catch (e) {
     }
 
   }
 
-  public removeTaskFromSprint(task:Task){
+  async removeTaskFromSprint(task:Task){
 
     try {
 
@@ -166,7 +171,18 @@ export class TaskListComponent implements OnInit {
         tasks : [task.id]
       }
 
-      this._sprintService.removeTaskToSprint(sprintData).toPromise();
+      const data = await this._sprintService.removeTaskToSprint(sprintData).toPromise();
+      console.log('removeTaskFromSprint',data);
+      // console.log('instance : ',data.data instanceof AddTaskRemoveTaskToSprintResponseModel);
+      // if(data.data instanceof AddTaskRemoveTaskToSprintResponseModel){
+        this.tasksSelected.totalCapacity = data.data.totalCapacity;
+        this.tasksSelected.totalCapacityReadable = data.data.totalCapacityReadable;
+        this.tasksSelected.totalEstimation = data.data.totalEstimation;
+        this.tasksSelected.totalEstimationReadable = data.data.totalEstimationReadable;
+        this.tasksSelected.totalRemainingCapacity = data.data.totalRemainingCapacity;
+        this.tasksSelected.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
+        this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
+      //}
 
     } catch (e) {
     }

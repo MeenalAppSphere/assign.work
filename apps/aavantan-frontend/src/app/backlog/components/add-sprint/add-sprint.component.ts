@@ -17,7 +17,7 @@ export class AddSprintComponent implements OnInit, OnDestroy {
   @Input() public sprintData: Sprint;
   @Output() toggleShow: EventEmitter<Sprint> = new EventEmitter<Sprint>();
 
-  public dateFormat = 'mm/dd/yyyy';
+  public dateFormat = 'MM/dd/yyyy';
   public sprintForm: FormGroup;
   public createSprintInProcess: boolean;
 

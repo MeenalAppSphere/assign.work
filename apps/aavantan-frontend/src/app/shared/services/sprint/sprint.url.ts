@@ -5,6 +5,7 @@ export const SprintUrls = {
   addSprint: createUrl('sprint/create'),
   getSprint: createUrl('sprint/get-sprint'),
   getAllSprint: createUrl('sprint/all'),
+  publishSprint: createUrl('sprint/publish-sprint'),
   getUnpublishedSprint: createUrl('sprint/get-unpublished-sprint'),
   addTaskToSprint: createUrl('sprint/add-tasks'),
   removeTaskToSprint: createUrl('sprint/remove-tasks'),

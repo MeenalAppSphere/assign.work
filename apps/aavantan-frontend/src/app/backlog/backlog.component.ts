@@ -3,7 +3,7 @@ import {
   AddTaskToSprintModel,
   DraftSprint, GetAllSprintRequestModel,
   GetAllTaskRequestModel, GetUnpublishedRequestModel,
-  Sprint, SprintErrorResponse,
+  Sprint, SprintBaseRequest, SprintErrorResponse,
   Task,
   User
 } from '@aavantan-app/models';
@@ -120,21 +120,27 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       this._sprintService.getUnpublishedSprint(json).subscribe(data => {
         this.gettingUnpublishedInProcess = false;
-        console.log(typeof data.data);
+
         if((typeof data.data) === "string"){
 
         }else{
           this.sprintData = data.data;
 
           const taskArray : Task[] = [];
+          const ids : string[] = [];
           this.sprintData.stages[0].tasks.forEach((ele)=>{
             taskArray.push(ele.task);
+            ids.push(ele.task.id);
           });
 
           this.draftSprint = {
-            tasks: taskArray
+            tasks: taskArray,
+            ids: ids
           }
           this.draftData = taskArray;
+          if(this.draftData.length>0){
+            this.isDisabledCreateBtn = false;
+          }
         }
 
       });
@@ -202,6 +208,29 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
 
+    if(ev.totalCapacity){
+      this.sprintData.totalCapacity = ev.totalCapacity;
+    }
+    if(ev.totalCapacityReadable){
+      this.sprintData.totalCapacityReadable = ev.totalCapacityReadable;
+    }
+
+    if(ev.totalEstimation){
+      this.sprintData.totalEstimation = ev.totalEstimation;
+    }
+
+    if(ev.totalEstimationReadable){
+      this.sprintData.totalEstimationReadable = ev.totalEstimationReadable;
+    }
+
+    if(ev.totalRemainingCapacity){
+      this.sprintData.totalRemainingCapacity = ev.totalRemainingCapacity;
+    }
+
+    if(ev.totalCapacity){
+      this.sprintData.totalRemainingCapacityReadable = ev.totalRemainingCapacityReadable;
+    }
+
     this.draftSprint.tasks = this.getUnique( this.draftSprint.tasks.concat(ev.tasks), 'id');
 
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
@@ -230,32 +259,15 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   async publishSprint() {
 
-    console.log('Publish Sprint For Tasks ', this.draftSprint);
-
     try {
 
-      const sprintData : AddTaskToSprintModel = {
+      const sprintData : SprintBaseRequest = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.sprintData.id,
-        tasks : this.draftSprint.ids
+        sprintId: this.sprintData.id
       }
 
       this.publishSprintInProcess = true;
-      const createdSprint = await this._sprintService.addTaskToSprint(sprintData).toPromise();
-      this.AddedTaskToSprintData = (createdSprint.data instanceof SprintErrorResponse);
-      if(this.AddedTaskToSprintData.tasksErrors && this.AddedTaskToSprintData.tasksErrors.length>0){
-
-        for(let i=0; i<this.draftData.length; i++){
-          for(let j=0; j<this.AddedTaskToSprintData.tasksErrors.length; j++){
-            if(this.draftData[i].id===this.AddedTaskToSprintData.tasksErrors[j].id){
-              this.draftData[i].hasError = this.AddedTaskToSprintData.tasksErrors[j].reason;
-            }
-          }
-        }
-
-        this.draftData = cloneDeep(this.draftData);
-
-      }
+      await this._sprintService.publishSprint(sprintData).toPromise();
       this.publishSprintInProcess = false;
 
     } catch (e) {
