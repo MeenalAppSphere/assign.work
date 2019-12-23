@@ -56,6 +56,7 @@ export const projectSchema = new Schema({
     tags: [projectTagsSchema],
     required: false
   },
+  sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false }

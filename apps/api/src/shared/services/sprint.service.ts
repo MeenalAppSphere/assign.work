@@ -809,13 +809,21 @@ export class SprintService extends BaseService<Sprint & Document> {
     };
 
     // send mail
+    const session = await this._sprintModel.db.startSession();
+    session.startTransaction();
 
     try {
-      // update sprint
-      await this._sprintModel.updateOne({ _id: model.sprintId }, { sprintStatus: updateSprintObject });
-      // return sprint details
+      // update sprint in db
+      await this.update(model.sprintId, { sprintStatus: updateSprintObject }, session);
+
+      // update project and set published sprint as active sprint in project
+      await this._sprintModel.updateOne({ _id: model.projectId }, { $set: { sprintId: model.sprintId } }, { session });
+      await session.commitTransaction();
+      session.endSession();
       return 'Sprint Published Successfully';
     } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
       throw e;
     }
   }
