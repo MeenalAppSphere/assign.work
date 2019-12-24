@@ -994,12 +994,19 @@ export class SprintService extends BaseService<Sprint & Document> {
     // convert total over logged time in readable format
     sprint.totalOverLoggedTimeReadable = secondsToString(sprint.totalOverLoggedTime || 0);
 
-    // calculate total remaining time
-    sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
-    sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
-
     // calculate progress
     sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+    if (sprint.progress > 100) {
+      sprint.progress = 100;
+
+      // set total remaining time to zero
+      sprint.totalRemainingTime = 0;
+      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
+    } else {
+      // calculate total remaining time
+      sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
+      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
+    }
 
     // calculate over progress
     sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;

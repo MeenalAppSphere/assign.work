@@ -180,7 +180,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       // ensure task is in sprint
       if (sprintDetails) {
         // calculate sprint calculations and update sprint
-        await this.calculateSprintLogs(sprintDetails, taskDetails.sprintId, model, session);
+        await this.calculateSprintLogs(sprintDetails, model, session);
       }
       // endregion
 
@@ -270,13 +270,13 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * calculate over logging progress
    * finally update sprint
    * @param sprintDetails: Sprint
-   * @param sprintId
    * @param model
    * @param session
    */
-  private async calculateSprintLogs(sprintDetails: Sprint, sprintId: string, model: AddTaskTimeModel, session: ClientSession) {
+  private async calculateSprintLogs(sprintDetails: Sprint, model: AddTaskTimeModel, session: ClientSession) {
 
     if (sprintDetails) {
+      sprintDetails.id = sprintDetails['_id'];
       // add logged time to sprint total logged time
       sprintDetails.totalLoggedTime += model.timeLog.loggedTime || 0;
 
@@ -286,19 +286,12 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       if (progress > 100) {
         // if progress > 100 means over logging happened
         sprintDetails.totalRemainingTime = 0;
-        sprintDetails.progress = 100;
 
         // calculate over logged time by deducting total estimation from total logged time
         sprintDetails.totalOverLoggedTime = sprintDetails.totalLoggedTime - sprintDetails.totalEstimation;
-
-        // calculate over progress percentage
-        const overProgress = Number(((100 * sprintDetails.totalOverLoggedTime) / sprintDetails.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES));
-        sprintDetails.overProgress = overProgress > 100 ? 100 : overProgress;
       } else {
         // if progress is lesser or equal to 100 means no over logging done
         sprintDetails.totalRemainingTime = sprintDetails.totalRemainingTime - sprintDetails.totalLoggedTime;
-        sprintDetails.progress = progress;
-        sprintDetails.overProgress = 0;
         sprintDetails.totalOverLoggedTime = 0;
       }
 
