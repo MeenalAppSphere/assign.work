@@ -69,11 +69,11 @@
         </div>
     </div>
 
-    <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'" nzSize="small">
+    <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'" nzSize="small" [ngClass]="{'draft-table':isDraftTable}">
         <thead>
             <tr>
 
-              <th class="text-center" width="50" *ngIf="showRemoveIcon">#</th>
+              <th class="text-center" width="50" *ngIf="isDraftTable">#</th>
               <th class="text-center" width="50" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId">#</th>
                 <th class="text-left" width="115">
                   <span>Priority</span>
@@ -113,8 +113,8 @@
         <tbody>
             <tr *ngFor="let item of listViewTable.data" [ngClass]="{'has-missing-data':(tasksSelected && tasksSelected.sprintId) && (!item.assignee || !item.estimatedTime) }">
 
-                <td data-label="#" *ngIf="showRemoveIcon" class="text-center">
-                  <i *ngIf="showRemoveIcon" (click)="deselectTaskFromSprint(item)" nz-icon nzType="close-circle" class="text-muted" theme="fill"></i>
+                <td data-label="#" *ngIf="isDraftTable" class="text-center">
+                  <i *ngIf="isDraftTable" (click)="deselectTaskFromSprint(item)" nz-icon nzType="close-circle" class="text-muted" theme="fill"></i>
                 </td>
                 <td data-label="#" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId" class="text-center">
 

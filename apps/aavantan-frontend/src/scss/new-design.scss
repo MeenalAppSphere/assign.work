@@ -127,6 +127,11 @@ $color-gray-light: #6E829C;
   padding: 0.45rem 1rem;
 }
 
+.ant-btn-primary.disabled, .ant-btn-primary[disabled] {
+  color: rgba(255, 255, 255, 0.75);
+  opacity: 0.7;
+}
+
 .btn-medium {
   height: 38px;
 }
@@ -346,6 +351,14 @@ $color-gray-light: #6E829C;
   td{
     border-top:1px solid $color-red!important;
     border-bottom:1px solid $color-red!important;
+  }
+}
+
+.draft-table {
+  .ant-table-body{
+    height: 265px;
+    max-height: 265px;
+    overflow: auto;
   }
 }
 

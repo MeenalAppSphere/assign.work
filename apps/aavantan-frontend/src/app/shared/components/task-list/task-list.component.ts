@@ -29,7 +29,7 @@ export class TaskListComponent implements OnInit {
   @Input() public showProgressOption: boolean = true;
   @Input() public showSorting: boolean = false;
   @Input() public sprintId: string;
-  @Input() public showRemoveIcon: boolean;
+  @Input() public isDraftTable: boolean;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
@@ -108,7 +108,7 @@ export class TaskListComponent implements OnInit {
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);
 
-      this.addTaskToSprintModel(task); // api call to add task into sprint
+      // this.addTaskToSprintModel(task); // api call to add task into sprint
 
     } else {
 
@@ -122,7 +122,7 @@ export class TaskListComponent implements OnInit {
 
       task.isSelected = false;
 
-      this.removeTaskFromSprint(task); // api call to remove task from sprint
+      // this.removeTaskFromSprint(task); // api call to remove task from sprint
 
     }
     this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
@@ -139,9 +139,7 @@ export class TaskListComponent implements OnInit {
       }
 
       const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
-      console.log('instance : ',data.data instanceof AddTaskRemoveTaskToSprintResponseModel);
 
-      // if(data.data instanceof AddTaskRemoveTaskToSprintResponseModel){
       if (!(data.data instanceof SprintErrorResponse)) {
         this.tasksSelected.totalCapacity = data.data.totalCapacity;
         this.tasksSelected.totalCapacityReadable = data.data.totalCapacityReadable;
@@ -151,8 +149,6 @@ export class TaskListComponent implements OnInit {
         this.tasksSelected.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
         this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
       }
-
-      //}
 
       return data.data;
 

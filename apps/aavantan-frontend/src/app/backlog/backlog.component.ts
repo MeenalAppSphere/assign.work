@@ -43,6 +43,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public gettingAllSprintInProcess: boolean;
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
+  public saveSprintInProcess: boolean;
   public activeSprintData : Sprint;
   public activeSprintId : string;
 
@@ -259,13 +260,54 @@ export class BacklogComponent implements OnInit, OnDestroy {
         return item;
       }
     });
+    this.calculateDraftDataDuration();
   }
 
+  public calculateDraftDataDuration(){
+    let estimatedTime = 0;
+    this.draftData.forEach((ele)=> {
+      estimatedTime = estimatedTime + Number(ele.estimatedTime);
+    })
+
+    this.sprintData.totalEstimation = estimatedTime;
+    this.sprintData.totalEstimationReadable = this._generalService.secondsToReadable(this.sprintData.totalEstimation).readable;
+    this.sprintData.totalRemainingCapacity = (this.sprintData.totalCapacity*3600)-estimatedTime;
+    this.sprintData.totalRemainingCapacityReadable = this._generalService.secondsToReadable(this.sprintData.totalRemainingCapacity).readable;
+  }
   public toggleAddSprint(data?:Sprint) {
     if(data){
       this.sprintData = data;
     }
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
+  }
+
+  async saveSprint(){
+    try {
+
+      const sprintData : AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        tasks : this.draftSprint.ids
+      }
+
+      this.saveSprintInProcess = true;
+      const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
+
+      if (!(data.data instanceof SprintErrorResponse)) {
+        this.draftSprint.totalCapacity = data.data.totalCapacity;
+        this.draftSprint.totalCapacityReadable = data.data.totalCapacityReadable;
+        this.draftSprint.totalEstimation = data.data.totalEstimation;
+        this.draftSprint.totalEstimationReadable = data.data.totalEstimationReadable;
+        this.draftSprint.totalRemainingCapacity = data.data.totalRemainingCapacity;
+        this.draftSprint.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
+      }
+
+      this.saveSprintInProcess = false;
+
+    } catch (e) {
+      this.createdSprintId = null;
+      this.saveSprintInProcess = false;
+    }
   }
 
   async publishSprint() {

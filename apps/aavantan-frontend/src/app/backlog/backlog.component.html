@@ -19,9 +19,9 @@
     </ng-template>
     <ng-template #createSprintBtnTemplate>
 
-<!--  <button nzType="link" nzSize="small" class="btn-medium m-r-10" nz-button (click)="publishSprint()">Save Sprint</button>-->
+      <button *ngIf="!activeSprintId" nzType="link" [nzLoading]="saveSprintInProcess" nzSize="small" class="btn-medium m-r-10" nz-button (click)="saveSprint()">Save Sprint</button>
 
-      <button [disabled]="isDisabledCreateBtn || activeSprintId" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" class="btn-medium" nz-button (click)="publishSprint()">Publish Sprint</button>
+      <button [disabled]="isDisabledCreateBtn || activeSprintId || draftData && draftData.length==0" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" class="btn-medium" nz-button (click)="publishSprint()">Publish Sprint</button>
 
     </ng-template>
 
@@ -65,7 +65,7 @@
                 [taskByUser]="'all'"
                 [taskList]="draftData"
                 [sprintId]="sprintData.id"
-                [showRemoveIcon]="true"
+                [isDraftTable]="true"
                 [view]="view"
                 [showLogOption]="false"
                 [showCheckboxOption]="false"
@@ -107,8 +107,8 @@
       <div class="row">
         <div class="col">
           <label class="font-size-18"><span class="text-black">Backlogs</span>
-            <small class="p-l-25 font-size-14" *ngIf="sprintData && sprintData.totalEstimationReadable">
-            <span class="text-gray-light">Total </span><span class="text-black">{{sprintData?.totalEstimationReadable}}</span></small>
+            <small class="p-l-25 font-size-14" *ngIf="sprintData && sprintData.totalCapacityReadable">
+            <span class="text-gray-light">Total </span><span class="text-black">{{sprintData?.totalCapacityReadable}}</span></small>
           </label>
         </div>
         <div class="col text-right" style="max-width: 320px;">

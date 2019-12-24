@@ -398,18 +398,22 @@
         </div>
         <!-- row 9-->
 
-        <div *ngIf="taskId" class="collapsed-title" (click)="toggleActivitySidebar(sidebar)">
-            <span *ngIf="isOpenActivitySidebar">Less <i nz-icon nzType="caret-down" class="m-l-5" theme="outline"></i
-      ></span>
-            <span *ngIf="!isOpenActivitySidebar">More <i nz-icon nzType="caret-up" class="m-l-5" theme="outline"></i
-      ></span>
+        <div *ngIf="taskId" class="collapsed-title">
+<!--            <span *ngIf="isOpenActivitySidebar">Less <i nz-icon nzType="caret-down" class="m-l-5" theme="outline"></i></span>-->
+            <span *ngIf="!isOpenActivitySidebar">
+                  <button (click)="toggleActivitySidebar(sidebar)" nz-button nzSize="default" class="btn-double-arrow">
+                    <img src="../../assets/images/icons/double-arrow.svg" height="10">
+                  </button>
+            </span>
         </div>
     </aside>
     <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }" class="col-md-4 p-t-15 m-b-20 p-r-10 p-l-10 bg-white border-radius-4">
         <section class="first-section">
             <div class="row">
                 <div class="col ">
-
+                  <button (click)="toggleActivitySidebar(sidebar)" nz-button nzSize="default" class="btn-double-arrow">
+                    <img src="../../assets/images/icons/double-arrow.svg" height="10">
+                  </button>
                 </div>
                 <div class="col text-right">
                     <button [disabled]="!taskId" nzType="link" nzSize="small" nz-button nz-tooltip nzTitle="Log your working time" (click)="openTimeLogModal()">

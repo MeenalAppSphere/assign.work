@@ -92,6 +92,15 @@
   box-shadow: -2px 0px 4px -3px #b3b3b3;
 }
 
+.btn-double-arrow{
+  background: #F2F2F2!important;
+  min-width: 24px!important;
+  border-radius: 4px;
+  width: 24px!important;
+  height: 25px!important;
+  padding: 4px!important;
+}
+
 .comment-history-scrollable{
   height: calc(100vh - 340px);
   overflow: auto;
@@ -106,27 +115,20 @@
 .collapsed-title {
   cursor: pointer;
   position: absolute;
-  top: 25%;
-  right: -25px;
+  top: 2px;
+  right: 0px;
   box-shadow: none;
   border: none;
-  transform: rotate(-90deg);
-  box-shadow: -1px -2px 3px -1px #c0c0c0;
-  background: #3f87f5;
-  /* height: 24px; */
-  padding: 2px 10px;
-  color: #fff;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  transform: rotate(-180deg);
   /* Legacy vendor prefixes that you probably don't need... */
   /* Safari */
-  -webkit-transform: rotate(-90deg);
+  -webkit-transform: rotate(-180deg);
   /* Firefox */
-  -moz-transform: rotate(-90deg);
+  -moz-transform: rotate(-180deg);
   /* IE */
-  -ms-transform: rotate(-90deg);
+  -ms-transform: rotate(-180deg);
   /* Opera */
-  -o-transform: rotate(-90deg);
+  -o-transform: rotate(-180deg);
   /* Internet Explorer
   filter: progid: DXImageTransform.Microsoft.BasicImage(rotation=3);*/
 }
