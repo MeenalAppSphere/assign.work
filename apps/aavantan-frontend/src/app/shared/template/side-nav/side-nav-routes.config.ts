@@ -3,49 +3,55 @@ export const ROUTES: SideNavInterface[] = [
   {
     path: './',
     title: 'Home',
-    iconType: 'nzIcon',
+    iconType: '',
     iconTheme: 'outline',
     icon: 'home',
+    img: 'menu-home',
     submenu: []
   },
   {
     path: 'project',
     title: 'Project',
-    iconType: 'nzIcon',
+    iconType: '',
     iconTheme: 'outline',
     icon: 'border',
+    img: 'menu-project',
     submenu: []
   },
   {
     path: 'board',
     title: 'Board',
-    iconType: 'nzIcon',
+    iconType: '',
     iconTheme: 'outline',
     icon: 'appstore',
+    img: 'menu-board',
     submenu: []
   },
   {
     path: 'active_sprint',
     title: 'Active Sprint',
-    iconType: 'nzIcon',
+    iconType: '',
     iconTheme: 'outline',
     icon: 'line-chart',
+    img: 'menu-active-sprint',
     submenu: []
   },
   {
     path: 'backlog',
     title: 'Backlog',
-    iconType: 'nzIcon',
+    iconType: '',
     iconTheme: 'outline',
     icon: 'snippets',
+    img: 'menu-backlogs',
     submenu: []
   },
   {
     path: '',
     title: 'Settings',
-    iconType: 'nzIcon',
+    iconType: '',
     iconTheme: 'outline',
     icon: 'setting',
+    img: 'menu-settings',
     type:'admin',
     submenu: [
       {
@@ -54,6 +60,7 @@ export const ROUTES: SideNavInterface[] = [
         iconType: 'nzIcon',
         iconTheme: 'outline',
         icon: 'security-scan',
+        img: 'backlogs.svg',
         submenu: [],
         type:'admin'
       },
@@ -63,6 +70,7 @@ export const ROUTES: SideNavInterface[] = [
         iconType: 'nzIcon',
         iconTheme: 'outline',
         icon: 'usergroup-add',
+        img: 'backlogs.svg',
         submenu: [],
         type:'admin'
       }

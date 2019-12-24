@@ -6,7 +6,7 @@
         <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
             <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
                 <h5>{{taskId ? displayName : 'Create Task'}}
-                  <i nz-icon nz-tooltip [nzTitle]="templateTitleText" class="p-l-10" nzType="info-circle" theme="outline"></i>
+                  <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText" class="p-l-10"/>
                   <ng-template #templateTitleText>
                     About create and update task
                   </ng-template>
@@ -311,9 +311,13 @@
 
                                 <nz-upload class="upload-list-inline" (nzChange)="handleChange($event)" [nzRemove]="handleRemove" [nzAction]="attachementUrl" [nzHeaders]="attachementHeader" nzListType="picture" [(nzFileList)]="fileList2">
                                     <button type="button" nz-button style="background: #f9f9f9!important;width: 100%;height: 120px;border-radius: 0px;border: 2px dashed #ddd;">
-                                      <div><i nz-icon nzType="upload"></i>
+                                      <div>
+
+                                        <img src="../../assets/images/icons/cloud_upload.svg" height="33" class="m-b-10">
+
                                         <div><strong>drag & drop file</strong> or <strong>click choose</strong></div>
                                         <small class="text-muted">(images & video format)</small>
+
                                       </div>
                                     </button>
                                 </nz-upload>
@@ -328,8 +332,10 @@
                 <!-- will use on scroll event 'floating-save-btns' -->
                 <div class="row floating-save-btns">
                     <div class="col-md-12 text-right">
-                        <button type="submit" [nzLoading]="createTaskInProcess" nz-button nzType="primary" class="m-r-5">Save</button>
+
                         <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Cancel</button>
+                        <button type="submit" [nzLoading]="createTaskInProcess" nz-button nzType="primary" class="m-r-5">Save</button>
+
                         <ng-container>
                             <button nz-dropdown type="button" [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomRight" nzType="link" nzSize="small" class="float-right btn-ellipsis" nz-button>
                           <i class="fas fa-ellipsis-v"></i>
@@ -348,9 +354,9 @@
                     </div>
                 </div>
                 <div class="row" style="padding-top: 10px; border-top: 2px solid #e1e3e5; margin-top: 10px;">
-                    <div class="col-md-12">
-                        <button [nzLoading]="createTaskInProcess" type="submit" nz-button nzSize="small" nzType="primary" class="m-r-5">Save</button>
-                        <button (click)="cancelTaskForm()" nz-button nzSize="small" type="reset" nzType="default">Cancel</button>
+                    <div class="col-md-12 text-right">
+                      <button (click)="cancelTaskForm()" nz-button nzSize="small" type="reset" nzType="default" class="m-r-5">Cancel</button>
+                      <button [nzLoading]="createTaskInProcess" type="submit" nz-button nzSize="small" nzType="primary" >Save</button>
                     </div>
                 </div>
                 <!-- row 8-->

@@ -5,5 +5,6 @@ export interface SideNavInterface {
     iconTheme: "" | "fab" | "far" | "fas" | "fill" | "outline" | "twotone";
     icon: string,
     submenu : SideNavInterface[];
-    type?:string
+    type?:string,
+    img?:string;
 }

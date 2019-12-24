@@ -25,7 +25,7 @@
       </li>
       <li>
         <a (click)="searchToggle()">
-          <i nz-icon nzType="search" theme="outline"></i>
+          <i nz-icon nzType="search" theme="outline" class="text-gray-light"></i>
         </a>
         <nz-drawer [nzWidth]="380" nzTitle="Search" [nzVisible]="searchVisible" nzPlacement="left"
                    (nzOnClose)="searchToggle()">
@@ -35,16 +35,15 @@
     </ul>
     <ul class="nav-right" joyrideStep="tour1" title="Current Project" text="You can change your project form here.">
       <li>
-        <a href="javascript:void(0);" class="project-name-btn" routerLink="settings">{{ currentProject?.name }} <i nz-icon
-                                                                                                     nzType="setting"
-                                                                                                     theme="outline"></i></a>
+        <a href="javascript:void(0);" class="project-name-btn" routerLink="settings">
+          {{ currentProject?.name }}<i nz-icon nzType="setting" theme="outline" class="text-gray-light p-l-5"></i></a>
       </li>
     </ul>
     <ul class="nav-right">
       <li>
         <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="popNotification" [nzPlacement]="'bottomRight'">
           <nz-badge nzDot>
-            <i nz-icon nzType="bell" theme="outline"></i>
+            <i nz-icon nzType="bell" theme="outline" class="text-gray-light"></i>
           </nz-badge>
         </a>
         <nz-dropdown-menu #popNotification="nzDropdownMenu">
@@ -145,7 +144,7 @@
       </li>
       <li>
         <a (click)="quickViewToggle()">
-          <i nz-icon nzType="appstore" theme="outline"></i>
+          <i nz-icon nzType="appstore" theme="outline" class="text-gray-light"></i>
         </a>
         <nz-drawer [nzWidth]="280" nzTitle="Theme Config" [nzClosable]="false" [nzVisible]="quickViewVisible"
                    nzPlacement="right" (nzOnClose)="quickViewToggle()">

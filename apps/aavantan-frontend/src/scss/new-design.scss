@@ -57,7 +57,7 @@ $color-gray-light: #6E829C;
 .ant-menu{
   background: $side-nav-bg;
   .ant-menu-item>a{
-    color:#6E829C;
+    color:$color-gray-light;
   }
   .ant-menu-item>a:hover{
     color:#fff;
@@ -198,6 +198,10 @@ $color-gray-light: #6E829C;
     height: 35px;
     width: 35px;
     line-height: 31px;
+    background: #dbdeea!important;
+    color: #747B92;
+    font-size: 12px!important;
+    font-weight: 500;
     &:hover{
       border: 2px solid $orange-dark!important;
     }

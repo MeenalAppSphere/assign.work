@@ -10,8 +10,8 @@
   --red: #dc3545;
 }
 
-$body-bg-color:#F8F8F8;
-$text-black:#111111;
+$body-bg-color: #F8F8F8;
+$text-black: #111111;
 
 .btn-float-new-task{
   position: fixed;
@@ -24,6 +24,19 @@ $text-black:#111111;
   border: #f28d3e;
   font-weight: 500;
 }
+
+$brand-default-btn: #dedfe2;
+$border: #dddddd;
+$orange-dark: #FF5757;
+$orange-light:#FF941A;
+$theme-blue:#2680EB;
+$theme-blue-hover:#358DEB;
+$side-nav-bg :#0B1B31;
+$board-card-header: #ebebeb;
+$board-card-body: #ebebeb;
+$color-black:#000000;
+$color-red:#F82222;
+$color-gray-light: #6E829C;
 
 body{
   background: $body-bg-color;
@@ -106,8 +119,8 @@ nz-modal {
   background: #dcdfe3;
 }
 .avatar-bg{
-  color:#f56a00;
-  background-color:#fde3cf;
+  color:$theme-blue;
+  background-color:#F8F8F8;
 }
 .ant-checkbox-inner {
   border: 1px solid #bcbcbc;
