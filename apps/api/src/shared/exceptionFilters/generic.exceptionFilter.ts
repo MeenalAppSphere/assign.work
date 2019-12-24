@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, UnauthorizedException } from '@nestjs/common';
 import { MongoError } from 'mongodb';
 import { BaseResponseModel } from '@aavantan-app/models';
-import { CastError, Error } from 'mongoose';
+import { Error } from 'mongoose';
 
 @Catch()
 export class GenericExceptionFilter implements ExceptionFilter {
@@ -52,6 +52,12 @@ export class GenericExceptionFilter implements ExceptionFilter {
         type: 'error'
       }];
       resp.status = 404;
+    } else if (exception instanceof Error.MissingSchemaError) {
+      resp.errors = [{
+        message: 'Something Went Wrong',
+        type: 'error'
+      }];
+      resp.status = 500;
     } else if (exception instanceof HttpException) {
       // mongoose validation errors
       if (exception.getResponse() instanceof Error.ValidationError) {
