@@ -5,11 +5,11 @@ import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { Notice } from '../shared/interfaces/notice.type';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { UserLoginWithPasswordRequest } from '@aavantan-app/models';
-import { hashSync } from 'bcrypt';
+
 
 @Component({
-  templateUrl: 'login.component.html'
+  templateUrl: 'login.component.html',
+  styleUrls:['login.component.scss']
 })
 
 export class LoginComponent implements OnInit, OnDestroy {
@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   public loginInProcess = false;
   public responseMessage: Notice = {};
   public isSubmitted: boolean;
+  public featuresList:any;
 
   constructor(private _authService: AuthService, private _authQuery: AuthQuery, private router: Router) {
   }
@@ -37,6 +38,22 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.responseMessage.type = 'danger';
       }
     });
+
+    this.featuresList = [
+      {
+        title: 'Ant Design Title 1',
+        description:'wlsdfjldsfkj'
+      },
+      {
+        title: 'Ant Design Title 2'
+      },
+      {
+        title: 'Ant Design Title 3'
+      },
+      {
+        title: 'Ant Design Title 4'
+      }
+    ];
 
   }
 

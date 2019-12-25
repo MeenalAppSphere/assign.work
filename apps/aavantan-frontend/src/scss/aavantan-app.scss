@@ -120,7 +120,7 @@ nz-modal {
 }
 .avatar-bg{
   color:$theme-blue;
-  background-color:#F8F8F8;
+  background-color:#DBDFEB;
 }
 .ant-checkbox-inner {
   border: 1px solid #bcbcbc;
@@ -484,4 +484,23 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   .ant-card-body{
     padding: 10px!important;
   }
+}
+
+/* login,signup,forgot etc*/
+
+.menu-header{
+  a {
+    padding: 10px 10px;
+    color: #6E829C;
+    font-size: 1rem;
+    &:hover{
+      color: #475364;
+    }
+  }
+}
+.footer-legal{
+  position: fixed;
+  font-size: 11px;
+  bottom: 0px;
+  width: 100%;
 }
