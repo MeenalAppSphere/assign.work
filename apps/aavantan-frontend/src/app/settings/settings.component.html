@@ -43,8 +43,8 @@
     </li>
 
     <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}"
-         (click)="activeTab('taskType', 'Task Type')">
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='task-type'}"
+         (click)="activeTab('task-type', 'Task Type')">
         <i class="fab fa-accusoft"></i>
         Task Type
       </a>
@@ -298,7 +298,7 @@
 
       <!-- end priority -->
 
-      <ng-container *ngIf="activeView.view==='taskType'">
+      <ng-container *ngIf="activeView.view==='task-type'">
 
         <section class="row task-type-section">
 
@@ -359,7 +359,7 @@
         </section>
       </ng-container>
 
-      <!-- end taskType -->
+      <!-- end task-type -->
 
 
       <ng-container *ngIf="activeView.view==='capacity'">

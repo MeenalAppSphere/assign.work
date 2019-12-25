@@ -20,7 +20,7 @@
 <!--                          <i [nzTitle]="item.priority.name" nz-tooltip [ngStyle]="{'margin-top': '2px','border-left':'solid 5px '+item.priority.color+'', 'height':'18px' }"></i>-->
 <!--                        </span>-->
 <!--                        <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 5px #ffffff','margin-top': '4px', 'height':'18px' }"></i>-->
-<!--                        <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5 m-t-5"></i>-->
+<!--                        <i [ngStyle]="{'color': item.task-type.color}" [nzTitle]="item.task-type.name" nz-tooltip class="fas fa-circle m-l-5 m-t-5"></i>-->
                         <div>
                             <h6 class="m-b-0">
                                 <a href="javascript:void(0)" (click)="viewTask(item)">
@@ -84,7 +84,7 @@
                 <th class="text-left" width="155">
                   <span>Task Type</span>
                   <span class="p-l-10" *ngIf="showSorting">
-                      <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'taskType'}"></ng-container>
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'task-type'}"></ng-container>
                     </span>
                 </th>
                 <th style="min-width: 400px; max-width: 40%;">
@@ -139,7 +139,7 @@
                 </td>
                 <td data-label="Title">
                     <div class="media align-items-center">
-<!--                        <i [ngStyle]="{'color': item.taskType.color}" [nzTitle]="item.taskType.name" nz-tooltip class="fas fa-circle m-l-5"></i>-->
+<!--                        <i [ngStyle]="{'color': item.task-type.color}" [nzTitle]="item.task-type.name" nz-tooltip class="fas fa-circle m-l-5"></i>-->
                         <div class="">
 
                             <h6 class="m-b-0">

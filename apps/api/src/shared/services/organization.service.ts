@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { DbCollection, Organization } from '@aavantan-app/models';
+import { DbCollection, MongooseQueryModel, Organization } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 import { UsersService } from './users.service';
@@ -21,7 +21,7 @@ export class OrganizationService extends BaseService<Organization & Document> {
       const result = await this.create([new this._organizationModel(organization)], session);
 
       // update user
-      const userDetails = await this._userService.findById(organization.createdBy as string);
+      const userDetails = await this._userService.findById(organization.createdBy as string, new MongooseQueryModel());
 
       // if user have created first organization then set it to as current organization
       if (!userDetails.organizations.length) {

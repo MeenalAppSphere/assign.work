@@ -37,7 +37,7 @@ export const taskSchema = new Schema({
   assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
   watchers: [{ type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }],
   attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
-  taskType: { type: String, required: [true, 'Please add task type'] },
+  taskTypeId: { type: Schema.Types.ObjectId, ref: DbCollection.taskType, required: [true, 'Please add task type'] },
   comments: [commentSchema],
   estimatedTime: { type: Number, default: 0 },
   remainingTime: { type: Number, default: 0 },
@@ -121,6 +121,12 @@ taskSchema.virtual('attachmentsDetails', {
 taskSchema.virtual('sprint', {
   ref: DbCollection.sprint,
   localField: 'sprintId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('taskType', {
+  ref: DbCollection.taskType,
+  localField: 'taskTypeId',
   foreignField: '_id'
 });
 

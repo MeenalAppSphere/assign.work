@@ -20,6 +20,7 @@ import { TaskTimeLogService } from './services/task-time-log.service';
 import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
 import { sprintSchema } from '../sprint/sprint.schema';
 import { SprintService } from './services/sprint.service';
+import { taskTypeSchema } from '../task-type/task-type.schema';
 
 const providers = [
   UsersService,
@@ -33,43 +34,45 @@ const providers = [
   SprintService
 ];
 
+const dbModels = [{
+  name: DbCollection.users,
+  schema: userSchema,
+  collection: DbCollection.users
+}, {
+  name: DbCollection.projects,
+  schema: projectSchema,
+  collection: DbCollection.projects
+}, {
+  name: DbCollection.organizations,
+  schema: organizationSchema,
+  collection: DbCollection.organizations
+}, {
+  name: DbCollection.tasks,
+  schema: taskSchema,
+  collection: DbCollection.tasks
+}, {
+  name: DbCollection.taskHistory,
+  schema: taskHistorySchema,
+  collection: DbCollection.taskHistory
+}, {
+  name: DbCollection.attachments,
+  schema: attachmentSchema,
+  collection: DbCollection.attachments
+}, {
+  name: DbCollection.taskTimeLog,
+  schema: taskTimeLogSchema,
+  collection: DbCollection.taskTimeLog
+}, {
+  name: DbCollection.sprint,
+  schema: sprintSchema,
+  collection: DbCollection.sprint
+}, { name: DbCollection.taskType, schema: taskTypeSchema, collection: DbCollection.taskType }];
+
 @Global()
 @Module({
   imports: [
     EasyconfigModule.register({ path: path.resolve(__dirname, '.env') }),
-    MongooseModule.forFeature([{
-      name: DbCollection.users,
-      schema: userSchema,
-      collection: DbCollection.users
-    }, {
-      name: DbCollection.projects,
-      schema: projectSchema,
-      collection: DbCollection.projects
-    }, {
-      name: DbCollection.organizations,
-      schema: organizationSchema,
-      collection: DbCollection.organizations
-    }, {
-      name: DbCollection.tasks,
-      schema: taskSchema,
-      collection: DbCollection.tasks
-    }, {
-      name: DbCollection.taskHistory,
-      schema: taskHistorySchema,
-      collection: DbCollection.taskHistory
-    }, {
-      name: DbCollection.attachments,
-      schema: attachmentSchema,
-      collection: DbCollection.attachments
-    }, {
-      name: DbCollection.taskTimeLog,
-      schema: taskTimeLogSchema,
-      collection: DbCollection.taskTimeLog
-    }, {
-      name: DbCollection.sprint,
-      schema: sprintSchema,
-      collection: DbCollection.sprint
-    }])
+    MongooseModule.forFeature(dbModels)
   ],
   exports: [
     MongooseModule,

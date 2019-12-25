@@ -3,7 +3,7 @@ import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/sc
 import { DbCollection } from '@aavantan-app/models';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const paginate = require('mongoose-paginate-v2');
+const mongooseLeanVirtuals = require('mongoose-lean-virtuals');
 
 export const organizationSchema = new Schema({
   name: { type: String, required: [true, 'Organization Name Is Required'] },
@@ -25,7 +25,22 @@ export const organizationSchema = new Schema({
   }]
 }, schemaOptions);
 
+// options
+organizationSchema
+  .set('toObject', {
+    virtuals: true,
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+    }
+  })
+  .set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+    }
+  });
+
 // plugins
 organizationSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(paginate);
+  .plugin(mongooseLeanVirtuals);

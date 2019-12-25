@@ -15,7 +15,9 @@ export class Project {
   progress?: number;
   template: ProjectTemplateEnum;
   createdBy?: string | User;
-  updated?: string | User;
+  updatedBy?: string | User;
+  createdAt?: Date;
+  updatedAt?: Date;
   settings?: ProjectSettings;
   sprintId?: string;
   sprint?: Sprint;

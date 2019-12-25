@@ -4,6 +4,7 @@ import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/sc
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const uniqueValidator = require('mongoose-unique-validator');
+const mongooseLeanVirtuals = require('mongoose-lean-virtuals');
 
 export const userSchema = new Schema(
   {
@@ -49,22 +50,19 @@ export const userSchema = new Schema(
 );
 
 // options
-userSchema.set('toJSON', {
-  transform: function(doc, ret) {
-    ret.id = ret._id;
-    delete ret._id;
-    delete ret.__v;
-  },
-  virtuals: true
-});
-userSchema.set('toObject', {
-  transform: function(doc, ret) {
-    ret.id = ret._id;
-    delete ret._id;
-    delete ret.__v;
-  },
-  virtuals: true
-});
+userSchema
+  .set('toJSON', {
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+    },
+    virtuals: true
+  })
+  .set('toObject', {
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+    },
+    virtuals: true
+  });
 
 // virtual
 userSchema.virtual('currentOrganization', {
@@ -78,5 +76,6 @@ userSchema.virtual('currentOrganization', {
 // plugins
 userSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
+  .plugin(mongooseLeanVirtuals)
   .plugin(uniqueValidator, { message: '{PATH} already exists :- {VALUE}' });
 

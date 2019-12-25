@@ -7,8 +7,8 @@ export class MongoosePaginateQuery extends BaseRequestModel {
 }
 
 export class MongooseQueryModel {
-  filter: any;
+  filter?: any;
   populate?: any;
   select?: string;
-  lean?: boolean;
+  lean?: any;
 }

@@ -2,15 +2,6 @@ import { ClientSession, Document, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
 import { DEFAULT_QUERY_FILTER } from '../helpers/defaultValueConstant';
 
-const myPaginationLabels = {
-  docs: 'items',
-  limit: 'count',
-  page: 'page',
-  totalDocs: 'totalItems',
-  totalPages: 'totalPages'
-};
-
-
 export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
   }
@@ -33,14 +24,18 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async findById(id: string, populate: Array<any> = [], isLean = false): Promise<T> {
+  public async findById(id: string, queryModel: MongooseQueryModel): Promise<T> {
     const query = this.model.findById(this.toObjectId(id)).where(DEFAULT_QUERY_FILTER);
 
-    if (populate && populate.length) {
-      query.populate(populate);
+    if (queryModel.populate && queryModel.populate.length) {
+      query.populate(queryModel.populate);
     }
 
-    if (isLean) {
+    if (queryModel.select) {
+      query.select(queryModel.select);
+    }
+
+    if (queryModel.lean) {
       query.lean();
     }
 

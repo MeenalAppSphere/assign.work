@@ -15,12 +15,6 @@ const projectTagsSchema = new Schema({
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
-const projectTaskTypeSchema = new Schema({
-  name: { type: String, required: true },
-  color: { type: String, required: true },
-  displayName: { type: String, required: true }
-}, schemaOptions);
-
 export const projectSchema = new Schema({
   name: { type: String, required: [true, 'Project Name is required'] },
   description: { type: String },
@@ -50,7 +44,7 @@ export const projectSchema = new Schema({
   },
   settings: {
     stages: [],
-    taskTypes: [],
+    taskTypes: [{ type: Schema.Types.ObjectId, ref: DbCollection.taskType }],
     priorities: [],
     status: [],
     tags: [projectTagsSchema],
@@ -64,8 +58,18 @@ export const projectSchema = new Schema({
 
 // options
 projectSchema
-  .set('toObject', { virtuals: true })
-  .set('toJSON', { virtuals: true });
+  .set('toObject', {
+    virtuals: true,
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+    }
+  })
+  .set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+    }
+  });
 
 // plugins
 projectSchema

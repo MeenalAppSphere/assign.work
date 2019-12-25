@@ -35,7 +35,7 @@ import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpe
 const projectBasicPopulation = [{
   path: 'members.userDetails',
   select: 'firstName lastName emailId userName profilePic'
-}];
+}, { path: 'settings.taskTypes' }];
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> {
@@ -44,6 +44,7 @@ export class ProjectService extends BaseService<Project & Document> {
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
+    @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskType & Document>,
     private readonly _generalService: GeneralService
   ) {
     super(_projectModel);
@@ -118,16 +119,23 @@ export class ProjectService extends BaseService<Project & Document> {
    * update project by id
    * @param id
    * @param project
+   * @param session
    */
-  async updateProject(id: string, project) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+  async updateProject(id: string, project, session = null) {
+    if (!session) {
+      session = await this._projectModel.db.startSession();
+      session.startTransaction();
+    }
 
     try {
       await this.update(id, project, session);
       await session.commitTransaction();
       session.endSession();
-      const result = await this.findById(id, projectBasicPopulation);
+
+      const query = new MongooseQueryModel();
+      query.populate = projectBasicPopulation;
+
+      const result = await this.findById(id, query);
       return this.parseProjectToVm(result);
     } catch (e) {
       await session.abortTransaction();
@@ -231,7 +239,11 @@ export class ProjectService extends BaseService<Project & Document> {
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
       await session.commitTransaction();
       session.endSession();
-      const result = await this.findById(id, projectBasicPopulation);
+
+      const query = new MongooseQueryModel();
+      query.populate = projectBasicPopulation;
+
+      const result = await this.findById(id, query);
       return this.parseProjectToVm(result);
     } catch (e) {
       await session.abortTransaction();
@@ -391,23 +403,32 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
-      const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
-      const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
-
-      if (isDuplicateName) {
-        throw new BadRequestException('Tasktype Name Already Exists...');
-      }
-
-      if (isDuplicateColor) {
-        throw new BadRequestException('Tasktype Color Already Exists...');
-      }
+      // const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === task-type.name.toLowerCase());
+      // const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === task-type.color.toLowerCase());
+      //
+      // if (isDuplicateName) {
+      //   throw new BadRequestException('Tasktype Name Already Exists...');
+      // }
+      //
+      // if (isDuplicateColor) {
+      //   throw new BadRequestException('Tasktype Color Already Exists...');
+      // }
     } else {
       projectDetails.settings.taskTypes = [];
     }
 
-    taskType.id = new Types.ObjectId().toHexString();
-    // projectDetails.settings.taskTypes.push(taskType);
-    return await this.updateProject(id, { $push: { 'settings.taskTypes': taskType } });
+    const session = await this._taskTypeModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      taskType.projectId = id;
+      const createdTaskType = await this._taskTypeModel.create([taskType], { session });
+      return await this.updateProject(id, { $push: { 'settings.taskTypes': createdTaskType[0].id } }, session);
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
   }
 
   async removeTaskType(id: string, taskTypeId: string) {
@@ -498,7 +519,7 @@ export class ProjectService extends BaseService<Project & Document> {
     session.startTransaction();
 
     try {
-      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, {session});
+      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, { session });
       const result = await this._userService.getUserProfile(this._generalService.userId);
       await session.commitTransaction();
       session.endSession();

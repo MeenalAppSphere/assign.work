@@ -4,7 +4,7 @@ export const schemaOptions: SchemaOptions = {
   timestamps: true,
   toJSON: {
     virtuals: true,
-    getters: true,
+    // getters: true,
     versionKey: false,
     transform: (doc, ret) => {
       ret.id = ret._id;

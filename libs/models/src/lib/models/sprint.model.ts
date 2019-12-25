@@ -34,6 +34,8 @@ export class Sprint {
   totalRemainingTimeReadable?: string;
   progress?: number;
   overProgress?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export class SprintStage {

@@ -11,4 +11,6 @@ export class Organization {
   createdBy?: string | User;
   updatedBy?: string | User;
   members?: string[] | Array<Partial<User>>;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
