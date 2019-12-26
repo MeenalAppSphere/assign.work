@@ -487,7 +487,11 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 /* login,signup,forgot etc*/
-
+.logo-col{
+  img{
+    height:50px;
+  }
+}
 .menu-header{
   a {
     padding: 10px 20px;
@@ -503,4 +507,23 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   font-size: 11px;
   bottom: 0px;
   width: 100%;
+}
+
+
+@media only screen and (max-width: 768px) {
+  .login-features-list{
+    padding-bottom: 120px;
+  }
+  .logo-col{
+    padding-top: 15px!important;
+    padding-bottom: 15px;
+    text-align: center;
+    img{
+      height: 35px;
+    }
+  }
+  .menu-header{
+    padding-top: 13px!important;
+    padding-bottom: 13px;
+  }
 }
