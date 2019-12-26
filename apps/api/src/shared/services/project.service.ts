@@ -125,19 +125,16 @@ export class ProjectService extends BaseService<Project & Document> {
    */
   async updateProject(id: string, project, session?: ClientSession) {
     if (!session) {
-      session = await this._projectModel.db.startSession();
-      session.startTransaction();
+      session = await this.startSession();
     }
 
     try {
       await this.update(id, project, session);
-      await session.commitTransaction();
-      session.endSession();
+      this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -401,11 +398,32 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(model.projectId, projectDetails);
   }
 
+  /**
+   * remove stage from project
+   * remove stage from active sprint if project have an active sprint
+   * @param id
+   * @param stageId
+   * @returns {Promise<Project>}
+   */
   async removeStage(id: string, stageId: string) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     projectDetails.settings.stages = projectDetails.settings.stages.filter(f => f.id !== stageId);
-    return await this.updateProject(id, projectDetails);
+
+    // need to check active sprint logic here
+    const session = await this.startSession();
+
+    try {
+      // means this project have an active sprint
+      if (projectDetails.sprintId) {
+        // get sprint details
+        // remove stage from a sprint logic goes here...
+      }
+      return await this.updateProject(id, { $set: { 'settings.stages': projectDetails.settings.stages } }, session);
+    } catch (e) {
+      await this.abortTransaction(session);
+      throw e;
+    }
   }
 
   /**
