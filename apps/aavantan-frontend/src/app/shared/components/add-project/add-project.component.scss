@@ -43,3 +43,30 @@
     margin-bottom: 4px;
     border-radius: 4px;
 }
+
+.project-templates{
+  width: 100%;
+  img{
+    margin-bottom: 10px;
+  }
+  div{
+    font-size: 14px;
+  }
+  label {
+    width: 24%;
+    margin: .5%;
+    border: 1px solid #DEDFE2;
+    border-radius: 4px;
+    color: #6E829C;
+    background: #F8F8F8;
+    padding: 15px 10px;
+  }
+  .ant-radio-button-wrapper-checked {
+    color: #fff!important;
+    background: #2680EB;
+    border: 0px;
+  }
+  .ant-radio-button-wrapper:not(:first-child)::before {
+    background-color: transparent;
+  }
+}
