@@ -5,6 +5,9 @@ import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { Notice } from '../shared/interfaces/notice.type';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { AuthService as SocialAuthService } from 'angularx-social-login';
+import { GoogleLoginProvider } from 'angularx-social-login';
+
 
 
 @Component({
@@ -19,7 +22,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   public isSubmitted: boolean;
   public featuresList:any;
 
-  constructor(private _authService: AuthService, private _authQuery: AuthQuery, private router: Router) {
+  constructor(private _authService: AuthService,
+              private _authQuery: AuthQuery,
+              private router: Router,
+              private socialAuthService: SocialAuthService) {
   }
 
   ngOnInit(): void {
@@ -58,8 +64,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   loginWithGoogle() {
-    this._authService.requestGoogleRedirectUri().subscribe(res => {
-      window.location.replace(res.redirect_uri);
+    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(res => {
+      console.log(res);
     });
   }
 
