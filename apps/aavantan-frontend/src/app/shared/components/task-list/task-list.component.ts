@@ -105,6 +105,7 @@ export class TaskListComponent implements OnInit {
 
     if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 0) {
 
+      task.isSelected = true;
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);
 

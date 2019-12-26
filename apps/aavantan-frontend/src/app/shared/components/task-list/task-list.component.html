@@ -112,7 +112,7 @@
                 </td>
                 <td data-label="#" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId" class="text-center">
 
-                  <span *ngIf="!item.isSelected"> <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox [(ngModel)]="item.isSelected" (nzCheckedChange)="selectTaskForSprint(item)"></label></span>
+                  <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox [(ngModel)]="item.isSelected" (nzCheckedChange)="selectTaskForSprint(item)"></label>
 
                   <i *ngIf="(tasksSelected && tasksSelected.sprintId) && (!item.assignee || !item.estimatedTime)"
                      class="text-red"

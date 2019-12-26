@@ -236,6 +236,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     } else {
       this.isDisabledCreateBtn = true;
     }
+
     this.prepareDraftSprint();
 
   }
@@ -246,6 +247,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
         return item;
       }
     });
+    console.log('draftData: ',this.draftData.length);
     this.calculateDraftDataDuration();
   }
 
