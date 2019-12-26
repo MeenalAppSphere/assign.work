@@ -21,6 +21,7 @@ import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
 import { sprintSchema } from '../sprint/sprint.schema';
 import { SprintService } from './services/sprint.service';
 import { taskTypeSchema } from '../task-type/task-type.schema';
+import { TaskTypeService } from './services/task-type.service';
 
 const providers = [
   UsersService,
@@ -31,7 +32,8 @@ const providers = [
   AttachmentService,
   GeneralService,
   TaskTimeLogService,
-  SprintService
+  SprintService,
+  TaskTypeService
 ];
 
 const dbModels = [{

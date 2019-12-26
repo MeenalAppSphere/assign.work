@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
   AddCommentModel,
@@ -27,6 +27,8 @@ import { orderBy } from 'lodash';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
+import { ModuleRef } from '@nestjs/core';
+import { TaskTypeService } from './task-type.service';
 
 /**
  * common task population object
@@ -59,13 +61,23 @@ const taskBasicPopulation: any[] = [{
 }];
 
 @Injectable()
-export class TaskService extends BaseService<Task & Document> {
+export class TaskService extends BaseService<Task & Document> implements OnModuleInit {
+  private _taskTypeService: TaskTypeService;
+  private _taskHistoryService: TaskHistoryService;
+  private _generalService: GeneralService;
+
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    private _taskHistoryService: TaskHistoryService, private _generalService: GeneralService
+    private readonly _moduleRef: ModuleRef
   ) {
     super(_taskModel);
+  }
+
+  onModuleInit(): any {
+    this._generalService = this._moduleRef.get(GeneralService);
+    this._taskHistoryService = this._moduleRef.get(TaskHistoryService);
+    this._taskTypeService = this._moduleRef.get(TaskTypeService);
   }
 
   /**
@@ -132,7 +144,7 @@ export class TaskService extends BaseService<Task & Document> {
     session.startTransaction();
 
     // validation
-    if (!model || !model.taskType) {
+    if (!model || !model.taskTypeId) {
       throw new BadRequestException('Please add Task Type');
     }
 
@@ -140,7 +152,7 @@ export class TaskService extends BaseService<Task & Document> {
       projectId: model.projectId
     }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
-    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
+    const taskTypeDetails = await this._taskTypeService.findById(model.taskTypeId);
 
     if (!taskTypeDetails) {
       throw new BadRequestException('Task Type not found');

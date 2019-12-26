@@ -1,16 +1,25 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   AddCommentModel,
-  BaseResponseModel, GetTaskByIdOrDisplayNameModel,
+  BasePaginatedResponse,
+  BaseResponseModel,
+  CommentPinModel,
+  GetAllTaskRequestModel,
+  GetTaskByIdOrDisplayNameModel,
+  GetTaskHistoryModel,
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectStatus,
+  ProjectStages,
+  ProjectStatus,
   Sprint,
-  Task, TaskComments, TaskHistory, CommentPinModel,
+  Task,
+  TaskComments,
+  TaskHistory,
+  TaskTimeLogResponse,
   TaskType,
-  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel, TaskTimeLogResponse
+  User
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -52,7 +61,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public getTaskInProcess: boolean = false;
   public getCommentInProcess: boolean = false;
   public getHistoryInProcess: boolean = false;
-  public currentTask : Task;
+  public currentTask: Task;
 
   public fileList2 = [];
 
@@ -90,9 +99,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public modelChanged = new Subject<string>();
   public modelChangedWatchers = new Subject<string>();
   public modelChangedTags = new Subject<string>();
-  public tagsQueryText : string = null;
-  public watchersQueryText : string = null;
-  public progressData:TaskTimeLogResponse;
+  public tagsQueryText: string = null;
+  public watchersQueryText: string = null;
+  public progressData: TaskTimeLogResponse;
 
   public nzFilterOption = () => true;
 
@@ -140,8 +149,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       epic: [null],
       status: [null],
       estimatedTime: [null],
-      remainingHours:[null],
-      remainingMinutes:[null]
+      remainingHours: [null],
+      remainingMinutes: [null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -180,10 +189,11 @@ export class TaskComponent implements OnInit, OnDestroy {
           });
 
           if (arr && arr.length) {
-            this.selectedTaskType = arr[0];
+            this.selectedTaskType = { ...arr[0], id: arr[0]['_id'] };
           }
 
         } else {
+          this.taskTypeDataSource[0] = this.taskTypeDataSource[0]['_id'];
           this.selectedTaskType = this.taskTypeDataSource[0];
         }
 
@@ -318,8 +328,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.getMessage(true);
   }
 
-  public timeLog(data:TaskTimeLogResponse) {
-    if(data) {
+  public timeLog(data: TaskTimeLogResponse) {
+    if (data) {
       this.progressData = data;
       this.timelogModalIsVisible = !this.timelogModalIsVisible;
     }
@@ -348,11 +358,11 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskData.data.assignee.id = this.taskData.data.assigneeId;
         this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
       }
-      if(this.taskData.data.estimatedTime){
-          this.setHoursMinutes(this.taskData.data.estimatedTime);
+      if (this.taskData.data.estimatedTime) {
+        this.setHoursMinutes(this.taskData.data.estimatedTime);
       }
 
-      if(this.taskData.data && this.taskData.data.progress){
+      if (this.taskData.data && this.taskData.data.progress) {
 
         this.progressData = {
           progress: this.taskData.data.progress,
@@ -460,7 +470,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
 
-    task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
+    task.taskTypeId = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
     task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
     task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
@@ -470,14 +480,14 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
     const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
-    task.estimatedTimeReadable = hours+'h '+ +minutes+'m';
+    task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
 
 
-    if (!task.taskType) {
+    if (!task.taskTypeId) {
       this.notification.error('Error', 'Please select task type');
       return;
     }
-    if(!task.assigneeId){
+    if (!task.assigneeId) {
       this.notification.error('Error', 'Please select assignee');
       return;
     }
@@ -494,7 +504,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         task.displayName = this.displayName;
         const data = await this._taskService.updateTask(task).toPromise();
 
-        if(data && data.data && data.data.progress){
+        if (data && data.data && data.data.progress) {
           this.progressData = {
             progress: data.data.progress,
             totalLoggedTime: data.data.totalLoggedTime,
@@ -525,8 +535,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.commentForm.reset();
   }
 
-  public setHoursMinutes(seconds:number){
-    const num = seconds/60;
+  public setHoursMinutes(seconds: number) {
+    const num = seconds / 60;
     const hours = (num / 60);
     const rhours = Math.floor(hours);
     const minutes = (hours - rhours) * 60;
@@ -536,7 +546,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     return {
       h: rhours,
       m: rminutes
-    }
+    };
   }
 
   public selectAssigneeTypeahead(user: User) {

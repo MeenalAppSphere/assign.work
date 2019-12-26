@@ -24,7 +24,7 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async findById(id: string, queryModel: MongooseQueryModel): Promise<T> {
+  public async findById(id: string, queryModel: MongooseQueryModel = new MongooseQueryModel()): Promise<T> {
     const query = this.model.findById(this.toObjectId(id)).where(DEFAULT_QUERY_FILTER);
 
     if (queryModel.populate && queryModel.populate.length) {

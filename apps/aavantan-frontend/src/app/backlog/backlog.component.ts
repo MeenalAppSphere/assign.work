@@ -1,9 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AddTaskToSprintModel,
-  DraftSprint, GetAllSprintRequestModel,
-  GetAllTaskRequestModel, GetUnpublishedRequestModel,
-  Sprint, SprintBaseRequest, SprintErrorResponse,
+  DraftSprint,
+  GetAllSprintRequestModel,
+  GetAllTaskRequestModel,
+  GetUnpublishedRequestModel,
+  Sprint,
+  SprintBaseRequest,
+  SprintErrorResponse,
   Task,
   User
 } from '@aavantan-app/models';
@@ -89,7 +93,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
       goal: null,
       startedAt: null,
       endAt: null,
-      sprintStatus:null
+      sprintStatus:null,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
   }

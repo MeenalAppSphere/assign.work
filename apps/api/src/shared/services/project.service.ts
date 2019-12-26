@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   BaseRequestModel,
@@ -33,6 +33,7 @@ import {
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
 import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
+import { ModuleRef } from '@nestjs/core';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -40,17 +41,24 @@ const projectBasicPopulation = [{
 }, { path: 'settings.taskTypes' }];
 
 @Injectable()
-export class ProjectService extends BaseService<Project & Document> {
+export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
+  private _userService: UsersService;
+
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
-    @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
     @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskType & Document>,
+    private readonly moduleRef: ModuleRef,
     private readonly _generalService: GeneralService
   ) {
     super(_projectModel);
+  }
+
+  onModuleInit() {
+    // get user service instance from module
+    this._userService = this.moduleRef.get(UsersService);
   }
 
   /**
@@ -63,8 +71,7 @@ export class ProjectService extends BaseService<Project & Document> {
    * return {Project}
    */
   async createProject(model: Project) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     const userDetails = await this._userService.findById(model.createdBy as string);
 
@@ -108,12 +115,10 @@ export class ProjectService extends BaseService<Project & Document> {
       userDetails.projects.push(createdProject[0].id);
       await this._userService.updateUser(userDetails.id, userDetails, session);
 
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
       return createdProject[0];
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -153,8 +158,7 @@ export class ProjectService extends BaseService<Project & Document> {
    * @param members
    */
   async addCollaborators(id: string, members: ProjectMembers[]) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     const projectDetails: Project = await this.getProjectDetails(id);
 
@@ -237,8 +241,7 @@ export class ProjectService extends BaseService<Project & Document> {
       });
 
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
 
       const query = new MongooseQueryModel();
       query.populate = projectBasicPopulation;
@@ -246,8 +249,7 @@ export class ProjectService extends BaseService<Project & Document> {
       const result = await this.findById(id, query);
       return this.parseProjectToVm(result);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -305,17 +307,14 @@ export class ProjectService extends BaseService<Project & Document> {
   }
 
   async deleteProject(id: string) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       await this.delete(id);
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
       return 'Project Deleted Successfully!';
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -350,8 +349,7 @@ export class ProjectService extends BaseService<Project & Document> {
 
     projectDetails.settings.stages.push(stage);
 
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       // if project has a sprint id
@@ -373,8 +371,7 @@ export class ProjectService extends BaseService<Project & Document> {
 
       return await this.updateProject(id, projectDetails, session);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -466,16 +463,14 @@ export class ProjectService extends BaseService<Project & Document> {
       projectDetails.settings.taskTypes = [];
     }
 
-    const session = await this._taskTypeModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       taskType.projectId = id;
       const createdTaskType = await this._taskTypeModel.create([taskType], { session });
       return await this.updateProject(id, { $push: { 'settings.taskTypes': createdTaskType[0].id } }, session);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -564,18 +559,15 @@ export class ProjectService extends BaseService<Project & Document> {
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, { session });
       const result = await this._userService.getUserProfile(this._generalService.userId);
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
       return result;
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }

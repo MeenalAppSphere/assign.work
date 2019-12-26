@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { GetAllTaskRequestModel, Sprint, SprintStage, SprintStatusEnum, Task } from '@aavantan-app/models';
+import { GetAllTaskRequestModel, Sprint, SprintStatusEnum, Task } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
 import { NzNotificationService } from 'ng-zorro-antd';
@@ -29,7 +29,9 @@ export class BoardComponent implements OnInit {
       sprintStatus: {
         status: SprintStatusEnum.inProgress,
         updatedAt: new Date()
-      }
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: '2',
@@ -42,7 +44,9 @@ export class BoardComponent implements OnInit {
       sprintStatus: {
         status: SprintStatusEnum.inProgress,
         updatedAt: new Date()
-      }
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: '3',
@@ -55,7 +59,9 @@ export class BoardComponent implements OnInit {
       sprintStatus: {
         status: SprintStatusEnum.inProgress,
         updatedAt: new Date()
-      }
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
