@@ -15,14 +15,12 @@ taskTypeSchema
   .set('toObject', {
     virtuals: true,
     transform: (doc, ret) => {
-      debugger;
       ret.id = ret._id;
     }
   })
   .set('toJSON', {
     virtuals: true,
     transform: (doc, ret) => {
-      debugger;
       ret.id = ret._id;
     }
   });
