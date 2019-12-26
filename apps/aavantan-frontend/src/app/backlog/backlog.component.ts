@@ -46,6 +46,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public saveSprintInProcess: boolean;
   public activeSprintData : Sprint;
   public activeSprintId : string;
+  public haveUnpublishedTasks:boolean;
 
   public searchValue: string;
   public searchTaskListInProgress: boolean;
@@ -143,7 +144,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
           }
           this.draftData = taskArray;
           if(this.draftData.length>0){
+            this.haveUnpublishedTasks = true;
             this.isDisabledCreateBtn = false;
+          }else{
+            this.haveUnpublishedTasks = false;
           }
         }
 
@@ -220,36 +224,19 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
 
-    if(ev.totalCapacity){
-      this.sprintData.totalCapacity = ev.totalCapacity;
-    }
-    if(ev.totalCapacityReadable){
-      this.sprintData.totalCapacityReadable = ev.totalCapacityReadable;
-    }
-
-    if(ev.totalEstimation){
-      this.sprintData.totalEstimation = ev.totalEstimation;
+    if(this.haveUnpublishedTasks){
+      this.draftSprint.tasks = this.getUnique( this.draftSprint.tasks.concat(ev.tasks), 'id');
+    }else{
+      this.draftSprint = ev;
     }
 
-    if(ev.totalEstimationReadable){
-      this.sprintData.totalEstimationReadable = ev.totalEstimationReadable;
-    }
-
-    if(ev.totalRemainingCapacity){
-      this.sprintData.totalRemainingCapacity = ev.totalRemainingCapacity;
-    }
-
-    if(ev.totalCapacity){
-      this.sprintData.totalRemainingCapacityReadable = ev.totalRemainingCapacityReadable;
-    }
-
-    this.draftSprint.tasks = this.getUnique( this.draftSprint.tasks.concat(ev.tasks), 'id');
 
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
       this.isDisabledCreateBtn = false;
     } else {
       this.isDisabledCreateBtn = true;
     }
+
     this.prepareDraftSprint();
 
   }
@@ -260,6 +247,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
         return item;
       }
     });
+    console.log('draftData: ',this.draftData.length);
     this.calculateDraftDataDuration();
   }
 

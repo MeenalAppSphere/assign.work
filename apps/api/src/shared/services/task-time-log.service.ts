@@ -191,6 +191,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       history.action = history.sprintId ? TaskHistoryActionEnum.timeLoggedInSprint : TaskHistoryActionEnum.timeLogged;
       history.createdById = model.timeLog.createdById;
       history.taskId = model.timeLog.taskId;
+      history.task = taskDetails;
       history.desc = history.sprintId ? 'Time Logged for a sprint' : 'Time Logged';
 
       // add task history

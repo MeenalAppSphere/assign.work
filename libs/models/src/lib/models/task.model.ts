@@ -16,7 +16,7 @@ export class Task {
   assignee?: User;
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
-  taskType: any;
+  taskType?: any;
   comments?: TaskComments[];
   estimatedTime?: number;
   estimatedTimeReadable?: string;

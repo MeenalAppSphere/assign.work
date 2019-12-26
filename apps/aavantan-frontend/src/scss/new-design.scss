@@ -375,3 +375,23 @@ $color-gray-light: #6E829C;
   color: $color-gray-light!important;
 }
 
+
+
+/* project modal */
+.project-modal {
+  //.ant-steps-item-content, .ant-steps-item-icon {
+  //  display: block;
+  //}
+  //.ant-steps-item-title::after {
+  //  position: absolute;
+  //  top: -16px;
+  //}
+  //.ant-steps-item-process > .ant-steps-item-content > .ant-steps-item-title:after {
+  //  background-color: #6e829c!important;
+  //}
+  .ant-steps-item-process .ant-steps-item-icon {
+    background: #6E829C !important;
+    border-color: #6E829C;
+    font-size: 14px;
+  }
+}

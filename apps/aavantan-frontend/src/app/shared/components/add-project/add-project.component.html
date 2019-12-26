@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="projectModalIsVisible" nzFooter="#nzModalFooter" nzWidth="700" nzClosable="false">
+<nz-modal [(nzVisible)]="projectModalIsVisible" nzClassName="project-modal" nzFooter="#nzModalFooter" nzWidth="700" nzClosable="false">
 
 
     <nz-spin nzTip="Setting up..." [nzSpinning]="switchingProjectInProcess">
@@ -76,16 +76,18 @@
 
         <div class="steps-action" *ngIf="showCreateProject">
 
-            <div class="text-center">
-                <h4>Welcome to Assign.work</h4>
-                <p>Wanna add your first project?</p>
+            <div class="text-center m-t-20 text-black">
+                <h4 class="m-0 text-black">Welcome to Assign.work</h4>
+                <p class="m-b-20 text-black">Wanna add your first project?</p>
             </div>
 
+          <div class="p-l-40 p-r-40">
             <nz-steps [nzCurrent]="switchStepCurrent">
-                <nz-step nzTitle="Project"></nz-step>
-                <nz-step nzTitle="Collaborators"></nz-step>
-                <nz-step nzTitle="Template"></nz-step>
+                <nz-step nzTitle="Project">Project</nz-step>
+                <nz-step nzTitle="Collaborators">Collaborators</nz-step>
+                <nz-step nzTitle="Template">Template</nz-step>
             </nz-steps>
+          </div>
 
             <!--first-->
             <ng-container *ngIf="switchStepCurrent===0">
@@ -143,13 +145,25 @@
             <!--third-->
             <ng-container *ngIf="switchStepCurrent===2">
                 <div class="min-height-100 m-t-25">
-                    <p class="m-t-25 m-b-25">Select Business {{modalTitle}}</p>
+                    <p class="m-t-25 m-b-10 text-uppercase">Select template for your Project</p>
                     <div class="text-center">
-                        <nz-radio-group [(ngModel)]="selectedTemplate">
-                            <label nz-radio nzValue="Software">Software <i nz-icon nzType="info-circle" theme="outline"></i></label>
-                            <label nz-radio nzValue="Task Management">Task Management <i nz-icon nzType="info-circle" theme="outline"></i></label>
-                            <label nz-radio nzValue="Accounts">Accounts <i nz-icon nzType="info-circle" theme="outline"></i></label>
-                            <label nz-radio nzValue="Production">Production <i nz-icon nzType="info-circle" theme="outline"></i></label>
+                        <nz-radio-group [(ngModel)]="selectedTemplate" class="project-templates" [nzButtonStyle]="'solid'">
+                            <label nz-radio-button nzValue="Software">
+                              <img src="../../../../assets/images/icons/template_software.svg" alt="Software"/>
+                              <div>Software</div>
+                            </label>
+                            <label nz-radio-button nzValue="Task Management">
+                              <img src="../../../../assets/images/icons/template_task_management.svg" alt="Task Management"/>
+                              <div>Task Management</div>
+                            </label>
+                            <label nz-radio-button nzValue="Accounts">
+                              <img src="../../../../assets/images/icons/template_accounts.svg" alt="Accounts"/>
+                              <div>Accounts</div>
+                            </label>
+                            <label nz-radio-button nzValue="Production">
+                              <img src="../../../../assets/images/icons/template_production.svg" alt="Production"/>
+                              <div>Production</div>
+                            </label>
                         </nz-radio-group>
                     </div>
                 </div>
@@ -160,33 +174,25 @@
         <div *nzModalFooter>
             <div class="row">
 
-                <div class="col text-left" *ngIf="!createdProjectId">
-                    <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess">
-          <span>Cancel</span>
-        </button>
-                </div>
 
-                <div class="col text-left">
-                    <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" *ngIf="createdProjectId">
-          <span>Close</span>
-        </button>
-                </div>
+                <div class="col text-right">
 
-                <div class="col">
+                  <!-- cancel -->
+                  <button *ngIf="!createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess"><span>Cancel</span></button>
 
-                    <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="showCreateProject && switchStepCurrent > 1 && !createdProjectId"><span>Previous</span>
-        </button>
+                  <button *ngIf="createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"><span>Close</span></button>
+                  <!-- cancel btn end -->
 
-                    <button nz-button nzType="default" nzSize="small" (click)="skip()" *ngIf="showCreateProject && switchStepCurrent === 1">
-          <span>Skip</span>
-        </button>
-                    <button nz-button nzType="primary" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span>
-        </button>
 
-                    <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span>
-        </button>
+                    <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="showCreateProject && switchStepCurrent > 1 && !createdProjectId"><span>Previous</span></button>
 
-                    <button *ngIf="!showCreateProject" type="button" class="float-right btn btn-warning btn-sm text-white" (click)="addNewProject()">+ Add New Project</button>
+                    <button nz-button nzType="default" nzSize="small" (click)="skip()" *ngIf="showCreateProject && switchStepCurrent === 1"><span>Skip</span></button>
+
+                    <button nz-button nzType="primary" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span></button>
+
+                    <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span></button>
+
+                    <button *ngIf="!showCreateProject" nz-button nzShape="round" type="button" nzType="link" class="float-right" (click)="addNewProject()">+ Add New Project</button>
 
                 </div>
             </div>

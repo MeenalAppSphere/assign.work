@@ -47,6 +47,19 @@
           </div>
         </div>
       </div>
+      <div *ngIf="!boardData" class="text-center text-gray-light">
+        <nz-empty
+          [nzNotFoundImage]="false"
+          [nzNotFoundContent]="contentTpl"
+          [nzNotFoundFooter]="footerTpl">
+          <ng-template #contentTpl>
+            <span>There in no active Sprint</span>
+          </ng-template>
+          <ng-template #footerTpl>
+            <button nz-button nzSize="small" nzType="primary" class="btn-medium" routerLink="../backlog">+ Create Sprint</button>
+          </ng-template>
+        </nz-empty>
+      </div>
     </div>
   </div>
 
