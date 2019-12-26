@@ -184,17 +184,13 @@
                   <!-- cancel btn end -->
 
 
-                    <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="showCreateProject && switchStepCurrent > 1 && !createdProjectId"><span>Previous</span>
-        </button>
+                    <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="showCreateProject && switchStepCurrent > 1 && !createdProjectId"><span>Previous</span></button>
 
-                    <button nz-button nzType="default" nzSize="small" (click)="skip()" *ngIf="showCreateProject && switchStepCurrent === 1">
-          <span>Skip</span>
-        </button>
-                    <button nz-button nzType="primary" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span>
-        </button>
+                    <button nz-button nzType="default" nzSize="small" (click)="skip()" *ngIf="showCreateProject && switchStepCurrent === 1"><span>Skip</span></button>
 
-                    <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span>
-        </button>
+                    <button nz-button nzType="primary" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span></button>
+
+                    <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span></button>
 
                     <button *ngIf="!showCreateProject" nz-button nzShape="round" type="button" nzType="link" class="float-right" (click)="addNewProject()">+ Add New Project</button>
 
