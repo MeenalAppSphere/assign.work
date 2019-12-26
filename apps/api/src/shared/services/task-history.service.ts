@@ -85,7 +85,7 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
       name: history.task.name,
       displayName: history.task.displayName,
       projectId: history.task.projectId,
-      createdById: history.task.createdById
+      createdById: history.task.createdById,
     };
     return history;
   }

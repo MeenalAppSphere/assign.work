@@ -58,7 +58,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
   onModuleInit() {
     // get user service instance from module
-    this._userService = this.moduleRef.get(UsersService);
+    this._userService = this.moduleRef.get('UsersService');
   }
 
   /**
