@@ -16,12 +16,14 @@ import {
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
+  Sprint,
+  SprintStage,
   SwitchProjectRequest,
   TaskType,
   User,
   UserStatus
 } from '@aavantan-app/models';
-import { Document, Model, Types } from 'mongoose';
+import { ClientSession, Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
 import { GeneralService } from './general.service';
@@ -43,6 +45,7 @@ export class ProjectService extends BaseService<Project & Document> {
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
+    @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
     private readonly _generalService: GeneralService
   ) {
@@ -118,10 +121,13 @@ export class ProjectService extends BaseService<Project & Document> {
    * update project by id
    * @param id
    * @param project
+   * @param session
    */
-  async updateProject(id: string, project) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+  async updateProject(id: string, project, session?: ClientSession) {
+    if (!session) {
+      session = await this._projectModel.db.startSession();
+      session.startTransaction();
+    }
 
     try {
       await this.update(id, project, session);
@@ -318,6 +324,7 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new BadRequestException('Please add stage name');
     }
 
+    // get project details
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.stages) {
@@ -336,7 +343,34 @@ export class ProjectService extends BaseService<Project & Document> {
     stage.sequenceNumber = projectDetails.settings.stages.length + 1;
 
     projectDetails.settings.stages.push(stage);
-    return await this.updateProject(id, projectDetails);
+
+    const session = await this._projectModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      // if project has a sprint id
+      // means project have a active sprint
+      if (projectDetails.sprintId) {
+
+        // create sprint model
+        const sprintStage = new SprintStage();
+        sprintStage.id = stage.id;
+        sprintStage.status = [];
+        sprintStage.tasks = [];
+        sprintStage.totalEstimation = 0;
+
+        // update sprint and add a stage
+        await this._sprintModel.updateOne({ _id: projectDetails.sprintId }, {
+          $push: { stages: sprintStage }
+        }, { session });
+      }
+
+      return await this.updateProject(id, projectDetails, session);
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
   }
 
   /**
@@ -498,7 +532,7 @@ export class ProjectService extends BaseService<Project & Document> {
     session.startTransaction();
 
     try {
-      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, {session});
+      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, { session });
       const result = await this._userService.getUserProfile(this._generalService.userId);
       await session.commitTransaction();
       session.endSession();
@@ -628,7 +662,7 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new NotFoundException('Project not found');
     }
 
-    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
+    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy sprintId').lean().exec();
 
     if (!projectDetails) {
       throw new NotFoundException('Project not found');
