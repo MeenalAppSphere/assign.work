@@ -452,6 +452,17 @@ export class SprintService extends BaseService<Sprint & Document> {
       // now all validations have been completed add task to sprint
 
       for (let i = 0; i < taskDetails.length; i++) {
+
+        // check if task is already in any of sprint stage
+        const taskIsAlreadyInSprint = sprintDetails.stages.some(stage => {
+          return stage.tasks.some(task => task.taskId === taskDetails[i].id);
+        });
+
+        // if task is already in sprint then continue the loop to next iteration
+        if (taskIsAlreadyInSprint) {
+          continue;
+        }
+
         // add task estimation to sprint total estimation
         sprintDetails.totalEstimation += taskDetails[i].estimatedTime;
 
