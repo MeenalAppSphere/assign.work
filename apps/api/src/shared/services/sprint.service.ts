@@ -819,9 +819,31 @@ export class SprintService extends BaseService<Sprint & Document> {
       throw new BadRequestException('Sprint end date is passed!');
     }
 
-    // update sprint status
+    // find out newly created stages from project details
+    const newStagesFromProject = projectDetails.settings.stages.filter(stage => {
+      return !sprintDetails.stages.some(sprintStage => sprintStage.id === stage.id);
+    });
+
+    const newStagesModels: SprintStage[] = [];
+
+    // create new stages model for adding in db
+    newStagesFromProject.forEach(newStage => {
+      // create sprint model
+      const sprintStage = new SprintStage();
+      sprintStage.id = newStage.id;
+      sprintStage.status = [];
+      sprintStage.tasks = [];
+      sprintStage.totalEstimation = 0;
+
+      newStagesModels.push(sprintStage);
+    });
+
+    // update sprint in db
     const updateSprintObject = {
-      status: SprintStatusEnum.inProgress, updatedAt: new Date()
+      sprintStatus: {
+        status: SprintStatusEnum.inProgress, updatedAt: new Date()
+      },
+      $push: { stages: newStagesModels }
     };
 
     // send mail
@@ -830,7 +852,7 @@ export class SprintService extends BaseService<Sprint & Document> {
 
     try {
       // update sprint in db
-      await this.update(model.sprintId, { sprintStatus: updateSprintObject }, session);
+      await this.update(model.sprintId, updateSprintObject, session);
 
       // update project and set published sprint as active sprint in project
       await this._projectModel.updateOne({ _id: model.projectId }, { $set: { sprintId: model.sprintId } }, { session });

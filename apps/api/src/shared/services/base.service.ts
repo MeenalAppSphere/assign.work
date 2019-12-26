@@ -126,4 +126,31 @@ export class BaseService<T extends Document> {
     return Types.ObjectId.isValid(id);
   }
 
+  // create a session start a transaction and return it
+  public async startSession(): Promise<ClientSession> {
+    const session = await this.model.db.startSession();
+    session.startTransaction();
+    return session;
+  }
+
+  /**
+   * commit session and end that session
+   * @param session
+   * @returns {Promise<void>}
+   */
+  public async commitTransaction(session: ClientSession) {
+    await session.commitTransaction();
+    session.endSession();
+  }
+
+  /**
+   * abort a session and end that session
+   * @param session
+   * @returns {Promise<void>}
+   */
+  public async abortTransaction(session: ClientSession) {
+    await session.abortTransaction();
+    session.endSession();
+  }
+
 }

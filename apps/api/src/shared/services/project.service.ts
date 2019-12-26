@@ -16,12 +16,14 @@ import {
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
+  Sprint,
+  SprintStage,
   SwitchProjectRequest,
   TaskType,
   User,
   UserStatus
 } from '@aavantan-app/models';
-import { Document, Model, Types } from 'mongoose';
+import { ClientSession, Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { UsersService } from './users.service';
 import { GeneralService } from './general.service';
@@ -43,6 +45,7 @@ export class ProjectService extends BaseService<Project & Document> {
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
+    @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
     @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskType & Document>,
     private readonly _generalService: GeneralService
@@ -121,16 +124,14 @@ export class ProjectService extends BaseService<Project & Document> {
    * @param project
    * @param session
    */
-  async updateProject(id: string, project, session = null) {
+  async updateProject(id: string, project, session?: ClientSession) {
     if (!session) {
-      session = await this._projectModel.db.startSession();
-      session.startTransaction();
+      session = await this.startSession();
     }
 
     try {
       await this.update(id, project, session);
-      await session.commitTransaction();
-      session.endSession();
+      this.commitTransaction(session);
 
       const query = new MongooseQueryModel();
       query.populate = projectBasicPopulation;
@@ -138,8 +139,7 @@ export class ProjectService extends BaseService<Project & Document> {
       const result = await this.findById(id, query);
       return this.parseProjectToVm(result);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -330,6 +330,7 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new BadRequestException('Please add stage name');
     }
 
+    // get project details
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.stages) {
@@ -348,7 +349,34 @@ export class ProjectService extends BaseService<Project & Document> {
     stage.sequenceNumber = projectDetails.settings.stages.length + 1;
 
     projectDetails.settings.stages.push(stage);
-    return await this.updateProject(id, projectDetails);
+
+    const session = await this._projectModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      // if project has a sprint id
+      // means project have a active sprint
+      if (projectDetails.sprintId) {
+
+        // create sprint model
+        const sprintStage = new SprintStage();
+        sprintStage.id = stage.id;
+        sprintStage.status = [];
+        sprintStage.tasks = [];
+        sprintStage.totalEstimation = 0;
+
+        // update sprint and add a stage
+        await this._sprintModel.updateOne({ _id: projectDetails.sprintId }, {
+          $push: { stages: sprintStage }
+        }, { session });
+      }
+
+      return await this.updateProject(id, projectDetails, session);
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
   }
 
   /**
@@ -379,11 +407,32 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(model.projectId, projectDetails);
   }
 
+  /**
+   * remove stage from project
+   * remove stage from active sprint if project have an active sprint
+   * @param id
+   * @param stageId
+   * @returns {Promise<Project>}
+   */
   async removeStage(id: string, stageId: string) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     projectDetails.settings.stages = projectDetails.settings.stages.filter(f => f.id !== stageId);
-    return await this.updateProject(id, projectDetails);
+
+    // need to check active sprint logic here
+    const session = await this.startSession();
+
+    try {
+      // means this project have an active sprint
+      if (projectDetails.sprintId) {
+        // get sprint details
+        // remove stage from a sprint logic goes here...
+      }
+      return await this.updateProject(id, { $set: { 'settings.stages': projectDetails.settings.stages } }, session);
+    } catch (e) {
+      await this.abortTransaction(session);
+      throw e;
+    }
   }
 
   /**
@@ -649,7 +698,7 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new NotFoundException('Project not found');
     }
 
-    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
+    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy sprintId').lean().exec();
 
     if (!projectDetails) {
       throw new NotFoundException('Project not found');
