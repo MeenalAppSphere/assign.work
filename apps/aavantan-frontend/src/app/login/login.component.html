@@ -86,18 +86,18 @@
             <span>or</span><div></div>
           </div>
           <div class="text-center m-t-25 row">
-            <div class="col-md-6 ">
-              <button class="font-size-12" nz-button nzType="link"><i nz-icon nzType="linkedin" theme="outline"></i> Login with LinkedIn</button>
+            <div class="col">
+              <img src="../../assets/images/icons/btn_google.png" width="100%">
             </div>
-            <div class="col-md-6">
-              <button class="font-size-12" nz-button nzType="link" (click)="loginWithGoogle()"><i nz-icon nzType="google" theme="outline"></i> Login with Gmail</button>
+            <div class="col">
+              <img src="../../assets/images/icons/btn_linkedin.svg" width="100%" (click)="loginWithGoogle()">
             </div>
           </div>
           <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>
           <ng-template #prefixLock><i nz-icon nzType="lock"></i></ng-template>
         </nz-card>
 
-        <div class="p-h-90" style="position: absolute; bottom:20px; width: 100%;">Don't have an account? <a class="small font-weight-bold" [routerLink]="['/register']">Signup</a></div>
+        <div class="p-h-90 signup-link" style="position: absolute; bottom:20px; width: 100%;">Don't have an account? <a class="small font-weight-bold" [routerLink]="['/register']">Signup</a></div>
 
       </div>
       <div class="col-md-8 p-h-40 p-t-50 bg-light login-wall">
