@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskHistoryService } from '../shared/services/task-history.service';
 import { GetTaskHistoryModel } from '@aavantan-app/models';
@@ -13,10 +13,6 @@ export class TaskHistoryController {
   @Post('get-history')
   async getAll(@Body() model: GetTaskHistoryModel) {
     model.populate = [{
-      path: 'task',
-      select: 'name displayName',
-      justOne: true
-    }, {
       path: 'createdBy',
       select: 'emailId userName firstName lastName -_id',
       justOne: true
