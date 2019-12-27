@@ -15,15 +15,18 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
 import { ServiceModule } from './shared/services/service.module';
 import { EditorModule } from '@tinymce/tinymce-angular';
-import { SocialLoginModule, AuthServiceConfig } from "angularx-social-login";
-import { GoogleLoginProvider } from "angularx-social-login";
+import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 
 registerLocaleData(en);
+
+// const googleLoginOptions: LoginOpt = {
+//   scope: 'profile email'
+// };
 
 const config = new AuthServiceConfig([
   {
     id: GoogleLoginProvider.PROVIDER_ID,
-    provider: new GoogleLoginProvider("768411236596-gpfmj78vq5latkc7gi7b8digjd66ngi2.apps.googleusercontent.com")
+    provider: new GoogleLoginProvider("786347906702-f24fedavhbjl61iebi8e3obhdftj452k.apps.googleusercontent.com")
   }
 ]);
 

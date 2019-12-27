@@ -5,9 +5,7 @@ import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { Notice } from '../shared/interfaces/notice.type';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { AuthService as SocialAuthService } from 'angularx-social-login';
-import { GoogleLoginProvider } from 'angularx-social-login';
-
+import { AuthService as SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
 
 
 @Component({
@@ -45,6 +43,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.socialAuthService.authState.subscribe((token) => {
+      console.log(token);
+    });
+
     this.featuresList = [
       {
         title: 'Ant Design Title 1',
@@ -64,8 +66,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   loginWithGoogle() {
-    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(res => {
-      console.log(res);
+    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(result => {
+      console.log(result);
+    }).catch(err => {
+      console.log(err);
     });
   }
 
