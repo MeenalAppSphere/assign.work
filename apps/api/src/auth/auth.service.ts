@@ -34,7 +34,7 @@ export class AuthService implements OnModuleInit {
   }
 
   onModuleInit(): any {
-    this._userService = this._moduleRef.get('UsersService');
+    this._userService = this._moduleRef.get('UsersService', { strict: false });
   }
 
   createToken(user: any) {
