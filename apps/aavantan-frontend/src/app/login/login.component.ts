@@ -10,7 +10,7 @@ import { AuthService as SocialAuthService, GoogleLoginProvider } from 'angularx-
 
 @Component({
   templateUrl: 'login.component.html',
-  styleUrls:['login.component.scss']
+  styleUrls: ['login.component.scss']
 })
 
 export class LoginComponent implements OnInit, OnDestroy {
@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   public loginInProcess = false;
   public responseMessage: Notice = {};
   public isSubmitted: boolean;
-  public featuresList:any;
+  public featuresList: any;
 
   constructor(private _authService: AuthService,
               private _authQuery: AuthQuery,
@@ -43,14 +43,16 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.socialAuthService.authState.subscribe((token) => {
-      console.log(token);
+    this.socialAuthService.authState.subscribe((user) => {
+      if (user) {
+        this._authService.googleSignIn(user.idToken).subscribe();
+      }
     });
 
     this.featuresList = [
       {
         title: 'Ant Design Title 1',
-        description:'wlsdfjldsfkj'
+        description: 'wlsdfjldsfkj'
       },
       {
         title: 'Ant Design Title 2'
@@ -67,10 +69,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   loginWithGoogle() {
     this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(result => {
-      console.log(result);
+      // this._authService.googleSignIn(result.idToken).subscribe();
     }).catch(err => {
       console.log(err);
-    });
+    })
   }
 
   submitForm() {

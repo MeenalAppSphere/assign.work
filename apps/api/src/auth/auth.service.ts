@@ -168,52 +168,52 @@ export class AuthService implements OnModuleInit {
         as per google if we receive token is valid
         we still need to check if token aud property contains our app client id
        */
-      // if (authTokenResult) {
-      //   if (authTokenResult.aud === process.env.GOOGLE_CLIENT_ID) {
-      //     const userFromDb = await this._userModel.findOne({
-      //       _emailId: authTokenResult.email,
-      //       status: UserStatus.Active
-      //     });
-      //
-      //     if (!userFromDb) {
-      //       const userNameFromGoogle = authTokenResult.name.split(' ');
-      //       // create new user model
-      //       const user = new User();
-      //       user.emailId = authTokenResult.email;
-      //       user.username = user.emailId;
-      //       user.firstName = userNameFromGoogle[0] || '';
-      //       user.lastName = userNameFromGoogle[1] || '';
-      //       user.lastLoginProvider = UserLoginProviderEnum.google;
-      //       user.profilePic = authTokenResult.picture;
-      //       user.status = UserStatus.Active;
-      //       user.memberType = MemberTypes.alien;
-      //
-      //       // save it to db
-      //       const newUser = await this._userModel.create(user);
-      //       const userDetails = await newUser[0].populate(['projects', 'organization', 'currentProject']).execPopulate();
-      //       const payload = { sub: userDetails.emailId, id: userDetails.id };
-      //
-      //       // return jwt token
-      //       return {
-      //         user: userDetails.toJSON(),
-      //         access_token: this.jwtService.sign(payload)
-      //       };
-      //     } else {
-      //       // if user is already in db then update it's last login type to google
-      //       await this._userModel.updateOne({ _id: userFromDb._id }, { $set: { lastLoginProvider: UserLoginProviderEnum.google } });
-      //       const userDetails = await this._userModel.findOne({ _id: userFromDb._id }).populate(['projects', 'organization', 'currentProject']).lean();
-      //
-      //       // return jwt token
-      //       return {
-      //         user: userDetails,
-      //         access_token: this.jwtService.sign({ sub: userDetails.emailId, id: userDetails._id })
-      //       };
-      //     }
-      //
-      //   } else {
-      //     throw new ForbiddenException('Invalid user login');
-      //   }
-      // }
+      if (authTokenResult) {
+        if (authTokenResult.aud === process.env.GOOGLE_CLIENT_ID) {
+          const userFromDb = await this._userModel.findOne({
+            emailId: authTokenResult.email,
+            // status: UserStatus.Active
+          });
+
+          if (!userFromDb) {
+            const userNameFromGoogle = authTokenResult.name.split(' ');
+            // create new user model
+            const user = new User();
+            user.emailId = authTokenResult.email;
+            user.username = user.emailId;
+            user.firstName = userNameFromGoogle[0] || '';
+            user.lastName = userNameFromGoogle[1] || '';
+            user.lastLoginProvider = UserLoginProviderEnum.google;
+            user.profilePic = authTokenResult.picture;
+            user.status = UserStatus.Active;
+            user.memberType = MemberTypes.alien;
+
+            // save it to db
+            const newUser = await this._userModel.create(user);
+            const userDetails = await newUser[0].populate(['projects', 'organization', 'currentProject']).execPopulate();
+            const payload = { sub: userDetails.emailId, id: userDetails.id };
+
+            // return jwt token
+            return {
+              user: userDetails.toJSON(),
+              access_token: this.jwtService.sign(payload)
+            };
+          } else {
+            // if user is already in db then update it's last login type to google
+            await this._userModel.updateOne({ _id: userFromDb._id }, { $set: { lastLoginProvider: UserLoginProviderEnum.google } });
+            const userDetails = await this._userModel.findOne({ _id: userFromDb._id }).populate(['projects', 'organization', 'currentProject']).lean();
+
+            // return jwt token
+            return {
+              user: userDetails,
+              access_token: this.jwtService.sign({ sub: userDetails.emailId, id: userDetails._id })
+            };
+          }
+
+        } else {
+          throw new ForbiddenException('Invalid user login');
+        }
+      }
 
       return authTokenResult;
     } catch (e) {
