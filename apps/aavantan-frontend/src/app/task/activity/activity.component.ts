@@ -12,7 +12,7 @@ export class ActivityComponent implements OnInit {
   @Input() public enablePinButton: Boolean=false;
   @Input() public commentsList: TaskComments[]=[];
   @Input() public taskId: string;
-  @Output() public isUpdateSuccess: EventEmitter<boolean> = new EventEmitter(true);
+  @Output() public isUpdateSuccess: EventEmitter<CommentPinModel> = new EventEmitter<CommentPinModel>();
 
   public editCommentModalIsVisible:boolean;
   public commentData:TaskComments;
@@ -26,19 +26,24 @@ export class ActivityComponent implements OnInit {
   }
 
   async pinMessage(item:TaskComments){
-
+    let isPinned =true;
+    if(item.isPinned){
+      isPinned = false
+    }
+    item.isPinned = isPinned;
     const json: CommentPinModel ={
       projectId: this._generalService.currentProject.id,
       taskId: this.taskId,
       commentId: item.id,
-      isPinned: !item.isPinned
+      isPinned: isPinned,
+      comment:item.comment
     }
 
     this.pinInProcess=true;
     try {
 
+      this.isUpdateSuccess.emit(json);
       await this._taskService.pinComment(json).toPromise();
-      this.isUpdateSuccess.emit();
       this.pinInProcess = false;
 
     } catch (e) {

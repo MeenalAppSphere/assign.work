@@ -307,7 +307,7 @@
             <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
 
               <nz-form-item>
-                <nz-form-label>Display name<span class="text-danger">*</span> <small>(as prefix with id eg : <b class="text-info">BUG-1001</b>)</small></nz-form-label>
+                <nz-form-label>Display name<span class="text-danger">*</span> <small style="letter-spacing: 0;">(as prefix with id eg : <b class="text-info">BUG-1001</b>)</small></nz-form-label>
                 <nz-form-control>
                     <input class="task-type-input" type="text" nzSize="small" formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="4" />
                 </nz-form-control>
@@ -431,8 +431,9 @@
   </section>
 
   <!-- region add project -->
-  <ng-container *ngIf="projectModalIsVisible">
+  <ng-container *ngIf="projectModalIsVisible && !getProjectsInProcess">
     <aavantan-app-add-project
+      [projectListData]="projectListData"
       [projectModalIsVisible]="projectModalIsVisible"
       (toggleShow)="projectModalShow()">
     </aavantan-app-add-project>

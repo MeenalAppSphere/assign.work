@@ -54,7 +54,7 @@
       <form nz-form class="register-form" [formGroup]="orgForm">
 
         <nz-form-item>
-          <nz-form-label nzRequired nzFor="name">Organization Name</nz-form-label>
+          <nz-form-label nzRequired nzFor="name">Organization Name<span class="text-danger">*</span></nz-form-label>
           <nz-form-control [nzValidatingTip]="errorTpl">
             <input nz-input formControlName="name" placeholder="Enter an Organization Name, eg: Facebook" maxlength="100"
                    autocomplete="Off" nzSize="small" id="name">

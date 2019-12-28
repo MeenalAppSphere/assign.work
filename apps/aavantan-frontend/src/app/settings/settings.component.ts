@@ -49,6 +49,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public priorityList: ProjectPriority[] = [];
   public projectMembersList: ProjectMembers[] = [];
   public projectCapacityMembersList: ProjectMembers[] = [];
+  public projectListData:Project[] = [];
 
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
@@ -56,7 +57,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public deleteStageInProcess: boolean = false;
   public deleteStatusInProcess: boolean = false;
   public deleteTaskTypeInProcess: boolean = false;
-
+  public getProjectsInProcess:boolean = true;
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
   public workingDays : ProjectWorkingDays[] = [
@@ -146,8 +147,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
       color: new FormControl(null, [Validators.required])
     });
 
+    this.getProjects();
+
   }
 
+  public getProjects(){
+    try {
+      this._projectService.getAllProject().subscribe((data)=>{
+        this.projectListData = data.data;
+        this.getProjectsInProcess=false;
+      });
+    }catch (e) {
+      this.getProjectsInProcess=false;
+    }
+
+  }
   public activeTab(view: string, title: string) {
     this.activeView = {
       title: title,
