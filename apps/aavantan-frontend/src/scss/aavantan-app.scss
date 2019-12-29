@@ -313,6 +313,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
       border-bottom: 0px;
     }
     td {
+      padding: 4px;
       white-space: initial!important;
       border: none;
       display: flex;
@@ -339,6 +340,16 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     }
   }
 }
+
+
+.ant-table-small>.ant-table-content>.ant-table-body>table>.ant-table-tbody>tr>td{
+  padding: 4px;
+  font-size: 13px;
+  h6,a, span{
+    font-size: 13px;
+  }
+}
+
 
 .card-desc-height{
   height: 60px;

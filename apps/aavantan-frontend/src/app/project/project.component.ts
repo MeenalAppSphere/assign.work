@@ -41,6 +41,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       sort: 'createdAt',
       sortBy: 'desc'
     };
+    this.getTaskInProcess=true;
     this._taskService.getAllTask(json).subscribe();
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {

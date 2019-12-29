@@ -48,15 +48,15 @@
                     </div>
                 </div>
 
-                <div *ngIf="showProgressOption && item.progress">
+                <div *ngIf="showProgressOption" class="progress-box-section">
                   <div class="d-flex justify-content-between">
-                    <span class="font-weight-semibold">Progress</span>
-                    <span class="font-weight-semibold">{{item.progress}}%</span>
+                    <span class="text-gray-light">Progress</span>
+                    <span class="font-weight-semibold text-black font-weight-bold">{{item.progress ? item.progress : '0'}}%</span>
                   </div>
-                  <div style="height:20px;">
-                    <nz-progress *ngIf="item.progress && item.status && item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>
-                    <nz-progress *ngIf="item.progress && item.status && item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>
-                  </div>
+<!--                  <div style="height:20px;">-->
+<!--                    <nz-progress *ngIf="item.progress && item.status && item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>-->
+<!--                    <nz-progress *ngIf="item.progress && item.status && item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>-->
+<!--                  </div>-->
                 </div>
 
             </nz-card>
@@ -96,8 +96,8 @@
                 </th>
                 <th class="text-left" width="160">Member</th>
                 <th class="text-right" width="195">
-                  <span>Estimate</span>
-                  <span *ngIf="showLogOption">/Log Time</span>
+                  <span>Estimates</span>
+<!--                  <span *ngIf="showLogOption">/Log Time</span>-->
                   <span class="p-l-10" *ngIf="showSorting">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'estimatedTime'}"></ng-container>
                   </span>
@@ -150,27 +150,21 @@
                 </td>
                 <td *ngIf="showProgressOption" data-label="Progress" class="text-center">
                     <span *ngIf="!item.progress">-</span>
-                    <nz-progress *ngIf="item.progress>0" [nzPercent]="item.progress" [nzShowInfo]="true" nzSize="small"></nz-progress>
-                    <nz-progress *ngIf="item.progress === 0" [nzPercent]="item.progress" [nzShowInfo]="true" nzSize="small" nzStatus="exception"></nz-progress>
+                    <span *ngIf="item.progress">{{item.progress}}%</span>
                 </td>
                 <td data-label="Status" class="text-center">
                     <span *ngIf="!item.status">-</span>
-                    <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#DEDFE2'" class="text-black">{{item.status.name}}</nz-tag>
+                    <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#DEDFE2'">
+                      <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId">{{item.status.name}}</p>
+                    </nz-tag>
                 </td>
-                <td data-label="Members" class="text-left text-black">
-                    <span *ngIf="!item.assignee">-</span>
-                  <span *ngIf="item.assignee"> <nz-avatar nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar><p class="assignee-name" nz-paragraph nzEllipsis [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
-
-                    <!--          <a routerLinkActive="router-link-active"  class="m-r-5" *ngFor="let itm of (item.assignee ? item.assignee.slice(0,2): [])">-->
-                    <!--            <nz-avatar  nzSize="small" [nzSrc]="itm.profilePic" nz-tooltip [nzTitle]="itm.firstName"></nz-avatar>-->
-                    <!--            <span *ngIf="item.assignee.length===1" class="m-l-5">{{itm.firstName}}</span>-->
-                    <!--          </a>-->
-                    <!--          <a *ngIf="item.assignee.length > 2">-->
-                    <!--            <nz-avatar class="font-size-11 text-dark" nzSize="small" [nzText]="'+' + [item.member.length - 2].toString()" nz-tooltip [nzTitle]="[item.assignee.length - 2].toString() + ' More'"></nz-avatar>-->
-                    <!--          </a>-->
+                <td data-label="Members" class="text-left">
+                  <span *ngIf="!item.assignee">-</span>
+                  <span *ngIf="item.assignee" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic" ></nz-avatar>
+                    <p class="assignee-name text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1">{{(item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId) | slice : 0:1}}</p></span>
                 </td>
                 <td data-label="Estimate" class="text-right">
-                    <span class="text-black">{{item.estimatedTimeReadable}}</span>&ensp;<a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (toggleTimeLogShow)="toggleTimeLog($event, item)" (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                    <span class="text-black display-block">{{item.estimatedTimeReadable}}</span><a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (toggleTimeLogShow)="toggleTimeLog($event, item)" (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
                 </td>
             </tr>
         </tbody>
