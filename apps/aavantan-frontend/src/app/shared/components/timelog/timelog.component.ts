@@ -47,6 +47,10 @@ export class TimelogComponent implements OnInit, OnDestroy {
         // console.log('workingHoursPerDay',this.workingHoursPerDay);
       }
     })
+    if(this.selectedTaskItem){
+      this.calcRemaining();
+    }
+
   }
 
   async save() {
@@ -95,8 +99,8 @@ export class TimelogComponent implements OnInit, OnDestroy {
 
     const loggedIntoSec = this.timeConvertToSec(loggedHours, loggedMinutes);
 
-    let remainingHours = this.timeConvert(remainingTimeInSeconds).h;
-    let remainingMinutes = this.timeConvert(remainingTimeInSeconds).m;
+    let remainingHours = this._generalService.secondsToReadable(remainingTimeInSeconds).h;
+    let remainingMinutes = this._generalService.secondsToReadable(remainingTimeInSeconds).m;
 
     // handling server side
     // if (loggedIntoSec > this.workingHoursPerDay) {
@@ -109,29 +113,19 @@ export class TimelogComponent implements OnInit, OnDestroy {
     remainingMinutes = remainingMinutes - loggedMinutes;
     const remainingIntoSec = this.timeConvertToSec(remainingHours, remainingMinutes);
 
-    this.timeLogForm.get('remainingHours').patchValue(this.timeConvert(remainingIntoSec).h);
-    this.timeLogForm.get('remainingMinutes').patchValue(this.timeConvert(remainingIntoSec).m);
+    this.timeLogForm.get('remainingHours').patchValue(this._generalService.secondsToReadable(remainingIntoSec).h);
+    this.timeLogForm.get('remainingMinutes').patchValue(this._generalService.secondsToReadable(remainingIntoSec).m);
   }
 
   public timeConvertToSec(h, m) {
     return (h * 60 * 60) + (m * 60);
   }
 
-  public timeConvert(seconds: number) {
-    const num = seconds / 60;
-    const hours = (num / 60);
-    const rhours = Math.floor(hours);
-    const minutes = (hours - rhours) * 60;
-    const rminutes = Math.round(minutes);
-    return {
-      h: rhours,
-      m: rminutes,
-      readable: rhours+'h '+rminutes+'m'
-    };
-  }
-
   handleCancel(): void {
-    this.timelogModalIsVisible = false;
+    // this.timeLogForm.reset();
+    // this.isPeriod = false;
+    // this.timelogModalIsVisible = false;
+    this.toggleTimeLogShow.emit();
   }
 
   public isPeriodChanged(){

@@ -1,1 +1,9 @@
-<p>activesprint works!</p>
+<nz-card style="height:300px;padding-top:50px">
+  <nz-empty
+    [nzNotFoundImage]="false"
+    [nzNotFoundContent]="contentTpl">
+    <ng-template #contentTpl>
+      <span>Coming soon...</span>
+    </ng-template>
+  </nz-empty>
+</nz-card>

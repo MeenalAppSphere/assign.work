@@ -1,5 +1,5 @@
 export enum ProjectTemplateEnum {
-  software = 'Software',
+  softwareDevelopment = 'Software Development',
   taskManagement = 'Task Management',
   accounts = 'Accounts',
   production = 'Production'

@@ -10,11 +10,11 @@ import {
   Sprint,
   Task, TaskComments, TaskHistory, CommentPinModel,
   TaskType,
-  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel, TaskTimeLogResponse
+  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel, TaskTimeLogResponse, TimeLog
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { NzNotificationService } from 'ng-zorro-antd';
@@ -52,9 +52,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   public getTaskInProcess: boolean = false;
   public getCommentInProcess: boolean = false;
   public getHistoryInProcess: boolean = false;
+  public showCommentsList:boolean;
+  public showPinnedCommentsList:boolean;
   public currentTask : Task;
 
-  public fileList2 = [];
+  public uploadedImages = [];
 
   public taskForm: FormGroup;
   public commentForm: FormGroup;
@@ -94,7 +96,15 @@ export class TaskComponent implements OnInit, OnDestroy {
   public watchersQueryText : string = null;
   public progressData:TaskTimeLogResponse;
 
+  public panels:any[] = [{
+      active: false,
+      name  : 'Time log history',
+      arrow : true
+    }];
+  public timelogHistoryList:TimeLog[]=[];
+
   public nzFilterOption = () => true;
+
 
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
@@ -104,7 +114,9 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _userQuery: UserQuery,
               private _taskQuery: TaskQuery,
               private _userService: UserService,
-              private _projectService: ProjectService) {
+              private _projectService: ProjectService,
+              private router:Router,
+              private cdr: ChangeDetectorRef) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -169,7 +181,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.currentProject = res;
         this.stagesDataSource = res.settings.stages;
         this.taskTypeDataSource = res.settings.taskTypes;
-        this.assigneeDataSource = res.members;
+        // this.assigneeDataSource = res.members;
         this.priorityDataSource = res.settings.priorities;
         this.statusDataSource = res.settings.status;
 
@@ -250,6 +262,25 @@ export class TaskComponent implements OnInit, OnDestroy {
       });
     // end search tags
 
+
+    // dummy data for timelog history
+    this.timelogHistoryList.push({
+      createdBy: this._generalService.user,
+      description:'dummy data for time log history',
+      loggedDate: new Date(),
+      loggedTime:4,
+      remainingTime:3,
+      taskId:this.taskId
+    })
+    this.timelogHistoryList.push({
+      createdBy: this._generalService.user,
+      description:'Added log, dummy data for time log history',
+      loggedDate: new Date(),
+      loggedTime:4,
+      remainingTime:3,
+      taskId:this.taskId
+    })
+
   }
 
   public searchWatchers(value: string): void {
@@ -302,27 +333,70 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
-  public openTimeLogModal() {
-    this.timelogModalIsVisible = !this.timelogModalIsVisible;
-  }
-
   public cancelTaskForm() {
     this.taskId = null;
     this.taskForm.reset();
     this.selectedStatus = null;
     this.selectedPriority = null;
     this.attachementIds = [];
+    this.uploadedImages = [];
+
+    if (this.taskTypeDataSource && this.taskTypeDataSource.length>0) {
+        this.selectedTaskType = this.taskTypeDataSource[0];
+        this.displayName = this.selectedTaskType.displayName;
+    }
+
+    this.router.navigateByUrl("dashboard/task/"+this.selectedTaskType.displayName);
+
   }
 
-  public updateCommentSuccess() {
+  public updateCommentSuccess(data?:CommentPinModel) {
+    if(data){
+      this.showPinnedCommentsList = false;
+      //to locally updating pinnedCommentsList //
+      if(data.isPinned) {
+
+        const comment: AddCommentModel = {
+          comment: this.commentForm.getRawValue(),
+          projectId: this._generalService.currentProject.id,
+          taskId: this.taskId
+        };
+
+        comment.comment.createdBy= this._generalService.user;
+        comment.comment.createdById = this._generalService.user.id;
+        comment.comment.createdAt =  new Date();
+        comment.comment.isPinned = data.isPinned;
+        comment.comment.id = data.commentId;
+        comment.comment.comment = data.comment;
+        setTimeout(() => {
+          this.pinnedCommentsList.unshift(comment.comment);
+          this.showPinnedCommentsList = true;
+        }, 1);
+
+      }else{
+
+        setTimeout(() => {
+          this.pinnedCommentsList = this.pinnedCommentsList.filter((ele)=>{
+              if(ele.id!==data.commentId){
+                return ele;
+              }
+            });
+          this.showPinnedCommentsList = true;
+        }, 1);
+
+      }
+
+    }
     this.getMessage(true);
   }
 
-  public timeLog(data:TaskTimeLogResponse) {
+  public timeLog(data?:TaskTimeLogResponse) {
     if(data) {
       this.progressData = data;
-      this.timelogModalIsVisible = !this.timelogModalIsVisible;
+      this.currentTask.remainingTime = data.remainingTime;
+      this.currentTask.remainingTimeReadable = data.remainingTimeReadable;
     }
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
   async getTask() {
@@ -367,7 +441,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
 
       this.attachementIds = this.taskData.data.attachments;
-      this.fileList2 = this.taskData.data.attachmentsDetails;
+      this.uploadedImages = this.taskData.data.attachmentsDetails;
 
       this.getTaskInProcess = false;
     } catch (e) {
@@ -376,7 +450,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   async getMessage(hideLoader?: boolean) {
-
+    this.showCommentsList=true;
     if (!hideLoader) {
       this.getCommentInProcess = true;
     }
@@ -442,7 +516,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     //this._taskService.removeAttachment(file.id).subscribe();
 
     this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
-    this.fileList2 = this.fileList2.filter((ele) => {
+    this.uploadedImages = this.uploadedImages.filter((ele) => {
       if (ele.id !== file.id) {
         return ele;
       }
@@ -507,11 +581,15 @@ export class TaskComponent implements OnInit, OnDestroy {
         }
 
       } else {
-        await this._taskService.createTask(task).toPromise();
-        this.taskForm.reset({ tags: [] });
-        this.selectedStatus = null;
-        this.selectedPriority = null;
-        this.attachementIds = [];
+        const data = await this._taskService.createTask(task).toPromise();
+        this.taskId = data.data.id;
+
+        // last call stay here after addition sprint
+        // this.taskForm.reset({ tags: [] });
+        // this.selectedStatus = null;
+        // this.selectedPriority = null;
+        // this.attachementIds = [];
+
       }
 
       this.createTaskInProcess = false;
@@ -600,6 +678,20 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskId: this.taskId
     };
 
+
+    //to locally updating //
+    this.showCommentsList = false;
+    comment.comment.createdBy= this._generalService.user;
+    comment.comment.createdById = this._generalService.user.id;
+    comment.comment.createdAt =  new Date();
+    comment.comment.isPinned = false;
+
+    setTimeout(()=>{
+      this.commentsList.unshift(comment.comment);
+      this.showCommentsList = true;
+    },1);
+
+    //--------------------//
     try {
       await this._taskService.addComment(comment).toPromise();
       this.commentForm.reset();

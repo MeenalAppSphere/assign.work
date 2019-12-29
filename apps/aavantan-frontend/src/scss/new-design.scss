@@ -185,6 +185,34 @@ $color-gray-light: #6E829C;
   }
 }
 
+
+.timelog-history-box {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  .ant-collapse-header{
+    padding: 8px 14px 8px 34px!important;
+    background: #f8f8f8;
+    border-radius: 5px;
+  }
+  .ant-collapse>.ant-collapse-item>.ant-collapse-header .ant-collapse-arrow{
+    left: 12px;
+  }
+  .ant-collapse-content > .ant-collapse-content-box {
+    padding: 0rem .65rem;
+    max-height: 335px;
+    min-height: 150px;
+    overflow: auto;
+  }
+
+  .timelog-history {
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+  }
+}
+.ant-collapse{
+  border: 1px solid #dddddd;
+}
+
 /* board page */
 .collaborators-avatar{
   padding: 10px 0px 15px 0px;
