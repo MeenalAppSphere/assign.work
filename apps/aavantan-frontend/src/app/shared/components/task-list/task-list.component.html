@@ -69,7 +69,7 @@
 
               <th class="text-center" width="50" *ngIf="isDraftTable">#</th>
               <th class="text-center" width="50" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId">#</th>
-                <th class="text-left" width="115">
+                <th class="text-left" style="min-width:115px;">
                   <span>Priority</span>
                   <span class="p-l-10" *ngIf="showSorting">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
@@ -95,7 +95,7 @@
 <!--                  </span>-->
                 </th>
                 <th class="text-left" width="160">Member</th>
-                <th class="text-right" width="195">
+                <th class="text-right" width="125">
                   <span>Estimates</span>
 <!--                  <span *ngIf="showLogOption">/Log Time</span>-->
                   <span class="p-l-10" *ngIf="showSorting">
@@ -161,7 +161,7 @@
                 <td data-label="Members" class="text-left">
                   <span *ngIf="!item.assignee">-</span>
                   <span *ngIf="item.assignee" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic" ></nz-avatar>
-                    <p class="assignee-name text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1">{{(item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId) | slice : 0:1}}</p></span>
+                    <p class="assignee-name text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
                 </td>
                 <td data-label="Estimate" class="text-right">
                     <span class="text-black display-block">{{item.estimatedTimeReadable}}</span><a href="javascript:void(0);" class="float-right text-primary" *ngIf="showLogOption" (toggleTimeLogShow)="toggleTimeLog($event, item)" (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
