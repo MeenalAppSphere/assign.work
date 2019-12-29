@@ -75,7 +75,7 @@
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
                   </span>
                 </th>
-                <th class="text-left" style="min-width:155px;">
+                <th class="text-left" width="155">
                   <span>Type</span>
                   <span class="p-l-10" *ngIf="showSorting">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'taskType'}"></ng-container>
@@ -88,14 +88,14 @@
 <!--                  </span>-->
                 </th>
                 <th class="text-center" *ngIf="showProgressOption">Progress</th>
-                <th class="text-center" style="min-width:110px;">
+                <th class="text-center" width="110">
                   <span>Status</span>
 <!--                  <span class="p-l-10" *ngIf="showSorting">-->
 <!--                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'status'}"></ng-container>-->
 <!--                  </span>-->
                 </th>
-                <th class="text-left" style="min-width:150px;">Member</th>
-                <th class="text-right" style="min-width:195px;">
+                <th class="text-left" width="160">Member</th>
+                <th class="text-right" width="195">
                   <span>Estimates</span>
 <!--                  <span *ngIf="showLogOption">/Log Time</span>-->
                   <span class="p-l-10" *ngIf="showSorting">
