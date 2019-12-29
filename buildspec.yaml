@@ -2,7 +2,8 @@ version: 0.2
 
 env:
     variables:
-        S3_BUCKET: "assign.work"
+        S3_BUCKET: "assign-work"
+        S3_APP_BUCLET: "app"
         BUILD_ENV : "prod"
 
 phases:
@@ -24,13 +25,15 @@ phases:
     post_build:
         commands:
         # Clear S3 bucket.
-        - aws s3 rm s3://${S3_BUCKET} --recursive
+        - aws s3 rm s3://${S3_BUCKET}/{S3_APP_BUCLET} --recursive
         - echo S3 bucket is cleared.
         # Copy dist folder to S3 bucket, As of Angular 6, builds are stored inside an app folder in distribution and not at the root of the dist folder
-        - aws s3 cp dist s3://${S3_BUCKET} --recursive
+        - aws s3 cp dist/apps/aavantan-frontend s3://${S3_BUCKET}/{S3_APP_BUCLET} --recursive
         - echo Build completed on `date`
 
 artifacts:
     files:
-        - 'dist/**'
+        - '**/*'
+    base-directory: 'dist/apps/aavantan-frontend*'
+    discard-paths: yes
 
