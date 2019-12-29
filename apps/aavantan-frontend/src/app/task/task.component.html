@@ -275,7 +275,7 @@
                                 <nz-autocomplete #autoDependentItem>
                                     <nz-auto-option *ngFor="let option of dependentTaskDataSource" [nzLabel]="option.name" [nzValue]="option">
                                         <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
-                                        <span>{{ option.name }}</span>
+                                        <span>{{ option.displayName }} - {{ option.name }}</span>
                                     </nz-auto-option>
                                 </nz-autocomplete>
                             </nz-form-control>
@@ -285,9 +285,9 @@
                             <nz-form-label nzFor="relatedItemId">Related Items</nz-form-label>
                             <nz-form-control class="relative input-relative-group">
                                 <nz-select style="width: 100%" nzSize="small" nzMode="multiple" formControlName="relatedItemId" nzPlaceHolder="Related Items" [(ngModel)]="listOfSelectedRelatedItems" [nzCustomTemplate]="custom">
-                                    <nz-option *ngFor="let option of relatedTaskDataSource" [nzLabel]="option.displayName" [nzValue]="option.id">
+                                    <nz-option *ngFor="let option of relatedTaskDataSource" [nzLabel]="option.displayName" [nzValue]="option">
                                         <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
-                                        <span>{{ option.displayName }} {{ option.name }}</span>
+                                        <span>{{ option.displayName }} - {{ option.name }}</span>
                                     </nz-option>
                                 </nz-select>
                                 <ng-template #custom let-selected>
@@ -373,7 +373,7 @@
                     </nz-form-control>
                 </nz-form-item>
                 <div class="text-right">
-                    <button [disabled]="commentForm.invalid" [nzLoading]="createCommentInProcess" type="submit" nz-button nzSize="small" nzType="primary" class="m-r-5">Save</button>
+                    <button [disabled]="commentForm.invalid" [nzLoading]="createCommentInProcess" type="submit" nz-button nzSize="small" nzType="primary" class="m-r-5">Post</button>
                     <button (click)="resetCommentForm();" nz-button nzSize="small" type="reset" nzType="default">Cancel</button>
                 </div>
             </form>
