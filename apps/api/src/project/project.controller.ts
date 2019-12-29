@@ -8,6 +8,7 @@ import {
   ProjectStageSequenceChangeRequest,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
+  SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
@@ -116,7 +117,7 @@ export class ProjectController {
   }
 
   @Post('search-collaborator')
-  async searchProjectCollaborators(@Body() model) {
+  async searchProjectCollaborators(@Body() model: SearchProjectCollaborators) {
     return await this._projectService.searchProjectCollaborators(model);
   }
 }
