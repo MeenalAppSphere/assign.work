@@ -133,11 +133,11 @@
                 <a href="mailto:{{item.emailId}}">
                   <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
                 <span>{{item.emailId}}</span>
-                <div class="p-l-30 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
+                <div class="p-l-35 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
                 </a>
                 <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
                   <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
-                  <span (click)="resendInvitation(item)" class="text-info p-r-10"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
+                  <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-info p-r-10"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
                   <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
 <!--                  <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>-->
                 </span>
@@ -307,9 +307,9 @@
             <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
 
               <nz-form-item>
-                <nz-form-label>Display name<span class="text-danger">*</span> <small style="letter-spacing: 0;">(as prefix with id eg : <b class="text-info">BUG-1001</b>)</small></nz-form-label>
+                <nz-form-label class="display-name-label">Display name<span class="text-danger">*</span> <small style="display:block;letter-spacing: 0;">(as prefix with id eg : <b class="text-info">BUG-1001</b>)</small></nz-form-label>
                 <nz-form-control>
-                    <input class="task-type-input" type="text" nzSize="small" formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="4" />
+                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyDispalyName()" formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="4" />
                 </nz-form-control>
               </nz-form-item>
               <nz-form-item>

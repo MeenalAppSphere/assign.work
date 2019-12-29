@@ -630,6 +630,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       } else {
         const data = await this._taskService.createTask(task).toPromise();
         this.taskId = data.data.id;
+        this.displayName= data.data.displayName;
 
         // last call stay here after addition sprint
         // this.taskForm.reset({ tags: [] });
