@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseResponseModel, User } from '@aavantan-app/models';
+import { BaseResponseModel, SearchProjectCollaborators, User } from '@aavantan-app/models';
 import { BaseService } from '../base.service';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { catchError, map } from 'rxjs/operators';
@@ -59,6 +59,17 @@ export class UserService extends BaseService<UserStore, UserState> {
 
   searchUser(text: string): Observable<BaseResponseModel<User[]>> {
     return this._http.get(UserUrls.search + text).pipe(
+      map((res: BaseResponseModel<User[]>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  searchProjectCollaborator(json: SearchProjectCollaborators): Observable<BaseResponseModel<User[]>> {
+    return this._http.post(UserUrls.searchProjectCollaborator, json).pipe(
       map((res: BaseResponseModel<User[]>) => {
         return res;
       }),
