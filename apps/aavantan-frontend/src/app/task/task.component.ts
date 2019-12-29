@@ -253,7 +253,11 @@ export class TaskComponent implements OnInit, OnDestroy {
           return;
         }
         this.isSearchingWatchers = true;
-        this._userService.searchUser(this.watchersQueryText).subscribe((data) => {
+        const json: SearchProjectCollaborators = {
+          projectId:this._generalService.currentProject.id,
+          query : this.watchersQueryText
+        }
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
           this.isSearchingWatchers = false;
           this.assigneeDataSource = data.data;
         });
