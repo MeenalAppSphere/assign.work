@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TaskComments, CommentPinModel, User } from '@aavantan-app/models';
+import { TaskComments, CommentPinModel, User, UpdateCommentModel } from '@aavantan-app/models';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 
@@ -12,10 +12,10 @@ export class ActivityComponent implements OnInit {
   @Input() public enablePinButton: Boolean=false;
   @Input() public commentsList: TaskComments[]=[];
   @Input() public taskId: string;
-  @Output() public isUpdateSuccess: EventEmitter<boolean> = new EventEmitter(true);
+  @Output() public isUpdateSuccess: EventEmitter<CommentPinModel | UpdateCommentModel> = new EventEmitter<CommentPinModel | UpdateCommentModel>();
 
   public editCommentModalIsVisible:boolean;
-  public commentData:TaskComments;
+  public commentData:UpdateCommentModel;
   public pinInProcess: boolean = false;
   public currentUser : User;
 
@@ -26,19 +26,24 @@ export class ActivityComponent implements OnInit {
   }
 
   async pinMessage(item:TaskComments){
-
+    let isPinned =true;
+    if(item.isPinned){
+      isPinned = false
+    }
+    item.isPinned = isPinned;
     const json: CommentPinModel ={
       projectId: this._generalService.currentProject.id,
       taskId: this.taskId,
       commentId: item.id,
-      isPinned: !item.isPinned
+      isPinned: isPinned,
+      comment:item.comment
     }
 
     this.pinInProcess=true;
     try {
 
+      this.isUpdateSuccess.emit(json);
       await this._taskService.pinComment(json).toPromise();
-      this.isUpdateSuccess.emit();
       this.pinInProcess = false;
 
     } catch (e) {
@@ -46,10 +51,15 @@ export class ActivityComponent implements OnInit {
     }
   }
 
-  public toggleEditModel(item:TaskComments){
+  public openEditModel(item:UpdateCommentModel){
     this.commentData=item;
     this.editCommentModalIsVisible=!this.editCommentModalIsVisible;
-    this.isUpdateSuccess.emit();
+  }
+
+  public toggleEditModel(item:UpdateCommentModel){
+    this.commentData=item;
+    this.editCommentModalIsVisible=!this.editCommentModalIsVisible;
+    this.isUpdateSuccess.emit(item);
   }
 
 }

@@ -25,6 +25,11 @@ export class AuthController {
     return await this._authService.signUpWithPassword(user);
   }
 
+  @Post('google/validate-token')
+  async googleValidateToken(@Body('token') token: string) {
+    return await this._authService.verifyGoogleAuthToken(token);
+  }
+
   @Get('google/uri')
   async requestGoogleRedirectUri(): Promise<any> {
     return await this._authService.requestGoogleRedirectUri();

@@ -136,6 +136,7 @@ export class DeleteCommentModel extends BaseTaskRequestModel {
 export class CommentPinModel extends BaseTaskRequestModel {
   commentId?: string;
   isPinned?: boolean;
+  comment?:string;
 }
 
 export class GetTaskHistoryModel extends MongoosePaginateQuery {

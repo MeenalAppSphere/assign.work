@@ -57,7 +57,7 @@ export class TaskListComponent implements OnInit {
 
   ngOnInit() {
 
-    if(this.taskList && this.taskList.length>0 && this.taskList[0].isSelected){
+    if(this.isDraftTable){
       this.taskList.forEach((ele)=>{
         if(ele.isSelected){
           this.tasksSelected.ids.push(ele.id);
@@ -105,6 +105,7 @@ export class TaskListComponent implements OnInit {
 
     if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 0) {
 
+      task.isSelected = true;
       this.tasksSelected.tasks.push(task);
       this.tasksSelected.ids.push(task.id);
 

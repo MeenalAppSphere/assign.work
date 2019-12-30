@@ -15,8 +15,24 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
 import { ServiceModule } from './shared/services/service.module';
 import { EditorModule } from '@tinymce/tinymce-angular';
+import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 
 registerLocaleData(en);
+
+// const googleLoginOptions: LoginOpt = {
+//   scope: 'profile email'
+// };
+
+const config = new AuthServiceConfig([
+  {
+    id: GoogleLoginProvider.PROVIDER_ID,
+    provider: new GoogleLoginProvider("786347906702-f24fedavhbjl61iebi8e3obhdftj452k.apps.googleusercontent.com")
+  }
+]);
+
+export function provideConfig() {
+  return config;
+}
 
 @NgModule({
   declarations: [AppComponent, MiddlewareComponent],
@@ -27,12 +43,18 @@ registerLocaleData(en);
     SharedModule,
     ServiceModule.forRoot(),
     environment.production ? [] : AkitaNgDevtools.forRoot(),
-    EditorModule
+    EditorModule,
+    SocialLoginModule
+
   ],
   providers: [
     {
       provide: NZ_I18N,
       useValue: en_US
+    },
+    {
+      provide: AuthServiceConfig,
+      useFactory: provideConfig
     },
     ThemeConstantService,
     {

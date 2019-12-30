@@ -2,7 +2,8 @@ version: 0.2
 
 env:
     variables:
-        S3_BUCKET: "assign.work"
+        S3_BUCKET: "assign-work"
+        S3_APP_BUCKET: "app"
         BUILD_ENV : "prod"
 
 phases:
@@ -12,14 +13,17 @@ phases:
         commands:
        # Download and Install NodeJS 8.0
         # Install node dependancies.
-        - npm install
+        - npm install -y npm@latest
         - npm install -g @angular/cli
-
+    pre_build:
+    commands:
+    - npm install
     build:
         commands:
         # Builds Angular application. You can also build using custom environment here like mock or staging
         - echo Build started on `date`
         - ng build --prod
+        - ls -l -F
 
     post_build:
         commands:
@@ -27,10 +31,15 @@ phases:
         - aws s3 rm s3://${S3_BUCKET} --recursive
         - echo S3 bucket is cleared.
         # Copy dist folder to S3 bucket, As of Angular 6, builds are stored inside an app folder in distribution and not at the root of the dist folder
-        - aws s3 cp dist s3://${S3_BUCKET} --recursive
+        - aws s3 cp dist/apps/aavantan-frontend s3://${S3_BUCKET} --recursive
         - echo Build completed on `date`
 
 artifacts:
     files:
-        - 'dist/**'
+        - '/'
+    discard-paths: yes
+    base-directory: 'dist/apps/aavantan-frontend*'
+cache:
+paths:
+    - node_modules/
 

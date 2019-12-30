@@ -46,6 +46,15 @@ export const ROUTES: SideNavInterface[] = [
     submenu: []
   },
   {
+    path: 'settings',
+    title: 'Settings',
+    iconType: '',
+    iconTheme: 'outline',
+    icon: 'settings',
+    img: 'menu-settings',
+    submenu: []
+  },
+  {
     path: '',
     title: 'Settings',
     iconType: '',

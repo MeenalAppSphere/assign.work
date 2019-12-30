@@ -41,11 +41,24 @@
             <div class="card-header">{{item.stage.name}}<span class="pull-right">
               <small class="text-muted font-size-12">Total hours&nbsp;</small>&nbsp;<span class="font-size-14">{{item.totalEstimationReadable}}</span><i class="pl-3 fa fa-ellipsis-v"></i></span></div>
 
-            <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
+            <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here to move the items" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
             </bs-sortable>
 
           </div>
         </div>
+      </div>
+      <div *ngIf="!boardData" class="text-center text-gray-light">
+        <nz-empty
+          [nzNotFoundImage]="false"
+          [nzNotFoundContent]="contentTpl"
+          [nzNotFoundFooter]="footerTpl">
+          <ng-template #contentTpl>
+            <span>There in no active Sprint</span>
+          </ng-template>
+          <ng-template #footerTpl>
+            <button nz-button nzSize="small" nzType="primary" class="btn-medium" routerLink="../backlog">+ Create Sprint</button>
+          </ng-template>
+        </nz-empty>
       </div>
     </div>
   </div>

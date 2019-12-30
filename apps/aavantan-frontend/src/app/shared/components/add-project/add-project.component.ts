@@ -30,6 +30,7 @@ import { TaskService } from '../../services/task/task.service';
 })
 export class AddProjectComponent implements OnInit, OnDestroy {
   @Input() public projectModalIsVisible: boolean = false;
+  @Input() public projectListData:Project[]=[];
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public projectForm: FormGroup;
@@ -37,7 +38,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public modalTitle = 'Project Details';
   public selectedCollaborators: User[] = [];
   public selectedCollaborator: string;
-  public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.software;
+  public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
   public response: any;
 
   public currentOrganization: Organization;
@@ -99,6 +100,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         });
 
       })
+
+    this.projectListSearch = this.projectListData;
 
   }
 

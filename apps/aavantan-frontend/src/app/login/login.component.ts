@@ -5,11 +5,12 @@ import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { Notice } from '../shared/interfaces/notice.type';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { AuthService as SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
 
 
 @Component({
   templateUrl: 'login.component.html',
-  styleUrls:['login.component.scss']
+  styleUrls: ['login.component.scss']
 })
 
 export class LoginComponent implements OnInit, OnDestroy {
@@ -17,9 +18,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   public loginInProcess = false;
   public responseMessage: Notice = {};
   public isSubmitted: boolean;
-  public featuresList:any;
+  public featuresList: any;
 
-  constructor(private _authService: AuthService, private _authQuery: AuthQuery, private router: Router) {
+  constructor(private _authService: AuthService,
+              private _authQuery: AuthQuery,
+              private router: Router,
+              private socialAuthService: SocialAuthService) {
   }
 
   ngOnInit(): void {
@@ -39,10 +43,17 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     });
 
+    // auth state subscriber if user and user token found then verify that token and re-login user
+    this.socialAuthService.authState.pipe(untilDestroyed(this)).subscribe((user) => {
+      if (user) {
+        this._authService.googleSignIn(user.idToken).subscribe();
+      }
+    });
+
     this.featuresList = [
       {
         title: 'Ant Design Title 1',
-        description:'wlsdfjldsfkj'
+        description: 'wlsdfjldsfkj'
       },
       {
         title: 'Ant Design Title 2'
@@ -58,8 +69,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   loginWithGoogle() {
-    this._authService.requestGoogleRedirectUri().subscribe(res => {
-      window.location.replace(res.redirect_uri);
+    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(result => {
+    }).catch(err => {
+      console.log(err);
     });
   }
 

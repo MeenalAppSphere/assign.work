@@ -52,6 +52,16 @@ body{
   border-width: 0 7px 7px;
   border-bottom-color: #404040;
 }
+.ant-tooltip-placement-left .ant-tooltip-arrow, .ant-tooltip-placement-leftBottom .ant-tooltip-arrow, .ant-tooltip-placement-leftTop .ant-tooltip-arrow {
+  right: 7px;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #404040;
+}
+.ant-tooltip-placement-right .ant-tooltip-arrow, .ant-tooltip-placement-leftBottom .ant-tooltip-arrow, .ant-tooltip-placement-leftTop .ant-tooltip-arrow {
+  right: 7px;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #404040;
+}
 //
 //.ant-tooltip-inner{
 //  background:red;
@@ -225,6 +235,12 @@ p {
   min-height: 100px;
 }
 .collaborators-badge{
+  .ant-avatar{
+    height: 15px!important;
+    width: 15px!important;
+    line-height: 14px;
+    font-size: 12px;
+  }
   .badge{
     font-weight: 400;
     border-radius: 2px;
@@ -297,6 +313,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
       border-bottom: 0px;
     }
     td {
+      padding: 4px;
       white-space: initial!important;
       border: none;
       display: flex;
@@ -323,6 +340,16 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     }
   }
 }
+
+
+.ant-table-small>.ant-table-content>.ant-table-body>table>.ant-table-tbody>tr>td{
+  padding: 4px;
+  font-size: 13px;
+  h6,a, span{
+    font-size: 13px;
+  }
+}
+
 
 .card-desc-height{
   height: 60px;

@@ -81,12 +81,14 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
    * @returns {TaskHistory}
    */
   private parseHistoryObject(history: TaskHistory): TaskHistory {
-    history.task = {
-      name: history.task.name,
-      displayName: history.task.displayName,
-      projectId: history.task.projectId,
-      createdById: history.task.createdById,
-    };
+    if (history.task) {
+      history.task = {
+        name: history.task.name,
+        displayName: history.task.displayName,
+        projectId: history.task.projectId,
+        createdById: history.task.createdById
+      };
+    }
     return history;
   }
 }

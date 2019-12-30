@@ -15,11 +15,11 @@ const routes: Routes = [
     },
     resolve: [DashboardDataResolver],
     children: [
-      // {
-      //   path: '', redirectTo: 'home', pathMatch: 'full'
-      // },
       {
-        path: 'home', component: HomeComponent
+        path: '', redirectTo: '', pathMatch: 'full',component: HomeComponent
+      },
+      {
+        path: 'dashboard', component: HomeComponent
       },
       { path: 'project', loadChildren: () => import('../project/project.module').then(p => p.ProjectModule) },
       { path: 'board', component: BoardComponent },

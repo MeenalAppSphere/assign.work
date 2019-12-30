@@ -462,18 +462,31 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
     const projectDetails = await this.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.taskId);
+    const commentIndex = taskDetails.comments.findIndex(comment => comment['_id'].toString() === model.commentId);
 
-    taskDetails.comments = taskDetails.comments.map(com => {
-      if (com['_id'].toString() === model.commentId) {
-        com.updatedAt = new Date();
-        com.isPinned = model.isPinned;
-      }
-      return com;
-    });
+    taskDetails.comments[commentIndex].updatedAt = new Date();
+    taskDetails.comments[commentIndex].isPinned = model.isPinned;
 
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, model.taskId, taskDetails);
-    await this.updateHelper(model.taskId, taskDetails, taskHistory);
-    return `Comment ${model.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
+    const session = await this._taskModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      // create task history object
+      const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, model.taskId, taskDetails);
+
+      // update a specific comment
+      await this.updateHelper(model.taskId, {
+        $set: { [`comments.${commentIndex}`]: taskDetails.comments[commentIndex] }
+      }, taskHistory);
+
+      // return message
+      return `Comment ${model.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
+
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
+    }
   }
 
   async deleteComment(model: DeleteCommentModel) {
