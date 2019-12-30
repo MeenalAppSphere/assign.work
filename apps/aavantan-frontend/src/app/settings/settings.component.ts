@@ -358,6 +358,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
+  public copyDispalyName(){
+    this.taskTypeForm.get('name').patchValue(this.taskTypeForm.get('displayName').value);
+  }
 
   //================== capacity ==================//
   public selectDay(wd:ProjectWorkingDays, userRow:ProjectMembers){

@@ -42,12 +42,12 @@ export class EditCommentComponent implements OnInit {
     comment.taskId = this.taskId;
 
     try {
-      await this._taskService.updateComment(comment).toPromise();
+      const data = await this._taskService.updateComment(comment).toPromise();
       this.savingInProcess = false;
     } catch (e) {
       this.savingInProcess = false;
     }
-    this.toggleEditCommentShow.emit();
+    this.toggleEditCommentShow.emit(comment);
 
   }
 
