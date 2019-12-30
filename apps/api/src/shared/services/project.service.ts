@@ -130,7 +130,7 @@ export class ProjectService extends BaseService<Project & Document> {
 
     try {
       await this.update(id, project, session);
-      this.commitTransaction(session);
+      await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
     } catch (e) {
