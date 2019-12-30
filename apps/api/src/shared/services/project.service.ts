@@ -136,7 +136,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     try {
       await this.update(id, project, session);
-      this.commitTransaction(session);
+      await this.commitTransaction(session);
 
       const query = new MongooseQueryModel();
       query.populate = projectBasicPopulation;

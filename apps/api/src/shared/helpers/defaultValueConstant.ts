@@ -7,7 +7,7 @@ export const DEFAULT_QUERY_FILTER = {
 };
 
 // default project template type
-export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.software;
+export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.softwareDevelopment;
 
 // default working capacity
 export const DEFAULT_WORKING_CAPACITY: number = hourToSeconds(40);
