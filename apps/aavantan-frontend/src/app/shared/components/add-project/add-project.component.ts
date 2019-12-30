@@ -165,7 +165,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public onKeydown(event) {
     if (event.key === 'Enter') {
       const member: User = {
-        emailId: this.selectedCollaborator
+        emailId: this.selectedCollaborator,
+
       };
       this.response = this.validationRegexService.emailValidator(member.emailId);
       if (this.selectedCollaborators.filter(item => item.emailId === member.emailId).length === 0) {

@@ -98,21 +98,48 @@
         <section class="row">
           <aside class="col-md-3">
             <form nz-form class="register-form" [formGroup]="collaboratorForm">
+<!--              <nz-form-item>-->
+<!--                <label>Search or Invite Collaborator</label>-->
+<!--                <input-->
+<!--                  autocomplete="Off"-->
+<!--                  type="email"-->
+<!--                  formControlName="collaborator"-->
+<!--                  [(ngModel)]="selectedCollaborator"-->
+<!--                  [typeaheadAsync]="true"-->
+<!--                  [typeahead]="userDataSource"-->
+<!--                  (typeaheadOnSelect)="typeaheadOnSelect($event)"-->
+<!--                  typeaheadOptionField="emailId"-->
+<!--                  placeholder="Search or Invite people"-->
+<!--                  (keydown)="onKeydown($event)"-->
+<!--                  nz-input nzSize="small">-->
+<!--              </nz-form-item>-->
+
+
+
+
               <nz-form-item>
-                <label>Search or Invite Collaborator</label>
-                <input
-                  autocomplete="Off"
-                  type="email"
-                  formControlName="collaborators"
-                  [(ngModel)]="selectedCollaborator"
-                  [typeaheadAsync]="true"
-                  [typeahead]="userDataSource"
-                  (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                  typeaheadOptionField="emailId"
-                  placeholder="Search or Invite people"
-                  (keydown)="onKeydown($event)"
-                  nz-input nzSize="small">
+                <nz-form-label>Search or Invite Collaborator</nz-form-label>
+                <nz-form-control class="relative">
+                  <nz-input-group [nzSuffix]="suffixIconSearch">
+                    <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
+                  </nz-input-group>
+                  <nz-autocomplete #autoAssignee>
+                    <nz-auto-option *ngFor="let option of collaboratorsDataSource" [nzLabel]="option && option.firstName ? option.firstName : option.emailId" [nzValue]="option">
+                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                      <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
+                      <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
+                      <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small class="text-muted">{{ option.emailId }}</small></div>
+                    </nz-auto-option>
+                  </nz-autocomplete>
+                </nz-form-control>
+                <ng-template #suffixIconSearch>
+                  <i nz-icon nzType="search" *ngIf="!isSearching"></i>
+                  <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
+                </ng-template>
               </nz-form-item>
+
+
+
               <p class="text-info" *ngIf="enableInviteBtn">Please enter email id to invite member</p>
               <nz-form-explain class="text-danger m-b-15"
                                *ngIf="response && response.message">{{response.message}}</nz-form-explain>
@@ -127,22 +154,27 @@
             </form>
           </aside>
           <aside class="col-md-6">
-            <nz-form-label>Collaborators</nz-form-label>
-            <ul class="stages-list">
-              <li *ngFor="let item of projectMembersList">
-                <a href="mailto:{{item.emailId}}">
-                  <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
-                <span>{{item.emailId}}</span>
-                <div class="p-l-35 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
-                </a>
-                <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
-                  <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
-                  <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-info p-r-10"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
-                  <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
-<!--                  <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>-->
-                </span>
-              </li>
-            </ul>
+
+            <div *ngIf="projectMembersList?.length>0">
+              <nz-form-label>Collaborators</nz-form-label>
+              <ul class="stages-list">
+                <li *ngFor="let item of projectMembersList">
+                  <a href="mailto:{{item.emailId}}">
+                    <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                  <span>{{item.emailId}}</span>
+                  <div class="p-l-35 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
+                  </a>
+                  <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
+                    <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
+                    <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-info p-r-10"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
+                    <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
+  <!--                  <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>-->
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+
           </aside>
         </section>
       </ng-container>
@@ -181,7 +213,7 @@
 
               <ul class="stages-list">
                 <li *ngFor="let item of stagesList"><span>{{item.name}}</span>
-                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>
+<!--                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                 </li>
               </ul>
 

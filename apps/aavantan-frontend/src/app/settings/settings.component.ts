@@ -5,7 +5,7 @@ import {
   ProjectPriority,
   ProjectStages,
   ProjectStatus,
-  ProjectWorkingCapacityUpdateDto, ProjectWorkingDays,
+  ProjectWorkingCapacityUpdateDto, ProjectWorkingDays, SearchProjectCollaborators, SearchUserModel,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -18,6 +18,9 @@ import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { cloneDeep } from 'lodash';
+import { debounceTime } from 'rxjs/operators';
+import { UserService } from '../shared/services/user/user.service';
+import { Subject } from 'rxjs';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -29,9 +32,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public collaboratorForm: FormGroup;
 
   public projectModalIsVisible:boolean;
-  public selectedCollaborator: string;
+  public selectedCollaborator: User;
   public selectedCollaborators: User[] = [];
   public userDataSource: User[] = [];
+  public collaboratorsDataSource: User[] = [];
   public enableInviteBtn: boolean;
   public stageForm: FormGroup;
   public statusForm: FormGroup;
@@ -53,6 +57,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
+  public modelChangedSearchCollaborators = new Subject<string>();
+  public isSearching: boolean;
   public updateRequestInProcess: boolean = false;
   public deleteStageInProcess: boolean = false;
   public deleteStatusInProcess: boolean = false;
@@ -60,6 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public getProjectsInProcess:boolean = true;
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
+
   public workingDays : ProjectWorkingDays[] = [
     {
       day :'Mon',
@@ -86,7 +93,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ];
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
-              private _projectService: ProjectService, private _userQuery: UserQuery) {
+              private _projectService: ProjectService, private _userQuery: UserQuery, private _userService: UserService) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -121,7 +128,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     this.collaboratorForm = this.FB.group({
-      collaborators: new FormControl(null, [Validators.required])
+      collaborator: new FormControl(null, [Validators.required])
     });
 
     this.stageForm = this.FB.group({
@@ -149,6 +156,40 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.getProjects();
 
+
+
+    // search collaborators
+    this.modelChangedSearchCollaborators
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        const queryText = this.collaboratorForm.get('collaborator').value;
+        let name = '';
+        if(this.selectedCollaborator){
+          name = this.selectedCollaborator.firstName + ' ' + this.selectedCollaborator.lastName;
+        }
+
+        if (!queryText || this.collaboratorForm.get('collaborator').value === name) {
+          return;
+        }
+        this.isSearching = true;
+        const json: SearchUserModel = {
+          organizationId: this._generalService.currentOrganization.id,
+          query : queryText
+        }
+        this._userService.searchOrgUser(json).subscribe((data) => {
+          this.isSearching = false;
+          this.collaboratorsDataSource = data.data;
+          if(this.collaboratorsDataSource && this.collaboratorsDataSource.length===0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress){
+            this.enableInviteBtn = true;
+          }else{
+            this.enableInviteBtn = false;
+          }
+        });
+
+      });
+    // end search collaborators
+
   }
 
   public getProjects(){
@@ -172,6 +213,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public saveProject() {
     this.updateProjectDetails(this.projectForm.value);
   }
+
+
+  /*================== Collaborators tab ==================*/
 
   public removeCollaborators(user: User) {
     // remove api call here
@@ -205,7 +249,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           if (hasValues && hasValues.length) {
             this.enableInviteBtn = false;
           } else {
-            if (!this.validationRegexService.emailValidator(this.selectedCollaborator).invalidEmailAddress) {
+            if (!this.validationRegexService.emailValidator(this.selectedCollaborator.emailId).invalidEmailAddress) {
               this.enableInviteBtn = true;
             } else {
               this.enableInviteBtn = false;
@@ -238,7 +282,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public addCollaborators() {
     const user: User = {
-      emailId: this.selectedCollaborator
+      emailId: this.collaboratorForm.get('collaborator').value
     };
     this.response = this.validationRegexService.emailValidator(user.emailId);
     if (this.selectedCollaborators.filter(item => item.emailId === user.emailId).length === 0) {
@@ -251,6 +295,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  public selectAssigneeTypeahead(user: User) {
+    if (user && user.emailId) {
+      this.selectedCollaborator = user;
+      let userName = user && user.firstName ? user.firstName : user.emailId;
+      if (user && user.firstName && user && user.lastName) {
+        userName = userName + ' ' + user.lastName;
+      }
+      // this.collaboratorForm.get('collaborator').patchValue(userName);
+    }
+    this.modelChangedSearchCollaborators.next();
+  }
+
+
+  /*================== Stage tab ==================*/
   public addStage() {
     if (this.stageForm.invalid) {
       this.notification.error('Error', 'Please check Stage title');
