@@ -33,6 +33,7 @@ import {
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
 import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
+import { SendGridService } from '@anchan828/nest-sendgrid';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -47,6 +48,7 @@ export class ProjectService extends BaseService<Project & Document> {
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
+    private readonly sendGrid: SendGridService,
     private readonly _generalService: GeneralService
   ) {
     super(_projectModel);
@@ -229,6 +231,14 @@ export class ProjectService extends BaseService<Project & Document> {
         member.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
         member.workingDays = DEFAULT_WORKING_DAYS;
         return member;
+      });
+
+      await this.sendGrid.send({
+        to: "vishal@appsphere.in",
+        from: "pradeep@appsphere.in",
+        subject: "Sending with SendGrid is Fun",
+        text: "and easy to do anywhere, even with Node.js",
+        html: "<strong>and easy to do anywhere, even with Node.js</strong>",
       });
 
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+
 import { SharedModule } from '../shared/shared.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
@@ -13,6 +14,7 @@ import * as winston from 'winston';
 import { TaskHistoryModule } from '../task-history/task-history.module';
 import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
 import { SprintModule } from '../sprint/sprint.module';
+import { SendGridModule } from '@anchan828/nest-sendgrid';
 
 @Module({
   imports: [
@@ -28,6 +30,9 @@ import { SprintModule } from '../sprint/sprint.module';
         })
 
       ]
+    }),
+    SendGridModule.forRoot({
+      apikey: process.env.SENDGRID_API_KEY
     }),
     SharedModule,
     AuthModule,
