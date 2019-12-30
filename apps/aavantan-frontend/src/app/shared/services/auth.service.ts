@@ -30,7 +30,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
   }
 
   login(request: UserLoginWithPasswordRequest) {
-    this.updateState({ isLoginInProcess: true, isLoginSuccess: false });
+    this.updateState({ isLoginInProcess: true, isLoginSuccess: false, token: null });
     return this._http.post(AuthUrls.login, request).pipe(
       map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
         this.updateState({
@@ -40,11 +40,14 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         });
 
         this._generalService.token = res.data.access_token;
-        if (res.data.user.currentProject) {
+        const user = res.data.user;
+
+        if (user.currentProject) {
           this.router.navigate(['dashboard/project']);
         } else {
           this.router.navigate(['dashboard']);
         }
+
         return res;
       }),
       catchError(err => {
@@ -93,8 +96,19 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
   logOut() {
     // if login from social user then please logout from social platforms
     if (this._generalService.user.lastLoginProvider === UserLoginProviderEnum.google) {
-      this.socialAuthService.signOut(true);
+      // sign out from google then do normal logout process
+      this.socialAuthService.signOut(true).then(() => {
+        this.doLogout();
+      }).catch(err => {
+        console.log(err);
+      });
+    } else {
+      // normal login
+      this.doLogout();
     }
+  }
+
+  private doLogout() {
     this.updateState({ token: null });
     this.userStore.update((state) => {
       return {
@@ -105,10 +119,6 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
       };
     });
     this.router.navigate(['/login']);
-  }
-
-  requestGoogleRedirectUri() {
-    return this._http.get(AuthUrls.googleUriRequest);
   }
 
   googleSignIn(token: string) {
@@ -141,10 +151,5 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         return this.handleError(err);
       })
     );
-  }
-
-  googleSignInSuccess(code: string) {
-    this.updateState({ token: code });
-    this.router.navigate(['dashboard']);
   }
 }

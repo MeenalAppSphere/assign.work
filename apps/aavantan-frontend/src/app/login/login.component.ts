@@ -43,7 +43,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.socialAuthService.authState.subscribe((user) => {
+    // auth state subscriber if user and user token found then verify that token and re-login user
+    this.socialAuthService.authState.pipe(untilDestroyed(this)).subscribe((user) => {
       if (user) {
         this._authService.googleSignIn(user.idToken).subscribe();
       }
@@ -69,11 +70,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   loginWithGoogle() {
     this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(result => {
-      this._authService.googleSignIn(result.idToken).subscribe();
-      console.log(result);
     }).catch(err => {
       console.log(err);
-    })
+    });
   }
 
   submitForm() {

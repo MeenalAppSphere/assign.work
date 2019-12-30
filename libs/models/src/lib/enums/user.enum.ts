@@ -8,6 +8,5 @@ export enum UserStatus {
 
 export enum UserLoginProviderEnum {
   'google' = 'google',
-  'linkedIn' = 'linkedIn',
   'normal' = 'normal'
 }
