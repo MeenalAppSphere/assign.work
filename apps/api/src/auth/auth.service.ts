@@ -44,11 +44,17 @@ export class AuthService implements OnModuleInit {
   }
 
   async login(req: UserLoginWithPasswordRequest) {
+    // check user
     const user = await this._userModel.findOne({
       emailId: req.emailId,
       password: req.password
     }).populate(['projects', 'organization', 'currentProject']).exec();
+
     if (user) {
+      // update user last login provider to normal
+      await user.updateOne({ $set: { lastLoginProvider: UserLoginProviderEnum.normal } });
+
+      // return jwt token
       return {
         user: user.toJSON(),
         access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
@@ -171,7 +177,7 @@ export class AuthService implements OnModuleInit {
       if (authTokenResult) {
         if (authTokenResult.aud === process.env.GOOGLE_CLIENT_ID) {
           const userFromDb = await this._userModel.findOne({
-            emailId: authTokenResult.email,
+            emailId: authTokenResult.email
             // status: UserStatus.Active
           });
 
