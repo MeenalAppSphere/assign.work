@@ -13,22 +13,45 @@ $color-gray-light: #6E829C;
 
 /* common */
 .common-layout .page-container .main-content {
-  padding: calc(70px + 10px) 25px 10px 25px;
+  //padding: calc(70px + 10px) 25px 10px 25px;
 }
+
+.ant-radio-button-wrapper-checked {
+  color: #ffffff!important;
+  box-shadow: none!important;
+  background: #6E829C 0% 0% no-repeat padding-box;
+  border: 1px solid $color-gray-light;
+}
+.ant-radio-button-wrapper-checked:first-child {
+  border-color: $color-gray-light;
+}
+.ant-radio-button-wrapper:first-child {
+  border-left: 1px solid $color-gray-light;
+}
+.ant-radio-button-wrapper {
+  border-color: $color-gray-light;
+  color: $color-gray-light;
+}
+.ant-radio-button-wrapper:hover {
+  border-color: $color-gray-light;
+  color: $color-gray-light;
+}
+
+
 
 .ant-card-small>.ant-card-head {
   padding: 6px 24px;
   font-size: 18px;
 }
 .ant-card-small>.ant-card-body {
-  padding: 24px;
+  padding: 15px;
 }
 
 .ant-form-item-label label {
   color: $color-gray-light;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 1.12px;
+  //letter-spacing: 1.12px;
   font-size: 13px;
   line-height: 13px;
   margin-bottom: 2px;
@@ -133,7 +156,7 @@ $color-gray-light: #6E829C;
 }
 
 .btn-medium {
-  height: 30px;
+  
 }
 
 .ant-form-item{
@@ -215,7 +238,7 @@ $color-gray-light: #6E829C;
 
 /* board page */
 .collaborators-avatar{
-  padding: 10px 0px 15px 0px;
+  padding: 5px 0px 10px 0px;
   border-bottom: 1px solid #DED9D9;
   margin-bottom: 20px;
   background: none;
@@ -349,6 +372,15 @@ $color-gray-light: #6E829C;
 
 
 /* backlog page */
+.backlog-page{
+  .ant-card-body{
+   padding-top: 0px;
+  }
+  .ant-empty{
+    margin: 0px 0px 10px 0px!important;
+  }
+}
+
 .draft-sprint-box {
   .ant-empty{
     margin: 0px;
@@ -358,7 +390,7 @@ $color-gray-light: #6E829C;
   }
 
   .ant-empty-description {
-    margin-top: 33px !important;
+    margin-top: 0px !important;
     color:$color-black;
   }
 
@@ -422,4 +454,35 @@ $color-gray-light: #6E829C;
     border-color: #6E829C;
     font-size: 14px;
   }
+}
+
+
+/* side nav */
+.side-nav {
+  width: 175px;
+}
+@media only screen and (max-width: 1440px) and (min-width: 992px){
+  .header .logo {
+    width: 175px;
+    padding: 18px 14px;
+  }
+  .is-folded .header .logo {
+    padding: 1px 10px;
+  }
+  .side-nav {
+    width: 175px;
+  }
+}
+
+@media only screen and (max-width: 1440px) and (min-width: 992px) {
+  .common-layout .page-container {
+    padding-left: 175px;
+  }
+}
+
+
+/* logo modified */
+.logo img{
+  width: 100%;
+  padding: 0px;
 }
