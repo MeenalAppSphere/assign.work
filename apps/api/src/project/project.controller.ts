@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ProjectService } from '../shared/services/project.service';
 import {
+  GetAllProjectsModel,
   Project,
   ProjectMembers,
   ProjectPriority,
@@ -25,9 +26,9 @@ export class ProjectController {
 
   }
 
-  @Get()
-  async getAll() {
-    return await this._projectService.getAll({}, ['members.userDetails']);
+  @Post('get-all')
+  async getAll(@Body() model: GetAllProjectsModel) {
+    return await this._projectService.getAllProjects(model);
   }
 
   @Post()
