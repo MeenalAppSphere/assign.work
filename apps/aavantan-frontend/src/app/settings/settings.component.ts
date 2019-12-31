@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  GetAllProjectsModel,
   Project,
   ProjectMembers,
   ProjectPriority,
@@ -210,7 +211,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public getProjects(){
     try {
-      this._projectService.getAllProject().subscribe((data)=>{
+      const json: GetAllProjectsModel= {
+        organizationId : this._generalService.currentOrganization.id
+      }
+      this._projectService.getAllProject(json).subscribe((data)=>{
         this.projectListData = data.data;
         this.getProjectsInProcess=false;
       });

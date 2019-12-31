@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { ProjectUrls } from './project.url';
 import {
-  BaseResponseModel,
+  BaseResponseModel, GetAllProjectsModel,
   Project,
   ProjectMembers,
   ProjectPriority,
@@ -83,8 +83,8 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  getAllProject(): Observable<BaseResponseModel<Project[]>> {
-    return this._http.get(ProjectUrls.base).pipe(
+  getAllProject(json : GetAllProjectsModel): Observable<BaseResponseModel<Project[]>> {
+    return this._http.post(ProjectUrls.getAllProject, json).pipe(
       map((res: BaseResponseModel<Project[]>) => {
         //this.notification.success('Success', 'Found');
         return res;
