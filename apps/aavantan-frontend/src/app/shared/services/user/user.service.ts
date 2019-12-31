@@ -57,8 +57,8 @@ export class UserService extends BaseService<UserStore, UserState> {
     );
   }
 
-  searchUser(text: string): Observable<BaseResponseModel<User[]>> {
-    return this._http.get(UserUrls.search + text).pipe(
+  searchAddPojectUser(text: string): Observable<BaseResponseModel<User[]>> {
+    return this._http.get(UserUrls.searchUserAddProject + text).pipe(
       map((res: BaseResponseModel<User[]>) => {
         return res;
       }),

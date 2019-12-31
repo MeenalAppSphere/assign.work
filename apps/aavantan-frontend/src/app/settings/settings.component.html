@@ -145,7 +145,7 @@
               <nz-form-explain class="text-danger m-b-15"
                                *ngIf="response && response.message">{{response.message}}</nz-form-explain>
               <nz-form-item>
-                <button (click)="addCollaborators()" [nzLoading]="addCollaboratorsInProcess" [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary"
+                <button (click)="addCollaborators(true)" [nzLoading]="addCollaboratorsInProcess" [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary"
                         nzSize="small">
                   <i nz-icon nzType="mail" theme="outline"></i> Invite
                 </button>

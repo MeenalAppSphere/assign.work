@@ -246,40 +246,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     console.log('Resend Invitation');
   }
 
-  public typeaheadOnSelect(e: TypeaheadMatch): void {
-    if (this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length === 0) {
-      this.selectedCollaborators.push(e.item);
-      this.addMembers();
-    }
-    this.selectedCollaborator = null;
-  }
-
-  public onKeydown(event) {
-    const val = event.key;
-    if (val === 'Enter') {
-      this.addCollaborators();
-    } else {
-      setTimeout(() => {
-
-        if (val) {
-          const hasValues =
-            this.selectedCollaborators.filter((o) => {
-              return o.emailId === this.selectedCollaborator;
-            });
-          if (hasValues && hasValues.length) {
-            this.enableInviteBtn = false;
-          } else {
-            if (!this.validationRegexService.emailValidator(this.selectedCollaborator.emailId).invalidEmailAddress) {
-              this.enableInviteBtn = true;
-            } else {
-              this.enableInviteBtn = false;
-            }
-          }
-        }
-      }, 300);
-    }
-  }
-
   async addMembers() {
     this.addCollaboratorsInProcess = true;
     const members: ProjectMembers[] = [];
@@ -301,19 +267,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
 
-  public addCollaborators() {
+  public addCollaborators(isInvite?:boolean) {
+    let emailData = null;
+
+    if(isInvite){
+       emailData = this.collaboratorForm.get('collaborator').value;
+    }else{
+        emailData=this.selectedCollaborator.emailId
+    }
+
     const user: User = {
-      emailId: this.collaboratorForm.get('collaborator').value,
-      id : this.selectedCollaborator ? this.selectedCollaborator.id : null
+      emailId: emailData,
+      id: this.selectedCollaborator ? this.selectedCollaborator.id : null
     };
+
     this.response = this.validationRegexService.emailValidator(user.emailId);
     if (this.selectedCollaborators.filter(item => item.emailId === user.emailId).length === 0) {
       if (!this.response.invalidEmailAddress) {
         this.projectMembersList.push({
           userId: user.id,
           emailId: user.emailId,
-          isEmailSent:true,
-          isInviteAccepted:false
+          isEmailSent: true,
+          isInviteAccepted: false
         });
         this.selectedCollaborators.push(user);
         this.selectedCollaborator = null;
@@ -327,11 +302,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
       this.selectedCollaborator = user;
-      let userName = user && user.firstName ? user.firstName : user.emailId;
-      if (user && user.firstName && user && user.lastName) {
-        userName = userName + ' ' + user.lastName;
-      }
-      this.collaboratorForm.get('collaborator').patchValue('');
+      this.addCollaborators();
     }
     this.modelChangedSearchCollaborators.next();
   }
