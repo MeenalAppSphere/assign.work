@@ -2,6 +2,7 @@ import { Organization } from './organization.model';
 import { Types } from 'mongoose';
 
 import { ProjectTemplateEnum, Sprint, TaskType, User } from '@aavantan-app/models';
+import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Project {
   id?: string;
@@ -62,6 +63,10 @@ export interface ProjectPriority {
 export class ProjectTags {
   name: string;
   id?: string;
+}
+
+export class GetAllProjectsModel extends MongoosePaginateQuery {
+  organizationId: string;
 }
 
 export class ProjectWorkingCapacityUpdateDto {

@@ -1,8 +1,8 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  BaseRequestModel,
   DbCollection,
+  GetAllProjectsModel,
   MongooseQueryModel,
   Organization,
   Project,
@@ -234,11 +234,11 @@ export class ProjectService extends BaseService<Project & Document> {
       });
 
       await this.sendGrid.send({
-        to: "vishal@appsphere.in",
-        from: "pradeep@appsphere.in",
-        subject: "Sending with SendGrid is Fun",
-        text: "and easy to do anywhere, even with Node.js",
-        html: "<strong>and easy to do anywhere, even with Node.js</strong>",
+        to: 'vishal@appsphere.in',
+        from: 'pradeep@appsphere.in',
+        subject: 'Sending with SendGrid is Fun',
+        text: 'and easy to do anywhere, even with Node.js',
+        html: '<strong>and easy to do anywhere, even with Node.js</strong>'
       });
 
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
@@ -300,9 +300,19 @@ export class ProjectService extends BaseService<Project & Document> {
     return await this.updateProject(id, { $set: { members: projectDetails.members } });
   }
 
-  async getAllProject(query: any, reuest: BaseRequestModel) {
-    query = this._projectModel.aggregate();
-    return await this.getAllPaginatedData(query, reuest);
+  /**
+   * get all projects with pagination
+   * @param model
+   */
+  async getAllProjects(model: GetAllProjectsModel) {
+    const filter = {
+      organization: model.organizationId
+    };
+
+    // populate
+    model.populate = ['members.userDetails'];
+
+    return await this.getAllPaginatedData(filter, model);
   }
 
   async deleteProject(id: string) {
