@@ -233,13 +233,13 @@ export class ProjectService extends BaseService<Project & Document> {
         return member;
       });
 
-      await this.sendGrid.send({
-        to: 'vishal@appsphere.in',
-        from: 'pradeep@appsphere.in',
-        subject: 'Sending with SendGrid is Fun',
-        text: 'and easy to do anywhere, even with Node.js',
-        html: '<strong>and easy to do anywhere, even with Node.js</strong>'
-      });
+      // await this.sendGrid.send({
+      //   to: 'vishal@appsphere.in',
+      //   from: 'pradeep@appsphere.in',
+      //   subject: 'Sending with SendGrid is Fun',
+      //   text: 'and easy to do anywhere, even with Node.js',
+      //   html: '<strong>and easy to do anywhere, even with Node.js</strong>'
+      // });
 
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
       await session.commitTransaction();
