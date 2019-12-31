@@ -66,6 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public getProjectsInProcess:boolean = true;
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
+  public isCollaboratorExits:boolean = false;
 
   public workingDays : ProjectWorkingDays[] = [
     {
@@ -172,20 +173,35 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (!queryText || this.collaboratorForm.get('collaborator').value === name) {
           return;
         }
+
         this.isSearching = true;
         const json: SearchUserModel = {
           organizationId: this._generalService.currentOrganization.id,
           query : queryText
         }
+
+        this.isCollaboratorExits = false;
+        this.projectMembersList.forEach((ele)=>{
+          if(ele.emailId===queryText) {
+            this.isCollaboratorExits = true;
+          }
+        })
+
+
         this._userService.searchOrgUser(json).subscribe((data) => {
           this.isSearching = false;
           this.collaboratorsDataSource = data.data;
           if(this.collaboratorsDataSource && this.collaboratorsDataSource.length===0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress){
-            this.enableInviteBtn = true;
+
+            if(!this.isCollaboratorExits){
+              this.enableInviteBtn = true;
+            }
+
           }else{
             this.enableInviteBtn = false;
           }
         });
+
 
       });
     // end search collaborators
@@ -274,6 +290,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       await this._projectService.addCollaborators(this.currentProject.id, members).toPromise();
       this.selectedCollaborators = [];
       this.addCollaboratorsInProcess = false;
+      this.collaboratorForm.get('collaborator').patchValue('');
     } catch (e) {
       this.addCollaboratorsInProcess = false;
     }
@@ -282,11 +299,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public addCollaborators() {
     const user: User = {
-      emailId: this.collaboratorForm.get('collaborator').value
+      emailId: this.collaboratorForm.get('collaborator').value,
+      id : this.selectedCollaborator ? this.selectedCollaborator.id : null
     };
     this.response = this.validationRegexService.emailValidator(user.emailId);
     if (this.selectedCollaborators.filter(item => item.emailId === user.emailId).length === 0) {
       if (!this.response.invalidEmailAddress) {
+        this.projectMembersList.push({
+          userId: user.id,
+          emailId: user.emailId,
+          isEmailSent:true,
+          isInviteAccepted:false
+        });
         this.selectedCollaborators.push(user);
         this.selectedCollaborator = null;
         this.enableInviteBtn = false;
@@ -303,7 +327,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       if (user && user.firstName && user && user.lastName) {
         userName = userName + ' ' + user.lastName;
       }
-      // this.collaboratorForm.get('collaborator').patchValue(userName);
+      this.collaboratorForm.get('collaborator').patchValue('');
     }
     this.modelChangedSearchCollaborators.next();
   }

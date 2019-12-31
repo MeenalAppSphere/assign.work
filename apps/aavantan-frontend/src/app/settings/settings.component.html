@@ -140,11 +140,12 @@
 
 
 
-              <p class="text-info" *ngIf="enableInviteBtn">Please enter email id to invite member</p>
+              <p class="text-info" *ngIf="enableInviteBtn && !isCollaboratorExits">Please enter email id to invite member</p>
+              <p class="text-danger" *ngIf="isCollaboratorExits">This user already added in this Project</p>
               <nz-form-explain class="text-danger m-b-15"
                                *ngIf="response && response.message">{{response.message}}</nz-form-explain>
               <nz-form-item>
-                <button (click)="addCollaborators()" [disabled]="!enableInviteBtn" nz-button nzType="primary"
+                <button (click)="addCollaborators()" [nzLoading]="addCollaboratorsInProcess" [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary"
                         nzSize="small">
                   <i nz-icon nzType="mail" theme="outline"></i> Invite
                 </button>
@@ -349,7 +350,7 @@
 
                 <nz-form-control>
                   <nz-input-group [nzAddOnBefore]="profixIconButton">
-                    <input class="task-type-input" type="text" nzSize="small" formControlName="name" nz-input
+                    <input class="task-type-input" type="text" nzSize="small" formControlName="name" maxlength="20" nz-input
                            placeholder="Enter Task type"/>
                   </nz-input-group
                   >
