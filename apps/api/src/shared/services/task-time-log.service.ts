@@ -75,6 +75,12 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
       throw new BadRequestException('Started Date can not be before Task Creation Date');
     }
 
+    // Started date validation is after today means someone have logged for future
+    const isStartedDateInFuture = moment(model.timeLog.startedAt).isAfter(moment().endOf('d'));
+    if (isStartedDateInFuture) {
+      throw new BadRequestException('You can\'t log time for future date!');
+    }
+
     // check if one have worked periodically and logged time then check start and end date validations
     if (model.timeLog.isPeriod) {
 
