@@ -281,7 +281,7 @@ export class TaskService extends BaseService<Task & Document> {
       const mainDisplayName = separateDisplayName[0];
 
       if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name.toLowerCase()) {
-        model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
+        model.displayName = `${taskTypeDetails.displayName}-${separateDisplayName[1]}`;
       }
     }
 
