@@ -12,11 +12,6 @@ export class TaskHistoryController {
 
   @Post('get-history')
   async getAll(@Body() model: GetTaskHistoryModel) {
-    model.populate = [{
-      path: 'createdBy',
-      select: 'emailId userName firstName lastName -_id',
-      justOne: true
-    }];
     return await this._taskHistoryService.getTaskHistory(model);
   }
 }

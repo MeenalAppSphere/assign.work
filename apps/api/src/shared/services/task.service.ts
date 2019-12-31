@@ -380,7 +380,7 @@ export class TaskService extends BaseService<Task & Document> {
         c.id = c['_id'];
         return c;
       }), (cmnt) => {
-        return moment(cmnt.updatedAt).toDate();
+        return moment(cmnt.createdAt).toDate();
       }, 'desc');
     } else {
       throw new NotFoundException('Task Not Found');
@@ -399,6 +399,7 @@ export class TaskService extends BaseService<Task & Document> {
 
     model.comment.createdById = this._generalService.userId;
     model.comment.createdAt = new Date();
+    model.comment.updatedAt = new Date();
 
     if (!taskDetails.comments.length) {
       taskDetails.comments = [model.comment];

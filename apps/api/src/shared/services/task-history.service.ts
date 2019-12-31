@@ -46,6 +46,15 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
   async getTaskHistory(model: GetTaskHistoryModel) {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
+    model.populate = [{
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName -_id',
+      justOne: true
+    }];
+
+    model.sort = 'createdAt';
+    model.sortBy = 'desc';
+
     const result: BasePaginatedResponse<TaskHistory> = await this.getAllPaginatedData({ taskId: model.taskId }, model);
 
     result.items = result.items.map(history => {
