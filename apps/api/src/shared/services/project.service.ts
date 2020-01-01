@@ -150,14 +150,13 @@ export class ProjectService extends BaseService<Project & Document> {
    * @param members
    */
   async addCollaborators(id: string, members: ProjectMembers[]) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
-
-    const projectDetails: Project = await this.getProjectDetails(id);
-
     if (!Array.isArray(members)) {
       throw new BadRequestException('Please check provided json');
     }
+
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    const session = await this.startSession();
 
     const alreadyRegisteredMembers: ProjectMembers[] = [];
     const unRegisteredMembers: ProjectMembers[] = [];
@@ -242,8 +241,7 @@ export class ProjectService extends BaseService<Project & Document> {
       // });
 
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
     } catch (e) {
@@ -566,18 +564,14 @@ export class ProjectService extends BaseService<Project & Document> {
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, { session });
-      const result = await this._userService.getUserProfile(this._generalService.userId);
-      await session.commitTransaction();
-      session.endSession();
-      return result;
+      await this.commitTransaction(session);
+      return await this._userService.getUserProfile(this._generalService.userId);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
