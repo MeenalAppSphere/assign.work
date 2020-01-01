@@ -78,7 +78,11 @@ export class UsersService extends BaseService<User & Document> {
     const userDetails = await this._userModel.findById(new Types.ObjectId(id))
       .populate([{
         path: 'projects',
-        select: 'name description organization'
+        select: 'name description organization createdAt createdBy',
+        populate: {
+          path: 'createdBy',
+          select: 'firstName lastName'
+        }
       },
         {
           path: 'organizations',

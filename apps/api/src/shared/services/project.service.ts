@@ -101,10 +101,10 @@ export class ProjectService extends BaseService<Project & Document> {
       // create project and get project id from them
       const createdProject = await this.create([model], session);
 
-      // if user is creating first project then mark it as current project
-      if (!userDetails.projects.length) {
+      // set created project as current project of user
+      // if (!userDetails.projects.length) {
         userDetails.currentProject = createdProject[0].id;
-      }
+      // }
 
       userDetails.projects.push(createdProject[0].id);
       await this._userService.updateUser(userDetails.id, userDetails, session);
@@ -211,7 +211,7 @@ export class ProjectService extends BaseService<Project & Document> {
       // check if there any unregistered users
       if (unRegisteredMembers.length) {
         // create users in database
-        const createdUsers: any = await this._userService.createUser(unregisteredMembersModel, session);
+        const createdUsers: any = await this._userService.create(unregisteredMembersModel, session);
 
         // push to final collaborators array
         finalCollaborators.push(...createdUsers.map(m => {
