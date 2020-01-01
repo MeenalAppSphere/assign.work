@@ -126,24 +126,63 @@
             <!-- second-->
             <ng-container *ngIf="switchStepCurrent===1" class="h-100">
 
-                <div class="min-height-100 m-t-25">
+              <div class="min-height-100 m-t-25">
+                <form nz-form [formGroup]="collaboratorForm">
+                  <div class="form-group">
 
-                    <div class="form-group">
-                        <label>Collaborators</label>
-                        <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
-                            <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">
-                              <nz-avatar *ngIf="item.id" nzSize="small" nzIcon="user" [nzSrc]="item.profilePic"></nz-avatar>
-                              <i class="fa fa-envelope" *ngIf="!item.id"></i>
-                              &nbsp;<span *ngIf="item.firstName">{{item.firstName}} {{item.lastName}}</span>
-                              <span *ngIf="!item.firstName">{{item.emailId}}</span>
-                              <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
-                            </span>
-                        </div>
+                    <nz-form-item>
+                      <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
+                          <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">
+                            <nz-avatar *ngIf="item.id" nzSize="small" nzIcon="user" [nzSrc]="item.profilePic"></nz-avatar>
+                            <i class="fa fa-envelope" *ngIf="!item.id"></i>
+                            &nbsp;<span *ngIf="item.firstName">{{item.firstName}} {{item.lastName}}</span>
+                            <span *ngIf="!item.firstName">{{item.emailId}}</span>
+                            <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
+                          </span>
+                      </div>
+                      <nz-form-control class="relative">
+                        <nz-input-group [nzSuffix]="suffixIconSearch">
+                          <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" (keydown)="onKeydown($event)"/>
+                        </nz-input-group>
+                        <nz-autocomplete #autoAssignee>
+                          <nz-auto-option *ngFor="let option of collaboratorsDataSource" [nzLabel]="option && option.firstName ? option.firstName : option.emailId" [nzValue]="option">
+                            <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                            <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
+                            <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
+                            <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small class="text-muted">{{ option.emailId }}</small></div>
+                          </nz-auto-option>
+                        </nz-autocomplete>
+                      </nz-form-control>
+                      <ng-template #suffixIconSearch>
+                        <i nz-icon nzType="search" *ngIf="!isSearching"></i>
+                        <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
+                      </ng-template>
+                    </nz-form-item>
 
-                        <input autocomplete="Off" (typeaheadOnSelect)="typeaheadOnSelect($event)" [(ngModel)]="selectedCollaborator" [typeahead]="members" typeaheadOptionField="emailId" placeholder="Search or Invite people" (keydown)="onKeydown($event)" nz-input nzSize="small">
-                        <nz-form-explain class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
-                    </div>
-                </div>
+                    <nz-form-explain class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
+                  </div>
+                </form>
+              </div>
+
+
+<!--                <div class="min-height-100 m-t-25">-->
+
+<!--                    <div class="form-group">-->
+<!--                        <label>Collaborators</label>-->
+<!--                        <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">-->
+<!--                            <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">-->
+<!--                              <nz-avatar *ngIf="item.id" nzSize="small" nzIcon="user" [nzSrc]="item.profilePic"></nz-avatar>-->
+<!--                              <i class="fa fa-envelope" *ngIf="!item.id"></i>-->
+<!--                              &nbsp;<span *ngIf="item.firstName">{{item.firstName}} {{item.lastName}}</span>-->
+<!--                              <span *ngIf="!item.firstName">{{item.emailId}}</span>-->
+<!--                              <i class="fa fa-times" (click)='removeCollaborators(item)'></i>-->
+<!--                            </span>-->
+<!--                        </div>-->
+
+<!--                        <input autocomplete="Off" (typeaheadOnSelect)="typeaheadOnSelect($event)" [(ngModel)]="selectedCollaborator" [typeahead]="members" typeaheadOptionField="emailId" placeholder="Search or Invite people" (keydown)="onKeydown($event)" nz-input nzSize="small">-->
+<!--                        <nz-form-explain class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-explain>-->
+<!--                    </div>-->
+<!--                </div>-->
             </ng-container>
 
             <!--third-->
