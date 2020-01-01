@@ -44,7 +44,7 @@ export class TaskController {
 
   @Post('delete-task')
   async deleteTask(@Body() model: DeleteTaskModel) {
-    return await this._taskService.delete(model.taskId);
+    return await this._taskService.deleteTask(model);
   }
 
   @Post('get-comments')

@@ -983,7 +983,7 @@ export class SprintService extends BaseService<Sprint & Document> {
    * @param populate: population array
    * @param select: filed selection string
    */
-  private async getSprintDetails(id: string, populate: any[] = [], select: string = detailedFiledSelection): Promise<Sprint> {
+  public async getSprintDetails(id: string, populate: any[] = [], select: string = detailedFiledSelection): Promise<Sprint> {
     if (!this.isValidObjectId(id)) {
       throw new BadRequestException('Sprint Not Found');
     }
