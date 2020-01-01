@@ -44,7 +44,7 @@ export class UsersService extends BaseService<User & Document> {
         _id: {
           $nin: [this.toObjectId(this._generalService.userId)]
         },
-        //currentOrganizationId: model.organizationId
+        currentOrganizationId: model.organizationId
       },
       select: 'emailId firstName lastName profilePic _id'
     });
