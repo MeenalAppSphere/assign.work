@@ -37,6 +37,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public selectedCollaborators: User[] = [];
   public userDataSource: User[] = [];
   public collaboratorsDataSource: User[] = [];
+  public isCollaboratorExits:boolean = false;
   public enableInviteBtn: boolean;
   public stageForm: FormGroup;
   public statusForm: FormGroup;
@@ -67,7 +68,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public getProjectsInProcess:boolean = true;
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
-  public isCollaboratorExits:boolean = false;
+
 
   public workingDays : ProjectWorkingDays[] = [
     {
