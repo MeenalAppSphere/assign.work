@@ -64,8 +64,7 @@ export class ProjectService extends BaseService<Project & Document> {
    * return {Project}
    */
   async createProject(model: Project) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     const userDetails = await this._userService.findById(model.createdBy as string);
 
@@ -102,19 +101,15 @@ export class ProjectService extends BaseService<Project & Document> {
       const createdProject = await this.create([model], session);
 
       // set created project as current project of user
-      // if (!userDetails.projects.length) {
-        userDetails.currentProject = createdProject[0].id;
-      // }
+      userDetails.currentProject = createdProject[0].id;
 
       userDetails.projects.push(createdProject[0].id);
       await this._userService.updateUser(userDetails.id, userDetails, session);
 
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
       return createdProject[0];
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
