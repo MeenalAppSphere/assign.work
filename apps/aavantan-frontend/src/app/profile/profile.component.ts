@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../queries/user/user.query';
-import { Project, User } from '@aavantan-app/models';
+import { GetAllProjectsModel, Project, User } from '@aavantan-app/models';
 import { ProjectService } from '../shared/services/project/project.service';
+import { GeneralService } from '../shared/services/general.service';
 
 @Component({
     templateUrl: './profile.component.html',
@@ -15,14 +16,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public projectListData:Project[] = [];
   public initialName: string = 'AW';
 
-  constructor(private _userQuery: UserQuery, private _projectService: ProjectService) {
+  constructor(private _userQuery: UserQuery, private _generalService : GeneralService, private _projectService: ProjectService) {
   }
 
     skillListData = ['JS', 'Angular', 'HTML', 'CSS', 'Web Design', 'Mobile App Design', 'User Interface'];
 
     ngOnInit(): void {
-
-      this._projectService.getAllProject().subscribe((data)=>{
+      const json:GetAllProjectsModel= {
+        organizationId : this._generalService.currentOrganization.id
+      }
+      this._projectService.getAllProject(json).subscribe((data)=>{
         this.projectListData = data.data;
       });
 

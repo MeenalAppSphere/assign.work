@@ -1,7 +1,7 @@
-import { Controller, Get, UseGuards, Request, Put, Body, Query, Post, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { UsersService } from '../shared/services/users.service';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from '@aavantan-app/models';
+import { SearchUserModel, User } from '@aavantan-app/models';
 
 @Controller('user')
 @UseGuards(AuthGuard('jwt'))
@@ -14,9 +14,9 @@ export class UserController {
     return await this._userService.getUserProfile(req.user.id);
   }
 
-  @Get('')
-  async getAll(@Query('query') query: string) {
-    return await this._userService.getAll(query);
+  @Post('search')
+  async getAll(@Body() model: SearchUserModel) {
+    return await this._userService.searchUser(model);
   }
 
   @Put('profile')

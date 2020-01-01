@@ -85,6 +85,10 @@ export class BaseService<T extends Document> {
       query.select(options.select);
     }
 
+    if (options.sort) {
+      query.sort({ [options.sort]: options.sortBy || 'asc' });
+    }
+
     const result = await query.lean().exec();
     result.forEach((doc) => {
       doc.id = String(doc._id);

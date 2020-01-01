@@ -51,7 +51,7 @@ export class User {
   isDeleted?: boolean;
 }
 
-export class SearchUserRequest {
+export class SearchUserModel {
   organizationId: string;
-  q: string;
+  query: string;
 }

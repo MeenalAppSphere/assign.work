@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  BaseRequestModel,
   DbCollection,
+  GetAllProjectsModel,
   MongooseQueryModel,
   Organization,
   Project,
@@ -34,6 +34,7 @@ import {
 } from '../helpers/defaultValueConstant';
 import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
 import { ModuleRef } from '@nestjs/core';
+import { SendGridService } from '@anchan828/nest-sendgrid';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -50,7 +51,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskType & Document>,
-    private readonly moduleRef: ModuleRef,
+    private readonly moduleRef: ModuleRef, private readonly sendGrid: SendGridService,
     private readonly _generalService: GeneralService
   ) {
     super(_projectModel);
@@ -158,13 +159,13 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param members
    */
   async addCollaborators(id: string, members: ProjectMembers[]) {
-    const session = await this.startSession();
-
-    const projectDetails: Project = await this.getProjectDetails(id);
-
     if (!Array.isArray(members)) {
       throw new BadRequestException('Please check provided json');
     }
+
+    const projectDetails: Project = await this.getProjectDetails(id);
+
+    const session = await this.startSession();
 
     const alreadyRegisteredMembers: ProjectMembers[] = [];
     const unRegisteredMembers: ProjectMembers[] = [];
@@ -240,6 +241,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
         return member;
       });
 
+      // await this.sendGrid.send({
+      //   to: 'vishal@appsphere.in',
+      //   from: 'pradeep@appsphere.in',
+      //   subject: 'Sending with SendGrid is Fun',
+      //   text: 'and easy to do anywhere, even with Node.js',
+      //   html: '<strong>and easy to do anywhere, even with Node.js</strong>'
+      // });
+
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
       await this.commitTransaction(session);
 
@@ -301,9 +310,19 @@ export class ProjectService extends BaseService<Project & Document> implements O
     return await this.updateProject(id, { $set: { members: projectDetails.members } });
   }
 
-  async getAllProject(query: any, reuest: BaseRequestModel) {
-    query = this._projectModel.aggregate();
-    return await this.getAllPaginatedData(query, reuest);
+  /**
+   * get all projects with pagination
+   * @param model
+   */
+  async getAllProjects(model: GetAllProjectsModel) {
+    const filter = {
+      organization: model.organizationId
+    };
+
+    // populate
+    model.populate = ['members.userDetails'];
+
+    return await this.getAllPaginatedData(filter, model);
   }
 
   async deleteProject(id: string) {
@@ -563,9 +582,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     try {
       await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, { session });
-      const result = await this._userService.getUserProfile(this._generalService.userId);
       await this.commitTransaction(session);
-      return result;
+      return await this._userService.getUserProfile(this._generalService.userId);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;

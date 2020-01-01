@@ -293,7 +293,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       const mainDisplayName = separateDisplayName[0];
 
       if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name.toLowerCase()) {
-        model.displayName = `${taskTypeDetails.name}-${separateDisplayName[1]}`;
+        model.displayName = `${taskTypeDetails.displayName}-${separateDisplayName[1]}`;
       }
     }
 
@@ -392,7 +392,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         c.id = c['_id'];
         return c;
       }), (cmnt) => {
-        return moment(cmnt.updatedAt).toDate();
+        return moment(cmnt.createdAt).toDate();
       }, 'desc');
     } else {
       throw new NotFoundException('Task Not Found');
@@ -411,6 +411,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     model.comment.createdById = this._generalService.userId;
     model.comment.createdAt = new Date();
+    model.comment.updatedAt = new Date();
 
     if (!taskDetails.comments.length) {
       taskDetails.comments = [model.comment];

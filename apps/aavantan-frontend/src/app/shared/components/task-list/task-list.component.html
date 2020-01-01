@@ -6,7 +6,7 @@
 
               <div class="clearfix m-b-10 font-size-12">
 
-                <span [ngStyle]="{'color': item.taskType && item.taskType.color ? item.taskType.color : '#6E829C'}" [nzTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''" nz-tooltip>#{{item.displayName}}</span>
+                <span class="d-inline-block p-t-5" [ngStyle]="{'color': item.taskType && item.taskType.color ? item.taskType.color : '#6E829C'}" [nzTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''" nz-tooltip>#{{item.displayName}}</span>
 
                 <span class="float-right">
                   <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#DEDFE2'" style="text-transform: initial;" class="text-black">{{item.status.name}}</nz-tag>
@@ -16,32 +16,23 @@
               </div>
 
               <div class="d-flex justify-content-between m-b-10">
-                    <div class="media">
-                        <div>
-                            <h6 class="m-b-0">
-                                <a href="javascript:void(0)" (click)="viewTask(item)">
-                                    <p class="ellipsis text-black">{{item.displayName}}: {{item.name}}</p>
-                                </a>
-                            </h6>
-                        </div>
+                    <div class="media" style="height: 40px">
+
+                        <a href="javascript:void(0)" (click)="viewTask(item)">
+                            <p nz-paragraph nzEllipsis [nzEllipsisRows]="2" class="text-black m-0">{{item.displayName}}: {{item.name}}</p>
+                        </a>
+
                     </div>
                 </div>
 
 
-                <div class="m-t-10 font-12">
+                <div class="m-t-10 font-size-13">
                     <div class="d-flex justify-content-between align-items-center" style="min-height:24px;">
 
-                      <span *ngIf="!item.assignee">
-                        <nz-avatar nzSize="small" nzIcon="user"></nz-avatar>
-                      </span>
-                      <span *ngIf="item.assignee" class="user-name">
-                        <nz-avatar nzSize="small" nzIcon="user" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar>
-                        {{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}
-                      </span>
+                      <span>{{item.estimatedTimeReadable ? item.estimatedTimeReadable : 0 }}</span>
 
-                      <span class="float-right clearfix">
-                        <span class="p-r-10">{{item.estimatedTimeReadable ? item.estimatedTimeReadable : 0 }}</span>
-                        <a *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);" class="float-right text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                      <span>
+                        <a *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
                       </span>
 
 
@@ -50,13 +41,17 @@
 
                 <div *ngIf="showProgressOption" class="progress-box-section">
                   <div class="d-flex justify-content-between">
-                    <span class="text-gray-light">Progress</span>
-                    <span class="font-weight-semibold text-black font-weight-bold">{{item.progress ? item.progress : '0'}}%</span>
+                    <span class="text-gray-light">Progress<span class="font-weight-semibold text-black font-weight-bold p-l-5">{{item.progress ? item.progress : '0'}}%</span></span>
+                    <span>
+                      <span *ngIf="!item.assignee">
+                        <nz-avatar nzSize="small" nzIcon="user"></nz-avatar>
+                      </span>
+                      <span *ngIf="item.assignee">
+                        <nz-avatar style="margin-top: -10px;" nzSize="small" nzIcon="user" [nzSrc]="item.assignee.profilePic" nz-tooltip [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar>
+                        <div class="d-inline-block user-name p-l-5 text-black">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</div>
+                      </span>
+                    </span>
                   </div>
-<!--                  <div style="height:20px;">-->
-<!--                    <nz-progress *ngIf="item.progress && item.status && item.status !== 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small"></nz-progress>-->
-<!--                    <nz-progress *ngIf="item.progress && item.status && item.status == 'Behind'" [nzPercent]="item.progress" [nzShowInfo]="false" nzSize="small" nzStatus="exception"></nz-progress>-->
-<!--                  </div>-->
                 </div>
 
             </nz-card>

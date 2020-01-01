@@ -1,14 +1,14 @@
-import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   DbCollection,
-  MongoosePaginateQuery,
-  MongooseQueryModel,
+  MongoosePaginateQuery, MongooseQueryModel,
   Organization,
   Project,
+  SearchUserModel,
   User
 } from '@aavantan-app/models';
-import { ClientSession, Document, Model, Query } from 'mongoose';
+import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project.service';
 import { orderBy, slice } from 'lodash';
@@ -34,20 +34,24 @@ export class UsersService extends BaseService<User & Document> {
   /**
    * search users
    * with email id, first name or last name, don't include current user
-   * @param query
    * @returns {Promise<User[]>}
+   * @param model
    */
-  async getAll(query: string) {
+  async searchUser(model: SearchUserModel) {
+    if (!this.isValidObjectId(model.organizationId)) {
+      throw new BadRequestException('organization not found');
+    }
     return this.find({
       filter: {
         $or: [
-          { emailId: { $regex: new RegExp(query), $options: 'i' } },
-          { firstName: { $regex: new RegExp(query), $options: 'i' } },
-          { lastName: { $regex: new RegExp(query), $options: 'i' } }
+          { emailId: { $regex: new RegExp(model.query), $options: 'i' } },
+          { firstName: { $regex: new RegExp(model.query), $options: 'i' } },
+          { lastName: { $regex: new RegExp(model.query), $options: 'i' } }
         ],
         _id: {
           $nin: [this.toObjectId(this._generalService.userId)]
-        }
+        },
+        currentOrganizationId: model.organizationId
       },
       select: 'emailId firstName lastName profilePic _id'
     });

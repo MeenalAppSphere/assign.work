@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
 import {
@@ -9,7 +9,8 @@ import {
   ProjectMembers,
   ProjectTemplateEnum,
   SwitchProjectRequest,
-  User
+  User,
+  SearchUserModel
 } from '@aavantan-app/models';
 import { GeneralService } from '../../services/general.service';
 import { UserService } from '../../services/user/user.service';
@@ -34,43 +35,44 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public projectForm: FormGroup;
+  public collaboratorForm: FormGroup;
   public switchStepCurrent = 0;
   public modalTitle = 'Project Details';
   public selectedCollaborators: User[] = [];
-  public selectedCollaborator: string;
-  public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
+  public isCollaboratorExits:boolean = false;
+  public selectedCollaborator: User;
+  public userDataSource: User[] = [];
+  public collaboratorsDataSource: User[] = [];
+  public modelChangedSearchCollaborators = new Subject<string>();
+
+
   public response: any;
-
   public currentOrganization: Organization;
-
   public organizations: Organization[];
   public organizationCreationInProcess: boolean = false;
 
   public createProjectInProcess: boolean = false;
   public createdProjectId: string = null;
-
   public addCollaboratorsInProcess: boolean = false;
   public selectTemplateInProcess: boolean = false;
   public switchingProjectInProcess: boolean;
-
   public members: User[] = [];
-
   public showCreateProject: boolean;
   public projectList: Project[] = [];
-
   public loadingProjects: boolean;
   public projectSource: Project[] = [];
   public projectListSearch: Project[] = [];
   public searchProjectText: string;
-
   public modelChanged = new Subject<string>();
   public isSearching:boolean;
 
+  public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
+
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery: UserQuery,
-              private _usersService: UserService, private _projectService: ProjectService,
+              private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService : TaskService) {
-    this.getAllUsers();
+    // this.getAllUsers();
   }
 
   ngOnInit() {
@@ -102,6 +104,48 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       })
 
     this.projectListSearch = this.projectListData;
+
+
+    // search collaborators
+    this.modelChangedSearchCollaborators
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        const queryText = this.collaboratorForm.get('collaborator').value;
+        let name = '';
+        if(this.selectedCollaborator){
+          name = this.selectedCollaborator.firstName + ' ' + this.selectedCollaborator.lastName;
+        }
+
+        if (!queryText || this.collaboratorForm.get('collaborator').value === name) {
+          return;
+        }
+
+        this.isSearching = true;
+        const json: SearchUserModel = {
+          organizationId: this._generalService.currentOrganization.id,
+          query : queryText
+        }
+
+        this.isCollaboratorExits = false;
+        this.selectedCollaborators.forEach((ele)=>{
+          if(ele.emailId===queryText) {
+            this.isCollaboratorExits = true;
+          }
+        })
+
+        this._userService.searchAddPojectUser(json).subscribe((data) => {
+          this.isSearching = false;
+          this.collaboratorsDataSource = data.data;
+          if(this.collaboratorsDataSource && this.collaboratorsDataSource.length===0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress){
+
+           }else{
+
+          }
+        });
+
+      });
+    // end search collaborators
 
   }
 
@@ -149,32 +193,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       description: [null],
       organization: ['']
     });
-  }
 
-  public removeCollaborators(mem: User) {
-    this.selectedCollaborators = this.selectedCollaborators.filter(item => item !== mem);
-  }
+    this.collaboratorForm = this.FB.group({
+      collaborator: new FormControl(null, [Validators.required])
+    });
 
-  public typeaheadOnSelect(e: TypeaheadMatch): void {
-    if (this.selectedCollaborators.filter(item => item.emailId === e.item.emailId).length === 0) {
-      this.selectedCollaborators.push(e.item);
-    }
-    this.selectedCollaborator = null;
-  }
-
-  public onKeydown(event) {
-    if (event.key === 'Enter') {
-      const member: User = {
-        emailId: this.selectedCollaborator
-      };
-      this.response = this.validationRegexService.emailValidator(member.emailId);
-      if (this.selectedCollaborators.filter(item => item.emailId === member.emailId).length === 0) {
-        if (!this.response.invalidEmailAddress) {
-          this.selectedCollaborators.push(member);
-          this.selectedCollaborator = null;
-        }
-      }
-    }
   }
 
   public selectOrg(item: Organization) {
@@ -229,6 +252,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  /*================== Collaborators step ==================*/
+
+
+  // api call for save members
   async addMembers() {
     this.addCollaboratorsInProcess = true;
     const members: ProjectMembers[] = [];
@@ -239,6 +267,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       });
     });
 
+    console.log(this.selectedCollaborators);
+
     try {
       await this._projectService.addCollaborators(this.createdProjectId, members).toPromise();
       this.addCollaboratorsInProcess = false;
@@ -247,6 +277,68 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this.addCollaboratorsInProcess = false;
     }
   }
+
+
+
+  public addCollaborators(isInvite?:boolean) {
+    let emailData = null;
+
+    if(isInvite){
+      emailData = this.collaboratorForm.get('collaborator').value;
+    }else{
+      emailData=this.selectedCollaborator.emailId
+    }
+
+    const user: User = {
+      emailId: emailData,
+      id: this.selectedCollaborator ? this.selectedCollaborator.id : null
+    };
+
+    this.response = this.validationRegexService.emailValidator(user.emailId);
+    if (this.selectedCollaborators.filter(item => item.emailId === user.emailId).length === 0) {
+      if (!this.response.invalidEmailAddress) {
+        this.selectedCollaborators.push(user);
+        this.selectedCollaborator = null;
+        this.collaboratorForm.get('collaborator').patchValue('');
+      }
+    }
+    console.log(this.selectedCollaborators);
+  }
+
+
+  public selectAssigneeTypeahead(user: User) {
+    if (user && user.emailId) {
+      this.selectedCollaborator = user;
+      this.addCollaborators();
+    }
+    this.modelChangedSearchCollaborators.next();
+  }
+
+
+  public removeCollaborators(mem: User) {
+    this.selectedCollaborators = this.selectedCollaborators.filter(item => item !== mem);
+  }
+
+  public onKeydown(event) {
+    if (event.key === 'Enter') {
+      const member: User = {
+        emailId: this.collaboratorForm.get('collaborator').value,
+      };
+      this.response = this.validationRegexService.emailValidator(member.emailId);
+      if (this.selectedCollaborators.filter(item => item.emailId === member.emailId).length === 0) {
+        if (!this.response.invalidEmailAddress) {
+          this.selectedCollaborators.push(member);
+          this.selectedCollaborator = null;
+          // this.collaboratorForm.get('collaborator').patchValue('');
+        }
+      }
+      this.collaboratorForm.get('collaborator').patchValue('');
+    }
+    console.log(this.selectedCollaborators);
+  }
+
+  /*================== Collaborators step end ==================*/
+
 
   async addTemplate() {
     this.selectTemplateInProcess = true;
@@ -270,7 +362,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   private getAllUsers() {
-    this._usersService.getAllUsers().subscribe(res => {
+    this._userService.getAllUsers().subscribe(res => {
       this.members = res.data;
     }, error => {
       this.members = [];
