@@ -76,10 +76,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   submitForm() {
-    // const request = new UserLoginWithPasswordRequest();
-    // request.emailId = this.loginForm.value.emailId;
-    // request.password = hashSync(this.loginForm.value.password, 5);
-
     this.isSubmitted = true;
     this._authService.login(this.loginForm.value).subscribe();
   }

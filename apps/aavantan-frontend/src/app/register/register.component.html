@@ -159,17 +159,10 @@
               </nz-form-item>
 
             </form>
-            <div class="text-center m-t-25">
-              <nz-button-group>
-                <button nz-button nzType="primary" (click)="signupWithSocial('linkedin')">
-                  <i nz-icon nzType="linkedin" theme="outline"></i> Login with
-                  LinkedIn
-                </button>
-                <button nz-button nzType="danger" (click)="signupWithSocial('google')">
-                  <i nz-icon nzType="google" theme="outline"></i> Login with
-                  Gmail
-                </button>
-              </nz-button-group>
+            <div class="text-center m-t-25 row">
+              <div class="col">
+                <img class="btn-google" src="../../assets/images/icons/btn-google.svg" width="100%" (click)='loginWithGoogle()'>
+              </div>
             </div>
           </nz-card>
         </div>
