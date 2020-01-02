@@ -127,6 +127,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
           });
         }
 
+        this.createProjectForm();
+
       }
     });
 
@@ -142,9 +144,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       name: new FormControl(null, [Validators.required])
     });
 
-    this.projectForm = this.FB.group({
-      name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required])
-    });
+    this.createProjectForm();
 
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
@@ -208,6 +208,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
     // end search collaborators
 
+  }
+
+  public createProjectForm(){
+    this.projectForm = this.FB.group({
+      name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required])
+    });
   }
 
   public getProjects(){
