@@ -313,17 +313,45 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * get all time logs
    * @param model
    */
-  async getAllLogs(model): Promise<TaskTimeLog[]> {
+  async getAllLogs(model) {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    return this._taskTimeLogModel.find({
-      taskId: this.toObjectId(model.taskId),
-      isDeleted: false
-    }).populate({
-      path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
-      justOne: true
-    }).lean(true);
+    try {
+      return await this._taskTimeLogModel.aggregate([{
+        $match: { 'taskId': this.toObjectId(model.taskId) }
+      }, {
+        $group: {
+          _id: { name: '$createdById' },
+          totalLoggedTime: { $sum: '$loggedTime' }
+        }
+      }, {
+        $lookup: {
+          from: DbCollection.users,
+          localField: '_id.name',
+          foreignField: '_id',
+          as: 'loggedBy'
+        }
+      }, {
+        $project: {
+          '_id': 0,
+          'loggedBy.firstName': 1,
+          'totalLoggedTime': 1
+        }
+      }]).exec();
+    } catch (e) {
+      throw e;
+    }
+
+    // const queryObj = new MongooseQueryModel();
+    //
+    // queryObj.filter =
+    //
+    // queryObj.populate = [{
+    //   path: 'createdBy',
+    //   select: 'emailId userName firstName lastName profilePic -_id',
+    //   justOne: true
+    // }];
+    // queryObj.lean = true;
   }
 
   /**

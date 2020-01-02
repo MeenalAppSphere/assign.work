@@ -48,7 +48,7 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
 
     model.populate = [{
       path: 'createdBy',
-      select: 'emailId userName firstName lastName -_id',
+      select: 'emailId userName firstName lastName profilePic -_id',
       justOne: true
     }];
 

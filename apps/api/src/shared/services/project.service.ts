@@ -571,20 +571,38 @@ export class ProjectService extends BaseService<Project & Document> {
     }
   }
 
+  /**
+   * search project
+   * search by organization
+   * search by one is creator of project or an active collaborator in project
+   * search by name, description and template
+   * @param model
+   */
   async searchProject(model: SearchProjectRequest) {
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
 
-    return this._projectModel.find({
+    const query = new MongooseQueryModel();
+
+    query.filter = {
       organization: model.organizationId,
-      createdBy: this._generalService.userId,
-      $or: [
-        { name: { $regex: new RegExp(model.query), $options: 'i' } },
-        { description: { $regex: new RegExp(model.query), $options: 'i' } },
-        { template: { $regex: new RegExp(model.query), $options: 'i' } }
-      ]
-    })
-      .select('name description template createdAt updatedAt')
-      .populate({ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' });
+      isDeleted: false,
+      $and: [{
+        $or: [
+          { createdBy: this._generalService.userId },
+          { members: { $elemMatch: { userId: this._generalService.userId, isInviteAccepted: true } } }
+        ]
+      }, {
+        $or: [
+          { name: { $regex: new RegExp(model.query), $options: 'i' } },
+          { description: { $regex: new RegExp(model.query), $options: 'i' } },
+          { template: { $regex: new RegExp(model.query), $options: 'i' } }
+        ]
+      }]
+    };
+    query.select = 'name description template createdAt updatedAt';
+    query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
+
+    return this.find(query);
 
   }
 
