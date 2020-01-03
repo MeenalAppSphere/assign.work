@@ -21,7 +21,7 @@ import {
   GetAllTaskRequestModel,
   TaskTimeLogResponse,
   TimeLog,
-  UpdateCommentModel, SearchProjectCollaborators
+  UpdateCommentModel, SearchProjectCollaborators, TaskTimeLogHistoryModel, TaskTimeLogHistoryResponseModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -63,6 +63,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public getTaskInProcess: boolean = false;
   public getCommentInProcess: boolean = false;
   public getHistoryInProcess: boolean = false;
+  public getTimeLogInProcess:boolean = false;
   public showCommentsList:boolean;
   public showPinnedCommentsList:boolean;
   public currentTask : Task;
@@ -112,7 +113,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       name  : 'Time log history',
       arrow : true
     }];
-  public timelogHistoryList:TimeLog[]=[];
+  public timelogHistoryList: TaskTimeLogHistoryResponseModel[]=[];
 
   public nzFilterOption = () => true;
 
@@ -280,25 +281,6 @@ export class TaskComponent implements OnInit, OnDestroy {
         });
       });
     // end search tags
-
-
-    // dummy data for timelog history
-    this.timelogHistoryList.push({
-      createdBy: this._generalService.user,
-      description:'dummy data for time log history',
-      loggedDate: new Date(),
-      loggedTime:4,
-      remainingTime:3,
-      taskId:this.taskId
-    })
-    this.timelogHistoryList.push({
-      createdBy: this._generalService.user,
-      description:'Added log, dummy data for time log history',
-      loggedDate: new Date(),
-      loggedTime:4,
-      remainingTime:3,
-      taskId:this.taskId
-    })
 
   }
 
@@ -754,6 +736,23 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  async getLogHistory(event?:any){
+    try {
+      if(event) {
+        this.getTimeLogInProcess = true;
+        const json: TaskTimeLogHistoryModel = {
+          taskId: this.taskId,
+          projectId: this._generalService.currentProject.id
+        };
+        const data = await this._taskService.getLogHistory(json).toPromise();
+        this.timelogHistoryList = data.data;
+        this.getTimeLogInProcess = false;
+      }
+    } catch (e) {
+      this.getTimeLogInProcess = false;
+    }
+  }
 
   public ngOnDestroy() {
 
