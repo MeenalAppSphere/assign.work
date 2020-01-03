@@ -584,7 +584,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const query = new MongooseQueryModel();
 
     query.filter = {
-      organization: model.organizationId,
+      // organization: model.organizationId,
       isDeleted: false,
       $and: [{
         $or: [
