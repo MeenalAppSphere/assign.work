@@ -38,3 +38,11 @@ export class TaskTimeLogResponse {
   overLoggedTimeReadable: string;
   overProgress: number;
 }
+
+export class TaskTimeLogHistoryModel {
+  user: string;
+  emailId: string;
+  profilePic: string;
+  totalLoggedTime: number;
+  totalLoggedTimeReadable: string;
+}
