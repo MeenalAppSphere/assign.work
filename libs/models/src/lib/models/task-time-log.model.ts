@@ -40,6 +40,11 @@ export class TaskTimeLogResponse {
 }
 
 export class TaskTimeLogHistoryModel {
+  taskId: string;
+  projectId: string;
+}
+
+export class TaskTimeLogHistoryResponseModel {
   user: string;
   emailId: string;
   profilePic: string;

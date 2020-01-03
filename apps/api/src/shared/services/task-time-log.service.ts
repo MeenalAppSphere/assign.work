@@ -11,6 +11,7 @@ import {
   TaskHistoryActionEnum,
   TaskTimeLog,
   TaskTimeLogHistoryModel,
+  TaskTimeLogHistoryResponseModel,
   TaskTimeLogResponse,
   User
 } from '@aavantan-app/models';
@@ -314,11 +315,11 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * get all time logs
    * @param model
    */
-  async getAllLogs(model) {
+  async getAllLogs(model: TaskTimeLogHistoryModel) {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     try {
-      const timeLogHistory: TaskTimeLogHistoryModel[] = await this._taskTimeLogModel.aggregate([{
+      const timeLogHistory: TaskTimeLogHistoryResponseModel[] = await this._taskTimeLogModel.aggregate([{
         $match: { 'taskId': this.toObjectId(model.taskId) }
       }, {
         $group: {
