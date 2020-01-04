@@ -496,3 +496,6 @@ $color-gray-light: #6E829C;
   border-radius: 4px;
   cursor: pointer;
 }
+.has-error .ant-input-affix-wrapper .ant-input:focus, .has-error .ant-input:focus {
+  box-shadow: 0 0 0 1px rgb(245, 34, 45);
+}

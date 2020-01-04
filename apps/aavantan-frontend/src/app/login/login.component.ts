@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
-      emailId: new FormControl(null, [Validators.required]),
+      emailId: new FormControl(null, [Validators.required, Validators.pattern('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$')]),
       password: new FormControl(null, [Validators.required])
     });
 
@@ -36,12 +36,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginInProcess = res;
     });
 
-    this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (this.isSubmitted && !res) {
-        this.responseMessage.message = 'Invalid credentials';
-        this.responseMessage.type = 'danger';
-      }
-    });
+    // this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
+    //   if (this.isSubmitted && !res) {
+    //     this.responseMessage.message = 'Invalid credentials';
+    //     this.responseMessage.type = 'danger';
+    //   }
+    // });
 
     // auth state subscriber if user and user token found then verify that token and re-login user
     this.socialAuthService.authState.pipe(untilDestroyed(this)).subscribe((user) => {
