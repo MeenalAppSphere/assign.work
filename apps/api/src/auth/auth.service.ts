@@ -43,6 +43,10 @@ export class AuthService implements OnModuleInit {
     };
   }
 
+  async sendEmail() {
+
+  }
+
   async login(req: UserLoginWithPasswordRequest) {
     // check user
     const user = await this._userModel.findOne({
