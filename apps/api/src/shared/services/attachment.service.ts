@@ -102,6 +102,16 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
 
   }
 
+  /**
+   * upload profile pic
+   * first check file type is image only
+   * then check for size and etc..
+   * find user details
+   * upload file to s3 and get url
+   * set url to user details
+   * @param files
+   * @param userId
+   */
   async uploadProfilePic(files = [], userId: string) {
     const file = files[0];
 
@@ -121,28 +131,37 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     // file size validation
     this.fileSizeValidator(file);
 
+    // create user query where user status is active and his/her last login provider is not any third party client
     const userQuery = new MongooseQueryModel();
     userQuery.filter = {
       _id: userId, status: UserStatus.Active, lastLoginProvider: UserLoginProviderEnum.normal
     };
     userQuery.select = '_id';
+
+    // find user details
     const userDetail = this._userService.findOne(userQuery);
 
     if (!userDetail) {
+      // if no user found then show error
       throw new BadRequestException('user not found');
     }
 
     const session = await this.startSession();
 
     try {
+      // upload file to s3 and get file url in return
       fileUrl = await this.s3Client.upload(filePath, file.buffer);
     } catch (e) {
+      // if file not uploaded then throw error
       throw new InternalServerErrorException('file not uploaded');
     }
 
     try {
+      // create attachment doc in db
       const result = await this.createAttachmentInDb(file, fileUrl, session);
+      // update user profilePic url
       await this._userService.updateUser(userId, { $set: { profilePic: result.url } }, session);
+      await this.commitTransaction(session);
       return result;
     } catch (error) {
       await this.abortTransaction(session);
@@ -150,6 +169,12 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     }
   }
 
+  /**
+   * create attachment doc in db
+   * @param file
+   * @param fileUrl
+   * @param session
+   */
   private async createAttachmentInDb(file, fileUrl: string, session?: ClientSession): Promise<{ id: string, url: string }> {
     try {
       const result = await this.create([new this._attachmentModel({
