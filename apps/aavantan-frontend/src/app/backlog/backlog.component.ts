@@ -308,7 +308,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
 
       this.publishSprintInProcess = true;
-      await this._sprintService.publishSprint(sprintData).toPromise();
+      const data = await this._sprintService.publishSprint(sprintData).toPromise();
+      if(data){
+        this.isDisabledCreateBtn = true;
+      }
       this.publishSprintInProcess = false;
 
     } catch (e) {

@@ -601,6 +601,8 @@ export class TaskComponent implements OnInit, OnDestroy {
         task.displayName = this.displayName;
         const data = await this._taskService.updateTask(task).toPromise();
 
+        this.currentTask = data.data;
+
         if(data && data.data && data.data.progress){
           this.progressData = {
             progress: data.data.progress,
