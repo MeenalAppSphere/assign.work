@@ -33,7 +33,7 @@ import {
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
 import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
-import { SendGridService } from '@anchan828/nest-sendgrid';
+//import { SendGridService } from '@anchan828/nest-sendgrid';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -48,7 +48,7 @@ export class ProjectService extends BaseService<Project & Document> {
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
-    private readonly sendGrid: SendGridService,
+    //private readonly sendGrid: SendGridService,
     private readonly _generalService: GeneralService
   ) {
     super(_projectModel);

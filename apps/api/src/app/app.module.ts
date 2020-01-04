@@ -14,7 +14,7 @@ import * as winston from 'winston';
 import { TaskHistoryModule } from '../task-history/task-history.module';
 import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
 import { SprintModule } from '../sprint/sprint.module';
-import { SendGridModule } from '@anchan828/nest-sendgrid';
+// import { SendGridModule } from '@anchan828/nest-sendgrid';
 
 @Module({
   imports: [
@@ -31,9 +31,9 @@ import { SendGridModule } from '@anchan828/nest-sendgrid';
 
       ]
     }),
-    SendGridModule.forRoot({
-      apikey: process.env.SENDGRID_API_KEY
-    }),
+    // SendGridModule.forRoot({
+    //   apikey: process.env.SENDGRID_API_KEY
+    // }),
     SharedModule,
     AuthModule,
     UsersModule,

@@ -9,7 +9,8 @@
     "start:api": "ng serve api",
     "build": "ng build",
     "build-ui-prod": "ng build --prod && cp package.json dist/apps/UI && cp Dockerfile dist/apps/UI && cp Dockerrun.aws.json dist/apps/UI && cp custom-nginx-file.conf dist/apps/UI",
-    "build-api-prod": "ng build api --prod",
+    "build-api-prod": "ng build api --prod && cp package.json dist/apps/api && cp .npmrc dist/apps/api && && cp .env dist/apps/api",
+    "build-api": "ng build api && cp package.json dist/apps/api && cp .npmrc dist/apps/api",
     "test": "ng test",
     "lint": "nx workspace-lint && ng lint",
     "e2e": "ng e2e",
@@ -32,7 +33,6 @@
   },
   "private": true,
   "dependencies": {
-    "@anchan828/nest-sendgrid": "^0.1.28",
     "@angular/animations": "^8.2.8",
     "@angular/common": "^8.2.8",
     "@angular/compiler": "^8.2.8",
