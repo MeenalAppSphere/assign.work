@@ -33,3 +33,9 @@ export const DEFAULT_WORKING_DAYS: ProjectWorkingDays[] = [{
 
 // default decimal places
 export const DEFAULT_DECIMAL_PLACES = 2;
+
+// max file upload size in mb
+export const MAX_FILE_UPLOAD_SIZE = 5;
+
+// max profile pic upload size in mb
+export const MAX_PROFILE_PIC_UPLOAD_SIZE = 2;

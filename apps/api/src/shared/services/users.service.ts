@@ -166,6 +166,21 @@ export class UsersService extends BaseService<User & Document> {
   }
 
   /**
+   * update user profile
+   * @param model
+   */
+  async updateUserProfile(model: User) {
+    // remove things which can not be updated
+    delete model.emailId;
+    delete model.password;
+    delete model.username;
+    delete model.status;
+    delete model.organizations;
+    delete model.projects;
+    delete model.lastLoginProvider;
+  }
+
+  /**
    * parse project to view model
    * @param project
    * @returns {Project}
