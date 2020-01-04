@@ -36,12 +36,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginInProcess = res;
     });
 
-    this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (this.isSubmitted && !res) {
-        this.responseMessage.message = 'Invalid credentials';
-        this.responseMessage.type = 'danger';
-      }
-    });
+    // this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
+    //   if (this.isSubmitted && !res) {
+    //     this.responseMessage.message = 'Invalid credentials';
+    //     this.responseMessage.type = 'danger';
+    //   }
+    // });
 
     // auth state subscriber if user and user token found then verify that token and re-login user
     this.socialAuthService.authState.pipe(untilDestroyed(this)).subscribe((user) => {
