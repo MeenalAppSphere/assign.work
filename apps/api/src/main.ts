@@ -9,7 +9,6 @@ import { AppModule } from './app/app.module';
 import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 import { GenericExceptionFilter } from './shared/exceptionFilters/generic.exceptionFilter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,7 +30,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerOptions);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.port || 3333;
+  const port = process.env.port || 3000;
   await app.listen(port, () => {
     console.log('Listening at http://localhost:' + port + '/' + globalPrefix);
   });
