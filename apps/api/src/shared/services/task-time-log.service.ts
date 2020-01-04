@@ -316,6 +316,9 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * @param model
    */
   async getAllLogs(model: TaskTimeLogHistoryModel) {
+    if (!model.taskId) {
+      throw new BadRequestException('Task not found');
+    }
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     try {
