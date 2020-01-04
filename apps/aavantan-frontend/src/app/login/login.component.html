@@ -37,6 +37,8 @@
                     nzSize="small"
                     maxlength="100"
                     formControlName="emailId"
+                    required="true"
+                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                     placeholder="Email"/>
                 </nz-input-group>
               </nz-form-control>
@@ -51,6 +53,7 @@
                     nz-input
                     maxlength="50"
                     nzSize="small"
+                    required="true"
                     formControlName="password"
                     placeholder="Password"
                   />

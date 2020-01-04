@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
-      emailId: new FormControl(null, [Validators.required]),
+      emailId: new FormControl(null, [Validators.required, Validators.pattern('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$')]),
       password: new FormControl(null, [Validators.required])
     });
 
