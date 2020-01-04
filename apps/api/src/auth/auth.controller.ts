@@ -13,6 +13,11 @@ export class AuthController {
     return await this._authService.login(req);
   }
 
+  @Get('send-email')
+  async sendEmail() {
+    return await this.sendEmail();
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   getProfile(@Request() req) {
