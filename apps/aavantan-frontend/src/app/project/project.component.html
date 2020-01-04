@@ -99,7 +99,7 @@
 
     <ng-template #tabSwitchTemplate>
        
-      <nz-radio-group [(ngModel)]="view" class="m-r-35">
+      <nz-radio-group [(ngModel)]="view">
         <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
           <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>
         </label>
@@ -110,7 +110,7 @@
 
       <nz-button-group
           *ngIf="taskTypeDataSource && taskTypeDataSource.length"
-          class="issue-type-btn-grp"
+          class="issue-type-btn-grp m-l-35"
           nz-dropdown
           [nzDropdownMenu]="createTaskType"
           nzPlacement="bottomRight">
