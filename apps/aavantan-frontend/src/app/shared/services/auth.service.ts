@@ -95,7 +95,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
 
   logOut() {
     // if login from social user then please logout from social platforms
-    if (this._generalService.user.lastLoginProvider === UserLoginProviderEnum.google) {
+    if (this._generalService.user && this._generalService.user.lastLoginProvider === UserLoginProviderEnum.google) {
       // sign out from google then do normal logout process
       this.socialAuthService.signOut(true).then(() => {
         this.doLogout();
