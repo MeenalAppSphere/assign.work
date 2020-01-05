@@ -322,7 +322,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
     this.updateRequestInProcess = true;
-    this._projectService.addStage(this.currentProject.id, this.stageForm.value).subscribe((res => {
+    const stageData:ProjectStages =this.stageForm.value
+    stageData.name = stageData.name.trim();
+
+    this._projectService.addStage(this.currentProject.id, stageData).subscribe((res => {
       this.stageForm.reset();
       this.updateRequestInProcess = false;
     }), (error => {
@@ -339,13 +342,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
+  /*================ Status ==================*/
   public addStatus() {
     if (this.statusForm.invalid) {
       this.notification.error('Error', 'Please check Status title');
       return;
     }
+    const statusData:ProjectStatus =this.statusForm.value
+    statusData.name = statusData.name.trim();
     this.updateRequestInProcess = true;
-    this._projectService.addStatus(this.currentProject.id, this.statusForm.value).subscribe((res => {
+
+    this._projectService.addStatus(this.currentProject.id, statusData).subscribe((res => {
       this.statusForm.reset();
       this.updateRequestInProcess = false;
     }), (error => {
