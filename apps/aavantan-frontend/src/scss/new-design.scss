@@ -16,6 +16,13 @@ $color-gray-light: #6E829C;
   //padding: calc(70px + 10px) 25px 10px 25px;
 }
 
+.ant-input-affix-wrapper .ant-input-prefix {
+  left: 17px;
+  opacity: 0.6;
+}
+.ant-input-affix-wrapper .ant-input:not(:first-child) {
+  padding-left: 42px;
+}
 .ant-radio-button-wrapper-checked {
   color: #ffffff!important;
   box-shadow: none!important;
