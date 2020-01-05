@@ -40,6 +40,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public modalTitle = 'Project Details';
   public selectedCollaborators: User[] = [];
   public isCollaboratorExits:boolean = false;
+  public enableInviteBtn:boolean = false;
   public selectedCollaborator: User;
   public userDataSource: User[] = [];
   public collaboratorsDataSource: User[] = [];
@@ -111,6 +112,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(500))
       .subscribe(() => {
+
         const queryText = this.collaboratorForm.get('collaborator').value;
         let name = '';
         if(this.selectedCollaborator){
@@ -138,9 +140,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
           this.isSearching = false;
           this.collaboratorsDataSource = data.data;
           if(this.collaboratorsDataSource && this.collaboratorsDataSource.length===0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress){
-
+            this.enableInviteBtn = true;
            }else{
-
+            this.enableInviteBtn = false;
           }
         });
 
@@ -273,6 +275,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       await this._projectService.addCollaborators(this.createdProjectId, members).toPromise();
       this.addCollaboratorsInProcess = false;
       this.switchStepCurrent++;
+      this.enableInviteBtn =false;
     } catch (e) {
       this.addCollaboratorsInProcess = false;
     }
@@ -302,6 +305,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.collaboratorForm.get('collaborator').patchValue('');
       }
     }
+    this.enableInviteBtn = false;
     console.log(this.selectedCollaborators);
   }
 
@@ -317,10 +321,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public removeCollaborators(mem: User) {
     this.selectedCollaborators = this.selectedCollaborators.filter(item => item !== mem);
+    this.enableInviteBtn = false;
   }
 
-  public onKeydown(event) {
-    if (event.key === 'Enter') {
+  public onKeydown(event, isPressedInvite) {
+    if (event.key === 'Enter' || isPressedInvite) {
       const member: User = {
         emailId: this.collaboratorForm.get('collaborator').value,
       };
@@ -332,9 +337,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
           // this.collaboratorForm.get('collaborator').patchValue('');
         }
       }
+      this.enableInviteBtn = false;
       this.collaboratorForm.get('collaborator').patchValue('');
     }
-    console.log(this.selectedCollaborators);
   }
 
   /*================== Collaborators step end ==================*/
