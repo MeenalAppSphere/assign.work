@@ -218,7 +218,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         const newUser = await this._userService.createUser([userModel], session);
 
         // update userId property in collaboratorsNotInDb array
-        collaboratorsAlreadyInDb[i].userId = newUser[0].id;
+        collaboratorsNotInDb[i].userId = newUser[0].id;
 
         // push new created users to final collaborators array
         finalCollaborators.push({
@@ -280,7 +280,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       emailArrays.push({
         to: [collaborators[i].emailId],
         subject: 'Invitation',
-        message: this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id)
+        message: this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id, collaborators[i].emailId)
       });
     }
   }
@@ -809,10 +809,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param type
    * @param projectDetails
    * @param invitationId
+   * @param inviteEmailId
    */
-  private prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string) {
+  private prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string, inviteEmailId?: string) {
     const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
-    const link = `${environment.APP_URL}${linkType}?projectId=${projectDetails._id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
+    const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&projectId=${projectDetails._id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
 
     const message = `
        you are invited to ${projectDetails.name} from ${(projectDetails.createdBy as any).firstName} ${(projectDetails.createdBy as any).lastName}
