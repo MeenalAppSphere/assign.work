@@ -97,8 +97,8 @@
               <div class="d-flex m-r-10 profile-link">
                 <nz-avatar nzSize="large" class="avatar-bg" nzSrc="{{ currentUser && currentUser.profilePic ? currentUser.profilePic : ''}}" [nzIcon]="'user'"></nz-avatar>
                 <div class="m-l-10">
-                  <p class="m-b-0 text-dark font-weight-semibold" style="line-height: 32px;">{{currentUser.firstName}} {{currentUser.lastName}}</p>
-<!--                  <p class="m-b-0 opacity-07">UI/UX Desinger</p>-->
+                  <p class="m-b-0 text-dark font-weight-semibold" style="line-height: 15px;">{{currentUser.firstName}} {{currentUser.lastName}}</p>
+                  <p class="m-b-0 opacity-07 font-size-13">{{currentUser.currentOrganization.name}}</p>
                 </div>
               </div>
             </li>

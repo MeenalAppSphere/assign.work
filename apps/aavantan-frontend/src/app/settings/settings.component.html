@@ -91,6 +91,16 @@
           <aside class="col-md-3">
             <form nz-form class="register-form" [formGroup]="projectForm">
               <nz-form-item>
+                <nz-form-label>Organization</nz-form-label>
+                <input
+                  autocomplete="Off"
+                  disabled="true"
+                  formControlName="organization"
+                  placeholder="{{currentOrganization.name}}"
+                  value="{{currentOrganization.name}}"
+                  nz-input nzSize="small">
+              </nz-form-item>
+              <nz-form-item>
                 <nz-form-label>Project Title<span class="text-danger">*</span></nz-form-label>
                 <input
                   autocomplete="Off"
