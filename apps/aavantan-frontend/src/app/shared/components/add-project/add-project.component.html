@@ -130,9 +130,9 @@
                 <form nz-form [formGroup]="collaboratorForm">
                   <div class="form-group">
 
-                    <nz-form-item>
+                    <nz-form-item class="m-b-5">
                       <nz-form-label nzRequired nzFor="name">Collaborators <small>(You can search or enter new email id to invite member)</small></nz-form-label>
-                      <nz-form-control class="relative m-b-5">
+                      <nz-form-control class="relative ">
 
                         <nz-input-group [nzSuffix]="suffixIconSearch">
                           <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" (keydown)="onKeydown($event)"/>
@@ -152,7 +152,7 @@
                       </ng-template>
                     </nz-form-item>
 
-                    <div class="collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
+                    <div class="collaborators-badge m-b-15" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
                           <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">
                             <nz-avatar *ngIf="item.id" nzSize="small" nzIcon="user" [nzSrc]="item.profilePic"></nz-avatar>
                             <i class="fa fa-envelope" *ngIf="!item.id"></i>
@@ -161,6 +161,12 @@
                             <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
                           </span>
                     </div>
+
+                    <nz-form-item *ngIf="!isCollaboratorExits && enableInviteBtn">
+                      <button (click)="onKeydown($event, true)" [nzLoading]="addCollaboratorsInProcess" [disabled]="isCollaboratorExits" nz-button nzType="primary"
+                              nzSize="small"><i nz-icon nzType="mail" theme="outline"></i> Invite
+                      </button>
+                    </nz-form-item>
 
                     <nz-form-explain class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
                   </div>
