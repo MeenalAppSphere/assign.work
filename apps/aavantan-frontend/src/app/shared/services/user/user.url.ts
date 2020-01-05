@@ -7,5 +7,6 @@ export const UserUrls = {
   searchProjectCollaborator: `${createUrl('project/search-collaborator')}`,
   profile: `${createUrl('user/profile')}`,
   getAll: `${createUrl('user')}`,
-  switchProject: `${createUrl('switch-project')}`
+  switchProject: `${createUrl('switch-project')}`,
+  uploadProfilePic: `${createUrl('attachment/profilepic')}`,
 };
