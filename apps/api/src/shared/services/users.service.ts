@@ -4,8 +4,7 @@ import { DbCollection, MongoosePaginateQuery, Project, SearchUserModel, User } f
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project.service';
-import { orderBy, slice } from 'lodash';
-import * as moment from 'moment';
+import { slice } from 'lodash';
 import { GeneralService } from './general.service';
 import { secondsToHours } from '../helpers/helpers';
 
@@ -78,15 +77,21 @@ export class UsersService extends BaseService<User & Document> {
     const userDetails = await this._userModel.findById(new Types.ObjectId(id))
       .populate([{
         path: 'projects',
-        select: 'name description organization createdAt createdBy',
+        select: 'name description organization createdAt createdBy updatedAt',
         populate: {
           path: 'createdBy',
           select: 'firstName lastName'
+        },
+        options: {
+          sort: { 'updatedAt': -1 }
         }
       },
         {
           path: 'organizations',
-          select: 'name description'
+          select: 'name description updatedAt',
+          options: {
+            sort: { 'updatedAt': -1 }
+          }
         },
         {
           path: 'currentProject',
@@ -98,6 +103,9 @@ export class UsersService extends BaseService<User & Document> {
           }, {
             path: 'sprint',
             select: 'name goal'
+          }, {
+            path: 'createdBy',
+            select: 'firstName lastName'
           }]
         }, {
           path: 'currentOrganization',
@@ -132,20 +140,18 @@ export class UsersService extends BaseService<User & Document> {
 
     const userProjects =
       slice(
-        orderBy(userDetails.projects
-            .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
-            .filter(f => f._id.toString() !== userDetails.currentProject.id),
-          (project) => {
-            return moment(project.updatedAt).toDate();
-          }, 'desc'), 0, 1
-      )
-        .map(pro => {
-          pro.id = pro._id;
-          return pro;
-        });
+        userDetails.projects
+          .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
+          .filter(f => f._id.toString() !== userDetails.currentProject.id),
+        0, 1
+      ).map((pro: any) => {
+        pro.id = pro._id;
+        return pro;
+      });
 
-    // add current project at first index
+    // add current project at first index of recent project list
     userProjects.splice(0, 0, userDetails.currentProject);
+    userDetails.projects = userProjects;
 
     // get only current user organization
     // filter current project
@@ -154,16 +160,12 @@ export class UsersService extends BaseService<User & Document> {
 
     userDetails.organizations =
       slice(
-        orderBy(userDetails.organizations
-            .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()),
-          (organization) => {
-            return moment(organization.updatedAt).toDate();
-          }, 'desc'), 0, 2
-      )
-        .map(org => {
-          org.id = org._id;
-          return org;
-        });
+        userDetails.organizations
+          .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()), 0, 2
+      ).map((org: any) => {
+        org.id = org._id;
+        return org;
+      });
 
     return userDetails;
   }

@@ -110,9 +110,8 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
    * upload file to s3 and get url
    * set url to user details
    * @param files
-   * @param userId
    */
-  async uploadProfilePic(files = [], userId: string) {
+  async uploadProfilePic(files = []) {
     const file = files[0];
 
     if (!file) {
@@ -134,7 +133,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     // create user query where user status is active and his/her last login provider is not any third party client
     const userQuery = new MongooseQueryModel();
     userQuery.filter = {
-      _id: userId, status: UserStatus.Active, lastLoginProvider: UserLoginProviderEnum.normal
+      _id: this._generalService.userId, status: UserStatus.Active, lastLoginProvider: UserLoginProviderEnum.normal
     };
     userQuery.select = '_id';
 
@@ -160,7 +159,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
       // create attachment doc in db
       const result = await this.createAttachmentInDb(file, fileUrl, session);
       // update user profilePic url
-      await this._userService.updateUser(userId, { $set: { profilePic: result.url } }, session);
+      await this._userService.updateUser(this._generalService.userId, { $set: { profilePic: result.url } }, session);
       await this.commitTransaction(session);
       return result;
     } catch (error) {
