@@ -1,4 +1,4 @@
-import { ClientSession, Document, Model, Types } from 'mongoose';
+import { ClientSession, Document, DocumentQuery, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
 import { DEFAULT_QUERY_FILTER } from '../helpers/defaultValueConstant';
 
@@ -17,18 +17,7 @@ export class BaseService<T extends Document> {
 
   public async find(model: MongooseQueryModel): Promise<T[]> {
     const query = this.model.find({ ...model.filter, ...DEFAULT_QUERY_FILTER });
-
-    if (model.populate && model.populate.length) {
-      query.populate(model.populate);
-    }
-
-    if (model.select) {
-      query.select(model.select);
-    }
-
-    if (model.lean) {
-      query.lean();
-    }
+    this.queryBuilder(model, query);
 
     return query.exec();
   }
@@ -49,18 +38,8 @@ export class BaseService<T extends Document> {
 
   public async findOne(model: MongooseQueryModel): Promise<T> {
     const query = this.model.findOne({ ...model.filter, ...DEFAULT_QUERY_FILTER });
+    this.queryBuilder(model, query);
 
-    if (model.populate && model.populate.length) {
-      query.populate(model.populate);
-    }
-
-    if (model.select) {
-      query.select(model.select);
-    }
-
-    if (model.lean) {
-      query.lean();
-    }
     return query.exec();
   }
 
@@ -160,6 +139,24 @@ export class BaseService<T extends Document> {
   public async abortTransaction(session: ClientSession) {
     await session.abortTransaction();
     session.endSession();
+  }
+
+  private queryBuilder(model: MongooseQueryModel, query: DocumentQuery<any, any>) {
+    if (model.populate && model.populate.length) {
+      query.populate(model.populate);
+    }
+
+    if (model.select) {
+      query.select(model.select);
+    }
+
+    if (model.lean) {
+      query.lean();
+    }
+
+    if (model.sort) {
+      query.sort({ [model.sort]: model.sortBy || 'asc' });
+    }
   }
 
 }

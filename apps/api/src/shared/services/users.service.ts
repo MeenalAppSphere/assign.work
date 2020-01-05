@@ -128,21 +128,24 @@ export class UsersService extends BaseService<User & Document> {
     // get only current organization project
     // filter out current project
     // sort by updated at
-    // limit only recent two projects
+    // limit only recent 1 project
 
-    userDetails.projects =
+    const userProjects =
       slice(
         orderBy(userDetails.projects
             .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
             .filter(f => f._id.toString() !== userDetails.currentProject.id),
           (project) => {
             return moment(project.updatedAt).toDate();
-          }, 'asc'), 0, 2
+          }, 'desc'), 0, 1
       )
         .map(pro => {
           pro.id = pro._id;
           return pro;
         });
+
+    // add current project at first index
+    userProjects.splice(0, 0, userDetails.currentProject);
 
     // get only current user organization
     // filter current project

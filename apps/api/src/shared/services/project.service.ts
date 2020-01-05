@@ -591,6 +591,8 @@ export class ProjectService extends BaseService<Project & Document> {
     };
     query.select = 'name description template createdAt updatedAt';
     query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
+    query.sort = 'updatedAt';
+    query.sortBy = 'desc';
 
     return this.find(query);
 
