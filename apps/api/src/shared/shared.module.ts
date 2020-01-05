@@ -20,6 +20,8 @@ import { TaskTimeLogService } from './services/task-time-log.service';
 import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
 import { sprintSchema } from '../sprint/sprint.schema';
 import { SprintService } from './services/sprint.service';
+import { invitationSchema } from '../invitations/invitations.schema';
+import { InvitationService } from './services/invitation.service';
 
 const providers = [
   UsersService,
@@ -30,7 +32,8 @@ const providers = [
   AttachmentService,
   GeneralService,
   TaskTimeLogService,
-  SprintService
+  SprintService,
+  InvitationService
 ];
 
 @Global()
@@ -69,6 +72,10 @@ const providers = [
       name: DbCollection.sprint,
       schema: sprintSchema,
       collection: DbCollection.sprint
+    }, {
+      name: DbCollection.invitations,
+      schema: invitationSchema,
+      collection: DbCollection.invitations
     }])
   ],
   exports: [

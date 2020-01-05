@@ -4,3 +4,8 @@ export enum ProjectTemplateEnum {
   accounts = 'Accounts',
   production = 'Production'
 }
+
+export enum ProjectInvitationType {
+  signUp,
+  normal
+}
