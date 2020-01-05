@@ -328,7 +328,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.stages) {
-      const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase() === stage.name.toLowerCase());
+      const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase().trim() === stage.name.toLowerCase().trim());
 
       if (isDuplicate) {
         throw new BadRequestException('Stage Name Already Exists');
@@ -446,7 +446,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
-      const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === taskType.name.toLowerCase());
+      const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase().trim() === taskType.name.toLowerCase().trim());
       const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
 
       if (isDuplicateName) {
@@ -486,7 +486,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.status && projectDetails.settings.status.length) {
-      const isDuplicate = projectDetails.settings.status.some(s => s.name.toLowerCase() === status.name.toLowerCase());
+      const isDuplicate = projectDetails.settings.status.some(s => s.name.toLowerCase().trim() === status.name.toLowerCase().trim());
 
       if (isDuplicate) {
         throw new BadRequestException('Status Name Already Exists');
@@ -524,7 +524,7 @@ export class ProjectService extends BaseService<Project & Document> {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.priorities) {
-      const isDuplicate = projectDetails.settings.priorities.some(s => s.name.toLowerCase() === priority.name.toLowerCase());
+      const isDuplicate = projectDetails.settings.priorities.some(s => s.name.toLowerCase().trim() === priority.name.toLowerCase().trim());
 
       if (isDuplicate) {
         throw new BadRequestException('Priority Name Already Exists');
