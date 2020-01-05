@@ -20,6 +20,6 @@ export class InvitationService extends BaseService<Invitation & Document> {
       session = await this.startSession();
     }
 
-    return await this.create(Array.isArray(model) ? model : [model], session);
+    return this.create(Array.isArray(model) ? model : [model], session);
   }
 }

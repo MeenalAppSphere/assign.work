@@ -22,6 +22,7 @@ import { sprintSchema } from '../sprint/sprint.schema';
 import { SprintService } from './services/sprint.service';
 import { invitationSchema } from '../invitations/invitations.schema';
 import { InvitationService } from './services/invitation.service';
+import { EmailService } from './services/email.service';
 
 const providers = [
   UsersService,
@@ -33,7 +34,8 @@ const providers = [
   GeneralService,
   TaskTimeLogService,
   SprintService,
-  InvitationService
+  InvitationService,
+  EmailService
 ];
 
 @Global()

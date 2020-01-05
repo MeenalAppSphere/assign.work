@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   DbCollection,
   GetAllProjectsModel,
+  Invitation,
   MongooseQueryModel,
   Organization,
   Project,
@@ -38,6 +39,7 @@ import { environment } from '../../environments/environment';
 import * as moment from 'moment';
 import { InvitationService } from './invitation.service';
 import { ModuleRef } from '@nestjs/core';
+import { EmailService } from './email.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -54,7 +56,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
-    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef
+    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef,
+    private _emailService: EmailService
   ) {
     super(_projectModel);
   }
@@ -204,7 +207,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // if user details found means user is already in db but in different organization
         // then continue the loop, don't create user again
         if (userDetails) {
-          collaboratorsAlreadyInDb.push(collaboratorsAlreadyInDb[i]);
+          collaboratorsAlreadyInDb.push({ ...collaboratorsAlreadyInDb[i], userId: userDetails._id });
           continue;
         }
 
@@ -213,6 +216,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // create new user in db
         const newUser = await this._userService.createUser(userModel, session);
 
+        // update userId property in collaboratorsNotInDb array
+        collaboratorsAlreadyInDb[i].userId = newUser[0].id;
+
         // push new created users to final collaborators array
         finalCollaborators.push({
           userId: newUser[0].id,
@@ -220,9 +226,21 @@ export class ProjectService extends BaseService<Project & Document> implements O
         });
       }
 
-      // send invitation email for collaborators already in db logic goes here
+      const emailArrays = [];
 
-      // send invitation email logic collaborators not in db goes here
+      // create invitation for collaborators already in db logic goes here
+      await this.createInvitation(collaboratorsAlreadyInDb, projectDetails, ProjectInvitationType.normal, session, emailArrays);
+
+      // create invitation logic collaborators not in db goes here
+      await this.createInvitation(collaboratorsNotInDb, projectDetails, ProjectInvitationType.signUp, session, emailArrays);
+
+      // create invitation for collaborators already in project but invite not accepted logic goes here
+      await this.createInvitation(collaboratorsAlreadyInDbButInviteNotAccepted, projectDetails, ProjectInvitationType.normal, session, emailArrays);
+
+      // start email sending process
+      emailArrays.forEach(email => {
+        this._emailService.sendMail(email.to, email.subject, email.message);
+      });
 
       // update final collaborators array with default values
       finalCollaborators = finalCollaborators.map(collaborator => {
@@ -242,6 +260,27 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await session.abortTransaction();
       session.endSession();
       throw e;
+    }
+  }
+
+  /**
+   * create invitation in db and prepare send email array
+   * @param collaborators
+   * @param projectDetails
+   * @param invitationType
+   * @param session
+   * @param emailArrays
+   */
+  private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
+    for (let i = 0; i < collaborators.length; i++) {
+      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails.id);
+
+      const invitation = await this._invitationService.createInvitation(newInvitation, session);
+      emailArrays.push({
+        to: [newInvitation.invitationToId],
+        subject: 'Invitation',
+        message: this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id)
+      });
     }
   }
 
@@ -708,7 +747,13 @@ export class ProjectService extends BaseService<Project & Document> implements O
       throw new NotFoundException('Project not found');
     }
 
-    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy sprintId').lean().exec();
+    const projectDetails: Project = await this._projectModel.findById(id)
+      .select('members settings createdBy updatedBy sprintId')
+      .populate({
+        path: 'createdBy',
+        select: 'firstName lastName'
+      })
+      .lean().exec();
 
     if (!projectDetails) {
       throw new NotFoundException('Project not found');
@@ -758,7 +803,13 @@ export class ProjectService extends BaseService<Project & Document> implements O
     return project;
   }
 
-  private prepareInvitationEmail(type: ProjectInvitationType, projectDetails: Project, invitationId: string) {
+  /**
+   * prepare invitation email message
+   * @param type
+   * @param projectDetails
+   * @param invitationId
+   */
+  private prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string) {
     const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
     const link = `${environment.APP_URL}${linkType}?projectId=${projectDetails.id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
 
@@ -768,6 +819,23 @@ export class ProjectService extends BaseService<Project & Document> implements O
     `;
 
     return message;
+  }
+
+  /**
+   * prepare invite object
+   * @param to
+   * @param from
+   * @param projectId
+   */
+  private prepareInvitationObject(to: string, from: string, projectId: string): Invitation {
+    const invitation = new Invitation();
+
+    invitation.invitationToId = to;
+    invitation.invitedById = from;
+    invitation.isExpired = false;
+    invitation.projectId = projectId;
+
+    return invitation;
   }
 
 }

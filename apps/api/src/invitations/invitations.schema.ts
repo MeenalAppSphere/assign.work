@@ -10,14 +10,16 @@ export const invitationSchema = new Schema({
     required: [true, 'Please add invitation created by id'],
     ref: DbCollection.users
   },
-  invitedToId: { type: Schema.Types.ObjectId, required: [true, 'Please add invitee id'], ref: DbCollection.users },
+  invitationToId: { type: Schema.Types.ObjectId, required: [true, 'Please add invitee id'], ref: DbCollection.users },
   projectId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.projects,
     required: [true, 'Please add project details !']
   },
   isInviteAccepted: { type: Boolean, default: false },
-  isDeleted: { type: Boolean, default: false }
+  // message: { type: String, required: [true, 'message is required'] },
+  isDeleted: { type: Boolean, default: false },
+  isExpired: { type: Boolean, default: false }
 }, schemaOptions);
 
 
@@ -34,9 +36,9 @@ invitationSchema.virtual('invitedBy', {
   foreignField: '_id'
 });
 
-invitationSchema.virtual('invitedTo', {
+invitationSchema.virtual('invitationTo', {
   ref: DbCollection.users,
-  localField: 'invitedToId',
+  localField: 'invitationToId',
   foreignField: '_id'
 });
 

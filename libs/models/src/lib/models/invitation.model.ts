@@ -3,12 +3,14 @@ import { Project, User } from '@aavantan-app/models';
 export class Invitation {
   invitedById?: string;
   invitedBy?: User;
-  invitedToId?: string;
-  invitedTo?: User;
+  invitationToId?: string;
+  invitationTo?: User;
   projectId?: string;
   project?: Project;
+  // message?: string;
   isInviteAccepted: boolean;
-  isDeleted: boolean;
+  isDeleted?: boolean;
+  isExpired?: boolean;
   id?: string;
-  _id: string;
+  _id?: string;
 }
