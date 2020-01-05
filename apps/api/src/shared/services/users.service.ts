@@ -150,7 +150,9 @@ export class UsersService extends BaseService<User & Document> {
       });
 
     // add current project at first index of recent project list
-    userProjects.splice(0, 0, userDetails.currentProject);
+    if (userDetails.currentProject) {
+      userProjects.splice(0, 0, userDetails.currentProject);
+    }
     userDetails.projects = userProjects;
 
     // get only current user organization
