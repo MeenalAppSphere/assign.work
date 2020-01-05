@@ -39,29 +39,59 @@
           <nz-form-item>
             <nz-form-label nzFor="watchers">Watchers</nz-form-label>
             <nz-form-control>
-              <nz-select style="width: 100%" nzSize="small" nzMode="multiple" formControlName="watchers" nzPlaceHolder="Search/Select watcher" [(ngModel)]="listOfSelectedWatchers">
-                <nz-option *ngFor="let option of assigneeDataSource" [nzLabel]="option.userDetails && option.userDetails.firstName ? option.userDetails.firstName : option.emailId" [nzValue]="option.userDetails && option.userDetails.id ? option.userDetails.id : ''"></nz-option>
-              </nz-select>
+              <nz-input-group [nzSuffix]="suffixIconSearchWatchers">
+
+                <nz-select
+                  nzSize="small"
+                  nzShowSearch
+                  nzAllowClear
+                  nzServerSearch
+                  nzPlaceHolder="Search/Select watcher"
+                  nzMode="multiple"
+                  [(ngModel)]="listOfSelectedWatchers"
+                  formControlName="watchers"
+                  [nzShowArrow]="false"
+                  [nzFilterOption]="nzFilterOption"
+                  (nzOnSearch)="searchWatchers($event)">
+                  <nz-option *ngFor="let option of assigneeDataSource"  nzCustomContent [nzLabel]="option.firstName ? option.firstName : option.emailId" [nzValue]="option.id ? option.id : ''">
+                    <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar> <span>{{option.firstName ? option.firstName : option.emailId}}</span>
+                  </nz-option>
+                </nz-select>
+              </nz-input-group>
+
             </nz-form-control>
+
+            <ng-template #suffixIconSearchWatchers>
+              <i nz-icon nzType="search" *ngIf="!isSearchingWatchers"></i>
+              <i class="fas fa-spin fa-spinner" *ngIf="isSearchingWatchers"></i>
+            </ng-template>
+
           </nz-form-item>
         </div>
-        <div class="col-md-6 relative">
-          <a href="javascript:void(0);"><small class="text-info float-right" (click)="assignedToMe()">Assign to Me</small></a>
-          <nz-form-item>
-            <nz-form-label nzFor="taskType">Assigned To </nz-form-label>
+        <div class="col-md-6">
+          <nz-form-item class="relative">
+            <a href="javascript:void(0);"><small class="text-info float-right" (click)="assignedToMe()">Assign to Me</small></a>
+            <nz-form-label nzFor="taskType">Assigned To<span class="text-danger">*</span></nz-form-label>
             <nz-form-control class="relative">
                                 <span class="assigned-user-icon">
                               <nz-avatar [nzSize]="16" nzIcon="user" [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null" ></nz-avatar>
                             </span>
-              <input placeholder="Search Assignee" formControlName="assigneeId" style="padding-left:28px!important;" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
+              <nz-input-group [nzSuffix]="suffixIconSearch">
+                <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
+              </nz-input-group>
               <nz-autocomplete #autoAssignee>
                 <nz-auto-option *ngFor="let option of assigneeDataSource" [nzLabel]="option && option.firstName ? option.firstName : option.emailId" [nzValue]="option">
                   <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
                   <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
+                  <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
                   <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small class="text-muted">{{ option.emailId }}</small></div>
                 </nz-auto-option>
               </nz-autocomplete>
             </nz-form-control>
+            <ng-template #suffixIconSearch>
+              <i nz-icon nzType="search" *ngIf="!isSearchingAssignee"></i>
+              <i class="fas fa-spin fa-spinner" *ngIf="isSearchingAssignee"></i>
+            </ng-template>
           </nz-form-item>
         </div>
       </div>

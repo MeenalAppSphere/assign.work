@@ -1,9 +1,20 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { Project, ProjectMembers, Task, TaskType, TimeLog, User } from '@aavantan-app/models';
+import {
+  Project,
+  ProjectMembers,
+  SearchProjectCollaborators,
+  Task,
+  TaskType,
+  TimeLog,
+  User
+} from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task/task.service';
 import { GeneralService } from '../../services/general.service';
 import { NzNotificationService } from 'ng-zorro-antd';
+import { debounceTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { UserService } from '../../services/user/user.service';
 @Component({
   selector: 'app-add-epic',
   templateUrl: './add-epic.component.html',
@@ -20,11 +31,19 @@ export class AddEpicComponent implements OnInit {
   public assigneeDataSource: User[] = [];
   public selectedAssignee: User = {};
   public addEpicInProcess:boolean;
+  public isSearchingAssignee: boolean;
+  public isSearchingWatchers: boolean;
   public taskId: string;
+  public watchersQueryText : string = null;
+
+  public modelChanged = new Subject<string>();
+  public modelChangedWatchers = new Subject<string>();
+  public nzFilterOption = () => true;
 
   constructor(protected notification: NzNotificationService,
               private _generalService: GeneralService,
               private _taskService:TaskService,
+              private _userService:UserService,
               private FB: FormBuilder) { }
 
   ngOnInit() {
@@ -36,6 +55,53 @@ export class AddEpicComponent implements OnInit {
       assigneeId: [null],
       watchers: [null]
     });
+
+
+    // search assignee
+    this.modelChanged
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        const queryText = this.epicForm.get('assigneeId').value;
+        const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
+        if (!queryText || this.epicForm.get('assigneeId').value === name) {
+          return;
+        }
+        this.isSearchingAssignee = true;
+        const json: SearchProjectCollaborators = {
+          projectId:this._generalService.currentProject.id,
+          query : queryText
+        }
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
+          this.isSearchingAssignee = false;
+          this.assigneeDataSource = data.data;
+        });
+
+      });
+    // end search assignee
+
+
+    // search watchers
+    this.modelChangedWatchers
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+
+        if (!this.watchersQueryText) {
+          return;
+        }
+        this.isSearchingWatchers = true;
+        const json: SearchProjectCollaborators = {
+          projectId:this._generalService.currentProject.id,
+          query : this.watchersQueryText
+        }
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
+          this.isSearchingWatchers = false;
+          this.assigneeDataSource = data.data;
+        });
+
+      });
+    // end search watchers
   }
 
   public selectAssigneeTypeahead(user: ProjectMembers) {
@@ -47,6 +113,11 @@ export class AddEpicComponent implements OnInit {
 
   public selectTaskType(item: TaskType) {
     this.selectedTaskType = item;
+  }
+
+  public searchWatchers(value: string): void {
+    this.watchersQueryText = value;
+    this.modelChangedWatchers.next();
   }
 
   public assignedToMe() {
@@ -73,6 +144,13 @@ export class AddEpicComponent implements OnInit {
     if (!task.name || !task.taskType) {
       this.notification.error('Error', 'Please check all mandatory fields');
       return;
+    }
+
+    if (!task.watchers) {
+      task.watchers = [];
+    }
+    if (!task.tags) {
+      task.tags = [];
     }
 
     this.addEpicInProcess = true;
