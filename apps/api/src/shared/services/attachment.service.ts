@@ -7,13 +7,7 @@ import {
   PayloadTooLargeException
 } from '@nestjs/common';
 import { BaseService } from './base.service';
-import {
-  AttachmentModel,
-  DbCollection,
-  MongooseQueryModel,
-  UserLoginProviderEnum,
-  UserStatus
-} from '@aavantan-app/models';
+import { AttachmentModel, DbCollection, MongooseQueryModel, UserStatus } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as aws from 'aws-sdk';
@@ -133,12 +127,12 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     // create user query where user status is active and his/her last login provider is not any third party client
     const userQuery = new MongooseQueryModel();
     userQuery.filter = {
-      _id: this._generalService.userId, status: UserStatus.Active, lastLoginProvider: UserLoginProviderEnum.normal
+      _id: this._generalService.userId, status: UserStatus.Active
     };
     userQuery.select = '_id';
 
     // find user details
-    const userDetail = this._userService.findOne(userQuery);
+    const userDetail = await this._userService.findOne(userQuery);
 
     if (!userDetail) {
       // if no user found then show error
