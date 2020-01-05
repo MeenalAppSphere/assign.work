@@ -32,10 +32,11 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
   ) {
     super(_attachmentModel);
     aws.config.update({
+      region: 'ap-south-1',
       accessKeyId: process.env.AWS_ACCESSKEYID,
       secretAccessKey: process.env.AWS_SECRETACCESSKEY
     });
-    this.s3Client = new S3Client(new aws.S3({ region: 'us-east-1' }), 'image.assign.work', '');
+    this.s3Client = new S3Client(new aws.S3({ region: 'ap-south-1' }), 'images.assign.work', '');
   }
 
   onModuleInit(): any {

@@ -1,11 +1,13 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   DbCollection,
   GetAllProjectsModel,
+  Invitation,
   MongooseQueryModel,
   Organization,
   Project,
+  ProjectInvitationType,
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
@@ -33,6 +35,11 @@ import {
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
 import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
+import { environment } from '../../environments/environment';
+import * as moment from 'moment';
+import { InvitationService } from './invitation.service';
+import { ModuleRef } from '@nestjs/core';
+import { EmailService } from './email.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -40,16 +47,25 @@ const projectBasicPopulation = [{
 }];
 
 @Injectable()
-export class ProjectService extends BaseService<Project & Document> {
+export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
+  private _userService: UsersService;
+  private _invitationService: InvitationService;
+
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
-    @Inject(forwardRef(() => UsersService)) private readonly _userService: UsersService,
-    private readonly _generalService: GeneralService
+    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef,
+    private _emailService: EmailService
   ) {
     super(_projectModel);
+  }
+
+  onModuleInit(): any {
+    // get services from module
+    this._userService = this._moduleRef.get('UsersService');
+    this._invitationService = this._moduleRef.get('InvitationService');
   }
 
   /**
@@ -140,10 +156,10 @@ export class ProjectService extends BaseService<Project & Document> {
    * create users in db from unregistered collaborators
    * send project invitation to registered and unregistered collaborators
    * @param id
-   * @param members
+   * @param collaborators
    */
-  async addCollaborators(id: string, members: ProjectMembers[]) {
-    if (!Array.isArray(members)) {
+  async addCollaborators(id: string, collaborators: ProjectMembers[]) {
+    if (!Array.isArray(collaborators)) {
       throw new BadRequestException('Please check provided json');
     }
 
@@ -151,81 +167,92 @@ export class ProjectService extends BaseService<Project & Document> {
 
     const session = await this.startSession();
 
-    const alreadyRegisteredMembers: ProjectMembers[] = [];
-    const unRegisteredMembers: ProjectMembers[] = [];
-    const unregisteredMembersModel: Partial<User>[] = [];
+    const collaboratorsAlreadyInDb: ProjectMembers[] = [];
+    const collaboratorsNotInDb: ProjectMembers[] = [];
+    const collaboratorsAlreadyInDbButInviteNotAccepted: ProjectMembers[] = [];
     let finalCollaborators: ProjectMembers[] = [];
 
     try {
-      // separate registered collaborators and unregister collaborators
-      members.forEach(member => {
-        // if user id is available then user is registered in database but not a collaborator in project
-        if (member.userId) {
-          const inProject = projectDetails.members.some(s => s.userId === member.userId);
-          if (!inProject) {
-            alreadyRegisteredMembers.push(member);
+      collaborators.forEach(collaborator => {
+        // collaborator userId exists then collaborator is available in db
+        if (collaborator.userId) {
+          // find if some collaborators are in project but invite is not accepted yet
+          const inProjectIndex = projectDetails.members.findIndex(s => s.userId === collaborator.userId);
+          if (inProjectIndex > -1 && !projectDetails.members[inProjectIndex].isInviteAccepted) {
+            collaboratorsAlreadyInDbButInviteNotAccepted.push(collaborator);
+          } else {
+            collaboratorsAlreadyInDb.push(collaborator);
           }
         } else {
-          unRegisteredMembers.push(member);
+          // collaborator not available in db
+          collaboratorsNotInDb.push(collaborator);
         }
       });
 
-      /**
-       * special case when one have created a project and added one collaborator who is not part of our system,
-       * so, we create an user and add it to project member array with inviteAccepted false
-       * now if some one creates a new project and search for that user who is added as collaborator for project one but he/she
-       * not accepted project joining invitation, then we need to check the status of that user if it's active then mark him/her
-       * active user and invite accepted for now
-       */
-      // loop over already registered collaborators and check if there's status is active
-      // if active then consider them as invited accepted otherwise keep invited accepted as false
-      for (let i = 0; i < alreadyRegisteredMembers.length; i++) {
-        const userDetails = await this._userModel.findOne({
-          _id: alreadyRegisteredMembers[i].userId,
-          status: UserStatus.Active
-        }).lean();
-        alreadyRegisteredMembers[i].isEmailSent = !!userDetails;
-        alreadyRegisteredMembers[i].isInviteAccepted = !!userDetails;
+      finalCollaborators.push(...collaboratorsAlreadyInDb);
+
+      for (let i = 0; i < collaboratorsNotInDb.length; i++) {
+        // in some cases collaborator is working in another organization
+        // but we have added him/her as collaborator in our organization
+        // so we need to find them by email id, is email id there then user is already a in db
+        // then push it to collaboratorsAlreadyInDb array so we don't create user again
+        const userFilter = {
+          filter: {
+            emailId: collaboratorsNotInDb[i].emailId,
+            status: UserStatus.Active
+          }
+        };
+
+        const userDetails = await this._userService.findOne(userFilter);
+        // if user details found means user is already in db but in different organization
+        // then continue the loop, don't create user again
+        if (userDetails) {
+          collaboratorsAlreadyInDb.push({ ...collaboratorsAlreadyInDb[i], userId: userDetails._id });
+          continue;
+        }
+
+        // create user model
+        const userModel: User = { emailId: collaboratorsNotInDb[i].emailId, username: collaboratorsNotInDb[i].emailId };
+        // create new user in db
+        const newUser = await this._userService.createUser(userModel, session);
+
+        // update userId property in collaboratorsNotInDb array
+        collaboratorsAlreadyInDb[i].userId = newUser[0].id;
+
+        // push new created users to final collaborators array
+        finalCollaborators.push({
+          userId: newUser[0].id,
+          emailId: newUser[0].emailId
+        });
       }
 
-      // push already registered collaborators to final collaborators array
-      finalCollaborators = [...alreadyRegisteredMembers];
+      const emailArrays = [];
 
-      // loop over unregistered collaborators and create users model for saving in user db
-      unRegisteredMembers.forEach(f => {
-        unregisteredMembersModel.push(
-          new this._userModel({
-            emailId: f.emailId,
-            username: f.emailId
-          })
-        );
+      // create invitation for collaborators already in db logic goes here
+      await this.createInvitation(collaboratorsAlreadyInDb, projectDetails, ProjectInvitationType.normal, session, emailArrays);
+
+      // create invitation logic collaborators not in db goes here
+      await this.createInvitation(collaboratorsNotInDb, projectDetails, ProjectInvitationType.signUp, session, emailArrays);
+
+      // create invitation for collaborators already in project but invite not accepted logic goes here
+      await this.createInvitation(collaboratorsAlreadyInDbButInviteNotAccepted, projectDetails, ProjectInvitationType.normal, session, emailArrays);
+
+      // start email sending process
+      emailArrays.forEach(email => {
+        this._emailService.sendMail(email.to, email.subject, email.message);
       });
 
-      // check if there any unregistered users
-      if (unRegisteredMembers.length) {
-        // create users in database
-        const createdUsers: any = await this._userService.create(unregisteredMembersModel, session);
-
-        // push to final collaborators array
-        finalCollaborators.push(...createdUsers.map(m => {
-          return {
-            userId: m.id,
-            emailId: m.emailId,
-            isEmailSent: false,
-            isInviteAccepted: false
-          };
-        }));
-      }
-
-      // add members default working capacity
-      const membersModel: ProjectMembers[] = finalCollaborators.map(member => {
-        member.workingCapacity = DEFAULT_WORKING_CAPACITY;
-        member.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
-        member.workingDays = DEFAULT_WORKING_DAYS;
-        return member;
+      // update final collaborators array with default values
+      finalCollaborators = finalCollaborators.map(collaborator => {
+        collaborator.isEmailSent = true;
+        collaborator.isInviteAccepted = false;
+        collaborator.workingCapacity = DEFAULT_WORKING_CAPACITY;
+        collaborator.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
+        collaborator.workingDays = DEFAULT_WORKING_DAYS;
+        return collaborator;
       });
 
-      await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
+      await this.update(id, { $push: { 'members': finalCollaborators } }, session);
       await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
@@ -233,6 +260,27 @@ export class ProjectService extends BaseService<Project & Document> {
       await session.abortTransaction();
       session.endSession();
       throw e;
+    }
+  }
+
+  /**
+   * create invitation in db and prepare send email array
+   * @param collaborators
+   * @param projectDetails
+   * @param invitationType
+   * @param session
+   * @param emailArrays
+   */
+  private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
+    for (let i = 0; i < collaborators.length; i++) {
+      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails.id);
+
+      const invitation = await this._invitationService.createInvitation(newInvitation, session);
+      emailArrays.push({
+        to: [newInvitation.invitationToId],
+        subject: 'Invitation',
+        message: this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id)
+      });
     }
   }
 
@@ -699,7 +747,13 @@ export class ProjectService extends BaseService<Project & Document> {
       throw new NotFoundException('Project not found');
     }
 
-    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy sprintId').lean().exec();
+    const projectDetails: Project = await this._projectModel.findById(id)
+      .select('members settings createdBy updatedBy sprintId')
+      .populate({
+        path: 'createdBy',
+        select: 'firstName lastName'
+      })
+      .lean().exec();
 
     if (!projectDetails) {
       throw new NotFoundException('Project not found');
@@ -747,6 +801,41 @@ export class ProjectService extends BaseService<Project & Document> {
     });
 
     return project;
+  }
+
+  /**
+   * prepare invitation email message
+   * @param type
+   * @param projectDetails
+   * @param invitationId
+   */
+  private prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string) {
+    const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
+    const link = `${environment.APP_URL}${linkType}?projectId=${projectDetails.id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
+
+    const message = `
+       you are invited to ${projectDetails.name} from ${(projectDetails.createdBy as any).firstName} ${(projectDetails.createdBy as any).lastName}
+      <a href="${link}">project link</a>
+    `;
+
+    return message;
+  }
+
+  /**
+   * prepare invite object
+   * @param to
+   * @param from
+   * @param projectId
+   */
+  private prepareInvitationObject(to: string, from: string, projectId: string): Invitation {
+    const invitation = new Invitation();
+
+    invitation.invitationToId = to;
+    invitation.invitedById = from;
+    invitation.isExpired = false;
+    invitation.projectId = projectId;
+
+    return invitation;
   }
 
 }
