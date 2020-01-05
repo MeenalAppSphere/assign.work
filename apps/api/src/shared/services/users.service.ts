@@ -86,7 +86,11 @@ export class UsersService extends BaseService<User & Document> {
     query.lean = { virtuals: true };
     query.populate = [{
       path: 'projects',
-      select: 'name description organization'
+      select: 'name description organization',
+      populate: {
+        path: 'createdBy',
+        select: 'firstName lastName'
+      }
     },
       {
         path: 'organizations',
@@ -172,6 +176,21 @@ export class UsersService extends BaseService<User & Document> {
         });
 
     return userDetails;
+  }
+
+  /**
+   * update user profile
+   * @param model
+   */
+  async updateUserProfile(model: User) {
+    // remove things which can not be updated
+    delete model.emailId;
+    delete model.password;
+    delete model.username;
+    delete model.status;
+    delete model.organizations;
+    delete model.projects;
+    delete model.lastLoginProvider;
   }
 
   /**

@@ -5,55 +5,69 @@
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='project'}" (click)="activeTab('project', 'Project')">
-        <i class="fas fa-desktop"></i>
-        Project
+<!--        <i class="fas fa-desktop"></i>-->
+        <img *ngIf="activeView.view==='project'" src="../../assets/images/icons/white_project_setting.svg"/>
+        <img *ngIf="activeView.view!=='project'" src="../../assets/images/icons/project_setting.svg"/>
+        <div>Project</div>
       </a>
     </li>
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='collaborators'}"
          (click)="activeTab('collaborators', 'Collaborators')">
-        <i class="fas fa-user-friends"></i>
-        Collaborators
+<!--        <i class="fas fa-user-friends"></i>-->
+        <img *ngIf="activeView.view==='collaborators'" src="../../assets/images/icons/white_collaborator.svg"/>
+        <img *ngIf="activeView.view!=='collaborators'" src="../../assets/images/icons/collaborator.svg"/>
+        <div>Collaborators</div>
       </a>
     </li>
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"
          (click)="activeTab('stages', 'Stages')">
-        <i class="fas fa-bars"></i>
-        Stages
+<!--        <i class="fas fa-bars"></i>-->
+        <img *ngIf="activeView.view==='stages'" src="../../assets/images/icons/white_stages.svg"/>
+        <img *ngIf="activeView.view!=='stages'" src="../../assets/images/icons/stages.svg"/>
+        <div>Stages</div>
       </a>
     </li>
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='status'}"
          (click)="activeTab('status', 'Status')">
-        <i class="fas fa-battery-half"></i>
-        Status
+<!--        <i class="fas fa-battery-half"></i>-->
+        <img *ngIf="activeView.view==='status'" src="../../assets/images/icons/white_status.svg"/>
+        <img *ngIf="activeView.view!=='status'" src="../../assets/images/icons/status.svg"/>
+        <div>Status</div>
       </a>
     </li>
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='priority'}"
          (click)="activeTab('priority', 'Priority')">
-        <i class="fas fa-arrow-up"></i>
-        Priority
+<!--        <i class="fas fa-arrow-up"></i>-->
+        <img *ngIf="activeView.view==='priority'" src="../../assets/images/icons/white_priority.svg"/>
+        <img *ngIf="activeView.view!=='priority'" src="../../assets/images/icons/priority.svg"/>
+        <div>Priority</div>
       </a>
     </li>
 
     <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='task-type'}"
-         (click)="activeTab('task-type', 'Task Type')">
-        <i class="fab fa-accusoft"></i>
-        Task Type
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}"
+         (click)="activeTab('taskType', 'Task Type')">
+<!--        <i class="fab fa-accusoft"></i>-->
+        <img *ngIf="activeView.view==='taskType'" src="../../assets/images/icons/white_task_type.svg"/>
+        <img *ngIf="activeView.view!=='taskType'" src="../../assets/images/icons/task_type.svg">
+        <div>Task Type</div>
       </a>
     </li>
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='capacity'}" (click)="activeTab('capacity', 'Team Capacity')">
-        <i class="fab fa-slideshare"></i>
-        Team Capacity
+<!--        <i class="fab fa-slideshare"></i>-->
+        <img *ngIf="activeView.view==='capacity'" src="../../assets/images/icons/white_team_capacity.svg"/>
+        <img *ngIf="activeView.view!=='capacity'" src="../../assets/images/icons/team_capacity.svg">
+        <div>Team Capacity</div>
       </a>
     </li>
 
@@ -282,7 +296,7 @@
             <form nz-form (submit)="savePriority()" [formGroup]="priorityForm">
 
               <nz-form-item>
-                <nz-form-label>Priority<span class="text-danger">*</span></nz-form-label>
+                <nz-form-label>Priority<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and title)</small></nz-form-label>
 
                 <nz-form-control>
                   <nz-input-group [nzAddOnBefore]="profixIconButton">
@@ -331,7 +345,7 @@
 
       <!-- end priority -->
 
-      <ng-container *ngIf="activeView.view==='task-type'">
+      <ng-container *ngIf="activeView.view==='taskType'">
 
         <section class="row task-type-section">
 
@@ -392,7 +406,7 @@
         </section>
       </ng-container>
 
-      <!-- end task-type -->
+      <!-- end taskType -->
 
 
       <ng-container *ngIf="activeView.view==='capacity'">

@@ -38,8 +38,12 @@
       <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.stages && boardData.stages.length>0">
         <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of boardData.stages; let last">
           <div class="card card-block">
-            <div class="card-header">{{item.stage.name}}<span class="pull-right">
-              <small class="text-muted font-size-12">Total hours&nbsp;</small>&nbsp;<span class="font-size-14">{{item.totalEstimationReadable}}</span><i class="pl-3 fa fa-ellipsis-v"></i></span></div>
+            <div class="card-header">{{item.stage.name}} <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>
+              <div class="pull-left" style="line-height: 10px;">
+              <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
+                <span class="font-size-12">{{item.totalEstimationReadable}}</span>
+              </div>
+            </div>
 
             <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here to move the items" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
             </bs-sortable>
@@ -76,7 +80,7 @@
         </div>
       </div>
       <div class="task-footer">
-        <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{item.value.task.assignee.profilePic}}" nzShape="circle"></nz-avatar>{{item.value.task.assignee.firstName}}</span>
+        <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{item.value.task.assignee.profilePic}}" nzShape="circle"></nz-avatar><span class="profile-name">{{item.value.task.assignee.firstName}}</span></span>
         <span class="pull-right"> <a (click)="timeLog(item.value.task)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
       </div>
     </div>

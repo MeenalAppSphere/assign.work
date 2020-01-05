@@ -6,11 +6,13 @@ import {
   CommentPinModel,
   DbCollection,
   DeleteCommentModel,
+  DeleteTaskModel,
   GetAllTaskRequestModel,
   GetCommentsModel,
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   Project,
+  SprintStatusEnum,
   Task,
   TaskComments,
   TaskFilterDto,
@@ -29,6 +31,7 @@ import { secondsToString, stringToSeconds } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 import { ModuleRef } from '@nestjs/core';
 import { TaskTypeService } from './task-type.service';
+import { SprintService } from './sprint.service';
 
 /**
  * common task population object
@@ -65,6 +68,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private _taskTypeService: TaskTypeService;
   private _taskHistoryService: TaskHistoryService;
   private _generalService: GeneralService;
+  private _sprintService: SprintService;
 
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
@@ -78,6 +82,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._generalService = this._moduleRef.get(GeneralService);
     this._taskHistoryService = this._moduleRef.get(TaskHistoryService);
     this._taskTypeService = this._moduleRef.get(TaskTypeService);
+    this._sprintService = this._moduleRef.get('SprintService');
   }
 
   /**
@@ -335,19 +340,43 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     return this.parseTaskObjectForUi(task, projectDetails);
   }
 
-  async deleteTask(model: DeleteCommentModel) {
+  /**
+   * delete task
+   * check if task is exist
+   * task have sprintId and sprint is active then return error
+   * @param model
+   */
+  async deleteTask(model: DeleteTaskModel) {
+    if (!model.taskId) {
+      throw new BadRequestException('Task not found');
+    }
+
     const projectDetails = await this.getProjectDetails(model.projectId);
-    const session = await this._taskModel.db.startSession();
-    session.startTransaction();
+    const taskDetails = await this.getTaskDetails(model.taskId);
+
+    const session = await this.startSession();
+
+    // check if task is in sprint
+    if (taskDetails.sprintId) {
+      const sprintDetails = await this._sprintService.getSprintDetails(taskDetails.sprintId);
+
+      // if sprint found then check if sprint is active or not..
+      if (sprintDetails) {
+        if (sprintDetails.sprintStatus && sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
+          throw new BadRequestException('Task is already added in sprint! Please delete from sprint first..');
+        }
+      }
+    }
+
 
     try {
-      await this.delete(model.taskId);
-      await session.commitTransaction();
-      session.endSession();
+      await this.update(model.taskId, { isDeleted: true }, session);
+      const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskDeleted, model.taskId, taskDetails);
+      await this._taskHistoryService.addHistory(taskHistory, session);
+      await this.commitTransaction(session);
       return 'Task Deleted Successfully!';
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }

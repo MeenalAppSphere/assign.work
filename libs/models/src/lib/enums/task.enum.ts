@@ -1,6 +1,7 @@
 export enum TaskHistoryActionEnum {
   taskCreated = 'Task Created',
   taskUpdated = 'Task Updated',
+  taskDeleted = 'Task Deleted',
   taskAssigned = 'Task Assigned',
   commentAdded = 'Comment Added',
   commentPinned = 'Comment Pinned',

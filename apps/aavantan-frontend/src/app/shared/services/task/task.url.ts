@@ -21,4 +21,5 @@ export const TaskUrls = {
 
   getHistory: `${createUrl('task-history/get-history')}`,
   addTimelog: `${createUrl('task-time-log/log')}`,
+  getLogHistory: `${createUrl('task-time-log/get-log-history')}`,
 };

@@ -34,7 +34,6 @@ import {
 } from '../helpers/defaultValueConstant';
 import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
 import { ModuleRef } from '@nestjs/core';
-import { SendGridService } from '@anchan828/nest-sendgrid';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -51,7 +50,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskType & Document>,
-    private readonly moduleRef: ModuleRef, private readonly sendGrid: SendGridService,
+    private readonly moduleRef: ModuleRef,
     private readonly _generalService: GeneralService
   ) {
     super(_projectModel);
@@ -108,10 +107,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create project and get project id from them
       const createdProject = await this.create([model], session);
 
-      // if user is creating first project then mark it as current project
-      if (!userDetails.projects.length) {
-        userDetails.currentProject = createdProject[0].id;
-      }
+      // set created project as current project of user
+      userDetails.currentProject = createdProject[0].id;
 
       userDetails.projects.push(createdProject[0].id);
       await this._userService.updateUser(userDetails.id, userDetails, session);
@@ -220,7 +217,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // check if there any unregistered users
       if (unRegisteredMembers.length) {
         // create users in database
-        const createdUsers: any = await this._userService.createUser(unregisteredMembersModel, session);
+        const createdUsers: any = await this._userService.create(unregisteredMembersModel, session);
 
         // push to final collaborators array
         finalCollaborators.push(...createdUsers.map(m => {
@@ -240,14 +237,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
         member.workingDays = DEFAULT_WORKING_DAYS;
         return member;
       });
-
-      // await this.sendGrid.send({
-      //   to: 'vishal@appsphere.in',
-      //   from: 'pradeep@appsphere.in',
-      //   subject: 'Sending with SendGrid is Fun',
-      //   text: 'and easy to do anywhere, even with Node.js',
-      //   html: '<strong>and easy to do anywhere, even with Node.js</strong>'
-      // });
 
       await this.update(id, { members: [...projectDetails.members, ...membersModel] }, session);
       await this.commitTransaction(session);
@@ -352,7 +341,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.stages) {
-      const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase() === stage.name.toLowerCase());
+      const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase().trim() === stage.name.toLowerCase().trim());
 
       if (isDuplicate) {
         throw new BadRequestException('Stage Name Already Exists');
@@ -468,8 +457,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
-      // const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase() === task-type.name.toLowerCase());
-      // const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === task-type.color.toLowerCase());
+      // const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase().trim() === taskType.name.toLowerCase().trim());
+      // const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
       //
       // if (isDuplicateName) {
       //   throw new BadRequestException('Tasktype Name Already Exists...');
@@ -515,7 +504,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.status && projectDetails.settings.status.length) {
-      const isDuplicate = projectDetails.settings.status.some(s => s.name.toLowerCase() === status.name.toLowerCase());
+      const isDuplicate = projectDetails.settings.status.some(s => s.name.toLowerCase().trim() === status.name.toLowerCase().trim());
 
       if (isDuplicate) {
         throw new BadRequestException('Status Name Already Exists');
@@ -553,7 +542,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.priorities) {
-      const isDuplicate = projectDetails.settings.priorities.some(s => s.name.toLowerCase() === priority.name.toLowerCase());
+      const isDuplicate = projectDetails.settings.priorities.some(s => s.name.toLowerCase().trim() === priority.name.toLowerCase().trim());
 
       if (isDuplicate) {
         throw new BadRequestException('Priority Name Already Exists');
@@ -590,20 +579,38 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
   }
 
+  /**
+   * search project
+   * search by organization
+   * search by one is creator of project or an active collaborator in project
+   * search by name, description and template
+   * @param model
+   */
   async searchProject(model: SearchProjectRequest) {
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
 
-    return this._projectModel.find({
-      organization: model.organizationId,
-      createdBy: this._generalService.userId,
-      $or: [
-        { name: { $regex: new RegExp(model.query), $options: 'i' } },
-        { description: { $regex: new RegExp(model.query), $options: 'i' } },
-        { template: { $regex: new RegExp(model.query), $options: 'i' } }
-      ]
-    })
-      .select('name description template createdAt updatedAt')
-      .populate({ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' });
+    const query = new MongooseQueryModel();
+
+    query.filter = {
+      // organization: model.organizationId,
+      isDeleted: false,
+      $and: [{
+        $or: [
+          { createdBy: this._generalService.userId },
+          { members: { $elemMatch: { userId: this._generalService.userId, isInviteAccepted: true } } }
+        ]
+      }, {
+        $or: [
+          { name: { $regex: new RegExp(model.query), $options: 'i' } },
+          { description: { $regex: new RegExp(model.query), $options: 'i' } },
+          { template: { $regex: new RegExp(model.query), $options: 'i' } }
+        ]
+      }]
+    };
+    query.select = 'name description template createdAt updatedAt';
+    query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
+
+    return this.find(query);
 
   }
 

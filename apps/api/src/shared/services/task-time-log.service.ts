@@ -10,6 +10,8 @@ import {
   TaskHistory,
   TaskHistoryActionEnum,
   TaskTimeLog,
+  TaskTimeLogHistoryModel,
+  TaskTimeLogHistoryResponseModel,
   TaskTimeLogResponse,
   User
 } from '@aavantan-app/models';
@@ -313,17 +315,47 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
    * get all time logs
    * @param model
    */
-  async getAllLogs(model): Promise<TaskTimeLog[]> {
+  async getAllLogs(model: TaskTimeLogHistoryModel) {
+    if (!model.taskId) {
+      throw new BadRequestException('Task not found');
+    }
     const projectDetails = await this.getProjectDetails(model.projectId);
 
-    return this._taskTimeLogModel.find({
-      taskId: this.toObjectId(model.taskId),
-      isDeleted: false
-    }).populate({
-      path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
-      justOne: true
-    }).lean(true);
+    try {
+      const timeLogHistory: TaskTimeLogHistoryResponseModel[] = await this._taskTimeLogModel.aggregate([{
+        $match: { 'taskId': this.toObjectId(model.taskId) }
+      }, {
+        $group: {
+          _id: '$createdById',
+          totalLoggedTime: { $sum: '$loggedTime' }
+        }
+      }, {
+        $lookup: {
+          from: DbCollection.users,
+          localField: '_id',
+          foreignField: '_id',
+          as: 'loggedBy'
+        }
+      }, { $unwind: '$loggedBy' }, {
+        $project: {
+          _id: 0,
+          user: { $concat: ['$loggedBy.firstName', ' ', '$loggedBy.lastName'] },
+          emailId: '$loggedBy.emailId',
+          profilePic: '$loggedBy.profilePic',
+          totalLoggedTime: '$totalLoggedTime'
+        }
+      }]).exec();
+
+      if (timeLogHistory) {
+        timeLogHistory.forEach(timeLog => {
+          timeLog.totalLoggedTimeReadable = secondsToString(timeLog.totalLoggedTime);
+        });
+      }
+
+      return timeLogHistory;
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**

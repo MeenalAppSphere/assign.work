@@ -17,6 +17,7 @@ import { ServiceModule } from './shared/services/service.module';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 
+
 registerLocaleData(en);
 
 // const googleLoginOptions: LoginOpt = {
@@ -26,7 +27,7 @@ registerLocaleData(en);
 const config = new AuthServiceConfig([
   {
     id: GoogleLoginProvider.PROVIDER_ID,
-    provider: new GoogleLoginProvider("786347906702-f24fedavhbjl61iebi8e3obhdftj452k.apps.googleusercontent.com")
+    provider: new GoogleLoginProvider(environment.googleApi)
   }
 ]);
 

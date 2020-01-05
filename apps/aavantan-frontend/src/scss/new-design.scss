@@ -284,8 +284,7 @@ $color-gray-light: #6E829C;
       float: right;
     }
     .card-header {
-      padding: 3px 24px 0px 24px;
-      line-height: 37px;
+      padding: 8px 10px 8px 10px;
       font-size: 15px;
       font-weight: 500;
       border:none;
@@ -293,8 +292,7 @@ $color-gray-light: #6E829C;
       color: $color-black;
       i {
         font-size: 11px;
-        padding: 9px 0px;
-        line-height: 20px;
+        padding: 5px 0px;
         float: right;
       }
       i:hover {
@@ -347,7 +345,7 @@ $color-gray-light: #6E829C;
         margin-top: 10px;
         height: 21px;
         font-size: 12px;
-        color: var(--gray-light);
+        color: $color-gray-light;
       }
     }
     .card-footer {
@@ -362,10 +360,13 @@ $color-gray-light: #6E829C;
       }
     }
     .ant-avatar{
-      height: 16px!important;
-      width: 16px!important;
+      height: 18px!important;
+      width: 18px!important;
       line-height: 15px;
       font-size: 12px;
+    }
+    .profile-name{
+      line-height: 18px;
     }
   }
 }
@@ -485,4 +486,16 @@ $color-gray-light: #6E829C;
 .logo img{
   width: 100%;
   padding: 0px;
+}
+
+
+/* login/register */
+.btn-google {
+  height: 43px;
+  box-shadow: 0px 0px 2px 0px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.has-error .ant-input-affix-wrapper .ant-input:focus, .has-error .ant-input:focus {
+  box-shadow: 0 0 0 1px rgb(245, 34, 45);
 }

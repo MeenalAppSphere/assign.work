@@ -131,16 +131,9 @@
                   <div class="form-group">
 
                     <nz-form-item>
-                      <div class="mb-1 collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
-                          <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">
-                            <nz-avatar *ngIf="item.id" nzSize="small" nzIcon="user" [nzSrc]="item.profilePic"></nz-avatar>
-                            <i class="fa fa-envelope" *ngIf="!item.id"></i>
-                            &nbsp;<span *ngIf="item.firstName">{{item.firstName}} {{item.lastName}}</span>
-                            <span *ngIf="!item.firstName">{{item.emailId}}</span>
-                            <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
-                          </span>
-                      </div>
-                      <nz-form-control class="relative">
+                      <nz-form-label nzRequired nzFor="name">Collaborators <small>(You can search or enter new email id to invite member)</small></nz-form-label>
+                      <nz-form-control class="relative m-b-5">
+
                         <nz-input-group [nzSuffix]="suffixIconSearch">
                           <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" (keydown)="onKeydown($event)"/>
                         </nz-input-group>
@@ -158,6 +151,16 @@
                         <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
                       </ng-template>
                     </nz-form-item>
+
+                    <div class="collaborators-badge" *ngIf="selectedCollaborators && selectedCollaborators.length>0">
+                          <span class="badge badge-secondary" *ngFor="let item of selectedCollaborators">
+                            <nz-avatar *ngIf="item.id" nzSize="small" nzIcon="user" [nzSrc]="item.profilePic"></nz-avatar>
+                            <i class="fa fa-envelope" *ngIf="!item.id"></i>
+                            &nbsp;<span *ngIf="item.firstName">{{item.firstName}} {{item.lastName}}</span>
+                            <span *ngIf="!item.firstName">{{item.emailId}}</span>
+                            <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
+                          </span>
+                    </div>
 
                     <nz-form-explain class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
                   </div>
@@ -235,7 +238,7 @@
 
                     <button nz-button nzType="default" nzSize="small" (click)="skip()" *ngIf="showCreateProject && switchStepCurrent === 1"><span>Skip</span></button>
 
-                    <button nz-button nzType="primary" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span></button>
+                    <button nz-button nzType="primary" [disabled]="projectForm.invalid" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span></button>
 
                     <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span></button>
 

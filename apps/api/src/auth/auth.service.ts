@@ -43,6 +43,10 @@ export class AuthService implements OnModuleInit {
     };
   }
 
+  async sendEmail() {
+
+  }
+
   async login(req: UserLoginWithPasswordRequest) {
     // check user
     const user = await this._userModel.findOne({
@@ -60,7 +64,7 @@ export class AuthService implements OnModuleInit {
         access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
       };
     } else {
-      throw new UnauthorizedException('invalid email or password');
+      throw new UnauthorizedException('Invalid email or password');
     }
   }
 

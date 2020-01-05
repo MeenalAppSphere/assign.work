@@ -37,6 +37,8 @@
                     nzSize="small"
                     maxlength="100"
                     formControlName="emailId"
+                    required="true"
+                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
                     placeholder="Email"/>
                 </nz-input-group>
               </nz-form-control>
@@ -51,6 +53,7 @@
                     nz-input
                     maxlength="50"
                     nzSize="small"
+                    required="true"
                     formControlName="password"
                     placeholder="Password"
                   />
@@ -87,7 +90,7 @@
           </div>
           <div class="text-center m-t-25 row">
             <div class="col">
-              <img src="../../assets/images/icons/btn_google.png" width="100%" (click) = 'loginWithGoogle()'>
+              <img class="btn-google" src="../../assets/images/icons/btn-google.svg" width="100%" (click) = 'loginWithGoogle()'>
             </div>
           </div>
           <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>
@@ -97,27 +100,27 @@
         <div class="p-h-90 signup-link" style="position: absolute; bottom:20px; width: 100%;">Don't have an account? <a class="small font-weight-bold" [routerLink]="['/register']">Signup</a></div>
 
       </div>
-      <div class="col-md-8 p-h-40 p-t-50 bg-light login-wall">
+      <div class="col-md-8 p-h-40 p-t-20 bg-light login-wall">
         <h2 class="text-black m-b-30">Advance Feature</h2>
         <ul class="list-unstyled login-features-list">
           <li class="media">
             <img src="../../assets/images/icons/feature_1.svg" class="mr-3" alt="Feature 1">
             <div class="media-body">
-              <h5 class="mt-0 mb-1">List-based media object</h5>
+              <h5 class="mt-0 mb-0">List-based media object</h5>
               Lorem ipsum is placeholder text commonly used in the graphic
             </div>
           </li>
           <li class="media my-4">
             <img src="../../assets/images/icons/feature_2.svg" class="mr-3" alt="Feature 2">
             <div class="media-body">
-              <h5 class="mt-0 mb-1">List-based media object</h5>
+              <h5 class="mt-0 mb-0">List-based media object</h5>
               Lorem ipsum is placeholder text commonly used in the graphic
             </div>
           </li>
           <li class="media">
             <img src="../../assets/images/icons/feature_3.svg" class="mr-3" alt="Feature 3">
             <div class="media-body">
-              <h5 class="mt-0 mb-1">List-based media object</h5>
+              <h5 class="mt-0 mb-0">List-based media object</h5>
               Lorem ipsum is placeholder text commonly used in the graphic
             </div>
           </li>

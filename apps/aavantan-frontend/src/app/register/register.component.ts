@@ -5,6 +5,7 @@ import { AuthService } from '../shared/services/auth.service';
 import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { AuthService as SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
 
 @Component({
   templateUrl: './register.component.html',
@@ -15,7 +16,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
   public registerInProcess = false;
   public responseMessage: Notice;
 
-  constructor(private readonly _authService: AuthService, private readonly _authQuery: AuthQuery, private router: Router) {
+  constructor(private readonly _authService: AuthService,
+              private readonly _authQuery: AuthQuery,
+              private router: Router,
+              private socialAuthService: SocialAuthService) {
   }
 
   ngOnInit(): void {
@@ -40,8 +44,12 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this._authService.register(this.signUpForm.value).subscribe();
   }
 
-  signupWithSocial(type: string) {
-    console.log('Signup with ', type);
+
+  loginWithGoogle() {
+    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(result => {
+    }).catch(err => {
+      console.log(err);
+    });
   }
 
   updateConfirmValidator(): void {
