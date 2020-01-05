@@ -16,32 +16,19 @@ import { UserUrls } from '../shared/services/user/user.url';
 
 export class ProfileComponent implements OnInit, OnDestroy {
   public currentUser: User;
-  public projectMembers: User[] = [];
   public projectListData:Project[] = [];
   public initialName: string = 'AW';
-
-
   public attachementUrl: string;
   public attachementHeader: any;
-  public fileList = [
-    {
-      uid: -1,
-      name: 'xxx.png',
-      status: 'done',
-      url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
-    }
-  ];
   public previewImage = '';
-  public previewVisible = false;
-  public attachementIds: string[] = [];
   public uploadedImages = [];
   public skillListData:string[] = [];
+  public uploadingImage:boolean = false;
 
   constructor(private _userQuery: UserQuery, private _generalService : GeneralService,
               private _projectService: ProjectService,
               protected notification: NzNotificationService) {
   }
-
 
 
     ngOnInit(): void {
@@ -71,13 +58,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   handleChange({ file, fileList }): void {
     const status = file.status;
+    this.uploadingImage=true;
     if (status !== 'uploading') {
       console.log(file, fileList);
     }
     if (status === 'done') {
 
       if (file.response && file.response.data.id) {
-        this.attachementIds.push(file.response.data.id);
+        this.previewImage = file.response.data.url || file.response.data.thumbUrl;
+        this.uploadingImage = false;
       }
 
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
@@ -86,28 +75,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  handlePreview = (file: UploadFile) => {
-    this.previewImage = file.url || file.thumbUrl;
-    this.previewVisible = true;
-  }
-
-  handleRemove = (file: any) => new Observable<boolean>((obs) => {
-    // console.log(file);
-
-    //this._taskService.removeAttachment(file.id).subscribe();
-
-    this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
-    this.uploadedImages = this.uploadedImages.filter((ele) => {
-      if (ele.id !== file.id) {
-        return ele;
-      }
-    });
-
-
-    // console.log('this.handleRemove instanceof Observable', this.handleRemove instanceof Observable)
-    // console.log(obs)
-    obs.next(false);
-  });
 
   ngOnDestroy (){
 

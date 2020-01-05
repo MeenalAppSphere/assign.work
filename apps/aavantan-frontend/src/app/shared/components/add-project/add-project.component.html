@@ -3,6 +3,10 @@
 
     <nz-spin nzTip="Setting up..." [nzSpinning]="switchingProjectInProcess">
 
+
+
+      <ng-container>
+
         <div *ngIf="!showCreateProject && projectList && projectList.length>0" style="min-height:500px;">
             <h5 class="m-b-10">Switch Project</h5>
             <div class="horizontal-list">
@@ -15,13 +19,13 @@
                             <nz-list-item-meta [nzTitle]="nzTitle">
                                 <ng-template #nzTitle>
                                     <div class="project-header-title p-10 p-t-15 p-b-15">
-                                        <nz-avatar class="m-r-10" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
+                                        <nz-avatar class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
                                         <span>{{item.name}}</span>
                                     </div>
                                     <div class="font-size-13 p-10">
                                         <span>
                                       <span class="font-size-12 text-muted">Created : {{item.createdAt | dateAgo}}</span>
-                                        <span class="float-right"><nz-avatar class="m-r-5" nzSize="small" nzText="{{(item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'AW') | slice : 0:1}}"></nz-avatar>By : {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span>
+                                        <span class="float-right"><nz-avatar class="m-r-5 text-uppercase" nzSize="small" nzText="{{(item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'AW') | slice : 0:1}}"></nz-avatar>By : {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span>
                                         </span>
                                         <!-- <p nz-paragraph nzEllipsis nzExpandable [nzEllipsisRows]="3">{{item.description}}</p> -->
                                     </div>
@@ -54,12 +58,12 @@
                                 <nz-list-item-meta [nzTitle]="nzTitle">
                                     <ng-template #nzTitle>
                                         <div class="project-header-title p-10">
-                                            <nz-avatar class="m-r-10" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
+                                            <nz-avatar class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
                                             <span>{{item.name}}</span>
                                             <div class="font-size-12 float-right" style="display: inline-block;">
                                                 <span>
                                                   <span class="float-right font-size-12 text-muted">Created : {{item.createdAt | dateAgo}}</span><br/>
-                                                  <span class="float-right"><nz-avatar class="m-r-5" nzSize="small" nzText="{{(item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'AW') | slice : 0:1}}"></nz-avatar>By : {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span>
+                                                  <span class="float-right"><nz-avatar class="m-r-5 text-uppercase" nzSize="small" nzText="{{(item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'AW') | slice : 0:1}}"></nz-avatar>By : {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -72,7 +76,6 @@
                 </div>
             </div>
         </div>
-
 
         <div class="steps-action" *ngIf="showCreateProject">
 
@@ -91,7 +94,7 @@
             </nz-steps>
           </div>
 
-            <!--first-->
+           <!--first-->
             <ng-container *ngIf="switchStepCurrent===0">
                 <form nz-form class="register-form" [formGroup]="projectForm">
 
@@ -227,32 +230,42 @@
 
         </div>
 
-        <div *nzModalFooter>
-            <div class="row">
+
+      </ng-container>
 
 
-                <div class="col text-right">
+          <div *nzModalFooter>
 
-                  <!-- cancel -->
-                  <button *ngIf="!createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess"><span>Cancel</span></button>
+            <ng-container>
 
-                  <button *ngIf="createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"><span>Close</span></button>
-                  <!-- cancel btn end -->
+              <div class="row">
+
+                  <div class="col text-right">
+
+                    <!-- cancel -->
+                    <button *ngIf="!createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess"><span>Cancel</span></button>
+
+                    <button *ngIf="createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"><span>Close</span></button>
+                    <!-- cancel btn end -->
 
 
-                    <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="showCreateProject && switchStepCurrent > 1 && !createdProjectId"><span>Previous</span></button>
+                      <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="pre()" *ngIf="showCreateProject && switchStepCurrent > 1 && !createdProjectId"><span>Previous</span></button>
 
-                    <button nz-button nzType="default" nzSize="small" (click)="skip()" *ngIf="showCreateProject && switchStepCurrent === 1"><span>Skip</span></button>
+                      <button nz-button nzType="default" nzSize="small" (click)="skip()" *ngIf="showCreateProject && switchStepCurrent === 1"><span>Skip</span></button>
 
-                    <button nz-button nzType="primary" [disabled]="projectForm.invalid" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span></button>
+                      <button nz-button nzType="primary" [disabled]="projectForm.invalid" nzSize="small" (click)="next()" *ngIf="showCreateProject && switchStepCurrent < 2" [nzLoading]="createProjectInProcess || addCollaboratorsInProcess"><span>Next</span></button>
 
-                    <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span></button>
+                      <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span></button>
 
-                    <button *ngIf="!showCreateProject" nz-button nzShape="round" type="button" nzType="link" class="float-right" (click)="addNewProject()">+ Add New Project</button>
+                      <button *ngIf="!showCreateProject" nz-button nzShape="round" type="button" nzType="link" class="float-right" (click)="addNewProject()">+ Add New Project</button>
 
-                </div>
-            </div>
-        </div>
+                  </div>
+              </div>
+
+            </ng-container>
+
+          </div>
+
 
     </nz-spin>
 </nz-modal>

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  GetAllProjectsModel,
+  GetAllProjectsModel, Organization,
   Project,
   ProjectMembers,
   ProjectPriority,
@@ -57,6 +57,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public projectCapacityMembersList: ProjectMembers[] = [];
   public projectListData:Project[] = [];
 
+  public currentOrganization:Organization;
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
   public modelChangedSearchCollaborators = new Subject<string>();
@@ -103,6 +104,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+   this.currentOrganization = this._generalService.currentOrganization;
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -212,7 +214,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public createProjectForm(){
     this.projectForm = this.FB.group({
-      name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required])
+      name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required]),
+      organization: new FormControl(null, ),
     });
   }
 
