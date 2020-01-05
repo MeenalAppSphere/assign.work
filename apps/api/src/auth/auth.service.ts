@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -162,13 +161,13 @@ export class AuthService implements OnModuleInit {
           }
 
         } else {
-          throw new ForbiddenException('Invalid user login');
+          throw new UnauthorizedException('Invalid user login');
         }
       }
 
       return authTokenResult;
     } catch (e) {
-      throw new ForbiddenException(e);
+      throw e;
     }
   }
 
