@@ -199,7 +199,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
         const userFilter = {
           filter: {
             emailId: collaboratorsNotInDb[i].emailId,
-            status: UserStatus.Active
           }
         };
 
@@ -207,14 +206,16 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // if user details found means user is already in db but in different organization
         // then continue the loop, don't create user again
         if (userDetails) {
-          collaboratorsAlreadyInDb.push({ ...collaboratorsAlreadyInDb[i], userId: userDetails._id });
+          collaboratorsAlreadyInDb.push({ emailId: userDetails.emailId, userId: userDetails.id });
+          finalCollaborators.push({ emailId: userDetails.emailId, userId: userDetails.id });
+          collaboratorsNotInDb.splice(i, 1);
           continue;
         }
 
         // create user model
         const userModel: User = { emailId: collaboratorsNotInDb[i].emailId, username: collaboratorsNotInDb[i].emailId };
         // create new user in db
-        const newUser = await this._userService.createUser(userModel, session);
+        const newUser = await this._userService.createUser([userModel], session);
 
         // update userId property in collaboratorsNotInDb array
         collaboratorsAlreadyInDb[i].userId = newUser[0].id;
@@ -252,7 +253,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         return collaborator;
       });
 
-      await this.update(id, { $push: { 'members': finalCollaborators } }, session);
+      await this.update(id, { $push: { 'members': { $each: finalCollaborators } } }, session);
       await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
@@ -273,11 +274,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
     for (let i = 0; i < collaborators.length; i++) {
-      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails.id);
+      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString());
 
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
       emailArrays.push({
-        to: [newInvitation.invitationToId],
+        to: [collaborators[i].emailId],
         subject: 'Invitation',
         message: this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id)
       });
@@ -748,7 +749,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
 
     const projectDetails: Project = await this._projectModel.findById(id)
-      .select('members settings createdBy updatedBy sprintId')
+      .select('name members settings createdBy updatedBy sprintId')
       .populate({
         path: 'createdBy',
         select: 'firstName lastName'
@@ -811,7 +812,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   private prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string) {
     const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
-    const link = `${environment.APP_URL}${linkType}?projectId=${projectDetails.id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
+    const link = `${environment.APP_URL}${linkType}?projectId=${projectDetails._id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
 
     const message = `
        you are invited to ${projectDetails.name} from ${(projectDetails.createdBy as any).firstName} ${(projectDetails.createdBy as any).lastName}

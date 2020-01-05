@@ -6,6 +6,7 @@ import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Project {
   id?: string;
+  _id?: string;
   name: string;
   access?: string;
   version?: string;

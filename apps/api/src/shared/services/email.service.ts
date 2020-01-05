@@ -22,10 +22,12 @@ export class EmailService {
       Message: {
         Body: {
           Html: {
-            Data: message
+            Data: message,
+            Charset: 'UTF-8'
           },
           Text: {
-            Data: message
+            Data: message,
+            Charset: 'UTF-8'
           }
         },
         Subject: {

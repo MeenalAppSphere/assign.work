@@ -149,7 +149,7 @@ export class AuthService implements OnModuleInit {
             // if user is already in db then update it's last login type to google
             // update user profile pic
             await this._userModel.updateOne({ _id: userFromDb._id },
-              { $set: { lastLoginProvider: UserLoginProviderEnum.google, profilePic:  authTokenResult.picture} }
+              { $set: { lastLoginProvider: UserLoginProviderEnum.google, profilePic:  authTokenResult.picture, status: UserStatus.Active} }
             );
             const userDetails = await this._userModel.findOne({ _id: userFromDb._id }).populate(['projects', 'organization', 'currentProject']).lean();
 
