@@ -593,6 +593,14 @@ export class TaskComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!task.watchers) {
+      task.watchers = [];
+    }
+    if (!task.tags) {
+      task.tags = [];
+    }
+
+
     this.createTaskInProcess = true;
     try {
 
