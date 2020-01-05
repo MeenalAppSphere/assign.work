@@ -2,10 +2,17 @@ import { Body, Controller, Get, Headers, Post, Request, Response, UseGuards } fr
 import { AuthGuard } from '@nestjs/passport';
 import { User, UserLoginWithPasswordRequest } from '@aavantan-app/models';
 import { AuthService } from './auth.service';
+import * as aws from  'aws-sdk'
 
 @Controller('auth')
 export class AuthController {
   constructor(private _authService: AuthService) {
+    aws.config.update({
+      region: 'ap-south-1',
+      accessKeyId: process.env.AWS_ACCESSKEYID,
+      secretAccessKey: process.env.AWS_SECRETACCESSKEY
+    });
+
   }
 
   @Post('login')
@@ -15,7 +22,45 @@ export class AuthController {
 
   @Get('send-email')
   async sendEmail() {
-    return await this._authService.sendEmail();
+    var params = {
+      Destination: { /* required */
+
+        ToAddresses: [
+          'aashish2000in@gmail.com',
+          /* more items */
+        ]
+      },
+      Message: { /* required */
+        Body: { /* required */
+          Html: {
+            Data: 'Test', /* required */
+
+          },
+          Text: {
+            Data: 'Test', /* required */
+
+          }
+        },
+        Subject: { /* required */
+          Data: 'Test', /* required */
+
+        }
+      },
+      Source: 'aashish.patil@appsphere.in', /* required */
+    };
+
+    const ses = new aws.SES({apiVersion: '2010-12-01'});
+    await ses.sendEmail(params, function(err, data) {
+      if (err) {
+        return 'sent';
+        console.log(err, err.stack);
+      } // an error occurred
+      else{
+        return 'failed';
+        console.log(data);
+      }             // successful response
+    });
+
   }
 
   @UseGuards(AuthGuard('jwt'))

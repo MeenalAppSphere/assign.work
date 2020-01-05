@@ -17,6 +17,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { of } from 'rxjs';
 import { UserStore } from '../../store/user/user.store';
 import { AuthService as SocialAuthService } from 'angularx-social-login';
+import * as aws from 'aws-sdk';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
@@ -26,6 +27,11 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
     super(authStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
+    });
+
+    aws.config.update({
+      accessKeyId: process.env.AWS_ACCESSKEYID,
+      secretAccessKey: process.env.AWS_SECRETACCESSKEY
     });
   }
 
