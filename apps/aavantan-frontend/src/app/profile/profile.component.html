@@ -4,6 +4,11 @@
             <div class="col-md-7">
                 <div class="d-md-flex align-items-center">
                     <div class="text-center text-sm-left avatar-box">
+
+                      <div class="uploading-box" *ngIf="uploadingImage">
+                        <span class="font-size-11">Uploading...</span>
+                      </div>
+
                         <nz-avatar *ngIf="!previewImage" class="shadow-sm m-v-15" [nzSize]="120"
                                    class="avatar-bg"
                                    [nzText]="initialName"
@@ -14,43 +19,17 @@
                                  [nzText]="initialName"
                                  nzSrc="{{previewImage}}"></nz-avatar>
 
-
-<!--                      <div class="camera-box">-->
-<!--                        <input type="file"/>-->
-<!--                        <i nz-icon nzType="camera" theme="outline"></i>-->
-<!--                      </div>-->
-
-
-                      <nz-upload class="upload-list-inline" [nzPreview]="handlePreview" (nzChange)="handleChange($event)" [nzRemove]="handleRemove" [nzAction]="attachementUrl" [nzHeaders]="attachementHeader" nzListType="picture" [(nzFileList)]="uploadedImages">
-<!--                        <button type="button" nz-button style="background: #f9f9f9!important;width: 100%;height: 120px;border-radius: 0px;border: 2px dashed #ddd;">-->
+                      <nz-upload class="upload-list-inline"
+                                 (nzChange)="handleChange($event)"
+                                 [nzAction]="attachementUrl"
+                                 [nzHeaders]="attachementHeader"
+                                 [nzMultiple]="false"
+                                 [nzShowUploadList]="false"
+                                 [(nzFileList)]="uploadedImages">
                           <div class="camera-box">
-<!--                            <input type="file"/>-->
                             <i nz-icon nzType="camera" theme="outline"></i>
                           </div>
-<!--                        </button>-->
                       </nz-upload>
-
-
-<!--                      <div class="clearfix">-->
-<!--                        <nz-upload-->
-<!--                          nzListType="picture-card"-->
-
-<!--                          [nzShowButton]="fileList.length < 2"-->
-<!--                          [nzPreview]="handlePreview"-->
-<!--                          (nzChange)="handleChange($event)"-->
-<!--                          [nzRemove]="handleRemove"-->
-<!--                          [nzAction]="attachementUrl"-->
-<!--                          [nzHeaders]="attachementHeader">-->
-<!--                          <i nz-icon nzType="plus"></i>-->
-<!--                          <div class="ant-upload-text">Upload</div>-->
-<!--                        </nz-upload>-->
-<!--                        <nz-modal [nzVisible]="previewVisible" [nzContent]="modalContent" [nzFooter]="null" (nzOnCancel)="previewVisible=false">-->
-<!--                          <ng-template #modalContent>-->
-<!--                            <img [src]="previewImage" [ngStyle]="{ 'width': '100%' }" />-->
-<!--                          </ng-template>-->
-<!--                        </nz-modal>-->
-<!--                      </div>-->
-
 
                     </div>
                     <div class="text-center text-sm-left m-v-15 p-l-30">
