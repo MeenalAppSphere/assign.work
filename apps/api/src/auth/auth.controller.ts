@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post, Req, Request, Response, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Request, Response, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User, UserLoginWithPasswordRequest } from '@aavantan-app/models';
 import { AuthService } from './auth.service';
@@ -15,7 +15,7 @@ export class AuthController {
 
   @Get('send-email')
   async sendEmail() {
-    return await this.sendEmail();
+    return await this._authService.sendEmail();
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -33,22 +33,6 @@ export class AuthController {
   @Post('google/validate-token')
   async googleValidateToken(@Body('token') token: string) {
     return await this._authService.verifyGoogleAuthToken(token);
-  }
-
-  @Get('google/uri')
-  async requestGoogleRedirectUri(): Promise<any> {
-    return await this._authService.requestGoogleRedirectUri();
-  }
-
-  @Post('google/signin')
-  async googleSignIn(@Req() req: any): Promise<any> {
-    return await this._authService.googleSignIn(req.body.code);
-  }
-
-  // @UseGuards(AuthGuard('google'))
-  @Post('google/token')
-  async requestJsonWebTokenAfterGoogleSignIn(@Req() req: any): Promise<any> {
-    return await this._authService.createToken(req.user);
   }
 
   @UseGuards(AuthGuard('google'))

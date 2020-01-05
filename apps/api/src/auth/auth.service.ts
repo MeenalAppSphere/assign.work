@@ -18,7 +18,7 @@ import {
 } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
-import { get, post, Response } from 'request';
+import { get, Response } from 'request';
 import { UsersService } from '../shared/services/users.service';
 import { ModuleRef } from '@nestjs/core';
 
@@ -96,68 +96,6 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  async requestGoogleRedirectUri(): Promise<{ redirect_uri: string } | any> {
-    const queryParams: string[] = [
-      `client_id=786347906702-f24fedavhbjl61iebi8e3obhdftj452k.apps.googleusercontent.com`,
-      `redirect_uri=http://localhost:4200/middleware`,
-      `response_type=code`,
-      `scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.profile.emails.read`
-    ];
-    const redirect_uri = `${'https://accounts.google.com/o/oauth2/auth'}?${queryParams.join('&')}`;
-
-    return {
-      redirect_uri
-    };
-  }
-
-  async googleSignIn(code: string): Promise<any> {
-    return new Promise((resolve: Function, reject: Function) => {
-      post({
-        url: 'https://accounts.google.com/o/oauth2/token',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        form: {
-          code,
-          client_id: '786347906702-f24fedavhbjl61iebi8e3obhdftj452k.apps.googleusercontent.com',
-          client_secret: 'clientSecret',
-          redirect_uri: 'http://localhost:4200/middleware',
-          grant_type: 'authorization_code'
-        }
-      }, async (err: Error, res: Response, body: any) => {
-        if (err) {
-          return reject(err);
-        }
-
-        if (body.error) {
-          return reject(body.error);
-        }
-
-        const { access_token } = JSON.parse(body);
-
-        post({
-          url: `http://localhost:3333/api/auth/google/token`,
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          form: {
-            access_token
-          }
-        }, async (err1: Error, res1: Response, body1: any) => {
-          if (err1) {
-            return reject(err1);
-          }
-
-          if (body1.error) {
-            return reject(body1.error);
-          }
-
-          resolve(body1);
-        });
-      });
-    });
-  }
-
   /**
    * verify given auth token with google
    * check if given token is valid
@@ -210,7 +148,10 @@ export class AuthService implements OnModuleInit {
             };
           } else {
             // if user is already in db then update it's last login type to google
-            await this._userModel.updateOne({ _id: userFromDb._id }, { $set: { lastLoginProvider: UserLoginProviderEnum.google } });
+            // update user profile pic
+            await this._userModel.updateOne({ _id: userFromDb._id },
+              { $set: { lastLoginProvider: UserLoginProviderEnum.google, profilePic:  authTokenResult.picture} }
+            );
             const userDetails = await this._userModel.findOne({ _id: userFromDb._id }).populate(['projects', 'organization', 'currentProject']).lean();
 
             // return jwt token
