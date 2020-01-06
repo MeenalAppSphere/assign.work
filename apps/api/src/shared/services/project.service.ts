@@ -40,6 +40,8 @@ import * as moment from 'moment';
 import { InvitationService } from './invitation.service';
 import { ModuleRef } from '@nestjs/core';
 import { EmailService } from './email.service';
+import * as ejs from 'ejs';
+import * as path from 'path';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -304,7 +306,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       emailArrays.push({
         to: [collaborators[i].emailId],
         subject: 'Invitation',
-        message: this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id, collaborators[i].emailId)
+        message: await this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id, collaborators[i].emailId)
       });
     }
   }
@@ -799,11 +801,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
 
     const projectDetails: Project = await this._projectModel.findById(id)
-      .select('name members settings createdBy updatedBy sprintId')
-      .populate({
+      .select('name members settings createdBy updatedBy sprintId organization')
+      .populate([{
         path: 'createdBy',
-        select: 'firstName lastName'
-      })
+        select: 'firstName lastName emailId'
+      }, { path: 'organization', select: 'name' }])
       .lean().exec();
 
     if (!projectDetails) {
@@ -861,16 +863,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param invitationId
    * @param inviteEmailId
    */
-  private prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string, inviteEmailId?: string) {
+  private async prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string, inviteEmailId?: string) {
     const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
     const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&projectId=${projectDetails._id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
 
-    const message = `
-       you are invited to ${projectDetails.name} from ${(projectDetails.createdBy as any).firstName} ${(projectDetails.createdBy as any).lastName}
-      <a href="${link}">project link</a>
-    `;
-
-    return message;
+    const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
+    return await ejs.renderFile(path.resolve(path.join(__dirname, 'shared/emailTemplates/projectInvitation/project.invitation.ejs')), templateData);
   }
 
   /**

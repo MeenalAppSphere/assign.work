@@ -161,7 +161,8 @@
             "tsConfig": "apps/api/tsconfig.app.json",
             "assets": [
               "apps/api/src/assets",
-              "apps/api/src/.env"
+              "apps/api/src/.env",
+              "apps/api/src/shared/emailTemplates"
             ]
           },
           "configurations": {
