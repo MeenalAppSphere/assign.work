@@ -147,11 +147,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
       throw new BadRequestException('Please Enter Project Name');
     }
 
-    // check if updated by is available or not
-    if (!model.updatedBy || !this.isValidObjectId(model.updatedBy as string)) {
-      throw new BadRequestException('User not found');
-    }
-
     // get organization details
     const organizationDetails = await this.getOrganizationDetails(model.organization as string);
 
@@ -165,7 +160,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     const updatedProject = new Project();
     updatedProject.name = model.name;
-    updatedProject.updatedBy = model.updatedBy;
+    updatedProject.updatedBy = this._generalService.userId;
     updatedProject.description = model.description;
 
     try {
