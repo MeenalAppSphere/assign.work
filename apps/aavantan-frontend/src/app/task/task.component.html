@@ -318,6 +318,7 @@
                                       </div>
                                     </button>
                                 </nz-upload>
+
                             </div>
                         </nz-form-item>
                     </div>
@@ -373,8 +374,8 @@
                     </nz-form-control>
                 </nz-form-item>
                 <div class="text-right">
-                    <button [disabled]="commentForm.invalid" [nzLoading]="createCommentInProcess" type="submit" nz-button nzSize="small" nzType="primary" class="m-r-5">Post</button>
-                    <button (click)="resetCommentForm();" nz-button nzSize="small" type="reset" nzType="default">Cancel</button>
+                  <button (click)="resetCommentForm();" nz-button nzSize="small" type="reset" nzType="default">Cancel</button>
+                  <button [disabled]="commentForm.invalid" [nzLoading]="createCommentInProcess" type="submit" nz-button nzSize="small" nzType="primary" class="m-r-5">Post</button>
                 </div>
             </form>
             <hr style="border-top: 4px solid #3f86f5; margin-bottom:5px; box-shadow: 0px 0px 3px 0px #ddd; margin-top: 15px;border-top: 4px solid #3f86f5; margin-top: 15px;" />
@@ -477,7 +478,7 @@
                         <nz-list-item class="timelog-history">
                           <div class="media">
                             <nz-avatar nzSize="small" *ngIf="item.profilePic" nzIcon="user" class="m-r-10" [nzSrc]="item.profilePic" nzShape="circle"></nz-avatar>
-                            <nz-avatar nzSize="small" nzIcon="user" class="m-r-10" nzShape="circle"></nz-avatar>
+                            <nz-avatar nzSize="small" *ngIf="!item.profilePic" nzIcon="user" class="m-r-10" nzShape="circle"></nz-avatar>
                             <div class="media-body">
                               <h6 class="m-b-0"><span class="p-r-10">{{item.user}}</span></h6>
 <!--                              <div class="font-size-13" [innerHTML]="item.description | safeHtml" ></div>-->
