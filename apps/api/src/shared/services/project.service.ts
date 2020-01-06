@@ -78,18 +78,26 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * return {Project}
    */
   async createProject(model: Project) {
-    const session = await this.startSession();
-
-    const userDetails = await this._userService.findById(model.createdBy as string);
-
     // validations
     if (model.name && !model.name.trim()) {
       throw new BadRequestException('Please Enter Project Name');
     }
 
-    if (!model.organization || !Types.ObjectId.isValid(model.organization as string)) {
-      throw new BadRequestException('Please Choose An Organization');
+    // check if created by is available or not
+    if (!model.createdBy || !this.isValidObjectId(model.createdBy as string)) {
+      throw new BadRequestException('User not found');
     }
+
+    // get organization details
+    const organizationDetails = await this.getOrganizationDetails(model.organization as string);
+
+    // get user details
+    const userDetails = await this._userService.findById(model.createdBy as string);
+    if (!userDetails) {
+      throw new BadRequestException('User not found');
+    }
+
+    const session = await this.startSession();
 
     model = new this._projectModel(model);
     model.organization = this.toObjectId(model.organization as string);
@@ -131,16 +139,37 @@ export class ProjectService extends BaseService<Project & Document> implements O
   /**
    * update project by id
    * @param id
-   * @param project
-   * @param session
+   * @param model
    */
-  async updateProject(id: string, project, session?: ClientSession) {
-    if (!session) {
-      session = await this.startSession();
+  async updateProject(id: string, model: Project) {
+    // validations
+    if (model.name && !model.name.trim()) {
+      throw new BadRequestException('Please Enter Project Name');
     }
 
+    // check if updated by is available or not
+    if (!model.updatedBy || !this.isValidObjectId(model.updatedBy as string)) {
+      throw new BadRequestException('User not found');
+    }
+
+    // get organization details
+    const organizationDetails = await this.getOrganizationDetails(model.organization as string);
+
+    // get user details
+    const userDetails = await this._userService.findById(model.createdBy as string);
+    if (!userDetails) {
+      throw new BadRequestException('User not found');
+    }
+
+    const session = await this.startSession();
+
+    const updatedProject = new Project();
+    updatedProject.name = model.name;
+    updatedProject.updatedBy = model.updatedBy;
+    updatedProject.description = model.description;
+
     try {
-      await this.update(id, project, session);
+      await this.update(id, updatedProject, session);
       await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
@@ -198,7 +227,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // then push it to collaboratorsAlreadyInDb array so we don't create user again
         const userFilter = {
           filter: {
-            emailId: collaboratorsNotInDb[i].emailId,
+            emailId: collaboratorsNotInDb[i].emailId
           }
         };
 
@@ -290,7 +319,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const projectDetails: Project = await this.getProjectDetails(projectId);
 
     projectDetails.members = projectDetails.members.filter(f => f.userId !== id);
-    return await this.updateProject(projectId, projectDetails);
+    return await this.updateProjectHelper(projectId, projectDetails);
   }
 
   /**
@@ -329,7 +358,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     });
 
     // update project
-    return await this.updateProject(id, { $set: { members: projectDetails.members } });
+    return await this.updateProjectHelper(id, { $set: { members: projectDetails.members } });
   }
 
   /**
@@ -414,7 +443,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         }, { session });
       }
 
-      return await this.updateProject(id, projectDetails, session);
+      return await this.updateProjectHelper(id, projectDetails, session);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -447,7 +476,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       stage.sequenceNumber = index;
     });
 
-    return await this.updateProject(model.projectId, projectDetails);
+    return await this.updateProjectHelper(model.projectId, { $set: { 'settings.stages': projectDetails.settings.stages } });
   }
 
   /**
@@ -471,7 +500,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // get sprint details
         // remove stage from a sprint logic goes here...
       }
-      return await this.updateProject(id, { $set: { 'settings.stages': projectDetails.settings.stages } }, session);
+      return await this.updateProjectHelper(id, { $set: { 'settings.stages': projectDetails.settings.stages } }, session);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -511,14 +540,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     taskType.id = new Types.ObjectId().toHexString();
     // projectDetails.settings.taskTypes.push(taskType);
-    return await this.updateProject(id, { $push: { 'settings.taskTypes': taskType } });
+    return await this.updateProjectHelper(id, { $push: { 'settings.taskTypes': taskType } });
   }
 
   async removeTaskType(id: string, taskTypeId: string) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     projectDetails.settings.taskTypes = projectDetails.settings.taskTypes.filter(f => f.id !== taskTypeId);
-    return await this.updateProject(id, projectDetails);
+    return await this.updateProjectHelper(id, { $set: { 'settings.taskTypes': projectDetails.settings.taskTypes } });
   }
 
   /**
@@ -545,15 +574,15 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
 
     status.id = new Types.ObjectId().toHexString();
-    projectDetails.settings.status.push(status);
-    return await this.updateProject(id, projectDetails);
+    // projectDetails.settings.status.push(status);
+    return await this.updateProjectHelper(id, { $push: { 'settings.status': status } });
   }
 
   async removeStatus(id: string, statusId: string) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     projectDetails.settings.status = projectDetails.settings.status.filter(f => f.id !== statusId);
-    return await this.updateProject(id, projectDetails);
+    return await this.updateProjectHelper(id, { $set: { 'settings.status': projectDetails.settings.status } });
   }
 
   /**
@@ -584,16 +613,20 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     priority.id = new Types.ObjectId().toHexString();
     projectDetails.settings.priorities.push(priority);
-    return await this.updateProject(id, projectDetails);
+    return await this.updateProjectHelper(id, { $push: { 'settings.priorities': priority } });
   }
 
   async removePriority(id: string, priorityId: string) {
     const projectDetails: Project = await this.getProjectDetails(id);
 
     projectDetails.settings.priorities = projectDetails.settings.priorities.filter(f => f.id !== priorityId);
-    return await this.updateProject(id, projectDetails);
+    return await this.updateProjectHelper(id, { $set: { 'settings.priorities': projectDetails.settings.priorities } });
   }
 
+  /**
+   * switch project
+   * @param model
+   */
   async switchProject(model: SwitchProjectRequest) {
     const organizationDetails = await this.getOrganizationDetails(model.organizationId);
     const projectDetails = await this.getProjectDetails(model.projectId);
@@ -601,7 +634,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const session = await this.startSession();
 
     try {
-      await this._userModel.updateOne({ _id: this._generalService.userId }, { currentProject: model.projectId }, { session });
+      await this._userModel.updateOne({ _id: this._generalService.userId }, { $set: { currentProject: model.projectId } }, { session });
       await this.commitTransaction(session);
       return await this._userService.getUserProfile(this._generalService.userId);
     } catch (e) {
@@ -736,6 +769,28 @@ export class ProjectService extends BaseService<Project & Document> implements O
         });
     } else {
       return [];
+    }
+  }
+
+  /**
+   * update project by id
+   * @param id
+   * @param project
+   * @param session
+   */
+  async updateProjectHelper(id: string, project, session?: ClientSession) {
+    if (!session) {
+      session = await this.startSession();
+    }
+
+    try {
+      await this.update(id, project, session);
+      await this.commitTransaction(session);
+      const result = await this.findById(id, projectBasicPopulation);
+      return this.parseProjectToVm(result);
+    } catch (e) {
+      await this.abortTransaction(session);
+      throw e;
     }
   }
 

@@ -12,11 +12,12 @@ export class Project {
   version?: string;
   members: ProjectMembers[];
   organization: string | Organization | Types.ObjectId;
-  desc?: string;
+  description?: string;
   avatar?: string;
   progress?: number;
   template: ProjectTemplateEnum;
   createdBy?: string | User;
+  updatedBy?: string | User;
   updated?: string | User;
   settings?: ProjectSettings;
   sprintId?: string;
