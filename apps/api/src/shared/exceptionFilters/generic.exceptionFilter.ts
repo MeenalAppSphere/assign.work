@@ -1,11 +1,12 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, UnauthorizedException } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Inject, UnauthorizedException } from '@nestjs/common';
 import { MongoError } from 'mongodb';
 import { BaseResponseModel } from '@aavantan-app/models';
 import { Error } from 'mongoose';
+import { Logger } from 'winston';
 
 @Catch()
 export class GenericExceptionFilter implements ExceptionFilter {
-  constructor() {
+  constructor(@Inject('winston') private readonly logger: Logger) {
 
   }
 
@@ -13,6 +14,8 @@ export class GenericExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
+
+    this.logger.error(exception);
 
     const resp = new BaseResponseModel();
 

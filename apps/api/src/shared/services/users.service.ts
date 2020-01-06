@@ -120,8 +120,9 @@ export class UsersService extends BaseService<User & Document> {
     userDetails.id = userDetails._id;
 
     if (userDetails.currentProject) {
-      userDetails.currentProject.id = userDetails.currentProject._id.toString();
-      userDetails.currentProject = this.parseProjectToVm(userDetails.currentProject);
+      // userDetails.currentProject.id = userDetails.currentProject._id.toString();
+      // userDetails.currentProject = this.parseProjectToVm(userDetails.currentProject);
+      userDetails.currentProject = null;
     }
 
     if (userDetails.currentOrganization) {

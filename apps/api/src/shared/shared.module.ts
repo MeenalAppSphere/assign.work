@@ -23,6 +23,8 @@ import { SprintService } from './services/sprint.service';
 import { invitationSchema } from '../invitations/invitations.schema';
 import { InvitationService } from './services/invitation.service';
 import { EmailService } from './services/email.service';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
 const providers = [
   UsersService,
@@ -42,6 +44,18 @@ const providers = [
 @Module({
   imports: [
     EasyconfigModule.register({ path: path.resolve(__dirname, '.env') }),
+    WinstonModule.forRoot({
+      level: 'error',
+      transports: [
+        new winston.transports.File({
+          format: winston.format.combine(
+            winston.format.timestamp()
+          ),
+          filename: 'error.log'
+        })
+
+      ]
+    }),
     MongooseModule.forFeature([{
       name: DbCollection.users,
       schema: userSchema,
@@ -82,6 +96,7 @@ const providers = [
   ],
   exports: [
     MongooseModule,
+    WinstonModule,
     ...providers
   ],
   providers: [

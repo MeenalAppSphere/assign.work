@@ -7,10 +7,13 @@ export class Invitation {
   invitationTo?: User;
   projectId?: string;
   project?: Project;
-  // message?: string;
-  isInviteAccepted: boolean;
+  isInviteAccepted?: boolean;
   isDeleted?: boolean;
   isExpired?: boolean;
   id?: string;
   _id?: string;
+}
+
+export class ResendProjectInvitation {
+  id: string;
 }
