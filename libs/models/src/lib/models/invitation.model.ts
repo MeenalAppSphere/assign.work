@@ -14,6 +14,8 @@ export class Invitation {
   _id?: string;
 }
 
-export class ResendProjectInvitation {
-  id: string;
+export class ResendProjectInvitationModel {
+  projectId: string;
+  invitedById?: string;
+  invitationToEmailId: string;
 }

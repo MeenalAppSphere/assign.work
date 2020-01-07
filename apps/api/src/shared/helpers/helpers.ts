@@ -1,11 +1,12 @@
+import { ProjectWorkingDays } from '@aavantan-app/models';
+import * as path from 'path';
+import { DEFAULT_DECIMAL_PLACES } from './defaultValueConstant';
+
 /**
  * converts given string to seconds
  * @param val ex: '1d 2h 34'
  * @return {number}
  */
-import { ProjectWorkingDays } from '@aavantan-app/models';
-import { DEFAULT_DECIMAL_PLACES } from './defaultValueConstant';
-
 export const stringToSeconds = (val: string = ''): number => {
   // separate given string with space
   const separatedVal = val.trim().split(/\s/);
@@ -98,4 +99,8 @@ export const secondsToHours = (seconds: number = 0): number => {
 export const validWorkingDaysChecker = (days: ProjectWorkingDays[] = []) => {
   const daysArray = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   return days.length === 7 && daysArray.every(d => days.some(day => day.day === d));
+};
+
+export const resolvePathHelper = (pathToResolve) => {
+  return path.resolve(path.join(__dirname, pathToResolve));
 };

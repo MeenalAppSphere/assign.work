@@ -1,5 +1,8 @@
 import * as aws from 'aws-sdk';
-import { DEFAULT_EMAIL_ADDRESS } from '../helpers/defaultValueConstant';
+import { DEFAULT_EMAIL_ADDRESS, DEFAULT_EMAIL_TEMPLATE_PATH } from '../helpers/defaultValueConstant';
+import * as ejs from 'ejs';
+import { resolvePathHelper } from '../helpers/helpers';
+
 
 export class EmailService {
   private ses: aws.SES;
@@ -38,6 +41,10 @@ export class EmailService {
     };
 
     return this.ses.sendEmail(params).promise();
+  }
+
+  async getTemplate(templatePath: string, templateData): Promise<string> {
+    return ejs.renderFile(resolvePathHelper(`${DEFAULT_EMAIL_TEMPLATE_PATH}${templatePath}`), templateData);
   }
 
 }

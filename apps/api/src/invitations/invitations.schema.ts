@@ -17,7 +17,6 @@ export const invitationSchema = new Schema({
     required: [true, 'Please add project details !']
   },
   isInviteAccepted: { type: Boolean, default: false },
-  // message: { type: String, required: [true, 'message is required'] },
   isDeleted: { type: Boolean, default: false },
   isExpired: { type: Boolean, default: false }
 }, schemaOptions);

@@ -9,6 +9,7 @@ import {
   ProjectStageSequenceChangeRequest,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
+  ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
@@ -49,6 +50,11 @@ export class ProjectController {
   @Post(':id/add-collaborators')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
+  }
+
+  @Post('resend-invitation')
+  async resendInvitation(@Body() model: ResendProjectInvitationModel) {
+    return await this._projectService.resendProjectInvitation(model);
   }
 
   @Post(':id/add-stage')

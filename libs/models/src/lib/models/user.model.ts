@@ -27,6 +27,7 @@ export class UserTimeZoneInfo {
 
 export class User {
   id?: string;
+  _id?: string;
   emailId?: string;
   password?: string;
   firstName?: string;

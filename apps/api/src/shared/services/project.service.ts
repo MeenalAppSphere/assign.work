@@ -15,6 +15,7 @@ import {
   ProjectStatus,
   ProjectTags,
   ProjectWorkingCapacityUpdateDto,
+  ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
@@ -40,8 +41,6 @@ import * as moment from 'moment';
 import { InvitationService } from './invitation.service';
 import { ModuleRef } from '@nestjs/core';
 import { EmailService } from './email.service';
-import * as ejs from 'ejs';
-import * as path from 'path';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -186,7 +185,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   async addCollaborators(id: string, collaborators: ProjectMembers[]) {
     if (!Array.isArray(collaborators)) {
-      throw new BadRequestException('Please check provided json');
+      throw new BadRequestException('invalid request');
     }
 
     const projectDetails: Project = await this.getProjectDetails(id);
@@ -286,6 +285,72 @@ export class ProjectService extends BaseService<Project & Document> implements O
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
+      throw e;
+    }
+  }
+
+  /**
+   * resend project invitation
+   * check basic validations
+   * find and expire already sent invitations to that user
+   * create new invitation and send email again
+   */
+  async resendProjectInvitation(model: ResendProjectInvitationModel) {
+    // check project details
+    const projectDetails: Project = await this.getProjectDetails(model.projectId);
+
+    // check if invitation To user exists or not
+    const userDetails: User = await this._userService.findOne({
+      filter: { emailId: model.invitationToEmailId },
+      lean: true
+    });
+
+    if (!userDetails) {
+      throw new BadRequestException('User not found or user not added as collaborator');
+    } else {
+      // if user exist then check if he's added to project as collaborator or not
+      const isProjectMember = projectDetails.members.some(s => s.userId === userDetails._id.toString());
+
+      // if not added as collaborator then throw error
+      if (!isProjectMember) {
+        throw new BadRequestException('User is not added as collaborator');
+      }
+    }
+
+
+    const session = await this.startSession();
+
+    try {
+      // find all already sent invitations
+      const alreadySentInvitationQuery = new MongooseQueryModel();
+      alreadySentInvitationQuery.filter = {
+        invitedById: this._generalService.userId,
+        invitationToId: model.invitationToEmailId,
+        projectId: model.projectId,
+        isInviteAccepted: false,
+        isExpired: false
+      };
+
+      // expire all already sent invitations
+      await this._invitationService.bulkUpdate(alreadySentInvitationQuery, { $set: { isExpired: true } }, session);
+
+      // create new invitation object
+      const newInvitation = this.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString());
+
+      // create invitation in db
+      const invitation = await this._invitationService.createInvitation(newInvitation, session);
+
+      const invitationEmail = {
+        to: [model.invitationToEmailId], subject: 'Invitation',
+        message: await this.prepareInvitationEmailMessage(ProjectInvitationType.normal, projectDetails, invitation[0].id, model.invitationToEmailId)
+      };
+
+      // send email again
+      this._emailService.sendMail(invitationEmail.to, invitationEmail.subject, invitationEmail.message);
+      this.commitTransaction(session);
+      return 'Invitation sent successfully!';
+    } catch (e) {
+      this.abortTransaction(session);
       throw e;
     }
   }
@@ -868,7 +933,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&projectId=${projectDetails._id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
-    return await ejs.renderFile(path.resolve(path.join(__dirname, 'shared/emailTemplates/projectInvitation/project.invitation.ejs')), templateData);
+    return await this._emailService.getTemplate('projectInvitation/project.invitation.ejs', templateData);
   }
 
   /**
