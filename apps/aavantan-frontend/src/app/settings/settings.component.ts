@@ -215,7 +215,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public createProjectForm(){
     this.projectForm = this.FB.group({
       name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required]),
-      organization: new FormControl(null, ),
+      org: new FormControl(null, ),
     });
   }
 
