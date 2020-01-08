@@ -50,6 +50,7 @@ export class User {
   username?: string;
   isEmailSent?: boolean;
   isDeleted?: boolean;
+  invitationId?: string;
 }
 
 export class SearchUserModel {

@@ -1,6 +1,8 @@
 import { ProjectWorkingDays } from '@aavantan-app/models';
 import * as path from 'path';
-import { DEFAULT_DECIMAL_PLACES } from './defaultValueConstant';
+import * as moment from 'moment';
+
+import { DEFAULT_DECIMAL_PLACES, DEFAULT_INVITATION_EXPIRY } from './defaultValueConstant';
 
 /**
  * converts given string to seconds
@@ -101,6 +103,27 @@ export const validWorkingDaysChecker = (days: ProjectWorkingDays[] = []) => {
   return days.length === 7 && daysArray.every(d => days.some(day => day.day === d));
 };
 
+/**
+ * path resolver helper function
+ * @param pathToResolve
+ */
 export const resolvePathHelper = (pathToResolve) => {
   return path.resolve(path.join(__dirname, pathToResolve));
+};
+
+/**
+ * email address validator helper
+ * @param emailId
+ */
+export const emailAddressValidator = (emailId): boolean => {
+  return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(emailId);
+};
+
+/**
+ * invitation link expire date checker
+ * @param timestamp
+ */
+export const invitationExpiryChecker = (timestamp: number): boolean => {
+  // check if given timestamp is lesser than expiry time
+  return moment.utc(timestamp).isAfter(moment.utc(timestamp).add(DEFAULT_INVITATION_EXPIRY));
 };

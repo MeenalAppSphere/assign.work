@@ -1,8 +1,9 @@
 import { BaseService } from './base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { DbCollection, Invitation } from '@aavantan-app/models';
+import { DbCollection, Invitation, MongooseQueryModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
-import { OnModuleInit } from '@nestjs/common';
+import { BadRequestException, OnModuleInit } from '@nestjs/common';
+import { invitationExpiryChecker } from '../helpers/helpers';
 
 export class InvitationService extends BaseService<Invitation & Document> implements OnModuleInit {
   constructor(
@@ -41,6 +42,37 @@ export class InvitationService extends BaseService<Invitation & Document> implem
       isExpired: true
     };
     return this.bulkUpdate(filter, updateObject, session);
+  }
+
+  /**
+   * check invitation expired or not
+   * @param id
+   */
+  async checkInvitationExpired(id: string) {
+    const query = new MongooseQueryModel();
+    query.filter = {
+      _id: id
+    };
+    query.lean = true;
+
+    const invitationDetails = await this.findOne(query);
+    if (!invitationDetails) {
+      throw new BadRequestException('Invalid invitation link');
+    }
+
+    return invitationExpiryChecker(invitationDetails.invitedAt);
+  }
+
+  /**
+   * get invitation by id
+   */
+  async getInvitationDetailsById(id: string) {
+    const invitationQuery = new MongooseQueryModel();
+
+    invitationQuery.filter = {
+      id: id
+    };
+    return this.findOne(invitationQuery);
   }
 
 }

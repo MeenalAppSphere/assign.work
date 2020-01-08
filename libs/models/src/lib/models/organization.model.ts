@@ -2,6 +2,7 @@ import { User } from './user.model';
 
 export class Organization {
   id?: string;
+  _id?: string;
   name: string;
   description?: string;
   displayName?: string;

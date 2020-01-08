@@ -26,7 +26,7 @@ export class AuthController {
   }
 
   @Post('google/validate-token')
-  async googleValidateToken(@Body('token') token: string) {
-    return await this._authService.verifyGoogleAuthToken(token);
+  async googleValidateToken(@Body('token') token: string, @Body('invitationId') invitationId: string) {
+    return await this._authService.verifyGoogleAuthToken(token, invitationId);
   }
 }

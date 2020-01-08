@@ -8,6 +8,7 @@ export class Invitation {
   projectId?: string;
   project?: Project;
   isInviteAccepted?: boolean;
+  invitedAt?: number;
   isDeleted?: boolean;
   isExpired?: boolean;
   id?: string;
@@ -18,4 +19,10 @@ export class ResendProjectInvitationModel {
   projectId: string;
   invitedById?: string;
   invitationToEmailId: string;
+}
+
+export class InvitationAcceptedModel {
+  invitationId: string;
+  invitationToEmailId: string;
+  projectId: string;
 }

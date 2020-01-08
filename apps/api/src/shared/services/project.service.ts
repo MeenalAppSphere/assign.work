@@ -41,6 +41,7 @@ import * as moment from 'moment';
 import { InvitationService } from './invitation.service';
 import { ModuleRef } from '@nestjs/core';
 import { EmailService } from './email.service';
+import { OrganizationService } from './organization.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -51,6 +52,7 @@ const projectBasicPopulation = [{
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
   private _userService: UsersService;
   private _invitationService: InvitationService;
+  private _organizationService: OrganizationService;
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
@@ -67,6 +69,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     // get services from module
     this._userService = this._moduleRef.get('UsersService');
     this._invitationService = this._moduleRef.get('InvitationService');
+    this._organizationService = this._moduleRef.get('OrganizationService');
   }
 
   /**
@@ -126,7 +129,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // set created project as current project of user
       userDetails.currentProject = createdProject[0].id;
 
+      // push project to user projects array
       userDetails.projects.push(createdProject[0].id);
+      // update user
       await this._userService.updateUser(userDetails.id, userDetails, session);
 
       await this.commitTransaction(session);
@@ -201,6 +206,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
       collaborators.forEach(collaborator => {
         // collaborator userId exists then collaborator is available in db
         if (collaborator.userId) {
+          // check if user is not adding him/her self to project as collaborator
+          if (collaborator.userId === this._generalService.userId) {
+            throw new BadRequestException('You can\'t add your self as collaborator');
+          }
+
           // find if some collaborators are in project but invite is not accepted yet
           const inProjectIndex = projectDetails.members.findIndex(s => s.userId === collaborator.userId);
           if (inProjectIndex > -1 && !projectDetails.members[inProjectIndex].isInviteAccepted) {
@@ -229,8 +239,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
         const userDetails = await this._userService.findOne(userFilter);
         // if user details found means user is already in db but in different organization
-        // then continue the loop, don't create user again
+        // then continue the loop, don't create user again and add it to collaboratorsAlreadyInDb array
         if (userDetails) {
+
+          // check if user is not adding him/her self to project as collaborator
+          if (userDetails.id === this._generalService.userId) {
+            throw new BadRequestException('You can\'t add your self as collaborator');
+          }
+
           collaboratorsAlreadyInDb.push({ emailId: userDetails.emailId, userId: userDetails.id });
           finalCollaborators.push({ emailId: userDetails.emailId, userId: userDetails.id });
           collaboratorsNotInDb.splice(i, 1);
@@ -308,6 +324,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
     if (!userDetails) {
       throw new BadRequestException('User not found or user not added as collaborator');
     } else {
+
+      if (userDetails.emailId === model.invitationToEmailId) {
+        throw new BadRequestException('You can\'t add your self as collaborator!');
+      }
+
       // if user exist then check if he's added to project as collaborator or not
       const isProjectMember = projectDetails.members.some(s => s.userId === userDetails._id.toString());
 
@@ -325,7 +346,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       const alreadySentInvitationQuery = new MongooseQueryModel();
       alreadySentInvitationQuery.filter = {
         invitedById: this._generalService.userId,
-        invitationToId: model.invitationToEmailId,
+        invitationToId: userDetails._id.toString(),
         projectId: model.projectId,
         isInviteAccepted: false,
         isExpired: false
@@ -929,8 +950,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param inviteEmailId
    */
   private async prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string, inviteEmailId?: string) {
+
     const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
-    const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&projectId=${projectDetails._id}&invitationId=${invitationId}&ts=${moment.utc().valueOf()}`;
+    const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&projectId=${projectDetails._id}&invitationId=${invitationId}`;
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
     return await this._emailService.getTemplate('projectInvitation/project.invitation.ejs', templateData);
@@ -949,6 +971,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     invitation.invitedById = from;
     invitation.isExpired = false;
     invitation.projectId = projectId;
+    invitation.invitedAt = moment.utc().valueOf();
 
     return invitation;
   }

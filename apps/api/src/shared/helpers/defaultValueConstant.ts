@@ -45,3 +45,6 @@ export const DEFAULT_EMAIL_ADDRESS = 'aashish.patil@appsphere.in';
 
 // default path for storing email templates
 export const DEFAULT_EMAIL_TEMPLATE_PATH = 'shared/emailTemplates/';
+
+// default invitation link expiry in seconds
+export const DEFAULT_INVITATION_EXPIRY = 259200;
