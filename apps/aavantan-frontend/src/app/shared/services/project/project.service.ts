@@ -139,8 +139,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   resendInvitation(json : ResendProjectInvitationModel): Observable<BaseResponseModel<string>> {
     return this._http.post(ProjectUrls.resendInvitation, json).pipe(
       map(res => {
-        this.updateCurrentProjectState(res.data);
-        this.notification.success('Project Updated', 'Project Settings Updated');
+        this.notification.success('Invitation', 'Project invitation sent successfully');
         return res;
       }),
       catchError(err => {

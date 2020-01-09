@@ -325,7 +325,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       throw new BadRequestException('User not found or user not added as collaborator');
     } else {
 
-      if (userDetails.emailId === model.invitationToEmailId) {
+      if (userDetails._id.toString() === this._generalService.userId) {
         throw new BadRequestException('You can\'t add your self as collaborator!');
       }
 
