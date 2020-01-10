@@ -10,7 +10,8 @@ export const invitationSchema = new Schema({
     required: [true, 'Please add invitation created by id'],
     ref: DbCollection.users
   },
-  invitationToId: { type: Schema.Types.ObjectId, required: [true, 'Please add invitee id'], ref: DbCollection.users },
+  invitationToId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+  invitationToEmailId: { type: String },
   projectId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.projects,

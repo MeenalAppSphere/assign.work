@@ -325,7 +325,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       throw new BadRequestException('User not found or user not added as collaborator');
     } else {
 
-      if (userDetails.emailId === model.invitationToEmailId) {
+      if (userDetails._id.toString() === this._generalService.userId) {
         throw new BadRequestException('You can\'t add your self as collaborator!');
       }
 
@@ -337,7 +337,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
         throw new BadRequestException('User is not added as collaborator');
       }
     }
-
 
     const session = await this.startSession();
 
@@ -356,7 +355,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this._invitationService.bulkUpdate(alreadySentInvitationQuery, { $set: { isExpired: true } }, session);
 
       // create new invitation object
-      const newInvitation = this.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString());
+      const newInvitation = this.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString(), userDetails.emailId);
 
       // create invitation in db
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
@@ -386,7 +385,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
     for (let i = 0; i < collaborators.length; i++) {
-      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString());
+      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
 
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
       emailArrays.push({
@@ -877,6 +876,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
   }
 
+  async acceptInvitation(invitationId: string) {
+    return await this._invitationService.acceptInvitation(invitationId);
+  }
+
   /**
    * get project details by id
    * @param id: project id
@@ -963,13 +966,16 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param to
    * @param from
    * @param projectId
+   * @param toEmailId
    */
-  private prepareInvitationObject(to: string, from: string, projectId: string): Invitation {
+  private prepareInvitationObject(to: string, from: string, projectId: string, toEmailId: string): Invitation {
     const invitation = new Invitation();
 
     invitation.invitationToId = to;
     invitation.invitedById = from;
+    invitation.invitationToEmailId = toEmailId;
     invitation.isExpired = false;
+    invitation.isInviteAccepted = false;
     invitation.projectId = projectId;
     invitation.invitedAt = moment.utc().valueOf();
 

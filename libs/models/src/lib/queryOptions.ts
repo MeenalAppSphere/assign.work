@@ -13,4 +13,5 @@ export class MongooseQueryModel {
   lean?: boolean;
   sort?: string;
   sortBy?: 'asc' | 'desc' = 'asc';
+  limit?: number;
 }

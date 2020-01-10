@@ -4,16 +4,22 @@ import { DbCollection, Invitation, MongooseQueryModel } from '@aavantan-app/mode
 import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, OnModuleInit } from '@nestjs/common';
 import { invitationExpiryChecker } from '../helpers/helpers';
+import { ProjectService } from './project.service';
+import { ModuleRef } from '@nestjs/core';
 
 export class InvitationService extends BaseService<Invitation & Document> implements OnModuleInit {
+
+  private _projectService: ProjectService;
+
   constructor(
-    @InjectModel(DbCollection.invitations) protected readonly _invitationModel: Model<Invitation & Document>
+    @InjectModel(DbCollection.invitations) protected readonly _invitationModel: Model<Invitation & Document>,
+    private _moduleRef: ModuleRef
   ) {
     super(_invitationModel);
   }
 
   onModuleInit(): any {
-
+    this._projectService = this._moduleRef.get('ProjectService');
   }
 
   /**
@@ -64,15 +70,99 @@ export class InvitationService extends BaseService<Invitation & Document> implem
   }
 
   /**
+   * accept invitation
+   * @param invitationId
+   * @param session
+   */
+  async acceptInvitation(invitationId: string, session?: ClientSession) {
+    return await this.update(invitationId, {
+      $set: { isInviteAccepted: true, isExpired: true }
+    }, session);
+  }
+
+  /**
+   * get all pending invitations by user email
+   */
+  async getAllPendingInvitations(emailId: string) {
+    return this.dbModel.aggregate([{
+      $sort: { invitedAt: -1 },
+      $match: { invitationToEmailId: emailId, isExpired: false, isInviteAccepted: false }
+    }, {
+      $group: { _id: '$projectId' }
+    }
+    ]);
+  }
+
+  /**
+   * expire all previously sent invitation's by emailId and projectId
+   * @param emailId
+   * @param projectId
+   * @param session
+   */
+  async expireAllPreviousInvitation(emailId: string, session: ClientSession, projectId?: string) {
+    const alreadySentInvitationQuery = new MongooseQueryModel();
+    alreadySentInvitationQuery.filter = {
+      invitationToEmailId: emailId,
+      isInviteAccepted: false,
+      isExpired: false
+    };
+
+    // if project id exits add it to query, it also mean expire only those invitations whose are for this project
+    if (projectId) {
+      alreadySentInvitationQuery.filter.projectId = projectId;
+    }
+
+    // expire all already sent invitations for the current project excluding current invitation
+    return await this.bulkUpdate(alreadySentInvitationQuery, {
+      $set: {
+        isExpired: true
+      }
+    }, session);
+  }
+
+  /**
    * get invitation by id
    */
   async getInvitationDetailsById(id: string) {
     const invitationQuery = new MongooseQueryModel();
 
     invitationQuery.filter = {
-      id: id
+      _id: id
     };
     return this.findOne(invitationQuery);
   }
 
+  /**
+   * get invitation full details
+   * including project and organization details
+   */
+  async getFullInvitationDetails(invitationId: string) {
+    // get invitation, project and organization details
+    return await this._invitationModel.aggregate([{
+      $match: { '_id': this.toObjectId(invitationId) }
+    }, {
+      $lookup: {
+        from: DbCollection.projects,
+        let: { 'projectId': '$projectId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$projectId'] } } },
+          { $project: { members: 1, organization: 1 } },
+          { $project: { 'members.workingCapacity': 0, 'members.workingCapacityPerDay': 0, 'members.workingDays': 0 } }
+        ],
+        as: 'project'
+      }
+    }, { $unwind: '$project' },
+      {
+        $lookup: {
+          from: DbCollection.organizations,
+          let: { 'organizationId': '$project.organization' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$organizationId'] } } },
+            { $project: { members: 1 } }
+          ],
+          as: 'organization'
+        }
+      }, { $unwind: '$organization' }
+    ]).exec();
+  }
 }

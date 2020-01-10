@@ -127,4 +127,9 @@ export class ProjectController {
   async searchProjectCollaborators(@Body() model: SearchProjectCollaborators) {
     return await this._projectService.searchProjectCollaborators(model);
   }
+
+  @Post('accept-invitation')
+  async acceptInvitation(@Body('invitationId') invitationId: string) {
+    return await this._projectService.acceptInvitation(invitationId);
+  }
 }
