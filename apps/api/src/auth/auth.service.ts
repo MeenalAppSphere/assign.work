@@ -120,11 +120,11 @@ export class AuthService implements OnModuleInit {
           const invitationDetails = await this._invitationService.getFullInvitationDetails(user.invitationId);
 
           // check basic validations for invitation link
-          this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+          this.invitationLinkBasicValidation(invitationDetails[0], userDetails.emailId);
 
           // now everything seems ok start invitation accepting process
           // accept invitation and update project, organization and invitation
-          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, model.invitationId);
+          await this.acceptInvitationProcess(invitationDetails[0].project, session, invitationDetails[0].organization, userDetails, model.invitationId);
 
           // update user with model and set organization
           await this._userService.update(userDetails._id.toString(), {
@@ -136,11 +136,11 @@ export class AuthService implements OnModuleInit {
               status: UserStatus.Active,
               lastLoginProvider: UserLoginProviderEnum.normal,
               memberType: MemberTypes.alien,
-              currentOrganizationId: invitationDetails.organization._id.toString(),
-              currentProject: invitationDetails.project._id.toString(),
+              currentOrganizationId: invitationDetails[0].organization._id.toString(),
+              currentProject: invitationDetails[0].project._id.toString(),
               $push: {
-                organizations: invitationDetails.organization._id.toString(),
-                projects: invitationDetails.project._id.toString()
+                organizations: invitationDetails[0].organization._id.toString(),
+                projects: invitationDetails[0].project._id.toString()
               }
             }
           }, session);
@@ -158,27 +158,28 @@ export class AuthService implements OnModuleInit {
 
               const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
 
-              if (invitationDetails) {
+              // check basic validations for invitation link
+              this.invitationLinkBasicValidation(invitationDetails[0], userDetails.emailId);
 
-                // accept invitation process
-                await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
+              // accept invitation process
+              await this.acceptInvitationProcess(invitationDetails[0].project, session, invitationDetails[0].organization, userDetails, invitationDetails[0]._id);
 
-                // update user
-                await this._userService.update(userDetails._id.toString(), {
-                  $set: {
-                    currentOrganizationId: invitationDetails.organization._id.toString(),
-                    currentProject: invitationDetails.project._id.toString(),
-                    $push: {
-                      organizations: invitationDetails.organization._id,
-                      projects: invitationDetails.project._id.toString()
-                    }
+              // update user
+              await this._userService.update(userDetails._id.toString(), {
+                $set: {
+                  currentOrganizationId: invitationDetails[0].organization._id.toString(),
+                  currentProject: invitationDetails[0].project._id.toString(),
+                  $push: {
+                    organizations: invitationDetails[0].organization._id,
+                    projects: invitationDetails[0].project._id.toString()
                   }
-                }, session);
+                }
+              }, session);
 
-                // assign jwt payload
-                jwtPayload.id = userDetails._id;
-                jwtPayload.sub = userDetails.emailId;
-              }
+              // assign jwt payload
+              jwtPayload.id = userDetails._id;
+              jwtPayload.sub = userDetails.emailId;
+
             }
           }
         }
@@ -246,11 +247,11 @@ export class AuthService implements OnModuleInit {
               // get invitation details
               const invitationDetails = await this._invitationService.getFullInvitationDetails(invitationId);
               // check basic validations for invitation link
-              this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+              this.invitationLinkBasicValidation(invitationDetails[0], userDetails.emailId);
 
               // now everything seems ok start invitation accepting process
               // accept invitation and update project, organization and invitation
-              await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationId);
+              await this.acceptInvitationProcess(invitationDetails[0].project, session, invitationDetails[0].organization, userDetails, invitationId);
 
               // if user is already in db then update it's last login type to google
               // add project and organization
@@ -259,11 +260,11 @@ export class AuthService implements OnModuleInit {
                   lastLoginProvider: UserLoginProviderEnum.google,
                   profilePic: authTokenResult.picture,
                   status: UserStatus.Active,
-                  currentOrganizationId: invitationDetails.organization._id.toString(),
-                  currentProject: invitationDetails.project._id.toString(),
+                  currentOrganizationId: invitationDetails[0].organization._id.toString(),
+                  currentProject: invitationDetails[0].project._id.toString(),
                   $push: {
-                    organizations: invitationDetails.organization._id.toString(),
-                    projects: invitationDetails.project._id.toString()
+                    organizations: invitationDetails[0].organization._id.toString(),
+                    projects: invitationDetails[0].project._id.toString()
                   }
                 }
               }, session);
@@ -281,31 +282,31 @@ export class AuthService implements OnModuleInit {
 
                   const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
 
-                  if (invitationDetails) {
+                  // check basic validations for invitation link
+                  this.invitationLinkBasicValidation(invitationDetails[0], userDetails.emailId);
 
-                    // accept invitation process
-                    await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
+                  // accept invitation process
+                  await this.acceptInvitationProcess(invitationDetails[0].project, session, invitationDetails[0].organization, userDetails, invitationDetails[0]._id);
 
-                    // if user is already in db then update it's last login type to google
-                    // add project and organization
-                    await this._userService.update(userDetails._id.toString(), {
-                      $set: {
-                        lastLoginProvider: UserLoginProviderEnum.google,
-                        profilePic: authTokenResult.picture,
-                        status: UserStatus.Active,
-                        currentOrganizationId: invitationDetails.organization._id.toString(),
-                        currentProject: invitationDetails.project._id.toString(),
-                        $push: {
-                          organizations: invitationDetails.organization._id,
-                          projects: invitationDetails.project._id.toString()
-                        }
+                  // if user is already in db then update it's last login type to google
+                  // add project and organization
+                  await this._userService.update(userDetails._id.toString(), {
+                    $set: {
+                      lastLoginProvider: UserLoginProviderEnum.google,
+                      profilePic: authTokenResult.picture,
+                      status: UserStatus.Active,
+                      currentOrganizationId: invitationDetails[0].organization._id.toString(),
+                      currentProject: invitationDetails[0].project._id.toString(),
+                      $push: {
+                        organizations: invitationDetails[0].organization._id,
+                        projects: invitationDetails[0].project._id.toString()
                       }
-                    }, session);
+                    }
+                  }, session);
 
-                    // assign jwt payload
-                    jwtPayload.id = userDetails._id;
-                    jwtPayload.sub = userDetails.emailId;
-                  }
+                  // assign jwt payload
+                  jwtPayload.id = userDetails._id;
+                  jwtPayload.sub = userDetails.emailId;
                 }
               }
             }
@@ -475,7 +476,7 @@ export class AuthService implements OnModuleInit {
       }
 
       // if invitation id present then user is already created so get user details by email id
-      if (invitationDetails.invitationToId !== userEmailId) {
+      if (invitationDetails.invitationToEmailId !== userEmailId) {
         throw new BadRequestException('Invalid invitation link! this invitation link is not for this email id');
       }
     }

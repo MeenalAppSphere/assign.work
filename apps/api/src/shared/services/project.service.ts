@@ -877,7 +877,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   }
 
   async acceptInvitation(invitationId: string) {
-    return await this._invitationService.acceptInvitation(invitationId);
+    return await this._invitationService.getFullInvitationDetails(invitationId);
   }
 
   /**
