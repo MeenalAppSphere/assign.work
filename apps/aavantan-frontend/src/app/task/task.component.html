@@ -254,10 +254,18 @@
                 <!-- row 5-->
                 <div class="row">
                     <div class="col-md-12">
-                        <nz-form-item>
+
+
+                      <nz-form-item>
                             <nz-form-label nzFor="description">Description</nz-form-label>
                             <nz-form-control>
-                                <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" formControlName="description" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
+                              <quill-editor
+                                            formControlName="description"
+                                            placeholder="Add task description here..."
+                                            [modules]="quillConfig"
+                                            (onSelectionChanged)="onSelectionChanged($event)"
+                                            (onContentChanged)="onContentChanged($event)"></quill-editor>
+<!--                                <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" formControlName="description" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
                             </nz-form-control>
                         </nz-form-item>
                     </div>
@@ -370,7 +378,15 @@
                 <nz-form-item>
                     <nz-form-label nzFor="comment">Comment</nz-form-label>
                     <nz-form-control nzValidatingTip="Please enter some comment">
-                        <editor formControlName="comment" apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
+
+                      <quill-editor
+                        formControlName="comment"
+                        placeholder="Add comment here..."
+                        [modules]="quillConfig"
+                        (onSelectionChanged)="onSelectionChanged($event)"
+                        (onContentChanged)="onContentChanged($event)"></quill-editor>
+
+                      <!--                        <editor formControlName="comment" apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
                     </nz-form-control>
                 </nz-form-item>
                 <div class="text-right">

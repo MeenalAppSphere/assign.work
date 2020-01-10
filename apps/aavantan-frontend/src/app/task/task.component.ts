@@ -21,7 +21,7 @@ import {
   GetAllTaskRequestModel,
   TaskTimeLogResponse,
   TimeLog,
-  UpdateCommentModel, SearchProjectCollaborators, TaskTimeLogHistoryModel, TaskTimeLogHistoryResponseModel
+  UpdateCommentModel, SearchProjectCollaborators, TaskTimeLogHistoryModel, TaskTimeLogHistoryResponseModel, Mention
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -33,8 +33,11 @@ import { TaskQuery } from '../queries/task/task.query';
 import { TaskUrls } from '../shared/services/task/task.url';
 import { Observable, Subject } from 'rxjs';
 import { UserService } from '../shared/services/user/user.service';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, first } from 'rxjs/operators';
 import { ProjectService } from '../shared/services/project/project.service';
+import 'quill-mention';
+import 'quill-emoji';
+
 
 @Component({
   selector: 'aavantan-app-task',
@@ -114,6 +117,12 @@ export class TaskComponent implements OnInit, OnDestroy {
       arrow : true
     }];
   public timelogHistoryList: TaskTimeLogHistoryResponseModel[]=[];
+
+  /* Quill Editor */
+  public atMentionUsers: Mention[] = [];
+  public hashValues: Mention[] = [];
+  public quillConfig={};
+  /* end Quill Editor */
 
   public nzFilterOption = () => true;
 
@@ -282,7 +291,106 @@ export class TaskComponent implements OnInit, OnDestroy {
       });
     // end search tags
 
+    this.initQilllConfig();
   }
+
+  public initQilllConfig(){
+
+    if(this.currentProject.members.length>0){
+      this.currentProject.members.forEach((ele)=>{
+        this.atMentionUsers.push({
+          id:ele.userId,
+          value: ele.userDetails.firstName+' '+ele.userDetails.lastName,
+          link: ele.userDetails.profileLink ? ele.userDetails.profileLink : ''
+        });
+      });
+    }
+
+
+    this.quillConfig = {
+      toolbar: {
+        container: [
+          ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+          ['code-block'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          //[{ 'font': [] }],
+          ['clean'],                                         // remove formatting button
+          ['link', 'image', 'video']
+            ['emoji'],
+        ],
+        handlers: {'emoji': function() {}}
+      },
+      mention: {
+        allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+        mentionDenotationChars: ["@", "#"],
+        source: (searchTerm, renderList, mentionChar) => {
+          let values;
+
+          if (mentionChar === "@") {
+            values = this.atMentionUsers;
+          } else {
+            values = this.hashValues = this.atMentionUsers;
+          }
+
+          if (searchTerm.length === 0) {
+            renderList(values, searchTerm);
+          } else {
+            const matches = [];
+            for (let i = 0; i < values.length; i++)
+              if (~values[i].value.toLowerCase().indexOf(searchTerm.toLowerCase())) matches.push(values[i]);
+            renderList(matches, searchTerm);
+          }
+        },
+      },
+      "emoji-toolbar": true,
+      "emoji-textarea": false,
+      "emoji-shortname": true,
+      keyboard: {
+        bindings: {
+          shiftEnter: {
+            key: 13,
+            shiftKey: true, // Handle shift+enter
+            handler: (range, context) => {
+
+              console.log("shift+enter")
+            }
+          },
+          enter:{
+            key:13, //Enter
+            handler: (range, context)=>{
+
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+  }
+
+  onSelectionChanged = (event) =>{
+    if(event.oldRange == null){
+      this.onFocus();
+    }
+    if(event.range == null){
+      this.onBlur();
+    }
+  }
+
+  onContentChanged = (event) =>{
+    //console.log(event.html);
+  }
+
+  onFocus = () =>{
+    console.log("On Focus");
+  }
+  onBlur = () =>{
+    console.log("Blurred");
+  }
+
+  //=========== end quill ============//
 
   public searchWatchers(value: string): void {
     this.watchersQueryText = value;
