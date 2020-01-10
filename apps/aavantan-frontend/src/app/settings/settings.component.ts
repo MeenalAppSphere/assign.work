@@ -1,12 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  GetAllProjectsModel, Organization,
+  GetAllProjectsModel,
+  Organization,
   Project,
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
   ProjectStatus,
-  ProjectWorkingCapacityUpdateDto, ProjectWorkingDays, SearchProjectCollaborators, SearchUserModel,
+  ProjectWorkingCapacityUpdateDto,
+  ProjectWorkingDays,
+  ResendProjectInvitationModel,
+  SearchProjectCollaborators,
+  SearchUserModel,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -60,6 +65,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public currentOrganization:Organization;
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
+  public resendInviteInProcess:boolean = false;
   public modelChangedSearchCollaborators = new Subject<string>();
   public isSearching: boolean;
   public updateRequestInProcess: boolean = false;
@@ -252,8 +258,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.selectedCollaborators = this.selectedCollaborators.filter(item => item.emailId !== user.emailId);
   }
 
-  public resendInvitation(user: User) {
-    console.log('Resend Invitation');
+  async resendInvitation(user: ProjectMembers) {
+    try {
+      this.resendInviteInProcess = true;
+      const json:ResendProjectInvitationModel ={
+        projectId: this._generalService.currentProject.id,
+        invitedById: this._generalService.user.id,
+        invitationToEmailId: user.emailId
+      }
+    await this._projectService.resendInvitation(json).toPromise();
+      this.resendInviteInProcess = false;
+    } catch (e) {
+      this.resendInviteInProcess = false;
+    }
   }
 
   async addMembers() {

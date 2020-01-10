@@ -9,6 +9,7 @@ import { HistoryComponent } from './history/history.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { EditCommentComponent } from './edit-comment/edit-comment.component';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { QuillModule } from 'ngx-quill';
 
 const routes: Routes = [
   { path: '', component: TaskComponent},
@@ -22,7 +23,8 @@ const routes: Routes = [
     SharedModule,
     TypeaheadModule,
     EditorModule,
-    NzPopoverModule
+    NzPopoverModule,
+    QuillModule.forRoot()
   ],
   exports: [],
   declarations: [

@@ -33,6 +33,7 @@ export class User {
   firstName?: string;
   lastName?: string;
   profilePic?: string;
+  profileLink?: string;
   lastLoginProvider?: UserLoginProviderEnum;
   recentLoginInfo?: UserRecentLoginInfo;
   confirmed?: boolean;
@@ -56,4 +57,10 @@ export class User {
 export class SearchUserModel {
   organizationId: string;
   query: string;
+}
+
+export class Mention {
+  id: string;
+  value: string;
+  link: string;
 }

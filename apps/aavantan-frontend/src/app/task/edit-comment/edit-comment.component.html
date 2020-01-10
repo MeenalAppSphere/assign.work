@@ -4,7 +4,13 @@
       <nz-form-item>
         <nz-form-label nzFor="comment">Comment</nz-form-label>
         <nz-form-control nzValidatingTip="Please enter some comment">
-          <editor formControlName="comment" apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
+          <quill-editor
+            formControlName="comment"
+            placeholder="Update task comment here..."
+            [modules]="quillConfig"
+            (onSelectionChanged)="onSelectionChanged($event)"
+            (onContentChanged)="onContentChanged($event)"></quill-editor>
+          <!--          <editor formControlName="comment" apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
         </nz-form-control>
       </nz-form-item>
     </div>

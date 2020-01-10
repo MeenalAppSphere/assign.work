@@ -13,7 +13,7 @@ import {
   ProjectPriority,
   ProjectStages,
   ProjectStatus,
-  ProjectWorkingCapacityUpdateDto,
+  ProjectWorkingCapacityUpdateDto, ResendProjectInvitationModel,
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
@@ -132,6 +132,18 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       }),
       catchError(e => {
         return this.handleError(e);
+      })
+    );
+  }
+
+  resendInvitation(json : ResendProjectInvitationModel): Observable<BaseResponseModel<string>> {
+    return this._http.post(ProjectUrls.resendInvitation, json).pipe(
+      map(res => {
+        this.notification.success('Invitation', 'Project invitation sent successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
       })
     );
   }
