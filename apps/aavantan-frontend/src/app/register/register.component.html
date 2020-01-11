@@ -68,6 +68,7 @@
 
                 <nz-form-control nzValidatingTip="Please input your username!">
                   <input
+                    [disabled]="isInvitedLink"
                     type="email"
                     nz-input
                     formControlName="emailId"

@@ -3,9 +3,10 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Notice } from '../shared/interfaces/notice.type';
 import { AuthService } from '../shared/services/auth.service';
 import { AuthQuery } from '../queries/auth/auth.query';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { AuthService as SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
+import { ValidationRegexService } from '../shared/services/validation-regex.service';
 
 @Component({
   templateUrl: './register.component.html',
@@ -15,14 +16,18 @@ export class RegisterComponent implements OnInit, OnDestroy {
   public signUpForm: FormGroup;
   public registerInProcess = false;
   public responseMessage: Notice;
+  public isInvitedLink: boolean= false;
 
   constructor(private readonly _authService: AuthService,
               private readonly _authQuery: AuthQuery,
               private router: Router,
-              private socialAuthService: SocialAuthService) {
+              private activatedRoute : ActivatedRoute,
+              private socialAuthService: SocialAuthService,
+              private validationRegexService:ValidationRegexService) {
   }
 
   ngOnInit(): void {
+
     this.signUpForm = new FormGroup({
       firstName: new FormControl(null, [Validators.required]),
       lastName: new FormControl(null, [Validators.required]),
@@ -34,6 +39,16 @@ export class RegisterComponent implements OnInit, OnDestroy {
       ]),
       agree: new FormControl(false)
     });
+
+    if(this.activatedRoute.snapshot.params.url){
+
+      if(!this.validationRegexService.emailValidator(this.activatedRoute.snapshot.params.url).invalidEmailAddress) {
+        this.signUpForm.get('emailId').patchValue(this.activatedRoute.snapshot.params.url);
+        this.isInvitedLink = true;
+      }else{
+        this.isInvitedLink = false;
+      }
+    }
 
     this._authQuery.isRegisterInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
       this.registerInProcess = res;
