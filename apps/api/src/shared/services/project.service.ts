@@ -955,7 +955,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private async prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string, inviteEmailId?: string) {
 
     const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
-    const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&projectId=${projectDetails._id}&invitationId=${invitationId}`;
+    const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&invitationId=${invitationId}`;
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
     return await this._emailService.getTemplate('projectInvitation/project.invitation.ejs', templateData);

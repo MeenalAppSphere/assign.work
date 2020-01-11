@@ -3,7 +3,7 @@ import { ClientSession, Document, Model } from 'mongoose';
 import { DbCollection, Invitation, MongooseQueryModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, OnModuleInit } from '@nestjs/common';
-import { invitationExpiryChecker } from '../helpers/helpers';
+import { isInvitationExpired } from '../helpers/helpers';
 import { ProjectService } from './project.service';
 import { ModuleRef } from '@nestjs/core';
 
@@ -66,7 +66,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
       throw new BadRequestException('Invalid invitation link');
     }
 
-    return invitationExpiryChecker(invitationDetails.invitedAt);
+    return isInvitationExpired(invitationDetails.invitedAt);
   }
 
   /**
@@ -119,7 +119,6 @@ export class InvitationService extends BaseService<Invitation & Document> implem
     alreadySentInvitationQuery.filter = {
       invitationToEmailId: emailId,
       isInviteAccepted: false,
-      isExpired: false
     };
 
     // if project id exits add it to query, it also mean expire only those invitations whose are for this project

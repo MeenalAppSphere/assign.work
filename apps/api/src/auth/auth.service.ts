@@ -20,7 +20,7 @@ import { ProjectService } from '../shared/services/project.service';
 import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';
-import { emailAddressValidator, invitationExpiryChecker } from '../shared/helpers/helpers';
+import { emailAddressValidator, isInvitationExpired } from '../shared/helpers/helpers';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -137,11 +137,11 @@ export class AuthService implements OnModuleInit {
               lastLoginProvider: UserLoginProviderEnum.normal,
               memberType: MemberTypes.alien,
               currentOrganizationId: invitationDetails.organization._id.toString(),
-              currentProject: invitationDetails.project._id.toString(),
-              $push: {
-                organizations: invitationDetails.organization._id.toString(),
-                projects: invitationDetails.project._id.toString()
-              }
+              currentProject: invitationDetails.project._id.toString()
+            },
+            $push: {
+              organizations: invitationDetails.organization._id.toString(),
+              projects: invitationDetails.project._id.toString()
             }
           }, session);
 
@@ -168,20 +168,19 @@ export class AuthService implements OnModuleInit {
               await this._userService.update(userDetails._id.toString(), {
                 $set: {
                   currentOrganizationId: invitationDetails.organization._id.toString(),
-                  currentProject: invitationDetails.project._id.toString(),
-                  $push: {
-                    organizations: invitationDetails.organization._id.toString(),
-                    projects: invitationDetails.project._id.toString()
-                  }
+                  currentProject: invitationDetails.project._id.toString()
+                },
+                $push: {
+                  organizations: invitationDetails.organization._id.toString(),
+                  projects: invitationDetails.project._id.toString()
                 }
               }, session);
-
-              // assign jwt payload
-              jwtPayload.id = userDetails._id;
-              jwtPayload.sub = userDetails.emailId;
-
             }
           }
+
+          // assign jwt payload
+          jwtPayload.id = userDetails._id;
+          jwtPayload.sub = userDetails.emailId;
         }
       } else {
         // user not exist but invitation link then it's malicious invitation link
@@ -261,11 +260,11 @@ export class AuthService implements OnModuleInit {
                   profilePic: authTokenResult.picture,
                   status: UserStatus.Active,
                   currentOrganizationId: invitationDetails.organization._id.toString(),
-                  currentProject: invitationDetails.project._id.toString(),
-                  $push: {
-                    organizations: invitationDetails.organization._id.toString(),
-                    projects: invitationDetails.project._id.toString()
-                  }
+                  currentProject: invitationDetails.project._id.toString()
+                },
+                $push: {
+                  organizations: invitationDetails.organization._id.toString(),
+                  projects: invitationDetails.project._id.toString()
                 }
               }, session);
 
@@ -296,19 +295,19 @@ export class AuthService implements OnModuleInit {
                       profilePic: authTokenResult.picture,
                       status: UserStatus.Active,
                       currentOrganizationId: invitationDetails.organization._id.toString(),
-                      currentProject: invitationDetails.project._id.toString(),
-                      $push: {
-                        organizations: invitationDetails.organization._id,
-                        projects: invitationDetails.project._id.toString()
-                      }
+                      currentProject: invitationDetails.project._id.toString()
+                    },
+                    $push: {
+                      organizations: invitationDetails.organization._id,
+                      projects: invitationDetails.project._id.toString()
                     }
                   }, session);
-
-                  // assign jwt payload
-                  jwtPayload.id = userDetails._id;
-                  jwtPayload.sub = userDetails.emailId;
                 }
               }
+
+              // assign jwt payload
+              jwtPayload.id = userDetails._id;
+              jwtPayload.sub = userDetails.emailId;
             }
           } else {
             // user not exist but invitation link then it's malicious invitation link
@@ -333,9 +332,10 @@ export class AuthService implements OnModuleInit {
             const newUser = await this._userModel.create([user], session);
             jwtPayload.sub = newUser[0].emailId;
             jwtPayload.id = newUser[0].id;
-
           }
 
+          await session.commitTransaction();
+          session.endSession();
           // return jwt token
           return {
             access_token: this.jwtService.sign(jwtPayload)
@@ -347,6 +347,8 @@ export class AuthService implements OnModuleInit {
         throw new UnauthorizedException('Invalid user login');
       }
     } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
       throw e;
     }
   }
@@ -410,11 +412,7 @@ export class AuthService implements OnModuleInit {
   private async getUserByEmailId(emailId: string) {
     const userQuery = new MongooseQueryModel();
     userQuery.filter = {
-      emailId: emailId, $and: [{
-        status: { $in: [null, undefined] }
-      }, {
-        lastLoginProvider: { $in: [null, undefined] }
-      }]
+      emailId: emailId
     };
     userQuery.select = '_id emailId';
     userQuery.lean = true;
@@ -471,7 +469,7 @@ export class AuthService implements OnModuleInit {
     if (!invitationDetails) {
       throw new BadRequestException('Invalid invitation link');
     } else {
-      if (invitationExpiryChecker(invitationDetails.invitedAt)) {
+      if (isInvitationExpired(invitationDetails.invitedAt)) {
         throw new BadRequestException('Invitation link has been expired! please request a new one');
       }
 
@@ -526,7 +524,7 @@ export class AuthService implements OnModuleInit {
       // loop over all pending invitations and filter out expired invitations
       pendingInvitations = pendingInvitations.filter(invitation => {
         // if link is expired add it to expired invitation
-        return invitationExpiryChecker(invitation.invitedAt);
+        return !isInvitationExpired(invitation.invitedAt);
       });
       return pendingInvitations;
     } else {
