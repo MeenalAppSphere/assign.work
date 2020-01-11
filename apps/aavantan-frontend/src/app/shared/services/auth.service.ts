@@ -127,11 +127,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         });
 
         this._generalService.token = res.data.access_token;
-        if (res.data.user.currentProject) {
-          this.router.navigate(['dashboard/project']);
-        } else {
-          this.router.navigate(['dashboard']);
-        }
+        this.router.navigate(['dashboard']);
         return res;
       }),
       catchError(err => {

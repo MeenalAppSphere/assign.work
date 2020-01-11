@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, OnModuleInit, UnauthorizedException } 
 import { JwtService } from '@nestjs/jwt';
 import {
   DbCollection,
-  Invitation,
   MemberTypes,
   MongooseQueryModel,
   Organization,
@@ -21,7 +20,7 @@ import { ProjectService } from '../shared/services/project.service';
 import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';
-import { emailAddressValidator, invitationExpiryChecker } from '../shared/helpers/helpers';
+import { emailAddressValidator, isInvitationExpired } from '../shared/helpers/helpers';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -47,12 +46,10 @@ export class AuthService implements OnModuleInit {
     this._invitationService = this._moduleRef.get('InvitationService', { strict: false });
   }
 
-  createToken(user: any) {
-    return {
-      access_token: this.jwtService.sign({ emailId: user.email, sub: user.id })
-    };
-  }
-
+  /**
+   * login with emailId and password
+   * @param req
+   */
   async login(req: UserLoginWithPasswordRequest) {
     // check user
     const user = await this._userModel.findOne({
@@ -90,6 +87,7 @@ export class AuthService implements OnModuleInit {
     // validations
     this.checkSignUpValidations(user);
 
+    // start session
     const session = await this._userModel.db.startSession();
     session.startTransaction();
 
@@ -107,77 +105,90 @@ export class AuthService implements OnModuleInit {
 
       const jwtPayload = { sub: '', id: '' };
 
-      /* check if user has invitationId && current project
-      * it means user has accepted invitation of project
-      */
-      if (user.invitationId && user.currentProject && typeof user.currentProject === 'string') {
+      // get user details by emailId id
+      const userDetails = await this.getUserByEmailId(model.emailId);
 
-        // get invitation details
-        const invitationDetails = await this._invitationService.getInvitationDetailsById(user.invitationId);
+      // user exist or not
+      if (userDetails) {
+        /*
+        * check if user has invitationId && current project
+        * it means user has accepted invitation of project
+        */
+        if (user.invitationId) {
 
-        if (!invitationDetails) {
-          throw new BadRequestException('Invitation link is not valid!');
+          // get invitation details
+          const invitationDetails = await this._invitationService.getFullInvitationDetails(user.invitationId);
+
+          // check basic validations for invitation link
+          this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+
+          // now everything seems ok start invitation accepting process
+          // accept invitation and update project, organization and invitation
+          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, model.invitationId);
+
+          // update user with model and set organization
+          await this._userService.update(userDetails._id.toString(), {
+            $set: {
+              password: user.password,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              locale: user.locale,
+              status: UserStatus.Active,
+              lastLoginProvider: UserLoginProviderEnum.normal,
+              memberType: MemberTypes.alien,
+              currentOrganizationId: invitationDetails.organization._id.toString(),
+              currentProject: invitationDetails.project._id.toString()
+            },
+            $push: {
+              organizations: invitationDetails.organization._id.toString(),
+              projects: invitationDetails.project._id.toString()
+            }
+          }, session);
+
+          // assign jwt payload
+          jwtPayload.id = userDetails._id.toString();
+          jwtPayload.sub = userDetails.emailId;
         } else {
-          // check invitation link is valid or not
-          this.checkInvitationLink(invitationDetails, user.currentProject, user.emailId);
-        }
+          // check if new user have pending invitations
+          const pendingInvitations = await this.getAllPendingInvitations(userDetails.emailId);
 
-        // get user details by email id
-        const userDetails = await this.getUserByEmailId(model.emailId);
-        if (!userDetails) {
-          throw new BadRequestException('User not found..');
-        }
+          // loop over pending invitations and accept all invitations
+          if (pendingInvitations.length) {
+            for (let i = 0; i < pendingInvitations.length; i++) {
 
-        // get project details by id
-        const projectDetails = await this.getProjectById(user.currentProject);
+              const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
 
-        // check project details
-        if (!projectDetails) {
-          throw new BadRequestException('Project not found');
-        } else {
+              // check basic validations for invitation link
+              this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
 
-          // check if user is added as collaborator in project and we are here only to update his basic details
-          const userIndexInProjectCollaboratorIndex = projectDetails.members.findIndex(member => member.userId === userDetails._id.toString());
-          if (userIndexInProjectCollaboratorIndex === -1) {
-            throw new BadRequestException('User is not found in project or invalid invitation link, please contact support');
-          }
+              // accept invitation process
+              await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
 
-          // get organization details by organization id that we got from project details
-          const organizationDetails = await this.getOrganizationById(projectDetails.organization as string);
-
-          if (!organizationDetails) {
-            throw new BadRequestException('Organization not found');
-          } else {
-            // now everything seems ok start updating process
-
-            // update user with model and set organization
-            await this._userService.update(userDetails._id.toString(), {
-              $set: {
-                password: user.password,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                locale: user.locale,
-                status: UserStatus.Active,
-                lastLoginProvider: UserLoginProviderEnum.normal,
-                memberType: MemberTypes.alien,
-                currentOrganizationId: organizationDetails._id.toString(),
-                currentProject: user.currentProject,
+              // update user
+              await this._userService.update(userDetails._id.toString(), {
+                $set: {
+                  currentOrganizationId: invitationDetails.organization._id.toString(),
+                  currentProject: invitationDetails.project._id.toString()
+                },
                 $push: {
-                  organizations: organizationDetails._id,
-                  projects: user.currentProject
+                  organizations: invitationDetails.organization._id.toString(),
+                  projects: invitationDetails.project._id.toString()
                 }
-              }
-            }, session);
-
-            // accept invitation and update project, organization and invitation
-            await this.acceptInvitationProcessed(projectDetails, userIndexInProjectCollaboratorIndex, session, organizationDetails, userDetails, model.invitationId);
+              }, session);
+            }
           }
+
+          // assign jwt payload
+          jwtPayload.id = userDetails._id;
+          jwtPayload.sub = userDetails.emailId;
+        }
+      } else {
+        // user not exist but invitation link then it's malicious invitation link
+        if (user.invitationId) {
+          throw new BadRequestException('Invalid invitation link');
         }
 
-        // assign jwt payload
-        jwtPayload.id = userDetails._id.toString();
-        jwtPayload.sub = userDetails.emailId;
-      } else {
+        // create new user and assign jwt token
         const newUser = await this._userService.create([model], session);
         jwtPayload.id = newUser[0].id;
         jwtPayload.sub = newUser[0].emailId;
@@ -196,45 +207,6 @@ export class AuthService implements OnModuleInit {
     }
   }
 
-  private async acceptInvitationProcessed(projectDetails: Project, userIndexInProjectCollaboratorIndex: number, session: ClientSession,
-                                          organizationDetails: Organization, userDetails: User, invitationId: string) {
-    // update project mark collaborator as invite accepted true
-    await this._projectService.update(projectDetails._id.toString(), {
-      $set: { [`members.${userIndexInProjectCollaboratorIndex}`]: { isInviteAccepted: true } }
-    }, session);
-
-    // update organization, add user as organization member
-    await this._organizationService.update(organizationDetails._id.toString(), {
-      $push: { members: userDetails._id }, $inc: { activeMembersCount: 1, billableMemberCount: 1 }
-    }, session);
-
-    // update invitations
-    // find all already sent invitations excluding current invitation
-    const alreadySentInvitationQuery = new MongooseQueryModel();
-    alreadySentInvitationQuery.filter = {
-      invitationToId: userDetails._id,
-      projectId: projectDetails._id,
-      isInviteAccepted: false,
-      isExpired: false,
-      _id: { $ne: invitationId }
-    };
-
-    // expire all already sent invitations for the current project excluding current invitation
-    await this._invitationService.bulkUpdate(alreadySentInvitationQuery, {
-      $set: {
-        isExpired: true
-      }
-    }, session);
-
-    // update current invitation and set invite accepted true
-    await this._invitationService.update(invitationId, {
-      $set: {
-        isInviteAccepted: true,
-        isExpired: true
-      }
-    }, session);
-  }
-
   /**
    * verify given auth token with google
    * check if given token is valid
@@ -249,6 +221,9 @@ export class AuthService implements OnModuleInit {
       throw new BadRequestException('token not found');
     }
 
+    const session = await this._userModel.db.startSession();
+    session.startTransaction();
+
     try {
       const authTokenResult = await this.googleAuthTokenChecker(token);
 
@@ -258,57 +233,89 @@ export class AuthService implements OnModuleInit {
        */
       if (authTokenResult) {
         if (authTokenResult.aud === process.env.GOOGLE_CLIENT_ID) {
-          let invitationDetails;
-          let projectDetails;
-          let organizationDetails;
+
           const jwtPayload = { sub: '', id: '' };
 
-          // if invitation id is present then check invitation details and validity of invitation
-          if (invitationId) {
-            // get invitation details
-            invitationDetails = await this._invitationService.getInvitationDetailsById(invitationId);
-
-            if (!invitationDetails) {
-              throw new BadRequestException('Invitation link is not valid!');
-            } else {
-              // check invitation link is valid or not
-              this.checkInvitationLink(invitationDetails, invitationDetails.projectId, authTokenResult.email);
-            }
-
-            // get project details by id
-            projectDetails = await this.getProjectById(invitationDetails.projectId);
-
-            // check project details
-            if (!projectDetails) {
-              throw new BadRequestException('Project not found');
-            } else {
-
-              // check if user is added as collaborator in project and we are here only to update his basic details
-              const userIndexInProjectCollaboratorIndex = projectDetails.members.findIndex(member => member.emailId === authTokenResult.email);
-              if (userIndexInProjectCollaboratorIndex === -1) {
-                throw new BadRequestException('User is not found in project or invalid invitation link, please contact support');
-              }
-
-              // get organization details by organization id that we got from project details
-              organizationDetails = await this.getOrganizationById(projectDetails.organization as string);
-
-              if (!organizationDetails) {
-                throw new BadRequestException('Organization not found');
-              }
-            }
-
-          }
-
-          const session = await this._userModel.db.startSession();
-          session.startTransaction();
-
           // get user details by email id from db
-          const userFromDb = await this._userModel.findOne({
-            emailId: authTokenResult.email
-            // status: UserStatus.Active
-          });
+          const userDetails = await this.getUserByEmailId(authTokenResult.email);
 
-          if (!userFromDb) {
+          // check user exist
+          if (userDetails) {
+            if (invitationId) {
+
+              // get invitation details
+              const invitationDetails = await this._invitationService.getFullInvitationDetails(invitationId);
+              // check basic validations for invitation link
+              this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+
+              // now everything seems ok start invitation accepting process
+              // accept invitation and update project, organization and invitation
+              await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationId);
+
+              // if user is already in db then update it's last login type to google
+              // add project and organization
+              await this._userModel.update(userDetails._id.toString(), {
+                $set: {
+                  lastLoginProvider: UserLoginProviderEnum.google,
+                  profilePic: authTokenResult.picture,
+                  status: UserStatus.Active,
+                  currentOrganizationId: invitationDetails.organization._id.toString(),
+                  currentProject: invitationDetails.project._id.toString()
+                },
+                $push: {
+                  organizations: invitationDetails.organization._id.toString(),
+                  projects: invitationDetails.project._id.toString()
+                }
+              }, session);
+
+              // assign jwt payload
+              jwtPayload.sub = userDetails.emailId;
+              jwtPayload.id = userDetails._id;
+            } else {
+              // check if new user have pending invitations
+              const pendingInvitations = await this.getAllPendingInvitations(userDetails.emailId);
+
+              // loop over pending invitations and accept all invitations
+              if (pendingInvitations.length) {
+                for (let i = 0; i < pendingInvitations.length; i++) {
+
+                  const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
+
+                  // check basic validations for invitation link
+                  this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+
+                  // accept invitation process
+                  await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
+
+                  // if user is already in db then update it's last login type to google
+                  // add project and organization
+                  await this._userService.update(userDetails._id.toString(), {
+                    $set: {
+                      lastLoginProvider: UserLoginProviderEnum.google,
+                      profilePic: authTokenResult.picture,
+                      status: UserStatus.Active,
+                      currentOrganizationId: invitationDetails.organization._id.toString(),
+                      currentProject: invitationDetails.project._id.toString()
+                    },
+                    $push: {
+                      organizations: invitationDetails.organization._id,
+                      projects: invitationDetails.project._id.toString()
+                    }
+                  }, session);
+                }
+              }
+
+              // assign jwt payload
+              jwtPayload.id = userDetails._id;
+              jwtPayload.sub = userDetails.emailId;
+            }
+          } else {
+            // user not exist but invitation link then it's malicious invitation link
+            if (invitationId) {
+              throw new BadRequestException('Invalid invitation link');
+            }
+
+            // new user
             const userNameFromGoogle = authTokenResult.name.split(' ');
             // create new user model
             const user = new User();
@@ -321,51 +328,35 @@ export class AuthService implements OnModuleInit {
             user.status = UserStatus.Active;
             user.memberType = MemberTypes.alien;
 
-            // if invitation id is present than every thing is fine and set user's current project and current organization
-            if (invitationId) {
-              user.currentProject = projectDetails._id;
-              user.currentOrganizationId = organizationDetails._id;
-              user.projects = [projectDetails._id];
-              user.organizations = [organizationDetails.id];
-            }
-
             // save it to db
             const newUser = await this._userModel.create([user], session);
             jwtPayload.sub = newUser[0].emailId;
             jwtPayload.id = newUser[0].id;
-
-          } else {
-            // if user is already in db then update it's last login type to google
-            // update user profile pic
-            await this._userModel.updateOne({ _id: userFromDb._id },
-              {
-                $set: {
-                  lastLoginProvider: UserLoginProviderEnum.google,
-                  profilePic: authTokenResult.picture,
-                  status: UserStatus.Active
-                }
-              }
-            );
-
-            // accept invitation and update project, organization and invitation
-            // await this.acceptInvitationProcessed(projectDetails, userIndexInProjectCollaboratorIndex, session, organizationDetails, userFromDb, invitationId);
-
-            // return jwt token
-            return {
-              access_token: this.jwtService.sign(jwtPayload)
-            };
           }
+
+          await session.commitTransaction();
+          session.endSession();
+          // return jwt token
+          return {
+            access_token: this.jwtService.sign(jwtPayload)
+          };
         } else {
           throw new UnauthorizedException('Invalid user login');
         }
+      } else {
+        throw new UnauthorizedException('Invalid user login');
       }
-
-      return authTokenResult;
     } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
       throw e;
     }
   }
 
+  /**
+   * google token checker
+   * @param token
+   */
   private async googleAuthTokenChecker(token: string) {
     return new Promise<any>((resolve: Function, reject: Function) => {
       get(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`, async (err: Error, res: Response, body: any) => {
@@ -421,15 +412,10 @@ export class AuthService implements OnModuleInit {
   private async getUserByEmailId(emailId: string) {
     const userQuery = new MongooseQueryModel();
     userQuery.filter = {
-      emailId: emailId, $and: [{
-        status: { $in: [null, undefined] }
-      }, {
-        lastLoginProvider: { $in: [null, undefined] }
-      }]
+      emailId: emailId
     };
     userQuery.select = '_id emailId';
     userQuery.lean = true;
-
     return this._userService.findOne(userQuery);
   }
 
@@ -446,7 +432,11 @@ export class AuthService implements OnModuleInit {
     projectQuery.select = '_id organization members';
     projectQuery.lean = true;
 
-    return this._projectService.findOne(projectQuery);
+    const projectDetails = await this._projectService.findOne(projectQuery);
+    if (!projectDetails) {
+      throw new BadRequestException('Project not found');
+    }
+    return projectDetails;
   }
 
   /**
@@ -461,31 +451,85 @@ export class AuthService implements OnModuleInit {
     };
     organizationQuery.lean = true;
 
-    return this._organizationService.findOne(organizationQuery);
+    const organizationDetails = await this._organizationService.findOne(organizationQuery);
+    if (!organizationDetails) {
+      throw new BadRequestException('Organization not found');
+    }
+    return organizationDetails;
   }
 
   /**
    * check invitation link is valid or
    * check if invitation is expired or not
-   * check if project id and project id in invitation are same
-   * check if invitee user id and invitee user id in invitation are same
-   * @param invitation
-   * @param projectId
-   * @param invitedToId
+   * check if user emailId and invitee user id in invitation are same
+   * @param invitationDetails
+   * @param userEmailId
    */
-  private checkInvitationLink(invitation: Invitation, projectId: string, invitedToId: string) {
-    if (invitation.isExpired || invitationExpiryChecker(invitation.invitedAt)) {
-      throw new BadRequestException('Invitation link expired');
-    }
+  private invitationLinkBasicValidation(invitationDetails, userEmailId: string) {
+    if (!invitationDetails) {
+      throw new BadRequestException('Invalid invitation link');
+    } else {
+      if (isInvitationExpired(invitationDetails.invitedAt)) {
+        throw new BadRequestException('Invitation link has been expired! please request a new one');
+      }
 
-    if (invitation.projectId !== projectId) {
-      throw new BadRequestException('Invitation project mismatch');
-    }
-
-    if (invitation.invitationTo !== invitedToId) {
-      throw new BadRequestException('Invitation to user mismatch');
+      // if invitation id present then user is already created so get user details by email id
+      if (invitationDetails.invitationToEmailId !== userEmailId) {
+        throw new BadRequestException('Invalid invitation link! this invitation link is not for this email id');
+      }
     }
   }
 
+  /**
+   * accept invitation process
+   * update project, update organization
+   * accept invitation, expire all already sent invitations
+   * @param projectDetails
+   * @param session
+   * @param organizationDetails
+   * @param userDetails
+   * @param invitationId
+   */
+  private async acceptInvitationProcess(projectDetails: Project, session: ClientSession,
+                                        organizationDetails: Organization, userDetails: User, invitationId: string) {
+
+    // check if user is added as collaborator in project and we are here only to update his basic details
+    const userIndexInProjectCollaboratorIndex = projectDetails.members.findIndex(member => member.emailId === userDetails.emailId);
+
+    // update project mark collaborator as invite accepted true
+    await this._projectService.update(projectDetails._id.toString(), {
+      $set: { [`members.${userIndexInProjectCollaboratorIndex}.isInviteAccepted`]: true }
+    }, session);
+
+    // update organization, add user as organization member
+    await this._organizationService.update(organizationDetails._id.toString(), {
+      $push: { members: userDetails._id }, $inc: { activeMembersCount: 1, billableMemberCount: 1 }
+    }, session);
+
+    // update current invitation and set invite accepted true
+    await this._invitationService.acceptInvitation(invitationId, session);
+
+    // expire all already sent invitations
+    await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
+  }
+
+  /**
+   * get all pending invitation of user by email id
+   * @param emailId
+   */
+  private async getAllPendingInvitations(emailId) {
+    let pendingInvitations = await this._invitationService.getAllPendingInvitations(emailId);
+
+    if (pendingInvitations && pendingInvitations.length) {
+      // loop over all pending invitations and filter out expired invitations
+      pendingInvitations = pendingInvitations.filter(invitation => {
+        // if link is expired add it to expired invitation
+        return !isInvitationExpired(invitation.invitedAt);
+      });
+      return pendingInvitations;
+    } else {
+      return [];
+    }
+  }
 }
 

@@ -4,6 +4,7 @@ export class Invitation {
   invitedById?: string;
   invitedBy?: User;
   invitationToId?: string;
+  invitationToEmailId?: string;
   invitationTo?: User;
   projectId?: string;
   project?: Project;

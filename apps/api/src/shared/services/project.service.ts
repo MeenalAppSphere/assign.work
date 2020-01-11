@@ -338,7 +338,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }
     }
 
-
     const session = await this.startSession();
 
     try {
@@ -356,7 +355,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this._invitationService.bulkUpdate(alreadySentInvitationQuery, { $set: { isExpired: true } }, session);
 
       // create new invitation object
-      const newInvitation = this.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString());
+      const newInvitation = this.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString(), userDetails.emailId);
 
       // create invitation in db
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
@@ -386,7 +385,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
     for (let i = 0; i < collaborators.length; i++) {
-      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString());
+      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
 
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
       emailArrays.push({
@@ -877,6 +876,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
   }
 
+  async acceptInvitation(invitationId: string) {
+    return await this._invitationService.getAllPendingInvitations(invitationId);
+  }
+
   /**
    * get project details by id
    * @param id: project id
@@ -952,7 +955,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private async prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string, inviteEmailId?: string) {
 
     const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
-    const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&projectId=${projectDetails._id}&invitationId=${invitationId}`;
+    const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&invitationId=${invitationId}`;
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
     return await this._emailService.getTemplate('projectInvitation/project.invitation.ejs', templateData);
@@ -963,13 +966,16 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param to
    * @param from
    * @param projectId
+   * @param toEmailId
    */
-  private prepareInvitationObject(to: string, from: string, projectId: string): Invitation {
+  private prepareInvitationObject(to: string, from: string, projectId: string, toEmailId: string): Invitation {
     const invitation = new Invitation();
 
     invitation.invitationToId = to;
     invitation.invitedById = from;
+    invitation.invitationToEmailId = toEmailId;
     invitation.isExpired = false;
+    invitation.isInviteAccepted = false;
     invitation.projectId = projectId;
     invitation.invitedAt = moment.utc().valueOf();
 

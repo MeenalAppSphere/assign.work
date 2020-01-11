@@ -15,6 +15,10 @@ export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
   }
 
+  get dbModel() {
+    return this.model;
+  }
+
   public async find(model: MongooseQueryModel): Promise<T[]> {
     const query = this.model.find({ ...model.filter, ...DEFAULT_QUERY_FILTER });
     this.queryBuilder(model, query);
