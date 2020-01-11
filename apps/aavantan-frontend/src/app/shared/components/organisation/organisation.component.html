@@ -1,6 +1,43 @@
 <nz-modal [(nzVisible)]="organizationModalIsVisible" [nzTitle]="modalTitle" nzClassName="organisation-modal"
           nzFooter="#nzModalFooter" nzWidth="600" nzClosable="false">
 
+
+
+
+
+  <!-- accept project -->
+  <ng-container *ngIf="havePendingInvitations">
+
+    <div class="search-list"  style="margin-top: -10px; margin-bottom: -5px; min-height: 200px;">
+      <nz-list [nzDataSource]="pendingProjectList" [nzRenderItem]="item1" [nzItemLayout]="'horizontal'">
+        <ng-template #item1 let-item>
+
+          <nz-list-item class="p-0">
+
+            <nz-list-item-meta [nzTitle]="nzTitle">
+              <ng-template #nzTitle>
+                <div class="project-header-title p-10">
+                  <nz-avatar class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
+                  <span>{{item.name}}</span>
+                  <div class="font-size-12 float-right m-t-5" style="display: inline-block;">
+                    <button nz-button nzType="link" (click)="switchProject(item)">Select Default</button>
+                  </div>
+                </div>
+              </ng-template>
+            </nz-list-item-meta>
+
+          </nz-list-item>
+
+        </ng-template>
+      </nz-list>
+    </div>
+    <p class="m-t-15 m-b-0 font-12 text-gray-light">Select at-least one project to jump to Dashboard</p>
+  </ng-container>
+
+
+
+
+<ng-container *ngIf="!havePendingInvitations">
   <div *ngIf="!showCreateOrg && organizations && organizations.length>0" style="height:350px;overflow: auto;">
 
     <h5>Switch Organisation</h5>
@@ -22,7 +59,6 @@
     </nz-list>
 
   </div>
-
 
   <form nz-form class="register-form" [formGroup]="orgForm" *ngIf="showCreateOrg">
 
@@ -80,24 +116,51 @@
 
   </form>
 
+</ng-container>
+
+
+
+  <div *nzExtra>
+    <p class="m-b-5 font-12 text-gray-light">Select at-least one project to jump to dashboard</p>
+  </div>
+
   <div *nzModalFooter>
 
-    <div class="row">
-      <div class="col text-left">
-        <button nz-button nzType="default" nzSize="small" (click)="closeModal()">
-          <span>Cancel</span>
-        </button>
+
+    <ng-container *ngIf="havePendingInvitations">
+      <div class="row">
+
+        <div class="col text-left">
+          <button nz-button nzType="default" nzSize="small" (click)="closeModal()">
+            <span>Cancel</span>
+          </button>
+        </div>
+        <div class="col text-right">
+          <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="addNewOrg()"><span>+ Add Organization</span></button>
+        </div>
+
       </div>
+    </ng-container>
 
-      <div class="col">
-        <button *ngIf="showCreateOrg" [disabled]="orgForm.invalid" nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
-          <span>Save</span>
-        </button>
+    <ng-container *ngIf="!havePendingInvitations">
+      <div class="row">
+        <div class="col text-left">
+          <button nz-button nzType="default" nzSize="small" (click)="closeModal()">
+            <span>Cancel</span>
+          </button>
+        </div>
 
-        <button *ngIf="!showCreateOrg"  nz-button nzType="primary" class="float-right" nzSize="small" (click)="addNewOrg()">+ Add New Organisation</button>
+        <div class="col">
+          <button *ngIf="showCreateOrg" [disabled]="orgForm.invalid" nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
+            <span>Save</span>
+          </button>
+
+          <button *ngIf="!showCreateOrg"  nz-button nzType="primary" class="float-right" nzSize="small" (click)="addNewOrg()">+ Add New Organisation</button>
+
+        </div>
 
       </div>
+    </ng-container>
 
-    </div>
   </div>
 </nz-modal>
