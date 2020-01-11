@@ -84,13 +84,28 @@ export class InvitationService extends BaseService<Invitation & Document> implem
    * get all pending invitations by user email
    */
   async getAllPendingInvitations(emailId: string) {
-    return this.dbModel.aggregate([{
-      $sort: { invitedAt: -1 },
-      $match: { invitationToEmailId: emailId, isExpired: false, isInviteAccepted: false }
-    }, {
-      $group: { _id: '$projectId' }
-    }
+    const invitations = await this.dbModel.aggregate([{
+      $sort: { invitedAt: -1 }
+    },
+      {
+        $match: { invitationToEmailId: emailId, isExpired: false, isInviteAccepted: false }
+      }
     ]);
+
+    // filter by project id
+    if (invitations && invitations.length) {
+      const uniqueInvitations = [];
+
+      for (let i = 0; i < invitations.length; i++) {
+        const isDuplicate = uniqueInvitations.some(invitation => invitation.projectId.toString() === invitations[i].projectId.toString());
+        if (!isDuplicate) {
+          uniqueInvitations.push(invitations[i]);
+        }
+      }
+      return uniqueInvitations;
+    } else {
+      return [];
+    }
   }
 
   /**
@@ -138,7 +153,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
    */
   async getFullInvitationDetails(invitationId: string) {
     // get invitation, project and organization details
-    return await this._invitationModel.aggregate([{
+    const invitations = await this._invitationModel.aggregate([{
       $match: { '_id': this.toObjectId(invitationId) }
     }, {
       $lookup: {
@@ -164,5 +179,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
         }
       }, { $unwind: '$organization' }
     ]).exec();
+
+    return invitations && invitations.length ? invitations[0] : null;
   }
 }
