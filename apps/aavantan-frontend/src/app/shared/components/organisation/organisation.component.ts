@@ -21,8 +21,8 @@ export class OrganisationComponent implements OnInit, OnDestroy {
 
   public modalTitle = 'Organization';
   public organizations: Organization[];
-  public showCreateOrg:boolean = true;
-  public havePendingInvitations:boolean = true;
+  public showCreateOrg: boolean = true;
+  public havePendingInvitations: boolean = true;
   public pendingProjectList: Project[] = [];
   public switchingProjectInProcess: boolean;
 
@@ -32,7 +32,7 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   constructor(private FB: FormBuilder, private _organizationService: OrganizationService,
               private _generalService: GeneralService,
               private _taskService: TaskService,
-              private _projectService : ProjectService ,private _organizationQuery: OrganizationQuery) {
+              private _projectService: ProjectService, private _organizationQuery: OrganizationQuery) {
   }
 
   ngOnInit() {
@@ -41,21 +41,21 @@ export class OrganisationComponent implements OnInit, OnDestroy {
       description: [null, '']
     });
 
-    this.organizations= this._generalService.user.projects as Organization[];
+    this.organizations = this._generalService.user.projects as Organization[];
 
-    if (this.organizations && this.organizations.length>0) {
-      this.showCreateOrg=false;
-    }else{
-      this.showCreateOrg=true;
+    if (this.organizations && this.organizations.length > 0) {
+      this.showCreateOrg = false;
+    } else {
+      this.showCreateOrg = true;
     }
 
     this.pendingProjectList = this._generalService.user.projects as Project[];
-    
-    if(this.pendingProjectList && this.pendingProjectList.length>0){
+
+    if (this.pendingProjectList && this.pendingProjectList.length > 0) {
       this.havePendingInvitations = true;
       this.showCreateOrg = false;
       this.modalTitle = 'Pending Invitation(s)';
-    } else{
+    } else {
       this.havePendingInvitations = false;
       this.showCreateOrg = true;
       this.modalTitle = 'Create Organization';
@@ -75,15 +75,14 @@ export class OrganisationComponent implements OnInit, OnDestroy {
 
   }
 
-  public addNewOrg(){
-    this.showCreateOrg=true;
+  public addNewOrg() {
+    this.showCreateOrg = true;
     this.havePendingInvitations = false;
   }
 
-  public selectOrg(item:Organization) {
+  public selectOrg(item: Organization) {
     console.log('Selected Org:', item.name);
   }
-
 
   async switchProject(project: Project) {
 
@@ -110,7 +109,7 @@ export class OrganisationComponent implements OnInit, OnDestroy {
     this._organizationService.createOrganization(organization).subscribe();
   }
 
-  public getTasks(){
+  public getTasks() {
     const json: GetAllTaskRequestModel = {
       projectId: this._generalService.currentProject.id,
       sort: 'createdAt',
