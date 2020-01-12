@@ -1,6 +1,5 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { TypeaheadMatch } from 'ngx-bootstrap';
 import { ValidationRegexService } from '../../services/validation-regex.service';
 import {
   GetAllTaskRequestModel,
@@ -8,18 +7,16 @@ import {
   Project,
   ProjectMembers,
   ProjectTemplateEnum,
+  SearchUserModel,
   SwitchProjectRequest,
-  User,
-  SearchUserModel
+  User
 } from '@aavantan-app/models';
 import { GeneralService } from '../../services/general.service';
 import { UserService } from '../../services/user/user.service';
 import { ProjectService } from '../../services/project/project.service';
-import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../../queries/user/user.query';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { cloneDeep } from '@babel/types';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TaskService } from '../../services/task/task.service';
 
@@ -31,7 +28,7 @@ import { TaskService } from '../../services/task/task.service';
 })
 export class AddProjectComponent implements OnInit, OnDestroy {
   @Input() public projectModalIsVisible: boolean = false;
-  @Input() public projectListData:Project[]=[];
+  @Input() public projectListData: Project[] = [];
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public projectForm: FormGroup;
@@ -39,8 +36,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public switchStepCurrent = 0;
   public modalTitle = 'Project Details';
   public selectedCollaborators: User[] = [];
-  public isCollaboratorExits:boolean = false;
-  public enableInviteBtn:boolean = false;
+  public isCollaboratorExits: boolean = false;
+  public enableInviteBtn: boolean = false;
   public selectedCollaborator: User;
   public userDataSource: User[] = [];
   public collaboratorsDataSource: User[] = [];
@@ -65,14 +62,14 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public projectListSearch: Project[] = [];
   public searchProjectText: string;
   public modelChanged = new Subject<string>();
-  public isSearching:boolean;
+  public isSearching: boolean;
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery: UserQuery,
               private _userService: UserService, private _projectService: ProjectService,
-              protected notification: NzNotificationService, private _taskService : TaskService) {
+              protected notification: NzNotificationService, private _taskService: TaskService) {
     // this.getAllUsers();
   }
 
@@ -97,12 +94,12 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         debounceTime(300))
       .subscribe(() => {
         this.isSearching = true;
-        this._projectService.searchProject(this.searchProjectText).subscribe((data)=>{
-          this.projectListSearch = data.data
+        this._projectService.searchProject(this.searchProjectText).subscribe((data) => {
+          this.projectListSearch = data.data;
           this.isSearching = false;
         });
 
-      })
+      });
 
     this.projectListSearch = this.projectListData;
 
@@ -115,7 +112,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
         const queryText = this.collaboratorForm.get('collaborator').value;
         let name = '';
-        if(this.selectedCollaborator){
+        if (this.selectedCollaborator) {
           name = this.selectedCollaborator.firstName + ' ' + this.selectedCollaborator.lastName;
         }
 
@@ -126,22 +123,22 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.isSearching = true;
         const json: SearchUserModel = {
           organizationId: this._generalService.currentOrganization.id,
-          query : queryText
-        }
+          query: queryText
+        };
 
         this.isCollaboratorExits = false;
-        this.selectedCollaborators.forEach((ele)=>{
-          if(ele.emailId===queryText) {
+        this.selectedCollaborators.forEach((ele) => {
+          if (ele.emailId === queryText) {
             this.isCollaboratorExits = true;
           }
-        })
+        });
 
         this._userService.searchAddPojectUser(json).subscribe((data) => {
           this.isSearching = false;
           this.collaboratorsDataSource = data.data;
-          if(this.collaboratorsDataSource && this.collaboratorsDataSource.length===0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress){
+          if (this.collaboratorsDataSource && this.collaboratorsDataSource.length === 0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress) {
             this.enableInviteBtn = true;
-           }else{
+          } else {
             this.enableInviteBtn = false;
           }
         });
@@ -275,21 +272,20 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       await this._projectService.addCollaborators(this.createdProjectId, members).toPromise();
       this.addCollaboratorsInProcess = false;
       this.switchStepCurrent++;
-      this.enableInviteBtn =false;
+      this.enableInviteBtn = false;
     } catch (e) {
       this.addCollaboratorsInProcess = false;
     }
   }
 
 
-
-  public addCollaborators(isInvite?:boolean) {
+  public addCollaborators(isInvite?: boolean) {
     let emailData = null;
 
-    if(isInvite){
+    if (isInvite) {
       emailData = this.collaboratorForm.get('collaborator').value;
-    }else{
-      emailData=this.selectedCollaborator.emailId
+    } else {
+      emailData = this.selectedCollaborator.emailId;
     }
 
     const user: User = {
@@ -327,7 +323,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public onKeydown(event, isPressedInvite) {
     if (event.key === 'Enter' || isPressedInvite) {
       const member: User = {
-        emailId: this.collaboratorForm.get('collaborator').value,
+        emailId: this.collaboratorForm.get('collaborator').value
       };
       this.response = this.validationRegexService.emailValidator(member.emailId);
       if (this.selectedCollaborators.filter(item => item.emailId === member.emailId).length === 0) {
@@ -348,7 +344,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   async addTemplate() {
     this.selectTemplateInProcess = true;
     try {
-      await this._projectService.updateProject(this.createdProjectId, { template: this.selectedTemplate }).toPromise();
+      await this._projectService.updateProject(this.createdProjectId, {
+        template: this.selectedTemplate,
+        organization: this.currentOrganization.id
+      }).toPromise();
       this.selectTemplateInProcess = false;
       this.getTasks();
       this.toggleShow.emit();
@@ -357,7 +356,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     }
   }
 
-  public getTasks(){
+  public getTasks() {
     const json: GetAllTaskRequestModel = {
       projectId: this._generalService.currentProject.id,
       sort: 'createdAt',

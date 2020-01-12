@@ -232,6 +232,9 @@ export class AuthService implements OnModuleInit {
         we still need to check if token aud property contains our app client id
        */
       if (authTokenResult) {
+
+        const userNameFromGoogle = authTokenResult.name.split(' ');
+
         if (authTokenResult.aud === process.env.GOOGLE_CLIENT_ID) {
 
           const jwtPayload = { sub: '', id: '' };
@@ -254,8 +257,10 @@ export class AuthService implements OnModuleInit {
 
               // if user is already in db then update it's last login type to google
               // add project and organization
-              await this._userModel.update(userDetails._id.toString(), {
+              await this._userService.update(userDetails._id.toString(), {
                 $set: {
+                  firstName: userNameFromGoogle[0] || '',
+                  lastName: userNameFromGoogle[1] || '',
                   lastLoginProvider: UserLoginProviderEnum.google,
                   profilePic: authTokenResult.picture,
                   status: UserStatus.Active,
@@ -291,6 +296,8 @@ export class AuthService implements OnModuleInit {
                   // add project and organization
                   await this._userService.update(userDetails._id.toString(), {
                     $set: {
+                      firstName: userNameFromGoogle[0] || '',
+                      lastName: userNameFromGoogle[1] || '',
                       lastLoginProvider: UserLoginProviderEnum.google,
                       profilePic: authTokenResult.picture,
                       status: UserStatus.Active,
@@ -303,6 +310,18 @@ export class AuthService implements OnModuleInit {
                     }
                   }, session);
                 }
+              } else {
+                // normal sing in
+
+                await this._userService.update(userDetails._id.toString(), {
+                  $set: {
+                    firstName: userNameFromGoogle[0] || '',
+                    lastName: userNameFromGoogle[1] || '',
+                    lastLoginProvider: UserLoginProviderEnum.google,
+                    profilePic: authTokenResult.picture,
+                    status: UserStatus.Active
+                  }
+                }, session);
               }
 
               // assign jwt payload
@@ -316,7 +335,6 @@ export class AuthService implements OnModuleInit {
             }
 
             // new user
-            const userNameFromGoogle = authTokenResult.name.split(' ');
             // create new user model
             const user = new User();
             user.emailId = authTokenResult.email;

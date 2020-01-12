@@ -16,14 +16,14 @@ export class RegisterComponent implements OnInit, OnDestroy {
   public signUpForm: FormGroup;
   public registerInProcess = false;
   public responseMessage: Notice;
-  public isInvitedLink: boolean= false;
+  public isInvitedLink: boolean = false;
 
   constructor(private readonly _authService: AuthService,
               private readonly _authQuery: AuthQuery,
               private router: Router,
-              private activatedRoute : ActivatedRoute,
+              private activatedRoute: ActivatedRoute,
               private socialAuthService: SocialAuthService,
-              private validationRegexService:ValidationRegexService) {
+              private validationRegexService: ValidationRegexService) {
   }
 
   ngOnInit(): void {
@@ -37,26 +37,38 @@ export class RegisterComponent implements OnInit, OnDestroy {
         Validators.required,
         this.confirmationValidator
       ]),
-      agree: new FormControl(false)
+      agree: new FormControl(false),
+      invitationId: new FormControl(null)
     });
 
-    if(this.activatedRoute.snapshot.params.url){
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+    if (queryParams && queryParams.emailId && queryParams.invitationId) {
 
-      if(!this.validationRegexService.emailValidator(this.activatedRoute.snapshot.params.url).invalidEmailAddress) {
-        this.signUpForm.get('emailId').patchValue(this.activatedRoute.snapshot.params.url);
+      if (!this.validationRegexService.emailValidator(queryParams.emailId).invalidEmailAddress) {
+        this.signUpForm.get('emailId').patchValue(queryParams.emailId);
+        this.signUpForm.get('emailId').disable();
+        this.signUpForm.get('invitationId').patchValue(queryParams.invitationId);
+
         this.isInvitedLink = true;
-      }else{
+      } else {
         this.isInvitedLink = false;
       }
     }
 
     this._authQuery.isRegisterInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
       this.registerInProcess = res;
-    })
+    });
+
+    // auth state subscriber if user and user token found then verify that token and re-login user
+    this.socialAuthService.authState.pipe(untilDestroyed(this)).subscribe((user) => {
+      if (user) {
+        this._authService.googleSignIn(user.idToken, queryParams.invitationId).subscribe();
+      }
+    });
   }
 
   submitForm(): void {
-    this._authService.register(this.signUpForm.value).subscribe();
+    this._authService.register(this.signUpForm.getRawValue()).subscribe();
   }
 
 
