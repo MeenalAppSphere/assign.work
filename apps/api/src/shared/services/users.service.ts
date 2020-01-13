@@ -133,42 +133,47 @@ export class UsersService extends BaseService<User & Document> {
       userDetails.currentOrganizationId = userDetails.currentOrganization.id;
     }
 
-    // get only current organization project
-    // filter out current project
-    // sort by updated at
-    // limit only recent 1 project
 
-    const userProjects =
-      slice(
-        userDetails.projects
-          .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
-          .filter(f => f._id.toString() !== userDetails.currentProject.id),
-        0, 1
-      ).map((pro: any) => {
-        pro.id = pro._id;
-        return pro;
-      });
+    /*
+      get only current organization project
+      filter out current project
+      sort by updated at
+      limit only recent 1 project
+     */
 
-    // add current project at first index of recent project list
-    if (userDetails.currentProject) {
-      userProjects.splice(0, 0, userDetails.currentProject);
+    // check if current project and current organization is available
+    if (userDetails.currentProject && userDetails.currentOrganization) {
+      const userProjects =
+        slice(
+          userDetails.projects
+            .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
+            .filter(f => f._id.toString() !== userDetails.currentProject.id),
+          0, 1
+        ).map((pro: any) => {
+          pro.id = pro._id;
+          return pro;
+        });
+
+      // add current project at first index of recent project list
+      if (userDetails.currentProject) {
+        userProjects.splice(0, 0, userDetails.currentProject);
+      }
+      userDetails.projects = userProjects;
+
+      // get only current user organization
+      // filter current project
+      // sort by updated at
+      // limit only recent two organization
+
+      userDetails.organizations =
+        slice(
+          userDetails.organizations
+            .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()), 0, 2
+        ).map((org: any) => {
+          org.id = org._id;
+          return org;
+        });
     }
-    userDetails.projects = userProjects;
-
-    // get only current user organization
-    // filter current project
-    // sort by updated at
-    // limit only recent two organization
-
-    userDetails.organizations =
-      slice(
-        userDetails.organizations
-          .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()), 0, 2
-      ).map((org: any) => {
-        org.id = org._id;
-        return org;
-      });
-
     return userDetails;
   }
 

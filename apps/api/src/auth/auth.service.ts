@@ -124,7 +124,7 @@ export class AuthService implements OnModuleInit {
 
           // now everything seems ok start invitation accepting process
           // accept invitation and update project, organization and invitation
-          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, model.invitationId);
+          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, user.invitationId);
 
           // update user with model and set organization
           await this._userService.update(userDetails._id.toString(), {
@@ -156,7 +156,7 @@ export class AuthService implements OnModuleInit {
           if (pendingInvitations.length) {
             for (let i = 0; i < pendingInvitations.length; i++) {
 
-              const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
+              const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
 
               // check basic validations for invitation link
               this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
@@ -166,6 +166,15 @@ export class AuthService implements OnModuleInit {
 
               // update user
               const updateUserDoc = {
+                $set: {
+                  password: user.password,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  locale: user.locale,
+                  status: UserStatus.Active,
+                  lastLoginProvider: UserLoginProviderEnum.normal,
+                  memberType: MemberTypes.alien
+                },
                 $push: {
                   organizations: invitationDetails.organization._id.toString(),
                   projects: invitationDetails.project._id.toString()
@@ -174,10 +183,8 @@ export class AuthService implements OnModuleInit {
 
               // if pending invitations is only one then set that project as current project
               if (pendingInvitations.length === 1) {
-                updateUserDoc['$set'] = {
-                  currentOrganizationId: invitationDetails.organization._id.toString(),
-                  currentProject: invitationDetails.project._id.toString()
-                };
+                updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
+                updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
               }
               await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
             }
@@ -289,7 +296,7 @@ export class AuthService implements OnModuleInit {
               if (pendingInvitations.length) {
                 for (let i = 0; i < pendingInvitations.length; i++) {
 
-                  const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
+                  const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
 
                   // check basic validations for invitation link
                   this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
