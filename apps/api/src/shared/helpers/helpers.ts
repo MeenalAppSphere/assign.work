@@ -121,7 +121,7 @@ export const emailAddressValidator = (emailId): boolean => {
 
 /**
  * invitation link expire date checker
- * return tru if invitation expired
+ * return true if invitation expired
  * @param timestamp
  */
 export const isInvitationExpired = (timestamp: number): boolean => {
