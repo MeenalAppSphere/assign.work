@@ -41,25 +41,15 @@ export class OrganisationComponent implements OnInit, OnDestroy {
       description: [null, '']
     });
 
-    this.organizations = this._generalService.user.projects as Organization[];
-
-    if (this.organizations && this.organizations.length > 0) {
-      this.showCreateOrg = false;
-    } else {
-      this.showCreateOrg = true;
-    }
-
+    this.havePendingInvitations = (!this._generalService.user.currentOrganization && !this._generalService.user.currentProject) &&
+      this._generalService.user.projects.length > 0;
     this.pendingProjectList = this._generalService.user.projects as Project[];
 
-    if (this.pendingProjectList && this.pendingProjectList.length > 0) {
-      this.havePendingInvitations = true;
-      this.showCreateOrg = false;
-      this.modalTitle = 'Pending Invitation(s)';
-    } else {
-      this.havePendingInvitations = false;
-      this.showCreateOrg = true;
-      this.modalTitle = 'Create Organization';
-    }
+    this.organizations = this._generalService.user.projects as Organization[];
+
+    this.showCreateOrg = this.havePendingInvitations ? false : !(this.organizations && this.organizations.length > 0);
+
+    this.modalTitle = this.havePendingInvitations ? 'Pending Invitation(s)' : 'Create Organization';
 
     // listen for organization creation
     this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
