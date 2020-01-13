@@ -174,7 +174,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         if (TaskUrl.includes('task/')) {
           this.router.navigateByUrl(TaskUrl);
         } else {
-          if (!this._generalService.user.organizations.length && !this._generalService.user.currentOrganization) {
+          if (!this._generalService.user.currentOrganization) {
             this.organizationModalIsVisible = true;
           } else {
             if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {

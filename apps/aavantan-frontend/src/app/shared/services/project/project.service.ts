@@ -7,13 +7,15 @@ import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { ProjectUrls } from './project.url';
 import {
-  BaseResponseModel, GetAllProjectsModel,
+  BaseResponseModel,
+  GetAllProjectsModel,
   Project,
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
   ProjectStatus,
-  ProjectWorkingCapacityUpdateDto, ResendProjectInvitationModel,
+  ProjectWorkingCapacityUpdateDto,
+  ResendProjectInvitationModel,
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
@@ -69,7 +71,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
           return {
             ...state,
             user: res.data,
-            currentProject: res.data.currentProject
+            currentProject: res.data.currentProject,
           };
         }));
 

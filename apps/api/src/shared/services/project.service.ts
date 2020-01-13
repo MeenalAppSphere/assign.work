@@ -695,7 +695,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const session = await this.startSession();
 
     try {
-      await this._userModel.updateOne({ _id: this._generalService.userId }, { $set: { currentProject: model.projectId } }, { session });
+      await this._userModel.updateOne({ _id: this._generalService.userId }, {
+        $set: {
+          currentProject: model.projectId, currentOrganizationId: model.organizationId
+        }
+      }, { session });
       await this.commitTransaction(session);
       return await this._userService.getUserProfile(this._generalService.userId);
     } catch (e) {
@@ -901,7 +905,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     if (!organizationDetails) {
       throw new NotFoundException('Organization not Found');
     } else {
-      const isMember = organizationDetails.members.some(s => s.userId === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
+      const isMember = organizationDetails.members.some(s => s.toString() === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
 
       if (!isMember) {
         throw new BadRequestException('You are not a part of thi Organization');

@@ -539,9 +539,15 @@ export class AuthService implements OnModuleInit {
     }, session);
 
     // update organization, add user as organization member
-    await this._organizationService.update(organizationDetails._id.toString(), {
-      $push: { members: userDetails._id }, $inc: { activeMembersCount: 1, billableMemberCount: 1 }
-    }, session);
+    const isAlreadyOrganizationMember = userDetails.organizations && userDetails.organizations.some((organization => {
+      return userDetails.organizations.includes(organization.toString());
+    }));
+
+    if (!isAlreadyOrganizationMember) {
+      await this._organizationService.update(organizationDetails._id.toString(), {
+        $push: { members: userDetails._id }, $inc: { activeMembersCount: 1, billableMemberCount: 1 }
+      }, session);
+    }
 
     // update current invitation and set invite accepted true
     await this._invitationService.acceptInvitation(invitationId, session);

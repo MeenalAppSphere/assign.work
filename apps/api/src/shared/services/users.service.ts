@@ -127,10 +127,6 @@ export class UsersService extends BaseService<User & Document> {
     if (userDetails.currentOrganization) {
       userDetails.currentOrganization.id = userDetails.currentOrganization._id.toString();
       userDetails.currentOrganizationId = userDetails.currentOrganization.id;
-    } else if (userDetails.organizations.length) {
-      userDetails.currentOrganization = userDetails.organizations[0];
-      userDetails.currentOrganization.id = userDetails.currentOrganization._id.toString();
-      userDetails.currentOrganizationId = userDetails.currentOrganization.id;
     }
 
 
