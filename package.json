@@ -79,7 +79,7 @@
     "ngx-infinite-scroll": "^8.0.0",
     "ngx-joyride": "^2.2.10",
     "ngx-perfect-scrollbar": "^8.0.0",
-    "ngx-quill": "^7.3.11",
+    "ngx-quill": "7.3.2",
     "ngx-take-until-destroy": "^5.4.0",
     "passport": "^0.4.0",
     "passport-google-oauth20": "^2.0.0",
