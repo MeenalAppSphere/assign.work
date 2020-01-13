@@ -48,4 +48,18 @@ export class GeneralService {
   private _userLocale: string;
   private _currentProject: Project;
   private _currentOrganization: Organization;
+
+  public secondsToReadable(seconds: number) {
+    const num = seconds / 60;
+    const hours = (num / 60);
+    const rhours = Math.floor(hours);
+    const minutes = (hours - rhours) * 60;
+    const rminutes = Math.round(minutes);
+    return {
+      h: rhours,
+      m: rminutes,
+      readable: rhours+'h '+rminutes+'m'
+    };
+  }
+
 }

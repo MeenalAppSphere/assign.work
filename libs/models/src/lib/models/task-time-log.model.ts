@@ -2,9 +2,10 @@ import { Task, User } from '@aavantan-app/models';
 
 export class TaskTimeLog {
   taskId: string;
+  sprintId?: string;
   task?: Task;
   startedAt: Date;
-  endAt: Date;
+  endAt?: Date;
   createdById: string;
   createdBy?: User;
   updatedById?: string;
@@ -12,14 +13,41 @@ export class TaskTimeLog {
   createdAt?: Date;
   updatedAt?: Date;
   desc: string;
-  loggedTime: number;
-  loggedTimeReadable?: string;
-  remainingTime: number;
-  remainingTimeReadable?: string;
+  loggedTime?: number;
+  loggedTimeReadable: string;
+  remainingTime?: number;
+  remainingTimeReadable: string;
   isDeleted?: boolean;
+  isPeriod?: boolean;
 }
 
 export class AddTaskTimeModel {
   projectId: string;
   timeLog: TaskTimeLog;
+}
+
+export class TaskTimeLogResponse {
+  taskId?: string;
+  sprintId?: string;
+  progress: number;
+  totalLoggedTime: number;
+  totalLoggedTimeReadable: string;
+  remainingTime?: number;
+  remainingTimeReadable: string;
+  overLoggedTime: number;
+  overLoggedTimeReadable: string;
+  overProgress: number;
+}
+
+export class TaskTimeLogHistoryModel {
+  taskId: string;
+  projectId: string;
+}
+
+export class TaskTimeLogHistoryResponseModel {
+  user: string;
+  emailId: string;
+  profilePic: string;
+  totalLoggedTime: number;
+  totalLoggedTimeReadable: string;
 }

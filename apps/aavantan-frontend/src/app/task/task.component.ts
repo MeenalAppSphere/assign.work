@@ -1,20 +1,31 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   AddCommentModel,
-  BaseResponseModel, GetTaskByIdOrDisplayNameModel,
+  BaseResponseModel,
+  GetTaskByIdOrDisplayNameModel,
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectStatus,
+  ProjectStages,
+  ProjectStatus,
   Sprint,
-  Task, TaskComments, TaskHistory, CommentPinModel,
+  Task,
+  TaskComments,
+  TaskHistory,
+  CommentPinModel,
   TaskType,
-  User, GetTaskHistoryModel, BasePaginatedResponse, GetAllTaskRequestModel
+  User,
+  GetTaskHistoryModel,
+  BasePaginatedResponse,
+  GetAllTaskRequestModel,
+  TaskTimeLogResponse,
+  TimeLog,
+  UpdateCommentModel, SearchProjectCollaborators, TaskTimeLogHistoryModel, TaskTimeLogHistoryResponseModel, Mention
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { NzNotificationService } from 'ng-zorro-antd';
@@ -22,7 +33,11 @@ import { TaskQuery } from '../queries/task/task.query';
 import { TaskUrls } from '../shared/services/task/task.url';
 import { Observable, Subject } from 'rxjs';
 import { UserService } from '../shared/services/user/user.service';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, first } from 'rxjs/operators';
+import { ProjectService } from '../shared/services/project/project.service';
+import 'quill-mention';
+import 'quill-emoji';
+
 
 @Component({
   selector: 'aavantan-app-task',
@@ -51,8 +66,12 @@ export class TaskComponent implements OnInit, OnDestroy {
   public getTaskInProcess: boolean = false;
   public getCommentInProcess: boolean = false;
   public getHistoryInProcess: boolean = false;
+  public getTimeLogInProcess:boolean = false;
+  public showCommentsList:boolean;
+  public showPinnedCommentsList:boolean;
+  public currentTask : Task;
 
-  public fileList2 = [];
+  public uploadedImages = [];
 
   public taskForm: FormGroup;
   public commentForm: FormGroup;
@@ -65,7 +84,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public historyList: TaskHistory[] = [];
   public pinnedCommentsList: TaskComments[] = [];
   public sprintDataSource: Sprint[] = [];
-  public tagsDataSource = ['Tag 1', 'Tag 2'];
+  public tagsDataSource: string[];
 
   public epicDataSource = [];
 
@@ -80,13 +99,32 @@ export class TaskComponent implements OnInit, OnDestroy {
   public attachementUrl: string;
   public attachementIds: string[] = [];
 
-  public modelChanged = new Subject<string>();
-  public modelChangedWatchers = new Subject<string>();
-
-  public nzFilterOption = () => true;
-
   public isSearching: boolean;
   public isSearchingWatchers: boolean;
+
+  public isSearchingTags: boolean;
+
+  public modelChanged = new Subject<string>();
+  public modelChangedWatchers = new Subject<string>();
+  public modelChangedTags = new Subject<string>();
+  public tagsQueryText : string = null;
+  public watchersQueryText : string = null;
+  public progressData:TaskTimeLogResponse;
+
+  public panels:any[] = [{
+      active: false,
+      name  : 'Time log history',
+      arrow : true
+    }];
+  public timelogHistoryList: TaskTimeLogHistoryResponseModel[]=[];
+
+  /* Quill Editor */
+  public atMentionUsers: Mention[] = [];
+  public hashValues: Mention[] = [];
+  public quillConfig={};
+  /* end Quill Editor */
+
+  public nzFilterOption = () => true;
 
 
   constructor(private  _activatedRouter: ActivatedRoute,
@@ -96,7 +134,10 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _generalService: GeneralService,
               private _userQuery: UserQuery,
               private _taskQuery: TaskQuery,
-              private _userService: UserService) {
+              private _userService: UserService,
+              private _projectService: ProjectService,
+              private router:Router,
+              private cdr: ChangeDetectorRef) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -131,7 +172,9 @@ export class TaskComponent implements OnInit, OnDestroy {
       tags: [null],
       epic: [null],
       status: [null],
-      estimateTime: [null]
+      estimatedTime: [null],
+      remainingHours:[null],
+      remainingMinutes:[null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -159,7 +202,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.currentProject = res;
         this.stagesDataSource = res.settings.stages;
         this.taskTypeDataSource = res.settings.taskTypes;
-        this.assigneeDataSource = res.members;
+        // this.assigneeDataSource = res.members;
         this.priorityDataSource = res.settings.priorities;
         this.statusDataSource = res.settings.status;
 
@@ -190,7 +233,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     // search assignee
     this.modelChanged
       .pipe(
-        debounceTime(300))
+        debounceTime(500))
       .subscribe(() => {
         const queryText = this.taskForm.get('assigneeId').value;
         const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
@@ -198,7 +241,11 @@ export class TaskComponent implements OnInit, OnDestroy {
           return;
         }
         this.isSearching = true;
-        this._userService.searchUser(queryText).subscribe((data) => {
+        const json: SearchProjectCollaborators = {
+          projectId:this._generalService.currentProject.id,
+          query : queryText
+        }
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
           this.isSearching = false;
           this.assigneeDataSource = data.data;
         });
@@ -209,14 +256,18 @@ export class TaskComponent implements OnInit, OnDestroy {
     // search watchers
     this.modelChangedWatchers
       .pipe(
-        debounceTime(300))
+        debounceTime(500))
       .subscribe(() => {
-        const queryText = this.taskForm.get('assigneeId').value;
-        if (!queryText) {
+
+        if (!this.watchersQueryText) {
           return;
         }
         this.isSearchingWatchers = true;
-        this._userService.searchUser(queryText).subscribe((data) => {
+        const json: SearchProjectCollaborators = {
+          projectId:this._generalService.currentProject.id,
+          query : this.watchersQueryText
+        }
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
           this.isSearchingWatchers = false;
           this.assigneeDataSource = data.data;
         });
@@ -224,16 +275,142 @@ export class TaskComponent implements OnInit, OnDestroy {
       });
     // end search watchers
 
+    // search tags
+    this.modelChangedTags
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        if (!this.tagsQueryText) {
+          return;
+        }
+        this.isSearchingTags = true;
+        this._projectService.searchTags(this.tagsQueryText).subscribe((data) => {
+          this.isSearchingTags = false;
+          this.tagsDataSource = data.data;
+        });
+      });
+    // end search tags
+
+    this.initQilllConfig();
   }
 
-  search(value: string): void {
-    this.isSearchingWatchers = true;
-    this._userService.searchUser(value).subscribe((data) => {
-      this.isSearchingWatchers = false;
-      this.assigneeDataSource = data.data;
-    });
+  public initQilllConfig(){
+
+    if(this.currentProject.members.length>0){
+      this.currentProject.members.forEach((ele)=>{
+        this.atMentionUsers.push({
+          id:ele.userId,
+          value: ele.userDetails.firstName+' '+ele.userDetails.lastName,
+          link: ele.userDetails.profileLink ? ele.userDetails.profileLink : ''
+        });
+      });
+    }
+
+
+    this.quillConfig = {
+      toolbar: {
+        container: [
+          ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+          ['code-block'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          //[{ 'font': [] }],
+          ['clean'],                                         // remove formatting button
+          ['link', 'image', 'video']
+            ['emoji'],
+        ],
+        handlers: {'emoji': function() {}}
+      },
+      mention: {
+        allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+        mentionDenotationChars: ["@", "#"],
+        source: (searchTerm, renderList, mentionChar) => {
+          let values;
+
+          if (mentionChar === "@") {
+            values = this.atMentionUsers;
+          } else {
+            values = this.hashValues = this.atMentionUsers;
+          }
+
+          if (searchTerm.length === 0) {
+            renderList(values, searchTerm);
+          } else {
+            const matches = [];
+            for (let i = 0; i < values.length; i++)
+              if (~values[i].value.toLowerCase().indexOf(searchTerm.toLowerCase())) matches.push(values[i]);
+            renderList(matches, searchTerm);
+          }
+        },
+      },
+      "emoji-toolbar": true,
+      "emoji-textarea": false,
+      "emoji-shortname": true,
+      keyboard: {
+        bindings: {
+          shiftEnter: {
+            key: 13,
+            shiftKey: true, // Handle shift+enter
+            handler: (range, context) => {
+
+              console.log("shift+enter")
+            }
+          },
+          enter:{
+            key:13, //Enter
+            handler: (range, context)=>{
+
+              return true;
+            }
+          }
+        }
+      }
+    }
+
   }
 
+  onSelectionChanged = (event) =>{
+    if(event.oldRange == null){
+      this.onFocus();
+    }
+    if(event.range == null){
+      this.onBlur();
+    }
+  }
+
+  onContentChanged = (event) =>{
+    //console.log(event.html);
+  }
+
+  onFocus = () =>{
+    console.log("On Focus");
+  }
+  onBlur = () =>{
+    console.log("Blurred");
+  }
+
+  //=========== end quill ============//
+
+  public searchWatchers(value: string): void {
+    this.watchersQueryText = value;
+    this.modelChangedWatchers.next();
+    // this.isSearchingWatchers = true;
+    // this._userService.searchUser(value).subscribe((data) => {
+    //   this.isSearchingWatchers = false;
+    //   this.assigneeDataSource = data.data;
+    // });
+  }
+
+  public searchTags(value: string): void {
+    this.tagsQueryText = value;
+    this.modelChangedTags.next();
+    // this.isSearchingTags = true;
+    // this._projectService.searchTags(value).subscribe((data) => {
+    //   this.isSearchingTags = false;
+    //   this.tagsDataSource = data.data;
+    // });
+  }
 
   public toggleActivitySidebar(el: HTMLElement) {
     this.isOpenActivitySidebar = !this.isOpenActivitySidebar;
@@ -265,20 +442,101 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
-  public openTimeLogModal() {
-    this.timelogModalIsVisible = !this.timelogModalIsVisible;
-  }
-
   public cancelTaskForm() {
     this.taskId = null;
     this.taskForm.reset();
     this.selectedStatus = null;
     this.selectedPriority = null;
     this.attachementIds = [];
+    this.uploadedImages = [];
+
+    if (this.taskTypeDataSource && this.taskTypeDataSource.length>0) {
+        this.selectedTaskType = this.taskTypeDataSource[0];
+        this.displayName = this.selectedTaskType.displayName;
+    }
+
+    this.router.navigateByUrl("dashboard/task/"+this.selectedTaskType.displayName);
+
   }
 
-  public updateCommentSuccess() {
-    this.getMessage(true);
+  public updateCommentSuccess(data?:CommentPinModel | UpdateCommentModel) {
+
+    console.log('CommentPinModel ',(data instanceof CommentPinModel));
+    console.log('UpdateCommentModel ',(data instanceof CommentPinModel));
+
+    // from edit comment dialog
+    if(!(data instanceof CommentPinModel)) {
+      if(data.comment.id){
+        //to locally updating //
+        this.showCommentsList = false;
+        this.commentsList.forEach((ele)=>{
+          if(ele.id===data.comment.id){
+            this.showCommentsList = false;
+            ele.comment = data.comment.comment;
+          }
+        });
+
+        setTimeout(()=>{
+          this.showCommentsList = true;
+        },1);
+      }
+      return;
+    }
+
+    if(!(data instanceof UpdateCommentModel)) {
+      this.showPinnedCommentsList = false;
+      //to locally updating pinnedCommentsList //
+      if(data.isPinned) {
+
+        const comment: AddCommentModel = {
+          comment: this.commentForm.getRawValue(),
+          projectId: this._generalService.currentProject.id,
+          taskId: this.taskId
+        };
+
+        comment.comment.createdBy= this._generalService.user;
+        comment.comment.createdById = this._generalService.user.id;
+        comment.comment.createdAt =  new Date();
+        comment.comment.isPinned = data.isPinned;
+        if (!(data instanceof TaskComments)) {
+          comment.comment.id = data.commentId;
+        }
+        comment.comment.comment = data.comment;
+        this.pinnedCommentsList.unshift(comment.comment);
+        setTimeout(() => {
+          this.showPinnedCommentsList = true;
+          this.cdr.detectChanges();
+        }, 10);
+
+      }else{
+        // tslint:disable-next-line:no-shadowed-variable
+        let data : CommentPinModel = null;
+        if((data instanceof CommentPinModel)){
+          data=data;
+        }
+        this.pinnedCommentsList = this.pinnedCommentsList.filter((ele)=>{
+          if(data && ele.id !== data.commentId){
+            return ele;
+          }
+        });
+        setTimeout(() => {
+          this.showPinnedCommentsList = true;
+          this.cdr.detectChanges();
+        }, 10);
+
+      }
+
+    }
+    // this.getMessage(true); will use socket
+  }
+
+  public timeLog(data?:TaskTimeLogResponse) {
+    if(data) {
+      this.progressData = data;
+      this.currentTask.remainingTime = data.remainingTime;
+      this.currentTask.remainingTimeReadable = data.remainingTimeReadable;
+    }
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
   async getTask() {
@@ -290,6 +548,8 @@ export class TaskComponent implements OnInit, OnDestroy {
         taskId: this.taskId
       };
       this.taskData = await this._taskService.getTask(json).toPromise();
+      this.currentTask = this.taskData.data;
+
       this.taskForm.patchValue(this.taskData.data);
       this.taskId = this.taskData.data.id;
       this.getMessage();
@@ -302,9 +562,26 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskData.data.assignee.id = this.taskData.data.assigneeId;
         this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
       }
+      if(this.taskData.data.estimatedTime){
+          this.setHoursMinutes(this.taskData.data.estimatedTime);
+      }
+
+      if(this.taskData.data && this.taskData.data.progress){
+
+        this.progressData = {
+          progress: this.taskData.data.progress,
+          totalLoggedTime: this.taskData.data.totalLoggedTime,
+          totalLoggedTimeReadable: this.taskData.data.totalLoggedTimeReadable,
+          remainingTimeReadable: this.taskData.data.remainingTimeReadable,
+          overLoggedTime: this.taskData.data.overLoggedTime,
+          overLoggedTimeReadable: this.taskData.data.overLoggedTimeReadable,
+          overProgress: this.taskData.data.overProgress
+        };
+
+      }
 
       this.attachementIds = this.taskData.data.attachments;
-      this.fileList2 = this.taskData.data.attachmentsDetails;
+      this.uploadedImages = this.taskData.data.attachmentsDetails;
 
       this.getTaskInProcess = false;
     } catch (e) {
@@ -312,9 +589,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async getMessage(hideLoader?: boolean) {
-
+    this.showCommentsList=true;
+    this.showPinnedCommentsList=true;
     if (!hideLoader) {
       this.getCommentInProcess = true;
     }
@@ -377,11 +654,10 @@ export class TaskComponent implements OnInit, OnDestroy {
   handleRemove = (file: any) => new Observable<boolean>((obs) => {
     // console.log(file);
 
-
     //this._taskService.removeAttachment(file.id).subscribe();
 
     this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
-    this.fileList2 = this.fileList2.filter((ele) => {
+    this.uploadedImages = this.uploadedImages.filter((ele) => {
       if (ele.id !== file.id) {
         return ele;
       }
@@ -395,6 +671,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   async saveForm() {
     const task: Task = { ...this.taskForm.getRawValue() };
+
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
 
@@ -406,10 +683,31 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.relatedItemId = this.listOfSelectedRelatedItems;
     task.attachments = this.attachementIds;
 
-    if (!task.name || !task.taskType) {
-      this.notification.error('Error', 'Please check all mandatory fields');
+    const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
+    const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
+    task.estimatedTimeReadable = hours+'h '+ +minutes+'m';
+
+
+    if (!task.taskType) {
+      this.notification.error('Error', 'Please select task type');
       return;
     }
+    if(!task.assigneeId){
+      this.notification.error('Error', 'Please select assignee');
+      return;
+    }
+    if (!task.name) {
+      this.notification.error('Error', 'Please enter task title');
+      return;
+    }
+
+    if (!task.watchers) {
+      task.watchers = [];
+    }
+    if (!task.tags) {
+      task.tags = [];
+    }
+
 
     this.createTaskInProcess = true;
     try {
@@ -417,13 +715,33 @@ export class TaskComponent implements OnInit, OnDestroy {
       if (this.taskId) {
         task.id = this.taskId;
         task.displayName = this.displayName;
-        await this._taskService.updateTask(task).toPromise();
+        const data = await this._taskService.updateTask(task).toPromise();
+
+        this.currentTask = data.data;
+
+        if(data && data.data && data.data.progress){
+          this.progressData = {
+            progress: data.data.progress,
+            totalLoggedTime: data.data.totalLoggedTime,
+            totalLoggedTimeReadable: data.data.totalLoggedTimeReadable,
+            remainingTimeReadable: data.data.remainingTimeReadable,
+            overLoggedTime: data.data.overLoggedTime,
+            overLoggedTimeReadable: data.data.overLoggedTimeReadable,
+            overProgress: data.data.overProgress
+          };
+        }
+
       } else {
-        await this._taskService.createTask(task).toPromise();
-        this.taskForm.reset({ tags: [] });
-        this.selectedStatus = null;
-        this.selectedPriority = null;
-        this.attachementIds = [];
+        const data = await this._taskService.createTask(task).toPromise();
+        this.taskId = data.data.id;
+        this.displayName= data.data.displayName;
+
+        // last call stay here after addition sprint
+        // this.taskForm.reset({ tags: [] });
+        // this.selectedStatus = null;
+        // this.selectedPriority = null;
+        // this.attachementIds = [];
+
       }
 
       this.createTaskInProcess = false;
@@ -435,6 +753,20 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public resetCommentForm() {
     this.commentForm.reset();
+  }
+
+  public setHoursMinutes(seconds:number){
+    const num = seconds/60;
+    const hours = (num / 60);
+    const rhours = Math.floor(hours);
+    const minutes = (hours - rhours) * 60;
+    const rminutes = Math.round(minutes);
+    this.taskForm.get('remainingHours').patchValue(rhours);
+    this.taskForm.get('remainingMinutes').patchValue(rminutes);
+    return {
+      h: rhours,
+      m: rminutes
+    }
   }
 
   public selectAssigneeTypeahead(user: User) {
@@ -462,6 +794,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public addNewTag(event) {
+    this.tagsQueryText = null;
     if (event.key === 'Enter' && event.target.value) {
       this.listOfSelectedTags = this.taskForm.get('tags').value;
       this.listOfSelectedTags.push(event.target.value);
@@ -497,16 +830,47 @@ export class TaskComponent implements OnInit, OnDestroy {
       taskId: this.taskId
     };
 
+
+    //to locally updating //
+    this.showCommentsList = false;
+    comment.comment.createdBy= this._generalService.user;
+    comment.comment.createdById = this._generalService.user.id;
+    comment.comment.createdAt =  new Date();
+    comment.comment.isPinned = false;
+
+    setTimeout(()=>{
+      this.commentsList.unshift(comment.comment);
+      this.showCommentsList = true;
+    },1);
+
+    //--------------------//
     try {
       await this._taskService.addComment(comment).toPromise();
       this.commentForm.reset();
-      this.getMessage(true);
+      // this.getMessage(true); //will use socket
       this.createCommentInProcess = false;
     } catch (e) {
       this.createCommentInProcess = false;
     }
   }
 
+
+  async getLogHistory(event?:any){
+    try {
+      if(event) {
+        this.getTimeLogInProcess = true;
+        const json: TaskTimeLogHistoryModel = {
+          taskId: this.taskId,
+          projectId: this._generalService.currentProject.id
+        };
+        const data = await this._taskService.getLogHistory(json).toPromise();
+        this.timelogHistoryList = data.data;
+        this.getTimeLogInProcess = false;
+      }
+    } catch (e) {
+      this.getTimeLogInProcess = false;
+    }
+  }
 
   public ngOnDestroy() {
 

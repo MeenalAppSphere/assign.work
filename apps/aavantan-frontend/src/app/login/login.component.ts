@@ -5,11 +5,12 @@ import { AuthQuery } from '../queries/auth/auth.query';
 import { Router } from '@angular/router';
 import { Notice } from '../shared/interfaces/notice.type';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { UserLoginWithPasswordRequest } from '@aavantan-app/models';
-import { hashSync } from 'bcrypt';
+import { AuthService as SocialAuthService, GoogleLoginProvider } from 'angularx-social-login';
+
 
 @Component({
-  templateUrl: 'login.component.html'
+  templateUrl: 'login.component.html',
+  styleUrls: ['login.component.scss']
 })
 
 export class LoginComponent implements OnInit, OnDestroy {
@@ -17,13 +18,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   public loginInProcess = false;
   public responseMessage: Notice = {};
   public isSubmitted: boolean;
+  public featuresList: any;
 
-  constructor(private _authService: AuthService, private _authQuery: AuthQuery, private router: Router) {
+  constructor(private _authService: AuthService,
+              private _authQuery: AuthQuery,
+              private router: Router,
+              private socialAuthService: SocialAuthService) {
   }
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
-      emailId: new FormControl(null, [Validators.required]),
+      emailId: new FormControl(null, [Validators.required, Validators.pattern('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$')]),
       password: new FormControl(null, [Validators.required])
     });
 
@@ -31,26 +36,46 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginInProcess = res;
     });
 
-    this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (this.isSubmitted && !res) {
-        this.responseMessage.message = 'Invalid credentials';
-        this.responseMessage.type = 'danger';
+    // this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
+    //   if (this.isSubmitted && !res) {
+    //     this.responseMessage.message = 'Invalid credentials';
+    //     this.responseMessage.type = 'danger';
+    //   }
+    // });
+
+    // auth state subscriber if user and user token found then verify that token and re-login user
+    this.socialAuthService.authState.pipe(untilDestroyed(this)).subscribe((user) => {
+      if (user) {
+        this._authService.googleSignIn(user.idToken).subscribe();
       }
     });
+
+    this.featuresList = [
+      {
+        title: 'Ant Design Title 1',
+        description: 'wlsdfjldsfkj'
+      },
+      {
+        title: 'Ant Design Title 2'
+      },
+      {
+        title: 'Ant Design Title 3'
+      },
+      {
+        title: 'Ant Design Title 4'
+      }
+    ];
 
   }
 
   loginWithGoogle() {
-    this._authService.requestGoogleRedirectUri().subscribe(res => {
-      window.location.replace(res.redirect_uri);
+    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(result => {
+    }).catch(err => {
+      console.log(err);
     });
   }
 
   submitForm() {
-    // const request = new UserLoginWithPasswordRequest();
-    // request.emailId = this.loginForm.value.emailId;
-    // request.password = hashSync(this.loginForm.value.password, 5);
-
     this.isSubmitted = true;
     this._authService.login(this.loginForm.value).subscribe();
   }

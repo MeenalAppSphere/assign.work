@@ -1,40 +1,58 @@
 <nz-modal [(nzVisible)]="timelogModalIsVisible" [nzTitle]="titleTemp" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
-  <form [formGroup]="timeLogForm" autocomplete="off" nz-form>
+  <form [formGroup]="timeLogForm"  autocomplete="off" nz-form>
       <div >
         <nz-form-item>
           <nz-form-control nzValidatingTip="Description">
               <nz-form-label>Description<span class="text-danger">*</span></nz-form-label>
-              <textarea  formControlName="desc" nz-input rows="2" maxlength="500" placeholder="What you have done..."></textarea>
+              <textarea  formControlName="desc" tabindex="1" nz-input rows="2" maxlength="500" placeholder="What you have done..."></textarea>
           </nz-form-control>
         </nz-form-item>
 
         <nz-form-item>
+          <label nz-checkbox formControlName="isPeriod" (ngModelChange)="isPeriodChanged()"> Is Period</label>
+        </nz-form-item>
+        <nz-form-item *ngIf="isPeriod" class="mb-1">
           <nz-form-label>Start-End<span class="text-danger">*</span></nz-form-label>
-                <nz-range-picker formControlName="loggedDate" [nzFormat]="dateFormat" ></nz-range-picker>
+                <nz-range-picker formControlName="loggedDate" [ngModel]="today" tabindex="1" [nzShowToday]="true" [nzFormat]="dateFormat" ></nz-range-picker>
+        </nz-form-item>
+        <nz-form-item *ngIf="!isPeriod" class="mb-1">
+          <nz-form-label style="display: block;text-align: left;">Date<span class="text-danger">*</span></nz-form-label>
+          <nz-date-picker [(ngModel)]="todaySingleDate" formControlName="loggedSingleDate" [nzFormat]="dateFormat"></nz-date-picker>
         </nz-form-item>
         <nz-form-item>
           <div class="row">
-              <div class="col pr-1">
+
+              <div class="col pr-0" style="width: 30px">
                 <nz-form-control nzValidatingTip="Spent Time">
-                  <nz-form-label>Spent Time<span class="text-danger">*</span></nz-form-label>
-                  <nz-input-number
-                    [nzFormatter]="loggedTimeFormatter"
-                    [nzParser]="loggedTimeParse" maxlength="5" (keyup)="calcRemaining()" formControlName="loggedTime" nzSize="small" type="text" placeholder="5h" >
-                  </nz-input-number>
+                  <nz-form-label>Hours<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input numeric numericType="number" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="0h" />
                 </nz-form-control>
               </div>
+
+              <div class="col pr-1" style="width: 30px">
+                <nz-form-control nzValidatingTip="Spent Time">
+                  <nz-form-label>Min<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input numeric numericType="minutes" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedMinutes" nzSize="small" type="text" placeholder="0m" />
+                </nz-form-control>
+              </div>
+
               <div class="col pl-1">
                 <nz-form-control nzValidatingTip="Remaining Time">
                   <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input disabled numeric numericType="decimal" maxlength="5" formControlName="remainingTime" nzSize="small" type="text" placeholder="3h" />
+                  <input style="width:47%; margin-right: 5%;" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="0h" />
+                  <input style="width:47%" nz-input disabled numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="0m" />
                 </nz-form-control>
               </div>
+
+            <div class="m-l-10 m-t-15 text-gray-light font-size-13">Note : All <span class="text-danger">*</span> fields are mandatory</div>
+            <div *ngIf="errorMessage" class="m-l-10 m-t-15 text-danger font-size-13">{{errorMessage}}</div>
+
           </div>
         </nz-form-item>
       </div>
       <div *nzModalFooter>
         <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
-        <button nz-button nzSize="small" nzType="primary" (click)="save()" [nzLoading]="addTimelogInProcess">Save</button>
+        <button nz-button nzSize="small" nzType="primary" [disabled]="timeLogForm.invalid || errorMessage" (click)="save()" [nzLoading]="addTimelogInProcess">Save</button>
       </div>
     <ng-template #titleTemp>
       <span>{{selectedTaskItem && selectedTaskItem.displayName ? selectedTaskItem.displayName : 'TIME LOG'}}</span>

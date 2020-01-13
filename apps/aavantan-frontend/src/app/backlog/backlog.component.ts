@@ -1,11 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DraftSprint, GetAllTaskRequestModel, Sprint, SprintStatusEnum, Task, User } from '@aavantan-app/models';
+import {
+  AddTaskToSprintModel,
+  DraftSprint, GetAllSprintRequestModel,
+  GetAllTaskRequestModel, GetUnpublishedRequestModel,
+  Sprint, SprintBaseRequest, SprintErrorResponse,
+  Task,
+  User
+} from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
 import { cloneDeep } from 'lodash';
+import { NzNotificationService } from 'ng-zorro-antd';
+import { SprintService } from '../shared/services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -14,70 +23,53 @@ import { cloneDeep } from 'lodash';
 })
 export class BacklogComponent implements OnInit, OnDestroy {
   public allTaskList: Task[] = [];
+  public allTaskListBackup: Task[] = [];
   public draftTaskList: Task[] = [];
   public taskObj: Task;
   public memberObj: User;
   public view: String = 'listView';
   public totalDuration: Number = 0;
+  public durationData:any;
   public isDisabledCreateBtn: boolean = true;
   public draftSprint: DraftSprint;
   public draftData: Task[] = [];
-  public showStartWizard: boolean;
-  public wizardIndex = 0;
-  public wizardTitle = 'Title';
+  public sprintModalIsVisible: boolean;
   public projectTeams: User[] = [];
-  public dateFormat = 'mm/dd/yyyy';
-  public sprintData: any;
+  public sprintData: Sprint;
+  public sprintList: Sprint[];
   public teamCapacityModalIsVisible: boolean;
   public getTaskInProcess: boolean;
-  public sprintDataSource: Sprint[] = [
-    {
-      id: '1',
-      name: 'Sprint 1',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '2',
-      name: 'Sprint 2',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '3',
-      name: 'Sprint 3',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    }
-  ];
+  public gettingUnpublishedInProcess: boolean;
+  public gettingAllSprintInProcess: boolean;
+  public createdSprintId: string = null;
+  public publishSprintInProcess: boolean;
+  public saveSprintInProcess: boolean;
+  public activeSprintData : Sprint;
+  public activeSprintId : string;
+  public haveUnpublishedTasks:boolean;
+
+  public searchValue: string;
+  public searchTaskListInProgress: boolean;
+
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
-              private _userQuery: UserQuery) {
+              private _userQuery: UserQuery,
+              private _sprintService: SprintService,
+              protected notification: NzNotificationService) {
   }
 
   ngOnInit() {
 
-    this.getAllTask();
+    this.activeSprintData = this._generalService.currentProject.sprint;
+    this.activeSprintId = this._generalService.currentProject.sprintId;
+
+    if(this._generalService.currentProject && this._generalService.currentProject.id) {
+      // this.getAllSprint();
+      this.getAllBacklogTask();
+      this.getUnpublishedSprint();
+    }
 
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -90,112 +82,268 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.countTotalDuration();
     }
 
-    // dummy sprint wizard data
+    // Sprint wizard data
     this.sprintData = {
-      title: 'Sprint 1'
+      name: null,
+      projectId: this._generalService.currentProject.id,
+      createdById: this._generalService.user.id,
+      goal: null,
+      startedAt: null,
+      endAt: null,
+      sprintStatus:null
     };
 
   }
 
-  public getAllTask(){
+  async getAllSprint(){
+    try {
+
+      this.gettingAllSprintInProcess = true;
+      const json: GetAllSprintRequestModel = {
+        projectId: this._generalService.currentProject.id
+      };
+
+        this._sprintService.getAllSprint(json).subscribe(data=>{
+          this.sprintList = data.data.items
+          if(this.sprintList && this.sprintList.length>0){
+             // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
+          }
+        });
+
+      }catch (e) {
+        this.gettingAllSprintInProcess = false;
+      }
+
+  }
+
+  async getUnpublishedSprint(){
+    this.gettingUnpublishedInProcess=true;
+    try {
+      const json: GetUnpublishedRequestModel = {
+        projectId: this._generalService.currentProject.id
+      };
+
+      this._sprintService.getUnpublishedSprint(json).subscribe(data => {
+        this.gettingUnpublishedInProcess = false;
+
+        if((typeof data.data) === "string"){
+
+        }else{
+          this.sprintData = data.data;
+
+          const taskArray : Task[] = [];
+          const ids : string[] = [];
+          this.sprintData.stages[0].tasks.forEach((ele)=>{
+            taskArray.push(ele.task);
+            ids.push(ele.task.id);
+          });
+
+          this.draftSprint = {
+            tasks: taskArray,
+            ids: ids
+          }
+          this.draftData = taskArray;
+          if(this.draftData.length>0){
+            this.haveUnpublishedTasks = true;
+            this.isDisabledCreateBtn = false;
+          }else{
+            this.haveUnpublishedTasks = false;
+          }
+        }
+
+      });
+    }catch (e) {
+      this.gettingUnpublishedInProcess = false;
+    }
+
+  }
+
+
+  public onChangeSearch(value: any): void {
+    this.searchTaskListInProgress = true;
+    this.allTaskList = this.allTaskListBackup;
+    if(value){
+      this.allTaskList = this.allTaskList.filter((ele)=>{
+        let taskTypeName = '';
+        let profileName = '';
+        if(ele.taskType && ele.taskType.name){
+          taskTypeName = ele.taskType.name.toLowerCase();
+        }
+        if(ele.assignee && ele.assignee.firstName || ele.assignee && ele.assignee.lastName){
+          profileName = (ele.assignee.firstName + ' ' +ele.assignee.lastName).toLowerCase();
+        }
+        if(ele.name.toLowerCase().includes(value) || taskTypeName.includes(value) || profileName.includes(value)) {
+          return ele;
+        }
+      });
+    }else{
+      this.allTaskList = this.allTaskListBackup;
+    }
+    this.searchTaskListInProgress = false;
+
+  }
+
+  async getAllBacklogTask(){
 
     const json: GetAllTaskRequestModel = {
       projectId: this._generalService.currentProject.id,
       sort: 'createdAt',
-      sortBy: 'desc'
+      sortBy: 'desc',
+      onlyBackLog: true
     };
-    this._taskService.getAllTask(json).subscribe();
 
-    this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.getTaskInProcess=false;
+    this.getTaskInProcess=true;
+    const data = await this._taskService.getAllBacklogTasks(json).toPromise();
+    if(data.data && data.data.items.length>0){
+      this.allTaskList = cloneDeep(data.data.items);
+      this.allTaskListBackup = cloneDeep(data.data.items);
+    }
 
-        this.allTaskList = cloneDeep(res);
-
-      }
-    });
+    this.getTaskInProcess = false
+    // this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
+    //   if (res) {
+    //     this.getTaskInProcess=false;
+    //
+    //     this.allTaskList = cloneDeep(res);
+    //     this.allTaskListBackup = cloneDeep(res);
+    //
+    //   }
+    // });
   }
 
   public countTotalDuration() {
     this.allTaskList.forEach((ele) => {
-      const duration = ele.estimateTime ? ele.estimateTime : 0;
+      const duration = ele.estimatedTime ? ele.estimatedTime : 0;
       // @ts-ignore
       this.totalDuration += Number(duration);
+
+      this.durationData = this._generalService.secondsToReadable(Number(this.totalDuration));
+
     });
   }
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
-    this.draftSprint = ev;
+
+    if(this.haveUnpublishedTasks){
+      this.draftSprint.tasks = this.getUnique( this.draftSprint.tasks.concat(ev.tasks), 'id');
+    }else{
+      this.draftSprint = ev;
+    }
+
+
     if (this.draftSprint && this.draftSprint.tasks.length > 0) {
       this.isDisabledCreateBtn = false;
-      this.prepareDraftSprint();
     } else {
       this.isDisabledCreateBtn = true;
     }
+
+    this.prepareDraftSprint();
+
   }
 
   public prepareDraftSprint() {
     this.draftData = this.draftSprint.tasks.filter((item) => {
-      return item;
+      if(item.isSelected){
+        return item;
+      }
     });
+    console.log('draftData: ',this.draftData.length);
+    this.calculateDraftDataDuration();
   }
 
-  public startNewSprint() {
-    this.showStartWizard = true;
+  public calculateDraftDataDuration(){
+    let estimatedTime = 0;
+    this.draftData.forEach((ele)=> {
+      estimatedTime = estimatedTime + Number(ele.estimatedTime);
+    })
+
+    this.sprintData.totalEstimation = estimatedTime;
+    this.sprintData.totalEstimationReadable = this._generalService.secondsToReadable(this.sprintData.totalEstimation).readable;
+    this.sprintData.totalRemainingCapacity = (this.sprintData.totalCapacity*3600)-estimatedTime;
+    this.sprintData.totalRemainingCapacityReadable = this._generalService.secondsToReadable(this.sprintData.totalRemainingCapacity).readable;
+  }
+  public toggleAddSprint(data?:Sprint) {
+    if(data){
+      this.sprintData = data;
+    }
+    this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
-  public editSprint() {
-    this.showStartWizard = true;
-  }
+  async saveSprint(){
+    try {
 
-  public cancel(): void {
-    this.showStartWizard = false;
-    this.wizardIndex = 0;
-    this.changeContent();
-  }
-
-  public pre(): void {
-    this.wizardIndex -= 1;
-    this.changeContent();
-  }
-
-  public next(): void {
-    this.wizardIndex += 1;
-    this.changeContent();
-  }
-
-  public done(): void {
-    this.showStartWizard = false;
-    this.wizardIndex = 0;
-    this.sprintData.id = '1';
-  }
-
-  changeContent(): void {
-    switch (this.wizardIndex) {
-      case 0: {
-        this.wizardTitle = 'Title and Duration';
-        break;
+      const sprintData : AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        tasks : this.draftSprint.ids
       }
-      case 1: {
-        this.wizardTitle = 'Team';
-        break;
+
+      this.saveSprintInProcess = true;
+      const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
+
+      if (!(data.data instanceof SprintErrorResponse)) {
+        this.draftSprint.totalCapacity = data.data.totalCapacity;
+        this.draftSprint.totalCapacityReadable = data.data.totalCapacityReadable;
+        this.draftSprint.totalEstimation = data.data.totalEstimation;
+        this.draftSprint.totalEstimationReadable = data.data.totalEstimationReadable;
+        this.draftSprint.totalRemainingCapacity = data.data.totalRemainingCapacity;
+        this.draftSprint.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
       }
-      default: {
-        this.wizardTitle = 'error';
-      }
+
+      this.saveSprintInProcess = false;
+
+    } catch (e) {
+      this.createdSprintId = null;
+      this.saveSprintInProcess = false;
     }
   }
 
-  public createSprint() {
-    console.log('Create Sprint For Tasks ', this.draftSprint.ids);
+  async publishSprint() {
+
+    try {
+
+      const sprintData : SprintBaseRequest = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id
+      }
+
+      this.publishSprintInProcess = true;
+      const data = await this._sprintService.publishSprint(sprintData).toPromise();
+      if(data){
+        this.isDisabledCreateBtn = true;
+      }
+      this.publishSprintInProcess = false;
+
+    } catch (e) {
+      this.createdSprintId = null;
+      this.publishSprintInProcess = false;
+    }
+
   }
 
-  public showTeamCapacity() {
+  public toggleTeamCapacity(data?:Sprint) {
+    if(data){
+      this.sprintData = data;
+    }
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 
   public ngOnDestroy(){
 
+  }
+
+  public getUnique(arr, comp) {
+
+    const unique = arr
+      .map(e => e[comp])
+
+      // store the keys of the unique objects
+      .map((e, i, final) => final.indexOf(e) === i && i)
+
+      // eliminate the dead keys & store unique objects
+      .filter(e => arr[e]).map(e => arr[e]);
+
+    return unique;
   }
 
 }

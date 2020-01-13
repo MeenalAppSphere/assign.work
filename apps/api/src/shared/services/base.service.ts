@@ -1,5 +1,6 @@
-import { ClientSession, Document, Model, Types } from 'mongoose';
+import { ClientSession, Document, DocumentQuery, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
+import { DEFAULT_QUERY_FILTER } from '../helpers/defaultValueConstant';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -9,34 +10,24 @@ const myPaginationLabels = {
   totalPages: 'totalPages'
 };
 
-const defaultQueryOptions = {
-  isDeleted: false
-};
 
 export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
   }
 
+  get dbModel() {
+    return this.model;
+  }
+
   public async find(model: MongooseQueryModel): Promise<T[]> {
-    const query = this.model.find({ ...model.filter, ...defaultQueryOptions });
-
-    if (model.populate && model.populate.length) {
-      query.populate(model.populate);
-    }
-
-    if (model.select) {
-      query.select(model.select);
-    }
-
-    if (model.lean) {
-      query.lean();
-    }
+    const query = this.model.find({ ...model.filter, ...DEFAULT_QUERY_FILTER });
+    this.queryBuilder(model, query);
 
     return query.exec();
   }
 
   public async findById(id: string, populate: Array<any> = [], isLean = false): Promise<T> {
-    const query = this.model.findById(this.toObjectId(id)).where(defaultQueryOptions);
+    const query = this.model.findById(this.toObjectId(id)).where(DEFAULT_QUERY_FILTER);
 
     if (populate && populate.length) {
       query.populate(populate);
@@ -49,11 +40,10 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async findOne(filter: any = {}, populate: Array<any> = []): Promise<T> {
-    const query = this.model.findOne({ ...filter, ...defaultQueryOptions });
-    if (populate && populate.length) {
-      query.populate(populate);
-    }
+  public async findOne(model: MongooseQueryModel): Promise<T> {
+    const query = this.model.findOne({ ...model.filter, ...DEFAULT_QUERY_FILTER });
+    this.queryBuilder(model, query);
+
     return query.exec();
   }
 
@@ -61,17 +51,22 @@ export class BaseService<T extends Document> {
     return await this.model.create(doc, { session });
   }
 
-  public async update(id: string, updatedDoc: T | Partial<T>, session: ClientSession): Promise<T> {
+  public async update(id: string, updatedDoc: any, session: ClientSession): Promise<T> {
     return await this.model
       .updateOne({ _id: id }, updatedDoc, { session }).exec();
   }
 
+  public async bulkUpdate(filter: any, updatedDoc: any, session: ClientSession) {
+    return this.model
+      .update(filter, updatedDoc, { session, multi: true });
+  }
+
   public async getAllPaginatedData(filter: any = {}, options: Partial<MongoosePaginateQuery> | any): Promise<BasePaginatedResponse<any>> {
-    options.count = options.count || 10;
+    options.count = options.count || 20;
     options.page = options.page || 1;
 
     const query = this.model
-      .find({ ...filter, ...defaultQueryOptions })
+      .find({ ...filter, ...DEFAULT_QUERY_FILTER })
       .skip((options.count * options.page) - options.count)
       .limit(options.count);
 
@@ -83,11 +78,15 @@ export class BaseService<T extends Document> {
       query.select(options.select);
     }
 
+    if (options.sort) {
+      query.sort({ [options.sort]: options.sortBy || 'asc' });
+    }
+
     const result = await query.lean().exec();
     result.forEach((doc) => {
       doc.id = String(doc._id);
     });
-    const numberOfDocs = await this.model.countDocuments({ ...filter, ...defaultQueryOptions });
+    const numberOfDocs = await this.model.countDocuments({ ...filter, ...DEFAULT_QUERY_FILTER });
 
     return {
       page: options.page,
@@ -99,7 +98,7 @@ export class BaseService<T extends Document> {
   }
 
   public async getAll(filter: any = {}, populate: Array<any> = []) {
-    const query = this.model.find({ ...filter, ...defaultQueryOptions });
+    const query = this.model.find({ ...filter, ...DEFAULT_QUERY_FILTER });
     if (populate && populate.length) {
       query.populate(populate);
     }
@@ -116,25 +115,57 @@ export class BaseService<T extends Document> {
       .exec();
   }
 
-  private transformPaginationObject(object: Partial<MongoosePaginateQuery>) {
-    return {
-      page: object.page,
-      limit: object.count,
-      sort: { [object.sortBy]: object.sort },
-      allowDiskUse: true,
-      customLabels: myPaginationLabels,
-      lean: true,
-      leanWithId: true,
-      populate: object.populate
-    };
-  }
-
   public toObjectId(id: string | number): Types.ObjectId {
     return new Types.ObjectId(id);
   }
 
-  public isValidId(id: string) {
+  public isValidObjectId(id: string) {
     return Types.ObjectId.isValid(id);
+  }
+
+  // create a session start a transaction and return it
+  public async startSession(): Promise<ClientSession> {
+    const session = await this.model.db.startSession();
+    session.startTransaction();
+    return session;
+  }
+
+  /**
+   * commit session and end that session
+   * @param session
+   * @returns {Promise<void>}
+   */
+  public async commitTransaction(session: ClientSession) {
+    await session.commitTransaction();
+    session.endSession();
+  }
+
+  /**
+   * abort a session and end that session
+   * @param session
+   * @returns {Promise<void>}
+   */
+  public async abortTransaction(session: ClientSession) {
+    await session.abortTransaction();
+    session.endSession();
+  }
+
+  private queryBuilder(model: MongooseQueryModel, query: DocumentQuery<any, any>) {
+    if (model.populate && model.populate.length) {
+      query.populate(model.populate);
+    }
+
+    if (model.select) {
+      query.select(model.select);
+    }
+
+    if (model.lean) {
+      query.lean();
+    }
+
+    if (model.sort) {
+      query.sort({ [model.sort]: model.sortBy || 'asc' });
+    }
   }
 
 }

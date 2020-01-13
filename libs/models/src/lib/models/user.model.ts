@@ -27,11 +27,13 @@ export class UserTimeZoneInfo {
 
 export class User {
   id?: string;
+  _id?: string;
   emailId?: string;
   password?: string;
   firstName?: string;
   lastName?: string;
   profilePic?: string;
+  profileLink?: string;
   lastLoginProvider?: UserLoginProviderEnum;
   recentLoginInfo?: UserRecentLoginInfo;
   confirmed?: boolean;
@@ -48,9 +50,17 @@ export class User {
   mobileNumber?: string;
   username?: string;
   isEmailSent?: boolean;
+  isDeleted?: boolean;
+  invitationId?: string;
 }
 
-export class SearchUserRequest {
+export class SearchUserModel {
   organizationId: string;
-  q: string;
+  query: string;
+}
+
+export class Mention {
+  id: string;
+  value: string;
+  link: string;
 }

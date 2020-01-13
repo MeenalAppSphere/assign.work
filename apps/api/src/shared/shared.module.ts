@@ -16,11 +16,46 @@ import { AttachmentService } from './services/attachment.service';
 import { EasyconfigModule } from 'nestjs-easyconfig';
 import * as path from 'path';
 import { GeneralService } from './services/general.service';
+import { TaskTimeLogService } from './services/task-time-log.service';
+import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
+import { sprintSchema } from '../sprint/sprint.schema';
+import { SprintService } from './services/sprint.service';
+import { invitationSchema } from '../invitations/invitations.schema';
+import { InvitationService } from './services/invitation.service';
+import { EmailService } from './services/email.service';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+
+const providers = [
+  UsersService,
+  ProjectService,
+  OrganizationService,
+  TaskService,
+  TaskHistoryService,
+  AttachmentService,
+  GeneralService,
+  TaskTimeLogService,
+  SprintService,
+  InvitationService,
+  EmailService
+];
 
 @Global()
 @Module({
   imports: [
     EasyconfigModule.register({ path: path.resolve(__dirname, '.env') }),
+    WinstonModule.forRoot({
+      level: 'error',
+      transports: [
+        new winston.transports.File({
+          format: winston.format.combine(
+            winston.format.timestamp()
+          ),
+          filename: 'error.log'
+        })
+
+      ]
+    }),
     MongooseModule.forFeature([{
       name: DbCollection.users,
       schema: userSchema,
@@ -45,26 +80,27 @@ import { GeneralService } from './services/general.service';
       name: DbCollection.attachments,
       schema: attachmentSchema,
       collection: DbCollection.attachments
+    }, {
+      name: DbCollection.taskTimeLog,
+      schema: taskTimeLogSchema,
+      collection: DbCollection.taskTimeLog
+    }, {
+      name: DbCollection.sprint,
+      schema: sprintSchema,
+      collection: DbCollection.sprint
+    }, {
+      name: DbCollection.invitations,
+      schema: invitationSchema,
+      collection: DbCollection.invitations
     }])
   ],
   exports: [
     MongooseModule,
-    UsersService,
-    ProjectService,
-    OrganizationService,
-    TaskService,
-    TaskHistoryService,
-    AttachmentService,
-    GeneralService
+    WinstonModule,
+    ...providers
   ],
   providers: [
-    UsersService,
-    ProjectService,
-    OrganizationService,
-    TaskService,
-    TaskHistoryService,
-    AttachmentService,
-    GeneralService
+    ...providers
   ]
 })
 export class SharedModule {

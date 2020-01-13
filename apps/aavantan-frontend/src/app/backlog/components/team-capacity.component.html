@@ -2,22 +2,39 @@
 
   <div class="capacity-table">
     <nz-table
-      [nzData]="sprintMembers"
+      [nzData]="sprintData.membersCapacity"
       [nzShowPagination]="false">
       <thead>
       <tr>
+        <th>
+          <nz-input-group [nzSuffix]="suffixIcon">
+            <input [(ngModel)]="searchUserInput" (ngModelChange)="onChangeSearch($event)" nz-input placeholder="Search User" style="text-align: left;max-width:100%; width:150px;"/>
+          </nz-input-group>
+          <ng-template #suffixIcon>
+            <i nz-icon nzType="search"></i>
+          </ng-template>
+        </th>
+        <th class="text-right" width="200">
+          <small *ngIf="switchShow0Capacity">Hide <b class="text-success">0h Only</b></small>
+          <small *ngIf="!switchShow0Capacity">Show <b class="text-success">0h Only</b></small>
+          <nz-switch nzSize="small" [(ngModel)]="switchShow0Capacity" (ngModelChange)="onChangeSwitchCapacity()" class="m-l-5"></nz-switch>
+        </th>
+      </tr>
+      <tr>
         <th>Name</th>
-        <th class="text-right" width="140">Working hours</th>
+        <th class="text-right" width="200">Working hours</th>
       </tr>
       </thead>
       <tbody>
 
-      <tr *ngFor="let item of sprintMembers">
-        <td><nz-avatar nzSize="small" nzSrc="{{item.profilePic}}"></nz-avatar> {{item.firstName}} {{item.lastName}}</td>
-        <td class="text-right"><input nz-input placeholder="Hours" class="team-list-input" value="40" nzSize="small" maxlength="3"/></td>
+      <tr *ngFor="let item of sprintData.membersCapacity">
+        <td><nz-avatar nzSize="small" nzSrc="{{item.user.profilePic}}"></nz-avatar> {{item.user.firstName}} {{item.user.lastName}}</td>
+        <td class="text-right"><input nz-input numeric numericType="number" maxlength="3" placeholder="Hours" class="team-list-input" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotalCapacity()" nzSize="small" maxlength="3"/></td>
       </tr>
       <tr>
-        <td class="text-right" colspan="2">Total Hours: 120</td>
+        <td class="text-right" colspan="2">
+          <nz-tag [nzColor]="'#F8F8F8'" class="text-gray-light">Total Capacity : <strong class="text-body" >{{sprintData.totalCapacityReadable ? sprintData.totalCapacityReadable : '0h'}}</strong></nz-tag>
+          </td>
       </tr>
 
       </tbody>
@@ -27,13 +44,11 @@
   <div *nzModalFooter>
     <div class="row">
 
-      <div class="col text-left">
+      <div class="col text-right">
         <button nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()">
           <span>Cancel</span>
         </button>
-      </div>
-      <div class="col text-right">
-        <button nz-button nzType="primary" nzSize="small" (click)="saveForm()">
+        <button nz-button nzType="primary" nzSize="small" [nzLoading]="isCapacityUpdateInProgress" (click)="saveForm()">
           <span>Save</span>
         </button>
       </div>

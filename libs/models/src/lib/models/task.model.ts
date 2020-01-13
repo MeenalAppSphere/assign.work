@@ -1,9 +1,9 @@
 import { TaskHistoryActionEnum } from '../enums/task.enum';
-import { Project, ProjectPriority, ProjectStatus, ProjectTags } from './project.model';
+import { Project, ProjectPriority, ProjectStatus } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';
 import { MongoosePaginateQuery } from '../queryOptions';
-import { TaskType } from './tasktype.model';
+import { Sprint } from './sprint.model';
 
 export class Task {
   id?: string;
@@ -16,19 +16,27 @@ export class Task {
   assignee?: User;
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
-  taskType: string | TaskType;
+  taskType?: any;
   comments?: TaskComments[];
-  estimateTime?: number;
+  estimatedTime?: number;
+  estimatedTimeReadable?: string;
   remainingTime?: number;
+  remainingTimeReadable?: string;
   totalLoggedTime?: number;
+  totalLoggedTimeReadable?: string;
+  overLoggedTime?: number;
+  overLoggedTimeReadable?: string;
+  watchers?: string[];
   startedAt?: Date;
   finishedAt?: Date;
   priority?: string | ProjectPriority;
   tags?: string[];
   url?: string;
   progress?: number;
+  overProgress?: number;
   status?: string | ProjectStatus;
-  sprint?: string;
+  sprintId?: string;
+  sprint?: Sprint;
   relatedItemId?: string[];
   relatedItem?: Task[];
   dependentItemId?: string;
@@ -40,6 +48,8 @@ export class Task {
   createdAt?: Date;
   updatedAt?: Date;
   isSelected?: boolean;
+  watchersDetails?: User[];
+  hasError?: string;
 }
 
 export class TaskComments {
@@ -56,6 +66,7 @@ export class TaskComments {
 
 export class TaskHistory {
   taskId: string;
+  sprintId?: string;
   task?: Task;
   action: TaskHistoryActionEnum;
   createdById: string;
@@ -84,10 +95,6 @@ export class TaskFilterDto {
   finishedAt?: Date;
 }
 
-export class TaskForSprint extends Task {
-  selectedForSprint: boolean = false;
-}
-
 export class BaseTaskRequestModel {
   projectId: string;
   taskId?: string;
@@ -96,6 +103,8 @@ export class BaseTaskRequestModel {
 
 export class GetAllTaskRequestModel extends MongoosePaginateQuery {
   projectId: string;
+  onlyBackLog?: boolean;
+  sprintId?: string;
 }
 
 export class GetMyTaskRequestModel extends MongoosePaginateQuery {
@@ -126,6 +135,7 @@ export class DeleteCommentModel extends BaseTaskRequestModel {
 export class CommentPinModel extends BaseTaskRequestModel {
   commentId?: string;
   isPinned?: boolean;
+  comment?:string;
 }
 
 export class GetTaskHistoryModel extends MongoosePaginateQuery {

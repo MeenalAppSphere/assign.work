@@ -7,11 +7,16 @@ import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { ProjectUrls } from './project.url';
 import {
-  BaseResponseModel,
+  BaseResponseModel, GetAllProjectsModel,
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectStatus, ProjectWorkingCapacityUpdateDto, SearchProjectRequest, SwitchProjectRequest,
+  ProjectStages,
+  ProjectStatus,
+  ProjectWorkingCapacityUpdateDto, ResendProjectInvitationModel,
+  SearchProjectRequest,
+  SearchProjectTags,
+  SwitchProjectRequest,
   TaskType,
   User
 } from '@aavantan-app/models';
@@ -78,8 +83,8 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  getAllProject(): Observable<BaseResponseModel<Project[]>> {
-    return this._http.get(ProjectUrls.base).pipe(
+  getAllProject(json : GetAllProjectsModel): Observable<BaseResponseModel<Project[]>> {
+    return this._http.post(ProjectUrls.getAllProject, json).pipe(
       map((res: BaseResponseModel<Project[]>) => {
         //this.notification.success('Success', 'Found');
         return res;
@@ -127,6 +132,18 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       }),
       catchError(e => {
         return this.handleError(e);
+      })
+    );
+  }
+
+  resendInvitation(json : ResendProjectInvitationModel): Observable<BaseResponseModel<string>> {
+    return this._http.post(ProjectUrls.resendInvitation, json).pipe(
+      map(res => {
+        this.notification.success('Invitation', 'Project invitation sent successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
       })
     );
   }
@@ -217,7 +234,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     return this._http.put(ProjectUrls.updateCapacity.replace(':projectId', projectId), json)
       .pipe(
         map(res => {
-          this.updateCurrentProjectState(res.data);
+            this.updateCurrentProjectState(res.data);
           this.notification.success('Success', 'Updated Successfully');
           return res;
         }),
@@ -238,6 +255,22 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         }),
         catchError(e => this.handleError(e))
       );
+  }
+
+  searchTags(text: string): Observable<BaseResponseModel<string[]>> {
+    const json: SearchProjectTags ={
+      // organizationId: this._generalService.currentOrganization.id,
+      projectId: this._generalService.currentProject.id,
+      query:text
+    }
+    return this._http.post(ProjectUrls.searchTags, json).pipe(
+      map((res: BaseResponseModel<string[]>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
   }
 
   private updateCurrentProjectState(result: Project) {

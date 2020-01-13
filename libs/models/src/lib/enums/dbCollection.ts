@@ -6,5 +6,6 @@ export enum DbCollection {
   taskHistory = 'task-history',
   taskTimeLog = 'task-time-log',
   sprint = 'sprint',
-  attachments = 'attachments'
+  attachments = 'attachments',
+  invitations = 'invitations'
 }

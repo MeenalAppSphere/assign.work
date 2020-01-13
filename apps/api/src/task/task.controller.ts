@@ -15,26 +15,6 @@ import {
   UpdateCommentModel
 } from '@aavantan-app/models';
 
-const taskBasicPopulation: any[] = [{
-  path: 'createdBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
-  justOne: true
-}, {
-  path: 'assignee',
-  select: 'emailId userName firstName lastName profilePic -_id',
-  justOne: true
-}, {
-  path: 'dependentItem',
-  select: 'name displayName description url',
-  justOne: true
-}, {
-  path: 'relatedItem',
-  select: 'name displayName description url',
-  justOne: true
-}, {
-  path: 'attachmentsDetails'
-}];
-
 @Controller('task')
 @UseGuards(AuthGuard('jwt'))
 export class TaskController {
@@ -64,7 +44,7 @@ export class TaskController {
 
   @Post('delete-task')
   async deleteTask(@Body() model: DeleteTaskModel) {
-    return await this._taskService.delete(model.taskId);
+    return await this._taskService.deleteTask(model);
   }
 
   @Post('get-comments')
@@ -94,11 +74,11 @@ export class TaskController {
 
   @Post('get-task')
   async getByIdOrDisplayName(@Body() model: GetTaskByIdOrDisplayNameModel) {
-    return this._taskService.getTaskByIdOrDisplayName(model, taskBasicPopulation);
+    return this._taskService.getTaskByIdOrDisplayName(model);
   }
 
   @Post('filter')
   async getTask(@Body() filterModel: TaskFilterDto) {
-    return await this._taskService.getTasks(filterModel, taskBasicPopulation);
+    return await this._taskService.getTasks(filterModel);
   }
 }

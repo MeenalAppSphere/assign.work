@@ -1,3 +1,22 @@
+.sprint-button {
+  background: none!important;
+  font-size: 24px!important;
+  color: #111111;
+  padding: 0px!important;
+  box-shadow: none;
+  margin-top: 7px;
+  &:hover{
+    background: none!important;
+  }
+  i{
+    font-size: 15px!important;
+  }
+}
+.btn-add-task{
+  //padding: 13px 25px 13px 24px!important;
+  //font-size: 14px!important;
+}
+/* old design
 .collaborators-avatar{
   padding: 8px;
   border-radius: 5px 5px 0px 0px;
@@ -106,3 +125,5 @@
     }
   }
 }
+
+*/

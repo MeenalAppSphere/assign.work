@@ -6,6 +6,7 @@ export const TaskUrls = {
   addTask: createUrl('task/add'),
 
   getAllTask: createUrl('task/get-all'),
+  getAllBacklogTasks: createUrl('task/get-all'),
   update: createUrl('task/update'),
   getTask: `${createUrl('task/get-task')}`,
   filterTask: `${createUrl('task/filter')}`,
@@ -19,5 +20,6 @@ export const TaskUrls = {
   removeAttachement: `${createUrl('attachment/:id')}`,
 
   getHistory: `${createUrl('task-history/get-history')}`,
-  addTimelog: `${createUrl('task/addtimelog/:taskId')}`,
+  addTimelog: `${createUrl('task-time-log/log')}`,
+  getLogHistory: `${createUrl('task-time-log/get-log-history')}`,
 };

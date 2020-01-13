@@ -1,7 +1,7 @@
 export class BaseRequestModel {
   public sort?: string;
   public sortBy?: 'asc' | 'desc' = 'asc';
-  public q?: string;
+  public query?: string;
   public from?: string;
   public to?: string;
   public page?: number = 1;

@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Organization, Project } from '@aavantan-app/models';
+import { GetAllTaskRequestModel, Organization, Project, SwitchProjectRequest } from '@aavantan-app/models';
 import { OrganizationService } from '../../services/organization/organization.service';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
+import { ProjectService } from '../../services/project/project.service';
+import { TaskService } from '../../services/task/task.service';
 
 @Component({
   selector: 'aavantan-app-organisation',
@@ -17,14 +19,20 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   @Input() public organizationModalIsVisible: Boolean = false;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
-  public modalTitle = 'Create Organization';
+  public modalTitle = 'Organization';
   public organizations: Organization[];
-  public showCreateOrg:boolean = true;
+  public showCreateOrg: boolean = true;
+  public havePendingInvitations: boolean = true;
+  public pendingProjectList: Project[] = [];
+  public switchingProjectInProcess: boolean;
+
 
   public organizationCreationInProcess: boolean = false;
 
   constructor(private FB: FormBuilder, private _organizationService: OrganizationService,
-              private _generalService: GeneralService, private _organizationQuery: OrganizationQuery) {
+              private _generalService: GeneralService,
+              private _taskService: TaskService,
+              private _projectService: ProjectService, private _organizationQuery: OrganizationQuery) {
   }
 
   ngOnInit() {
@@ -33,13 +41,15 @@ export class OrganisationComponent implements OnInit, OnDestroy {
       description: [null, '']
     });
 
-    this.organizations= this._generalService.user.projects as Organization[];
+    this.havePendingInvitations = (!this._generalService.user.currentOrganization && !this._generalService.user.currentProject) &&
+      this._generalService.user.projects.length > 0;
+    this.pendingProjectList = this._generalService.user.projects as Project[];
 
-    if (this.organizations && this.organizations.length>0) {
-      this.showCreateOrg=false;
-    }else{
-      this.showCreateOrg=true;
-    }
+    this.organizations = this._generalService.user.projects as Organization[];
+
+    this.showCreateOrg = this.havePendingInvitations ? false : !(this.organizations && this.organizations.length > 0);
+
+    this.modalTitle = this.havePendingInvitations ? 'Pending Invitation(s)' : 'Create Organization';
 
     // listen for organization creation
     this._organizationQuery.isCreateOrganizationSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -55,18 +65,47 @@ export class OrganisationComponent implements OnInit, OnDestroy {
 
   }
 
-  public addNewOrg(){
-    this.showCreateOrg=true;
+  public addNewOrg() {
+    this.showCreateOrg = true;
+    this.havePendingInvitations = false;
   }
 
-  public selectOrg(item:Organization) {
+  public selectOrg(item: Organization) {
     console.log('Selected Org:', item.name);
+  }
+
+  async switchProject(project: Project) {
+
+    const json: SwitchProjectRequest = {
+      organizationId: this._generalService.currentOrganization.id,
+      projectId: project.id
+    };
+
+    try {
+      this.switchingProjectInProcess = true;
+      await this._projectService.switchProject(json).toPromise();
+      this.switchingProjectInProcess = false;
+      this.getTasks();
+      this.toggleShow.emit();
+    } catch (e) {
+      this.switchingProjectInProcess = false;
+    }
+
   }
 
   public saveForm() {
     const organization: Organization = { ...this.orgForm.getRawValue() };
     organization.createdBy = this._generalService.user.id;
     this._organizationService.createOrganization(organization).subscribe();
+  }
+
+  public getTasks() {
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc'
+    };
+    this._taskService.getAllTask(json).subscribe();
   }
 
   closeModal() {

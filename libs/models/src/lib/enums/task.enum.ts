@@ -1,6 +1,7 @@
 export enum TaskHistoryActionEnum {
   taskCreated = 'Task Created',
   taskUpdated = 'Task Updated',
+  taskDeleted = 'Task Deleted',
   taskAssigned = 'Task Assigned',
   commentAdded = 'Comment Added',
   commentPinned = 'Comment Pinned',
@@ -14,5 +15,6 @@ export enum TaskHistoryActionEnum {
   statusChanged = 'Status Changed',
   stageChanged = 'Stage Changed',
   addedToSprint = 'Added To Sprint',
-  timeLogged = 'Time Logged'
+  timeLogged = 'Time Logged',
+  timeLoggedInSprint = 'Time Logged in Sprint'
 }

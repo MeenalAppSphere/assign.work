@@ -1,112 +1,145 @@
-<div class="container-fluid h-100">
-  <div class="d-flex h-100 p-v-15 flex-column justify-content-between">
-    <div class="d-none d-md-flex p-h-40">
-      <img src="assets/images/logo/logo.png" alt="" />
-    </div>
+<div class="container-fluid h-100" style="border-bottom: #024880 5px solid;">
+  <div class="d-flex h-100 flex-column">
 
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-md-5">
-          <nz-card>
-            <h2 class="m-t-20">Sign In</h2>
-
-            <p class="m-b-20">Enter your credential to get access</p>
-
-            <form
-              nz-form
-              [formGroup]="loginForm"
-              class="login-form"
-              (ngSubmit)="submitForm()">
-              <nz-form-item>
-                <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
-                <nz-form-control nzValidatingTip="Please input your email!">
-                  <nz-input-group [nzPrefix]="prefixUser">
-                    <input
-                      type="email"
-                      nz-input
-                      nzSize="small"
-                      maxlength="100"
-                      formControlName="emailId"
-                      placeholder="Email"/>
-                  </nz-input-group>
-                </nz-form-control>
-              </nz-form-item>
-
-              <nz-form-item>
-                <nz-form-label nzRequired nzFor="password"
-                  >Password</nz-form-label>
-                <a class="float-right font-size-13 p-t-10 text-muted"
-                  [routerLink]="['/forgot']"
-                  >Forget Password?</a>
-                <nz-form-control nzValidatingTip="Please input your Password!">
-                  <nz-input-group [nzPrefix]="prefixLock">
-                    <input
-                      type="password"
-                      nz-input
-                      maxlength="50"
-                      nzSize="small"
-                      formControlName="password"
-                      placeholder="Password"
-                    />
-                  </nz-input-group>
-                </nz-form-control>
-              </nz-form-item>
-              <nz-form-item *ngIf="responseMessage && responseMessage.message" >
-                <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
-              </nz-form-item>
-              <nz-form-item>
-                <nz-form-control>
-                  <div
-                    class="d-flex align-items-center justify-content-between">
-                    <span class="font-size-13 text-muted"
-                      >Don't have an account?
-                      <a
-                        class="small"
-                        [routerLink]="['/register']">
-                        Signup</a></span>
-                    <button
-                      nz-button
-                      [disabled]="loginForm.invalid"
-                      [nzLoading]="loginInProcess"
-                      class="login-form-button"
-                      [nzType]="'primary'">
-                      Sign In
-                    </button>
-                  </div>
-                </nz-form-control>
-              </nz-form-item>
-            </form>
-            <div class="text-center m-t-25">
-              <nz-button-group>
-                <button nz-button nzType="primary"><i nz-icon nzType="linkedin" theme="outline"></i> Login with LinkedIn</button>
-                <button nz-button nzType="danger" (click)="loginWithGoogle()"><i nz-icon nzType="google" theme="outline"></i> Login with Gmail</button>
-              </nz-button-group>
-            </div>
-            <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>
-            <ng-template #prefixLock><i nz-icon nzType="lock"></i></ng-template>
-          </nz-card>
-        </div>
-
-        <div class="offset-md-1 col-md-6 d-none d-md-block">
-          <img
-            class="img-fluid"
-            src="assets/images/others/login-2.png"
-            alt=""
-          />
+    <div class="row">
+      <div class="col-md-4 p-t-40 p-h-90 bg-white logo-col">
+        <img src="assets/images/logo/logo.svg" alt="Assign.Work"/>
+      </div>
+      <div class="col-md-8 p-t-30 p-h-40 bg-light text-right menu-header">
+        <div>
+          <a href="">About Us</a>
+          <a href="">Pricing</a>
+          <a href="">Supports</a>
         </div>
       </div>
     </div>
 
-    <div class="d-none d-md-flex  p-h-40 justify-content-between">
-      <span class="">© 2019 Assign.work</span>
-      <ul class="list-inline">
-        <li class="list-inline-item">
-          <a class="text-dark text-link" href="">Legal</a>
-        </li>
-        <li class="list-inline-item">
-          <a class="text-dark text-link" href="">Privacy</a>
-        </li>
-      </ul>
+
+    <div class="row" style="height:calc(100vh - 90px);">
+      <div class="col-md-4 p-t-30 bg-white relative">
+        <nz-card class="p-h-60" nzBordered="false">
+
+          <p class="m-b-0">Welcome to</p>
+          <h2 class="m-b-25 font-weight-bold">Assign.Work</h2>
+
+          <form
+            nz-form
+            [formGroup]="loginForm"
+            class="login-form"
+            (ngSubmit)="submitForm()">
+            <nz-form-item>
+              <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
+              <nz-form-control nzValidatingTip="Please input your email!">
+                <nz-input-group [nzPrefix]="prefixUser">
+                  <input
+                    type="email"
+                    nz-input
+                    nzSize="small"
+                    maxlength="100"
+                    formControlName="emailId"
+                    required="true"
+                    pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
+                    placeholder="Email"/>
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzRequired nzFor="password">Password</nz-form-label>
+              <nz-form-control nzValidatingTip="Please input your Password!">
+                <nz-input-group [nzPrefix]="prefixLock">
+                  <input
+                    type="password"
+                    nz-input
+                    maxlength="50"
+                    nzSize="small"
+                    required="true"
+                    formControlName="password"
+                    placeholder="Password"
+                  />
+                </nz-input-group>
+              </nz-form-control>
+              <a class="float-right font-size-12 m-t-5 text-primary"
+                 [routerLink]="['/forgot']">Forget Password?</a>
+            </nz-form-item>
+            <nz-form-item *ngIf="responseMessage && responseMessage.message" >
+              <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-control>
+                <div>
+
+                  <button
+                    nz-button
+                    [nzBlock]="true"
+                    [disabled]="loginForm.invalid"
+                    [nzLoading]="loginInProcess"
+                    class="login-form-button"
+                    [nzType]="'primary'">
+                    Sign In
+                  </button>
+                </div>
+
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+
+
+          <div class="m-t-20 m-b-20 relative or-line">
+            <span>or</span><div></div>
+          </div>
+          <div class="text-center m-t-25 row">
+            <div class="col">
+              <img class="btn-google" src="../../assets/images/icons/btn-google.svg" width="100%" (click) = 'loginWithGoogle()'>
+            </div>
+          </div>
+          <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>
+          <ng-template #prefixLock><i nz-icon nzType="lock"></i></ng-template>
+        </nz-card>
+
+        <div class="p-h-90 signup-link" style="position: absolute; bottom:20px; width: 100%;">Don't have an account? <a class="small font-weight-bold" [routerLink]="['/register']">Signup</a></div>
+
+      </div>
+      <div class="col-md-8 p-h-40 p-t-20 bg-light login-wall">
+        <h2 class="text-black m-b-30">Advance Feature</h2>
+        <ul class="list-unstyled login-features-list">
+          <li class="media">
+            <img src="../../assets/images/icons/feature_1.svg" class="mr-3" alt="Feature 1">
+            <div class="media-body">
+              <h5 class="mt-0 mb-0">List-based media object</h5>
+              Lorem ipsum is placeholder text commonly used in the graphic
+            </div>
+          </li>
+          <li class="media my-4">
+            <img src="../../assets/images/icons/feature_2.svg" class="mr-3" alt="Feature 2">
+            <div class="media-body">
+              <h5 class="mt-0 mb-0">List-based media object</h5>
+              Lorem ipsum is placeholder text commonly used in the graphic
+            </div>
+          </li>
+          <li class="media">
+            <img src="../../assets/images/icons/feature_3.svg" class="mr-3" alt="Feature 3">
+            <div class="media-body">
+              <h5 class="mt-0 mb-0">List-based media object</h5>
+              Lorem ipsum is placeholder text commonly used in the graphic
+            </div>
+          </li>
+        </ul>
+
+      </div>
     </div>
+
+
+<!--    <div class="footer-legal d-none d-md-flex p-h-40 justify-content-between">-->
+<!--      <span class="">© 2019 Assign.work</span>-->
+<!--      <ul class="list-inline">-->
+<!--        <li class="list-inline-item">-->
+<!--          <a class="text-dark text-link" href="">Legal</a>-->
+<!--        </li>-->
+<!--        <li class="list-inline-item">-->
+<!--          <a class="text-dark text-link" href="">Privacy</a>-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--    </div>-->
   </div>
 </div>

@@ -4,15 +4,33 @@
             <div class="col-md-7">
                 <div class="d-md-flex align-items-center">
                     <div class="text-center text-sm-left avatar-box">
-                        <nz-avatar class="shadow-sm m-v-15" [nzSize]="120"
+
+                      <div class="uploading-box" *ngIf="uploadingImage">
+                        <span class="font-size-11">Uploading...</span>
+                      </div>
+
+                        <nz-avatar *ngIf="!previewImage" class="shadow-sm m-v-15" [nzSize]="120"
                                    class="avatar-bg"
                                    [nzText]="initialName"
                                    nzSrc="{{currentUser.profilePic}}"></nz-avatar>
 
-                      <div class="camera-box">
-                        <input type="file"/>
-                        <i nz-icon nzType="camera" theme="outline"></i>
-                      </div>
+                        <nz-avatar *ngIf="previewImage" class="shadow-sm m-v-15" [nzSize]="120"
+                                 class="avatar-bg"
+                                 [nzText]="initialName"
+                                 nzSrc="{{previewImage}}"></nz-avatar>
+
+                      <nz-upload class="upload-list-inline"
+                                 (nzChange)="handleChange($event)"
+                                 [nzAction]="attachementUrl"
+                                 [nzHeaders]="attachementHeader"
+                                 [nzMultiple]="false"
+                                 [nzShowUploadList]="false"
+                                 [(nzFileList)]="uploadedImages">
+                          <div class="camera-box">
+                            <i nz-icon nzType="camera" theme="outline"></i>
+                          </div>
+                      </nz-upload>
+
                     </div>
                     <div class="text-center text-sm-left m-v-15 p-l-30">
                         <h2 class="m-b-5">{{currentUser.firstName}} {{currentUser.lastName}}</h2>
@@ -48,7 +66,7 @@
     </nz-card>
     <div class="row">
         <div class="col-md-8">
-            <nz-card>
+            <nz-card *ngIf="skillListData && skillListData.length>0">
 
                 <h5>Specialilty</h5>
                 <div class="m-t-20" style="overflow: auto; max-height: 235px; min-height: 235px;">
@@ -59,7 +77,7 @@
             </nz-card>
 
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4" *ngIf="projectListData && projectListData.length>0">
             <nz-card>
                 <h5>Projects</h5>
                 <div class="m-t-20" style="overflow: auto; max-height: 300px; min-height: 300px;">

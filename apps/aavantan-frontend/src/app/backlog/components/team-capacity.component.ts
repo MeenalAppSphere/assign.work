@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Organization, User } from '@aavantan-app/models';
+import { Organization, Sprint, SprintMembersCapacity, UpdateSprintMemberWorkingCapacity } from '@aavantan-app/models';
+import { GeneralService } from '../../shared/services/general.service';
+import { SprintService } from '../../shared/services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-team-capacity',
@@ -8,45 +10,93 @@ import { Organization, User } from '@aavantan-app/models';
 })
 export class TeamCapacityComponent implements OnInit {
   @Input() public teamCapacityModalIsVisible: boolean;
+  @Input() public sprintData: Sprint;
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
   public response: any;
   public organizations: Organization[];
-  public sprintMembers: User[] = [];
+  public isCapacityUpdateInProgress : boolean;
+  public switchShow0Capacity:boolean;
+  public searchUserInput:boolean;
+  public allMembersList : SprintMembersCapacity[] = [];
 
-  constructor() {}
+  constructor(private _generalService : GeneralService,
+              private _sprintService : SprintService) {}
 
   ngOnInit() {
-    this.sprintMembers = [
-      {
-        id: '1',
-        firstName: 'Pradeep',
-        lastName: 'Kumar',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-4.jpg',
-        currentOrganizationId: ''
-      },
-      {
-        id: '2',
-        firstName: 'Vishal',
-        lastName: 'Kumar',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-5.jpg',
-        currentOrganizationId: ''
-      },
-      {
-        id: '3',
-        firstName: 'Aashsih',
-        lastName: 'Patil',
-        profilePic:
-          'http://themenate.com/enlink/assets/images/avatars/thumb-6.jpg',
-        currentOrganizationId: ''
+    this.allMembersList = this.sprintData.membersCapacity;
+  }
+
+  async saveForm(){
+    console.log(this.sprintData);
+//return ;
+    try {
+      this.isCapacityUpdateInProgress = true;
+      const json: UpdateSprintMemberWorkingCapacity = {
+        capacity: [],
+        sprintId: this.sprintData.id,
+        projectId: this._generalService.currentProject.id
       }
-    ];
+
+      if (this.sprintData.membersCapacity && this.sprintData.membersCapacity.length > 0) {
+        for (let i = 0; i < this.sprintData.membersCapacity.length; i++) {
+          const capacityReqObject = {
+            memberId: this.sprintData.membersCapacity[i].userId,
+            workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString(),
+            workingCapacity: this.sprintData.membersCapacity[i].workingCapacity
+          }
+          json.capacity.push(capacityReqObject);
+        }
+      }
+
+      await this._sprintService.updateSprintWorkingCapacity(json).toPromise();
+      this.isCapacityUpdateInProgress = false;
+      this.toggleShow.emit(this.sprintData);
+
+    }catch (e) {
+      this.isCapacityUpdateInProgress = false;
+    }
+  }
+  public calculateTotalCapacity(){
+    this.sprintData.totalCapacity = 0;
+    for(let i=0; i<this.sprintData.membersCapacity.length;i++){
+      console.log(Number(this.sprintData.totalCapacity) +'--'+ Number(this.sprintData.membersCapacity[i].workingCapacity))
+      this.sprintData.totalCapacity = Number(this.sprintData.totalCapacity) + Number(this.sprintData.membersCapacity[i].workingCapacity);
+      this.sprintData.totalCapacityReadable = this.sprintData.totalCapacity ? this.sprintData.totalCapacity+'h 0m' : '0h 0m';
+    }
   }
 
-  public saveForm(){
 
+  public onChangeSearch(value: any): void {
+    this.sprintData.membersCapacity = this.allMembersList
+    if(value){
+      this.sprintData.membersCapacity = this.sprintData.membersCapacity.filter((ele)=>{
+        let profileName = '';
+
+        if(ele.user && ele.user.firstName || ele.user && ele.user.lastName){
+          profileName = (ele.user.firstName + ' ' +ele.user.lastName).toLowerCase();
+        }
+        if(profileName.includes(value)) {
+          return ele;
+        }
+      });
+    }else{
+      this.sprintData.membersCapacity = this.allMembersList;
+    }
   }
+
+  public onChangeSwitchCapacity(){
+    if(this.switchShow0Capacity){
+      this.sprintData.membersCapacity = this.sprintData.membersCapacity.filter((ele)=>{
+        if(ele.workingCapacity<=0){
+          return ele;
+        }
+      });
+    }else{
+      this.sprintData.membersCapacity = this.allMembersList;
+    }
+  }
+
+
   public basicModalHandleCancel() {
     this.toggleShow.emit();
   }

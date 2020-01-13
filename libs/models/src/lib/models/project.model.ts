@@ -1,22 +1,27 @@
 import { Organization } from './organization.model';
 import { Types } from 'mongoose';
 
-import { ProjectTemplateEnum, TaskType, User } from '@aavantan-app/models';
+import { ProjectTemplateEnum, Sprint, TaskType, User } from '@aavantan-app/models';
+import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Project {
   id?: string;
+  _id?: string;
   name: string;
   access?: string;
   version?: string;
   members: ProjectMembers[];
   organization: string | Organization | Types.ObjectId;
-  desc?: string;
+  description?: string;
   avatar?: string;
   progress?: number;
   template: ProjectTemplateEnum;
   createdBy?: string | User;
+  updatedBy?: string | User;
   updated?: string | User;
   settings?: ProjectSettings;
+  sprintId?: string;
+  sprint?: Sprint;
 }
 
 export class ProjectMembers {
@@ -26,6 +31,8 @@ export class ProjectMembers {
   isInviteAccepted?: boolean;
   userDetails?: User;
   workingCapacity?: number;
+  workingCapacityPerDay?: number;
+  workingDays?: ProjectWorkingDays[];
 }
 
 export class ProjectSettings {
@@ -40,6 +47,7 @@ export class ProjectStages {
   id?: string;
   name: string;
   alias?: string;
+  sequenceNumber?: number;
 }
 
 export class ProjectStatus {
@@ -59,9 +67,20 @@ export class ProjectTags {
   id?: string;
 }
 
+export class GetAllProjectsModel extends MongoosePaginateQuery {
+  organizationId: string;
+}
+
 export class ProjectWorkingCapacityUpdateDto {
   userId: string;
   workingCapacity: number;
+  workingCapacityPerDay?: number;
+  workingDays?: ProjectWorkingDays[];
+}
+
+export class ProjectWorkingDays {
+  day: string;
+  selected: boolean;
 }
 
 export class SwitchProjectRequest {
@@ -75,7 +94,18 @@ export class SearchProjectRequest {
 }
 
 export class SearchProjectTags {
-  organizationId: string;
+  // organizationId: string;
+  projectId: string;
+  query: string;
+}
+
+export class ProjectStageSequenceChangeRequest {
+  projectId: string;
+  stageId: string;
+  sequenceNo: number;
+}
+
+export class SearchProjectCollaborators {
   projectId: string;
   query: string;
 }

@@ -51,6 +51,7 @@
               [taskByUser]="'my'"
               [taskList]="myTaskList"
               [view]="view"
+              [showSorting]="true"
             ></aavantan-task-list>
           </ng-container>
           </nz-spin>
@@ -87,6 +88,7 @@
                 [taskByUser]="'all'"
                 [taskList]="allTaskList"
                 [view]="view"
+                [showSorting]="true"
               ></aavantan-task-list>
             </ng-container>
           </nz-spin>
@@ -96,7 +98,8 @@
     </nz-tabset>
 
     <ng-template #tabSwitchTemplate>
-      <nz-radio-group [(ngModel)]="view" class="m-r-5">
+       
+      <nz-radio-group [(ngModel)]="view">
         <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
           <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>
         </label>
@@ -104,13 +107,14 @@
           <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>
         </label>
       </nz-radio-group>
+
       <nz-button-group
           *ngIf="taskTypeDataSource && taskTypeDataSource.length"
-          class="issue-type-btn-grp"
+          class="issue-type-btn-grp m-l-35"
           nz-dropdown
           [nzDropdownMenu]="createTaskType"
           nzPlacement="bottomRight">
-          <button nzType="primary" nzSize="small" nz-button>
+          <button nzType="primary" nzSize="small" nz-button class="border-radius-round">
             Create New <i nz-icon nzType="caret-down" theme="outline"></i>
           </button>
         </nz-button-group>
@@ -118,7 +122,7 @@
           <ul nz-menu>
             <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="createTask(item)">
               <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
-              {{ item.name }}
+              {{ item.displayName }}
             </li>
           </ul>
         </nz-dropdown-menu>

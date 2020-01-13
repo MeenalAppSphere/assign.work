@@ -16,6 +16,8 @@ import { OrganisationComponent } from './components/organisation/organisation.co
 import { NumericDirective } from './directives/numbers-only.directive';
 import { AddEpicComponent } from './components/add-epic/add-epic.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
+import { RouterModule } from '@angular/router';
+
 
 @NgModule({
   exports: [
@@ -44,7 +46,8 @@ import { EditorModule } from '@tinymce/tinymce-angular';
     PerfectScrollbarModule,
     TypeaheadModule,
     PopoverModule,
-    EditorModule
+    EditorModule,
+    RouterModule
   ],
   declarations: [
     AddProjectComponent,

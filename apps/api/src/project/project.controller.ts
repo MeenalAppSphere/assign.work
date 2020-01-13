@@ -1,19 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ProjectService } from '../shared/services/project.service';
 import {
-  MongoosePaginateQuery,
+  GetAllProjectsModel,
   Project,
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
+  ProjectStageSequenceChangeRequest,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
+  ResendProjectInvitationModel,
+  SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
   TaskType
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiImplicitBody } from '@nestjs/swagger';
 
 @Controller('project')
 @UseGuards(AuthGuard('jwt'))
@@ -23,14 +27,14 @@ export class ProjectController {
 
   }
 
-  @Get()
-  async getAll() {
-    return await this._projectService.getAll({}, ['members.userDetails']);
+  @Post('get-all')
+  async getAll(@Body() model: GetAllProjectsModel) {
+    return await this._projectService.getAllProjects(model);
   }
 
   @Post()
   async createProject(@Body() model: Project) {
-    return await this._projectService.addProject(model);
+    return await this._projectService.createProject(model);
   }
 
   @Delete(':id')
@@ -48,9 +52,20 @@ export class ProjectController {
     return await this._projectService.addCollaborators(id, members);
   }
 
+  @Post('resend-invitation')
+  async resendInvitation(@Body() model: ResendProjectInvitationModel) {
+    return await this._projectService.resendProjectInvitation(model);
+  }
+
   @Post(':id/add-stage')
   async addStage(@Param('id') id: string, @Body() stage: ProjectStages) {
     return await this._projectService.createStage(id, stage);
+  }
+
+  @ApiImplicitBody({ type: ProjectStageSequenceChangeRequest, name: 'stageSequenceChangeModel' })
+  @Post('change-stage-sequence')
+  async changeStageSequence(@Body() stageSequenceChangeModel: ProjectStageSequenceChangeRequest) {
+    return await this._projectService.changeStageSequence(stageSequenceChangeModel);
   }
 
   @Delete(':id/remove-stage/:stageId')
@@ -106,5 +121,15 @@ export class ProjectController {
   @Post('search-tags')
   async searchProjectTags(@Body() model: SearchProjectTags) {
     return await this._projectService.searchTags(model);
+  }
+
+  @Post('search-collaborator')
+  async searchProjectCollaborators(@Body() model: SearchProjectCollaborators) {
+    return await this._projectService.searchProjectCollaborators(model);
+  }
+
+  @Post('accept-invitation')
+  async acceptInvitation(@Body('invitationId') invitationId: string) {
+    return await this._projectService.acceptInvitation(invitationId);
   }
 }

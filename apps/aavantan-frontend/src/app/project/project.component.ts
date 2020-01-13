@@ -36,31 +36,37 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
     });
 
+    if(this._generalService.currentProject) {
+      this.getAllProject();
+    }
+
+    // console.log('My Task', this.myTaskList.length);
+    // console.log('All Task', this.allTaskList.length);
+  }
+
+  getAllProject(){
     const json: GetAllTaskRequestModel = {
       projectId: this._generalService.currentProject.id,
       sort: 'createdAt',
       sortBy: 'desc'
     };
+    this.getTaskInProcess = true;
     this._taskService.getAllTask(json).subscribe();
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
-        this.getTaskInProcess=false;
+        this.getTaskInProcess = false;
 
         this.allTaskList = res;
 
-        this.myTaskList = this.allTaskList.filter((ele:Task) => {
+        this.myTaskList = this.allTaskList.filter((ele: Task) => {
           return (ele.createdBy as User).emailId === this._generalService.user.emailId;
         });
 
       }
 
     });
-
-    console.log('My Task', this.myTaskList.length);
-    console.log('All Task', this.allTaskList.length);
   }
-
 
   public createTask(item?:TaskType) {
     let displayName:string = null;

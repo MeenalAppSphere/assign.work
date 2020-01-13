@@ -15,7 +15,7 @@ import { GoogleStrategy } from './google/google.strategy';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60s' }
     }),
-    SharedModule,
+    SharedModule
   ],
   providers: [AuthService, JwtStrategy, GoogleStrategy],
   controllers: [AuthController],
@@ -23,7 +23,5 @@ import { GoogleStrategy } from './google/google.strategy';
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
-    // consumer.apply(authenticate('google', { session: false }))
-    //   .forRoutes('api/auth/google/token')
   }
 }

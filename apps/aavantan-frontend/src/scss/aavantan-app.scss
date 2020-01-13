@@ -10,6 +10,8 @@
   --red: #dc3545;
 }
 
+$body-bg-color: #F8F8F8;
+$text-black: #111111;
 
 .btn-float-new-task{
   position: fixed;
@@ -22,6 +24,52 @@
   border: #f28d3e;
   font-weight: 500;
 }
+
+$brand-default-btn: #dedfe2;
+$border: #dddddd;
+$orange-dark: #FF5757;
+$orange-light:#FF941A;
+$theme-blue:#2680EB;
+$theme-blue-hover:#358DEB;
+$side-nav-bg :#0B1B31;
+$board-card-header: #ebebeb;
+$board-card-body: #ebebeb;
+$color-black:#000000;
+$color-red:#F82222;
+$color-gray-light: #6E829C;
+
+body{
+  background: $body-bg-color;
+}
+
+.ant-tooltip-placement-top .ant-tooltip-arrow, .ant-tooltip-placement-topLeft .ant-tooltip-arrow, .ant-tooltip-placement-topRight .ant-tooltip-arrow {
+  bottom: 7px;
+  border-width: 5px 5px 0;
+  border-top-color: rgba(0, 0, 0, 0);
+}
+.ant-tooltip-placement-bottom .ant-tooltip-arrow, .ant-tooltip-placement-bottomLeft .ant-tooltip-arrow, .ant-tooltip-placement-bottomRight .ant-tooltip-arrow {
+  top: 7px;
+  border-width: 0 7px 7px;
+  border-bottom-color: #404040;
+}
+.ant-tooltip-placement-left .ant-tooltip-arrow, .ant-tooltip-placement-leftBottom .ant-tooltip-arrow, .ant-tooltip-placement-leftTop .ant-tooltip-arrow {
+  right: 7px;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #404040;
+}
+.ant-tooltip-placement-right .ant-tooltip-arrow, .ant-tooltip-placement-leftBottom .ant-tooltip-arrow, .ant-tooltip-placement-leftTop .ant-tooltip-arrow {
+  right: 7px;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #404040;
+}
+//
+//.ant-tooltip-inner{
+//  background:red;
+//}
+//
+//.ant-tooltip-placement-bottom .ant-tooltip-arrow, .ant-tooltip-placement-bottomLeft .ant-tooltip-arrow, .ant-tooltip-placement-bottomRight .ant-tooltip-arrow {
+//  border-bottom-color: red;
+//}
 
 #logo{ // floral library
   display: none!important;
@@ -81,12 +129,8 @@ nz-modal {
   background: #dcdfe3;
 }
 .avatar-bg{
-  color:#f56a00;
-  background-color:#fde3cf;
-}
-.ant-input{
-  border: 1px solid #d1d9e4;
-  padding: 3px 11px!important;
+  color:$theme-blue;
+  background-color:#DBDFEB;
 }
 .ant-checkbox-inner {
   border: 1px solid #bcbcbc;
@@ -143,6 +187,14 @@ button:focus{
   display: block!important;
 }
 
+.ant-input{
+  border:1px solid #cccccc!important;
+}
+.ant-input:disabled {
+  background-color: #ededed4d;
+  color: #656565;
+}
+
 /* table */
 .ant-table-tbody > tr > td {
   padding: 5px 15px;
@@ -171,7 +223,7 @@ p {
 /* logo modified */
 .logo img{
   width: 100%;
-  padding: 5px;
+  padding: 12px;
 }
 .is-folded {
   .logo img{
@@ -183,6 +235,12 @@ p {
   min-height: 100px;
 }
 .collaborators-badge{
+  .ant-avatar{
+    height: 15px!important;
+    width: 15px!important;
+    line-height: 14px;
+    font-size: 12px;
+  }
   .badge{
     font-weight: 400;
     border-radius: 2px;
@@ -225,7 +283,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 // th in left and data in right
 @media screen and (max-width: 768px) {
 
-  table {
+  .ant-table-body table {
     .text-center{
       text-align: left!important;
     }
@@ -255,12 +313,13 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
       border-bottom: 0px;
     }
     td {
+      padding: 4px;
       white-space: initial!important;
       border: none;
       display: flex;
       justify-content: flex-start;
       align-items: center;
-      border-bottom: 1px solid;
+      border-bottom: 1px solid #f7f7f7;
       padding-left: 50%;
       position: relative;
       text-align: left!important;
@@ -281,6 +340,16 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     }
   }
 }
+
+
+.ant-table-small>.ant-table-content>.ant-table-body>table>.ant-table-tbody>tr>td{
+  padding: 4px;
+  font-size: 13px;
+  h6,a, span{
+    font-size: 13px;
+  }
+}
+
 
 .card-desc-height{
   height: 60px;
@@ -410,11 +479,9 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   }
 }
 
-
-
 .ddls-btn {
   text-align: left;
-  min-width: 130px!important;
+  min-width: 100px!important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -424,5 +491,71 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     position: absolute;
     right: 2px;
     top: 7px;
+  }
+}
+
+
+.progress-success {
+  .ant-progress-bg{
+    background-color: #0bbc4a!important;
+  }
+}
+.progress-exception{
+  .ant-progress-bg{
+    background-color: red!important;
+  }
+}
+
+
+.card-view-card{
+  .ant-card-body{
+    padding: 10px!important;
+  }
+}
+
+/* login,signup,forgot etc*/
+.logo-col{
+  img{
+    height:50px;
+  }
+}
+.menu-header{
+  a {
+    padding: 10px 20px;
+    color: #6E829C;
+    font-size: 14px;
+    &:hover{
+      color: #475364;
+    }
+  }
+}
+.footer-legal{
+  position: fixed;
+  font-size: 11px;
+  bottom: 0px;
+  width: 100%;
+}
+
+
+@media only screen and (max-width: 768px) {
+  .signup-link{
+    padding-left: 55px !important;
+    bottom: 10px!important;
+
+  }
+  .login-features-list{
+    padding-bottom: 120px;
+  }
+  .logo-col{
+    padding-top: 15px!important;
+    padding-bottom: 15px;
+    text-align: center;
+    img{
+      height: 35px;
+    }
+  }
+  .menu-header{
+    padding-top: 13px!important;
+    padding-bottom: 13px;
   }
 }

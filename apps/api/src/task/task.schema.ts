@@ -1,11 +1,8 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
-import { attachmentSchema } from '../attachment/attachment.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const paginate = require('mongoose-paginate-v2');
-
 
 const commentSchema = new Schema({
   comment: { type: String },
@@ -38,20 +35,23 @@ export const taskSchema = new Schema({
     required: [true, 'Please Select Project First!']
   },
   assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+  watchers: [{ type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }],
   attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
   taskType: { type: String, required: [true, 'Please add task type'] },
   comments: [commentSchema],
-  estimatedTime: { type: Number },
-  remainingTime: { type: Number },
-  totalLoggedTime: { type: Number },
+  estimatedTime: { type: Number, default: 0 },
+  remainingTime: { type: Number, default: 0 },
+  overLoggedTime: { type: Number, default: 0 },
+  totalLoggedTime: { type: Number, default: 0 },
   startedAt: { type: Date },
   finishedAt: { type: Date },
   priority: { type: String },
   tags: [],
   url: { type: String },
-  progress: { type: Number },
+  progress: { type: Number, default: 0 },
+  overProgress: { type: Number, default: 0 },
   status: { type: String },
-  sprint: { type: String },
+  sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
   relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false }],
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
@@ -79,6 +79,12 @@ taskSchema.virtual('project', {
 taskSchema.virtual('assignee', {
   ref: DbCollection.users,
   localField: 'assigneeId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('watchersDetails', {
+  ref: DbCollection.tasks,
+  localField: 'watchers',
   foreignField: '_id'
 });
 
@@ -112,7 +118,12 @@ taskSchema.virtual('attachmentsDetails', {
   foreignField: '_id'
 });
 
+taskSchema.virtual('sprint', {
+  ref: DbCollection.sprint,
+  localField: 'sprintId',
+  foreignField: '_id'
+});
+
 // plugins
 taskSchema
-  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(paginate);
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

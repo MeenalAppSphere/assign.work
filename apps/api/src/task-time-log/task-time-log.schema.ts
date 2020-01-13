@@ -1,17 +1,18 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
-import { taskHistorySchema } from '../task-history/task-history.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
 export const taskTimeLogSchema = new Schema({
   taskId: { type: Schema.Types.ObjectId, required: [true, 'Please Select Task'], ref: DbCollection.tasks },
+  sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   desc: { type: String, required: [true, 'Please add description'] },
   loggedTime: { type: Number, default: 0 },
   remainingTime: { type: Number, default: 0 },
+  isPeriod: { type: Boolean, default: false },
   startedAt: { type: Date, required: [true, 'Please add Started At'] },
-  endAt: { type: Date, required: [true, 'Please Add End At'] },
+  endAt: { type: Date },
   isDeleted: { type: Boolean, default: false },
   createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
@@ -31,14 +32,14 @@ taskTimeLogSchema.virtual('task', {
   justOne: true
 });
 
-taskHistorySchema.virtual('createdBy', {
+taskTimeLogSchema.virtual('createdBy', {
   ref: DbCollection.users,
   localField: 'createdById',
   foreignField: '_id',
   justOne: true
 });
 
-taskHistorySchema.virtual('updatedBy', {
+taskTimeLogSchema.virtual('updatedBy', {
   ref: DbCollection.users,
   localField: 'updatedById',
   foreignField: '_id',
@@ -46,5 +47,5 @@ taskHistorySchema.virtual('updatedBy', {
 });
 
 // plugins
-taskHistorySchema
+taskTimeLogSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

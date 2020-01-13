@@ -167,25 +167,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private initialCheck() {
-   
-    try{
+
+    try {
       if (this._generalService.user) {
-      const TaskUrl = this.router.routerState.snapshot.url;
-      if(TaskUrl.includes('task/')){
-        this.router.navigateByUrl(TaskUrl);
-      } else {
+        const TaskUrl = this.router.routerState.snapshot.url;
+        if (TaskUrl.includes('task/')) {
+          this.router.navigateByUrl(TaskUrl);
+        } else {
           if (!this._generalService.user.organizations.length && !this._generalService.user.currentOrganization) {
             this.organizationModalIsVisible = true;
           } else {
             if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
               this.projectModalIsVisible = true;
-            } else {
-              this.router.navigate(['dashboard', 'project']);
             }
           }
         }
       }
-    }catch (e) {
+    } catch (e) {
 
     }
 

@@ -27,7 +27,7 @@ export class SideNavComponent implements OnInit, OnDestroy{
             this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
                 if (res) {
                   this.taskTypeDataSource = res.settings.taskTypes;
-                  console.log('Task Type', this.taskTypeDataSource)
+                  // console.log('Task Type', this.taskTypeDataSource)
                 }
               });
         }

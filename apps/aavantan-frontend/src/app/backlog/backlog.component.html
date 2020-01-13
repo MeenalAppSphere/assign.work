@@ -3,122 +3,134 @@
     nzSize="small"
     [nzBordered]="false"
     [nzTitle]="titleTemplateRef"
-    [nzExtra]="createSprintBtnTemplate">
+    [nzExtra]="createSprintBtnTemplate"
+    class="backlog-page">
     <ng-template #titleTemplateRef>
-      <span class="p-r-15">Backlog/Sprint</span> <i nz-icon nzType="info-circle" theme="outline" nz-tooltip nzTooltipTitle="About Backlog page..."></i>
+
+      <span class="p-r-30">
+        <span class="p-r-15 font-size-18 text-black">Backlog/Sprint</span>
+        <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Backlog page..."/>
+      </span>
+
+      <span class="badge backlog-badge" *ngIf="sprintData && sprintData?.totalEstimationReadable">
+        <span class="text-red">Total Backlogs</span><span class="p-l-5 text-black">{{sprintData?.totalEstimationReadable}}</span>
+      </span>
+
+
     </ng-template>
     <ng-template #createSprintBtnTemplate>
-      <button *ngIf="draftSprint && draftSprint.duration>0" nz-button class="bg-success m-r-5 text-white" nzSize="small" nzShape="round">
-        Ready for Sprint: {{draftSprint?.duration}} hrs
-      </button>
-      <button nz-button class="bg-warning m-r-35 text-white" nzSize="small" nzShape="round">
-        Total Backlogs: {{totalDuration}} hrs
-      </button>
-      <nz-button-group>
-        <button [disabled]="isDisabledCreateBtn" nzType="primary" nzSize="small" nz-button (click)="createSprint()">Create Sprint</button>
-      </nz-button-group>
+
+      <button *ngIf="!activeSprintId" nzType="link" [nzLoading]="saveSprintInProcess" nzSize="small" class="btn-medium m-r-10" nz-button (click)="saveSprint()">Save Sprint</button>
+
+      <button [disabled]="isDisabledCreateBtn || activeSprintId || draftData && draftData.length==0" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" class="btn-medium" nz-button (click)="publishSprint()">Publish Sprint</button>
+
     </ng-template>
 
 
     <section class="m-b-20">
-      <div class="clearfix" *ngIf="sprintData && sprintData.id">
-      <label>{{sprintData.title}} | <span class="text-warning">Total: {{draftSprint?.duration ? draftSprint?.duration : 0}} hrs</span></label>
-        <span class="float-right" >
-          <span class="text-warning">Current Capacity 120hrs</span> <span class="p-l-10 p-r-10">|</span> <a href="javascript:void(0);" (click)="showTeamCapacity()" class="p-r-10">Edit Capacity </a>
-            <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomRight">
-              <button nzType="primary" nzSize="small" class="p-l-10 p-r-10" nz-button >Sprint 1
-                <i nz-icon nzType="caret-down" class="m-l-10"></i>
-              </button>
-            </nz-button-group>
-            <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">
-              <ul nz-menu>
-                <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>
-              </ul>
-            </nz-dropdown-menu>
-          </span>
-      </div>
-      <div class="draft-sprint-box" *ngIf="!showStartWizard && sprintData && sprintData.id && draftData && draftData.length===0">
+      <nz-spin nzTip="Checking Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
+        <div class="clearfix m-b-10 m-t-10" *ngIf="sprintData && sprintData.id">
+
+            <span class="font-size-14 font-weight-light">
+              <span class="font-size-18 m-r-30 text-black font-weight-normal">{{sprintData.name}}</span>
+              <span class="text-gray-light m-r-25">Capacity <span class="text-black font-weight-normal">{{sprintData.totalCapacityReadable}}</span></span>
+              <span class="text-success m-r-10" *ngIf="sprintData.totalEstimationReadable"><span>Total</span><strong class="p-l-5">{{sprintData?.totalEstimationReadable}}</strong></span>
+              <span class="font-size-12" [ngClass]="{'text-gray-light': sprintData.totalRemainingCapacity>0, 'text-red': sprintData.totalRemainingCapacity<0}" *ngIf="sprintData.totalRemainingCapacityReadable"><span>Remains</span>
+                <strong class="p-l-5">{{sprintData?.totalRemainingCapacityReadable}}</strong>
+              </span>
+            </span>
+
+            <span class="float-right font-weight-light" >
+              <a href="javascript:void(0);" (click)="toggleAddSprint()" class="p-r-25">Edit Sprint </a>
+              <a href="javascript:void(0);" (click)="toggleTeamCapacity()">Edit Capacity </a>
+            </span>
+
+        </div>
+        <div class="draft-sprint-box" *ngIf="sprintData && sprintData.id && draftData && draftData.length===0">
+            <nz-empty
+              [nzNotFoundImage]="false"
+              [nzNotFoundContent]="contentTpl"
+              [nzNotFoundFooter]="footerTpl">
+              <ng-template #contentTpl>
+                <span>Select backlog items to move into <strong>{{sprintData.name}}</strong></span>
+              </ng-template>
+              <ng-template #footerTpl>
+                <button nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">Edit {{sprintData.name}}</button>
+              </ng-template>
+            </nz-empty>
+        </div>
+        <ng-container *ngIf="draftData && draftData.length>0">
+          <div>
+
+              <aavantan-task-list
+                [taskByUser]="'all'"
+                [taskList]="draftData"
+                [sprintId]="sprintData.id"
+                [isDraftTable]="true"
+                [view]="view"
+                [showLogOption]="false"
+                [showCheckboxOption]="false"
+                [showProgressOption]="false"
+                (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
+              ></aavantan-task-list>
+
+          </div>
+        </ng-container>
+        <ng-container *ngIf="sprintData && !sprintData.id && draftData && draftData.length===0">
           <nz-empty
-            [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+            class="draft-sprint-box"
+            [nzNotFoundImage]="false"
             [nzNotFoundContent]="contentTpl"
             [nzNotFoundFooter]="footerTpl">
+
             <ng-template #contentTpl>
-              <span>Select backlog items to move into <strong>{{sprintData.title}}</strong></span>
+
+              <span *ngIf="!activeSprintId" class="font-size-16">You have <span class="text-danger">{{allTaskList ? allTaskList.length : '0'}} task</span> in backlog</span>
+              <span *ngIf="activeSprintId" class="font-size-16"><span class="text-success">"{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}"</span> is already running
+                <br><span class="text-gray-light font-size-12">(You cannot start other Sprint before completing this active Sprint)</span>
+              </span>
+
             </ng-template>
+
             <ng-template #footerTpl>
-              <button nz-button nzSize="small" nzType="primary" (click)="editSprint()">Edit {{sprintData.title}}</button>
+              <button [disabled]="activeSprintId" nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">+ Create Sprint</button>
             </ng-template>
           </nz-empty>
-      </div>
-      <ng-container *ngIf="draftData && draftData.length>0">
-        <div>
-            <aavantan-task-list
-              [taskByUser]="'all'"
-              [taskList]="draftData"
-              [view]="view"
-              [showLogOption]="false"
-              [showCheckboxOption]="false"
-              [showProgressOption]="false"
-            ></aavantan-task-list>
-        </div>
-      </ng-container>
-      <ng-container *ngIf="!showStartWizard && sprintData && !sprintData.id && draftData && draftData.length===0">
-        <nz-empty
-          class="draft-sprint-box p-20"
-          [nzNotFoundImage]="'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
-          [nzNotFoundContent]="contentTpl"
-          [nzNotFoundFooter]="footerTpl">
-          <ng-template #contentTpl>
-            <span>Click to setup your new <strong>Sprint</strong></span>
-          </ng-template>
-          <ng-template #footerTpl>
-            <button nz-button nzSize="small" nzType="primary" (click)="startNewSprint()">Create New Sprint</button>
-          </ng-template>
-        </nz-empty>
-      </ng-container>
-      <ng-container *ngIf="showStartWizard">
-        <section class="draft-sprint-box">
+        </ng-container>
+      </nz-spin>
 
-          <div class="text-center"><h4>Title and Duration</h4></div>
-
-          <div class="steps-content m-t-15 m-b-15">
-            <ng-container *ngIf="wizardIndex===0">
-              <form nz-row>
-                <div class="offset-md-4 col-md-4 col-sm-12">
-                  <nz-form-item>
-                    <nz-form-label>Title</nz-form-label>
-                    <input nz-input placeholder="Enter Sprint Title" nzSize="small" maxlength="100"/>
-                    </nz-form-item>
-                  <nz-form-item>
-                  <nz-form-label>Duration (Start - End Date)</nz-form-label>
-                    <div class="sprint-duration-datepicker">
-                        <nz-range-picker [nzFormat]="dateFormat"></nz-range-picker>
-                    </div>
-                  </nz-form-item>
-                </div>
-              </form>
-            </ng-container>
-          </div>
-
-          <div class="steps-action text-right">
-            <div nz-row>
-              <div class="offset-md-4 col-md-4 col-sm-12">
-                <button class="btn btn-sm btn-default float-left" (click)="cancel()">
-                  <span>Cancel</span>
-                </button>
-                <button class="btn btn-sm btn-success m-l-5" (click)="done()">
-                  <span>Save</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-      </ng-container>
     </section>
+
+
+
     <section>
-      <label>Backlogs | <span class="text-warning">Total: {{totalDuration}} hrs</span></label>
+
+      <div class="row">
+        <div class="col">
+          <label class="font-size-18"><span class="text-black">Backlogs</span>
+            <small class="p-l-25 font-size-14" *ngIf="sprintData && sprintData.totalCapacityReadable">
+            <span class="text-gray-light">Total </span><span class="text-black">{{sprintData?.totalCapacityReadable}}</span></small>
+          </label>
+        </div>
+        <div class="col text-right" style="max-width: 320px;">
+
+          <nz-input-group [nzSuffix]="suffixIcon">
+            <input placeholder="Search By Title, Task type, Assignee" nzSize="small" nz-input [(ngModel)]="searchValue" (ngModelChange)="onChangeSearch($event)" style="height:29px;"/>
+          </nz-input-group>
+          <ng-template #suffixIcon>
+            <i nz-icon nzType="search" *ngIf="!searchTaskListInProgress"></i>
+            <i class="fas fa-spin fa-spinner" *ngIf="searchTaskListInProgress"></i>
+          </ng-template>
+
+        </div>
+      </div>
+
       <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+
         <aavantan-task-list
+          *ngIf="sprintData && sprintData.id"
+          [sprintId]="sprintData.id"
+          [showSorting]="true"
           [taskByUser]="'all'"
           [taskList]="allTaskList"
           [view]="view"
@@ -127,12 +139,40 @@
           [showProgressOption]="false"
           (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
         ></aavantan-task-list>
+        <aavantan-task-list
+          *ngIf="sprintData && !sprintData.id"
+          [taskByUser]="'all'"
+          [showSorting]="true"
+          [taskList]="allTaskList"
+          [view]="view"
+          [showLogOption]="false"
+          [showCheckboxOption]="true"
+          [showProgressOption]="false"
+          (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
+        ></aavantan-task-list>
+
       </ng-container>
+
+      <ng-container *ngIf="allTaskList && allTaskList.length === 0">
+        <div class="text-center text-muted p-t-50 p-t-20">
+          <h3>No Data Found</h3>
+        </div>
+      </ng-container>
+
     </section>
   </nz-card>
 </nz-spin>
 
 <aavantan-team-capacity
+  *ngIf="teamCapacityModalIsVisible"
+  [sprintData]="sprintData"
   [teamCapacityModalIsVisible]="teamCapacityModalIsVisible"
-  (toggleShow)="showTeamCapacity()">
+  (toggleShow)="toggleTeamCapacity($event)">
 </aavantan-team-capacity>
+
+<aavantan-app-add-sprint
+  *ngIf="sprintModalIsVisible"
+  [sprintData]="sprintData"
+  [sprintModalIsVisible]="sprintModalIsVisible"
+  (toggleShow)="toggleAddSprint($event)">
+</aavantan-app-add-sprint>
