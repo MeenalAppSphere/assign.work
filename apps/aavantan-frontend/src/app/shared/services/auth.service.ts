@@ -116,9 +116,9 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
     this.router.navigate(['/login']);
   }
 
-  googleSignIn(token: string) {
+  googleSignIn(token: string, invitationId?: string) {
     this.updateState({ token: null, isLoginInProcess: true, isLoginSuccess: false });
-    return this._http.post(AuthUrls.googleSignIn, { token: token }).pipe(
+    return this._http.post(AuthUrls.googleSignIn, { token, invitationId }).pipe(
       map((res: BaseResponseModel<UserLoginSignUpSuccessResponse>) => {
         this.updateState({
           isLoginSuccess: true,

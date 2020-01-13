@@ -124,7 +124,7 @@ export class AuthService implements OnModuleInit {
 
           // now everything seems ok start invitation accepting process
           // accept invitation and update project, organization and invitation
-          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, model.invitationId);
+          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, user.invitationId);
 
           // update user with model and set organization
           await this._userService.update(userDetails._id.toString(), {
@@ -156,7 +156,7 @@ export class AuthService implements OnModuleInit {
           if (pendingInvitations.length) {
             for (let i = 0; i < pendingInvitations.length; i++) {
 
-              const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
+              const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
 
               // check basic validations for invitation link
               this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
@@ -165,16 +165,28 @@ export class AuthService implements OnModuleInit {
               await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
 
               // update user
-              await this._userService.update(userDetails._id.toString(), {
+              const updateUserDoc = {
                 $set: {
-                  currentOrganizationId: invitationDetails.organization._id.toString(),
-                  currentProject: invitationDetails.project._id.toString()
+                  password: user.password,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  locale: user.locale,
+                  status: UserStatus.Active,
+                  lastLoginProvider: UserLoginProviderEnum.normal,
+                  memberType: MemberTypes.alien
                 },
                 $push: {
                   organizations: invitationDetails.organization._id.toString(),
                   projects: invitationDetails.project._id.toString()
                 }
-              }, session);
+              };
+
+              // if pending invitations is only one then set that project as current project
+              if (pendingInvitations.length === 1) {
+                updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
+                updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
+              }
+              await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
             }
           }
 
@@ -232,6 +244,9 @@ export class AuthService implements OnModuleInit {
         we still need to check if token aud property contains our app client id
        */
       if (authTokenResult) {
+
+        const userNameFromGoogle = authTokenResult.name.split(' ');
+
         if (authTokenResult.aud === process.env.GOOGLE_CLIENT_ID) {
 
           const jwtPayload = { sub: '', id: '' };
@@ -254,8 +269,10 @@ export class AuthService implements OnModuleInit {
 
               // if user is already in db then update it's last login type to google
               // add project and organization
-              await this._userModel.update(userDetails._id.toString(), {
+              await this._userService.update(userDetails._id.toString(), {
                 $set: {
+                  firstName: userNameFromGoogle[0] || '',
+                  lastName: userNameFromGoogle[1] || '',
                   lastLoginProvider: UserLoginProviderEnum.google,
                   profilePic: authTokenResult.picture,
                   status: UserStatus.Active,
@@ -279,7 +296,7 @@ export class AuthService implements OnModuleInit {
               if (pendingInvitations.length) {
                 for (let i = 0; i < pendingInvitations.length; i++) {
 
-                  const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[0]._id);
+                  const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
 
                   // check basic validations for invitation link
                   this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
@@ -289,20 +306,41 @@ export class AuthService implements OnModuleInit {
 
                   // if user is already in db then update it's last login type to google
                   // add project and organization
-                  await this._userService.update(userDetails._id.toString(), {
+
+                  const updateUserDoc = {
                     $set: {
+                      firstName: userNameFromGoogle[0] || '',
+                      lastName: userNameFromGoogle[1] || '',
                       lastLoginProvider: UserLoginProviderEnum.google,
                       profilePic: authTokenResult.picture,
-                      status: UserStatus.Active,
-                      currentOrganizationId: invitationDetails.organization._id.toString(),
-                      currentProject: invitationDetails.project._id.toString()
+                      status: UserStatus.Active
                     },
                     $push: {
                       organizations: invitationDetails.organization._id,
                       projects: invitationDetails.project._id.toString()
                     }
-                  }, session);
+                  };
+
+                  // if pending invitation length is only one then set that project as current project
+                  if (pendingInvitations.length === 1) {
+                    updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
+                    updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
+                  }
+
+                  await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
                 }
+              } else {
+                // normal sing in
+
+                await this._userService.update(userDetails._id.toString(), {
+                  $set: {
+                    firstName: userNameFromGoogle[0] || '',
+                    lastName: userNameFromGoogle[1] || '',
+                    lastLoginProvider: UserLoginProviderEnum.google,
+                    profilePic: authTokenResult.picture,
+                    status: UserStatus.Active
+                  }
+                }, session);
               }
 
               // assign jwt payload
@@ -316,7 +354,6 @@ export class AuthService implements OnModuleInit {
             }
 
             // new user
-            const userNameFromGoogle = authTokenResult.name.split(' ');
             // create new user model
             const user = new User();
             user.emailId = authTokenResult.email;

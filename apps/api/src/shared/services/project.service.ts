@@ -375,27 +375,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
   }
 
-  /**
-   * create invitation in db and prepare send email array
-   * @param collaborators
-   * @param projectDetails
-   * @param invitationType
-   * @param session
-   * @param emailArrays
-   */
-  private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
-    for (let i = 0; i < collaborators.length; i++) {
-      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
-
-      const invitation = await this._invitationService.createInvitation(newInvitation, session);
-      emailArrays.push({
-        to: [collaborators[i].emailId],
-        subject: 'Invitation',
-        message: await this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id, collaborators[i].emailId)
-      });
-    }
-  }
-
   async removeCollaborator(id: string, projectId: string) {
 
     const projectDetails: Project = await this.getProjectDetails(projectId);
@@ -931,6 +910,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
     return organizationDetails;
   }
 
+  /**
+   * create project vm model
+   * @param project
+   */
   private parseProjectToVm(project: Project): Project {
     if (!project) {
       return project;
@@ -946,6 +929,27 @@ export class ProjectService extends BaseService<Project & Document> implements O
   }
 
   /**
+   * create invitation in db and prepare send email array
+   * @param collaborators
+   * @param projectDetails
+   * @param invitationType
+   * @param session
+   * @param emailArrays
+   */
+  private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
+    for (let i = 0; i < collaborators.length; i++) {
+      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
+
+      const invitation = await this._invitationService.createInvitation(newInvitation, session);
+      emailArrays.push({
+        to: [collaborators[i].emailId],
+        subject: 'Invitation',
+        message: await this.prepareInvitationEmailMessage(invitationType, projectDetails, invitation[0].id, collaborators[i].emailId)
+      });
+    }
+  }
+
+  /**
    * prepare invitation email message
    * @param type
    * @param projectDetails
@@ -954,7 +958,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   private async prepareInvitationEmailMessage(type: ProjectInvitationType, projectDetails: Project, invitationId: string, inviteEmailId?: string) {
 
-    const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard/settings';
+    const linkType = type === ProjectInvitationType.signUp ? 'register' : 'dashboard';
     const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&invitationId=${invitationId}`;
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
