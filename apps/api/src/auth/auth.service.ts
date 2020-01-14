@@ -145,6 +145,9 @@ export class AuthService implements OnModuleInit {
             }
           }, session);
 
+          // expire all already sent invitations
+          await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
+
           // assign jwt payload
           jwtPayload.id = userDetails._id.toString();
           jwtPayload.sub = userDetails.emailId;
@@ -154,40 +157,38 @@ export class AuthService implements OnModuleInit {
 
           // loop over pending invitations and accept all invitations
           if (pendingInvitations.length) {
-            for (let i = 0; i < pendingInvitations.length; i++) {
 
-              const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
-
-              // check basic validations for invitation link
-              this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
-
-              // accept invitation process
-              await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
-
-              // update user
-              const updateUserDoc = {
-                $set: {
-                  password: user.password,
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  locale: user.locale,
-                  status: UserStatus.Active,
-                  lastLoginProvider: UserLoginProviderEnum.normal,
-                  memberType: MemberTypes.alien
-                },
-                $push: {
-                  organizations: invitationDetails.organization._id.toString(),
-                  projects: invitationDetails.project._id.toString()
-                }
-              };
-
-              // if pending invitations is only one then set that project as current project
-              if (pendingInvitations.length === 1) {
-                updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
-                updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
+            // prepare update user doc
+            let updateUserDoc: any = {
+              $set: {
+                password: user.password,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                locale: user.locale,
+                status: UserStatus.Active,
+                lastLoginProvider: UserLoginProviderEnum.normal,
+                memberType: MemberTypes.alien
               }
-              await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
-            }
+            };
+
+            userDetails.organizations = userDetails.organizations ? userDetails.organizations : [];
+            userDetails.projects = userDetails.projects ? userDetails.projects : [];
+            // handle pending invitations
+            await this.handlePendingInvitations(pendingInvitations, userDetails, session, updateUserDoc);
+
+            // add project and organization to update update user doc variable which is going to update user profile
+            updateUserDoc = {
+              ...updateUserDoc, $push: {
+                organizations: { $each: userDetails.organizations },
+                projects: { $each: userDetails.projects }
+              }
+            };
+
+            // update user in db
+            await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
+
+            // expire all already sent invitations
+            await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
           }
 
           // assign jwt payload
@@ -285,53 +286,51 @@ export class AuthService implements OnModuleInit {
                 }
               }, session);
 
+              // expire all already sent invitations
+              await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
+
               // assign jwt payload
               jwtPayload.sub = userDetails.emailId;
               jwtPayload.id = userDetails._id;
             } else {
+
               // check if new user have pending invitations
               const pendingInvitations = await this.getAllPendingInvitations(userDetails.emailId);
 
               // loop over pending invitations and accept all invitations
               if (pendingInvitations.length) {
-                for (let i = 0; i < pendingInvitations.length; i++) {
 
-                  const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
-
-                  // check basic validations for invitation link
-                  this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
-
-                  // accept invitation process
-                  await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
-
-                  // if user is already in db then update it's last login type to google
-                  // add project and organization
-
-                  const updateUserDoc = {
-                    $set: {
-                      firstName: userNameFromGoogle[0] || '',
-                      lastName: userNameFromGoogle[1] || '',
-                      lastLoginProvider: UserLoginProviderEnum.google,
-                      profilePic: authTokenResult.picture,
-                      status: UserStatus.Active
-                    },
-                    $push: {
-                      organizations: invitationDetails.organization._id,
-                      projects: invitationDetails.project._id.toString()
-                    }
-                  };
-
-                  // if pending invitation length is only one then set that project as current project
-                  if (pendingInvitations.length === 1) {
-                    updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
-                    updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
+                // prepare update user doc
+                let updateUserDoc: any = {
+                  $set: {
+                    firstName: userNameFromGoogle[0] || '',
+                    lastName: userNameFromGoogle[1] || '',
+                    lastLoginProvider: UserLoginProviderEnum.google,
+                    profilePic: authTokenResult.picture,
+                    status: UserStatus.Active
                   }
+                };
 
-                  await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
-                }
+                userDetails.organizations = userDetails.organizations ? userDetails.organizations : [];
+                userDetails.projects = userDetails.projects ? userDetails.projects : [];
+                // handle pending invitations
+                await this.handlePendingInvitations(pendingInvitations, userDetails, session, updateUserDoc);
+
+                // add project and organization to update update user doc variable which is going to update user profile
+                updateUserDoc = {
+                  ...updateUserDoc, $push: {
+                    organizations: { $each: userDetails.organizations },
+                    projects: { $each: userDetails.projects }
+                  }
+                };
+
+                // update user in db
+                await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
+
+                // expire all already sent invitations
+                await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
               } else {
-                // normal sing in
-
+                // normal sign in
                 await this._userService.update(userDetails._id.toString(), {
                   $set: {
                     firstName: userNameFromGoogle[0] || '',
@@ -496,6 +495,50 @@ export class AuthService implements OnModuleInit {
   }
 
   /**
+   * handle pending invitations
+   * loop over pending invitations
+   * get invitation details, check validations for invitation link
+   * accept invitation one by one
+   * add project and organization in user object
+   * @param pendingInvitations
+   * @param userDetails
+   * @param session
+   * @param updateUserDoc
+   */
+  private async handlePendingInvitations(pendingInvitations: any[], userDetails: User & Document, session: ClientSession, updateUserDoc: any) {
+    for (let i = 0; i < pendingInvitations.length; i++) {
+
+      const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
+
+      // check basic validations for invitation link
+      this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+
+      // accept invitation process
+      await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
+
+      // if pending invitation length is only one then set that project as current project
+      if (pendingInvitations.length === 1) {
+        updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
+        updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
+      }
+
+      /* push organization and project to updated user doc */
+      // push project
+      userDetails.projects.push(invitationDetails.project._id.toString());
+
+      // push organization
+      // check if organization is not already pushed
+      const organizationAlreadyPushed = userDetails.organizations && userDetails.organizations.some(organization => {
+        return organization === invitationDetails.organization._id.toString();
+      });
+
+      if (!organizationAlreadyPushed) {
+        userDetails.organizations.push(invitationDetails.organization._id.toString());
+      }
+    }
+  }
+
+  /**
    * check invitation link is valid or
    * check if invitation is expired or not
    * check if user emailId and invitee user id in invitation are same
@@ -551,9 +594,6 @@ export class AuthService implements OnModuleInit {
 
     // update current invitation and set invite accepted true
     await this._invitationService.acceptInvitation(invitationId, session);
-
-    // expire all already sent invitations
-    await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
   }
 
   /**

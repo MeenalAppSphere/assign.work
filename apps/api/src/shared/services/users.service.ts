@@ -161,14 +161,20 @@ export class UsersService extends BaseService<User & Document> {
       // sort by updated at
       // limit only recent two organization
 
-      userDetails.organizations =
+      const userOrganizations =
         slice(
           userDetails.organizations
-            .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()), 0, 2
+            .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()), 0, 1
         ).map((org: any) => {
           org.id = org._id;
           return org;
         });
+
+      // add current organization at first index of recent project list
+      if (userDetails.currentOrganization) {
+        userOrganizations.splice(0, 0, userDetails.currentOrganization);
+      }
+      userDetails.organizations = userOrganizations;
     }
     return userDetails;
   }
