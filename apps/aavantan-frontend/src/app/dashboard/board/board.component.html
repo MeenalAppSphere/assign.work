@@ -45,7 +45,7 @@
               </div>
             </div>
 
-            <bs-sortable [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here to move the items" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
+            <bs-sortable id="{{item.stage.id}}" (dragend)="moveTask($event, item.stage.id)" [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here to move the items" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
             </bs-sortable>
 
           </div>
@@ -68,7 +68,7 @@
   </div>
 
   <ng-template #itemTemplate let-item="item" let-index="index">
-    <div class="task-card" [ngStyle]="{'border-left': '4px solid '+ item.value.task.priority.color}">
+    <div id="{{item.value.id}}" class="task-card" [ngStyle]="{'border-left': '4px solid '+ item.value.task.priority.color}">
       <h6 [ngStyle]="{'color': item.value.task.taskType.color}">#{{item.value.task.displayName}}
         <span class="float-right duration">{{item.value.task.createdAt | dateAgo }}</span>
       </h6>

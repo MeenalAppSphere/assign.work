@@ -10,8 +10,17 @@ import {
   BasePaginatedResponse,
   BaseResponseModel,
   CreateSprintModel,
-  GetAllSprintRequestModel, GetAllTaskRequestModel, GetUnpublishedRequestModel, RemoveTaskFromSprintModel,
-  Sprint, SprintBaseRequest, SprintErrorResponse, SprintStage, UpdateSprintMemberWorkingCapacity, UpdateSprintModel
+  GetAllSprintRequestModel,
+  GetAllTaskRequestModel,
+  GetUnpublishedRequestModel,
+  MoveTaskToStage,
+  RemoveTaskFromSprintModel,
+  Sprint,
+  SprintBaseRequest,
+  SprintErrorResponse,
+  SprintStage, Task,
+  UpdateSprintMemberWorkingCapacity,
+  UpdateSprintModel
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
@@ -121,6 +130,18 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
           this.notification.success('Success', 'Task successfully added to this Sprint');
         }
 
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  moveTaskToStage(json: MoveTaskToStage): Observable<BaseResponseModel<Task>> {
+    return this._http.post(SprintUrls.moveTaskToStage, json).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        this.notification.success('Success', 'Task Moved Successfully');
         return res;
       }),
       catchError(err => {

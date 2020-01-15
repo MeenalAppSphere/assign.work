@@ -362,8 +362,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public reorderList(){
-    // console.log(this.stagesList);
+  public reorderList(ev:any){
+    console.log(this.stagesList);
   }
 
   /*================ Status ==================*/

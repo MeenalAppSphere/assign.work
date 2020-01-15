@@ -240,8 +240,9 @@
 
               <ul class="stages-list">
                 <bs-sortable
-                  (onChange)="reorderList()"
+                  id="bsstage"
                   [(ngModel)]="stagesList"
+                  (dragend)="reorderList($event)"
                   itemClass="sortable-item"
                   itemActiveClass="sortable-item-active"
                   [itemTemplate]="itemTemplate"
@@ -251,7 +252,7 @@
 
 
                 <ng-template #itemTemplate let-item="item" let-index="index">
-                  <li><span>{{item.value.name}}</span>
+                  <li id="{{item.value.id}}"><span>{{item.value.name}} | {{item.value.id}}</span>
                     <!--<i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
                   </li>
                 </ng-template>

@@ -1,8 +1,16 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { GetAllTaskRequestModel, Sprint, SprintStage, SprintStatusEnum, Task } from '@aavantan-app/models';
+import {
+  GetAllTaskRequestModel,
+  MoveTaskToStage,
+  Sprint,
+  SprintStage,
+  SprintStatusEnum,
+  Task
+} from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
 import { NzNotificationService } from 'ng-zorro-antd';
+import { TaskService } from '../../shared/services/task/task.service';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -110,6 +118,19 @@ export class BoardComponent implements OnInit {
     }
 
   }
+
+  public moveTask(ev:any, stageId:string){
+    const json: MoveTaskToStage = {
+      projectId : this._generalService.currentProject.id,
+      sprintId: this.activeSprintData.id,
+      stageId: stageId,
+      taskId: ev.toElement.firstElementChild.id
+    }
+
+    this._sprintService.moveTaskToStage(json).toPromise();
+
+  }
+
   public timeLog(item:Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTaskItem=item;
