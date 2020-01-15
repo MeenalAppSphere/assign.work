@@ -239,10 +239,29 @@
             <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
 
               <ul class="stages-list">
-                <li *ngFor="let item of stagesList"><span>{{item.name}}</span>
-<!--                  <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
-                </li>
+                <bs-sortable
+                  (onChange)="reorderList()"
+                  [(ngModel)]="stagesList"
+                  itemClass="sortable-item"
+                  itemActiveClass="sortable-item-active"
+                  [itemTemplate]="itemTemplate"
+                  placeholderClass="placeholderStyle"
+                  wrapperClass="sortable-wrapper"
+                ></bs-sortable>
+
+
+                <ng-template #itemTemplate let-item="item" let-index="index">
+                  <li><span>{{item.value.name}}</span>
+                    <!--<i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+                  </li>
+                </ng-template>
               </ul>
+
+<!--              <ul class="stages-list">-->
+<!--                <li *ngFor="let item of stagesList"><span>{{item.name}}</span>-->
+<!--&lt;!&ndash;        <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>&ndash;&gt;-->
+<!--                </li>-->
+<!--              </ul>-->
 
             </nz-spin>
 

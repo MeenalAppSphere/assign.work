@@ -362,6 +362,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
+  public reorderList(){
+    // console.log(this.stagesList);
+  }
+
   /*================ Status ==================*/
   public addStatus() {
     if (this.statusForm.invalid) {

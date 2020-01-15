@@ -280,6 +280,7 @@ $color-gray-light: #6E829C;
 .sprintboard-container {
   padding: 0px;
   background: none;
+  overflow: auto;
   .column {
     margin-right: 20px;
   }
