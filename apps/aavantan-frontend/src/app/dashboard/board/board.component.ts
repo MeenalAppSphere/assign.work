@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import {
+  CloseSprintModel,
   GetAllTaskRequestModel,
   MoveTaskToStage,
   Sprint,
@@ -24,6 +25,7 @@ export class BoardComponent implements OnInit {
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   public selectedTaskItem:Task;
   public getStageInProcess: boolean;
+  public sprintCloseInProcess:boolean;
   public activeSprintData:Sprint;
   public sprintDataSource:Sprint[] = [
     {
@@ -120,6 +122,8 @@ export class BoardComponent implements OnInit {
   }
 
   public moveTask(ev:any, stageId:string){
+    try{
+
     const json: MoveTaskToStage = {
       projectId : this._generalService.currentProject.id,
       sprintId: this.activeSprintData.id,
@@ -128,8 +132,32 @@ export class BoardComponent implements OnInit {
     }
 
     this._sprintService.moveTaskToStage(json).toPromise();
+    }catch (e) {
+
+    }
+  }
+
+  //============ close sprint =============//
+  async closeSprint(){
+
+    try{
+
+      this.sprintCloseInProcess = true;
+      const json :CloseSprintModel ={
+        projectId: this._generalService.currentProject.id,
+        sprintId: this._generalService.currentProject.sprintId,
+      }
+
+      const data = await this._sprintService.closeSprint(json).toPromise();
+      console.log('Sprint close', data);
+      this.sprintCloseInProcess = false;
+
+    }catch (e) {
+      this.sprintCloseInProcess = false;
+    }
 
   }
+
 
   public timeLog(item:Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;

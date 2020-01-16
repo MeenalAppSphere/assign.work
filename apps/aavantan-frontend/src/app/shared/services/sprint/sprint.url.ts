@@ -13,4 +13,5 @@ export const SprintUrls = {
   moveTaskToStage: createUrl('sprint/move-task'),
   updateWorkingCapacity: createUrl('sprint/update-working-capacity'),
   getBoardData: createUrl('sprint/get-sprint'),
+  closeSprint: createUrl('sprint/close-sprint'),
 };

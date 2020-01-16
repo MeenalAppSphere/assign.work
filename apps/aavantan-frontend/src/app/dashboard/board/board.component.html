@@ -1,3 +1,4 @@
+<nz-spin [nzSpinning]="sprintCloseInProcess">
 <section class="collaborators-avatar">
   <div class="row">
 
@@ -27,6 +28,7 @@
 <!--        -->
       </span>
       <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30">+ Add Task</button>
+      <button nzType="default" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="closeSprint()">Close Sprint</button>
     </div>
 
   </div>
@@ -89,5 +91,7 @@
     </div>
   </ng-template>
 </nz-spin>
+
+</nz-spin> <!-- spinner for close sprint -->
 <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem" (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
 

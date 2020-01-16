@@ -8,7 +8,7 @@ import {
   AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
   BasePaginatedResponse,
-  BaseResponseModel,
+  BaseResponseModel, CloseSprintModel,
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetAllTaskRequestModel,
@@ -142,6 +142,18 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.moveTaskToStage, json).pipe(
       map((res: BaseResponseModel<Task>) => {
         this.notification.success('Success', 'Task Moved Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  closeSprint(json: CloseSprintModel): Observable<BaseResponseModel<Task>> {
+    return this._http.post(SprintUrls.closeSprint, json).pipe(
+      map((res: BaseResponseModel<Task>) => {
+        this.notification.success('Success', 'Sprint closed Successfully');
         return res;
       }),
       catchError(err => {
