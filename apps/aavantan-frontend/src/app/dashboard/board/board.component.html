@@ -34,6 +34,9 @@
 
 <nz-spin nzTip="Getting Board Data..." [nzSpinning]="getStageInProcess">
   <div class="sprintboard-container">
+
+    <div class="shadow-div-right"></div>
+
     <div class="container-fluid">
       <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.stages && boardData.stages.length>0">
         <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of boardData.stages; let last">
