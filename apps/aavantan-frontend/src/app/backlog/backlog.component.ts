@@ -278,6 +278,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
         tasks : this.draftSprint.ids
       }
 
+
       this.saveSprintInProcess = true;
       const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
 

@@ -370,6 +370,10 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   .ant-tabs-extra-content {
     line-height: 28px;
   }
+  .ant-tabs-bar {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
 }
 
 #settings-page {
@@ -387,6 +391,9 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     .ant-card-head-title{
       padding: 11px 0px;
     }
+  }
+  .ant-tabs .ant-tabs-small-bar .ant-tabs-tab {
+    padding: 14px 17px;
   }
 }
 
