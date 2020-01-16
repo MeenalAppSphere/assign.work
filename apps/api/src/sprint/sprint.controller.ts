@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { SprintService } from '../shared/services/sprint.service';
 import {
   AddTaskToSprintModel,
+  CloseSprintModel,
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
@@ -73,5 +74,10 @@ export class SprintController {
   @Post('get-unpublished-sprint')
   async getUnPublishedSprint(@Body('projectId') projectId: string) {
     return await this._sprintService.getUnPublishSprint(projectId);
+  }
+
+  @Post('close-sprint')
+  async closeSprint(@Body() model: CloseSprintModel) {
+    return await this._sprintService.closeSprint(model);
   }
 }

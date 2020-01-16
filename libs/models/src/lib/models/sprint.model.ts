@@ -162,6 +162,9 @@ export class GetSprintByIdRequestModel extends SprintBaseRequest {
 export class PublishSprintModel extends SprintBaseRequest {
 }
 
+export class CloseSprintModel extends SprintBaseRequest{
+}
+
 export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {
   capacity: Array<{
     memberId: string;

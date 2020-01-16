@@ -128,3 +128,10 @@ export const isInvitationExpired = (timestamp: number): boolean => {
   // check if given timestamp is lesser than expiry time
   return moment.utc(timestamp).isAfter(moment.utc(timestamp).add(DEFAULT_INVITATION_EXPIRY));
 };
+
+/**
+ * return's new utc date
+ */
+export const generateUtcDate = () => {
+  return moment.utc().toDate().toUTCString();
+};

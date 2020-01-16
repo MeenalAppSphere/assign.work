@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
   AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
   BasePaginatedResponse,
+  CloseSprintModel,
   CreateSprintModel,
   DbCollection,
   GetAllSprintRequestModel,
@@ -29,8 +30,10 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import * as moment from 'moment';
-import { hourToSeconds, secondsToHours, secondsToString } from '../helpers/helpers';
+import { generateUtcDate, hourToSeconds, secondsToHours, secondsToString } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
+import { TaskService } from './task.service';
+import { ModuleRef } from '@nestjs/core';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -65,15 +68,21 @@ const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapa
 const detailedFiledSelection = `${commonFieldSelection} stages `;
 
 @Injectable()
-export class SprintService extends BaseService<Sprint & Document> {
+export class SprintService extends BaseService<Sprint & Document> implements OnModuleInit {
+  private _taskService: TaskService;
+
   constructor(
     @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
-    private _generalService: GeneralService
+    private _generalService: GeneralService, private _moduleRef: ModuleRef
   ) {
     super(_sprintModel);
+  }
+
+  onModuleInit(): any {
+    this._taskService = this._moduleRef.get('TaskService');
   }
 
   /**
@@ -849,7 +858,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     // update sprint in db
     const updateSprintObject = {
       sprintStatus: {
-        status: SprintStatusEnum.inProgress, updatedAt: new Date()
+        status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate()
       },
       $push: { stages: newStagesModels }
     };
@@ -908,6 +917,38 @@ export class SprintService extends BaseService<Sprint & Document> {
     });
 
     return sprint;
+  }
+
+  /**
+   * close the sprint
+   * @param model
+   */
+  public async closeSprint(model: CloseSprintModel) {
+    const projectDetails = await this.getProjectDetails(model.projectId);
+    const sprintDetails = await this.getSprintDetails(model.sprintId);
+
+    const session = await this.startSession();
+
+    const allTaskList = [];
+
+    // loop over stages and add all task to all task list
+    sprintDetails.stages.forEach(stage => {
+      stage.tasks.forEach(task => {
+        allTaskList.push(task.taskId);
+      });
+    });
+
+    try {
+      await this.update(model.sprintId, {
+        $set: { 'sprintStatus.status': SprintStatusEnum.closed, 'sprintStatus.updatedAt': generateUtcDate() }
+      }, session);
+      await this._taskService.bulkUpdate({ _id: { $in: allTaskList } }, { $set: { sprintId: null } }, session);
+      await this.commitTransaction(session);
+      return 'Sprint Closed Successfully';
+    } catch (e) {
+      await this.abortTransaction(session);
+    }
+
   }
 
   /**
