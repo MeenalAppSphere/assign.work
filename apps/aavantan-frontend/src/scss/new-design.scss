@@ -15,6 +15,11 @@ $very-light-gray:#F7F7F7;
 $dark-blue-black:#0B1B31;
 
 /* common */
+.box-shadow{
+  background: #FFFFFF 0% 0% no-repeat padding-box;
+  box-shadow: 0px 4px 10px #0000001A;
+  border-radius: 4px;
+}
 .common-layout .page-container .main-content {
   //padding: calc(70px + 10px) 25px 10px 25px;
 }
