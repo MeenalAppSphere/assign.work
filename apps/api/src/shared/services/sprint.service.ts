@@ -324,8 +324,7 @@ export class SprintService extends BaseService<Sprint & Document> {
     // endregion
 
     // start the session
-    const session = await this._sprintModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       // get project details by project id
@@ -488,8 +487,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         await this._taskModel.updateOne({ _id: taskDetails[i].id }, { sprintId: model.sprintId }, { session });
       }
 
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
 
       // const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
       // return this.prepareSprintVm(sprint);
@@ -503,8 +501,7 @@ export class SprintService extends BaseService<Sprint & Document> {
         tasks: model.tasks
       };
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
 
