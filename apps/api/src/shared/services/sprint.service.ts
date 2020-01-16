@@ -927,6 +927,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     const projectDetails = await this.getProjectDetails(model.projectId);
     const sprintDetails = await this.getSprintDetails(model.sprintId);
 
+    if (sprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
+      throw new BadRequestException('Sprint is not published...');
+    }
+
     const session = await this.startSession();
 
     const allTaskList = [];
