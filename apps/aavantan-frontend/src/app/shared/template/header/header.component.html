@@ -33,10 +33,12 @@
         </nz-drawer>
       </li>
     </ul>
-    <ul class="nav-right" joyrideStep="tour1" title="Current Project" text="You can change your project form here.">
+    <ul class="nav-right" joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
       <li>
-        <a href="javascript:void(0);" class="project-name-btn" routerLink="settings">
-          {{ currentProject?.name }}<i nz-icon nzType="setting" theme="outline" class="text-gray-light p-l-5"></i></a>
+        <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
+          {{ currentProject?.name }}
+<!--          <i nz-icon nzType="setting" theme="outline" class="text-gray-light p-l-5"></i>-->
+        </a>
       </li>
     </ul>
     <ul class="nav-right">
@@ -78,19 +80,30 @@
           </div>
         </nz-dropdown-menu>
       </li>
+
       <li>
-                <span class="p-h-10 pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'"
-                      [nzPlacement]="'bottomRight'">
-                  <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile"
-                               class="avatar-bg"
-                                *ngIf="currentUser"
-                               [nzIcon]="'user'"
-                               [nzSrc]="currentUser.profilePic"></nz-avatar>
-                  <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile"
-                             class="avatar-bg"
-                             [nzIcon]="'user'"
-                             *ngIf="!currentUser"></nz-avatar>
-                </span>
+        <a (click)="quickViewToggle()">
+          <i nz-icon nzType="appstore" theme="outline" class="text-gray-light"></i>
+        </a>
+        <nz-drawer [nzWidth]="280" nzTitle="Theme Config" [nzClosable]="false" [nzVisible]="quickViewVisible"
+                   nzPlacement="right" (nzOnClose)="quickViewToggle()">
+          <app-quick-view></app-quick-view>
+        </nz-drawer>
+      </li>
+
+      <li>
+          <span class="p-h-10 pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'"
+                [nzPlacement]="'bottomRight'">
+            <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile"
+                       class="avatar-bg"
+                       *ngIf="currentUser"
+                       [nzIcon]="'user'"
+                       [nzSrc]="currentUser.profilePic"></nz-avatar>
+            <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile"
+                       class="avatar-bg"
+                       [nzIcon]="'user'"
+                       *ngIf="!currentUser"></nz-avatar>
+          </span>
         <nz-dropdown-menu #profile="nzDropdownMenu">
           <ul nz-menu class="p-b-15 p-t-20">
             <li class="p-h-20 p-b-15 m-b-10 border-bottom" *ngIf="currentUser">
@@ -138,15 +151,7 @@
           </ul>
         </nz-dropdown-menu>
       </li>
-      <li>
-        <a (click)="quickViewToggle()">
-          <i nz-icon nzType="appstore" theme="outline" class="text-gray-light"></i>
-        </a>
-        <nz-drawer [nzWidth]="280" nzTitle="Theme Config" [nzClosable]="false" [nzVisible]="quickViewVisible"
-                   nzPlacement="right" (nzOnClose)="quickViewToggle()">
-          <app-quick-view></app-quick-view>
-        </nz-drawer>
-      </li>
+
     </ul>
   </div>
 </div>

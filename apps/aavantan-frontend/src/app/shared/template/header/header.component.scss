@@ -1,9 +1,17 @@
 .project-name-btn{
-  font-size: 14px!important;
+  font-size: 16px!important;
+  text-transform: initial;
+  font-weight: 400;
+  &:hover{
+    background: none!important;
+  }
 }
 
 .avatar-bg{
   width: 31px;
   height: 31px;
   line-height: 31px;
+}
+.header .nav-wrap .nav-right li > a .ant-badge{
+  font-size: 13px;
 }
