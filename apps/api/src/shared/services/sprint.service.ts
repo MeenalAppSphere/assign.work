@@ -216,19 +216,16 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     model.sprint.createdById = this._generalService.userId;
 
     // create session and use it for whole transaction
-    const session = await this._sprintModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       const newSprint = await this.create([model.sprint], session);
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
       return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -298,8 +295,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       throw new BadRequestException(`Sprint is already ${msgStatus}! You can not update it`);
     }
 
-    const session = await this._sprintModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       await this._sprintModel.updateOne({ _id: model.sprint.id }, {
@@ -307,14 +303,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           name: model.sprint.name, goal: model.sprint.goal, startedAt: model.sprint.startedAt, endAt: model.sprint.endAt
         }
       }, { session });
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(model.sprint.id, commonPopulationForSprint, commonFieldSelection);
       return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -535,8 +529,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // endregion
 
     // start the session
-    const session = await this._sprintModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       // get project details by project id
@@ -586,8 +579,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // update sprint
       await this.update(model.sprintId, sprintDetails, session);
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
 
       // return add deleted tasks id
       return {
@@ -600,8 +592,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         tasks: model.tasks
       };
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -625,8 +616,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // endregion
 
     // start the session
-    const session = await this._sprintModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       // get project details
@@ -698,14 +688,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // update task status
       // will be done later
 
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, detailedFiledSelection);
       return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -765,8 +753,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // crete db session and start transaction
-    const session = await this._sprintModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       // total working capacity holder variable
@@ -797,15 +784,13 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       };
       // update sprint in database
       await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, { session });
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
 
       // return sprint details
       const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
       return this.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -864,8 +849,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     };
 
     // send mail
-    const session = await this._sprintModel.db.startSession();
-    session.startTransaction();
+    const session = await this.startSession();
 
     try {
       // update sprint in db
@@ -873,12 +857,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // update project and set published sprint as active sprint in project
       await this._projectModel.updateOne({ _id: model.projectId }, { $set: { sprintId: model.sprintId } }, { session });
-      await session.commitTransaction();
-      session.endSession();
+      await this.commitTransaction(session);
       return 'Sprint Published Successfully';
     } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
+      await this.abortTransaction(session);
       throw e;
     }
   }

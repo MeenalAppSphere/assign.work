@@ -162,7 +162,10 @@ export class GetSprintByIdRequestModel extends SprintBaseRequest {
 export class PublishSprintModel extends SprintBaseRequest {
 }
 
-export class CloseSprintModel extends SprintBaseRequest{
+export class CloseSprintModel extends SprintBaseRequest {
+  createNewSprint: boolean;
+  sprint?: Sprint;
+  finalStatusOfTasks?: string;
 }
 
 export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {
