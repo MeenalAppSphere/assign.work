@@ -42,6 +42,13 @@ body{
   background: $body-bg-color;
 }
 
+.cursor-move{
+  cursor: move;
+}
+.cursor-pointer{
+  cursor: pointer;
+}
+
 .ant-tooltip-placement-top .ant-tooltip-arrow, .ant-tooltip-placement-topLeft .ant-tooltip-arrow, .ant-tooltip-placement-topRight .ant-tooltip-arrow {
   bottom: 7px;
   border-width: 5px 5px 0;

@@ -150,9 +150,9 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  closeSprint(json: CloseSprintModel): Observable<BaseResponseModel<Task>> {
+  closeSprint(json: CloseSprintModel): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.closeSprint, json).pipe(
-      map((res: BaseResponseModel<Task>) => {
+      map((res: BaseResponseModel<Sprint>) => {
         this.notification.success('Success', 'Sprint closed Successfully');
         return res;
       }),

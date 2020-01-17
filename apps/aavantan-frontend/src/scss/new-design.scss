@@ -295,8 +295,9 @@ $dark-blue-black:#0B1B31;
     padding-bottom: .5rem;
   }
 }
-.ant-collapse{
-  border: 1px solid #dddddd;
+
+.ant-collapse {
+  border: 1px solid #EBECEE;
 }
 
 /* board page */
@@ -638,4 +639,39 @@ $dark-blue-black:#0B1B31;
 
 .mention>span {
   margin: 0 3px;
+}
+
+/* close sprint modal */
+.close-sprint-modal {
+
+  .ant-modal-body{
+    height: calc(100vh - 150px);
+    overflow: auto;
+  }
+  .ant-collapse-content-box {
+    padding: 0px !important;
+
+    .ant-empty-normal {
+      margin: 0px;
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 2px 5px;
+    }
+
+    .ant-table-thead > tr > th {
+      padding: 5px 5px !important;
+    }
+  }
+}
+
+
+.close-sprint-modal-confirm-box{
+  .ant-radio-wrapper{
+    white-space: initial!important;
+  }
+
+  .ant-modal-body{
+    overflow: auto;
+  }
 }

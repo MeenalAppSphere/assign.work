@@ -1,8 +1,8 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
   CloseSprintModel,
   GetAllTaskRequestModel,
-  MoveTaskToStage,
+  MoveTaskToStage, ProjectStages, ProjectStatus,
   Sprint,
   SprintStage,
   SprintStatusEnum,
@@ -10,23 +10,35 @@ import {
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
-import { NzNotificationService } from 'ng-zorro-antd';
-import { TaskService } from '../../shared/services/task/task.service';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserQuery } from '../../queries/user/user.query';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'aavantan-app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss']
 })
-export class BoardComponent implements OnInit {
+export class BoardComponent implements OnInit, OnDestroy {
 
   public boardData: Sprint;
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   public selectedTaskItem:Task;
   public getStageInProcess: boolean;
-  public sprintCloseInProcess:boolean;
   public activeSprintData:Sprint;
+
+  // close sprint modal
+  public selectedSprintStatus: ProjectStatus;
+  public statusSprintDataSource: ProjectStatus[] = [];
+  public sprintCloseInProcess:boolean;
+  public closeSprintModalIsVisible:boolean;
+  public isVisibleCloseSprint:boolean;
+  public radioOptionValue = 'a';
+  public dateFormat = 'MM/dd/yyyy';
+  public sprintForm: FormGroup;
+
   public sprintDataSource:Sprint[] = [
     {
       id: '1',
@@ -71,7 +83,9 @@ export class BoardComponent implements OnInit {
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
-              protected notification: NzNotificationService) { }
+              protected notification: NzNotificationService,
+              private modalService: NzModalService,
+              private _userQuery:UserQuery,) { }
 
   ngOnInit() {
 
@@ -82,6 +96,24 @@ export class BoardComponent implements OnInit {
     }else{
       this.notification.info('Info', 'Sprint not found');
     }
+
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.statusSprintDataSource = res.settings.status;
+      }
+    })
+
+    this.sprintForm = new FormGroup({
+      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
+      createdById: new FormControl(this._generalService.user.id, [Validators.required]),
+      name: new FormControl(null, [Validators.required]),
+      goal: new FormControl(null, [Validators.required]),
+      sprintStatus: new FormControl(null, []),
+      duration: new FormControl(null, [Validators.required]),
+      startedAt: new FormControl(null, []),
+      endAt: new FormControl(null, []),
+    });
+
   }
 
   async getBoardData(){
@@ -138,30 +170,39 @@ export class BoardComponent implements OnInit {
   }
 
   //============ close sprint =============//
-  async closeSprint(){
+  // public toggleCloseSprintShow(item?:Sprint){
+  //   this.closeSprintModalIsVisible = !this.closeSprintModalIsVisible;
+  //   if(item){
+  //     this.activeSprintData=item;
+  //   }
+  // }
 
-    try{
-
-      this.sprintCloseInProcess = true;
-      const json :CloseSprintModel ={
-        projectId: this._generalService.currentProject.id,
-        sprintId: this._generalService.currentProject.sprintId,
-      }
-
-      const data = await this._sprintService.closeSprint(json).toPromise();
-      console.log('Sprint close', data);
-      this.sprintCloseInProcess = false;
-
-    }catch (e) {
-      this.sprintCloseInProcess = false;
-    }
-
+  public selectStatus(item: ProjectStatus) {
+    this.selectedSprintStatus = item;
   }
+
+  toggleCloseSprintShow(): void {
+    this.isVisibleCloseSprint = true;
+  }
+
+  handleOk(): void {
+    this.isVisibleCloseSprint = false;
+  }
+
+  handleCancel(): void {
+    this.isVisibleCloseSprint = false;
+  }
+
+  //---------------------------------------//
 
 
   public timeLog(item:Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTaskItem=item;
+  }
+
+  ngOnDestroy() {
+
   }
 
 }

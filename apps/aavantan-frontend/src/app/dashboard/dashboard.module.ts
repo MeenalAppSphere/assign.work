@@ -14,6 +14,7 @@ import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 import { JoyrideModule } from 'ngx-joyride';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-sprint.component';
 
 @NgModule({
   imports: [
@@ -35,7 +36,8 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
     BoardComponent,
     ActivesprintComponent,
     PermissionsComponent,
-    CollaboratorsComponent
+    CollaboratorsComponent,
+    CloseSprintComponent
   ],
   providers: [
     ThemeConstantService,

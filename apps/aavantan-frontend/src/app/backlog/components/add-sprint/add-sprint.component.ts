@@ -21,7 +21,6 @@ export class AddSprintComponent implements OnInit, OnDestroy {
   public sprintForm: FormGroup;
   public createSprintInProcess: boolean;
 
-
   constructor(private _generalService: GeneralService,
               private _userQuery: UserQuery,
               private _sprintService: SprintService,
