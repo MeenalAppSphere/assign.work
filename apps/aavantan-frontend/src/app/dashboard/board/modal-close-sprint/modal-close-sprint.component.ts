@@ -45,16 +45,16 @@ export class CloseSprintComponent implements OnInit, OnDestroy {
 
     try{
 
-      this.sprintCloseInProcess = true;
-      const json :CloseSprintModel ={
-        projectId: this._generalService.currentProject.id,
-        sprintId: this._generalService.currentProject.sprintId,
-      }
-
-      const data = await this._sprintService.closeSprint(json).toPromise();
-      console.log('Sprint close', data);
-      this.toggleCloseSprintShow.emit(data.data);
-      this.sprintCloseInProcess = false;
+      // this.sprintCloseInProcess = true;
+      // const json :CloseSprintModel ={
+      //   projectId: this._generalService.currentProject.id,
+      //   sprintId: this._generalService.currentProject.sprintId,
+      // }
+      //
+      // const data = await this._sprintService.closeSprint(json).toPromise();
+      // console.log('Sprint close', data);
+      // this.toggleCloseSprintShow.emit(data.data);
+      // this.sprintCloseInProcess = false;
 
     }catch (e) {
       this.sprintCloseInProcess = false;
