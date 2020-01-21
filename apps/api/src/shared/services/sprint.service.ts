@@ -34,6 +34,8 @@ import { generateUtcDate, hourToSeconds, secondsToHours, secondsToString } from 
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 import { TaskService } from './task.service';
 import { ModuleRef } from '@nestjs/core';
+import { SprintValidationService } from './sprint/sprint.validation';
+import { TaskHistoryService } from './task-history.service';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -70,6 +72,8 @@ const detailedFiledSelection = `${commonFieldSelection} stages `;
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> implements OnModuleInit {
   private _taskService: TaskService;
+  private _taskHistoryService: TaskHistoryService;
+  private _sprintValidationService: SprintValidationService;
 
   constructor(
     @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
@@ -79,10 +83,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     private _generalService: GeneralService, private _moduleRef: ModuleRef
   ) {
     super(_sprintModel);
+    this._sprintValidationService = new SprintValidationService(_sprintModel);
   }
 
   onModuleInit(): any {
     this._taskService = this._moduleRef.get('TaskService');
+    this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
   }
 
   /**
@@ -164,7 +170,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // perform common validations
-    this.commonSprintValidator(model.sprint);
+    this._sprintValidationService.commonSprintValidator(model.sprint);
     // endregion
 
     // get project details and check if current user is member of project
@@ -176,13 +182,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // sprint unique name validation per project
-    const isSprintNameAlreadyExits = await this._sprintModel.find({
-      name: { $regex: new RegExp(`^${model.sprint.name}$`), $options: 'i' },
-      isDeleted: false,
-      projectId: model.sprint.projectId
-    }).select('name').countDocuments();
+    const isSprintNameAvailable = await this._sprintValidationService.sprintNameAvailable(model.sprint.projectId, model.sprint.name);
 
-    if (isSprintNameAlreadyExits > 0) {
+    if (!isSprintNameAvailable) {
       throw new BadRequestException('Sprint name already exits');
     }
 
@@ -245,7 +247,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // perform common validations
-    this.commonSprintValidator(model.sprint);
+    this._sprintValidationService.commonSprintValidator(model.sprint);
 
     // get project details
     const projectDetails = await this.getProjectDetails(model.sprint.projectId);
@@ -907,33 +909,67 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   public async closeSprint(model: CloseSprintModel) {
     const projectDetails = await this.getProjectDetails(model.projectId);
-    const sprintDetails = await this.getSprintDetails(model.sprintId);
-
-    if (sprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
-      throw new BadRequestException('Sprint is not published...');
-    }
-
-    const session = await this.startSession();
+    const currentSprintDetails = await this.getSprintDetails(model.sprintId);
 
     const allTaskList = [];
 
-    // loop over stages and add all task to all task list
-    sprintDetails.stages.forEach(stage => {
+    // loop over stages and add all task to allTaskList
+    currentSprintDetails.stages.forEach(stage => {
       stage.tasks.forEach(task => {
         allTaskList.push(task.taskId);
       });
     });
 
-    try {
-      await this.update(model.sprintId, {
-        $set: { 'sprintStatus.status': SprintStatusEnum.closed, 'sprintStatus.updatedAt': generateUtcDate() }
-      }, session);
-      await this._taskService.bulkUpdate({ _id: { $in: allTaskList } }, { $set: { sprintId: null } }, session);
-      await this.commitTransaction(session);
-      return 'Sprint Closed Successfully';
-    } catch (e) {
-      await this.abortTransaction(session);
+    if (!allTaskList.length) {
+      throw new BadRequestException('this sprint don\'t have tasks');
     }
+
+    const session = await this.startSession();
+
+    if (model.createNewSprint) {
+
+    } else {
+      // don't create new sprint but move all tasks to backlog with a status
+      const isValidFinalStageOfTask = projectDetails.settings.status.find(status => status.id === model.finalStatusOfTasks);
+      if (!isValidFinalStageOfTask) {
+        throw new BadRequestException('task status is not valid, please try again');
+      }
+
+      const taskUpdateFilter = {
+        _id: { $in: allTaskList }
+      };
+      const taskUpdateObject = {
+        sprintId: null, status: model.finalStatusOfTasks
+      };
+      await this._taskService.bulkUpdate(taskUpdateFilter, taskUpdateObject, session);
+    }
+    // const sprintDetails = await this.getSprintDetails(model.sprintId);
+    //
+    // if (sprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
+    //   throw new BadRequestException('Sprint is not published...');
+    // }
+    //
+    // const session = await this.startSession();
+    //
+    // const allTaskList = [];
+    //
+    // // loop over stages and add all task to allTaskList
+    // sprintDetails.stages.forEach(stage => {
+    //   stage.tasks.forEach(task => {
+    //     allTaskList.push(task.taskId);
+    //   });
+    // });
+    //
+    // try {
+    //   await this.update(model.sprintId, {
+    //     $set: { 'sprintStatus.status': SprintStatusEnum.closed, 'sprintStatus.updatedAt': generateUtcDate() }
+    //   }, session);
+    //   await this._taskService.bulkUpdate({ _id: { $in: allTaskList } }, { $set: { sprintId: null } }, session);
+    //   await this.commitTransaction(session);
+    //   return 'Sprint Closed Successfully';
+    // } catch (e) {
+    //   await this.abortTransaction(session);
+    // }
 
   }
 
@@ -1121,47 +1157,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       });
     }
     return task;
-  }
-
-  /**
-   * common sprint related validations
-   * check name, started At, end At, goal present or not
-   * check sprint start date is not before today
-   * check sprint end date is not before start date
-   * @param sprint
-   */
-  private commonSprintValidator(sprint: Sprint) {
-    // sprint name
-    if (!sprint.name) {
-      throw new BadRequestException('Sprint Name is compulsory');
-    }
-
-    // sprint goal
-    if (!sprint.goal) {
-      throw new BadRequestException('Sprint goal is required');
-    }
-
-    // sprint started at
-    if (!sprint.startedAt) {
-      throw new BadRequestException('Please select Sprint Start Date');
-    }
-
-    // sprint end at
-    if (!sprint.endAt) {
-      throw new BadRequestException('Please select Sprint End Date');
-    }
-
-    // started date can not be before today
-    const isStartDateBeforeToday = moment(sprint.startedAt).isBefore(moment().startOf('d'));
-    if (isStartDateBeforeToday) {
-      throw new BadRequestException('Sprint Started date can not be Before Today');
-    }
-
-    // end date can not be before start date
-    const isEndDateBeforeTaskStartDate = moment(sprint.endAt).isBefore(sprint.startedAt);
-    if (isEndDateBeforeTaskStartDate) {
-      throw new BadRequestException('Sprint End Date can not be before Sprint Start Date');
-    }
   }
 
 }
