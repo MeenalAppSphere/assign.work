@@ -3,32 +3,40 @@
 
     <div class="col">
 
-      <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}</button>
+      <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button"
+              nz-button>{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}</button>
 
-<!--   once we allow multiple sprint   -->
-<!--      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">-->
-<!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>{{sprintData.name}}-->
-<!--          <img src="../../../assets/images/icons/arrow-point-to-down.svg" class="p-l-10" height="5"/>-->
-<!--        </button>-->
-<!--      </nz-button-group>-->
-<!--      <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">-->
-<!--        <ul nz-menu>-->
-<!--          <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>-->
-<!--        </ul>-->
-<!--      </nz-dropdown-menu>-->
+      <!--   once we allow multiple sprint   -->
+      <!--      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">-->
+      <!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>{{sprintData.name}}-->
+      <!--          <img src="../../../assets/images/icons/arrow-point-to-down.svg" class="p-l-10" height="5"/>-->
+      <!--        </button>-->
+      <!--      </nz-button-group>-->
+      <!--      <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">-->
+      <!--        <ul nz-menu>-->
+      <!--          <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>-->
+      <!--        </ul>-->
+      <!--      </nz-dropdown-menu>-->
 
     </div>
     <div class="col text-right">
       <span *ngIf="boardData && boardData.membersCapacity?.length>0">
 
-        <span *ngFor="let item of boardData.membersCapacity" >
-          <nz-avatar *ngIf="!item.user.profilePic" nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}" nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip class="bg-info"></nz-avatar>
-          <nz-avatar *ngIf="item.user.profilePic" nzIcon="user" nzSize="" nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}" nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
+        <span *ngFor="let item of boardData.membersCapacity">
+          <nz-avatar *ngIf="!item.user.profilePic"
+                     nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
+                     nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip
+                     class="bg-info"></nz-avatar>
+          <nz-avatar *ngIf="item.user.profilePic" nzIcon="user" nzSize=""
+                     nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
+                     nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
         </span>
 
        </span>
       <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30">+ Add Task</button>
-      <button nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close Sprint</button>
+      <button nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close
+        Sprint
+      </button>
     </div>
 
   </div>
@@ -41,17 +49,48 @@
 
     <div class="container-fluid">
       <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.stages && boardData.stages.length>0">
-        <div class="column" joyrideStep="board" title="Board" text="Board" *ngFor="let item of boardData.stages; let last">
+
+        <div class="column dndList" joyrideStep="board" title="Board" text="Board"
+             *ngFor="let item of boardData.stages; let last">
           <div class="card card-block">
+
             <div class="card-header">{{item.stage.name}} <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>
               <div class="pull-left" style="line-height: 10px;">
-              <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
+                <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
                 <span class="font-size-12">{{item.totalEstimationReadable}}</span>
               </div>
             </div>
 
-            <bs-sortable id="{{item.stage.id}}" (dragend)="moveTask($event, item.stage.id)" [(ngModel)]="item.tasks" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here to move the items" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper" class="card-body">
-            </bs-sortable>
+            <div class="card-body" dndDropzone (dndDrop)="onDragEnd($event, item)" dndEffectAllowed="copyMove" dndHorizontal="true">
+              <div dndPlaceholderRef class="dndPlaceholder">
+                Drop Here....
+              </div>
+
+              <div *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
+                <div id="{{task.taskId}}" class="task-card"
+                     [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}"
+                     [dndDraggable]="task" [dndEffectAllowed]="'copyMove'">
+                  <h6 [ngStyle]="{'color': task.task.taskType.color}">#{{task.task.displayName}}
+                    <span class="float-right duration">{{task.task.createdAt | dateAgo }}</span>
+                  </h6>
+                  <div class="task-body">
+                    <div>
+                      <a href="" class="task-title">
+                        {{task.task.name}}
+                      </a>
+                    </div>
+                  </div>
+                  <div class="task-footer">
+                    <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{task.task.assignee.profilePic}}"
+                                     nzShape="circle"></nz-avatar><span
+                      class="profile-name">{{task.task.assignee.firstName}}</span></span>
+                    <span class="pull-right"> <a (click)="timeLog(task.task)" href="javascript:void(0);"
+                                                 class="text-primary"><i nz-icon nzType="clock-circle"
+                                                                         theme="outline"></i> Log Time</a></span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -65,31 +104,15 @@
             <span>There in no active Sprint</span>
           </ng-template>
           <ng-template #footerTpl>
-            <button nz-button nzSize="small" nzType="primary" class="btn-medium" routerLink="../backlog">+ Create Sprint</button>
+            <button nz-button nzSize="small" nzType="primary" class="btn-medium" routerLink="../backlog">+ Create
+              Sprint
+            </button>
           </ng-template>
         </nz-empty>
       </div>
     </div>
   </div>
 
-  <ng-template #itemTemplate let-item="item" let-index="index">
-    <div id="{{item.value.id}}" class="task-card" [ngStyle]="{'border-left': '4px solid '+ item.value.task.priority.color}">
-      <h6 [ngStyle]="{'color': item.value.task.taskType.color}">#{{item.value.task.displayName}}
-        <span class="float-right duration">{{item.value.task.createdAt | dateAgo }}</span>
-      </h6>
-      <div class="task-body">
-        <div>
-        <a href="" class="task-title">
-          {{item.value.task.name}}
-        </a>
-        </div>
-      </div>
-      <div class="task-footer">
-        <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{item.value.task.assignee.profilePic}}" nzShape="circle"></nz-avatar><span class="profile-name">{{item.value.task.assignee.firstName}}</span></span>
-        <span class="pull-right"> <a (click)="timeLog(item.value.task)" href="javascript:void(0);" class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
-      </div>
-    </div>
-  </ng-template>
 </nz-spin>
 
 
@@ -105,83 +128,90 @@
 
   <div>
     <nz-radio-group [(ngModel)]="radioOptionValue" style="width: 100%;">
-    <div class="row m-b-10">
-      <div class="col-md-9">
-        <label nz-radio nzValue="a">Create new sprint and move all open items into it</label>
+      <div class="row m-b-10">
+        <div class="col-md-9">
+          <label nz-radio nzValue="a">Create new sprint and move all open items into it</label>
+        </div>
+        <div class="col-md-3">
+
+        </div>
       </div>
-      <div class="col-md-3">
 
-      </div>
-    </div>
+      <form *ngIf="radioOptionValue === 'a'" [formGroup]="sprintForm" autocomplete="off" nz-form>
+        <ng-container>
+          <section class="draft-sprint-box">
 
-    <form *ngIf="radioOptionValue === 'a'" [formGroup]="sprintForm" autocomplete="off" nz-form>
-      <ng-container>
-        <section class="draft-sprint-box">
+            <div class="steps-content row">
 
-          <div class="steps-content row">
+              <div class="col-md-7 col-sm-12">
+                <nz-form-item>
+                  <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input formControlName="name" placeholder="Enter Sprint Title" nzSize="small"
+                         maxlength="50"/>
+                </nz-form-item>
+              </div>
 
-            <div class="col-md-7 col-sm-12">
-              <nz-form-item>
-                <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
-                <input nz-input formControlName="name" placeholder="Enter Sprint Title" nzSize="small" maxlength="50"/>
-              </nz-form-item>
+              <div class="col-md-5 col-sm-12">
+                <nz-form-item>
+                  <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
+                  <div class="sprint-duration-datepicker">
+                    <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
+                  </div>
+                </nz-form-item>
+              </div>
+
+
+              <div class="col-md-12">
+                <nz-form-item class="m-0">
+                  <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
+                  <textarea formControlName="goal" nz-input [rows]="3"
+                            placeholder="Enter Sprint Goal (max 250 character)" nzSize="small"
+                            maxlength="250"></textarea>
+                </nz-form-item>
+              </div>
+
             </div>
 
-            <div class="col-md-5 col-sm-12">
-              <nz-form-item>
-                <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
-                <div class="sprint-duration-datepicker">
-                  <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
-                </div>
-              </nz-form-item>
-            </div>
+          </section>
+        </ng-container>
 
+      </form>
 
-            <div class="col-md-12">
-              <nz-form-item class="m-0">
-                <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
-                <textarea formControlName="goal" nz-input [rows]="3" placeholder="Enter Sprint Goal (max 250 character)" nzSize="small" maxlength="250"></textarea>
-              </nz-form-item>
-            </div>
+      <hr class="m-t-15 m-b-0">
 
-          </div>
-
-        </section>
-      </ng-container>
-
-    </form>
-
-    <hr class="m-t-15 m-b-0">
-
-    <div class="row">
-      <div class="col-md-9 col-sm-7 p-t-20">
-        <label nz-radio nzValue="b">Move all open items of this sprint to Backlog with status</label>
+      <div class="row">
+        <div class="col-md-9 col-sm-7 p-t-20">
+          <label nz-radio nzValue="b">Move all open items of this sprint to Backlog with status</label>
+        </div>
+        <div class="col-md-3 col-sm-5">
+          <nz-form-item *ngIf="radioOptionValue === 'b'">
+            <nz-form-label nzFor="taskType">Select Status
+              <img src="../../../assets/images/icons/info.svg" height="12" nz-icon nz-tooltip
+                   [nzTitle]="templateTitleText" class="p-l-10"/>
+              <ng-template #templateTitleText>
+                Move all tasks into other Status
+              </ng-template>
+            </nz-form-label>
+            <nz-form-control class="issue-type-btn-grp">
+              <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight"
+                               style="width:100%!important;">
+                <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
+                        style="width:100%!important;">
+                  {{selectedSprintStatus && selectedSprintStatus.name ? selectedSprintStatus.name : 'Select Status'}} <i
+                  nz-icon nzType="caret-down" theme="outline"></i>
+                </button>
+              </nz-button-group>
+              <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item *ngFor="let item of statusSprintDataSource" (click)="selectStatus(item)">
+                    {{ item.name }}
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
       </div>
-      <div class="col-md-3 col-sm-5">
-        <nz-form-item *ngIf="radioOptionValue === 'b'">
-          <nz-form-label nzFor="taskType">Select Status
-            <img src="../../../assets/images/icons/info.svg" height="12" nz-icon nz-tooltip [nzTitle]="templateTitleText" class="p-l-10"/>
-            <ng-template #templateTitleText>
-              Move all tasks into other Status
-            </ng-template>
-          </nz-form-label>
-          <nz-form-control class="issue-type-btn-grp">
-            <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight" style="width:100%!important;">
-              <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width:100%!important;">
-                {{selectedSprintStatus && selectedSprintStatus.name ? selectedSprintStatus.name : 'Select Status'}} <i nz-icon nzType="caret-down" theme="outline"></i>
-              </button>
-            </nz-button-group>
-            <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
-              <ul nz-menu>
-                <li nz-menu-item *ngFor="let item of statusSprintDataSource" (click)="selectStatus(item)">
-                  {{ item.name }}
-                </li>
-              </ul>
-            </nz-dropdown-menu>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-    </div>
 
     </nz-radio-group>
 
@@ -190,7 +220,10 @@
 
 </nz-modal>
 
-<app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem" (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
+<app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem"
+             (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
 
-<app-close-sprint *ngIf="closeSprintModalIsVisible" [closeSprintModalIsVisible]="closeSprintModalIsVisible" [boardData]="boardData" [activeSprintData]="activeSprintData" (toggleCloseSprintShow)="toggleCloseSprintShow($event)"></app-close-sprint>
+<app-close-sprint *ngIf="closeSprintModalIsVisible" [closeSprintModalIsVisible]="closeSprintModalIsVisible"
+                  [boardData]="boardData" [activeSprintData]="activeSprintData"
+                  (toggleCloseSprintShow)="toggleCloseSprintShow($event)"></app-close-sprint>
 

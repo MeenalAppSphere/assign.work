@@ -15,6 +15,7 @@ import { TemplateModule } from '../shared/template/template.module';
 import { JoyrideModule } from 'ngx-joyride';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-sprint.component';
+import { DndModule } from 'ngx-drag-drop';
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-spr
     SortableModule.forRoot(),
     PopoverModule.forRoot(),
     JoyrideModule.forRoot(),
-    NzToolTipModule
+    NzToolTipModule,
+    DndModule
   ],
   exports: [
   ],

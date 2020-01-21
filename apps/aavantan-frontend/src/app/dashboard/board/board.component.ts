@@ -1,8 +1,8 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  CloseSprintModel,
   GetAllTaskRequestModel,
-  MoveTaskToStage, ProjectStages, ProjectStatus,
+  MoveTaskToStage,
+  ProjectStatus,
   Sprint,
   SprintStage,
   SprintStatusEnum,
@@ -199,6 +199,10 @@ export class BoardComponent implements OnInit, OnDestroy {
   public timeLog(item:Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTaskItem=item;
+  }
+
+  onDragEnd($event, item: SprintStage) {
+    item.tasks.push($event.data);
   }
 
   ngOnDestroy() {
