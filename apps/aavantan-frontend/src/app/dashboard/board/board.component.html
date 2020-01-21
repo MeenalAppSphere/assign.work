@@ -42,7 +42,7 @@
   </div>
 </section>
 
-<nz-spin nzTip="Getting Board Data..." [nzSpinning]="getStageInProcess">
+<nz-spin nzTip="Preparing board data..." [nzSpinning]="getStageInProcess">
   <div class="sprintboard-container">
 
     <div class="shadow-div-right"></div>
@@ -61,15 +61,18 @@
               </div>
             </div>
 
-            <div class="card-body" dndDropzone (dndDrop)="onDragEnd($event, item)" dndEffectAllowed="copyMove" dndHorizontal="true">
+            <div class="card-body" dndDropzone
+                 (dndDrop)="onDragEnd($event, item)"
+                 dndEffectAllowed="copyMove"
+                 dndHorizontal="true">
               <div dndPlaceholderRef class="dndPlaceholder">
-                Drop Here....
+                Drop Here...
               </div>
 
               <div *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
                 <div id="{{task.taskId}}" class="task-card"
                      [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}"
-                     [dndDraggable]="task" [dndEffectAllowed]="'copyMove'">
+                     [dndDraggable]="task" (dndStart)="onDragStart(item)" [dndEffectAllowed]="'copyMove'">
                   <h6 [ngStyle]="{'color': task.task.taskType.color}">#{{task.task.displayName}}
                     <span class="float-right duration">{{task.task.createdAt | dateAgo }}</span>
                   </h6>

@@ -4,7 +4,7 @@ import {
   MoveTaskToStage,
   ProjectStatus,
   Sprint,
-  SprintStage,
+  SprintStage, SprintStageTask,
   SprintStatusEnum,
   Task
 } from '@aavantan-app/models';
@@ -38,6 +38,9 @@ export class BoardComponent implements OnInit, OnDestroy {
   public radioOptionValue = 'a';
   public dateFormat = 'MM/dd/yyyy';
   public sprintForm: FormGroup;
+
+  public moveFromStage:SprintStage;
+
 
   public sprintDataSource:Sprint[] = [
     {
@@ -153,20 +156,47 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   }
 
-  public moveTask(ev:any, stageId:string){
+  public moveTask(task: SprintStageTask, stageId:string){
     try{
 
-    const json: MoveTaskToStage = {
-      projectId : this._generalService.currentProject.id,
-      sprintId: this.activeSprintData.id,
-      stageId: stageId,
-      taskId: ev.toElement.firstElementChild.id
-    }
+      const json: MoveTaskToStage = {
+        projectId : this._generalService.currentProject.id,
+        sprintId: this.activeSprintData.id,
+        stageId: stageId,
+        taskId: task.taskId
+      }
 
-    this._sprintService.moveTaskToStage(json).toPromise();
+      // console.log('json :', json);
+
+      this.getStageInProcess = true;
+      this._sprintService.moveTaskToStage(json).toPromise();
+      this.moveFromStage = null;
+      this.getStageInProcess = false;
     }catch (e) {
-
+      this.getStageInProcess = false;
     }
+  }
+
+  onDragStart(item: SprintStage) {
+    this.moveFromStage = item;
+  }
+
+  onDragEnd($event, item: SprintStage) {
+
+    this.moveTask($event.data, item.id);
+
+    //push to target stage
+    item.tasks.push($event.data);
+
+    //pop from source stage
+    if(this.moveFromStage) {
+      this.moveFromStage.tasks = this.moveFromStage.tasks.filter((ele) => {
+        if (ele.taskId !== $event.data.taskId) {
+          return ele;
+        }
+      })
+    }
+
   }
 
   //============ close sprint =============//
@@ -201,9 +231,6 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.selectedTaskItem=item;
   }
 
-  onDragEnd($event, item: SprintStage) {
-    item.tasks.push($event.data);
-  }
 
   ngOnDestroy() {
 
