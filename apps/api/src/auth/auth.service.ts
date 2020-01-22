@@ -21,6 +21,9 @@ import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';
 import { emailAddressValidator, isInvitationExpired } from '../shared/helpers/helpers';
+import * as bcrypt from 'bcrypt';
+
+const saltRounds = 10;
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -48,23 +51,31 @@ export class AuthService implements OnModuleInit {
 
   /**
    * login with emailId and password
+   * get user by email id and then compare hashed password from db with user request plain password
    * @param req
    */
   async login(req: UserLoginWithPasswordRequest) {
-    // check user
+
+    // get user by email id
     const user = await this._userModel.findOne({
-      emailId: req.emailId,
-      password: req.password
+      emailId: req.emailId
     }).populate(['projects', 'organization', 'currentProject']).exec();
 
     if (user) {
-      // update user last login provider to normal
-      await user.updateOne({ $set: { lastLoginProvider: UserLoginProviderEnum.normal } });
+      // compare hashed password
+      const isPasswordMatched = await bcrypt.compare(req.password, user.password);
 
-      // return jwt token
-      return {
-        access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
-      };
+      if (isPasswordMatched) {
+        // update user last login provider to normal
+        await user.updateOne({ $set: { lastLoginProvider: UserLoginProviderEnum.normal } });
+
+        // return jwt token
+        return {
+          access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
+        };
+      } else {
+        throw new UnauthorizedException('Invalid email or password');
+      }
     } else {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -92,21 +103,10 @@ export class AuthService implements OnModuleInit {
     session.startTransaction();
 
     try {
-      const model = new User();
-      model.emailId = user.emailId;
-      model.username = model.emailId;
-      model.password = user.password;
-      model.firstName = user.firstName;
-      model.lastName = user.lastName;
-      model.locale = user.locale;
-      model.status = UserStatus.Active;
-      model.lastLoginProvider = UserLoginProviderEnum.normal;
-      model.memberType = MemberTypes.alien;
-
       const jwtPayload = { sub: '', id: '' };
 
       // get user details by emailId id
-      const userDetails = await this.getUserByEmailId(model.emailId);
+      const userDetails = await this.getUserByEmailId(user.emailId);
 
       // user exist or not
       if (userDetails) {
@@ -202,6 +202,19 @@ export class AuthService implements OnModuleInit {
         }
 
         // create new user and assign jwt token
+        const model = new User();
+        model.emailId = user.emailId;
+        model.username = model.emailId;
+        model.firstName = user.firstName;
+        model.lastName = user.lastName;
+        model.locale = user.locale;
+        model.status = UserStatus.Active;
+        model.lastLoginProvider = UserLoginProviderEnum.normal;
+        model.memberType = MemberTypes.alien;
+
+        // hashed password
+        model.password = await bcrypt.hash(user.password, saltRounds);
+
         const newUser = await this._userService.create([model], session);
         jwtPayload.id = newUser[0].id;
         jwtPayload.sub = newUser[0].emailId;
