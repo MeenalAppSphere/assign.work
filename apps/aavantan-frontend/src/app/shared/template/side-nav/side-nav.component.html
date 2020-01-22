@@ -1,8 +1,21 @@
 <perfect-scrollbar class="side-nav" sideNav joyrideStep="main-menu" title="Navigation" text="">
 
 
-  <nz-avatar class="icon-org text-uppercase" nz-dropdown [nzDropdownMenu]="menu"
+  <nz-avatar *ngIf="isFolded" class="icon-org text-uppercase" nz-dropdown [nzDropdownMenu]="menu"
              nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
+
+
+  <div class="p-15 p-b-0 text-center org-name" *ngIf="!isFolded" >
+    <a nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="false" >
+
+      <p class="text-white font-size-14" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="max-width: 170px;">
+        <span>{{ currentOrganization.name }}</span>
+      </p>
+
+      <i class="p-l-10" nz-icon nzType="caret-down" nzTheme="outline"></i>
+
+    </a>
+  </div>
 
   <nz-dropdown-menu #menu="nzDropdownMenu">
 
