@@ -162,7 +162,7 @@
             "assets": [
               "apps/api/src/assets",
               "apps/api/src/.env",
-              "apps/api/src/shared/emailTemplates"
+              "apps/api/src/shared/email-templates"
             ]
           },
           "configurations": {
