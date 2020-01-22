@@ -17,6 +17,21 @@
   margin-bottom: -5px;
 }
 
+.icon-org {
+  background: #0B1B31;
+  color: #ffffff;
+  margin: 15px 13.5px;
+  font-size: 14px;
+}
+.org-name{
+  position: relative;
+  i{
+    position: absolute;
+    top: 20px;
+    right: 18px;
+    color: #fff;
+  }
+}
 /* menu items */
 .img-menu-svg {
   .menu-home{
