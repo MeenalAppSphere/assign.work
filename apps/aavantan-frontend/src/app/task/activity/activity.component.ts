@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TaskComments, CommentPinModel, User, UpdateCommentModel } from '@aavantan-app/models';
+import { CommentPinModel, TaskComments, UpdateCommentModel, User } from '@aavantan-app/models';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 
@@ -36,7 +36,7 @@ export class ActivityComponent implements OnInit {
       taskId: this.taskId,
       commentId: item.id,
       isPinned: isPinned,
-      comment:item.comment
+      comment:item.comment,
     }
 
     this.pinInProcess=true;
