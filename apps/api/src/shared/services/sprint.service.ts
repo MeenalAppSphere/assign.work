@@ -652,7 +652,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       taskDetail.id = taskDetail['_id'].toString();
       // check task validity for moving in sprint
-      const checkTaskIsAllowedToMove = this.checkTaskIsAllowedToAddInSprint(taskDetail);
+      const checkTaskIsAllowedToMove = this.checkTaskIsAllowedToAddInSprint(taskDetail, true);
 
       // if any error found in task validity checking return it
       if (checkTaskIsAllowedToMove instanceof SprintErrorResponseItem) {
@@ -976,8 +976,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   /**
    * check whether task is valid or not to add in sprint or move in a stage
    * @param task
+   * @param isMoveTaskProcess
    */
-  private checkTaskIsAllowedToAddInSprint(task: Task): boolean | SprintErrorResponseItem {
+  private checkTaskIsAllowedToAddInSprint(task: Task, isMoveTaskProcess: boolean = false): boolean | SprintErrorResponseItem {
     // check if task found
     if (task) {
       const sprintError = new SprintErrorResponseItem();
@@ -995,7 +996,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       }
 
       // check if task is already in sprint
-      if (task.sprintId) {
+      if (!isMoveTaskProcess && task.sprintId) {
         sprintError.reason = SprintErrorEnum.alreadyInSprint;
       }
 
