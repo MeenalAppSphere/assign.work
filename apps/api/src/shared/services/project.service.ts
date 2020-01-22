@@ -35,13 +35,13 @@ import {
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
 } from '../helpers/defaultValueConstant';
-import { hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
+import { generateUtcDate, hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
 import { environment } from '../../environments/environment';
-import * as moment from 'moment';
 import { InvitationService } from './invitation.service';
 import { ModuleRef } from '@nestjs/core';
 import { EmailService } from './email.service';
 import { OrganizationService } from './organization.service';
+import { EmailTemplatePathEnum } from '../../../../../libs/models/src/lib/enums/email-template.enum';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -170,7 +170,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     updatedProject.description = model.description;
 
     try {
-      await this.update(id, updatedProject, session);
+      await this.updateById(id, updatedProject, session);
       await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
@@ -294,7 +294,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         return collaborator;
       });
 
-      await this.update(id, { $push: { 'members': { $each: finalCollaborators } } }, session);
+      await this.updateById(id, { $push: { 'members': { $each: finalCollaborators } } }, session);
       await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
@@ -849,7 +849,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
 
     try {
-      await this.update(id, project, session);
+      await this.updateById(id, project, session);
       await this.commitTransaction(session);
       const result = await this.findById(id, projectBasicPopulation);
       return this.parseProjectToVm(result);
@@ -966,7 +966,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const link = `${environment.APP_URL}${linkType}?emailId=${inviteEmailId}&invitationId=${invitationId}`;
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
-    return await this._emailService.getTemplate('projectInvitation/project.invitation.ejs', templateData);
+    return await this._emailService.getTemplate(EmailTemplatePathEnum.projectInvitation, templateData);
   }
 
   /**
@@ -985,7 +985,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     invitation.isExpired = false;
     invitation.isInviteAccepted = false;
     invitation.projectId = projectId;
-    invitation.invitedAt = moment.utc().valueOf();
+    invitation.invitedAt = generateUtcDate();
 
     return invitation;
   }

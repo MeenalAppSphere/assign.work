@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 

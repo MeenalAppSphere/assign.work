@@ -6,6 +6,7 @@ import {
   MongooseQueryModel,
   Organization,
   Project,
+  ResetPasswordVerifyModel,
   User,
   UserLoginProviderEnum,
   UserLoginWithPasswordRequest,
@@ -20,8 +21,17 @@ import { ProjectService } from '../shared/services/project.service';
 import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';
-import { emailAddressValidator, isInvitationExpired } from '../shared/helpers/helpers';
+import {
+  emailAddressValidator,
+  generateRandomCode,
+  generateUtcDate,
+  isInvitationExpired,
+  isResetPasswordCodeExpired
+} from '../shared/helpers/helpers';
 import * as bcrypt from 'bcrypt';
+import { EmailService } from '../shared/services/email.service';
+import { EmailTemplatePathEnum } from '../../../../libs/models/src/lib/enums/email-template.enum';
+import { ResetPasswordService } from '../shared/services/reset-password/reset-password.service';
 
 const saltRounds = 10;
 
@@ -31,11 +41,12 @@ export class AuthService implements OnModuleInit {
   private _projectService: ProjectService;
   private _organizationService: OrganizationService;
   private _invitationService: InvitationService;
+  private _resetPasswordService: ResetPasswordService;
 
   constructor(
     private readonly jwtService: JwtService,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
-    private _moduleRef: ModuleRef
+    private _emailService: EmailService, private _moduleRef: ModuleRef
   ) {
   }
 
@@ -47,6 +58,7 @@ export class AuthService implements OnModuleInit {
     this._projectService = this._moduleRef.get('ProjectService', { strict: false });
     this._organizationService = this._moduleRef.get('OrganizationService', { strict: false });
     this._invitationService = this._moduleRef.get('InvitationService', { strict: false });
+    this._resetPasswordService = this._moduleRef.get('ResetPasswordService', { strict: false });
   }
 
   /**
@@ -78,6 +90,112 @@ export class AuthService implements OnModuleInit {
       }
     } else {
       throw new UnauthorizedException('Invalid email or password');
+    }
+  }
+
+  /**
+   * forgot password
+   * get email id and check if user exists or not
+   * if yes return unique code
+   * @param emailId
+   */
+  async forgotPassword(emailId: string) {
+    const userDetails = await this.getUserByEmailId(emailId);
+
+    if (!userDetails) {
+      throw new BadRequestException('User not found');
+    } else {
+      // check if user is registered with google then throw error
+      if (userDetails.lastLoginProvider === UserLoginProviderEnum.google) {
+        throw new BadRequestException('you are registered with Google you can\'t reset password');
+      }
+
+      const session = await this._userModel.db.startSession();
+      session.startTransaction();
+
+      try {
+        const code = generateRandomCode(6);
+        const templateData = { emailId, code };
+
+        // send email
+        await this._emailService.getTemplate(EmailTemplatePathEnum.resetPassword, templateData);
+
+        // create reset password doc
+        const resetPasswordDoc = new this._resetPasswordService.dbModel();
+        resetPasswordDoc.emailId = emailId;
+        resetPasswordDoc.code = code;
+        resetPasswordDoc.resetPasswordAt = generateUtcDate();
+        resetPasswordDoc.isExpired = false;
+
+        // create entry in reset password collection
+        await this._resetPasswordService.create(resetPasswordDoc, session);
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return 'Reset password code sent to your email address successfully';
+      } catch (e) {
+        await session.abortTransaction();
+        session.endSession();
+        throw e;
+      }
+    }
+  }
+
+  async resetPassword(model: ResetPasswordVerifyModel) {
+    // validations
+
+    if (!model.code) {
+      throw new BadRequestException('invalid request, please add verification code');
+    }
+
+    if (!model.emailId) {
+      throw new BadRequestException('invalid request, please add user email id');
+    }
+
+    if (!model.password) {
+      throw new BadRequestException('invalid request, please add password');
+    }
+
+    // start session
+    const session = await this._userModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      const codeDetailsFilter = {
+        emailId: model.emailId,
+        code: model.code,
+        isExpired: false
+      };
+      const codeDetails = await this._resetPasswordService.findOne({
+        filter: codeDetailsFilter
+      });
+
+      if (codeDetails) {
+        // check reset password code expired
+        if (isResetPasswordCodeExpired(codeDetails.resetPasswordAt)) {
+          throw new BadRequestException('code is expired, please click resend button');
+        }
+
+        // update user password
+        const hashedPassword = await bcrypt.hash(model.password, saltRounds);
+        await this._userService.update(codeDetailsFilter, { password: hashedPassword }, session);
+
+        // expire all this verification code
+        await this._resetPasswordService.bulkUpdate(codeDetailsFilter, { isExpired: true }, session);
+
+        await session.commitTransaction();
+        session.endSession();
+        return 'Password reset success';
+
+      } else {
+        // no details found throw error
+        throw new BadRequestException('invalid verification code');
+      }
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
     }
   }
 
@@ -127,7 +245,7 @@ export class AuthService implements OnModuleInit {
           await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, user.invitationId);
 
           // update user with model and set organization
-          await this._userService.update(userDetails._id.toString(), {
+          await this._userService.updateById(userDetails._id.toString(), {
             $set: {
               password: user.password,
               firstName: user.firstName,
@@ -185,7 +303,7 @@ export class AuthService implements OnModuleInit {
             };
 
             // update user in db
-            await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
+            await this._userService.updateById(userDetails._id.toString(), updateUserDoc, session);
 
             // expire all already sent invitations
             await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
@@ -283,7 +401,7 @@ export class AuthService implements OnModuleInit {
 
               // if user is already in db then update it's last login type to google
               // add project and organization
-              await this._userService.update(userDetails._id.toString(), {
+              await this._userService.updateById(userDetails._id.toString(), {
                 $set: {
                   firstName: userNameFromGoogle[0] || '',
                   lastName: userNameFromGoogle[1] || '',
@@ -338,13 +456,13 @@ export class AuthService implements OnModuleInit {
                 };
 
                 // update user in db
-                await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
+                await this._userService.updateById(userDetails._id.toString(), updateUserDoc, session);
 
                 // expire all already sent invitations
                 await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
               } else {
                 // normal sign in
-                await this._userService.update(userDetails._id.toString(), {
+                await this._userService.updateById(userDetails._id.toString(), {
                   $set: {
                     firstName: userNameFromGoogle[0] || '',
                     lastName: userNameFromGoogle[1] || '',
@@ -590,7 +708,7 @@ export class AuthService implements OnModuleInit {
     const userIndexInProjectCollaboratorIndex = projectDetails.members.findIndex(member => member.emailId === userDetails.emailId);
 
     // update project mark collaborator as invite accepted true
-    await this._projectService.update(projectDetails._id.toString(), {
+    await this._projectService.updateById(projectDetails._id.toString(), {
       $set: { [`members.${userIndexInProjectCollaboratorIndex}.isInviteAccepted`]: true }
     }, session);
 
@@ -600,7 +718,7 @@ export class AuthService implements OnModuleInit {
     }));
 
     if (!isAlreadyOrganizationMember) {
-      await this._organizationService.update(organizationDetails._id.toString(), {
+      await this._organizationService.updateById(organizationDetails._id.toString(), {
         $push: { members: userDetails._id }, $inc: { activeMembersCount: 1, billableMemberCount: 1 }
       }, session);
     }

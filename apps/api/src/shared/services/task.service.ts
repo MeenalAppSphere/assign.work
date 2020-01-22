@@ -29,7 +29,7 @@ import { orderBy } from 'lodash';
 import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
-import { SprintService } from './sprint.service';
+import { SprintService } from './sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
 
 /**
@@ -364,7 +364,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
 
     try {
-      await this.update(model.taskId, { isDeleted: true }, session);
+      await this.updateById(model.taskId, { isDeleted: true }, session);
       const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskDeleted, model.taskId, taskDetails);
       await this._taskHistoryService.addHistory(taskHistory, session);
       await this.commitTransaction(session);
@@ -586,7 +586,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
 
     try {
-      await this.update(id, task, session);
+      await this.updateById(id, task, session);
       await this._taskHistoryService.addHistory(history, session);
       await session.commitTransaction();
       session.endSession();

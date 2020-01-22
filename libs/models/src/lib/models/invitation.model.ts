@@ -9,7 +9,7 @@ export class Invitation {
   projectId?: string;
   project?: Project;
   isInviteAccepted?: boolean;
-  invitedAt?: number;
+  invitedAt?: Date;
   isDeleted?: boolean;
   isExpired?: boolean;
   id?: string;

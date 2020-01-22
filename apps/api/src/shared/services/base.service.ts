@@ -51,9 +51,14 @@ export class BaseService<T extends Document> {
     return await this.model.create(doc, { session });
   }
 
-  public async update(id: string, updatedDoc: any, session: ClientSession): Promise<T> {
+  public async updateById(id: string, updatedDoc: any, session: ClientSession): Promise<T> {
     return await this.model
       .updateOne({ _id: id }, updatedDoc, { session }).exec();
+  }
+
+  public async update(condition: any, updatedDoc: any, session: ClientSession): Promise<T> {
+    return await this.model
+      .updateOne(condition, updatedDoc, { session }).exec();
   }
 
   public async bulkUpdate(filter: any, updatedDoc: any, session: ClientSession) {

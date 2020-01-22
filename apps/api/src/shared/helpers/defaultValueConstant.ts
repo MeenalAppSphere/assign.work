@@ -44,7 +44,11 @@ export const MAX_PROFILE_PIC_UPLOAD_SIZE = 2;
 export const DEFAULT_EMAIL_ADDRESS = 'aashish.patil@appsphere.in';
 
 // default path for storing email templates
-export const DEFAULT_EMAIL_TEMPLATE_PATH = 'shared/emailTemplates/';
+export const DEFAULT_EMAIL_TEMPLATE_PATH = 'shared/email-templates/';
 
 // default invitation link expiry in seconds
 export const DEFAULT_INVITATION_EXPIRY = 259200;
+
+// default reset password code expiry in seconds
+export const DEFAULT_RESET_PASSWORD_CODE_EXPIRY = 10800;
+

@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { SprintService } from '../shared/services/sprint.service';
+import { SprintService } from '../shared/services/sprint/sprint.service';
 import {
   AddTaskToSprintModel,
   CloseSprintModel,

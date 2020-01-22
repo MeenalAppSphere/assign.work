@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { BaseService } from './base.service';
+import { BaseService } from '../base.service';
 import {
   AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
@@ -28,14 +28,14 @@ import {
 } from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { GeneralService } from './general.service';
+import { GeneralService } from '../general.service';
 import * as moment from 'moment';
-import { generateUtcDate, hourToSeconds, secondsToHours, secondsToString } from '../helpers/helpers';
-import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
-import { TaskService } from './task.service';
+import { generateUtcDate, hourToSeconds, secondsToHours, secondsToString } from '../../helpers/helpers';
+import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
-import { SprintValidationService } from './sprint/sprint.validation';
-import { TaskHistoryService } from './task-history.service';
+import { SprintValidationService } from './sprint.validation';
+import { TaskHistoryService } from '../task-history.service';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -485,7 +485,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
 
       // update sprint
-      await this.update(model.sprintId, sprintDetails, session);
+      await this.updateById(model.sprintId, sprintDetails, session);
 
       // update task and set sprint id
       for (let i = 0; i < taskDetails.length; i++) {
@@ -580,7 +580,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
 
       // update sprint
-      await this.update(model.sprintId, sprintDetails, session);
+      await this.updateById(model.sprintId, sprintDetails, session);
       await this.commitTransaction(session);
 
       // return add deleted tasks id
@@ -685,7 +685,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       });
 
       // update sprint
-      await this.update(model.sprintId, sprintDetails, session);
+      await this.updateById(model.sprintId, sprintDetails, session);
 
       // update task status
       // will be done later
@@ -855,7 +855,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     try {
       // update sprint in db
-      await this.update(model.sprintId, updateSprintObject, session);
+      await this.updateById(model.sprintId, updateSprintObject, session);
 
       // update project and set published sprint as active sprint in project
       await this._projectModel.updateOne({ _id: model.projectId }, { $set: { sprintId: model.sprintId } }, { session });

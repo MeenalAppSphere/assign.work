@@ -7,5 +7,6 @@ export enum DbCollection {
   taskTimeLog = 'task-time-log',
   sprint = 'sprint',
   attachments = 'attachments',
-  invitations = 'invitations'
+  invitations = 'invitations',
+  resetPassword = 'resetPasswordSchema'
 }

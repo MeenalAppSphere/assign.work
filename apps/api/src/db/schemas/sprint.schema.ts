@@ -1,10 +1,9 @@
 import { Schema } from 'mongoose';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
 import { DbCollection, SprintStatus } from '@aavantan-app/models';
-import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../shared/helpers/defaultValueConstant';
+import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../../shared/helpers/defaultValueConstant';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const uniqueValidator = require('mongoose-unique-validator');
 
 export const sprintSchema = new Schema({
   name: {

@@ -2,7 +2,11 @@ import { ProjectWorkingDays } from '@aavantan-app/models';
 import * as path from 'path';
 import * as moment from 'moment';
 
-import { DEFAULT_DECIMAL_PLACES, DEFAULT_INVITATION_EXPIRY } from './defaultValueConstant';
+import {
+  DEFAULT_DECIMAL_PLACES,
+  DEFAULT_INVITATION_EXPIRY,
+  DEFAULT_RESET_PASSWORD_CODE_EXPIRY
+} from './defaultValueConstant';
 
 /**
  * converts given string to seconds
@@ -122,16 +126,31 @@ export const emailAddressValidator = (emailId): boolean => {
 /**
  * invitation link expire date checker
  * return true if invitation expired
- * @param timestamp
+ * @param date
  */
-export const isInvitationExpired = (timestamp: number): boolean => {
-  // check if given timestamp is lesser than expiry time
-  return moment.utc(timestamp).isAfter(moment.utc(timestamp).add(DEFAULT_INVITATION_EXPIRY));
+export const isInvitationExpired = (date: Date): boolean => {
+  // check if given date is lesser than expiry time
+  return moment.utc(date).isAfter(moment.utc(date).add(DEFAULT_INVITATION_EXPIRY, 's'));
+};
+
+/**
+ * check whether reset password code expired or not
+ */
+export const isResetPasswordCodeExpired = (date: Date): boolean => {
+  return moment.utc(date).isAfter(moment.utc(date).add(DEFAULT_RESET_PASSWORD_CODE_EXPIRY, 's'));
 };
 
 /**
  * return's new utc date
  */
-export const generateUtcDate = () => {
-  return moment.utc().toDate().toUTCString();
+export const generateUtcDate = (): Date => {
+  return moment.utc().toDate();
+};
+
+/**
+ * generate random alphanumeric code up to given digit
+ * @param digit
+ */
+export const generateRandomCode = (digit: number = 6) => {
+  return Math.random().toString(36).substring(digit + 1);
 };

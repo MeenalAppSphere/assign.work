@@ -36,7 +36,9 @@ export class OrganizationService extends BaseService<Organization & Document> im
     organizationModel.billableMemberCount = 1;
     organizationModel.activeMembersCount = 1;
     organizationModel.createdBy = this._generalService.userId;
-    organizationModel.members.push(this._generalService.userId);
+
+    // add organization owner as organization member
+    organizationModel.members = [this._generalService.userId];
 
     try {
       const result = await this.create([organizationModel], session);
@@ -82,7 +84,7 @@ export class OrganizationService extends BaseService<Organization & Document> im
     session.startTransaction();
 
     try {
-      const result = await this.update(id, organization, session);
+      const result = await this.updateById(id, organization, session);
       await session.commitTransaction();
       session.endSession();
       return result;

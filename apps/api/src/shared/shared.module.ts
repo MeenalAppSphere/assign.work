@@ -1,30 +1,21 @@
 import { Global, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { DbCollection } from '@aavantan-app/models';
-import { userSchema } from '../users/users.schema';
-import { projectSchema } from '../project/project.schema';
-import { organizationSchema } from '../organization/organization.schema';
 import { UsersService } from './services/users.service';
 import { ProjectService } from './services/project.service';
 import { OrganizationService } from './services/organization.service';
 import { TaskService } from './services/task.service';
-import { taskSchema } from '../task/task.schema';
-import { taskHistorySchema } from '../task-history/task-history.schema';
 import { TaskHistoryService } from './services/task-history.service';
-import { attachmentSchema } from '../attachment/attachment.schema';
 import { AttachmentService } from './services/attachment.service';
 import { EasyconfigModule } from 'nestjs-easyconfig';
 import * as path from 'path';
 import { GeneralService } from './services/general.service';
 import { TaskTimeLogService } from './services/task-time-log.service';
-import { taskTimeLogSchema } from '../task-time-log/task-time-log.schema';
-import { sprintSchema } from '../sprint/sprint.schema';
-import { SprintService } from './services/sprint.service';
-import { invitationSchema } from '../invitations/invitations.schema';
+import { SprintService } from './services/sprint/sprint.service';
 import { InvitationService } from './services/invitation.service';
 import { EmailService } from './services/email.service';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { DbModule } from '../db/db.module';
+import { ResetPasswordService } from './services/reset-password/reset-password.service';
 
 const providers = [
   UsersService,
@@ -37,7 +28,8 @@ const providers = [
   TaskTimeLogService,
   SprintService,
   InvitationService,
-  EmailService
+  EmailService,
+  ResetPasswordService
 ];
 
 @Global()
@@ -56,46 +48,10 @@ const providers = [
 
       ]
     }),
-    MongooseModule.forFeature([{
-      name: DbCollection.users,
-      schema: userSchema,
-      collection: DbCollection.users
-    }, {
-      name: DbCollection.projects,
-      schema: projectSchema,
-      collection: DbCollection.projects
-    }, {
-      name: DbCollection.organizations,
-      schema: organizationSchema,
-      collection: DbCollection.organizations
-    }, {
-      name: DbCollection.tasks,
-      schema: taskSchema,
-      collection: DbCollection.tasks
-    }, {
-      name: DbCollection.taskHistory,
-      schema: taskHistorySchema,
-      collection: DbCollection.taskHistory
-    }, {
-      name: DbCollection.attachments,
-      schema: attachmentSchema,
-      collection: DbCollection.attachments
-    }, {
-      name: DbCollection.taskTimeLog,
-      schema: taskTimeLogSchema,
-      collection: DbCollection.taskTimeLog
-    }, {
-      name: DbCollection.sprint,
-      schema: sprintSchema,
-      collection: DbCollection.sprint
-    }, {
-      name: DbCollection.invitations,
-      schema: invitationSchema,
-      collection: DbCollection.invitations
-    }])
+    DbModule
   ],
   exports: [
-    MongooseModule,
+    DbModule,
     WinstonModule,
     ...providers
   ],

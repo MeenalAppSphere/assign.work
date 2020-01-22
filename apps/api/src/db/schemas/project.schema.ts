@@ -1,12 +1,12 @@
 import { Schema } from 'mongoose';
 import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
 import {
   DEFAULT_PROJECT_TEMPLATE_TYPE,
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
-} from '../shared/helpers/defaultValueConstant';
+} from '../../shared/helpers/defaultValueConstant';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 

@@ -55,13 +55,13 @@ export class UsersService extends BaseService<User & Document> {
 
   async updateUser(id: string, user: any, session?: ClientSession) {
     if (session) {
-      return await this.update(id, user, session);
+      return await this.updateById(id, user, session);
     } else {
       session = await this._userModel.db.startSession();
       session.startTransaction();
 
       try {
-        const result = await this.update(id, user, session);
+        const result = await this.updateById(id, user, session);
         await session.commitTransaction();
         session.endSession();
         return result;

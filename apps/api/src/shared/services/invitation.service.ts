@@ -75,7 +75,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
    * @param session
    */
   async acceptInvitation(invitationId: string, session?: ClientSession) {
-    return await this.update(invitationId, {
+    return await this.updateById(invitationId, {
       $set: { isInviteAccepted: true, isExpired: true }
     }, session);
   }
