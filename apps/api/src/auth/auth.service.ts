@@ -73,7 +73,7 @@ export class AuthService implements OnModuleInit {
       emailId: req.emailId
     }).populate(['projects', 'organization', 'currentProject']).exec();
 
-    if (user) {
+    if (user && user.password) {
       // compare hashed password
       const isPasswordMatched = await bcrypt.compare(req.password, user.password);
 
