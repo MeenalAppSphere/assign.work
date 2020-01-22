@@ -14,6 +14,8 @@ import {
   ProjectStageSequenceChangeRequest,
   ProjectStatus,
   ProjectTags,
+  ProjectTemplateEnum,
+  ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
@@ -149,12 +151,17 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   async updateProject(id: string, model: Project) {
     // validations
+    if (!model.id) {
+      throw new BadRequestException('Invalid request');
+    }
+
     if (model.name && !model.name.trim()) {
       throw new BadRequestException('Please Enter Project Name');
     }
 
     // get organization details
     const organizationDetails = await this.getOrganizationDetails(model.organization as string);
+    const projectDetails = await this.getProjectDetails(model.id);
 
     // get user details
     const userDetails = await this._userService.findById(model.createdBy as string);
@@ -381,6 +388,31 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     projectDetails.members = projectDetails.members.filter(f => f.userId !== id);
     return await this.updateProjectHelper(projectId, projectDetails);
+  }
+
+
+  /**
+   * update project template
+   * @param model
+   */
+  async updateProjectTemplate(model: ProjectTemplateUpdateModel) {
+    const projectDetails: Project = await this.getProjectDetails(model.projectId);
+
+    const invalidTemplate = !Object.keys(ProjectTemplateEnum).includes(model.template.toLowerCase());
+    if (invalidTemplate) {
+      throw new BadRequestException('invalid project template');
+    }
+
+    const session = await this.startSession();
+    try {
+      await this.updateById(model.projectId, { $set: { template: model.template } }, session);
+      await this.commitTransaction(session);
+      const result = await this.findById(model.projectId, projectBasicPopulation);
+      return this.parseProjectToVm(result);
+    } catch (e) {
+      await this.abortTransaction(session);
+      throw e;
+    }
   }
 
   /**
