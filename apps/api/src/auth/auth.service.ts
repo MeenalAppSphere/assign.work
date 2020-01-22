@@ -142,6 +142,14 @@ export class AuthService implements OnModuleInit {
     }
   }
 
+  /**
+   * reset password
+   * check if all details are available or not
+   * check code expiry
+   * update user password with new one
+   * expire given code and return success message
+   * @param model
+   */
   async resetPassword(model: ResetPasswordVerifyModel) {
     // validations
 
