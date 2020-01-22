@@ -1,6 +1,22 @@
 <perfect-scrollbar class="side-nav" sideNav joyrideStep="main-menu" title="Navigation" text="">
 
 
+  <nz-avatar class="icon-org text-uppercase" nz-dropdown [nzDropdownMenu]="menu"
+             nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
+
+  <nz-dropdown-menu #menu="nzDropdownMenu">
+
+      <ul nz-menu>
+        <li nz-menu-item>
+          <p class="m-0">{{currentOrganization.name}}</p>
+        </li>
+        <li nz-menu-divider *ngIf="currentOrganization.description"></li>
+        <li nz-menu-item *ngIf="currentOrganization.description">
+          <p class="font-size-12 text-gray-light">{{currentOrganization.description}}</p>
+        </li>
+      </ul>
+
+  </nz-dropdown-menu>
 
   <div class="menu-mask">
     <ul class="ant-menu ant-menu-root ant-menu-inline side-nav-menu" [ngClass]="{

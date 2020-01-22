@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ROUTES } from './side-nav-routes.config';
 import { ThemeConstantService } from '../../services/theme-constant.service';
-import { TaskType } from '@aavantan-app/models';
+import { Organization, TaskType } from '@aavantan-app/models';
 import { UserQuery } from '../../../queries/user/user.query';
 import { Router } from '@angular/router';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -20,17 +20,26 @@ export class SideNavComponent implements OnInit, OnDestroy{
     isFolded : boolean;
     isSideNavDark : boolean;
     public taskTypeDataSource: TaskType[] = [];
+    public currentOrganization: Organization;
 
     constructor( private themeService: ThemeConstantService,
         protected notification: NzNotificationService,
         private _userQuery: UserQuery,private router:Router) {
-            this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-                if (res) {
-                  this.taskTypeDataSource = res.settings.taskTypes;
-                  // console.log('Task Type', this.taskTypeDataSource)
-                }
-              });
-        }
+
+        this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+            if (res) {
+              this.taskTypeDataSource = res.settings.taskTypes;
+              // console.log('Task Type', this.taskTypeDataSource)
+            }
+          });
+
+        this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
+          if (res) {
+            this.currentOrganization = res;
+          }
+        });
+
+    }
 
     ngOnInit(): void {
         this.menuItems = ROUTES.filter(menuItem => menuItem.type!=='admin');
