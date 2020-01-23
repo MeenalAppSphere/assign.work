@@ -230,43 +230,95 @@
 
             </form>
 
+
+            <div *ngIf="stagesList && stagesList.length>0">
+
+              <nz-form-label>Default Stages</nz-form-label>
+
+              <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
+
+                <ul class="stages-list">
+                  <bs-sortable
+                    id="bsstage"
+                    [(ngModel)]="stagesList"
+                    (dragend)="reorderList($event)"
+                    itemClass="sortable-item"
+                    itemActiveClass="sortable-item-active"
+                    [itemTemplate]="itemTemplate"
+                    placeholderClass="placeholderStyle"
+                    wrapperClass="sortable-wrapper"
+                  ></bs-sortable>
+
+
+                  <ng-template #itemTemplate let-item="item" let-index="index">
+                    <li class="cursor-move" id="{{item.value.id}}"><span>{{item.value.name}}</span>
+                      <!--<i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+                    </li>
+                  </ng-template>
+                </ul>
+
+                <!--              <ul class="stages-list">-->
+                <!--                <li *ngFor="let item of stagesList"><span>{{item.name}}</span>-->
+                <!--&lt;!&ndash;        <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>&ndash;&gt;-->
+                <!--                </li>-->
+                <!--              </ul>-->
+
+              </nz-spin>
+
+            </div>
+
+
           </aside>
 
-          <aside class="col-md-3" *ngIf="stagesList && stagesList.length>0">
+          <aside class="col-md-9" *ngIf="stagesList && stagesList.length>0">
 
-            <nz-form-label>Default Stages</nz-form-label>
+            <nz-form-label>Preview</nz-form-label>
+            <section class="sprintboard-container p-l-10">
+              <div class="row flex-row flex-nowrap" *ngIf="stagesList && stagesList.length>0">
 
-            <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
+              <div class="column" *ngFor="let item of stagesList; let last">
+                <div class="card card-block">
 
-              <ul class="stages-list">
-                <bs-sortable
-                  id="bsstage"
-                  [(ngModel)]="stagesList"
-                  (dragend)="reorderList($event)"
-                  itemClass="sortable-item"
-                  itemActiveClass="sortable-item-active"
-                  [itemTemplate]="itemTemplate"
-                  placeholderClass="placeholderStyle"
-                  wrapperClass="sortable-wrapper"
-                ></bs-sortable>
+                  <div class="card-header">{{item.name}} <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>
+                    <div class="pull-left" style="line-height: 10px;">
+                      <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
+                      <span class="font-size-12">2Hrs</span>
+                    </div>
+                  </div>
 
+                  <div class="card-body">
 
-                <ng-template #itemTemplate let-item="item" let-index="index">
-                  <li class="cursor-move" id="{{item.value.id}}"><span>{{item.value.name}}</span>
-                    <!--<i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
-                  </li>
-                </ng-template>
-              </ul>
+                    <div>
+                      <div  class="task-card"
+                           [ngStyle]="{'border-left': '4px solid #0090FB'}">
+                        <h6 [ngStyle]="{'color': '#EF1B1B'}">#BUG-1
+                          <span class="float-right duration">1 Sec ago</span>
+                        </h6>
+                        <div class="task-body">
+                          <div>
+                            <a href="" class="task-title">
+                              Task name
+                            </a>
+                          </div>
+                        </div>
+                        <div class="task-footer">
+                      <span><nz-avatar class="m-r-5" nzIcon="user" nzText="J"
+                                     nzShape="circle"></nz-avatar><span class="profile-name">Jone Doe</span></span>
+                          <span class="pull-right">
+                            <a href="javascript:void(0);" class="text-primary">
+                              <i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-<!--              <ul class="stages-list">-->
-<!--                <li *ngFor="let item of stagesList"><span>{{item.name}}</span>-->
-<!--&lt;!&ndash;        <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>&ndash;&gt;-->
-<!--                </li>-->
-<!--              </ul>-->
+                </div>
+              </div>
+            </div>
+            </section>
 
-            </nz-spin>
+          </aside><!-- preview -->
 
-          </aside>
 
         </section>
       </ng-container>
