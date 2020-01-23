@@ -8,7 +8,7 @@
         <div nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="true" nzTrigger="click" [nzPlacement]="'bottomLeft'">
             <p class="text-white font-size-14 d-inline-block text-left m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
                 <nz-avatar class="icon-org text-uppercase m-0 m-r-10" nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
-                <span>{{ currentOrganization.name }}</span>
+                <span>{{ currentOrganization?.name }}</span>
             </p>
             <i class="p-l-10" nz-icon nzType="caret-down" nzTheme="outline"></i>
         </div>

@@ -13,7 +13,7 @@ import {
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
-  ProjectStatus,
+  ProjectStatus, ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
   SearchProjectRequest,
@@ -118,6 +118,19 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       map(res => {
         this.updateCurrentProjectState(res.data);
         this.notification.success('Project Updated', 'Project Settings Updated');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  updateTemplate(model: ProjectTemplateUpdateModel): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.updateTemplate, model).pipe(
+      map(res => {
+        this.updateCurrentProjectState(res.data);
+        this.notification.success('Project Updated', 'Project Template Updated');
         return res;
       }),
       catchError(err => {

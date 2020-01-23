@@ -5,6 +5,7 @@ export const ProjectUrls = {
   getAllProject: `${createUrl('project/get-all')}`,
   switchProject: `${createUrl('project/switch-project')}`,
   updateProject: `${createUrl('project/:projectId')}`,
+  updateTemplate: `${createUrl('project/update-template')}`,
   searchProject: `${createUrl('project/search')}`,
   addCollaborators: `${createUrl('project/:projectId/add-collaborators')}`,
   resendInvitation: `${createUrl('project/resend-invitation')}`,

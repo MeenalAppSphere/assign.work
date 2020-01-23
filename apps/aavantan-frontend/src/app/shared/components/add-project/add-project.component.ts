@@ -344,9 +344,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   async addTemplate() {
     this.selectTemplateInProcess = true;
     try {
-      await this._projectService.updateProject(this.createdProjectId, {
+      await this._projectService.updateTemplate({
         template: this.selectedTemplate,
-        organization: this.currentOrganization.id
+        projectId: this._generalService.currentProject.id
       }).toPromise();
       this.selectTemplateInProcess = false;
       this.getTasks();

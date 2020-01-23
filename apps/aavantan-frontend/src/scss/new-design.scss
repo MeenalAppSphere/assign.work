@@ -549,8 +549,8 @@ $dark-blue-black:#0B1B31;
   //  background-color: #6e829c!important;
   //}
   .ant-steps-item-process .ant-steps-item-icon {
-    background: #6E829C !important;
-    border-color: #6E829C;
+    background: $theme-blue !important;
+    border-color: $theme-blue!important;
     font-size: 14px;
   }
 }
