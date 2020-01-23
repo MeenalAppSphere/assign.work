@@ -22,18 +22,45 @@
   color: #ffffff;
   margin: 15px 13.5px;
   font-size: 14px;
+  text-align: center;
 }
+.icon-org-list{
+  background: #0B1B31;
+  color: #ffffff;
+  margin: 15px 13.5px;
+  font-size: 12px;
+  text-align: center;
+}
+
 .org-name{
   position: relative;
   padding-bottom: 1px !important;
-  background: #0B1B31;
+  //background: #0B1B31;
   i{
     position: absolute;
-    top: 20px;
+    top: 28px;
     right: 18px;
     color: #fff;
   }
 }
+
+
+.ant-dropdown.nz-dropdown {
+  left: -6px!important;
+}
+
+.ant-dropdown-menu {
+  padding: 0px 0;
+}
+
+.ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+  padding: 0.5rem 1rem;
+  line-height: 1;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+
 /* menu items */
 .img-menu-svg {
   .menu-home{

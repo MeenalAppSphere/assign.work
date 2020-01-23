@@ -1,31 +1,36 @@
-<perfect-scrollbar class="side-nav" sideNav joyrideStep="main-menu" title="Navigation" text="">
+<div class="side-nav" sideNav joyrideStep="main-menu" title="Navigation" text="">
 
 
-  <nz-avatar *ngIf="isFolded" class="icon-org text-uppercase" nz-dropdown [nzDropdownMenu]="menu"
+  <nz-avatar *ngIf="isFolded" class="icon-org text-uppercase cursor-pointer" nz-dropdown [nzDropdownMenu]="menu"
              nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
 
 
-  <div class="p-15 p-b-0 text-center org-name" *ngIf="!isFolded" >
-    <a nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="false" >
-
-      <p class="text-white font-size-14" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="max-width: 170px;">
-        <span>{{ currentOrganization.name }}</span>
+  <div class="cursor-pointer p-15 m-b-10 org-name" *ngIf="!isFolded" >
+    <div nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="true" nzTrigger="click" [nzPlacement]="'bottomLeft'">
+      <p class="text-white font-size-14 d-inline-block text-left m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
+        <nz-avatar class="icon-org text-uppercase m-0 m-r-10" nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
+        <span>{{ currentOrganization.name }} kkhkhkhk kjhkhk </span>
       </p>
-
       <i class="p-l-10" nz-icon nzType="caret-down" nzTheme="outline"></i>
-
-    </a>
+    </div>
   </div>
 
-  <nz-dropdown-menu #menu="nzDropdownMenu">
+  <nz-dropdown-menu #menu="nzDropdownMenu" class="org-menu">
 
-      <ul nz-menu>
+      <ul nz-menu class="org-menu-items">
+
         <li nz-menu-item>
-          <p class="m-0">{{currentOrganization.name}}</p>
+          <p class="text-white font-size-14 d-inline-block m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
+            <nz-avatar [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
+            <span class="text-gray-light">{{ currentOrganization.name }}</span>
+          </p>
         </li>
         <li nz-menu-divider *ngIf="currentOrganization.description"></li>
-        <li nz-menu-item *ngIf="currentOrganization.description">
-          <p class="font-size-12 text-gray-light">{{currentOrganization.description}}</p>
+        <li nz-menu-item>
+          <p class="text-white font-size-14 d-inline-block m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
+            <nz-avatar [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
+            <span class="text-gray-light">{{ currentOrganization.name }}</span>
+          </p>
         </li>
       </ul>
 
@@ -126,10 +131,9 @@
 <!--        </li>-->
 <!--    </ul>-->
   </div>
-</perfect-scrollbar>
+</div>
 
 <button (click)="createNewTask()" style="position: fixed;
-display: none;
         z-index: 9999;
         bottom: 20px;
         left: 5px;
