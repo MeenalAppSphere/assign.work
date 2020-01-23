@@ -41,7 +41,7 @@ export const MAX_FILE_UPLOAD_SIZE = 5;
 export const MAX_PROFILE_PIC_UPLOAD_SIZE = 2;
 
 // default email address for sending email
-export const DEFAULT_EMAIL_ADDRESS = 'aashish.patil@appsphere.in';
+export const DEFAULT_EMAIL_ADDRESS = 'support@assign.work';
 
 // default path for storing email templates
 export const DEFAULT_EMAIL_TEMPLATE_PATH = 'shared/email-templates/';
