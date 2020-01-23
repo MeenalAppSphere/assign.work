@@ -2,14 +2,14 @@
 
 
   <nz-avatar *ngIf="isFolded" class="icon-org text-uppercase" nz-dropdown [nzDropdownMenu]="menu"
-             nzText="{{currentOrganization.name | slice : 0:2 }}"></nz-avatar>
+             nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
 
 
   <div class="p-15 p-b-0 text-center org-name" *ngIf="!isFolded" >
     <a nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="false" >
 
       <p class="text-white font-size-14" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="max-width: 170px;">
-        <span>{{ currentOrganization.name }}</span>
+        <span>{{ currentOrganization?.name }}</span>
       </p>
 
       <i class="p-l-10" nz-icon nzType="caret-down" nzTheme="outline"></i>
@@ -21,11 +21,11 @@
 
       <ul nz-menu>
         <li nz-menu-item>
-          <p class="m-0">{{currentOrganization.name}}</p>
+          <p class="m-0">{{currentOrganization?.name}}</p>
         </li>
-        <li nz-menu-divider *ngIf="currentOrganization.description"></li>
-        <li nz-menu-item *ngIf="currentOrganization.description">
-          <p class="font-size-12 text-gray-light">{{currentOrganization.description}}</p>
+        <li nz-menu-divider *ngIf="currentOrganization?.description"></li>
+        <li nz-menu-item *ngIf="currentOrganization?.description">
+          <p class="font-size-12 text-gray-light">{{currentOrganization?.description}}</p>
         </li>
       </ul>
 
