@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AuthState, AuthStore } from '../../store/auth/auth.store';
 import {
   BaseResponseModel,
+  ResetPasswordVerifyModel,
   User,
   UserLoginProviderEnum,
   UserLoginSignUpSuccessResponse,
@@ -101,6 +102,37 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
       // normal login
       this.doLogout();
     }
+  }
+
+  forgotPassword(emailId: string) {
+    this.updateState({ isForgotPasswordInProcess: true, isForgotPasswordSuccess: false });
+    return this._http.post(AuthUrls.forgotPassword, { emailId }).pipe(
+      map((res: BaseResponseModel<string>) => {
+        this.updateState({ isForgotPasswordInProcess: false, isForgotPasswordSuccess: true });
+        this.notification.success('Success', res.data);
+      }),
+      catchError((err => {
+        this.updateState({ isForgotPasswordInProcess: false, isForgotPasswordSuccess: false });
+        this.notification.error('Error', err.error.message);
+        return of(err);
+      }))
+    )
+  }
+
+  resetPassword(model: ResetPasswordVerifyModel) {
+    this.updateState({ isResetPasswordInProcess: true, isResetPasswordSuccess: false });
+    return this._http.post(AuthUrls.resetPassword, model).pipe(
+      map((res: BaseResponseModel<string>) => {
+        this.updateState({ isResetPasswordInProcess: false, isResetPasswordSuccess: true });
+        this.notification.success('Success', res.data);
+        this.router.navigate(['login']);
+      }),
+      catchError((err => {
+        this.updateState({ isResetPasswordInProcess: false, isResetPasswordSuccess: false });
+        this.notification.error('Error', err.error.message);
+        return of(err);
+      }))
+    )
   }
 
   private doLogout() {

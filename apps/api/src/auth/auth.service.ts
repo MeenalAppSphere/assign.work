@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, OnModuleInit, UnauthorizedException } 
 import { JwtService } from '@nestjs/jwt';
 import {
   DbCollection,
+  EmailTemplatePathEnum,
   MemberTypes,
   MongooseQueryModel,
   Organization,
@@ -30,7 +31,6 @@ import {
 } from '../shared/helpers/helpers';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../shared/services/email.service';
-import { EmailTemplatePathEnum } from '../../../../libs/models/src/lib/enums/email-template.enum';
 import { ResetPasswordService } from '../shared/services/reset-password/reset-password.service';
 
 const saltRounds = 10;
@@ -73,22 +73,30 @@ export class AuthService implements OnModuleInit {
       emailId: req.emailId
     }).populate(['projects', 'organization', 'currentProject']).exec();
 
-    if (user && user.password) {
-      // compare hashed password
-      const isPasswordMatched = await bcrypt.compare(req.password, user.password);
-
-      if (isPasswordMatched) {
-        // update user last login provider to normal
-        await user.updateOne({ $set: { lastLoginProvider: UserLoginProviderEnum.normal } });
-
-        // return jwt token
-        return {
-          access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
-        };
-      } else {
+    // check if user is there
+    if (user) {
+      // check if user is logged in with user name and password not with any social login helper
+      if (!user.password || user.lastLoginProvider !== UserLoginProviderEnum.normal) {
         throw new UnauthorizedException('Invalid email or password');
+      } else {
+        // compare hashed password
+        const isPasswordMatched = await bcrypt.compare(req.password, user.password);
+
+        if (isPasswordMatched) {
+          // update user last login provider to normal
+          await user.updateOne({ $set: { lastLoginProvider: UserLoginProviderEnum.normal } });
+
+          // return jwt token
+          return {
+            access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
+          };
+        } else {
+          // throw invalid login error
+          throw new UnauthorizedException('Invalid email or password');
+        }
       }
     } else {
+      // throw invalid login error
       throw new UnauthorizedException('Invalid email or password');
     }
   }
@@ -100,25 +108,31 @@ export class AuthService implements OnModuleInit {
    * @param emailId
    */
   async forgotPassword(emailId: string) {
-    const userDetails = await this.getUserByEmailId(emailId);
+    const userDetails = await this._userService.findOne({ filter: { emailId: emailId } });
 
     if (!userDetails) {
       throw new BadRequestException('User not found');
     } else {
       // check if user is registered with google then throw error
-      if (userDetails.lastLoginProvider === UserLoginProviderEnum.google) {
-        throw new BadRequestException('you are registered with Google you can\'t reset password');
+      if (!userDetails.password || userDetails.lastLoginProvider === UserLoginProviderEnum.google) {
+        throw new BadRequestException('you are registered with Google or any other social login you can\'t reset your password');
       }
 
       const session = await this._userModel.db.startSession();
       session.startTransaction();
 
       try {
+        // generate random code
         const code = generateRandomCode(6);
-        const templateData = { emailId, code };
+        const templateData = { user: { firstName: userDetails.firstName, lastName: userDetails.lastName }, code };
 
         // send email
-        await this._emailService.getTemplate(EmailTemplatePathEnum.resetPassword, templateData);
+        const messageTemplate = await this._emailService.getTemplate(EmailTemplatePathEnum.resetPassword, templateData);
+        const invitationEmail = {
+          to: [emailId], subject: 'Reset password',
+          message: messageTemplate
+        };
+        this._emailService.sendMail(invitationEmail.to, invitationEmail.subject, invitationEmail.message);
 
         // create reset password doc
         const resetPasswordDoc = new this._resetPasswordService.dbModel();
@@ -128,7 +142,7 @@ export class AuthService implements OnModuleInit {
         resetPasswordDoc.isExpired = false;
 
         // create entry in reset password collection
-        await this._resetPasswordService.create(resetPasswordDoc, session);
+        await this._resetPasswordService.create([resetPasswordDoc], session);
 
         await session.commitTransaction();
         session.endSession();
@@ -187,7 +201,7 @@ export class AuthService implements OnModuleInit {
 
         // update user password
         const hashedPassword = await bcrypt.hash(model.password, saltRounds);
-        await this._userService.update(codeDetailsFilter, { password: hashedPassword }, session);
+        await this._userService.update({ emailId: model.emailId }, { password: hashedPassword }, session);
 
         // expire all this verification code
         await this._resetPasswordService.bulkUpdate(codeDetailsFilter, { isExpired: true }, session);

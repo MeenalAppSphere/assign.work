@@ -109,3 +109,8 @@ export class SearchProjectCollaborators {
   projectId: string;
   query: string;
 }
+
+export class ProjectTemplateUpdateModel {
+  projectId: string;
+  template: ProjectTemplateEnum;
+}

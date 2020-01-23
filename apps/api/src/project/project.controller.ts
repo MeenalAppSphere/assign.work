@@ -8,6 +8,7 @@ import {
   ProjectStages,
   ProjectStageSequenceChangeRequest,
   ProjectStatus,
+  ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
@@ -55,6 +56,11 @@ export class ProjectController {
   @Post('resend-invitation')
   async resendInvitation(@Body() model: ResendProjectInvitationModel) {
     return await this._projectService.resendProjectInvitation(model);
+  }
+
+  @Post('update-template')
+  async updateProjectTemplate(@Body() model: ProjectTemplateUpdateModel) {
+    return await this._projectService.updateProjectTemplate(model);
   }
 
   @Post(':id/add-stage')

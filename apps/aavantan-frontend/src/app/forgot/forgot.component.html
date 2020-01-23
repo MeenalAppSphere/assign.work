@@ -21,12 +21,13 @@
               Enter your registered email to get reset password
             </p>
 
-            <form
-              autocomplete="off"
-              nz-form
-              [formGroup]="forgotForm"
-              class="login-form"
-              (ngSubmit)="submitForm()">
+            <form *ngIf="!(isForgotPasswordSuccess | async)"
+                  autocomplete="off"
+                  nz-form
+                  [formGroup]="forgotPasswordForm"
+                  class="login-form"
+                  (ngSubmit)="forgotPassword()">
+
               <nz-form-item>
                 <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
                 <nz-form-control>
@@ -44,9 +45,10 @@
 
                   <nz-form-explain
                     *ngIf="
-                      forgotForm.get('emailId').dirty &&
-                      forgotForm.get('emailId').errors
-                    ">Please input your email!</nz-form-explain>
+                      forgotPasswordForm.get('emailId').dirty &&
+                      forgotPasswordForm.get('emailId').errors
+                    ">Please input your email!
+                  </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
 
@@ -55,12 +57,12 @@
                   <div
                     class="d-flex align-items-center justify-content-between">
                     <span class="font-size-13 text-muted"
-                      >Have an account?
+                    >Have an account?
                       <a class="small" [routerLink]="['/login']">
                         Signin</a></span>
                     <button
-                      [disabled]="forgotForm.invalid"
-                      [nzLoading]="loading"
+                      [disabled]="forgotPasswordForm.invalid || (isForgotPasswordInProcess | async)"
+                      [nzLoading]="isForgotPasswordInProcess | async"
                       nz-button
                       class="login-form-button"
                       [nzType]="'primary'">
@@ -69,9 +71,116 @@
                   </div>
                 </nz-form-control>
               </nz-form-item>
-              <nz-form-item *ngIf="responseMessage && responseMessage.message" >
+
+              <nz-form-item *ngIf="responseMessage && responseMessage.message">
                 <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
               </nz-form-item>
+
+            </form>
+
+            <form *ngIf="(isForgotPasswordSuccess | async) && !(isResetPasswordSuccess | async)"
+                  autocomplete="off"
+                  nz-form
+                  [formGroup]="resetPasswordForm"
+                  class="login-form"
+                  (ngSubmit)="resetPassword()">
+
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="resetCode">Code</nz-form-label>
+                <nz-form-control>
+                  <input
+                    type="text"
+                    nz-input
+                    formControlName="code"
+                    placeholder="Code"
+                    autocomplete="none"
+                    nzSize="small"
+                    id="resetCode"
+                    maxlength="100"
+                    required
+                  />
+
+                  <nz-form-explain
+                    *ngIf="
+                      resetPasswordForm.get('code').dirty &&
+                      resetPasswordForm.get('code').errors
+                    ">Please input your code!
+                  </nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="resetEmailId">Email</nz-form-label>
+                <nz-form-control>
+                  <input
+                    type="email"
+                    nz-input
+                    formControlName="emailId"
+                    placeholder="Email"
+                    autocomplete="none"
+                    nzSize="small"
+                    id="resetEmailId"
+                    maxlength="100"
+                    required
+                  />
+
+                  <nz-form-explain
+                    *ngIf="
+                      resetPasswordForm.get('emailId').dirty &&
+                      resetPasswordForm.get('emailId').errors
+                    ">Please input your email!
+                  </nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="resetPassword">Password</nz-form-label>
+                <nz-form-control>
+                  <input
+                    type="password"
+                    nz-input
+                    formControlName="password"
+                    placeholder="Password"
+                    autocomplete="none"
+                    nzSize="small"
+                    id="resetPassword"
+                    maxlength="100"
+                    required
+                  />
+
+                  <nz-form-explain
+                    *ngIf="
+                      resetPasswordForm.get('password').dirty &&
+                      resetPasswordForm.get('password').errors
+                    ">Please input your password!
+                  </nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-control>
+                  <div
+                    class="d-flex align-items-center justify-content-between">
+                    <span class="font-size-13 text-muted"
+                    >Have an account?
+                      <a class="small" [routerLink]="['/login']">
+                        Signin</a></span>
+                    <button
+                      [disabled]="resetPasswordForm.invalid || (isResetPasswordInProcess | async)"
+                      [nzLoading]="isResetPasswordInProcess | async"
+                      nz-button
+                      class="login-form-button"
+                      [nzType]="'primary'">
+                      Submit
+                    </button>
+                  </div>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item *ngIf="responseMessage && responseMessage.message">
+                <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
+              </nz-form-item>
+
             </form>
 
           </nz-card>
