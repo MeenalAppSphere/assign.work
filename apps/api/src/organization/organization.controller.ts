@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { OrganizationService } from '../shared/services/organization.service';
-import { Organization, Project } from '@aavantan-app/models';
+import { Organization } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('organization')
@@ -23,5 +23,10 @@ export class OrganizationController {
   @Put()
   async updateProject(@Query() id: string, @Body() organization: Organization) {
     return await this._organizationService.updateOrganization(id, organization);
+  }
+
+  @Post('switch-organization')
+  async switchOrganization(@Body('organizationId') organizationId: string) {
+    return await this._organizationService.switchOrganization(organizationId);
   }
 }
