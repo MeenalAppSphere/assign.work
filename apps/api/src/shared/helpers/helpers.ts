@@ -130,14 +130,15 @@ export const emailAddressValidator = (emailId): boolean => {
  */
 export const isInvitationExpired = (date: Date): boolean => {
   // check if given date is lesser than expiry time
-  return moment.utc(date).isAfter(moment.utc(date).add(DEFAULT_INVITATION_EXPIRY, 's'));
+  return moment.utc(date).add(DEFAULT_INVITATION_EXPIRY, 's').isBefore(moment.utc());
 };
 
 /**
  * check whether reset password code expired or not
+ * @param date
  */
 export const isResetPasswordCodeExpired = (date: Date): boolean => {
-  return moment.utc(date).isAfter(moment.utc(date).add(DEFAULT_RESET_PASSWORD_CODE_EXPIRY, 's'));
+  return moment.utc(date).add(DEFAULT_RESET_PASSWORD_CODE_EXPIRY, 's').isBefore(moment.utc());
 };
 
 /**
@@ -152,5 +153,5 @@ export const generateUtcDate = (): Date => {
  * @param digit
  */
 export const generateRandomCode = (digit: number = 6) => {
-  return Math.random().toString(36).substring(digit + 1);
+  return Math.random().toString(36).substring(2, digit + 2);
 };
