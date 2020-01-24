@@ -22,7 +22,6 @@ export class InvitationService extends BaseService<InvitationStore, InvitationSt
   }
 
   acceptInvitation(invitationId: string) {
-    this.updateState({ isAcceptInvitationInProcess: true, acceptInvitationSuccess: false });
     return this._httpWrapper.post(InvitationsUrls.acceptInvitation, { invitationId }).pipe(
       map((res: BaseResponseModel<string>) => {
         this.notification.success('Success', res.data);

@@ -52,6 +52,28 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
     );
   }
 
+  switchOrganization(organizationId: string) {
+    this.updateState({ switchOrganizationInProcess: true, switchOrganizationSuccess: false });
+    return this._httpWrapper.post(OrganizationUrls.switchOrganization, { organizationId }).pipe(
+      map(res => {
+        this._userStore.update((state => {
+          return {
+            ...state,
+            user: res.data,
+            currentProject: res.data.currentProject,
+            currentOrganization: res.data.currentOrganization
+          };
+        }));
+        this.updateState({ switchOrganizationInProcess: false, switchOrganizationSuccess: true });
+        this.notification.success('Success', 'Organization Switched Successfully');
+      }),
+      catchError(e => {
+        this.updateState({ switchOrganizationInProcess: false, switchOrganizationSuccess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
   getAllUsers(id: string): Observable<BaseResponseModel<User[]>> {
     return this._httpWrapper.get(OrganizationUrls.users.replace(':orgId', id)).pipe(
       map((res) => {
