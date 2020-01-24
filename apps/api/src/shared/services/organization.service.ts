@@ -127,7 +127,7 @@ export class OrganizationService extends BaseService<Organization & Document> im
         const isCollaborator = organizationDetails.members.some(s => s.toString() === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
 
         if (!isCollaborator) {
-          throw new BadRequestException('You are not a part of thi Organization');
+          throw new BadRequestException('You are not a part of this Organization');
         }
       }
 

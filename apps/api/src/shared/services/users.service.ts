@@ -166,13 +166,12 @@ export class UsersService extends BaseService<User & Document> {
       // limit only recent two organization
 
       const userOrganizations =
-        slice(
-          userDetails.organizations
-            .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()), 0, 1
-        ).map((org: any) => {
-          org.id = org._id;
-          return org;
-        });
+        userDetails.organizations
+          .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString())
+          .map((org: any) => {
+            org.id = org._id;
+            return org;
+          });
 
       // add current organization at first index of recent project list
       if (userDetails.currentOrganization) {

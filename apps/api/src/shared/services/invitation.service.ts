@@ -128,7 +128,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
 
     // update organization, add user as organization member
     const isAlreadyOrganizationMember = userDetails.organizations && userDetails.organizations.some((organization => {
-      return userDetails.organizations.includes(organization.toString());
+      return organizationDetails._id.toString() === organization.toString();
     }));
 
     if (!isAlreadyOrganizationMember) {

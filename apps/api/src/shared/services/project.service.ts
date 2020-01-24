@@ -383,13 +383,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
   }
 
   async removeCollaborator(id: string, projectId: string) {
-
     const projectDetails: Project = await this.getProjectDetails(projectId);
 
     projectDetails.members = projectDetails.members.filter(f => f.userId !== id);
     return await this.updateProjectHelper(projectId, projectDetails);
   }
-
 
   /**
    * update project template
@@ -891,10 +889,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
   }
 
-  async acceptInvitation(invitationId: string) {
-    return await this._invitationService.getAllPendingInvitations(invitationId);
-  }
-
   /**
    * get project details by id
    * @param id: project id
@@ -940,7 +934,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       const isMember = organizationDetails.members.some(s => s.toString() === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
 
       if (!isMember) {
-        throw new BadRequestException('You are not a part of thi Organization');
+        throw new BadRequestException('You are not a part of this Organization');
       }
     }
     return organizationDetails;
