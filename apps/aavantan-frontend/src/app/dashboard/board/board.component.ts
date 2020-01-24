@@ -6,7 +6,7 @@ import {
   Sprint,
   SprintStage, SprintStageTask,
   SprintStatusEnum,
-  Task
+  Task, TaskType
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -14,6 +14,7 @@ import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../queries/user/user.query';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -28,7 +29,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   public selectedTaskItem:Task;
   public getStageInProcess: boolean;
   public activeSprintData:Sprint;
-
+  public taskTypeDataSource: TaskType[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
   public statusSprintDataSource: ProjectStatus[] = [];
@@ -88,7 +89,14 @@ export class BoardComponent implements OnInit, OnDestroy {
               private _sprintService: SprintService,
               protected notification: NzNotificationService,
               private modalService: NzModalService,
-              private _userQuery:UserQuery,) { }
+              private _userQuery:UserQuery, private router:Router) {
+
+        this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+          if (res) {
+            this.taskTypeDataSource = res.settings.taskTypes;
+          }
+        });
+  }
 
   ngOnInit() {
 
@@ -225,6 +233,25 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   //---------------------------------------//
 
+  public viewTask(task: Task) {
+    this.router.navigateByUrl("dashboard/task/"+task.displayName);
+  }
+
+  public addTaskNavigate(){
+    let displayName: string= null;
+    if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
+      displayName=this.taskTypeDataSource[0].displayName;
+    }
+
+    if(!displayName){
+      this.notification.error('Info', 'Please create Stages, Task Types, Status, Priority from settings');
+      setTimeout(()=>{
+        this.router.navigateByUrl("dashboard/settings");
+      },1000);
+      return
+    }
+    this.router.navigateByUrl("dashboard/task/"+displayName);
+  }
 
   public timeLog(item:Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;

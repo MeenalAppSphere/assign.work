@@ -8,6 +8,7 @@ export const ProjectUrls = {
   updateTemplate: `${createUrl('project/update-template')}`,
   searchProject: `${createUrl('project/search')}`,
   addCollaborators: `${createUrl('project/:projectId/add-collaborators')}`,
+  removeCollaborators: `${createUrl('project/:projectId/remove-collaborators')}`,
   resendInvitation: `${createUrl('project/resend-invitation')}`,
   addStage: `${createUrl('project/:projectId/add-stage')}`,
   removeStage: `${createUrl('project/:projectId/remove-stage/:stageId')}`,

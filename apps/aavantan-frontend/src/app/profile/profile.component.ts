@@ -52,7 +52,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
       });
 
-      this.skillListData = ['JS', 'Angular', 'HTML', 'CSS', 'Web Design', 'Mobile App Design', 'User Interface'];
+      this.skillListData = [];
 
     }
 

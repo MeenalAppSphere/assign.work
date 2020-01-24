@@ -22,7 +22,7 @@ import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { cloneDeep } from 'lodash';
 import { debounceTime } from 'rxjs/operators';
 import { UserService } from '../shared/services/user/user.service';
@@ -66,6 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public currentProject: Project = null;
   public addCollaboratorsInProcess: boolean = false;
   public resendInviteInProcess:boolean = false;
+  public removeCollaboratorInProcess:boolean=false;
   public modelChangedSearchCollaborators = new Subject<string>();
   public isSearching: boolean;
   public updateRequestInProcess: boolean = false;
@@ -103,7 +104,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ];
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
-              private _projectService: ProjectService, private _userQuery: UserQuery, private _userService: UserService) {
+              private _projectService: ProjectService, private _userQuery: UserQuery, private _userService: UserService,
+              private modalService: NzModalService) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -253,9 +255,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*================== Collaborators tab ==================*/
 
-  public removeCollaborators(user: User) {
-    // remove api call here
-    this.selectedCollaborators = this.selectedCollaborators.filter(item => item.emailId !== user.emailId);
+  async removeCollaborators(user: ProjectMembers) {
+    try {
+
+      this.modalService.confirm({
+        nzTitle: 'Are you sure want to remove this Collaborator from this Project?',
+        nzOnOk: () => {
+          this.modalService.closeAll();
+
+          this.removeCollaboratorInProcess = false;
+          const json:any={
+            projectId:this._generalService.currentProject.id,
+            userId:user.userId
+          };
+
+          this.projectMembersList = this.projectMembersList.filter(item => item.emailId !== user.emailId);
+          // await this._projectService.removeCollaborators(json).toPromise();
+          this.removeCollaboratorInProcess = false;
+
+        }
+      })
+
+
+    } catch (e) {
+      this.removeCollaboratorInProcess = false;
+    }
   }
 
   async resendInvitation(user: ProjectMembers) {

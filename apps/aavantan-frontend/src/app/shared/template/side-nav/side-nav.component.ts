@@ -61,13 +61,13 @@ export class SideNavComponent implements OnInit, OnDestroy{
     }
 
      public createNewTask(item?:TaskType){
-        let displayName: string= 'TASK';
+        let displayName: string= null;
         if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
             displayName=this.taskTypeDataSource[0].displayName;
         }
 
         if(!displayName){
-        this.notification.error('Info', 'Please create task types from settings');
+        this.notification.error('Info', 'Please create Stages, Task Types, Status, Priority from settings');
         setTimeout(()=>{
             this.router.navigateByUrl("dashboard/settings");
         },1000);

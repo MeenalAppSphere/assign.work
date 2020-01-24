@@ -33,7 +33,7 @@
         </span>
 
        </span>
-      <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30">+ Add Task</button>
+      <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30" (click)="addTaskNavigate()">+ Add Task</button>
       <button nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close
         Sprint
       </button>
@@ -73,12 +73,13 @@
                 <div id="{{task.taskId}}" class="task-card"
                      [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}"
                      [dndDraggable]="task" (dndStart)="onDragStart(item)" [dndEffectAllowed]="'copyMove'">
-                  <h6 [ngStyle]="{'color': task.task.taskType.color}">#{{task.task.displayName}}
+                  <h6 [ngStyle]="{'color': task.task.taskType.color}">
+                    <span class="cursor-pointer" (click)="viewTask(task.task)">#{{task.task.displayName}}</span>
                     <span class="float-right duration">{{task.task.createdAt | dateAgo }}</span>
                   </h6>
                   <div class="task-body">
                     <div>
-                      <a href="" class="task-title">
+                      <a href="" (click)="viewTask(task.task)" class="task-title">
                         {{task.task.name}}
                       </a>
                     </div>

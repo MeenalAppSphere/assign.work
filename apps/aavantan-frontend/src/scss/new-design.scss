@@ -2,7 +2,7 @@ $brand-default-btn: #dedfe2;
 $border: #dddddd;
 $orange-dark: #FF5757;
 $orange-light:#FF941A;
-$theme-blue:#51BEFF;
+$theme-blue:#2680eb;
 $theme-blue-hover:#36A1FF;
 $side-nav-bg :#0B1B31;
 $board-card-header: #f7f7f7;
@@ -22,6 +22,11 @@ $dark-blue-black:#0B1B31;
 }
 .common-layout .page-container .main-content {
   //padding: calc(70px + 10px) 25px 10px 25px;
+}
+
+.ant-input:focus {
+  border: 1px solid $theme-blue!important;
+  box-shadow: none;
 }
 
 .ant-input-affix-wrapper .ant-input-prefix {

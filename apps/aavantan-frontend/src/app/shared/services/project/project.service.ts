@@ -163,8 +163,17 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  removeCollaborators() {
 
+  removeCollaborators(json:any): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.removeCollaborators, json).pipe(
+      map(res => {
+        this.updateCurrentProjectState(res.data);
+        return res;
+      }),
+      catchError(e => {
+        return this.handleError(e);
+      })
+    );
   }
 
   addStage(id: string, stage: ProjectStages): Observable<BaseResponseModel<Project>> {
