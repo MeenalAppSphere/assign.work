@@ -6,7 +6,7 @@ import {
   Sprint,
   SprintStage, SprintStageTask,
   SprintStatusEnum,
-  Task, TaskType
+  Task, TaskType, User
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -15,6 +15,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../queries/user/user.query';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -24,6 +25,8 @@ import { Router } from '@angular/router';
 export class BoardComponent implements OnInit, OnDestroy {
 
   public boardData: Sprint;
+  public boardDataClone: Sprint;
+
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   public selectedTaskItem:Task;
@@ -127,6 +130,35 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   }
 
+
+  public filterTask(user:User){
+
+    this.boardData = this.boardDataClone;
+
+    if(this.boardData && this.boardData.stages && this.boardData.stages.length){
+
+      this.boardData.stages.forEach((stage)=>{
+
+        if(stage.tasks && stage.tasks.length){
+          let tasks:SprintStageTask[] = [];
+
+          tasks = stage.tasks.filter((task)=>{
+            console.log(task.task.assignee.emailId +'---'+ user.emailId)
+            if(task.task.assigneeId && task.task.assignee.emailId === user.emailId){
+              return task;
+            }
+          });
+          stage.tasks = tasks;
+        }
+
+      })
+
+    }
+
+  }
+
+
+
   async getBoardData(){
     try{
 
@@ -156,6 +188,7 @@ export class BoardComponent implements OnInit, OnDestroy {
           })
         })
         this.boardData = data.data;
+        this.boardDataClone = cloneDeep(data.data);
       }
       this.getStageInProcess = false;
     }catch (e) {

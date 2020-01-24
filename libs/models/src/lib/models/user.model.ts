@@ -52,6 +52,7 @@ export class User {
   isEmailSent?: boolean;
   isDeleted?: boolean;
   invitationId?: string;
+  isSelected?:boolean;
 }
 
 export class SearchUserModel {
