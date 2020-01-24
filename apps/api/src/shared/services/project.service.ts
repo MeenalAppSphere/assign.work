@@ -398,7 +398,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   async updateProjectTemplate(model: ProjectTemplateUpdateModel) {
     const projectDetails: Project = await this.getProjectDetails(model.projectId);
 
-    const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template.toLowerCase());
+    const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template);
     if (invalidTemplate) {
       throw new BadRequestException('invalid project template');
     }
