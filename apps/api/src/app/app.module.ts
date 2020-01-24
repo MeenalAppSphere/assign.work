@@ -12,6 +12,7 @@ import { TaskHistoryModule } from '../task-history/task-history.module';
 import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
 import { SprintModule } from '../sprint/sprint.module';
 import * as aws from 'aws-sdk';
+import { InvitationsModule } from '../invitations/invitations.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import * as aws from 'aws-sdk';
     TaskHistoryModule,
     AttachmentModule,
     TaskTimeLogModule,
-    SprintModule
+    SprintModule,
+    InvitationsModule
   ],
   controllers: [],
   providers: []

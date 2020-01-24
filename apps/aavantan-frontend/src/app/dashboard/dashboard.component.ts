@@ -10,9 +10,10 @@ import { OrganizationQuery } from '../queries/organization/organization.query';
 import { UserService } from '../shared/services/user/user.service';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { NzModalService } from 'ng-zorro-antd';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { AuthService } from '../shared/services/auth.service';
 import { cloneDeep } from 'lodash';
+import { InvitationService } from '../shared/services/invitation/invitation.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -27,10 +28,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedHeaderColor: string;
   projectModalIsVisible: boolean = false;
   organizationModalIsVisible: boolean = false;
+  isAcceptInvitationInProcess: boolean = false;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
-              private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
-              private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService) {
+              private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
+              private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
+              private _invitationService: InvitationService, private _notificationService: NzNotificationService) {
   }
 
   ngOnInit() {
@@ -166,25 +169,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return newBreadcrumbs;
   }
 
-  private initialCheck() {
+  private async initialCheck() {
 
     try {
       if (this._generalService.user) {
-        const TaskUrl = this.router.routerState.snapshot.url;
-        if (TaskUrl.includes('task/')) {
-          this.router.navigateByUrl(TaskUrl);
+        const queryParams = this.activatedRoute.snapshot.queryParams;
+        if (queryParams.invitationId) {
+          console.log('queryParams', queryParams);
+          this.isAcceptInvitationInProcess = true;
+          try {
+            await this._invitationService.acceptInvitation(queryParams.invitationId).toPromise();
+            this.router.navigate(['dashboard'], { replaceUrl: true });
+
+            await this._userService.getProfile().toPromise();
+            this.isAcceptInvitationInProcess = false;
+          } catch (e) {
+            this.isAcceptInvitationInProcess = false;
+            this.router.navigate(['dashboard'], { replaceUrl: true });
+          }
+
         } else {
-          if (!this._generalService.user.currentOrganization) {
-            this.organizationModalIsVisible = true;
+          const TaskUrl = this.router.routerState.snapshot.url;
+          if (TaskUrl.includes('task/')) {
+            this.router.navigateByUrl(TaskUrl);
           } else {
-            if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
-              this.projectModalIsVisible = true;
+            if (!this._generalService.user.currentOrganization) {
+              this.organizationModalIsVisible = true;
+            } else {
+              if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
+                this.projectModalIsVisible = true;
+              }
             }
           }
         }
       }
     } catch (e) {
-
+      this._notificationService.error('Error', 'Invalid user login');
+      this.router.navigate(['login']);
     }
 
   }

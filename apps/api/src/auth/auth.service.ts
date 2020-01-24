@@ -5,8 +5,6 @@ import {
   EmailTemplatePathEnum,
   MemberTypes,
   MongooseQueryModel,
-  Organization,
-  Project,
   ResetPasswordVerifyModel,
   User,
   UserLoginProviderEnum,
@@ -260,11 +258,11 @@ export class AuthService implements OnModuleInit {
           const invitationDetails = await this._invitationService.getFullInvitationDetails(user.invitationId);
 
           // check basic validations for invitation link
-          this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+          this._invitationService.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
 
           // now everything seems ok start invitation accepting process
           // accept invitation and update project, organization and invitation
-          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, user.invitationId);
+          await this._invitationService.acceptInvitationUpdateDbProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, user.invitationId);
 
           // update user with model and set organization
           await this._userService.updateById(userDetails._id.toString(), {
@@ -415,11 +413,11 @@ export class AuthService implements OnModuleInit {
               // get invitation details
               const invitationDetails = await this._invitationService.getFullInvitationDetails(invitationId);
               // check basic validations for invitation link
-              this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+              this._invitationService.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
 
               // now everything seems ok start invitation accepting process
               // accept invitation and update project, organization and invitation
-              await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationId);
+              await this._invitationService.acceptInvitationUpdateDbProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationId);
 
               // if user is already in db then update it's last login type to google
               // add project and organization
@@ -664,10 +662,10 @@ export class AuthService implements OnModuleInit {
       const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
 
       // check basic validations for invitation link
-      this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+      this._invitationService.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
 
       // accept invitation process
-      await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
+      await this._invitationService.acceptInvitationUpdateDbProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
 
       // if pending invitation length is only one then set that project as current project
       if (pendingInvitations.length === 1) {
@@ -692,64 +690,6 @@ export class AuthService implements OnModuleInit {
   }
 
   /**
-   * check invitation link is valid or
-   * check if invitation is expired or not
-   * check if user emailId and invitee user id in invitation are same
-   * @param invitationDetails
-   * @param userEmailId
-   */
-  private invitationLinkBasicValidation(invitationDetails, userEmailId: string) {
-    if (!invitationDetails) {
-      throw new BadRequestException('Invalid invitation link');
-    } else {
-      if (isInvitationExpired(invitationDetails.invitedAt)) {
-        throw new BadRequestException('Invitation link has been expired! please request a new one');
-      }
-
-      // if invitation id present then user is already created so get user details by email id
-      if (invitationDetails.invitationToEmailId !== userEmailId) {
-        throw new BadRequestException('Invalid invitation link! this invitation link is not for this email id');
-      }
-    }
-  }
-
-  /**
-   * accept invitation process
-   * update project, update organization
-   * accept invitation, expire all already sent invitations
-   * @param projectDetails
-   * @param session
-   * @param organizationDetails
-   * @param userDetails
-   * @param invitationId
-   */
-  private async acceptInvitationProcess(projectDetails: Project, session: ClientSession,
-                                        organizationDetails: Organization, userDetails: User, invitationId: string) {
-
-    // check if user is added as collaborator in project and we are here only to update his basic details
-    const userIndexInProjectCollaboratorIndex = projectDetails.members.findIndex(member => member.emailId === userDetails.emailId);
-
-    // update project mark collaborator as invite accepted true
-    await this._projectService.updateById(projectDetails._id.toString(), {
-      $set: { [`members.${userIndexInProjectCollaboratorIndex}.isInviteAccepted`]: true }
-    }, session);
-
-    // update organization, add user as organization member
-    const isAlreadyOrganizationMember = userDetails.organizations && userDetails.organizations.some((organization => {
-      return userDetails.organizations.includes(organization.toString());
-    }));
-
-    if (!isAlreadyOrganizationMember) {
-      await this._organizationService.updateById(organizationDetails._id.toString(), {
-        $push: { members: userDetails._id }, $inc: { activeMembersCount: 1, billableMemberCount: 1 }
-      }, session);
-    }
-
-    // update current invitation and set invite accepted true
-    await this._invitationService.acceptInvitation(invitationId, session);
-  }
-
-  /**
    * get all pending invitation of user by email id
    * @param emailId
    */
@@ -759,7 +699,6 @@ export class AuthService implements OnModuleInit {
     if (pendingInvitations && pendingInvitations.length) {
       // loop over all pending invitations and filter out expired invitations
       pendingInvitations = pendingInvitations.filter(invitation => {
-        // if link is expired add it to expired invitation
         return !isInvitationExpired(invitation.invitedAt);
       });
       return pendingInvitations;

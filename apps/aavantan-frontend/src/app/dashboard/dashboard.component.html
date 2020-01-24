@@ -1,4 +1,11 @@
-<div class="common-layout {{ 'is-' + selectedHeaderColor }}"
+<!-- accept invitation loader -->
+<nz-spin nzTip="Accepting invitation..." *ngIf="isAcceptInvitationInProcess" nzSize="large" style="height:100vh;">
+  <div class="d-flex align-items-center justify-content-center"></div>
+</nz-spin>
+<!-- accept invitation loader -->
+
+<!-- main div -->
+<div *ngIf="!isAcceptInvitationInProcess" class="common-layout {{ 'is-' + selectedHeaderColor }}"
      [ngClass]="{
         'is-folded': isFolded,
         'is-side-nav-dark' : isSideNavDark,
@@ -39,7 +46,7 @@
 
   </div>
 </div>
-
+<!-- main div -->
 
 <!-- region global modals -->
 <!-- region add project -->
