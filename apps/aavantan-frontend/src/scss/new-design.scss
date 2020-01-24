@@ -341,6 +341,13 @@ $dark-blue-black:#0B1B31;
       border: 2px solid $theme-blue!important;
     }
   }
+  .ant-avatar.selected-user{
+    border: 2px solid $theme-blue!important;
+    padding: 2px;
+  }
+  .ant-avatar>img {
+    border-radius: 50%;
+  }
   .ant-avatar-sm > * {
     line-height: 1.8rem;
   }

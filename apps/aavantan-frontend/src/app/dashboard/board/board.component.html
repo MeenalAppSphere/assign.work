@@ -25,9 +25,11 @@
         <span *ngFor="let item of boardData.membersCapacity">
           <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
                      nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
+                     ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
                      nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip
                      class="bg-info"></nz-avatar>
           <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" nzSize=""
+                     ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
                      nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
                      nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
         </span>

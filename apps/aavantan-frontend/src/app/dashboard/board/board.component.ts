@@ -132,7 +132,9 @@ export class BoardComponent implements OnInit, OnDestroy {
 
 
   public filterTask(user:User){
-
+    console.log('isSelected before',user.isSelected);
+    user.isSelected=!user.isSelected;
+    console.log('isSelected after',user.isSelected);
     this.boardData = this.boardDataClone;
 
     if(this.boardData && this.boardData.stages && this.boardData.stages.length){
@@ -143,7 +145,7 @@ export class BoardComponent implements OnInit, OnDestroy {
           let tasks:SprintStageTask[] = [];
 
           tasks = stage.tasks.filter((task)=>{
-            console.log(task.task.assignee.emailId +'---'+ user.emailId)
+            // console.log(task.task.assignee.emailId +'---'+ user.emailId)
             if(task.task.assigneeId && task.task.assignee.emailId === user.emailId){
               return task;
             }
