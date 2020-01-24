@@ -1,4 +1,10 @@
-<div class="side-nav" sideNav joyrideStep="main-menu" title="Navigation" text="">
+<!-- accept invitation loader -->
+<nz-spin nzTip="Switching Organization..." *ngIf="switchOrganizationInProcess" nzSize="large" class="loader-org">
+  <div class="d-flex align-items-center justify-content-center"></div>
+</nz-spin>
+<!-- accept invitation loader -->
+
+<div class="side-nav" sideNav joyrideStep="main-menu">
 
 
     <nz-avatar *ngIf="isFolded" class="icon-org text-uppercase cursor-pointer" nz-dropdown [nzDropdownMenu]="menu" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
@@ -16,20 +22,15 @@
 
     <nz-dropdown-menu #menu="nzDropdownMenu" class="org-menu">
 
-        <ul nz-menu class="org-menu-items">
+        <ul nz-menu class="org-menu-items" *ngIf="organizations && organizations.length>0">
 
-            <li nz-menu-item>
-                <p class="text-white font-size-14 d-inline-block m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
-                    <nz-avatar [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
-                    <span class="text-gray-light">{{ currentOrganization?.name }}</span>
+            <li *ngFor="let item of organizations;" [nzDisabled]="item.id===currentOrganization?.id" nz-menu-item  (click)="switchOrganization(item.id);">
+                <p class="font-size-14 d-inline-block m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
+                    <nz-avatar [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
+                    <span class="text-gray-light">{{ item.name }}</span>
                 </p>
             </li>
-            <li nz-menu-item>
-                <p class="text-white font-size-14 d-inline-block m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
-                    <nz-avatar [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
-                    <span class="text-gray-light">{{ currentOrganization?.name }}</span>
-                </p>
-            </li>
+
         </ul>
 
     </nz-dropdown-menu>

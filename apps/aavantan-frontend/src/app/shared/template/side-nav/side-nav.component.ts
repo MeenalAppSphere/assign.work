@@ -6,6 +6,9 @@ import { UserQuery } from '../../../queries/user/user.query';
 import { Router } from '@angular/router';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzNotificationService } from 'ng-zorro-antd';
+import { GeneralService } from '../../services/general.service';
+import { OrganizationQuery } from '../../../queries/organization/organization.query';
+import { OrganizationService } from '../../services/organization/organization.service';
 
 @Component({
     selector: 'app-sidenav',
@@ -21,10 +24,19 @@ export class SideNavComponent implements OnInit, OnDestroy{
     isSideNavDark : boolean;
     public taskTypeDataSource: TaskType[] = [];
     public currentOrganization: Organization;
+    public organizations:string[] | Organization[]=[];
+    public switchOrganizationInProcess:boolean;
 
-    constructor( private themeService: ThemeConstantService,
-        protected notification: NzNotificationService,
-        private _userQuery: UserQuery,private router:Router) {
+    constructor(private themeService: ThemeConstantService,
+                 protected notification: NzNotificationService,
+                 private _userQuery: UserQuery,
+                 private _organizationService: OrganizationService,
+                 private _generalService: GeneralService,
+                 private router:Router) {
+
+
+
+        this.organizations = this._generalService.user.organizations;
 
         this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
             if (res) {
@@ -63,6 +75,28 @@ export class SideNavComponent implements OnInit, OnDestroy{
         }
         this.router.navigateByUrl("dashboard/task/"+displayName);
      }
+
+    public switchOrganization(organizationId:string){
+      try{
+
+        if(this._generalService.currentOrganization.id===organizationId){
+          return;
+        }
+
+        this.switchOrganizationInProcess = true;
+
+        this._organizationService.switchOrganization(organizationId).subscribe((res => {
+            this.switchOrganizationInProcess = false;
+          }), (error => {
+            this.switchOrganizationInProcess = false;
+          }));
+
+      } catch (e) {
+        this.switchOrganizationInProcess = false;
+      }       
+    }
+     
+     
      public ngOnDestroy(){
     }
 }
