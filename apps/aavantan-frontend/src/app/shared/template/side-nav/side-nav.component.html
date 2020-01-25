@@ -10,7 +10,7 @@
     <nz-avatar *ngIf="isFolded" [nzShape]="'square'"  [nzSize]="38" class="icon-org text-uppercase cursor-pointer" nz-dropdown [nzDropdownMenu]="menu" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
 
 
-    <div class="cursor-pointer p-15 m-b-10 org-name" *ngIf="!isFolded">
+    <div class="cursor-pointer p-15 p-l-20 m-b-10 org-name" *ngIf="!isFolded">
         <div nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="true" nzTrigger="click" [nzPlacement]="'bottomLeft'">
             <p class="text-white font-size-14 d-inline-block text-left m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
                 <nz-avatar [nzShape]="'square'" [nzSize]="38" class="icon-org text-uppercase m-0 m-r-10" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
@@ -52,7 +52,7 @@
                     <span class="img-menu-svg"><span *ngIf="item.iconType == ''" ngClass="{{item.img}}"></span></span>
                     <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [theme]="item.iconTheme"></i>
                     <i *ngIf="item.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[item.iconTheme , item.icon]"></i>
-                    <span class="m-l-10" *ngIf="!isFolded">{{item.title}}</span>
+                    <span class="m-l-15" *ngIf="!isFolded">{{item.title}}</span>
                 </a>
 
                 <!-- Second Level -->
@@ -132,14 +132,12 @@
     </div>
 </div>
 
-<button (click)="createNewTask()" style="position: fixed;
-        z-index: 9999;
-        bottom: 20px;
-        left: 5px;
-        height: 35px;
-        background: #f28e3e;
-        color: #fff;
-        border: #f28d3e;
-        font-weight: 500;" nz-button nzType="primary" nzSize="small" nzShape="round" nzTitle="New Task" nzPlacement="topLeft" nz-tooltip>
-    <i class="fas fa-plus"></i> Task
-</button>
+
+<div class="btn-floating-container">
+  <a href="javascript:void(0);"
+       [ngStyle]="{'background':isFolded ? '#ffffff20' : 'none' }"
+       (click)="createNewTask()" class="btn-floating" nz-button nzType="primary" nzSize="small" nzShape="round" nzTitle="Create Task" nzPlacement="right" nz-tooltip>
+    +
+  </a>
+  <span class="p-l-15 font-size-15 text-white d-inline-block" *ngIf="!isFolded">Create Task</span>
+</div>

@@ -20,6 +20,28 @@
   margin-bottom: -5px;
 }
 
+.btn-floating-container{
+  position: fixed;
+  z-index: 9999;
+  bottom: 15px;
+  left: 12px;
+  .btn-floating {
+    margin-top: 15px;
+    cursor: pointer;
+    background: #ffffff20;
+    color: #fff;
+    border: #578dd8;
+    min-width: 45px;
+    font-weight: 300;
+    width: 45px;
+    height: 45px;
+    font-size: 34px !important;
+    border-radius: 8px;
+    padding: 0px !important;
+    line-height: 40px;
+  }
+}
+
 .icon-org {
   color: #0B1B31;
   margin: 15px 16px;

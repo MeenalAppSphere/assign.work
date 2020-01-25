@@ -138,13 +138,13 @@ $color-gray-light-2:#7A869A;
 
 .is-default .header .logo > a{
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .is-folded .header .logo > a {
   padding-bottom: 4px;
   max-width: 70px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 
@@ -159,8 +159,8 @@ $color-gray-light-2:#7A869A;
 
 .ant-menu-root.ant-menu-inline{ // full width
   padding-top: 15px;
-  padding-left: 12.5px;
-  padding-right: 12.5px;
+  padding-left: 14px;
+  padding-right: 14px;
 }
 .ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title {
   padding: 0px!important;
@@ -178,6 +178,7 @@ $color-gray-light-2:#7A869A;
 
 .ant-menu-inline .ant-menu-item {
   width: calc(100% + 0px)!important;
+  padding-left: 10px;
 }
 .ant-menu-inline .ant-menu-item:after{
   border-right: 4px solid #ffffff;
@@ -197,15 +198,15 @@ $color-gray-light-2:#7A869A;
   .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
     background: rgba(255,255,255, 0.2);
     border-radius: 8px;
-    width: 45px;
+    width: 45px!important;
     height: 45px;
     margin: auto;
     margin-bottom: 8px;
   }
 }
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
-  background: #0450bf;
-  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
   margin: auto;
 }
 .ant-menu-inline .ant-menu-item:after {
