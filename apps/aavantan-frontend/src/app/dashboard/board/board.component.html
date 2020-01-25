@@ -36,7 +36,7 @@
 
        </span>
       <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30" (click)="addTaskNavigate()">+ Add Task</button>
-      <button nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close
+      <button *ngIf="boardData" nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close
         Sprint
       </button>
     </div>
