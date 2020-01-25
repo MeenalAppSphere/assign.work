@@ -12,52 +12,39 @@
         <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Backlog page..."/>
       </span>
 
-      <span class="badge backlog-badge" *ngIf="sprintData && sprintData?.totalEstimationReadable">
-        <span class="text-red">Total Backlogs</span><span class="p-l-5 text-black">{{sprintData?.totalEstimationReadable}}</span>
-      </span>
+<!--      <span class="badge backlog-badge" *ngIf="sprintData && sprintData?.totalEstimationReadable">-->
+<!--        <span class="text-red">Total Backlogs</span><span class="p-l-5 text-black">{{sprintData?.totalEstimationReadable}}</span>-->
+<!--      </span>-->
 
 
     </ng-template>
     <ng-template #createSprintBtnTemplate>
-
-      <span *ngIf="sprintData && sprintData.id">
-        <button class="m-l-10" [disabled]="isDisabledCreateBtn || activeSprintId || draftData && draftData.length==0" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
-         <button class="m-l-10" *ngIf="!activeSprintId" nzType="link" [nzLoading]="saveSprintInProcess" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
-      </span>
-
-      <button *ngIf="sprintData && !sprintData.id" class="m-l-10" nz-button nzSize="small" nzType="default" (click)="toggleAddSprint()">Create Sprint</button>
-
-      <button *ngIf="sprintData && sprintData.id" nzSize="32" class="m-l-10" nz-button nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">
-        <i class="fas fa-ellipsis-v"></i>
-      </button>
-
-      <nz-dropdown-menu #menu1="nzDropdownMenu">
-        <ul nz-menu>
-          <li nz-menu-item (click)="toggleAddSprint()" >Edit Sprint</li>
-          <li nz-menu-item (click)="toggleTeamCapacity()">Edit Capacity</li>
-        </ul>
-      </nz-dropdown-menu>
 
     </ng-template>
 
 
     <section class="m-b-10">
       <nz-spin nzTip="Checking Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
-        <div class="clearfix m-b-10 m-t-10" *ngIf="sprintData && sprintData.id">
 
+
+        <div class="row clearfix m-b-10 m-t-10" *ngIf="sprintData && sprintData.id">
+
+          <div class="col">
             <span class="font-size-14">
 
               <span class="font-size-18 m-r-30 text-black font-weight-normal">{{sprintData.name}}</span>
 
-              <span class="m-r-25 text-gray-light-2 font-size-13">
-                <span>{{sprintData.totalCapacityReadable}}</span>
-                <span class="m-r-25 font-weight-light"> Capacity</span>
+              <span class="m-r-25 text-gray-light-2 font-size-13" *ngIf="sprintData.totalEstimationReadable">
+                <span>{{sprintData?.totalEstimationReadable}}</span>
+                <span class="font-weight-light">  Sprint Hours </span>
               </span>
 
-              <span class="m-r-10 text-gray-light-2 font-size-13" *ngIf="sprintData.totalEstimationReadable">
-                <span>{{sprintData?.totalEstimationReadable}}</span>
-                <span class="font-weight-light"> Sprint Capacity</span>
+              <span class="m-r-10 text-gray-light-2 font-size-13">
+                <span>{{sprintData.totalCapacityReadable}}</span>
+                <span class="m-r-25 font-weight-light"> Sprint Capacity</span>
               </span>
+
+
 
               <span class="font-size-12 font-size-13" [ngClass]="{'text-gray-light-2': sprintData.totalRemainingCapacity>0, 'text-red': sprintData.totalRemainingCapacity<0}" *ngIf="sprintData.totalRemainingCapacityReadable">
                 <span class="p-l-5">{{sprintData?.totalRemainingCapacityReadable}}</span>
@@ -71,6 +58,26 @@
 <!--            </span>-->
 
         </div>
+          <div class="col text-right">
+            <span *ngIf="sprintData && sprintData.id">
+              <button class="m-l-10" [disabled]="isDisabledCreateBtn || activeSprintId || draftData && draftData.length==0" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
+               <button class="m-l-10" *ngIf="!activeSprintId" nzType="link" [nzLoading]="saveSprintInProcess" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
+            </span>
+
+            <button *ngIf="sprintData && sprintData.id" nzSize="32" class="m-l-10" nz-button nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+
+            <nz-dropdown-menu #menu1="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="toggleAddSprint()" >Edit Sprint</li>
+                <li nz-menu-item (click)="toggleTeamCapacity()">Edit Capacity</li>
+              </ul>
+            </nz-dropdown-menu>
+          </div>
+        </div>
+
+
         <div class="draft-sprint-box" *ngIf="sprintData && sprintData.id && draftData && draftData.length===0">
             <nz-empty
               [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
@@ -154,6 +161,11 @@
           </ng-template>
 
         </div>
+
+        <div class="col text-right p-l-0" style="max-width: 120px;" *ngIf="sprintData && !sprintData.id" >
+          <button nz-button nzSize="small" nzType="{{!sprintData?.id && allTaskList && allTaskList.length > 0 ? 'primary' : 'default'}}" (click)="toggleAddSprint()">Create Sprint</button>
+        </div>
+
 
       </div>
 
