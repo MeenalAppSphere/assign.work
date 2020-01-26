@@ -19,7 +19,7 @@
 
     </ng-template>
     <ng-template #createSprintBtnTemplate>
-
+      <span *ngIf="activeSprintData && activeSprintData.name" class="text-gray-light font-size-16">{{activeSprintData.name}} <span class="text-gray-light-2">is running</span></span>
     </ng-template>
 
 
@@ -59,9 +59,9 @@
 
         </div>
           <div class="col text-right">
-            <span *ngIf="sprintData && sprintData.id">
-              <button class="m-l-10" [disabled]="isDisabledCreateBtn || !activeSprintId || draftData && draftData.length==0" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
-              <button class="m-l-10" *ngIf="activeSprintId" nzType="link" [nzLoading]="saveSprintInProcess" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
+            <span *ngIf="activeSprintId ||  (draftData?.length>0 && sprintData?.id) || !isDisabledCreateBtn" >
+              <button class="m-l-10" [disabled]="!haveUnpublishedTasks" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
+              <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
             </span>
 
             <button *ngIf="sprintData && sprintData.id" nzSize="32" class="m-l-10" nz-button nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">
@@ -162,7 +162,7 @@
 
         </div>
 
-        <div class="col text-right p-l-0" style="max-width: 120px;" *ngIf="sprintData && !sprintData.id" >
+        <div class="col text-right p-l-0" style="max-width: 120px;" *ngIf="!activeSprintId && !sprintData?.id" >
           <button nz-button nzSize="small" nzType="{{!sprintData?.id && allTaskList && allTaskList.length > 0 ? 'primary' : 'default'}}" (click)="toggleAddSprint()">Create Sprint</button>
         </div>
 

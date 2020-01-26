@@ -325,6 +325,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       const data = await this._sprintService.publishSprint(sprintData).toPromise();
       if(data){
         this.isDisabledCreateBtn = true;
+        this.router.navigate(['dashboard','board']);
       }
       this.publishSprintInProcess = false;
 

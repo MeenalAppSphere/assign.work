@@ -339,7 +339,7 @@
                 <div class="row floating-save-btns">
                     <div class="col-md-12 text-right">
 
-                        <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Cancel</button>
+                      <button type="reset" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
                       <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task</button>
                         <button type="submit" [nzLoading]="createTaskInProcess" nz-button nzType="primary" class="m-r-5">Save</button>
 
