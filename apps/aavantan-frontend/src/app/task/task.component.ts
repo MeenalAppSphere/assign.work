@@ -113,6 +113,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public tagsQueryText: string = null;
   public watchersQueryText: string = null;
   public progressData: TaskTimeLogResponse;
+  public uploadingImage:boolean;
 
   public panels: any[] = [{
     active: false,
@@ -638,6 +639,11 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   handleChange({ file, fileList }): void {
     const status = file.status;
+    if (status === 'uploading') {
+      this.uploadingImage=true;
+    }else{
+      this.uploadingImage=false;
+    }
     if (status !== 'uploading') {
       console.log(file, fileList);
     }
