@@ -113,7 +113,7 @@ export class AuthService implements OnModuleInit {
     } else {
       // check if user is registered with google then throw error
       if (!userDetails.password || userDetails.lastLoginProvider === UserLoginProviderEnum.google) {
-        throw new BadRequestException('you are registered with Google or any other social login you can\'t reset your password');
+        throw new BadRequestException('Ohh! We found that you used your Google Account to sign in into Assign Work. Use Google Sign In Instead.');
       }
 
       const session = await this._userModel.db.startSession();
