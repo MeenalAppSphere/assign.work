@@ -1,8 +1,7 @@
 .draft-sprint-box{
-  padding: 10px;
-  border: 1px solid #F9F9F9;
+  padding: 15px;
+  border: 2px dashed #DEDFE2;
   border-radius: 4px;
-  background: #F9F9F9;
   min-height: 55px;
   .steps-content{
     min-height: 60px;
@@ -18,6 +17,10 @@
     display: block;
     padding: 5px;
   }
+}
+
+.btn-create-backlog{
+  margin-top: -40px;
 }
 
 .backlog-badge {

@@ -1,6 +1,8 @@
 .menu-mask {
   background: url("../../../../assets/images/others/menu-mask.svg")no-repeat bottom right;
   height: 100vh;
+  background-position-y: 70%;
+  background-position-x: 35%;
 }
 .ant-menu-item-header{
   font-weight: 500;
@@ -9,6 +11,7 @@
 }
 .ant-menu-inline .ant-menu-item{
   margin-top: 0px;
+  margin-bottom: 20px;
 }
 .img-menu-svg span {
   min-height: 20px;
@@ -17,20 +20,45 @@
   margin-bottom: -5px;
 }
 
+.btn-floating-container{
+  position: fixed;
+  z-index: 9999;
+  bottom: 15px;
+  left: 12px;
+  .btn-floating {
+    margin-top: 15px;
+    cursor: pointer;
+    background: #ffffff20;
+    color: #fff;
+    border: #578dd8;
+    min-width: 45px;
+    font-weight: 300;
+    width: 45px;
+    height: 45px;
+    font-size: 34px !important;
+    border-radius: 8px;
+    padding: 0px !important;
+    line-height: 40px;
+  }
+}
+
 .icon-org {
-  background: #0B1B31;
-  color: #ffffff;
-  margin: 15px 13.5px;
+  color: #0B1B31;
+  margin: 15px 16px;
   font-size: 14px;
   text-align: center;
+  background: #EEF4FC 0% 0% no-repeat padding-box;
+  box-shadow: 0px 1px 10px #0000000D;
+
 }
 .icon-org-list{
-  background: #0B1B31;
-  color: #ffffff;
+  background: #EEF4FC;
+  color: #0B1B31;
   margin: 15px 13.5px;
   font-size: 12px;
   text-align: center;
 }
+
 
 .org-name{
   position: relative;
@@ -68,40 +96,50 @@
   background: #ffffff9e;
 }
 
+.ant-avatar-square{
+  border-radius: 8px;
+}
+
 /* menu items */
 .img-menu-svg {
   .menu-home{
     background: url("../../../../assets/images/icons/home.svg")no-repeat center center;
+    background-size: 20px;
     &:hover{
       background: url("../../../../assets/images/icons/white-home.svg")no-repeat center center;
     }
   }
   .menu-project{
     background: url("../../../../assets/images/icons/project.svg")no-repeat center center;
+    background-size: 20px;
     &:hover{
       background: url("../../../../assets/images/icons/white-project.svg")no-repeat center center;
     }
   }
   .menu-board{
     background: url("../../../../assets/images/icons/board.svg")no-repeat center center;
+    background-size: 20px;
     &:hover{
       background: url("../../../../assets/images/icons/white-board.svg")no-repeat center center;
     }
   }
   .menu-active-sprint{
     background: url("../../../../assets/images/icons/active-sprint.svg")no-repeat center center;
+    background-size: 20px;
     &:hover{
       background: url("../../../../assets/images/icons/white-active-sprint.svg")no-repeat center center;
     }
   }
   .menu-backlogs{
     background: url("../../../../assets/images/icons/backlogs.svg")no-repeat center center;
+    background-size: 20px;
     &:hover{
       background: url("../../../../assets/images/icons/white-backlogs.svg")no-repeat center center;
     }
   }
   .menu-settings{
     background: url("../../../../assets/images/icons/settings.svg")no-repeat center center;
+    background-size: 20px;
     &:hover{
       background: url("../../../../assets/images/icons/white-settings.svg")no-repeat center center;
     }
@@ -111,20 +149,26 @@
 .ant-menu-item-selected{
   .menu-home{
     background: url("../../../../assets/images/icons/white-home.svg")no-repeat center center;
+    background-size: 20px;
   }
   .menu-project{
     background: url("../../../../assets/images/icons/white-project.svg")no-repeat center center;
+    background-size: 20px;
   }
   .menu-board{
     background: url("../../../../assets/images/icons/white-board.svg")no-repeat center center;
+    background-size: 20px;
   }
   .menu-active-sprint{
     background: url("../../../../assets/images/icons/white-active-sprint.svg")no-repeat center center;
+    background-size: 20px;
   }
   .menu-backlogs{
     background: url("../../../../assets/images/icons/white-backlogs.svg")no-repeat center center;
+    background-size: 20px;
   }
   .menu-settings{
     background: url("../../../../assets/images/icons/white-settings.svg")no-repeat center center;
+    background-size: 20px;
   }
 }

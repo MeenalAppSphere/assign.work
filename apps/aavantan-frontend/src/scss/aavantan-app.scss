@@ -10,7 +10,7 @@
   --red: #dc3545;
 }
 
-$body-bg-color: #FDFDFD;
+$body-bg-color: #ffffff;
 $text-black: #111111;
 
 .btn-float-new-task{
@@ -31,7 +31,7 @@ $orange-dark: #FF5757;
 $orange-light:#FF941A;
 $theme-blue:#2680EB;
 $theme-blue-hover:#358DEB;
-$side-nav-bg :#0B1B31;
+$side-nav-bg :#EEF4FC;
 $board-card-header: #ebebeb;
 $board-card-body: #ebebeb;
 $color-black:#000000;
@@ -69,6 +69,7 @@ body{
   border-width: 5px 0 5px 5px;
   border-left-color: #404040;
 }
+
 //
 //.ant-tooltip-inner{
 //  background:red;
@@ -158,10 +159,6 @@ nz-modal {
 
 .ant-empty{
   margin-bottom: 25px;
-}
-
-.ant-pagination-item-active a {
-  color: #fff!important;
 }
 
 .ant-tabs-nav .ant-tabs-tab-active {

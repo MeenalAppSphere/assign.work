@@ -4,7 +4,7 @@ import {
   DraftSprint, GetAllSprintRequestModel,
   GetAllTaskRequestModel, GetUnpublishedRequestModel,
   Sprint, SprintBaseRequest, SprintErrorResponse,
-  Task,
+  Task, TaskType,
   User
 } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -15,6 +15,7 @@ import { UserQuery } from '../queries/user/user.query';
 import { cloneDeep } from 'lodash';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -47,6 +48,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public activeSprintData : Sprint;
   public activeSprintId : string;
   public haveUnpublishedTasks:boolean;
+  public taskTypeDataSource: TaskType[] = [];
 
   public searchValue: string;
   public searchTaskListInProgress: boolean;
@@ -57,7 +59,15 @@ export class BacklogComponent implements OnInit, OnDestroy {
               private _taskQuery: TaskQuery,
               private _userQuery: UserQuery,
               private _sprintService: SprintService,
-              protected notification: NzNotificationService) {
+              protected notification: NzNotificationService,
+              private router:Router) {
+
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.taskTypeDataSource = res.settings.taskTypes;
+      }
+    });
+
   }
 
   ngOnInit() {
@@ -329,9 +339,23 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 
-  public ngOnDestroy(){
 
+  public addTaskNavigate(){
+    let displayName: string= null;
+    if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
+      displayName=this.taskTypeDataSource[0].displayName;
+    }
+
+    if(!displayName){
+      this.notification.error('Info', 'Please create Stages, Task Types, Status, Priority from settings');
+      setTimeout(()=>{
+        this.router.navigateByUrl("dashboard/settings");
+      },1000);
+      return
+    }
+    this.router.navigateByUrl("dashboard/task/"+displayName);
   }
+
 
   public getUnique(arr, comp) {
 
@@ -346,5 +370,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     return unique;
   }
+
+  public ngOnDestroy(){
+
+  }
+
 
 }

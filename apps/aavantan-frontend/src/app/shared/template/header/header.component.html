@@ -15,14 +15,31 @@
     <ul class="nav-left">
       <li class="desktop-toggle">
         <a (click)="toggleFold()">
-          <i nz-icon [nzType]="isFolded? 'menu-unfold':'menu-fold'" theme="outline"></i>
+<!--          <i nz-icon [nzType]="isFolded? 'menu-unfold':'menu-fold'" theme="outline"></i>-->
+          <img src="assets/images/icons/icon-bar.svg"/>
         </a>
       </li>
       <li class="mobile-toggle">
         <a (click)="toggleExpand()">
-          <i nz-icon [nzType]="isExpand? 'menu-fold': 'menu-unfold'" theme="outline"></i>
+<!--          <i nz-icon [nzType]="isExpand? 'menu-fold': 'menu-unfold'" theme="outline"></i>-->
+          <img src="assets/images/icons/icon-bar.svg"/>
         </a>
       </li>
+      <li joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
+        <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
+          {{ currentProject?.name }}
+        </a>
+      </li>
+
+    </ul>
+<!--    <ul class="nav-right" joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">-->
+<!--      <li>-->
+<!--        <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">-->
+<!--          {{ currentProject?.name }}-->
+<!--        </a>-->
+<!--      </li>-->
+<!--    </ul>-->
+    <ul class="nav-right">
       <li>
         <a (click)="searchToggle()">
           <i nz-icon nzType="search" theme="outline" class="text-gray-light"></i>
@@ -32,16 +49,6 @@
           <app-search></app-search>
         </nz-drawer>
       </li>
-    </ul>
-    <ul class="nav-right" joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
-      <li>
-        <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
-          {{ currentProject?.name }}
-<!--          <i nz-icon nzType="setting" theme="outline" class="text-gray-light p-l-5"></i>-->
-        </a>
-      </li>
-    </ul>
-    <ul class="nav-right">
       <li>
         <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="popNotification" [nzPlacement]="'bottomRight'">
           <nz-badge nzDot>
