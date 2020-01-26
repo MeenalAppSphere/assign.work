@@ -49,7 +49,7 @@ export class UsersService extends BaseService<User & Document> {
     });
   }
 
-  async createUser(user: Partial<User> | Array<Partial<User>>, session: ClientSession) {
+  async createUser(user: Partial<User & Document> | Array<Partial<User & Document>>, session: ClientSession) {
     return await this.create(user, session);
   }
 
