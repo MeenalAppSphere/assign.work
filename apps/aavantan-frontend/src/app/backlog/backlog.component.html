@@ -60,8 +60,8 @@
         </div>
           <div class="col text-right">
             <span *ngIf="sprintData && sprintData.id">
-              <button class="m-l-10" [disabled]="isDisabledCreateBtn || activeSprintId || draftData && draftData.length==0" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
-               <button class="m-l-10" *ngIf="!activeSprintId" nzType="link" [nzLoading]="saveSprintInProcess" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
+              <button class="m-l-10" [disabled]="isDisabledCreateBtn || !activeSprintId || draftData && draftData.length==0" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
+              <button class="m-l-10" *ngIf="activeSprintId" nzType="link" [nzLoading]="saveSprintInProcess" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
             </span>
 
             <button *ngIf="sprintData && sprintData.id" nzSize="32" class="m-l-10" nz-button nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">

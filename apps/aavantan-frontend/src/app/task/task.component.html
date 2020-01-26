@@ -1,5 +1,5 @@
 <div id="row-main" class="form-container row">
-    <aside id="content" class="m-b-20 p-r-25" [ngClass]="{
+    <aside id="content" class="m-b-20 p-r-25 m-t-10" [ngClass]="{
       'col-md-8': isOpenActivitySidebar && taskId,
       'col-md-12': !isOpenActivitySidebar || !taskId
     }">
@@ -425,7 +425,7 @@
             </span>
         </div>
     </aside>
-    <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }" class="col-md-4 p-t-15 m-b-20 p-r-10 p-l-10 bg-white border-radius-4">
+    <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }" class="col-md-4 p-t-15 m-b-20 p-r-10 p-l-10 m-t-10 bg-white border-radius-4">
         <section class="first-section">
             <div class="row">
 

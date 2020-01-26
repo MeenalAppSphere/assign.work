@@ -126,8 +126,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
-  async getUnpublishedSprint(){
-    this.gettingUnpublishedInProcess=true;
+  async getUnpublishedSprint(hideLoader?:boolean){
+    if(hideLoader){
+      this.gettingUnpublishedInProcess=true;
+    }
+
     try {
       const json: GetUnpublishedRequestModel = {
         projectId: this._generalService.currentProject.id
@@ -302,7 +305,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
 
       this.saveSprintInProcess = false;
-
+      this.getUnpublishedSprint(false);
     } catch (e) {
       this.createdSprintId = null;
       this.saveSprintInProcess = false;
