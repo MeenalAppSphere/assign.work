@@ -14,7 +14,6 @@ import {
   PublishSprintModel,
   RemoveTaskFromSprintModel,
   Sprint,
-  SprintErrorEnum,
   SprintErrorResponse,
   SprintErrorResponseItem,
   SprintStage,
@@ -30,11 +29,10 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from '../general.service';
 import * as moment from 'moment';
-import { generateUtcDate, hourToSeconds, secondsToHours, secondsToString } from '../../helpers/helpers';
-import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import { generateUtcDate, hourToSeconds, secondsToString } from '../../helpers/helpers';
 import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
-import { SprintValidationService } from './sprint.validation';
+import { SprintUtilityService } from './sprint-utility.service';
 import { TaskHistoryService } from '../task-history.service';
 
 const commonPopulationForSprint = [{
@@ -73,7 +71,7 @@ const detailedFiledSelection = `${commonFieldSelection} stages `;
 export class SprintService extends BaseService<Sprint & Document> implements OnModuleInit {
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
-  private _sprintValidationService: SprintValidationService;
+  private _sprintUtilityService: SprintUtilityService;
 
   constructor(
     @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
@@ -83,7 +81,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     private _generalService: GeneralService, private _moduleRef: ModuleRef
   ) {
     super(_sprintModel);
-    this._sprintValidationService = new SprintValidationService(_sprintModel);
+    this._sprintUtilityService = new SprintUtilityService(_sprintModel);
   }
 
   onModuleInit(): any {
@@ -116,7 +114,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // loop over sprints array and prepare vm object for all sprints
     result.items.forEach(sprint => {
-      sprint = this.prepareSprintVm(sprint, projectDetails);
+      sprint = this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
     });
     return result;
   }
@@ -139,12 +137,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     let sprint = await this._sprintModel.findOne(filter).populate(detailedPopulationForSprint).select(detailedFiledSelection).lean().exec();
-    sprint = this.prepareSprintVm(sprint, projectDetails);
+    sprint = this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
 
     // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
     // tasks is only added in only first stage means stage[0]
     sprint.stages[0].tasks.forEach(obj => {
-      obj.task = this.parseTaskObjectForUi(obj.task, projectDetails);
+      obj.task = this._sprintUtilityService.parseTaskObjectForUi(obj.task, projectDetails);
     });
 
     return sprint;
@@ -170,7 +168,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // perform common validations
-    this._sprintValidationService.commonSprintValidator(model.sprint);
+    this._sprintUtilityService.commonSprintValidator(model.sprint);
     // endregion
 
     // get project details and check if current user is member of project
@@ -182,7 +180,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // sprint unique name validation per project
-    const isSprintNameAvailable = await this._sprintValidationService.sprintNameAvailable(model.sprint.projectId, model.sprint.name);
+    const isSprintNameAvailable = await this._sprintUtilityService.sprintNameAvailable(model.sprint.projectId, model.sprint.name);
 
     if (!isSprintNameAvailable) {
       throw new BadRequestException('Sprint name already exits');
@@ -225,7 +223,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint, projectDetails);
+      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -247,7 +245,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // perform common validations
-    this._sprintValidationService.commonSprintValidator(model.sprint);
+    this._sprintUtilityService.commonSprintValidator(model.sprint);
 
     // get project details
     const projectDetails = await this.getProjectDetails(model.sprint.projectId);
@@ -308,7 +306,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(model.sprint.id, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint, projectDetails);
+      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -337,6 +335,13 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // get sprint details from sprint id
       const sprintDetails = await this.getSprintDetails(model.sprintId);
+
+      // filter out task that are already in this sprint
+      model.tasks = model.tasks.filter(task => {
+        return !sprintDetails.stages.some(stage => {
+          return stage.tasks.some(stageTask => stageTask.taskId === task);
+        });
+      });
 
       // get all tasks details from given tasks array
       const taskDetails: Task[] = await this._taskModel.find({
@@ -368,7 +373,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         task.id = task['_id'];
 
         // check if task is allowed to added to sprint
-        const checkTask = this.checkTaskIsAllowedToAddInSprint(task);
+        const checkTask = this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(task);
 
         // check if error is returned from check task method
         if (checkTask instanceof SprintErrorResponseItem) {
@@ -652,7 +657,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       taskDetail.id = taskDetail['_id'].toString();
       // check task validity for moving in sprint
-      const checkTaskIsAllowedToMove = this.checkTaskIsAllowedToAddInSprint(taskDetail, true);
+      const checkTaskIsAllowedToMove = this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(taskDetail, true);
 
       // if any error found in task validity checking return it
       if (checkTaskIsAllowedToMove instanceof SprintErrorResponseItem) {
@@ -693,7 +698,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, detailedFiledSelection);
-      return this.prepareSprintVm(sprint, projectDetails);
+      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -790,7 +795,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // return sprint details
       const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
-      return this.prepareSprintVm(sprint, projectDetails);
+      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -823,6 +828,15 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       throw new BadRequestException('Sprint end date is passed!');
     }
 
+    // check if sprint has any tasks or not
+    const checkIfThereAnyTasks = sprintDetails.stages.some(stage => {
+      return !!stage.tasks.length;
+    });
+
+    if (!checkIfThereAnyTasks) {
+      throw new BadRequestException('No task found, Please add at least one task to publish the sprint');
+    }
+
     // find out newly created stages from project details
     const newStagesFromProject = projectDetails.settings.stages.filter(stage => {
       return !sprintDetails.stages.some(sprintStage => sprintStage.id === stage.id);
@@ -847,7 +861,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintStatus: {
         status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate()
       },
-      $push: { stages: newStagesModels }
+      $push: { stages: { $each: newStagesModels } }
     };
 
     // send mail
@@ -892,12 +906,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // prepare sprint vm model
-    sprint = this.prepareSprintVm(sprint, projectDetails);
+    sprint = this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
 
     // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
     // tasks is only added in only first stage means stage[0]
     sprint.stages[0].tasks.forEach(obj => {
-      obj.task = this.parseTaskObjectForUi(obj.task, projectDetails);
+      obj.task = this._sprintUtilityService.parseTaskObjectForUi(obj.task, projectDetails);
     });
 
     return sprint;
@@ -974,49 +988,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   }
 
   /**
-   * check whether task is valid or not to add in sprint or move in a stage
-   * @param task
-   * @param isMoveTaskProcess
-   */
-  private checkTaskIsAllowedToAddInSprint(task: Task, isMoveTaskProcess: boolean = false): boolean | SprintErrorResponseItem {
-    // check if task found
-    if (task) {
-      const sprintError = new SprintErrorResponseItem();
-      sprintError.name = task.displayName;
-      sprintError.id = task.id;
-
-      // check task assignee
-      if (!task.assigneeId) {
-        sprintError.reason = SprintErrorEnum.taskNoAssignee;
-      }
-
-      // check task estimation
-      if (!task.estimatedTime) {
-        sprintError.reason = SprintErrorEnum.taskNoEstimate;
-      }
-
-      // check if task is already in sprint
-      if (!isMoveTaskProcess && task.sprintId) {
-        sprintError.reason = SprintErrorEnum.alreadyInSprint;
-      }
-
-      // if there any error return error
-      if (sprintError.reason) {
-        return sprintError;
-      }
-      // return true if no error
-      return true;
-    } else {
-      // if task not found return error
-      return {
-        id: task['_id'],
-        name: task.displayName,
-        reason: SprintErrorEnum.taskNotFound
-      };
-    }
-  }
-
-  /**
    * get project details by id
    * @param id: project id
    */
@@ -1059,105 +1030,4 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
     return sprintDetails;
   }
-
-  /**
-   * convert sprint object to it's view model
-   * @param sprint
-   * @returns {Sprint}
-   * @param projectDetails
-   */
-  private prepareSprintVm(sprint: Sprint, projectDetails: Project): Sprint {
-    if (!sprint) {
-      return sprint;
-    }
-
-    sprint.id = sprint['_id'];
-    // convert total capacity in readable format
-    sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
-
-    // convert estimation time in readable format
-    sprint.totalEstimationReadable = secondsToString(sprint.totalEstimation);
-
-    // calculate total remaining capacity
-    sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation || 0;
-    sprint.totalRemainingCapacityReadable = secondsToString(sprint.totalRemainingCapacity);
-
-    // convert total logged time in readable format
-    sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
-
-    // convert total over logged time in readable format
-    sprint.totalOverLoggedTimeReadable = secondsToString(sprint.totalOverLoggedTime || 0);
-
-    // calculate progress
-    sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
-    if (sprint.progress > 100) {
-      sprint.progress = 100;
-
-      // set total remaining time to zero
-      sprint.totalRemainingTime = 0;
-      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
-    } else {
-      // calculate total remaining time
-      sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
-      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
-    }
-
-    // calculate over progress
-    sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
-
-    // loop over stages and convert total estimation time to readable format
-    if (sprint.stages) {
-      sprint.stages.forEach(stage => {
-        stage.stage = projectDetails.settings.stages.find(st => st.id === stage.id);
-        stage.totalEstimationReadable = secondsToString(stage.totalEstimation);
-      });
-    }
-
-    // seconds to hour for ui
-    sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
-    sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
-    sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
-    sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
-    sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
-    sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
-
-    // loop over sprint members and convert working capacity to readable format
-    if (sprint.membersCapacity) {
-      sprint.membersCapacity.forEach(member => {
-        // convert capacity to hours again
-        member.workingCapacity = secondsToHours(member.workingCapacity);
-        member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
-        // member.workingCapacityPerDayReadable = secondsToString(member.workingCapacityPerDay);
-      });
-      return sprint;
-    }
-  }
-
-  /**
-   * parse task object, convert seconds to readable string, fill task type, priority, status etc..
-   * @param task : Task
-   * @param projectDetails: Project
-   */
-  private parseTaskObjectForUi(task: Task, projectDetails: Project) {
-    task.id = task['_id'];
-
-    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
-    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
-    task.status = projectDetails.settings.status.find(t => t.id === task.status);
-    task.isSelected = !!task.sprintId;
-
-    // convert all time keys to string from seconds
-    task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
-    task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
-    task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
-    task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
-
-    if (task.attachmentsDetails) {
-      task.attachmentsDetails.forEach(attachment => {
-        attachment.id = attachment['_id'];
-      });
-    }
-    return task;
-  }
-
 }
