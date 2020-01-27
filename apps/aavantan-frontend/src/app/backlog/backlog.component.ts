@@ -1,10 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AddTaskToSprintModel,
-  DraftSprint, GetAllSprintRequestModel,
-  GetAllTaskRequestModel, GetUnpublishedRequestModel,
-  Sprint, SprintBaseRequest, SprintErrorResponse,
-  Task, TaskType,
+  DraftSprint,
+  GetAllSprintRequestModel,
+  GetAllTaskRequestModel,
+  GetUnpublishedRequestModel,
+  Sprint,
+  SprintBaseRequest,
+  SprintErrorResponse,
+  Task,
+  TaskType,
   User
 } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -12,7 +17,7 @@ import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, uniqBy } from 'lodash';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
@@ -30,7 +35,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public memberObj: User;
   public view: String = 'listView';
   public totalDuration: Number = 0;
-  public durationData:any;
+  public durationData: any;
   public isDisabledCreateBtn: boolean = true;
   public draftSprint: DraftSprint;
   public draftData: Task[] = [];
@@ -45,9 +50,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
   public saveSprintInProcess: boolean;
-  public activeSprintData : Sprint;
-  public activeSprintId : string;
-  public haveUnpublishedTasks:boolean;
+  public activeSprintData: Sprint;
+  public activeSprintId: string;
+  public haveUnpublishedTasks: boolean;
   public taskTypeDataSource: TaskType[] = [];
 
   public searchValue: string;
@@ -60,7 +65,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
               private _userQuery: UserQuery,
               private _sprintService: SprintService,
               protected notification: NzNotificationService,
-              private router:Router) {
+              private router: Router) {
 
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -75,7 +80,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.activeSprintData = this._generalService.currentProject.sprint;
     this.activeSprintId = this._generalService.currentProject.sprintId;
 
-    if(this._generalService.currentProject && this._generalService.currentProject.id) {
+    if (this._generalService.currentProject && this._generalService.currentProject.id) {
       // this.getAllSprint();
       this.getAllBacklogTask();
       this.getUnpublishedSprint();
@@ -100,12 +105,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
       goal: null,
       startedAt: null,
       endAt: null,
-      sprintStatus:null
+      sprintStatus: null
     };
 
   }
 
-  async getAllSprint(){
+  async getAllSprint() {
     try {
 
       this.gettingAllSprintInProcess = true;
@@ -113,22 +118,22 @@ export class BacklogComponent implements OnInit, OnDestroy {
         projectId: this._generalService.currentProject.id
       };
 
-        this._sprintService.getAllSprint(json).subscribe(data=>{
-          this.sprintList = data.data.items
-          if(this.sprintList && this.sprintList.length>0){
-             // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
-          }
-        });
+      this._sprintService.getAllSprint(json).subscribe(data => {
+        this.sprintList = data.data.items;
+        if (this.sprintList && this.sprintList.length > 0) {
+          // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
+        }
+      });
 
-      }catch (e) {
-        this.gettingAllSprintInProcess = false;
-      }
+    } catch (e) {
+      this.gettingAllSprintInProcess = false;
+    }
 
   }
 
-  async getUnpublishedSprint(hideLoader?:boolean){
-    if(hideLoader){
-      this.gettingUnpublishedInProcess=true;
+  async getUnpublishedSprint(hideLoader?: boolean) {
+    if (hideLoader) {
+      this.gettingUnpublishedInProcess = true;
     }
 
     try {
@@ -139,14 +144,15 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this._sprintService.getUnpublishedSprint(json).subscribe(data => {
         this.gettingUnpublishedInProcess = false;
 
-        if((typeof data.data) === "string"){
+        if ((typeof data.data) === 'string') {
 
-        }else{
+        } else {
           this.sprintData = data.data;
 
-          const taskArray : Task[] = [];
-          const ids : string[] = [];
-          this.sprintData.stages[0].tasks.forEach((ele)=>{
+          const taskArray: Task[] = [];
+          const ids: string[] = [];
+          this.sprintData.stages[0].tasks.forEach((ele) => {
+            ele.task.isSelected = true;
             taskArray.push(ele.task);
             ids.push(ele.task.id);
           });
@@ -154,18 +160,18 @@ export class BacklogComponent implements OnInit, OnDestroy {
           this.draftSprint = {
             tasks: taskArray,
             ids: ids
-          }
+          };
           this.draftData = taskArray;
-          if(this.draftData.length>0){
+          if (this.draftData.length > 0) {
             this.haveUnpublishedTasks = true;
             this.isDisabledCreateBtn = false;
-          }else{
+          } else {
             this.haveUnpublishedTasks = false;
           }
         }
 
       });
-    }catch (e) {
+    } catch (e) {
       this.gettingUnpublishedInProcess = false;
     }
 
@@ -175,28 +181,28 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public onChangeSearch(value: any): void {
     this.searchTaskListInProgress = true;
     this.allTaskList = this.allTaskListBackup;
-    if(value){
-      this.allTaskList = this.allTaskList.filter((ele)=>{
+    if (value) {
+      this.allTaskList = this.allTaskList.filter((ele) => {
         let taskTypeName = '';
         let profileName = '';
-        if(ele.taskType && ele.taskType.name){
+        if (ele.taskType && ele.taskType.name) {
           taskTypeName = ele.taskType.name.toLowerCase();
         }
-        if(ele.assignee && ele.assignee.firstName || ele.assignee && ele.assignee.lastName){
-          profileName = (ele.assignee.firstName + ' ' +ele.assignee.lastName).toLowerCase();
+        if (ele.assignee && ele.assignee.firstName || ele.assignee && ele.assignee.lastName) {
+          profileName = (ele.assignee.firstName + ' ' + ele.assignee.lastName).toLowerCase();
         }
-        if(ele.name.toLowerCase().includes(value) || taskTypeName.includes(value) || profileName.includes(value)) {
+        if (ele.name.toLowerCase().includes(value) || taskTypeName.includes(value) || profileName.includes(value)) {
           return ele;
         }
       });
-    }else{
+    } else {
       this.allTaskList = this.allTaskListBackup;
     }
     this.searchTaskListInProgress = false;
 
   }
 
-  async getAllBacklogTask(){
+  async getAllBacklogTask() {
 
     const json: GetAllTaskRequestModel = {
       projectId: this._generalService.currentProject.id,
@@ -205,14 +211,14 @@ export class BacklogComponent implements OnInit, OnDestroy {
       onlyBackLog: true
     };
 
-    this.getTaskInProcess=true;
+    this.getTaskInProcess = true;
     const data = await this._taskService.getAllBacklogTasks(json).toPromise();
-    if(data.data && data.data.items.length>0){
+    if (data.data && data.data.items.length > 0) {
       this.allTaskList = cloneDeep(data.data.items);
       this.allTaskListBackup = cloneDeep(data.data.items);
     }
 
-    this.getTaskInProcess = false
+    this.getTaskInProcess = false;
     // this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
     //   if (res) {
     //     this.getTaskInProcess=false;
@@ -237,63 +243,57 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
 
-    if(this.haveUnpublishedTasks){
-      this.draftSprint.tasks = this.getUnique( this.draftSprint.tasks.concat(ev.tasks), 'id');
-    }else{
-      this.draftSprint = ev;
-    }
-
-
-    if (this.draftSprint && this.draftSprint.tasks.length > 0) {
-      this.isDisabledCreateBtn = false;
+    if (this.haveUnpublishedTasks) {
+      let tasks = this.draftSprint.tasks.concat(ev.tasks);
+      tasks = tasks.filter(task => task.isSelected);
+      tasks = uniqBy(tasks, 'id');
+      this.draftSprint.tasks = tasks;
     } else {
-      this.isDisabledCreateBtn = true;
+      this.draftSprint.tasks = ev.tasks.filter(task => task.isSelected);
     }
+
+    this.draftSprint.ids = this.draftSprint.tasks.map(task => task.id);
+    this.isDisabledCreateBtn = !(this.draftSprint && this.draftSprint.tasks.length > 0);
 
     this.prepareDraftSprint();
-
-  }
-
-  public prepareDraftSprint() {
-    this.draftData = this.draftSprint.tasks.filter((item) => {
-      if(item.isSelected){
-        return item;
-      }
-    });
-    console.log('draftData: ',this.draftData.length);
     this.calculateDraftDataDuration();
   }
 
-  public calculateDraftDataDuration(){
+  public prepareDraftSprint() {
+    this.draftData = [...this.draftSprint.tasks];
+  }
+
+  public calculateDraftDataDuration() {
     let estimatedTime = 0;
-    this.draftData.forEach((ele)=> {
+    this.draftData.forEach((ele) => {
       estimatedTime = estimatedTime + Number(ele.estimatedTime);
-    })
+    });
 
     this.sprintData.totalEstimation = estimatedTime;
     this.sprintData.totalEstimationReadable = this._generalService.secondsToReadable(this.sprintData.totalEstimation).readable;
-    this.sprintData.totalRemainingCapacity = (this.sprintData.totalCapacity*3600)-estimatedTime;
+    this.sprintData.totalRemainingCapacity = (this.sprintData.totalCapacity * 3600) - estimatedTime;
     this.sprintData.totalRemainingCapacityReadable = this._generalService.secondsToReadable(this.sprintData.totalRemainingCapacity).readable;
   }
-  public toggleAddSprint(data?:Sprint) {
-    if(data){
+
+  public toggleAddSprint(data?: Sprint) {
+    if (data) {
       this.sprintData = data;
     }
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
-  async saveSprint(){
+  async saveSprint() {
     try {
 
-      const sprintData : AddTaskToSprintModel = {
+      const sprintData: AddTaskToSprintModel = {
         projectId: this._generalService.currentProject.id,
         sprintId: this.sprintData.id,
-        tasks : this.draftSprint.ids
-      }
+        tasks: this.draftSprint.ids
+      };
 
 
       this.saveSprintInProcess = true;
-      const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
+      const data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
 
       if (!(data.data instanceof SprintErrorResponse)) {
         this.draftSprint.totalCapacity = data.data.totalCapacity;
@@ -316,16 +316,16 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     try {
 
-      const sprintData : SprintBaseRequest = {
+      const sprintData: SprintBaseRequest = {
         projectId: this._generalService.currentProject.id,
         sprintId: this.sprintData.id
-      }
+      };
 
       this.publishSprintInProcess = true;
       const data = await this._sprintService.publishSprint(sprintData).toPromise();
-      if(data){
+      if (data) {
         this.isDisabledCreateBtn = true;
-        this.router.navigate(['dashboard','board']);
+        this.router.navigate(['dashboard', 'board']);
       }
       this.publishSprintInProcess = false;
 
@@ -336,28 +336,28 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
-  public toggleTeamCapacity(data?:Sprint) {
-    if(data){
+  public toggleTeamCapacity(data?: Sprint) {
+    if (data) {
       this.sprintData = data;
     }
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 
 
-  public addTaskNavigate(){
-    let displayName: string= null;
-    if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
-      displayName=this.taskTypeDataSource[0].displayName;
+  public addTaskNavigate() {
+    let displayName: string = null;
+    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
+      displayName = this.taskTypeDataSource[0].displayName;
     }
 
-    if(!displayName){
+    if (!displayName) {
       this.notification.error('Info', 'Please create Stages, Task Types, Status, Priority from settings');
-      setTimeout(()=>{
-        this.router.navigateByUrl("dashboard/settings");
-      },1000);
-      return
+      setTimeout(() => {
+        this.router.navigateByUrl('dashboard/settings');
+      }, 1000);
+      return;
     }
-    this.router.navigateByUrl("dashboard/task/"+displayName);
+    this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
 
@@ -375,7 +375,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     return unique;
   }
 
-  public ngOnDestroy(){
+  public ngOnDestroy() {
 
   }
 
