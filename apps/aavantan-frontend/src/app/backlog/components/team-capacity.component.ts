@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
-  Organization, ProjectMembers,
+  Organization,
   ProjectWorkingDays,
   Sprint,
   SprintMembersCapacity,
@@ -48,6 +48,7 @@ export class TeamCapacityComponent implements OnInit {
           const capacityReqObject = {
             memberId: this.sprintData.membersCapacity[i].userId,
             workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString(),
+            workingCapacityPerDay: this.sprintData.membersCapacity[i].workingCapacityPerDay,
             workingCapacity: this.sprintData.membersCapacity[i].workingCapacity,
             workingDays:this.sprintData.membersCapacity[i].workingDays,
           }

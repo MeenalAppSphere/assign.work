@@ -183,6 +183,7 @@
           [showProgressOption]="false"
           (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
         ></aavantan-task-list>
+
         <aavantan-task-list
           *ngIf="sprintData && !sprintData.id"
           [taskByUser]="'all'"
