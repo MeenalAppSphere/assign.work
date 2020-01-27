@@ -27,7 +27,7 @@
       </li>
       <li joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
         <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
-          {{ currentProject?.name }}
+          <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-5" nzText="{{ currentProject?.name | slice : 0:2 }}"></nz-avatar> {{ currentProject?.name }}
         </a>
       </li>
 

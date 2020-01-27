@@ -1,9 +1,15 @@
 .project-name-btn{
-  font-size: 14px!important;
+  font-size: 17px!important;
   text-transform: initial;
   font-weight: 400;
   &:hover{
     background: none!important;
+  }
+  .project-avatar {
+    color:#ffffff;
+    background-color:#00255B;
+    border-radius: 7px;
+    box-shadow: 0px 0px 1px #0000000D;
   }
 }
 
