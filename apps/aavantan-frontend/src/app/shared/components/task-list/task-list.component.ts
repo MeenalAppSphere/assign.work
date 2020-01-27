@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
-  AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
   DraftSprint,
-  GetAllTaskRequestModel, RemoveTaskFromSprintModel, SprintErrorResponse,
+  GetAllTaskRequestModel,
+  RemoveTaskFromSprintModel,
+  SprintErrorResponse,
   Task,
   TaskFilterDto,
-  TaskTimeLogResponse,
-  TaskType
+  TaskTimeLogResponse
 } from '@aavantan-app/models';
 import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
@@ -93,38 +93,21 @@ export class TaskListComponent implements OnInit {
 
   public deselectTaskFromSprint(task: Task) {
     task.isSelected = false;
-    this.selectTaskForSprint(task); // api call to remove task from sprint
+    this.selectTaskForSprint(task, false); // api call to remove task from sprint
   }
 
 
-  public selectTaskForSprint(task: Task) {
+  public selectTaskForSprint(task: Task, bool: boolean) {
     if(!this.tasksSelected.sprintId){
       this.notification.error('Error', 'Create a new Sprint to add tasks');
       return;
     }
 
-    if (!task.sprint && (this.tasksSelected.ids.indexOf(task.id)) < 0) {
-
-      task.isSelected = true;
+    const taskIndex = this.tasksSelected.tasks.findIndex(t => t.id === task.id);
+    if (taskIndex === -1) {
       this.tasksSelected.tasks.push(task);
-      this.tasksSelected.ids.push(task.id);
-
-      // this.addTaskToSprintModel(task); // api call to add task into sprint
-
     } else {
-
-      this.tasksSelected.ids = this.tasksSelected.ids.filter(ele => {
-        return ele !== task.id;
-      });
-
-      this.tasksSelected.tasks = this.tasksSelected.tasks.filter(ele => {
-        return ele.id !== task.id;
-      });
-
-      task.isSelected = false;
-
-      // this.removeTaskFromSprint(task); // api call to remove task from sprint
-
+      this.tasksSelected.tasks[taskIndex].isSelected = bool;
     }
     this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
   }
