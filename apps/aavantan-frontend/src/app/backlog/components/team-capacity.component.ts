@@ -64,6 +64,16 @@ export class TeamCapacityComponent implements OnInit {
     }
   }
   public calculateTotalCapacity(){
+
+    if (this.sprintData.membersCapacity && this.sprintData.membersCapacity.length > 0) {
+      this.sprintData.membersCapacity.forEach((ele) => {
+
+        const countSelected = ele.workingDays.filter((ele1)=>{if(ele1.selected){return ele1;}});
+        ele.workingCapacity =  ele.workingCapacityPerDay * countSelected.length;
+
+      });
+    }
+
     this.sprintData.totalCapacity = 0;
     for(let i=0; i<this.sprintData.membersCapacity.length;i++){
       console.log(Number(this.sprintData.totalCapacity) +'--'+ Number(this.sprintData.membersCapacity[i].workingCapacity))

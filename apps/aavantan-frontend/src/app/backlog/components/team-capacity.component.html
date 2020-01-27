@@ -12,7 +12,7 @@
             <i nz-icon nzType="search"></i>
           </ng-template>
         </th>
-        <th class="text-right border-0" colspan="8">
+        <th class="text-right border-0" colspan="9">
           <small *ngIf="switchShow0Capacity">Hide <b class="text-success">0h Only</b></small>
           <small *ngIf="!switchShow0Capacity">Show <b class="text-success">0h Only</b></small>
           <nz-switch nzSize="small" [(ngModel)]="switchShow0Capacity" (ngModelChange)="onChangeSwitchCapacity()" class="m-l-5"></nz-switch>
@@ -20,17 +20,20 @@
 
       </tr>
       <tr *ngIf="sprintData?.membersCapacity.length>0">
-        <th class="border-0" >Name</th>
-        <th class="border-0 text-right" width="200">Working hours</th>
-        <th class="text-right" colspan="7"></th>
+        <th class="" >Name</th>
+        <th class="text-right" width="200">Working hours</th>
+        <th class="text-right" width="100">Per day</th>
+        <th class="text-center" colspan="7">Working Days</th>
       </tr>
       </thead>
       <tbody>
 
       <tr *ngFor="let item of sprintData.membersCapacity">
         <td><nz-avatar nzSize="small" nzIcon="user" nzText="{{ item.user.firstName | slice : 0:1 }}" nzSrc="{{item.user.profilePic}}"></nz-avatar> {{item.user.firstName}} {{item.user.lastName}}</td>
-        <td class="text-right"><input nz-input numeric numericType="number" maxlength="3" placeholder="Hours" class="team-list-input" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotalCapacity()" nzSize="small" maxlength="3"/></td>
 
+        <td class="text-right"><input disabled nz-input numeric numericType="number" maxlength="3" placeholder="Hours" class="team-list-input" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotalCapacity()" nzSize="small" maxlength="3"/></td>
+
+        <td class="text-right"><input nz-input numeric numericType="number" maxlength="3" placeholder="Hours" class="team-list-input" [(ngModel)]="item.workingCapacityPerDay" (keyup)="calculateTotalCapacity()" nzSize="small" maxlength="2"/></td>
 
         <td *ngFor="let wd of item.workingDays" class="p-r-0">
           <button *ngIf="wd.selected" (click)="selectDay(wd, item)" nz-button nzType="primary" nzSize="small" nzShape="rounded"><i nz-icon nzType="check"></i>{{wd.day}}</button>
@@ -39,7 +42,7 @@
 
       </tr>
       <tr *ngIf="sprintData?.membersCapacity.length>0">
-        <td class="text-right" colspan="2">
+        <td class="text-right" colspan="3">
           <nz-tag [nzColor]="'#F8F8F8'" class="text-gray-light">Total Capacity : <strong class="text-body" >{{sprintData.totalCapacityReadable ? sprintData.totalCapacityReadable : '0h'}}</strong></nz-tag>
         </td>
         <td class="text-right" colspan="7"></td>
