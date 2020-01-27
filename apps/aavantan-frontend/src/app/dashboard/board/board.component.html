@@ -101,19 +101,14 @@
           </div>
         </div>
       </div>
-      <div *ngIf="!boardData" class="text-center text-gray-light">
+      <div *ngIf="!boardData" class="text-center text-gray-light m-t-80">
         <nz-empty
-          [nzNotFoundImage]="false"
-          [nzNotFoundContent]="contentTpl"
-          [nzNotFoundFooter]="footerTpl">
+          [nzNotFoundImage]="'../../../assets/images/not-found/no-board.svg'"
+          [nzNotFoundContent]="contentTpl">
           <ng-template #contentTpl>
-            <span>There in no active Sprint</span>
+            <span></span>
           </ng-template>
-          <ng-template #footerTpl>
-            <button nz-button nzSize="small" nzType="primary" class="btn-medium" routerLink="../backlog">+ Create
-              Sprint
-            </button>
-          </ng-template>
+
         </nz-empty>
       </div>
     </div>

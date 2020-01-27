@@ -93,7 +93,7 @@ export class TaskListComponent implements OnInit {
 
   public deselectTaskFromSprint(task: Task) {
     task.isSelected = false;
-    this.selectTaskForSprint(task, false); // api call to remove task from sprint
+    this.selectTaskForSprint(task, false);
   }
 
 
@@ -110,63 +110,6 @@ export class TaskListComponent implements OnInit {
       this.tasksSelected.tasks[taskIndex].isSelected = bool;
     }
     this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
-  }
-
-  async addTaskToSprintModel(task:Task){
-
-    try {
-
-      const sprintData : AddTaskToSprintModel = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this.tasksSelected.sprintId,
-        tasks : [task.id]
-      }
-
-      const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
-
-      if (!(data.data instanceof SprintErrorResponse)) {
-        this.tasksSelected.totalCapacity = data.data.totalCapacity;
-        this.tasksSelected.totalCapacityReadable = data.data.totalCapacityReadable;
-        this.tasksSelected.totalEstimation = data.data.totalEstimation;
-        this.tasksSelected.totalEstimationReadable = data.data.totalEstimationReadable;
-        this.tasksSelected.totalRemainingCapacity = data.data.totalRemainingCapacity;
-        this.tasksSelected.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
-        this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
-      }
-
-      return data.data;
-
-    } catch (e) {
-    }
-
-  }
-
-  async removeTaskFromSprint(task:Task){
-
-    try {
-
-      const sprintData : RemoveTaskFromSprintModel = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this.tasksSelected.sprintId,
-        tasks : [task.id]
-      }
-
-      const data = await this._sprintService.removeTaskToSprint(sprintData).toPromise();
-      console.log('removeTaskFromSprint',data);
-      // console.log('instance : ',data.data instanceof AddTaskRemoveTaskToSprintResponseModel);
-      // if(data.data instanceof AddTaskRemoveTaskToSprintResponseModel){
-        this.tasksSelected.totalCapacity = data.data.totalCapacity;
-        this.tasksSelected.totalCapacityReadable = data.data.totalCapacityReadable;
-        this.tasksSelected.totalEstimation = data.data.totalEstimation;
-        this.tasksSelected.totalEstimationReadable = data.data.totalEstimationReadable;
-        this.tasksSelected.totalRemainingCapacity = data.data.totalRemainingCapacity;
-        this.tasksSelected.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
-        this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
-      //}
-
-    } catch (e) {
-    }
-
   }
 
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {

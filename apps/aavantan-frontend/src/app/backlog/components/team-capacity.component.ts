@@ -33,8 +33,7 @@ export class TeamCapacityComponent implements OnInit {
   }
 
   async saveForm(){
-    console.log(this.sprintData);
-//return ;
+
     try {
       this.isCapacityUpdateInProgress = true;
       const json: UpdateSprintMemberWorkingCapacity = {
@@ -76,8 +75,8 @@ export class TeamCapacityComponent implements OnInit {
     }
 
     this.sprintData.totalCapacity = 0;
+
     for(let i=0; i<this.sprintData.membersCapacity.length;i++){
-      console.log(Number(this.sprintData.totalCapacity) +'--'+ Number(this.sprintData.membersCapacity[i].workingCapacity))
       this.sprintData.totalCapacity = Number(this.sprintData.totalCapacity) + Number(this.sprintData.membersCapacity[i].workingCapacity);
       this.sprintData.totalCapacityReadable = this.sprintData.totalCapacity ? this.sprintData.totalCapacity+'h 0m' : '0h 0m';
     }

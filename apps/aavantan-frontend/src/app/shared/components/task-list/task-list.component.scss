@@ -44,3 +44,8 @@
 .progress-box-section{
   height: 25px;border-top: 1px solid #ddd;margin-top: 8px;padding-top: 6px;font-size: 13px;
 }
+.remove-item {
+  &:hover {
+  color: red!important;
+  }
+}

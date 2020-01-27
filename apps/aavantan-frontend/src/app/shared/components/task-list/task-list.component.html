@@ -103,7 +103,7 @@
             <tr *ngFor="let item of listViewTable.data" [ngClass]="{'has-missing-data':(tasksSelected && tasksSelected.sprintId) && (!item.assignee || !item.estimatedTime) }">
 
                 <td data-label="#" *ngIf="isDraftTable" class="text-center">
-                  <i *ngIf="isDraftTable" (click)="deselectTaskFromSprint(item)" nz-icon nzType="close-circle" class="text-muted" theme="fill"></i>
+                  <i *ngIf="isDraftTable" (click)="deselectTaskFromSprint(item)" nz-icon nzType="close-circle" class="remove-item cursor-pointer text-muted" theme="fill"></i>
                 </td>
                 <td data-label="#" *ngIf="showCheckboxOption && tasksSelected && tasksSelected.sprintId" class="text-center">
 
