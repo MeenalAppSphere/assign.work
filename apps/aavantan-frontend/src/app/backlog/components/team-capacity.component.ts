@@ -1,5 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Organization, Sprint, SprintMembersCapacity, UpdateSprintMemberWorkingCapacity } from '@aavantan-app/models';
+import {
+  Organization, ProjectMembers,
+  ProjectWorkingDays,
+  Sprint,
+  SprintMembersCapacity,
+  UpdateSprintMemberWorkingCapacity
+} from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
 
@@ -42,7 +48,8 @@ export class TeamCapacityComponent implements OnInit {
           const capacityReqObject = {
             memberId: this.sprintData.membersCapacity[i].userId,
             workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString(),
-            workingCapacity: this.sprintData.membersCapacity[i].workingCapacity
+            workingCapacity: this.sprintData.membersCapacity[i].workingCapacity,
+            workingDays:this.sprintData.membersCapacity[i].workingDays,
           }
           json.capacity.push(capacityReqObject);
         }
@@ -57,6 +64,16 @@ export class TeamCapacityComponent implements OnInit {
     }
   }
   public calculateTotalCapacity(){
+
+    if (this.sprintData.membersCapacity && this.sprintData.membersCapacity.length > 0) {
+      this.sprintData.membersCapacity.forEach((ele) => {
+
+        const countSelected = ele.workingDays.filter((ele1)=>{if(ele1.selected){return ele1;}});
+        ele.workingCapacity =  ele.workingCapacityPerDay * countSelected.length;
+
+      });
+    }
+
     this.sprintData.totalCapacity = 0;
     for(let i=0; i<this.sprintData.membersCapacity.length;i++){
       console.log(Number(this.sprintData.totalCapacity) +'--'+ Number(this.sprintData.membersCapacity[i].workingCapacity))
@@ -96,6 +113,16 @@ export class TeamCapacityComponent implements OnInit {
     }
   }
 
+  public selectDay(wd: ProjectWorkingDays, userRow: SprintMembersCapacity){
+    if(wd.selected){
+      wd.selected = false;
+    } else{
+      wd.selected = true;
+    }
+    const countSelected = userRow.workingDays.filter((ele)=>{if(ele.selected){return ele;}});
+    userRow.workingCapacity =  userRow.workingCapacityPerDay * countSelected.length;
+    this.calculateTotalCapacity();
+  }
 
   public basicModalHandleCancel() {
     this.toggleShow.emit();

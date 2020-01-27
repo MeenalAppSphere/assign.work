@@ -58,7 +58,15 @@ $color-gray-light-2:#7A869A;
   color: $color-gray-light;
 }
 
-
+.ant-pagination-item-active {
+  border-color: $brand-default-btn;
+  font-weight: 400;
+  background-color: $brand-default-btn;
+  border-radius: 3px;
+  a {
+    color: $theme-blue!important;
+  }
+}
 
 .ant-card-small>.ant-card-head {
   padding: 6px 15px;
@@ -503,15 +511,6 @@ $color-gray-light-2:#7A869A;
   .ant-table-small>.ant-table-content>.ant-table-body {
     margin: 0px 8px 8px 8px;
   }
-  .ant-pagination-item-active {
-    border-color: #F1F2F4;
-    font-weight: 400;
-    background-color: #F1F2F4;
-    border-radius: 3px;
-    a {
-      color: $theme-blue;
-    }
-  }
 }
 
 .draft-sprint-box {
@@ -736,4 +735,16 @@ $color-gray-light-2:#7A869A;
 .ant-pagination-item-link {
   color: #7A869A!important;
   opacity: 1!important;
+}
+
+.capacity-modal {
+  .capacity-table{
+    td, th{
+      border-bottom: 1px solid #edf2f9;
+    }
+    .anticon+span, span+.anticon {
+      margin-left: 4px!important;
+      font-size: 11px!important;
+    }
+  }
 }
