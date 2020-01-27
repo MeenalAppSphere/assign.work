@@ -1,16 +1,40 @@
-.capacity-table{
+.capacity-table {
   margin-top: -16px;
-  padding: 0px 9px;
-  .ant-modal-body{
-    padding: 0px!important;
+  padding: 0px 4px;
+  overflow: auto;
+  .ant-modal-body {
+    padding: 0px !important;
   }
-  th, td{
-    padding: 5px!important;
+
+  .ant-btn {
+    border-radius: 25px;
+    min-width: 50px;
+    padding: 4px !important;
+    text-transform: uppercase;
+    span{
+      margin-left: 3px!important;
+      font-size: 11px!important;
+    }
   }
-  .ant-table-tbody > tr:last-child > td{
+
+  .ant-btn.ant-btn-link {
+    padding: 3px!important;
+  }
+  .ant-btn > .anticon + span,
+  .ant-btn > span + .anticon {
+    margin-left: 0px !important;
+  }
+  th,
+  td {
+    padding: 5px !important;
+  }
+  .p-r-0{
+    padding-right: 0px !important;
+  }
+  .ant-table-tbody > tr:last-child > td {
     border-bottom: 0px;
   }
-  input{
+  input {
     max-width: 50px;
     height: 25px;
     font-size: 12px;
