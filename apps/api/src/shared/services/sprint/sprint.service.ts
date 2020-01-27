@@ -29,7 +29,7 @@ import { Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from '../general.service';
 import * as moment from 'moment';
-import { generateUtcDate, hourToSeconds, secondsToString } from '../../helpers/helpers';
+import { generateUtcDate, hourToSeconds, secondsToString, validWorkingDaysChecker } from '../../helpers/helpers';
 import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from './sprint-utility.service';
@@ -727,11 +727,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // valid working days
-    // const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
-    //
-    // if (!validWorkingDays) {
-    //   throw new BadRequestException('One of Collaborator working days are invalid');
-    // }
+    const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
+
+    if (!validWorkingDays) {
+      throw new BadRequestException('One of Collaborator working days are invalid');
+    }
 
     // get sprint details by id
     const sprintDetails = await this.getSprintDetails(model.sprintId);
@@ -773,8 +773,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         if (indexOfMemberInRequestedModal > -1) {
           // convert member capacity hours to seconds
           sprintMember.workingCapacity = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacity);
-          // sprintMember.workingCapacityPerDay = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDay);
-          // sprintMember.workingDays = model.capacity[indexOfMemberInRequestedModal].workingDays;
+          sprintMember.workingCapacityPerDay = hourToSeconds(model.capacity[indexOfMemberInRequestedModal].workingCapacityPerDay);
+          sprintMember.workingDays = model.capacity[indexOfMemberInRequestedModal].workingDays;
         }
         totalWorkingCapacity += sprintMember.workingCapacity;
       });
@@ -814,28 +814,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     const projectDetails = await this.getProjectDetails(model.projectId);
     const sprintDetails = await this.getSprintDetails(model.sprintId);
 
-    // validation
-    const sprintStartDate = moment(sprintDetails.startedAt);
-    const sprintEndDate = moment(sprintDetails.endAt);
-
-    // sprint start date is before today
-    if (sprintStartDate.isBefore(moment(), 'd')) {
-      throw new BadRequestException('Sprint start date is before today!');
-    }
-
-    // sprint end date can not be before today
-    if (sprintEndDate.isBefore(moment(), 'd')) {
-      throw new BadRequestException('Sprint end date is passed!');
-    }
-
-    // check if sprint has any tasks or not
-    const checkIfThereAnyTasks = sprintDetails.stages.some(stage => {
-      return !!stage.tasks.length;
-    });
-
-    if (!checkIfThereAnyTasks) {
-      throw new BadRequestException('No task found, Please add at least one task to publish the sprint');
-    }
+    // validations
+    this._sprintUtilityService.publishSprintValidations(sprintDetails);
 
     // find out newly created stages from project details
     const newStagesFromProject = projectDetails.settings.stages.filter(stage => {

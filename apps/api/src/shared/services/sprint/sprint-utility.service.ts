@@ -205,4 +205,37 @@ export class SprintUtilityService {
     }
     return task;
   }
+
+  /**
+   * publish sprint validation
+   * check validations before publishing the sprint
+   * check start date is not in past
+   * end date is not before start date
+   * check if sprint has any task or not
+   * @param sprintDetails
+   */
+  publishSprintValidations(sprintDetails: Sprint) {
+    // validation
+    const sprintStartDate = moment(sprintDetails.startedAt);
+    const sprintEndDate = moment(sprintDetails.endAt);
+
+    // sprint start date is before today
+    if (sprintStartDate.isBefore(moment(), 'd')) {
+      throw new BadRequestException('Sprint start date is before today!');
+    }
+
+    // sprint end date can not be before today
+    if (sprintEndDate.isBefore(moment(), 'd')) {
+      throw new BadRequestException('Sprint end date is passed!');
+    }
+
+    // check if sprint has any tasks or not
+    const checkIfThereAnyTasks = sprintDetails.stages.some(stage => {
+      return !!stage.tasks.length;
+    });
+
+    if (!checkIfThereAnyTasks) {
+      throw new BadRequestException('No task found, Please add at least one task to publish the sprint');
+    }
+  }
 }
