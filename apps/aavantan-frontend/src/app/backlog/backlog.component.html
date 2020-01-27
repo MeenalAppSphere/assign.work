@@ -198,7 +198,7 @@
       </ng-container>
 
       <div ngClass="{{allTaskList && allTaskList.length>0 ? 'btn-create-backlog': ''}}">
-        <span class="text-primary cursor-pointer font-weight-normal font-size-13" (click)="addTaskNavigate()">+ Create Backlog</span>
+        <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13" (click)="addTaskNavigate()">+ Create Backlog</a>
       </div>
 
       <ng-container *ngIf="allTaskList && allTaskList.length === 0">
