@@ -341,7 +341,7 @@
 
                       <button type="reset" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
                       <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task</button>
-                        <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button nzType="primary" class="m-r-5">Save</button>
+                        <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button nzType="primary" class="m-r-5 btn-save-task">Save</button>
 
                         <ng-container>
                             <button nz-dropdown type="button" [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomRight" nzType="link" nzSize="small" class="float-right btn-ellipsis" nz-button>
