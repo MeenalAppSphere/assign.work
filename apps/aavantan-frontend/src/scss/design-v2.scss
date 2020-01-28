@@ -752,3 +752,58 @@ $color-gray-light-2:#7A869A;
     }
   }
 }
+
+/* for mobile view */
+
+@media only screen and (max-width: 768px) {
+  /* header */
+  .project-name-btn {
+    max-width: 170px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* task page */
+  #content .floating-save-btns {
+    z-index: 1000!important;
+    position: fixed!important;
+    top: 66px!important;
+    right: 27px!important;
+    .btn-save-task{
+      margin-right: 0px!important;
+    }
+  }
+
+  /* board page */
+  .collaborators-avatar{
+    margin-bottom: 10px;
+  }
+  .board-header-section{
+    .header-btn-group{
+      display: block;
+      width: 100%;
+      margin-top: 5px;
+    }
+    .btn-add-task{
+      width: 47%;
+      margin: 0px 5px!important;
+    }
+
+    .sprint-name-button {
+      height:20px!important;
+      max-width: 320px;
+      padding-left: 10px;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  /* common */
+  .horizontal-list .ant-list-item{
+    width: 100%!important;
+  }
+
+}
+

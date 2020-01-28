@@ -1,14 +1,14 @@
 <section class="collaborators-avatar">
-  <div class="row">
+  <div class="row board-header-section">
 
-    <div class="col">
+    <div class="col-md-4">
 
-      <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button"
+      <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button"
               nz-button>{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}</button>
 
       <!--   once we allow multiple sprint   -->
       <!--      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">-->
-      <!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-button" nz-button>{{sprintData.name}}-->
+      <!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button" nz-button>{{sprintData.name}}-->
       <!--          <img src="../../../assets/images/icons/arrow-point-to-down.svg" class="p-l-10" height="5"/>-->
       <!--        </button>-->
       <!--      </nz-button-group>-->
@@ -19,7 +19,9 @@
       <!--      </nz-dropdown-menu>-->
 
     </div>
-    <div class="col text-right">
+
+    <div class="col-md-8 text-right user-filter-section">
+
       <span *ngIf="boardData && boardData.membersCapacity?.length>0">
 
         <span *ngFor="let item of boardData.membersCapacity">
@@ -34,11 +36,15 @@
                      nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
         </span>
 
-       </span>
-      <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30" (click)="addTaskNavigate()">+ Add Task</button>
-      <button *ngIf="boardData" nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close
-        Sprint
-      </button>
+     </span>
+
+      <span class="header-btn-group">
+        <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30" (click)="addTaskNavigate()">+ Add Task</button>
+        <button *ngIf="boardData" nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close
+          Sprint
+        </button>
+      </span>
+
     </div>
 
   </div>
