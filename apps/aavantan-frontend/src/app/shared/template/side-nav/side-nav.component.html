@@ -135,9 +135,12 @@
 
 <div class="btn-floating-container">
   <a href="javascript:void(0);"
-       [ngStyle]="{'background':isFolded ? '#ffffff20' : 'none' }"
+       [ngClass]="isFolded ? '' : 'large-btn'"
        (click)="createNewTask()" class="btn-floating" nz-button nzType="primary" nzSize="small" nzShape="round" nzTitle="Create Task" nzPlacement="right" nz-tooltip>
-    +
+    <span style="display:flex;">
+      <span>+</span>
+      <span class="p-l-15 font-size-15 text-white d-inline-block" style="padding-top: 3px;" *ngIf="!isFolded">Create Task</span>
+    </span>
   </a>
-  <span class="p-l-15 font-size-15 text-white d-inline-block" *ngIf="!isFolded">Create Task</span>
+
 </div>
