@@ -77,6 +77,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
 
+  public colorType = '#dddddd';
+
 
   public workingDays : ProjectWorkingDays[] = [
     {

@@ -446,21 +446,23 @@
               <nz-form-item>
                 <nz-form-label>Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and title)</small></nz-form-label>
 
-                <nz-form-control>
+                <nz-form-control class="color-group-btn">
                   <nz-input-group [nzAddOnBefore]="profixIconButton">
                     <input class="task-type-input" type="text" nzSize="small" formControlName="name" maxlength="20" nz-input
                            placeholder="Enter Task type"/>
                   </nz-input-group
                   >
                   <ng-template #profixIconButton>
-                    <input type="color" nzSize="small" formControlName="color"/>
+<!--                    <input type="color" nzSize="small" formControlName="color"/>-->
+                    <input class="color-picker-input" [(colorPicker)]="colorType" formControlName="color" [cpOKButton]="true" [style.background]="colorType"/>
                   </ng-template>
                 </nz-form-control>
 
               </nz-form-item>
 
               <nz-form-item>
-                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
+                <button [disabled]="taskTypeForm.invalid" [nzLoading]="updateRequestInProcess"
+                        nz-button nzSize="small" nzType="primary">Add</button>
               </nz-form-item>
 
             </form>

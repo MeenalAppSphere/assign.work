@@ -76,6 +76,7 @@
     "nestjs-easyconfig": "^1.5.1",
     "ng-zorro-antd": "8.1.2",
     "ngx-bootstrap": "^5.1.2",
+    "ngx-color-picker": "^8.2.0",
     "ngx-drag-drop": "^2.0.0",
     "ngx-infinite-scroll": "^8.0.0",
     "ngx-joyride": "^2.2.10",
