@@ -96,7 +96,8 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
       this.socialAuthService.signOut(true).then(() => {
         this.doLogout();
       }).catch(err => {
-        console.log(err);
+        // if error occurs do a normal logout
+        this.doLogout();
       });
     } else {
       // normal login
@@ -116,7 +117,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         this.notification.error('Error', err.error.message);
         return of(err);
       }))
-    )
+    );
   }
 
   resetPassword(model: ResetPasswordVerifyModel) {
@@ -132,7 +133,7 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
         this.notification.error('Error', err.error.message);
         return of(err);
       }))
-    )
+    );
   }
 
   private doLogout() {

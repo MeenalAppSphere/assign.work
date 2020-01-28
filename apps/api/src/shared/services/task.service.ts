@@ -436,13 +436,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     model.comment.createdAt = new Date();
     model.comment.updatedAt = new Date();
 
-    if (!taskDetails.comments.length) {
-      taskDetails.comments = [model.comment];
-    } else {
-      taskDetails.comments.push(model.comment);
-    }
+    
     const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
-    await this.updateHelper(model.taskId, taskDetails, taskHistory);
+    await this.updateHelper(model.taskId, { $push: { comments: model.comment } }, taskHistory);
     return 'Comment Added Successfully';
   }
 
