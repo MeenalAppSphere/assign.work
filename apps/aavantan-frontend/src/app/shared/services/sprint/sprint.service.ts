@@ -6,9 +6,10 @@ import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import {
   AddTaskRemoveTaskToSprintResponseModel,
-  AddTaskToSprintModel,
+  AssignTasksToSprintModel,
   BasePaginatedResponse,
-  BaseResponseModel, CloseSprintModel,
+  BaseResponseModel,
+  CloseSprintModel,
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetAllTaskRequestModel,
@@ -18,14 +19,13 @@ import {
   Sprint,
   SprintBaseRequest,
   SprintErrorResponse,
-  SprintStage, Task,
+  Task,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
 import { catchError, map } from 'rxjs/operators';
-import { TaskUrls } from '../task/task.url';
 
 @Injectable()
 export class SprintService extends BaseService<TaskStore, TaskState> {
@@ -118,8 +118,8 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  addTaskToSprint(sprintData: AddTaskToSprintModel): Observable<BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>> {
-    return this._http.post(SprintUrls.addTaskToSprint, sprintData).pipe(
+  assignTaskToSprint(sprintData: AssignTasksToSprintModel): Observable<BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>> {
+    return this._http.post(SprintUrls.assignTaskToSprint, sprintData).pipe(
       map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>) => {
 
 

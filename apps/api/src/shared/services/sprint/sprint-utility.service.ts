@@ -238,4 +238,8 @@ export class SprintUtilityService {
       throw new BadRequestException('No task found, Please add at least one task to publish the sprint');
     }
   }
+
+  removeTasksFromSprintCalculation() {
+
+  }
 }

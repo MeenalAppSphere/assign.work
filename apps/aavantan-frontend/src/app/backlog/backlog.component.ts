@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  AddTaskToSprintModel,
+  AssignTasksToSprintModel,
   DraftSprint,
   GetAllSprintRequestModel,
   GetAllTaskRequestModel,
@@ -285,7 +285,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   async saveSprint() {
     try {
 
-      const sprintData: AddTaskToSprintModel = {
+      const sprintData: AssignTasksToSprintModel = {
         projectId: this._generalService.currentProject.id,
         sprintId: this.sprintData.id,
         tasks: this.draftSprint.ids
@@ -293,7 +293,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
 
       this.saveSprintInProcess = true;
-      const data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
+      const data = await this._sprintService.assignTaskToSprint(sprintData).toPromise();
 
       if (!(data.data instanceof SprintErrorResponse)) {
         this.draftSprint.totalCapacity = data.data.totalCapacity;

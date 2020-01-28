@@ -59,7 +59,7 @@
 
         </div>
           <div class="col text-right">
-            <span *ngIf="activeSprintId ||  (draftData?.length>0 && sprintData?.id) || !isDisabledCreateBtn" >
+            <span *ngIf="activeSprintId ||  (sprintData?.id) || !isDisabledCreateBtn" >
               <button class="m-l-10" [disabled]="!haveUnpublishedTasks" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
               <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
             </span>

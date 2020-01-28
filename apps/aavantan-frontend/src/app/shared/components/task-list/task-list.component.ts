@@ -1,14 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import {
-  AddTaskToSprintModel,
-  DraftSprint,
-  GetAllTaskRequestModel,
-  RemoveTaskFromSprintModel,
-  SprintErrorResponse,
-  Task,
-  TaskFilterDto,
-  TaskTimeLogResponse
-} from '@aavantan-app/models';
+import { DraftSprint, GetAllTaskRequestModel, Task, TaskFilterDto, TaskTimeLogResponse } from '@aavantan-app/models';
 import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { TaskService } from '../../services/task/task.service';
