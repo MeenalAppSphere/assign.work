@@ -6,6 +6,16 @@
       <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button"
               nz-button>{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}</button>
 
+      <span *ngIf="boardData?.endAt" class="sprint-date">
+      <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10"> Ending on {{boardData?.endAt | date : 'MMM d'}}
+        <i nz-icon nzType="info-circle" theme="outline" nzPlacement="top" class="font-size-14 text-gray-light cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"></i></span>
+        <ng-template #titleTemplate>
+          <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
+          <div><span class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
+          <div><span class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
+        </ng-template>
+      </span>
+
       <!--   once we allow multiple sprint   -->
       <!--      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">-->
       <!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button" nz-button>{{sprintData.name}}-->
