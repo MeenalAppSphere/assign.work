@@ -118,8 +118,9 @@ export class SprintBaseRequest {
   sprintId: string;
 }
 
-export class AddTaskToSprintModel extends SprintBaseRequest {
+export class AssignTasksToSprintModel extends SprintBaseRequest {
   tasks: string[];
+  adjustHoursAllowed?: boolean;
 }
 
 export class RemoveTaskFromSprintModel extends SprintBaseRequest {
