@@ -103,6 +103,34 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   ];
 
+  public AddWorkflowFormIsVisible:boolean;
+  public workflowList = [
+    {
+      key    : '1',
+      name   : 'Work Flow 1',
+      isActive : true,
+      typesInvolved: 'BUG, TASK, EPIC',
+      createdBy:'Aashish Patil',
+      createdOn:new Date(),
+    },
+    {
+      key    : '2',
+      name   : 'Work Flow 2',
+      isActive : false,
+      typesInvolved: 'BUG, TASK, EPIC',
+      createdBy:'Aashish Patil',
+      createdOn:new Date()
+    },
+    {
+      key    : '3',
+      name   : 'Work Flow 3',
+      isActive : false,
+      typesInvolved: 'BUG, TASK, EPIC',
+      createdBy:'Aashish Patil',
+      createdOn:new Date()
+    }
+  ];
+
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _generalService: GeneralService,
               private _projectService: ProjectService, private _userQuery: UserQuery, private _userService: UserService,
               private modalService: NzModalService) {
@@ -550,6 +578,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   projectModalShow(): void {
       this.projectModalIsVisible = !this.projectModalIsVisible;
   }
+
+  //================== workflow =====================//
+  public showAddWorkflowForm(){
+    this. AddWorkflowFormIsVisible = !this.AddWorkflowFormIsVisible;
+  }
+
 
   public ngOnDestroy(): void {
   }

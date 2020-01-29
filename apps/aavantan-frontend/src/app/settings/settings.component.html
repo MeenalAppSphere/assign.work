@@ -5,7 +5,6 @@
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='project'}" (click)="activeTab('project', 'Project')">
-<!--        <i class="fas fa-desktop"></i>-->
         <img *ngIf="activeView.view==='project'" src="../../assets/images/icons/white_project_setting.svg"/>
         <img *ngIf="activeView.view!=='project'" src="../../assets/images/icons/project_setting.svg"/>
         <div>Project</div>
@@ -13,9 +12,16 @@
     </li>
 
     <li>
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='workflow'}" (click)="activeTab('workflow', 'Workflow')">
+        <img *ngIf="activeView.view==='workflow'" src="../../assets/images/icons/white_workflow.svg"/>
+        <img *ngIf="activeView.view!=='workflow'" src="../../assets/images/icons/workflow.svg">
+        <div>Workflow</div>
+      </a>
+    </li>
+
+    <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='collaborators'}"
          (click)="activeTab('collaborators', 'Collaborators')">
-<!--        <i class="fas fa-user-friends"></i>-->
         <img *ngIf="activeView.view==='collaborators'" src="../../assets/images/icons/white_collaborator.svg"/>
         <img *ngIf="activeView.view!=='collaborators'" src="../../assets/images/icons/collaborator.svg"/>
         <div>Collaborators</div>
@@ -25,7 +31,6 @@
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"
          (click)="activeTab('stages', 'Stages')">
-<!--        <i class="fas fa-bars"></i>-->
         <img *ngIf="activeView.view==='stages'" src="../../assets/images/icons/white_stages.svg"/>
         <img *ngIf="activeView.view!=='stages'" src="../../assets/images/icons/stages.svg"/>
         <div>Stages</div>
@@ -35,7 +40,6 @@
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='status'}"
          (click)="activeTab('status', 'Status')">
-<!--        <i class="fas fa-battery-half"></i>-->
         <img *ngIf="activeView.view==='status'" src="../../assets/images/icons/white_status.svg"/>
         <img *ngIf="activeView.view!=='status'" src="../../assets/images/icons/status.svg"/>
         <div>Status</div>
@@ -45,7 +49,6 @@
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='priority'}"
          (click)="activeTab('priority', 'Priority')">
-<!--        <i class="fas fa-arrow-up"></i>-->
         <img *ngIf="activeView.view==='priority'" src="../../assets/images/icons/white_priority.svg"/>
         <img *ngIf="activeView.view!=='priority'" src="../../assets/images/icons/priority.svg"/>
         <div>Priority</div>
@@ -55,7 +58,6 @@
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}"
          (click)="activeTab('taskType', 'Task Type')">
-<!--        <i class="fab fa-accusoft"></i>-->
         <img *ngIf="activeView.view==='taskType'" src="../../assets/images/icons/white_task_type.svg"/>
         <img *ngIf="activeView.view!=='taskType'" src="../../assets/images/icons/task_type.svg">
         <div>Task Type</div>
@@ -64,7 +66,6 @@
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='capacity'}" (click)="activeTab('capacity', 'Team Capacity')">
-<!--        <i class="fab fa-slideshare"></i>-->
         <img *ngIf="activeView.view==='capacity'" src="../../assets/images/icons/white_team_capacity.svg"/>
         <img *ngIf="activeView.view!=='capacity'" src="../../assets/images/icons/team_capacity.svg">
         <div>Team Capacity</div>
@@ -84,8 +85,17 @@
         About {{activeView.title}}
       </ng-template>
       <ng-template #templateExtra>
-        <button nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project</button>
+
+        <span *ngIf="activeView.view==='workflow'">
+        <button  nz-button nzType="primary" size="small" (click)="showAddWorkflowForm()">
+          {{ !AddWorkflowFormIsVisible ? '+ Add New Workflow' : 'Show Workflow List'}}</button>
+        <button class="m-l-5" nz-button nzType="default" size="small" >Delete</button>
+        </span>
+        <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project</button>
+
       </ng-template>
+
+
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
           <aside class="col-md-3">
@@ -118,28 +128,58 @@
         </section>
       </ng-container>
 
+      <ng-container *ngIf="activeView.view==='workflow'">
+
+        <section class="row">
+
+          <aside class="col-md-12" *ngIf="!AddWorkflowFormIsVisible">
+             <nz-table
+              #smallTable
+              nzSize="small"
+              [nzData]="workflowList">
+              <thead>
+              <tr>
+                <th>Name</th>
+                <th width="100" class="text-center">Is Active</th>
+                <th>Types Involved</th>
+                <th>Created By</th>
+                <th>Created On</th>
+                <th width="30"></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let data of smallTable.data">
+                <td data-label="Name"><a class="cursor-pointer" (click)="showAddWorkflowForm()">{{data.name}}</a></td>
+                <td data-label="Is Active" class="text-center">{{data.isActive ? 'Yes' : 'No'}}</td>
+                <td data-label="Types Involved">{{data.typesInvolved}}</td>
+                <td data-label="Created By">{{data.createdBy}}</td>
+                <td data-label="Created On">{{data.createdOn | date :'mediumDate'}}</td>
+                <td data-label=""><label nz-checkbox [(ngModel)]="data.isActive"></label></td>
+              </tr>
+              </tbody>
+            </nz-table>
+          </aside>
+
+
+          <aside class="col-md-12" *ngIf="AddWorkflowFormIsVisible">
+            <h4>Add Workflows</h4>
+            <form>
+              <nz-form-item>
+                form goes here...
+
+              </nz-form-item>
+            </form>
+          </aside>
+
+        </section>
+
+      </ng-container>
+
+
       <ng-container *ngIf="activeView.view==='collaborators'">
         <section class="row">
           <aside class="col-md-3">
             <form nz-form class="register-form" [formGroup]="collaboratorForm">
-<!--              <nz-form-item>-->
-<!--                <label>Search or Invite Collaborator</label>-->
-<!--                <input-->
-<!--                  autocomplete="Off"-->
-<!--                  type="email"-->
-<!--                  formControlName="collaborator"-->
-<!--                  [(ngModel)]="selectedCollaborator"-->
-<!--                  [typeaheadAsync]="true"-->
-<!--                  [typeahead]="userDataSource"-->
-<!--                  (typeaheadOnSelect)="typeaheadOnSelect($event)"-->
-<!--                  typeaheadOptionField="emailId"-->
-<!--                  placeholder="Search or Invite people"-->
-<!--                  (keydown)="onKeydown($event)"-->
-<!--                  nz-input nzSize="small">-->
-<!--              </nz-form-item>-->
-
-
-
 
               <nz-form-item>
                 <nz-form-label>Search or Invite Collaborator</nz-form-label>
