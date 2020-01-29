@@ -9,7 +9,7 @@ import { GeneralService } from '../../shared/services/general.service';
   styleUrls: ['./activity.component.scss']
 })
 export class ActivityComponent implements OnInit {
-  @Input() public enablePinButton: Boolean=false;
+  @Input() public enablePinButton: boolean=false;
   @Input() public commentsList: TaskComments[]=[];
   @Input() public taskId: string;
   @Output() public isUpdateSuccess: EventEmitter<CommentPinModel | UpdateCommentModel> = new EventEmitter<CommentPinModel | UpdateCommentModel>();
