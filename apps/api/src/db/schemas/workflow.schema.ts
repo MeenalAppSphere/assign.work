@@ -13,13 +13,14 @@ export const workFlowSchema = new Schema({
   },
   stageId: { type: Types.ObjectId, required: [true, 'Stage Name is required'] },
   previousStageId: { type: Types.ObjectId, default: null },
-  defaultStatusId: { type: Types.ObjectId, required: [true, 'Default Status name required'] },
+  defaultStatusId: { type: Types.ObjectId, required: [true, 'Default Status name is required'] },
   defaultAssigneeId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.users,
-    required: [true, 'Default Assignee is required']
+    default: null
   },
   allowedStatuses: { type: Array },
+  allowedStages: {type: Array},
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false }
