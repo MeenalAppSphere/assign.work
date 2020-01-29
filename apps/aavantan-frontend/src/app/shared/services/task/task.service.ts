@@ -1,28 +1,26 @@
 import { Injectable } from '@angular/core';
 import { BaseService } from '../base.service';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { TaskStore, TaskState } from '../../../store/task/task.store';
+import { TaskState, TaskStore } from '../../../store/task/task.store';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
 import {
+  AddCommentModel,
+  AddTaskTimeModel,
+  BasePaginatedResponse,
   BaseResponseModel,
-  TimeLog,
+  CommentPinModel,
+  GetAllTaskRequestModel,
+  GetTaskByIdOrDisplayNameModel,
+  GetTaskHistoryModel,
   Task,
   TaskComments,
   TaskHistory,
-  CommentPinModel,
-  GetTaskByIdOrDisplayNameModel,
-  GetAllTaskRequestModel,
-  AddCommentModel,
-  BasePaginatedResponse,
-  GetTaskHistoryModel,
-  UpdateCommentModel,
   TaskTimeLog,
-  AddTaskTimeModel,
-  SprintStage,
   TaskTimeLogHistoryModel,
-  TaskTimeLogHistoryResponseModel
+  TaskTimeLogHistoryResponseModel,
+  UpdateCommentModel
 } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
@@ -111,10 +109,10 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  addComment(comment: AddCommentModel): Observable<BaseResponseModel<string>> {
+  addComment(comment: AddCommentModel): Observable<BaseResponseModel<TaskComments>> {
     return this._http.post(TaskUrls.addComment, comment).pipe(
-      map((res: BaseResponseModel<string>) => {
-        this.notification.success('Success', res.data);
+      map((res: BaseResponseModel<TaskComments>) => {
+        this.notification.success('Success', 'Comment Added Successfully');
         return res;
       }),
       catchError(err => {

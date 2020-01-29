@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {
   AddCommentModel,
   BasePaginatedResponse,
@@ -40,7 +40,6 @@ import { debounceTime } from 'rxjs/operators';
 import { ProjectService } from '../shared/services/project/project.service';
 import 'quill-mention';
 import 'quill-emoji';
-
 
 @Component({
   selector: 'aavantan-app-task',
@@ -113,7 +112,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public tagsQueryText: string = null;
   public watchersQueryText: string = null;
   public progressData: TaskTimeLogResponse;
-  public uploadingImage:boolean;
+  public uploadingImage: boolean;
 
   public panels: any[] = [{
     active: false,
@@ -196,7 +195,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
 
     this.commentForm = this.FB.group({
-      comment: [null, [Validators.required]]
+      comment: [null, [Validators.required]],
+      uuid: new FormControl(Date.now())
     });
 
     // get current project from store
@@ -346,6 +346,7 @@ export class TaskComponent implements OnInit, OnDestroy {
           } else {
             const matches = [];
             for (let i = 0; i < values.length; i++)
+              // tslint:disable-next-line:no-bitwise
               if (~values[i].value.toLowerCase().indexOf(searchTerm.toLowerCase())) matches.push(values[i]);
             renderList(matches, searchTerm);
           }
@@ -640,9 +641,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   handleChange({ file, fileList }): void {
     const status = file.status;
     if (status === 'uploading') {
-      this.uploadingImage=true;
-    }else{
-      this.uploadingImage=false;
+      this.uploadingImage = true;
+    } else {
+      this.uploadingImage = false;
     }
     if (status !== 'uploading') {
       console.log(file, fileList);
@@ -760,7 +761,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public resetCommentForm() {
-    this.commentForm.reset();
+    this.commentForm.reset({ uuid: Date.now() });
   }
 
   public setHoursMinutes(seconds: number) {
@@ -853,9 +854,17 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     //--------------------//
     try {
-      await this._taskService.addComment(comment).toPromise();
-      this.commentForm.reset();
-      // this.getMessage(true); //will use socket
+      const newComment = await this._taskService.addComment(comment).toPromise();
+
+      // find comment from list and update's it's id that was returned from api
+      this.commentsList.forEach(cmnt => {
+        if (cmnt.uuid === newComment.data.uuid) {
+          cmnt.id = newComment.data.id;
+        }
+      });
+
+      // reset comment form
+      this.commentForm.reset({ uuid: Date.now() });
       this.createCommentInProcess = false;
     } catch (e) {
       this.createCommentInProcess = false;

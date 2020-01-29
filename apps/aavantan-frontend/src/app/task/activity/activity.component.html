@@ -1,27 +1,58 @@
 
   <nz-list [nzDataSource]="commentsList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
     <ng-template #item let-item>
+
       <nz-list-item *ngIf="item.createdBy">
+
         <div class="media">
+
           <nz-avatar nzSize="small" *ngIf="item.createdBy && item.createdBy.profilePic" nzIcon="user" class="m-r-10" [nzSrc]="item.createdBy.profilePic" nzShape="circle"></nz-avatar>
+
           <nz-avatar nzSize="small" *ngIf="item.createdBy && !item.createdBy.profilePic"  nzIcon="user" class="m-r-10" nzShape="circle"></nz-avatar>
+
           <div class="media-body">
+
             <h6 class="m-b-0"><span class="p-r-10">{{item.createdBy.firstName}}</span>
               <small *ngIf="enablePinButton" class="text-muted text-right"><span>{{ item.createdAt | date : 'medium'}}</span></small>
             </h6>
+
             <div class="font-size-13" [innerHTML]="item.comment | safeHtml" ></div>
+
             <!-- for sidebar  datetime in footer comment-->
             <div *ngIf="!enablePinButton">
               <small class="text-muted text-right"><span>{{ item.createdAt | date : 'medium'}}</span></small>
             </div>
+
           </div>
-          <span class="float-right" *ngIf="enablePinButton" >
-            <div class="pin-activity" (click)="pinMessage(item)" [ngClass]="{'pinned':item.isPinned}"></div>
-            <div *ngIf="enablePinButton && (currentUser.id===item.createdById)" class="edit-comment" (click)="openEditModel(item)"><i nz-icon nzType="edit" class="text-warning" theme="fill"></i></div>
+
+
+          <span class="float-right" *ngIf="enablePinButton">
+
+            <!-- if item id available then show pin and update comment button -->
+            <ng-container *ngIf="item.id">
+              <div class="pin-activity" (click)="pinMessage(item)" [ngClass]="{'pinned':item.isPinned}"></div>
+
+              <div *ngIf="(currentUser.id===item.createdById)" class="edit-comment" (click)="openEditModel(item)">
+                <i nz-icon nzType="edit" class="text-warning" theme="fill"></i>
+              </div>
+            </ng-container>
+
+            <!-- show loader if comment id is not available -->
+            <ng-container>
+
+              <ng-template #indicatorTemplate><i nz-icon nzType="loading" style="font-size: 20px;"></i> </ng-template>
+              <nz-spin nzSimple [nzIndicator]="indicatorTemplate"> </nz-spin>
+
+            </ng-container>
+
           </span>
+
         </div>
+
       </nz-list-item>
+
     </ng-template>
+
   </nz-list>
 
 <app-edit-comment *ngIf="editCommentModalIsVisible" [taskId]="taskId" [editCommentModalIsVisible]="editCommentModalIsVisible" (toggleEditCommentShow)='toggleEditModel($event)' [comment]="commentData"></app-edit-comment>

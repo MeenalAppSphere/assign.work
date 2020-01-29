@@ -155,3 +155,10 @@ export const generateUtcDate = (): Date => {
 export const generateRandomCode = (digit: number = 6) => {
   return Math.random().toString(36).substring(2, digit + 2);
 };
+
+/**
+ * generate's an unique uuid based on utc time stamp
+ */
+export const generateUUId = () => {
+  return moment.utc().valueOf();
+};

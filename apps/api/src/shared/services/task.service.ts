@@ -422,24 +422,54 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
   }
 
-  async addComment(model: AddCommentModel): Promise<string> {
-
+  /**
+   * add a new comment to task
+   * get task details, push new comment to tasks comments array
+   * @param model
+   */
+  async addComment(model: AddCommentModel): Promise<TaskComments> {
+    // check if comment is available or not
     if (!model || !model.comment) {
       throw new BadRequestException('please add comment');
     }
 
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    // start session
+    const session = await this.startSession();
 
-    const taskDetails = await this.getTaskDetails(model.taskId);
+    try {
+      await this.getProjectDetails(model.projectId);
 
-    model.comment.createdById = this._generalService.userId;
-    model.comment.createdAt = new Date();
-    model.comment.updatedAt = new Date();
+      // get task details
+      const taskDetails = await this.findById(model.taskId);
 
-    
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
-    await this.updateHelper(model.taskId, { $push: { comments: model.comment } }, taskHistory);
-    return 'Comment Added Successfully';
+      model.comment.createdById = this._generalService.userId;
+      model.comment.createdAt = new Date();
+      model.comment.updatedAt = new Date();
+
+      // push comment to task's comments array
+      taskDetails.comments.push(model.comment);
+      // save task
+      await taskDetails.save();
+
+      // save task history
+      const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
+      await this._taskHistoryService.addHistory(taskHistory, session);
+
+      // commit transaction
+      await this.commitTransaction(session);
+
+      // return newly created comment
+      let newComment: any = taskDetails.comments[taskDetails.comments.length - 1];
+      if (newComment) {
+        newComment = newComment.toJSON();
+        newComment.id = newComment._id.toString();
+        newComment.uuid = model.comment.uuid;
+      }
+      return newComment;
+    } catch (e) {
+      await this.abortTransaction(session);
+      throw e;
+    }
   }
 
   /**

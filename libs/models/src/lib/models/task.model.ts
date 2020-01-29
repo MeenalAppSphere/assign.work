@@ -53,7 +53,9 @@ export class Task {
 }
 
 export class TaskComments {
+  uuid?: number;
   id?: string;
+  _id?: string;
   comment: string;
   createdById: string;
   createdBy?: User;
