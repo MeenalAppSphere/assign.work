@@ -38,10 +38,12 @@
             </ng-container>
 
             <!-- show loader if comment id is not available -->
-            <ng-container>
+            <ng-container *ngIf="!item.id">
 
-              <ng-template #indicatorTemplate><i nz-icon nzType="loading" style="font-size: 20px;"></i> </ng-template>
-              <nz-spin nzSimple [nzIndicator]="indicatorTemplate"> </nz-spin>
+              <div class="loader-icon">
+                <ng-template  #indicatorTemplate><i nz-icon nzType="loading" style="font-size: 20px;"></i> </ng-template>
+                <nz-spin nzSimple [nzIndicator]="indicatorTemplate"> </nz-spin>
+              </div>
 
             </ng-container>
 
