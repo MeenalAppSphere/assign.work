@@ -6,7 +6,7 @@ import {
   BasePaginatedResponse,
   CloseSprintModel,
   CreateSprintModel,
-  DbCollection,
+  DbCollections,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
   MoveTaskToStage,
@@ -75,10 +75,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   private _sprintUtilityService: SprintUtilityService;
 
   constructor(
-    @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
-    @InjectModel(DbCollection.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
+    @InjectModel(DbCollections.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
+    @InjectModel(DbCollections.projects) private readonly _projectModel: Model<Project & Document>,
+    @InjectModel(DbCollections.tasks) protected readonly _taskModel: Model<Task & Document>,
+    @InjectModel(DbCollections.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
     private _generalService: GeneralService, private _moduleRef: ModuleRef
   ) {
     super(_sprintModel);

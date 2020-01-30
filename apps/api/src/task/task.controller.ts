@@ -24,12 +24,12 @@ export class TaskController {
 
   @Post('get-all')
   async getAll(@Body() model: GetAllTaskRequestModel) {
-    return await this._taskService.getAllTasks(model);
+    return await this._taskService.getAllTasksPaginated(model);
   }
 
   @Post('my-tasks')
   async getMyTasks(@Body() model: GetMyTaskRequestModel) {
-    return await this._taskService.getMyTask(model);
+    return await this._taskService.getMyTasksPaginated(model);
   }
 
   @Post('add')
@@ -80,5 +80,10 @@ export class TaskController {
   @Post('filter')
   async getTask(@Body() filterModel: TaskFilterDto) {
     return await this._taskService.getTasks(filterModel);
+  }
+
+  @Post('get-my-tasks')
+  async getMyTask(@Body('userId') userId: string, @Body('projectId') projectId: string) {
+    return await this._taskService.getMyTasks(userId, projectId);
   }
 }

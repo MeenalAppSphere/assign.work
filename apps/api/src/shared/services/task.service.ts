@@ -4,7 +4,7 @@ import {
   AddCommentModel,
   BasePaginatedResponse,
   CommentPinModel,
-  DbCollection,
+  DbCollections,
   DeleteCommentModel,
   DeleteTaskModel,
   GetAllTaskRequestModel,
@@ -31,6 +31,7 @@ import { secondsToString, stringToSeconds } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 import { SprintService } from './sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
+import { TaskTypeService } from './task-type.service';
 
 /**
  * common task population object
@@ -39,7 +40,7 @@ const taskBasicPopulation: any[] = [{
   path: 'createdBy',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
-}, {
+}, { path: 'taskType', justOne: true }, {
   path: 'assignee',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
@@ -65,10 +66,11 @@ const taskBasicPopulation: any[] = [{
 @Injectable()
 export class TaskService extends BaseService<Task & Document> implements OnModuleInit {
   private _sprintService: SprintService;
+  private _taskTypeService: TaskTypeService;
 
   constructor(
-    @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
+    @InjectModel(DbCollections.tasks) protected readonly _taskModel: Model<Task & Document>,
+    @InjectModel(DbCollections.projects) private readonly _projectModel: Model<Project & Document>,
     private _taskHistoryService: TaskHistoryService, private _generalService: GeneralService,
     private _moduleRef: ModuleRef
   ) {
@@ -77,6 +79,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
   onModuleInit(): any {
     this._sprintService = this._moduleRef.get('SprintService');
+    this._taskTypeService = this._moduleRef.get('TaskTypeService');
   }
 
   /**
@@ -84,7 +87,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model : request model includes project id and filter params
    * @param onlyMyTask: show only my task
    */
-  async getAllTasks(model: GetAllTaskRequestModel, onlyMyTask: boolean = false): Promise<Partial<BasePaginatedResponse<Task>>> {
+  async getAllTasksPaginated(model: GetAllTaskRequestModel, onlyMyTask: boolean = false): Promise<Partial<BasePaginatedResponse<Task>>> {
     const projectDetails = await this.getProjectDetails(model.projectId);
 
     // set populate fields
@@ -128,8 +131,58 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     return result;
   }
 
-  async getMyTask(model: GetMyTaskRequestModel): Promise<Partial<BasePaginatedResponse<Task>>> {
-    return this.getAllTasks(model, true);
+  async getMyTasksPaginated(model: GetMyTaskRequestModel): Promise<Partial<BasePaginatedResponse<Task>>> {
+    return this.getAllTasksPaginated(model, true);
+  }
+
+  async getMyTasks(userId: string, projectId: string) {
+    return this.dbModel.aggregate([{
+      $match: {
+        $and: [
+          { projectId: this.toObjectId(projectId) },
+          {
+            $or: [{ assigneeId: this.toObjectId(userId) }, { createdById: this.toObjectId(userId) }]
+          }
+        ]
+      }
+    }, {
+      $project: { watchers: 0, attachments: 0, tags: 0, comments: 0 }
+    },{
+      $lookup: {
+        from: DbCollections.taskType,
+        let: { 'taskTypeId': '$taskTypeId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } }
+        ],
+        as: 'taskTypeDetails'
+      }
+    }, { $unwind: '$taskTypeDetails' },
+      // {
+      //   $lookup: {
+      //     from: DbCollections.users,
+      //     let: { 'assigneeId': '$assigneeId' },
+      //     pipeline: [
+      //       { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
+      //       { $project: { emailId: 1, userName: 1, firstName: 1, lastName: 1, profilePic: 1 } }
+      //     ],
+      //     as: 'assignee'
+      //   }
+      // }, { $unwind: '$assignee' }, {
+      //   $lookup: {
+      //     from: DbCollections.users,
+      //     let: { 'createdById': '$createdById' },
+      //     pipeline: [
+      //       { $match: { $expr: { $eq: ['$_id', '$$createdById'] } } },
+      //       { $project: { emailId: 1, userName: 1, firstName: 1, lastName: 1, profilePic: 1 } }
+      //     ],
+      //     as: 'createdBy'
+      //   }
+      // }, { $unwind: '$createdBy' },
+      {
+        $sort: { 'taskTypeDetails.name': 1 }
+      }
+    ]);
+
   }
 
   /**
@@ -151,10 +204,13 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       projectId: model.projectId
     }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
-    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
+    let taskTypeDetails: any = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 
     if (!taskTypeDetails) {
-      throw new BadRequestException('Task Type not found');
+      taskTypeDetails = (await this._taskTypeService.findById(model.taskType));
+      if (!taskTypeDetails) {
+        throw new BadRequestException('Task Type not found');
+      }
     }
 
     try {
@@ -183,30 +239,32 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         ])
       ].filter(watcher => watcher);
 
-      // check if tags is undefined assign blank array to that, this is the check for old data
-      projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
+      if (model.tags && model.tags.length) {
+        // check if tags is undefined assign blank array to that, this is the check for old data
+        projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
 
-      // tags processing
-      // if any tag found that is not in projectDetails then need to add that in project
-      const isNewTag = model.tags.some(s => {
-        return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
-      });
+        // tags processing
+        // if any tag found that is not in projectDetails then need to add that in project
+        const isNewTag = model.tags.some(s => {
+          return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
+        });
 
-      if (isNewTag) {
-        const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
+        if (isNewTag) {
+          const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
 
-        // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
-        if (newTags.length) {
-          projectDetails.settings.tags = newTags.map(tag => {
-            return {
-              name: tag,
-              id: new Types.ObjectId().toHexString()
-            };
-          });
+          // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
+          if (newTags.length) {
+            projectDetails.settings.tags = newTags.map(tag => {
+              return {
+                name: tag,
+                id: new Types.ObjectId().toHexString()
+              };
+            });
 
-          await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
-            $set: { 'settings.tags': projectDetails.settings.tags }
-          }, { session });
+            await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+              $set: { 'settings.tags': projectDetails.settings.tags }
+            }, { session });
+          }
         }
       }
 

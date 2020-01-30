@@ -1,26 +1,26 @@
 import { Schema } from 'mongoose';
-import { DbCollection } from '@aavantan-app/models';
+import { DbCollections } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
 const commentSchema = new Schema({
   comment: { type: String },
-  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: true },
   createdAt: { type: Date },
   updatedAt: { type: Date },
-  attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
+  attachments: [{ type: Schema.Types.ObjectId, ref: DbCollections.attachments }],
   isPinned: { type: Boolean, default: false }
 });
 
 commentSchema.virtual('attachmentsDetails', {
-  ref: DbCollection.attachments,
+  ref: DbCollections.attachments,
   localField: 'attachments',
   foreignField: '_id'
 });
 
 commentSchema.virtual('createdBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'createdById',
   foreignField: '_id'
 });
@@ -31,12 +31,13 @@ export const taskSchema = new Schema({
   description: { type: String },
   projectId: {
     type: Schema.Types.ObjectId,
-    ref: DbCollection.projects,
+    ref: DbCollections.projects,
     required: [true, 'Please Select Project First!']
   },
-  assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
-  watchers: [{ type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }],
-  attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
+  assigneeId: { type: Schema.Types.ObjectId, ref: DbCollections.users },
+  watchers: [{ type: Schema.Types.ObjectId, ref: DbCollections.users, required: false }],
+  attachments: [{ type: Schema.Types.ObjectId, ref: DbCollections.attachments }],
+  taskTypeId: { type: Schema.Types.ObjectId,  ref: DbCollections.taskType, required: [true, 'Please add task type'] },
   taskType: { type: String, required: [true, 'Please add task type'] },
   comments: [commentSchema],
   estimatedTime: { type: Number, default: 0 },
@@ -51,11 +52,11 @@ export const taskSchema = new Schema({
   progress: { type: Number, default: 0 },
   overProgress: { type: Number, default: 0 },
   status: { type: String },
-  sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
-  dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
-  relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false }],
-  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+  sprintId: { type: Schema.Types.ObjectId, ref: DbCollections.sprint },
+  dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollections.tasks, required: false },
+  relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollections.tasks, required: false }],
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: true },
+  updatedById: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: false },
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
@@ -71,58 +72,64 @@ taskSchema
 
 // virtual
 taskSchema.virtual('project', {
-  ref: DbCollection.projects,
+  ref: DbCollections.projects,
   localField: 'projectId',
   foreignField: '_id'
 });
 
 taskSchema.virtual('assignee', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'assigneeId',
   foreignField: '_id'
 });
 
 taskSchema.virtual('watchersDetails', {
-  ref: DbCollection.tasks,
+  ref: DbCollections.tasks,
   localField: 'watchers',
   foreignField: '_id'
 });
 
 taskSchema.virtual('createdBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'createdById',
   foreignField: '_id'
 });
 
 taskSchema.virtual('updatedBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'updatedById',
   foreignField: '_id'
 });
 
 taskSchema.virtual('dependentItem', {
-  ref: DbCollection.tasks,
+  ref: DbCollections.tasks,
   localField: 'dependentItemId',
   foreignField: '_id'
 });
 
 taskSchema.virtual('relatedItem', {
-  ref: DbCollection.tasks,
+  ref: DbCollections.tasks,
   localField: 'relatedItemId',
   foreignField: '_id'
 });
 
 taskSchema.virtual('attachmentsDetails', {
-  ref: DbCollection.attachments,
+  ref: DbCollections.attachments,
   localField: 'attachments',
   foreignField: '_id'
 });
 
 taskSchema.virtual('sprint', {
-  ref: DbCollection.sprint,
+  ref: DbCollections.sprint,
   localField: 'sprintId',
   foreignField: '_id'
 });
+
+// taskSchema.virtual('taskType', {
+//   ref: DbCollections.taskType,
+//   localField: 'taskTypeId',
+//   foreignField: '_id'
+// });
 
 // plugins
 taskSchema

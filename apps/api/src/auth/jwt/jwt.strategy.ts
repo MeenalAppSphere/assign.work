@@ -4,12 +4,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtConstants } from './constants';
 import { GeneralService } from '../../shared/services/general.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { DbCollection, User } from '@aavantan-app/models';
+import { DbCollections, User } from '@aavantan-app/models';
 import { Document, Model } from 'mongoose';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private _generalService: GeneralService, @InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>) {
+  constructor(private _generalService: GeneralService, @InjectModel(DbCollections.users) protected readonly _userModel: Model<User & Document>) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: true,

@@ -16,6 +16,7 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { DbModule } from '../db/db.module';
 import { ResetPasswordService } from './services/reset-password/reset-password.service';
+import { TaskTypeService } from './services/task-type.service';
 
 const providers = [
   UsersService,
@@ -29,7 +30,8 @@ const providers = [
   SprintService,
   InvitationService,
   EmailService,
-  ResetPasswordService
+  ResetPasswordService,
+  TaskTypeService
 ];
 
 @Global()

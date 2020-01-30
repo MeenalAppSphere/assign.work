@@ -1,6 +1,6 @@
 import { BaseService } from './base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { DbCollection, Invitation, MongooseQueryModel, Organization, Project, User } from '@aavantan-app/models';
+import { DbCollections, Invitation, MongooseQueryModel, Organization, Project, User } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, OnModuleInit } from '@nestjs/common';
 import { isInvitationExpired } from '../helpers/helpers';
@@ -17,7 +17,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
   private _organizationService: OrganizationService;
 
   constructor(
-    @InjectModel(DbCollection.invitations) protected readonly _invitationModel: Model<Invitation & Document>,
+    @InjectModel(DbCollections.invitations) protected readonly _invitationModel: Model<Invitation & Document>,
     private _moduleRef: ModuleRef, private _generalService: GeneralService
   ) {
     super(_invitationModel);
@@ -228,7 +228,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
       $match: { '_id': this.toObjectId(invitationId), isExpired: false }
     }, {
       $lookup: {
-        from: DbCollection.projects,
+        from: DbCollections.projects,
         let: { 'projectId': '$projectId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$projectId'] } } },
@@ -240,7 +240,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
     }, { $unwind: '$project' },
       {
         $lookup: {
-          from: DbCollection.organizations,
+          from: DbCollections.organizations,
           let: { 'organizationId': '$project.organization' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$organizationId'] } } },

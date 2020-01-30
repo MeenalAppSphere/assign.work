@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
-  DbCollection,
+  DbCollections,
   EmailTemplatePathEnum,
   MemberTypes,
   MongooseQueryModel,
@@ -43,7 +43,7 @@ export class AuthService implements OnModuleInit {
 
   constructor(
     private readonly jwtService: JwtService,
-    @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
+    @InjectModel(DbCollections.users) private readonly _userModel: Model<User & Document>,
     private _emailService: EmailService, private _moduleRef: ModuleRef
   ) {
   }

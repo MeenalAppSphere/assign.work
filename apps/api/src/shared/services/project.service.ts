@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  DbCollection,
+  DbCollections,
+  EmailTemplatePathEnum,
   GetAllProjectsModel,
   Invitation,
   MongooseQueryModel,
@@ -43,7 +44,7 @@ import { InvitationService } from './invitation.service';
 import { ModuleRef } from '@nestjs/core';
 import { EmailService } from './email.service';
 import { OrganizationService } from './organization.service';
-import { EmailTemplatePathEnum } from '../../../../../libs/models/src/lib/enums/email-template.enum';
+import { TaskTypeService } from './task-type.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -55,12 +56,13 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _userService: UsersService;
   private _invitationService: InvitationService;
   private _organizationService: OrganizationService;
+  private _taskTypeService: TaskTypeService;
 
   constructor(
-    @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
-    @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
-    @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
-    @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
+    @InjectModel(DbCollections.projects) protected readonly _projectModel: Model<Project & Document>,
+    @InjectModel(DbCollections.users) private readonly _userModel: Model<User & Document>,
+    @InjectModel(DbCollections.organizations) private readonly _organizationModel: Model<Organization & Document>,
+    @InjectModel(DbCollections.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     private readonly _generalService: GeneralService, private _moduleRef: ModuleRef,
     private _emailService: EmailService
   ) {
@@ -72,6 +74,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._userService = this._moduleRef.get('UsersService');
     this._invitationService = this._moduleRef.get('InvitationService');
     this._organizationService = this._moduleRef.get('OrganizationService');
+    this._taskTypeService = this._moduleRef.get('TaskTypeService');
   }
 
   /**
@@ -615,23 +618,30 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const projectDetails: Project = await this.getProjectDetails(id);
 
     if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
-      const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase().trim() === taskType.name.toLowerCase().trim());
-      const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
-
-      if (isDuplicateName) {
-        throw new BadRequestException('Tasktype Name Already Exists...');
-      }
-
-      if (isDuplicateColor) {
-        throw new BadRequestException('Tasktype Color Already Exists...');
-      }
+      // const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase().trim() === taskType.name.toLowerCase().trim());
+      // const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
+      //
+      // if (isDuplicateName) {
+      //   throw new BadRequestException('Tasktype Name Already Exists...');
+      // }
+      //
+      // if (isDuplicateColor) {
+      //   throw new BadRequestException('Tasktype Color Already Exists...');
+      // }
     } else {
       projectDetails.settings.taskTypes = [];
     }
 
-    taskType.id = new Types.ObjectId().toHexString();
-    // projectDetails.settings.taskTypes.push(taskType);
-    return await this.updateProjectHelper(id, { $push: { 'settings.taskTypes': taskType } });
+    const session = await this.startSession();
+
+    try {
+      taskType.projectId = id;
+      const createdTaskType = await this._taskTypeService.create([taskType], session);
+      return await this.updateProjectHelper(id, { $push: { 'settings.taskTypes': createdTaskType[0].id } }, session);
+    } catch (e) {
+      await this.abortTransaction(session);
+      throw e;
+    }
   }
 
   async removeTaskType(id: string, taskTypeId: string) {

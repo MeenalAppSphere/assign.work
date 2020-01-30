@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { DbCollection } from '@aavantan-app/models';
+import { DbCollections } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -9,7 +9,7 @@ export const attachmentSchema = new Schema({
   name: { type: String },
   mimeType: { type: String },
   url: { type: String },
-  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: true },
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
@@ -26,7 +26,7 @@ attachmentSchema
 
 // virtual
 attachmentSchema.virtual('createdBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'createdById',
   foreignField: '_id'
 });

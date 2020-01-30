@@ -1,4 +1,4 @@
-export enum DbCollection {
+export enum DbCollections {
   users = 'users',
   projects = 'projects',
   organizations = 'organizations',
@@ -8,5 +8,6 @@ export enum DbCollection {
   sprint = 'sprint',
   attachments = 'attachments',
   invitations = 'invitations',
-  resetPassword = 'reset-password'
+  resetPassword = 'reset-password',
+  taskType = 'taskType'
 }

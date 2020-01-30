@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { BaseService } from './base.service';
 import {
   BasePaginatedResponse,
-  DbCollection,
+  DbCollections,
   GetTaskHistoryModel,
   Project,
   TaskHistory,
@@ -15,8 +15,8 @@ import { GeneralService } from './general.service';
 @Injectable()
 export class TaskHistoryService extends BaseService<TaskHistory & Document> {
   constructor(
-    @InjectModel(DbCollection.taskHistory) protected readonly _taskHistoryModel: Model<TaskHistory & Document>,
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
+    @InjectModel(DbCollections.taskHistory) protected readonly _taskHistoryModel: Model<TaskHistory & Document>,
+    @InjectModel(DbCollections.projects) private readonly _projectModel: Model<Project & Document>,
     private readonly _generalService: GeneralService
   ) {
     super(_taskHistoryModel);

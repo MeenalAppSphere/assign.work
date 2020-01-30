@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
+import { DbCollections, ProjectTemplateEnum } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
 import {
   DEFAULT_PROJECT_TEMPLATE_TYPE,
@@ -27,7 +27,7 @@ export const projectSchema = new Schema({
   members: {
     type: Array,
     default: [],
-    userId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+    userId: { type: Schema.Types.ObjectId, ref: DbCollections.users },
     emailId: { type: String },
     isEmailSent: { type: Boolean },
     isInviteAccepted: { type: Boolean },
@@ -39,7 +39,7 @@ export const projectSchema = new Schema({
   },
   organization: {
     type: Schema.Types.ObjectId,
-    ref: DbCollection.organizations,
+    ref: DbCollections.organizations,
     required: [true, 'Please select Organization.']
   },
   template: {
@@ -56,9 +56,9 @@ export const projectSchema = new Schema({
     tags: [projectTagsSchema],
     required: false
   },
-  sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
-  createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+  sprintId: { type: Schema.Types.ObjectId, ref: DbCollections.sprint },
+  createdBy: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: true },
+  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: false },
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
@@ -74,7 +74,7 @@ projectSchema
 // virtual
 projectSchema
   .virtual('members.userDetails', {
-    ref: DbCollection.users,
+    ref: DbCollections.users,
     localField: 'members.userId',
     foreignField: '_id',
     justOne: true
@@ -82,7 +82,7 @@ projectSchema
 
 projectSchema
   .virtual('sprint', {
-    ref: DbCollection.sprint,
+    ref: DbCollections.sprint,
     localField: 'sprintId',
     foreignField: '_id',
     justOne: true

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
+import { DbCollections, MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -31,18 +31,18 @@ export const userSchema = new Schema(
     },
     organizations: [{
       type: Schema.Types.ObjectId,
-      ref: DbCollection.organizations
+      ref: DbCollections.organizations
     }],
     projects: [
       {
         type: Schema.Types.ObjectId,
-        ref: DbCollection.projects
+        ref: DbCollections.projects
       }
     ],
-    currentOrganizationId: { type: Schema.Types.ObjectId, ref: DbCollection.organizations },
+    currentOrganizationId: { type: Schema.Types.ObjectId, ref: DbCollections.organizations },
     currentProject: {
       type: Schema.Types.ObjectId,
-      ref: DbCollection.projects
+      ref: DbCollections.projects
     },
     isDeleted: { type: Boolean, default: false }
   }, schemaOptions
@@ -68,7 +68,7 @@ userSchema.set('toObject', {
 
 // virtual
 userSchema.virtual('currentOrganization', {
-  ref: DbCollection.organizations,
+  ref: DbCollections.organizations,
   localField: 'currentOrganizationId',
   foreignField: '_id',
   justOne: true

@@ -7,7 +7,7 @@ import {
   PayloadTooLargeException
 } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { AttachmentModel, DbCollection, MongooseQueryModel, UserStatus } from '@aavantan-app/models';
+import { AttachmentModel, DbCollections, MongooseQueryModel, UserStatus } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import * as aws from 'aws-sdk';
@@ -27,7 +27,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
   private _userService: UsersService;
 
   constructor(
-    @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
+    @InjectModel(DbCollections.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
     private _generalService: GeneralService, private readonly _moduleRef: ModuleRef
   ) {
     super(_attachmentModel);

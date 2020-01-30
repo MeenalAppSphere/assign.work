@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { DbCollection } from '@aavantan-app/models';
+import { DbCollections } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -8,7 +8,7 @@ export const workFlowSchema = new Schema({
   name: { type: String, required: [true, 'Workflow Name is required'] },
   projectId: {
     type: Schema.Types.ObjectId,
-    ref: DbCollection.projects,
+    ref: DbCollections.projects,
     required: [true, 'Please Select Project First!']
   },
   stageId: { type: Types.ObjectId, required: [true, 'Stage Name is required'] },
@@ -16,13 +16,13 @@ export const workFlowSchema = new Schema({
   defaultStatusId: { type: Types.ObjectId, required: [true, 'Default Status name is required'] },
   defaultAssigneeId: {
     type: Schema.Types.ObjectId,
-    ref: DbCollection.users,
+    ref: DbCollections.users,
     default: null
   },
   allowedStatuses: { type: Array },
   allowedStages: {type: Array},
-  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: true },
+  updatedById: { type: Schema.Types.ObjectId, ref: DbCollections.users, required: false },
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
@@ -39,19 +39,19 @@ workFlowSchema
 
 // virtual
 workFlowSchema.virtual('project', {
-  ref: DbCollection.projects,
+  ref: DbCollections.projects,
   localField: 'projectId',
   foreignField: '_id'
 });
 
 workFlowSchema.virtual('createdBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'createdById',
   foreignField: '_id'
 });
 
 workFlowSchema.virtual('updatedBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'updatedById',
   foreignField: '_id'
 });

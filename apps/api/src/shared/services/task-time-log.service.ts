@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { BaseService } from './base.service';
 import {
   AddTaskTimeModel,
-  DbCollection,
+  DbCollections,
   Project,
   Sprint,
   SprintStatusEnum,
@@ -26,10 +26,10 @@ import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
   constructor(
-    @InjectModel(DbCollection.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
-    @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
+    @InjectModel(DbCollections.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
+    @InjectModel(DbCollections.tasks) protected readonly _taskModel: Model<Task & Document>,
+    @InjectModel(DbCollections.projects) private readonly _projectModel: Model<Project & Document>,
+    @InjectModel(DbCollections.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
     private _taskHistoryService: TaskHistoryService, private readonly _generalService: GeneralService
   ) {
     super(_taskTimeLogModel);
@@ -331,7 +331,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
         }
       }, {
         $lookup: {
-          from: DbCollection.users,
+          from: DbCollections.users,
           localField: '_id',
           foreignField: '_id',
           as: 'loggedBy'

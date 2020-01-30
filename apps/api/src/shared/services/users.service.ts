@@ -1,6 +1,6 @@
 import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DbCollection, MongoosePaginateQuery, Project, SearchUserModel, User } from '@aavantan-app/models';
+import { DbCollections, MongoosePaginateQuery, Project, SearchUserModel, User } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, QueryFindOneAndUpdateOptions, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project.service';
@@ -10,7 +10,7 @@ import { secondsToHours } from '../helpers/helpers';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> {
-  constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
+  constructor(@InjectModel(DbCollections.users) protected readonly _userModel: Model<User & Document>,
               @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService,
               private _generalService: GeneralService) {
     super(_userModel);

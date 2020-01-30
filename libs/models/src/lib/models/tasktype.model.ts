@@ -3,4 +3,5 @@ export interface TaskType {
   name: string;
   color: string;
   displayName?: string;
+  projectId?: string;
 }

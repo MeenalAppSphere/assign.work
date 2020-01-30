@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
-import { DbCollection, SprintStatus } from '@aavantan-app/models';
+import { DbCollections, SprintStatus } from '@aavantan-app/models';
 import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../../shared/helpers/defaultValueConstant';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -15,7 +15,7 @@ export const sprintSchema = new Schema({
   goal: { type: String, required: [true, 'Sprint goal is required'] },
   projectId: {
     type: Schema.Types.ObjectId,
-    ref: DbCollection.projects,
+    ref: DbCollections.projects,
     required: [true, 'Please Select Project First!']
   },
   autoUpdate: {
@@ -38,17 +38,17 @@ export const sprintSchema = new Schema({
     tasks: {
       type: Array,
       default: [],
-      taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
+      taskId: { type: Schema.Types.ObjectId, ref: DbCollections.tasks },
       description: { type: String },
       sequenceNumber: { type: Number },
       addedAt: { type: Date },
       updatedAt: { type: Date },
-      addedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
+      addedById: { type: Schema.Types.ObjectId, ref: DbCollections.users }
     }
   },
   membersCapacity: {
     type: Array,
-    userId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+    userId: { type: Schema.Types.ObjectId, ref: DbCollections.users },
     workingCapacity: { type: Number, default: DEFAULT_WORKING_CAPACITY },
     workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY }
   },
@@ -56,8 +56,8 @@ export const sprintSchema = new Schema({
   totalEstimation: { type: Number, default: 0 },
   totalLoggedTime: { type: Number, default: 0 },
   totalOverLoggedTime: { type: Number, default: 0 },
-  createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+  createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollections.users },
+  updatedById: { type: Schema.Types.ObjectId, ref: DbCollections.users },
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
@@ -73,37 +73,37 @@ sprintSchema
 
 // virtual
 sprintSchema.virtual('project', {
-  ref: DbCollection.projects,
+  ref: DbCollections.projects,
   localField: 'projectId',
   foreignField: '_id'
 });
 
 sprintSchema.virtual('createdBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'createdById',
   foreignField: '_id'
 });
 
 sprintSchema.virtual('updatedBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'updatedById',
   foreignField: '_id'
 });
 
 sprintSchema.virtual('stages.tasks.task', {
-  ref: DbCollection.tasks,
+  ref: DbCollections.tasks,
   localField: 'stages.tasks.taskId',
   foreignField: '_id'
 });
 
 sprintSchema.virtual('stages.tasks.addedBy', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'stages.tasks.addedById',
   foreignField: '_id'
 });
 
 sprintSchema.virtual('membersCapacity.user', {
-  ref: DbCollection.users,
+  ref: DbCollections.users,
   localField: 'membersCapacity.userId',
   foreignField: '_id'
 });

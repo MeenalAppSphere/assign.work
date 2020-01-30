@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from './base.service';
-import { DbCollection, Organization, User } from '@aavantan-app/models';
+import { DbCollections, Organization, User } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 import { UsersService } from './users.service';
@@ -14,7 +14,7 @@ export class OrganizationService extends BaseService<Organization & Document> im
   private _projectService: ProjectService;
 
   constructor(
-    @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
+    @InjectModel(DbCollections.organizations) private readonly _organizationModel: Model<Organization & Document>,
     private _moduleRef: ModuleRef, private _generalService: GeneralService
   ) {
     super(_organizationModel);

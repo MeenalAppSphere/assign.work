@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DbCollection } from '@aavantan-app/models';
+import { DbCollections } from '@aavantan-app/models';
 import { userSchema } from './schemas/users.schema';
 import { projectSchema } from './schemas/project.schema';
 import { organizationSchema } from './schemas/organization.schema';
@@ -11,49 +11,54 @@ import { taskTimeLogSchema } from './schemas/task-time-log.schema';
 import { sprintSchema } from './schemas/sprint.schema';
 import { invitationSchema } from './schemas/invitations.schema';
 import { resetPasswordSchema } from './schemas/reset-password.schema';
+import { taskTypeSchema } from './schemas/task-type.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{
-      name: DbCollection.users,
+      name: DbCollections.users,
       schema: userSchema,
-      collection: DbCollection.users
+      collection: DbCollections.users
     }, {
-      name: DbCollection.projects,
+      name: DbCollections.projects,
       schema: projectSchema,
-      collection: DbCollection.projects
+      collection: DbCollections.projects
     }, {
-      name: DbCollection.organizations,
+      name: DbCollections.organizations,
       schema: organizationSchema,
-      collection: DbCollection.organizations
+      collection: DbCollections.organizations
     }, {
-      name: DbCollection.tasks,
+      name: DbCollections.tasks,
       schema: taskSchema,
-      collection: DbCollection.tasks
+      collection: DbCollections.tasks
     }, {
-      name: DbCollection.taskHistory,
+      name: DbCollections.taskHistory,
       schema: taskHistorySchema,
-      collection: DbCollection.taskHistory
+      collection: DbCollections.taskHistory
     }, {
-      name: DbCollection.attachments,
+      name: DbCollections.attachments,
       schema: attachmentSchema,
-      collection: DbCollection.attachments
+      collection: DbCollections.attachments
     }, {
-      name: DbCollection.taskTimeLog,
+      name: DbCollections.taskTimeLog,
       schema: taskTimeLogSchema,
-      collection: DbCollection.taskTimeLog
+      collection: DbCollections.taskTimeLog
     }, {
-      name: DbCollection.sprint,
+      name: DbCollections.sprint,
       schema: sprintSchema,
-      collection: DbCollection.sprint
+      collection: DbCollections.sprint
     }, {
-      name: DbCollection.invitations,
+      name: DbCollections.invitations,
       schema: invitationSchema,
-      collection: DbCollection.invitations
+      collection: DbCollections.invitations
     }, {
-      name: DbCollection.resetPassword,
+      name: DbCollections.resetPassword,
       schema: resetPasswordSchema,
-      collection: DbCollection.resetPassword
+      collection: DbCollections.resetPassword
+    }, {
+      name: DbCollections.taskType,
+      schema: taskTypeSchema,
+      collection: DbCollections.taskType
     }])
   ],
   exports: [
