@@ -428,10 +428,10 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model
    */
   async addComment(model: AddCommentModel) {
-    let retryCount = 3;
+    // let retryCount = 3;
     // await this.withRetrySession(async (session) => {
-    while (retryCount > 0) {
-      retryCount--;
+    // while (retryCount > 0) {
+    //   retryCount--;
       // check if comment is available or not
       if (!model || !model.comment) {
         throw new BadRequestException('please add comment');
@@ -471,15 +471,16 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         }
         return newComment;
       } catch (e) {
-        console.log(e);
+        // console.log(e);
         // const isTransientError = e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult');
         // if (!isTransientError) {
-        //   await this.abortTransaction(session);
-        //   throw e;
+          await this.abortTransaction(session);
+          return e;
+          // throw e;
         // }
       }
       // });
-    }
+    // }
   }
 
   /**
