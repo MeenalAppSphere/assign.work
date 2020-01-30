@@ -155,6 +155,41 @@ export class BaseService<T extends Document> {
     session.endSession();
   }
 
+  async withRetrySession(txnFn: Function) {
+    while (true) {
+      const session = await this.startSession();
+      try {
+        const result = await txnFn(session);
+        await this.commitTransaction(session);
+        return result;
+      } catch (e) {
+        const isTransientError = e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult');
+        if (!isTransientError) {
+          await this.abortTransaction(session);
+          throw e;
+        }
+      }
+    }
+  }
+
+  async retryUnknownTransactionCommit(session: ClientSession) {
+    while (true) {
+      try {
+        await session.commitTransaction();
+        break;
+      } catch (e) {
+        if (e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult')) {
+          // Keep retrying the transaction
+          continue;
+        }
+
+        // The transaction cannot be retried,
+        // return the exception
+        return e;
+      }
+    }
+  }
+
   private queryBuilder(model: MongooseQueryModel, query: DocumentQuery<any, any>) {
     if (model.populate && model.populate.length) {
       query.populate(model.populate);

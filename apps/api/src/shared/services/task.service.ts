@@ -427,48 +427,56 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * get task details, push new comment to tasks comments array
    * @param model
    */
-  async addComment(model: AddCommentModel): Promise<TaskComments> {
-    // check if comment is available or not
-    if (!model || !model.comment) {
-      throw new BadRequestException('please add comment');
-    }
+  async addComment(model: AddCommentModel) {
 
-    // start session
-    const session = await this.startSession();
-
-    try {
-      await this.getProjectDetails(model.projectId);
-
-      // get task details
-      const taskDetails = await this.findById(model.taskId);
-
-      model.comment.createdById = this._generalService.userId;
-      model.comment.createdAt = new Date();
-      model.comment.updatedAt = new Date();
-
-      // push comment to task's comments array
-      taskDetails.comments.push(model.comment);
-      // save task
-      await taskDetails.save({ session });
-
-      // save task history
-      const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
-      await this._taskHistoryService.addHistory(taskHistory, session);
-
-      // commit transaction
-      await this.commitTransaction(session);
-
-      // return newly created comment
-      let newComment: any = taskDetails.comments[taskDetails.comments.length - 1];
-      if (newComment) {
-        newComment = newComment.toJSON();
-        newComment.id = newComment._id.toString();
-        newComment.uuid = model.comment.uuid;
+    // await this.withRetrySession(async (session) => {
+    while (true) {
+      // check if comment is available or not
+      if (!model || !model.comment) {
+        throw new BadRequestException('please add comment');
       }
-      return newComment;
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
+
+      // start session
+      const session = await this.startSession();
+
+      try {
+        await this.getProjectDetails(model.projectId);
+
+        // get task details
+        const taskDetails = await this.findById(model.taskId);
+
+        model.comment.createdById = this._generalService.userId;
+        model.comment.createdAt = new Date();
+        model.comment.updatedAt = new Date();
+
+        // push comment to task's comments array
+        taskDetails.comments.push(model.comment);
+        // save task
+        await taskDetails.save({ session });
+
+        // save task history
+        const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
+        await this._taskHistoryService.addHistory(taskHistory, session);
+
+        // commit transaction
+        await this.commitTransaction(session);
+
+        // return newly created comment
+        let newComment: any = taskDetails.comments[taskDetails.comments.length - 1];
+        if (newComment) {
+          newComment = newComment.toJSON();
+          newComment.id = newComment._id.toString();
+          newComment.uuid = model.comment.uuid;
+        }
+        return newComment;
+      } catch (e) {
+        const isTransientError = e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult');
+        if (!isTransientError) {
+          await this.abortTransaction(session);
+          throw e;
+        }
+      }
+      // });
     }
   }
 
