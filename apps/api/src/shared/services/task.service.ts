@@ -449,7 +449,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       // push comment to task's comments array
       taskDetails.comments.push(model.comment);
       // save task
-      await taskDetails.save();
+      await taskDetails.save({ session });
 
       // save task history
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
