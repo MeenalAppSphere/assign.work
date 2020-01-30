@@ -9,5 +9,5 @@ export enum DbCollections {
   attachments = 'attachments',
   invitations = 'invitations',
   resetPassword = 'reset-password',
-  taskType = 'taskType'
+  taskType = 'task-type'
 }

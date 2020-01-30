@@ -67,11 +67,12 @@ const taskBasicPopulation: any[] = [{
 export class TaskService extends BaseService<Task & Document> implements OnModuleInit {
   private _sprintService: SprintService;
   private _taskTypeService: TaskTypeService;
+  private _taskHistoryService: TaskHistoryService;
 
   constructor(
     @InjectModel(DbCollections.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollections.projects) private readonly _projectModel: Model<Project & Document>,
-    private _taskHistoryService: TaskHistoryService, private _generalService: GeneralService,
+     private _generalService: GeneralService,
     private _moduleRef: ModuleRef
   ) {
     super(_taskModel);
@@ -80,6 +81,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   onModuleInit(): any {
     this._sprintService = this._moduleRef.get('SprintService');
     this._taskTypeService = this._moduleRef.get('TaskTypeService');
+    this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
   }
 
   /**
@@ -157,32 +159,31 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         as: 'taskTypeDetails'
       }
     }, { $unwind: '$taskTypeDetails' },
-      // {
-      //   $lookup: {
-      //     from: DbCollections.users,
-      //     let: { 'assigneeId': '$assigneeId' },
-      //     pipeline: [
-      //       { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
-      //       { $project: { emailId: 1, userName: 1, firstName: 1, lastName: 1, profilePic: 1 } }
-      //     ],
-      //     as: 'assignee'
-      //   }
-      // }, { $unwind: '$assignee' }, {
-      //   $lookup: {
-      //     from: DbCollections.users,
-      //     let: { 'createdById': '$createdById' },
-      //     pipeline: [
-      //       { $match: { $expr: { $eq: ['$_id', '$$createdById'] } } },
-      //       { $project: { emailId: 1, userName: 1, firstName: 1, lastName: 1, profilePic: 1 } }
-      //     ],
-      //     as: 'createdBy'
-      //   }
-      // }, { $unwind: '$createdBy' },
+      {
+        $lookup: {
+          from: DbCollections.users,
+          let: { 'assigneeId': '$assigneeId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
+            { $project: { emailId: 1, userName: 1, firstName: 1, lastName: 1, profilePic: 1 } }
+          ],
+          as: 'assignee'
+        }
+      }, { $unwind: '$assignee' }, {
+        $lookup: {
+          from: DbCollections.users,
+          let: { 'createdById': '$createdById' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$createdById'] } } },
+            { $project: { emailId: 1, userName: 1, firstName: 1, lastName: 1, profilePic: 1 } }
+          ],
+          as: 'createdBy'
+        }
+      }, { $unwind: '$createdBy' },
       {
         $sort: { 'taskTypeDetails.name': 1 }
       }
     ]);
-
   }
 
   /**
@@ -202,7 +203,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     const lastTask = await this._taskModel.find({
       projectId: model.projectId
-    }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
+    }).sort({ _id: -1 }).limit(1).select('_id displayName').lean();
 
     let taskTypeDetails: any = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 

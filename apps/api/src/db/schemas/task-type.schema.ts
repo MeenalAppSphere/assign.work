@@ -5,7 +5,7 @@ import { schemaOptions } from '../../shared/schema/base.schema';
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
 export const taskTypeSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, text: true },
   color: { type: String, required: true },
   displayName: { type: String, required: true },
   projectId: { type: Schema.Types.ObjectId, ref: DbCollections.projects, required: true },

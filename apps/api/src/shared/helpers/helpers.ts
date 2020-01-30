@@ -162,3 +162,17 @@ export const generateRandomCode = (digit: number = 6) => {
 export const generateUUId = () => {
   return moment.utc().valueOf();
 };
+
+/**
+ * check is valid string or not
+ * @param term
+ */
+export const isValidString = (term: string) => {
+  return /^[A-Za-z]+$/.test(term);
+};
+
+
+/**
+ * helper function to convert _id to id in aggregate query
+ */
+export const convert_idToId = { $addFields: { id: '$_id' } };

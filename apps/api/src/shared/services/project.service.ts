@@ -607,41 +607,54 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param taskType: TaskType TaskType request Model
    */
   async createTaskType(id: string, taskType: TaskType) {
-    if (!taskType || !taskType.name) {
-      throw new BadRequestException('Please add Task Type name');
-    }
+    // check common validations
+    this._taskTypeService.commonValidations(taskType);
 
-    if (!taskType.color) {
-      throw new BadRequestException('Please choose color');
-    }
+    await this.getProjectDetails(id);
+    taskType.projectId = id;
+    // check duplicate
+    const duplicateTaskType = await this._taskTypeService.isDuplicate(taskType);
 
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
-      // const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase().trim() === taskType.name.toLowerCase().trim());
-      // const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
-      //
-      // if (isDuplicateName) {
-      //   throw new BadRequestException('Tasktype Name Already Exists...');
-      // }
-      //
-      // if (isDuplicateColor) {
-      //   throw new BadRequestException('Tasktype Color Already Exists...');
-      // }
-    } else {
-      projectDetails.settings.taskTypes = [];
+    if (duplicateTaskType) {
+      throw new BadRequestException('Duplicate name or display or color not allowed');
     }
 
     const session = await this.startSession();
 
     try {
-      taskType.projectId = id;
       const createdTaskType = await this._taskTypeService.create([taskType], session);
       return await this.updateProjectHelper(id, { $push: { 'settings.taskTypes': createdTaskType[0].id } }, session);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
     }
+  }
+
+  /**
+   * update task type
+   * @param taskType: TaskType TaskType request Model
+   */
+  async updateTaskType(taskType: TaskType) {
+    // check common validations
+    // this._taskTypeService.commonValidations(taskType);
+    //
+    // await this.getProjectDetails(taskType.id);
+    // // check duplicate
+    // const duplicateTaskType = await this._taskTypeService.isDuplicate(taskType, taskType.id);
+    //
+    // if (duplicateTaskType) {
+    //   throw new BadRequestException('Duplicate name or display or color not allowed');
+    // }
+    //
+    // const session = await this.startSession();
+    //
+    // try {
+    //   await this._taskTypeService.updateById(taskType.id, [taskType], session);
+    //   return 'Task type updated successfully';
+    // } catch (e) {
+    //   await this.abortTransaction(session);
+    //   throw e;
+    // }
   }
 
   async removeTaskType(id: string, taskTypeId: string) {
@@ -903,7 +916,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * get project details by id
    * @param id: project id
    */
-  private async getProjectDetails(id: string): Promise<Project> {
+  async getProjectDetails(id: string): Promise<Project> {
     if (!this.isValidObjectId(id)) {
       throw new NotFoundException('Project not found');
     }
