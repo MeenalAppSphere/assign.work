@@ -32,3 +32,11 @@
 .pin-activity.pinned{
   content: url("../../../assets/images/pin-fill.png");
 }
+
+.loader-icon {
+  position: absolute;
+  right: 25px;
+  top: 0px;
+  z-index: 2;
+  display: inline-block;
+}
