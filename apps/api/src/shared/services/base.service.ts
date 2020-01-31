@@ -174,8 +174,6 @@ export class BaseService<T extends Document> {
 
   protected async handleError(session, err) {
     await this.abortTransaction(session);
-    console.log(err.stack);
-    this.logger.error(err.message, [{stack: err.stack}]);
     throw err;
   }
 

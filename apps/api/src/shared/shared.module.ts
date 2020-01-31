@@ -16,9 +16,10 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { DbModule } from '../db/db.module';
 import { ResetPasswordService } from './services/reset-password/reset-password.service';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { resolvePathHelper } from './helpers/helpers';
+import { GenericExceptionFilter } from './exceptionFilters/generic.exceptionFilter';
 
 const providers = [
   UsersService,
@@ -63,6 +64,10 @@ const providers = [
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GenericExceptionFilter
     }
   ]
 })

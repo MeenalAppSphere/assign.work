@@ -9,7 +9,6 @@ export class PublicController {
   @Get('error-log')
   @Header('Content-Type', 'application/octet-stream')
   getErrorLog(@Res() res) {
-    console.log(resolvePathHelper('error.log'));
     res.sendFile(resolvePathHelper('error.log'));
   }
 }
