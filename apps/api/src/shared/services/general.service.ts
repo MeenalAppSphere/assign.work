@@ -2,6 +2,13 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GeneralService {
+  get locale(): string {
+    return this._locale;
+  }
+
+  set locale(value: string) {
+    this._locale = value;
+  }
 
   get userId(): string {
     return this._userId;
@@ -11,5 +18,6 @@ export class GeneralService {
     this._userId = value;
   }
 
-  public _userId: string;
+  private _userId: string;
+  private _locale: string;
 }

@@ -31,7 +31,6 @@ import { InvitationsModule } from '../invitations/invitations.module';
     InvitationsModule
   ],
   controllers: [],
-  providers: []
 })
 export class AppModule {
 

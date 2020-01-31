@@ -16,6 +16,8 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { DbModule } from '../db/db.module';
 import { ResetPasswordService } from './services/reset-password/reset-password.service';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
 
 const providers = [
   UsersService,
@@ -56,7 +58,11 @@ const providers = [
     ...providers
   ],
   providers: [
-    ...providers
+    ...providers,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor
+    }
   ]
 })
 export class SharedModule {

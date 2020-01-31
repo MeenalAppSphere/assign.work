@@ -742,8 +742,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           stage.totalEstimation += taskDetail.estimatedTime;
           stage.tasks.push({
             taskId: taskDetail.id,
-            addedAt: new Date(),
-            updatedAt: new Date(),
+            addedAt: generateUtcDate(),
+            updatedAt: generateUtcDate(),
             addedById: this._generalService.userId
           });
         }

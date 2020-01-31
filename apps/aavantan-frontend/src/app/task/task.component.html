@@ -1,582 +1,651 @@
 <div id="row-main" class="form-container row">
-    <aside id="content" class="m-b-20 p-r-25 m-t-10" [ngClass]="{
+  <aside id="content" class="m-b-20 p-r-25 m-t-10" [ngClass]="{
       'col-md-8': isOpenActivitySidebar && taskId,
       'col-md-12': !isOpenActivitySidebar || !taskId
     }">
-        <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
-            <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
-                <h5>{{taskId ? displayName : 'Create Task'}}
-                  <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText" class="p-l-10"/>
-                  <ng-template #templateTitleText>
-                    About create and update task
-                  </ng-template>
-                </h5>
-                <hr class="m-t-15 m-b-10" />
-                <!-- row 1-->
-                <div class="row row-1">
-                    <div class="col-md-3">
-                        <nz-form-item>
-                            <nz-form-label nzFor="taskType">Task Type <span class="text-danger">*</span></nz-form-label>
-                            <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                                <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomLeft" style="width: 100%!important;">
-                                    <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button style="width: 100%!important;">
-                                  <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                                  {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" theme="outline"></i>
-                                </button>
-                                </nz-button-group>
-                                <nz-dropdown-menu #createTaskType="nzDropdownMenu">
-                                    <ul nz-menu>
-                                        <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="selectTaskType(item)">
-                                            <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i> {{ item.displayName }}
-                                        </li>
-                                    </ul>
-                                </nz-dropdown-menu>
-                            </nz-form-control>
-                        </nz-form-item>
-                    </div>
+    <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
+      <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
+        <h5>{{taskId ? displayName : 'Create Task'}}
+          <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText"
+               class="p-l-10"/>
+          <ng-template #templateTitleText>
+            About create and update task
+          </ng-template>
+        </h5>
+        <hr class="m-t-15 m-b-10"/>
+        <!-- row 1-->
+        <div class="row row-1">
+          <div class="col-md-3">
+            <nz-form-item>
+              <nz-form-label nzFor="taskType">Task Type <span class="text-danger">*</span></nz-form-label>
+              <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
+                <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomLeft"
+                                 style="width: 100%!important;">
+                  <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
+                          style="width: 100%!important;">
+                    <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
+                    {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                  </button>
+                </nz-button-group>
+                <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+                  <ul nz-menu>
+                    <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="selectTaskType(item)">
+                      <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i> {{ item.displayName }}
+                    </li>
+                  </ul>
+                </nz-dropdown-menu>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
 
-                    <div class="col-md-5">
-                        <nz-form-item class="relative">
-                            <a href="javascript:void(0);"><small class="text-info float-right" (click)="assignedToMe()">Assign to Me</small></a>
-                            <nz-form-label nzFor="taskType">Assigned To<span class="text-danger">*</span></nz-form-label>
-                            <nz-form-control class="relative">
+          <div class="col-md-5">
+            <nz-form-item class="relative">
+              <a href="javascript:void(0);"><small class="text-info float-right" (click)="assignedToMe()">Assign to
+                Me</small></a>
+              <nz-form-label nzFor="taskType">Assigned To<span class="text-danger">*</span></nz-form-label>
+              <nz-form-control class="relative">
                                 <span class="assigned-user-icon">
-                              <nz-avatar [nzSize]="16" nzIcon="user" [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null" ></nz-avatar>
+                              <nz-avatar [nzSize]="16" nzIcon="user"
+                                         [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null"></nz-avatar>
                             </span>
-                              <nz-input-group [nzSuffix]="suffixIconSearch">
-                                <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
-                              </nz-input-group>
-                                <nz-autocomplete #autoAssignee>
-                                    <nz-auto-option *ngFor="let option of assigneeDataSource" [nzLabel]="option && option.firstName ? option.firstName : option.emailId" [nzValue]="option">
-                                        <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
-                                        <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
-                                        <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
-                                        <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small class="text-muted">{{ option.emailId }}</small></div>
-                                    </nz-auto-option>
-                                </nz-autocomplete>
-                            </nz-form-control>
-                          <ng-template #suffixIconSearch>
-                            <i nz-icon nzType="search" *ngIf="!isSearching"></i>
-                            <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
-                          </ng-template>
-                        </nz-form-item>
-                    </div>
+                <nz-input-group [nzSuffix]="suffixIconSearch">
+                  <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input
+                         (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small"
+                         [nzAutocomplete]="autoAssignee"/>
+                </nz-input-group>
+                <nz-autocomplete #autoAssignee>
+                  <nz-auto-option *ngFor="let option of assigneeDataSource"
+                                  [nzLabel]="option && option.firstName ? option.firstName : option.emailId"
+                                  [nzValue]="option">
+                    <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"
+                               [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                    <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
+                    <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
+                    <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small
+                      class="text-muted">{{ option.emailId }}</small></div>
+                  </nz-auto-option>
+                </nz-autocomplete>
+              </nz-form-control>
+              <ng-template #suffixIconSearch>
+                <i nz-icon nzType="search" *ngIf="!isSearching"></i>
+                <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
+              </ng-template>
+            </nz-form-item>
+          </div>
 
-                    <div class="col-md-2">
-                        <nz-form-item>
-                            <nz-form-label nzFor="taskType">Status</nz-form-label>
-                            <nz-form-control class="issue-type-btn-grp">
-                                <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight" style="width:100%!important;">
-                                    <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width:100%!important;">
-                                {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}} <i nz-icon nzType="caret-down" theme="outline"></i>
-                              </button>
-                                </nz-button-group>
-                                <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
-                                    <ul nz-menu>
-                                        <li nz-menu-item *ngFor="let item of statusDataSource" (click)="selectStatus(item)">
-                                            {{ item.name }}
-                                        </li>
-                                    </ul>
-                                </nz-dropdown-menu>
-                            </nz-form-control>
-                        </nz-form-item>
-                    </div>
-                    <div class="col-md-2">
-                        <nz-form-item>
-                            <nz-form-label>Priority</nz-form-label>
-                            <nz-form-control class="issue-type-btn-grp">
-                                <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzPlacement="bottomRight" style="width:100%!important;">
-                                    <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width:100%!important;">
-                                  <span class="fas fa-square m-r-5" [ngStyle]="{'color': selectedPriority && selectedPriority.color ? selectedPriority.color :'#f3f3f3'}"></span> {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
-                                      <i nz-icon nzType="caret-down" theme="outline"></i>
-                                </button>
-                                </nz-button-group>
-                                <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
-                                    <ul nz-menu>
-                                        <li nz-menu-item *ngFor="let item of priorityDataSource" (click)="selectPriority(item)">
-                                            <i class="fas fa-square m-r-5" [ngStyle]="{'color': item.color}"></i>{{ item.name }}
-                                        </li>
-                                    </ul>
-                                </nz-dropdown-menu>
-                            </nz-form-control>
-                        </nz-form-item>
-                    </div>
+          <div class="col-md-2">
+            <nz-form-item>
+              <nz-form-label nzFor="taskType">Status</nz-form-label>
+              <nz-form-control class="issue-type-btn-grp">
+                <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight"
+                                 style="width:100%!important;">
+                  <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
+                          style="width:100%!important;">
+                    {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}} <i nz-icon
+                                                                                                         nzType="caret-down"
+                                                                                                         theme="outline"></i>
+                  </button>
+                </nz-button-group>
+                <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
+                  <ul nz-menu>
+                    <li nz-menu-item *ngFor="let item of statusDataSource" (click)="selectStatus(item)">
+                      {{ item.name }}
+                    </li>
+                  </ul>
+                </nz-dropdown-menu>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div class="col-md-2">
+            <nz-form-item>
+              <nz-form-label>Priority</nz-form-label>
+              <nz-form-control class="issue-type-btn-grp">
+                <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzPlacement="bottomRight"
+                                 style="width:100%!important;">
+                  <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
+                          style="width:100%!important;">
+                    <span class="fas fa-square m-r-5"
+                          [ngStyle]="{'color': selectedPriority && selectedPriority.color ? selectedPriority.color :'#f3f3f3'}"></span> {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
+                    <i nz-icon nzType="caret-down" theme="outline"></i>
+                  </button>
+                </nz-button-group>
+                <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
+                  <ul nz-menu>
+                    <li nz-menu-item *ngFor="let item of priorityDataSource" (click)="selectPriority(item)">
+                      <i class="fas fa-square m-r-5" [ngStyle]="{'color': item.color}"></i>{{ item.name }}
+                    </li>
+                  </ul>
+                </nz-dropdown-menu>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+        <!-- row 1-->
+
+
+        <!-- row 2-->
+        <div class="row">
+          <!--                  Not in this phase-->
+          <!--                    <div class="col-md-3">-->
+          <!--                        <nz-form-item>-->
+          <!--                            <nz-form-label nzFor="sprint">Sprint</nz-form-label>-->
+          <!--                            <nz-form-control>-->
+          <!--                                <input placeholder="Search/Select Sprint" formControlName="sprint" nz-input nzSize="small" [nzAutocomplete]="autoSprint" />-->
+          <!--                                <nz-autocomplete #autoSprint>-->
+          <!--                                    <nz-auto-option *ngFor="let option of sprintDataSource" [nzLabel]="option.name" [nzValue]="option.id">-->
+          <!--                                        <span>{{ option.name }}</span>-->
+          <!--                                    </nz-auto-option>-->
+          <!--                                </nz-autocomplete>-->
+          <!--                            </nz-form-control>-->
+          <!--                        </nz-form-item>-->
+          <!--                    </div>-->
+          <div class="col-md-3">
+            <nz-form-item *ngIf="epicDataSource && epicDataSource.length>0">
+              <nz-form-label nzFor="epic">Epic</nz-form-label>
+              <nz-form-control>
+                <input placeholder="Search/Select Epic" formControlName="epic" nz-input nzSize="small"
+                       [nzAutocomplete]="autoEpic"/>
+                <nz-autocomplete #autoEpic>
+                  <nz-auto-option *ngFor="let option of epicDataSource" [nzLabel]="option.name" [nzValue]="option.id">
+                    <span>{{ option.name }}</span>
+                  </nz-auto-option>
+                </nz-autocomplete>
+              </nz-form-control>
+            </nz-form-item>
+            <button type="button" nz-button nzType="link" (click)="toggleNewEpicModal()" class="m-t-20 m-b-10"
+                    *ngIf="!epicDataSource || (epicDataSource && epicDataSource.length===0)">
+              <i nz-icon nzType="plus" theme="outline"></i> Create New Epic
+            </button>
+          </div>
+          <div class="col-md-4">
+            <nz-form-item *ngIf="taskId">
+              <nz-form-label>Estimate Time</nz-form-label>
+              <nz-form-control class="estimate-box">
+                <div>
+                  <input nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours"
+                         nzSize="small" type="text" placeholder="3"/>
+                  <span>Hrs</span>
                 </div>
-                <!-- row 1-->
-
-
-                <!-- row 2-->
-                <div class="row">
-<!--                  Not in this phase-->
-<!--                    <div class="col-md-3">-->
-<!--                        <nz-form-item>-->
-<!--                            <nz-form-label nzFor="sprint">Sprint</nz-form-label>-->
-<!--                            <nz-form-control>-->
-<!--                                <input placeholder="Search/Select Sprint" formControlName="sprint" nz-input nzSize="small" [nzAutocomplete]="autoSprint" />-->
-<!--                                <nz-autocomplete #autoSprint>-->
-<!--                                    <nz-auto-option *ngFor="let option of sprintDataSource" [nzLabel]="option.name" [nzValue]="option.id">-->
-<!--                                        <span>{{ option.name }}</span>-->
-<!--                                    </nz-auto-option>-->
-<!--                                </nz-autocomplete>-->
-<!--                            </nz-form-control>-->
-<!--                        </nz-form-item>-->
-<!--                    </div>-->
-                    <div class="col-md-3">
-                        <nz-form-item *ngIf="epicDataSource && epicDataSource.length>0">
-                            <nz-form-label nzFor="epic">Epic</nz-form-label>
-                            <nz-form-control>
-                                <input placeholder="Search/Select Epic" formControlName="epic" nz-input nzSize="small" [nzAutocomplete]="autoEpic" />
-                                <nz-autocomplete #autoEpic>
-                                    <nz-auto-option *ngFor="let option of epicDataSource" [nzLabel]="option.name" [nzValue]="option.id">
-                                        <span>{{ option.name }}</span>
-                                    </nz-auto-option>
-                                </nz-autocomplete>
-                            </nz-form-control>
-                        </nz-form-item>
-                      <button type="button" nz-button nzType="link" (click)="toggleNewEpicModal()" class="m-t-20 m-b-10" *ngIf="!epicDataSource || (epicDataSource && epicDataSource.length===0)">
-                        <i nz-icon nzType="plus" theme="outline"></i> Create New Epic</button>
-                    </div>
-                  <div class="col-md-4">
-                    <nz-form-item *ngIf="taskId">
-                      <nz-form-label>Estimate Time</nz-form-label>
-                      <nz-form-control class="estimate-box">
-                        <div>
-                          <input nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3" />
-                          <span>Hrs</span>
-                        </div>
-                        <div>
-                          <input nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30" />
-                          <span>Mins</span>
-                        </div>
-                      </nz-form-control>
-                    </nz-form-item>
-                  </div>
+                <div>
+                  <input nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes"
+                         nzSize="small" type="text" placeholder="30"/>
+                  <span>Mins</span>
                 </div>
-                <!-- row 2-->
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+        <!-- row 2-->
 
-                <!-- row 3-->
-                <div class="row">
-                    <div class="col-md-6">
-                      <nz-form-item>
-                        <nz-form-label nzFor="tags">Tags</nz-form-label>
-                        <nz-form-control>
-                          <nz-input-group [nzSuffix]="suffixIconSearchWTags">
+        <!-- row 3-->
+        <div class="row">
+          <div class="col-md-6">
+            <nz-form-item>
+              <nz-form-label nzFor="tags">Tags</nz-form-label>
+              <nz-form-control>
+                <nz-input-group [nzSuffix]="suffixIconSearchWTags">
 
-                            <nz-select
-                              nzSize="small"
-                              nzShowSearch
-                              nzAllowClear
-                              nzServerSearch
-                              nzPlaceHolder="Search/Select Tag"
-                              nzMode="multiple"
-                              [(ngModel)]="listOfSelectedTags"
-                              formControlName="tags"
-                              [nzShowArrow]="false"
-                              (keydown)="addNewTag($event)"
-                              [nzFilterOption]="nzFilterOption"
-                              (nzOnSearch)="searchTags($event)">
-                              <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option" [nzValue]="option"></nz-option>
-                            </nz-select>
-                          </nz-input-group>
+                  <nz-select
+                    nzSize="small"
+                    nzShowSearch
+                    nzAllowClear
+                    nzServerSearch
+                    nzPlaceHolder="Search/Select Tag"
+                    nzMode="multiple"
+                    [(ngModel)]="listOfSelectedTags"
+                    formControlName="tags"
+                    [nzShowArrow]="false"
+                    (keydown)="addNewTag($event)"
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="searchTags($event)">
+                    <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option" [nzValue]="option"></nz-option>
+                  </nz-select>
+                </nz-input-group>
 
-                        </nz-form-control>
+              </nz-form-control>
 
-                        <ng-template #suffixIconSearchWTags>
-                          <i nz-icon nzType="search" *ngIf="!isSearchingTags"></i>
-                          <i class="fas fa-spin fa-spinner" *ngIf="isSearchingTags"></i>
-                        </ng-template>
+              <ng-template #suffixIconSearchWTags>
+                <i nz-icon nzType="search" *ngIf="!isSearchingTags"></i>
+                <i class="fas fa-spin fa-spinner" *ngIf="isSearchingTags"></i>
+              </ng-template>
 
-                      </nz-form-item>
+            </nz-form-item>
 
-                        <!--<nz-form-item>
-                            <nz-form-label nzFor="tags">Tags</nz-form-label>
-                            <nz-form-control>
-                                <nz-select style="width: 100%"
-                                           nzSize="small"
-                                           nzMode="multiple"
-                                           nzAllowClear
-                                           formControlName="tags"
-                                           nzPlaceHolder="Search/Select Tag"
-                                           (keydown)="addNewTag($event)"
-                                           [(ngModel)]="listOfSelectedTags">
-                                    <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option" [nzValue]="option"></nz-option>
-                                </nz-select>
-                            </nz-form-control>
-                        </nz-form-item>-->
-                    </div>
-                    <div class="col-md-6">
-                        <nz-form-item>
-                            <nz-form-label nzFor="watchers">Watchers</nz-form-label>
-                            <nz-form-control>
-                              <nz-input-group [nzSuffix]="suffixIconSearchWatchers">
+            <!--<nz-form-item>
+                <nz-form-label nzFor="tags">Tags</nz-form-label>
+                <nz-form-control>
+                    <nz-select style="width: 100%"
+                               nzSize="small"
+                               nzMode="multiple"
+                               nzAllowClear
+                               formControlName="tags"
+                               nzPlaceHolder="Search/Select Tag"
+                               (keydown)="addNewTag($event)"
+                               [(ngModel)]="listOfSelectedTags">
+                        <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option" [nzValue]="option"></nz-option>
+                    </nz-select>
+                </nz-form-control>
+            </nz-form-item>-->
+          </div>
+          <div class="col-md-6">
+            <nz-form-item>
+              <nz-form-label nzFor="watchers">Watchers</nz-form-label>
+              <nz-form-control>
+                <nz-input-group [nzSuffix]="suffixIconSearchWatchers">
 
-                              <nz-select
-                                nzSize="small"
-                                nzShowSearch
-                                nzAllowClear
-                                nzServerSearch
-                                nzPlaceHolder="Search/Select watcher"
-                                nzMode="multiple"
-                                [(ngModel)]="listOfSelectedWatchers"
-                                formControlName="watchers"
-                                [nzShowArrow]="false"
-                                [nzFilterOption]="nzFilterOption"
-                                (nzOnSearch)="searchWatchers($event)">
-                                <nz-option *ngFor="let option of assigneeDataSource"  nzCustomContent [nzLabel]="option.firstName ? option.firstName : option.emailId" [nzValue]="option.id ? option.id : ''">
-                                  <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar> <span>{{option.firstName ? option.firstName : option.emailId}}</span>
-                                </nz-option>
-                              </nz-select>
-                              </nz-input-group>
+                  <nz-select
+                    nzSize="small"
+                    nzShowSearch
+                    nzAllowClear
+                    nzServerSearch
+                    nzPlaceHolder="Search/Select watcher"
+                    nzMode="multiple"
+                    [(ngModel)]="listOfSelectedWatchers"
+                    formControlName="watchers"
+                    [nzShowArrow]="false"
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="searchWatchers($event)">
+                    <nz-option *ngFor="let option of assigneeDataSource" nzCustomContent
+                               [nzLabel]="option.firstName ? option.firstName : option.emailId"
+                               [nzValue]="option.id ? option.id : ''">
+                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"
+                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                      <span>{{option.firstName ? option.firstName : option.emailId}}</span>
+                    </nz-option>
+                  </nz-select>
+                </nz-input-group>
 
-                            </nz-form-control>
+              </nz-form-control>
 
-                            <ng-template #suffixIconSearchWatchers>
-                              <i nz-icon nzType="search" *ngIf="!isSearchingWatchers"></i>
-                              <i class="fas fa-spin fa-spinner" *ngIf="isSearchingWatchers"></i>
-                            </ng-template>
+              <ng-template #suffixIconSearchWatchers>
+                <i nz-icon nzType="search" *ngIf="!isSearchingWatchers"></i>
+                <i class="fas fa-spin fa-spinner" *ngIf="isSearchingWatchers"></i>
+              </ng-template>
 
-                        </nz-form-item>
-                    </div>
-                </div>
-                <!-- row 3-->
-                <!-- row 4-->
-                <div class="row">
-                    <div class="col-md-12">
-                        <nz-form-item>
-                            <nz-form-label nzRequired nzFor="title">Title <span class="text-danger">*</span></nz-form-label>
-                            <nz-form-control nzValidatingTip="Please enter task title">
-                                <input placeholder="Enter Task Title" formControlName="name" nz-input nzSize="small" />
-                            </nz-form-control>
-                        </nz-form-item>
-                    </div>
-                </div>
-                <!-- row 4-->
-                <!-- row 5-->
-                <div class="row">
-                    <div class="col-md-12">
+            </nz-form-item>
+          </div>
+        </div>
+        <!-- row 3-->
+        <!-- row 4-->
+        <div class="row">
+          <div class="col-md-12">
+            <nz-form-item>
+              <nz-form-label nzRequired nzFor="title">Title <span class="text-danger">*</span></nz-form-label>
+              <nz-form-control nzValidatingTip="Please enter task title">
+                <input placeholder="Enter Task Title" formControlName="name" nz-input nzSize="small"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+        <!-- row 4-->
+        <!-- row 5-->
+        <div class="row">
+          <div class="col-md-12">
 
 
-                      <nz-form-item>
-                            <nz-form-label nzFor="description">Description</nz-form-label>
-                            <nz-form-control>
-                              <quill-editor
-                                            formControlName="description"
-                                            placeholder="Add task description here..."
-                                            [modules]="quillConfig"
-                                            (onSelectionChanged)="onSelectionChanged($event)"
-                                            (onContentChanged)="onContentChanged($event)"></quill-editor>
-<!--                                <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" formControlName="description" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
-                            </nz-form-control>
-                        </nz-form-item>
-                    </div>
+            <nz-form-item>
+              <nz-form-label nzFor="description">Description</nz-form-label>
+              <nz-form-control>
+                <quill-editor
+                  formControlName="description"
+                  placeholder="Add task description here..."
+                  [modules]="quillConfig"
+                  (onSelectionChanged)="onSelectionChanged($event)"
+                  (onContentChanged)="onContentChanged($event)"></quill-editor>
+                <!--                                <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" formControlName="description" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
+              </nz-form-control>
+            </nz-form-item>
+          </div>
 
-                    <div class="col-md-12">
+          <div class="col-md-12">
 
-                        <nz-form-item>
-                            <nz-form-label nzFor="dependentItem">Dependent Item</nz-form-label>
-                            <nz-form-control class="relative input-relative-group">
+            <nz-form-item>
+              <nz-form-label nzFor="dependentItem">Dependent Item</nz-form-label>
+              <nz-form-control class="relative input-relative-group">
                                 <span class="assigned-user-icon">
                               <i class="fas fa-circle m-r-10"
                                  [ngStyle]="{'color':selectedDependentItem && selectedDependentItem.taskType ? selectedDependentItem.taskType.color : '' }"></i>
                             </span>
-                                <input placeholder="Search/Select Dependent Item" formControlName="dependentItemId" (ngModelChange)="selectDependentItemTypeahead($event)" nz-input nzSize="small" [nzAutocomplete]="autoDependentItem" />
-                                <nz-autocomplete #autoDependentItem>
-                                    <nz-auto-option *ngFor="let option of dependentTaskDataSource" [nzLabel]="option.name" [nzValue]="option">
-                                        <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
-                                        <span>{{ option.displayName }} - {{ option.name }}</span>
-                                    </nz-auto-option>
-                                </nz-autocomplete>
-                            </nz-form-control>
-                        </nz-form-item>
+                <input placeholder="Search/Select Dependent Item" formControlName="dependentItemId"
+                       (ngModelChange)="selectDependentItemTypeahead($event)" nz-input nzSize="small"
+                       [nzAutocomplete]="autoDependentItem"/>
+                <nz-autocomplete #autoDependentItem>
+                  <nz-auto-option *ngFor="let option of dependentTaskDataSource" [nzLabel]="option.name"
+                                  [nzValue]="option">
+                    <i class="fas fa-circle m-r-10"
+                       [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
+                    <span>{{ option.displayName }} - {{ option.name }}</span>
+                  </nz-auto-option>
+                </nz-autocomplete>
+              </nz-form-control>
+            </nz-form-item>
 
-                        <nz-form-item>
-                            <nz-form-label nzFor="relatedItemId">Related Items</nz-form-label>
-                            <nz-form-control class="relative input-relative-group">
-                                <nz-select style="width: 100%" nzSize="small" nzMode="multiple" formControlName="relatedItemId" nzPlaceHolder="Related Items" [(ngModel)]="listOfSelectedRelatedItems" [nzCustomTemplate]="custom">
-                                    <nz-option *ngFor="let option of relatedTaskDataSource" [nzLabel]="option.displayName" [nzValue]="option">
-                                        <i class="fas fa-circle m-r-10" [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
-                                        <span>{{ option.displayName }} - {{ option.name }}</span>
-                                    </nz-option>
-                                </nz-select>
-                                <ng-template #custom let-selected>
-                                    <span><a routerLink="../{{selected.nzLabel}}" class="p-5" target="_blank">{{ selected.nzLabel }}</a></span>
-                                </ng-template>
-                            </nz-form-control>
-                        </nz-form-item>
+            <nz-form-item>
+              <nz-form-label nzFor="relatedItemId">Related Items</nz-form-label>
+              <nz-form-control class="relative input-relative-group">
+                <nz-select style="width: 100%" nzSize="small" nzMode="multiple" formControlName="relatedItemId"
+                           nzPlaceHolder="Related Items" [(ngModel)]="listOfSelectedRelatedItems"
+                           [nzCustomTemplate]="custom">
+                  <nz-option *ngFor="let option of relatedTaskDataSource" [nzLabel]="option.displayName"
+                             [nzValue]="option">
+                    <i class="fas fa-circle m-r-10"
+                       [ngStyle]="{'color':option && option.taskType ? option.taskType.color : '' }"></i>
+                    <span>{{ option.displayName }} - {{ option.name }}</span>
+                  </nz-option>
+                </nz-select>
+                <ng-template #custom let-selected>
+                  <span><a routerLink="../{{selected.nzLabel}}" class="p-5"
+                           target="_blank">{{ selected.nzLabel }}</a></span>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
 
-                    </div>
+          </div>
 
-                </div>
-
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <nz-form-item>
-                            <div class="clearfix m-t-10" style="padding: 6px!important;background: #f9f9f9!important;">
-
-                                <nz-upload class="upload-list-inline" (nzChange)="handleChange($event)" [nzRemove]="handleRemove" [nzAction]="attachementUrl" [nzHeaders]="attachementHeader" nzListType="picture" [(nzFileList)]="uploadedImages">
-                                    <button type="button" nz-button style="background: #f9f9f9!important;width: 100%;height: 120px;border-radius: 0px;border: 2px dashed #ddd;">
-                                      <div>
-
-                                        <img src="../../assets/images/icons/cloud_upload.svg" height="33" class="m-b-10">
-
-                                        <div><strong>drag & drop file</strong> or <strong>click choose</strong></div>
-                                        <small class="text-muted">(images & video format)</small>
-
-                                      </div>
-                                    </button>
-                                </nz-upload>
-
-                            </div>
-                        </nz-form-item>
-                    </div>
-                </div>
-                <!-- row 7-->
-
-                <!-- row 8-->
-
-                <!-- will use on scroll event 'floating-save-btns' -->
-                <div class="row floating-save-btns">
-                    <div class="col-md-12 text-right">
-
-                      <button type="reset" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
-                      <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task</button>
-                        <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button nzType="primary" class="m-r-5 btn-save-task">Save</button>
-
-                        <ng-container>
-                            <button nz-dropdown type="button" [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomRight" nzType="link" nzSize="small" class="float-right btn-ellipsis" nz-button>
-                          <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                            <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
-                                <ul nz-menu>
-                                    <li nz-menu-item>
-                                        Create Sub Task
-                                    </li>
-                                    <li nz-menu-item>
-                                        Delete
-                                    </li>
-                                </ul>
-                            </nz-dropdown-menu>
-                        </ng-container>
-                    </div>
-                </div>
-                <div class="row" style="padding-top: 10px; border-top: 2px solid #e1e3e5; margin-top: 10px;">
-                    <div class="col-md-12 text-right">
-                      <button type="reset" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
-                      <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task</button>
-                      <button [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" type="submit" nz-button nzSize="small" nzType="primary" >Save</button>
-                    </div>
-                </div>
-                <!-- row 8-->
-
-            </form>
-        </nz-spin>
-        <!-- row 9-->
-
-        <div class="task-sections p-t-10" *ngIf="taskId">
-            <form (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12">
-                <nz-form-item>
-                    <nz-form-label nzFor="comment">Comment</nz-form-label>
-                    <nz-form-control nzValidatingTip="Please enter some comment">
-
-                      <quill-editor
-                        formControlName="comment"
-                        placeholder="Add comment here..."
-                        [modules]="quillConfig"
-                        (onSelectionChanged)="onSelectionChanged($event)"
-                        (onContentChanged)="onContentChanged($event)"></quill-editor>
-
-                      <!--                        <editor formControlName="comment" apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
-                    </nz-form-control>
-                </nz-form-item>
-                <div class="text-right">
-                  <button (click)="resetCommentForm();" nz-button nzSize="small" type="reset" nzType="default">Cancel</button>
-                  <button [disabled]="commentForm.invalid" type="submit" nz-button nzSize="small" nzType="primary" class="m-l-5">Post</button>
-                </div>
-            </form>
-            <hr style="border-top: 4px solid #3f86f5; margin-bottom:5px; box-shadow: 0px 0px 3px 0px #ddd; margin-top: 15px;border-top: 4px solid #3f86f5; margin-top: 15px;" />
-            <div class="p-15">
-                <nz-form-label>Comments</nz-form-label>
-                <div class="frozen-div m-t-5">
-
-                  <nz-spin nzTip="Loading..." [nzSpinning]="getCommentInProcess">
-                    <ng-container *ngIf="showCommentsList">
-                    <aavantan-app-activity *ngIf="commentsList && commentsList.length>0" [taskId]="taskId" [enablePinButton]="true" (isUpdateSuccess)="updateCommentSuccess($event)" [commentsList]="commentsList"></aavantan-app-activity>
-                    </ng-container>
-                    <div *ngIf="commentsList && commentsList.length===0">
-                      <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
-                      <ng-template #contentActivity>
-                        <span> No Pinned Comments</span>
-                      </ng-template>
-                    </div>
-                  </nz-spin>
-
-                </div>
-            </div>
         </div>
-        <!-- row 9-->
 
-        <div *ngIf="taskId" class="collapsed-title">
-<!--            <span *ngIf="isOpenActivitySidebar">Less <i nz-icon nzType="caret-down" class="m-l-5" theme="outline"></i></span>-->
-            <span *ngIf="!isOpenActivitySidebar">
+
+        <div class="row">
+          <div class="col-md-12">
+            <nz-form-item>
+              <div class="clearfix m-t-10" style="padding: 6px!important;background: #f9f9f9!important;">
+
+                <nz-upload class="upload-list-inline" (nzChange)="handleChange($event)" [nzRemove]="handleRemove"
+                           [nzAction]="attachementUrl" [nzHeaders]="attachementHeader" nzListType="picture"
+                           [(nzFileList)]="uploadedImages">
+                  <button type="button" nz-button
+                          style="background: #f9f9f9!important;width: 100%;height: 120px;border-radius: 0px;border: 2px dashed #ddd;">
+                    <div>
+
+                      <img src="../../assets/images/icons/cloud_upload.svg" height="33" class="m-b-10">
+
+                      <div><strong>drag & drop file</strong> or <strong>click choose</strong></div>
+                      <small class="text-muted">(images & video format)</small>
+
+                    </div>
+                  </button>
+                </nz-upload>
+
+              </div>
+            </nz-form-item>
+          </div>
+        </div>
+        <!-- row 7-->
+
+        <!-- row 8-->
+
+        <!-- will use on scroll event 'floating-save-btns' -->
+        <div class="row floating-save-btns">
+          <div class="col-md-12 text-right">
+
+            <button type="reset" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
+            <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            </button>
+            <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
+                    nzType="primary" class="m-r-5 btn-save-task">Save
+            </button>
+
+            <ng-container>
+              <button nz-dropdown type="button" [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomRight"
+                      nzType="link" nzSize="small" class="float-right btn-ellipsis" nz-button>
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item>
+                    Create Sub Task
+                  </li>
+                  <li nz-menu-item>
+                    Delete
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+            </ng-container>
+          </div>
+        </div>
+        <div class="row" style="padding-top: 10px; border-top: 2px solid #e1e3e5; margin-top: 10px;">
+          <div class="col-md-12 text-right">
+            <button type="reset" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
+            <button type="reset" (click)="cancelTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            </button>
+            <button [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" type="submit" nz-button nzSize="small"
+                    nzType="primary">Save
+            </button>
+          </div>
+        </div>
+        <!-- row 8-->
+
+      </form>
+    </nz-spin>
+    <!-- row 9-->
+
+    <div class="task-sections p-t-10" *ngIf="taskId">
+      <div class="p-15">
+        <nz-form-label>Comments</nz-form-label>
+        <div class="frozen-div m-t-5">
+
+          <nz-spin nzTip="Loading..." [nzSpinning]="getCommentInProcess">
+            <ng-container *ngIf="showCommentsList">
+              <aavantan-app-activity *ngIf="commentsList && commentsList.length>0" [taskId]="taskId"
+                                     [enablePinButton]="true" (isUpdateSuccess)="updateCommentSuccess($event)"
+                                     [commentsList]="commentsList"></aavantan-app-activity>
+            </ng-container>
+            <div *ngIf="commentsList && commentsList.length===0">
+              <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+              <ng-template #contentActivity>
+                <span> No Pinned Comments</span>
+              </ng-template>
+            </div>
+          </nz-spin>
+
+        </div>
+      </div>
+
+      <hr
+        style="border-top: 4px solid #3f86f5; margin-bottom:5px; box-shadow: 0px 0px 3px 0px #ddd; margin-top: 15px;border-top: 4px solid #3f86f5; margin-top: 15px;"/>
+
+      <form (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12 p-15">
+        <nz-form-item>
+          <nz-form-label nzFor="comment">Comment</nz-form-label>
+          <nz-form-control nzValidatingTip="Please enter some comment">
+
+            <quill-editor
+              formControlName="comment"
+              placeholder="Add comment here..."
+              [modules]="quillConfig"
+              (onSelectionChanged)="onSelectionChanged($event)"
+              (onContentChanged)="onContentChanged($event)"></quill-editor>
+
+            <!--                        <editor formControlName="comment" apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
+          </nz-form-control>
+        </nz-form-item>
+        <div class="text-right">
+          <button (click)="resetCommentForm();" nz-button nzSize="small" type="reset" nzType="default">Cancel</button>
+          <button [disabled]="commentForm.invalid" [nzLoading]="createCommentInProcess" type="submit" nz-button nzSize="small" nzType="primary"
+                  class="m-l-5">Post
+          </button>
+        </div>
+      </form>
+
+    </div>
+    <!-- row 9-->
+
+    <div *ngIf="taskId" class="collapsed-title">
+      <!--            <span *ngIf="isOpenActivitySidebar">Less <i nz-icon nzType="caret-down" class="m-l-5" theme="outline"></i></span>-->
+      <span *ngIf="!isOpenActivitySidebar">
                   <button (click)="toggleActivitySidebar(sidebar)" nz-button nzSize="default" class="btn-double-arrow">
                     <img src="../../assets/images/icons/double-arrow.svg" height="10">
                   </button>
             </span>
+    </div>
+  </aside>
+  <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }"
+         class="col-md-4 p-t-15 m-b-20 p-r-10 p-l-10 m-t-10 bg-white border-radius-4">
+    <section class="first-section">
+      <div class="row">
+
+        <div class="col ">
+          <button (click)="toggleActivitySidebar(sidebar)" nz-button nzSize="default" class="btn-double-arrow">
+            <img src="../../assets/images/icons/double-arrow.svg" height="10">
+          </button>
         </div>
-    </aside>
-    <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }" class="col-md-4 p-t-15 m-b-20 p-r-10 p-l-10 m-t-10 bg-white border-radius-4">
-        <section class="first-section">
-            <div class="row">
+        <div class="col text-right">
+          <button [disabled]="!taskId" nzType="link" nzSize="small" nz-button nz-tooltip nzTitle="Log your working time"
+                  (click)="timeLog()">
+            Log Time
+          </button>
+        </div>
+      </div>
 
-                <div class="col ">
-                  <button (click)="toggleActivitySidebar(sidebar)" nz-button nzSize="default" class="btn-double-arrow">
-                    <img src="../../assets/images/icons/double-arrow.svg" height="10">
-                  </button>
-                </div>
-                <div class="col text-right">
-                    <button [disabled]="!taskId" nzType="link" nzSize="small" nz-button nz-tooltip nzTitle="Log your working time" (click)="timeLog()">
-                       Log Time
-                    </button>
-                </div>
-            </div>
-
-<!--          <div class="row">-->
-<!--            <div class="col">-->
-<!--              <nz-form-item *ngIf="taskId" style="margin-bottom: 0px!important;">-->
-<!--                <nz-form-label>Estimate Time</nz-form-label>-->
-<!--                <nz-form-control class="estimate-box">-->
-<!--                  <div>-->
-<!--                    <input nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3" />-->
-<!--                    <span>Hrs</span>-->
-<!--                  </div>-->
-<!--                  <div>-->
-<!--                    <input nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30" />-->
-<!--                    <span>Mins</span>-->
-<!--                  </div>-->
-<!--                </nz-form-control>-->
-<!--              </nz-form-item>-->
-<!--            </div>-->
-<!--          </div>-->
+      <!--          <div class="row">-->
+      <!--            <div class="col">-->
+      <!--              <nz-form-item *ngIf="taskId" style="margin-bottom: 0px!important;">-->
+      <!--                <nz-form-label>Estimate Time</nz-form-label>-->
+      <!--                <nz-form-control class="estimate-box">-->
+      <!--                  <div>-->
+      <!--                    <input nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="3" />-->
+      <!--                    <span>Hrs</span>-->
+      <!--                  </div>-->
+      <!--                  <div>-->
+      <!--                    <input nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="30" />-->
+      <!--                    <span>Mins</span>-->
+      <!--                  </div>-->
+      <!--                </nz-form-control>-->
+      <!--              </nz-form-item>-->
+      <!--            </div>-->
+      <!--          </div>-->
 
 
-          <div class="duration-box m-t-15" >
-                <div>
-                    <nz-form-item>
-                        <nz-form-label style="line-height: 12px; margin-top: 5px;">Estimated Time</nz-form-label>
-                          <nz-progress [nzPercent]="currentTask && currentTask.estimatedTime ? 100 : 0" nzStatus="active" [nzShowInfo]="false"></nz-progress>
-                          <small class="text-muted">{{currentTask && currentTask.estimatedTimeReadable ? currentTask.estimatedTimeReadable : '0h'}}</small>
-                    </nz-form-item>
-                </div>
-                <div *ngIf="progressData">
-                    <nz-form-item>
-                        <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
-                        <nz-progress [nzPercent]="progressData.progress" nzStatus="active" class="progress-success"></nz-progress>
-                        <small class="text-muted">{{progressData && progressData.totalLoggedTimeReadable ? progressData.totalLoggedTimeReadable : '0h'}}</small>
-                    </nz-form-item>
+      <div class="duration-box m-t-15">
+        <div>
+          <nz-form-item>
+            <nz-form-label style="line-height: 12px; margin-top: 5px;">Estimated Time</nz-form-label>
+            <nz-progress [nzPercent]="currentTask && currentTask.estimatedTime ? 100 : 0" nzStatus="active"
+                         [nzShowInfo]="false"></nz-progress>
+            <small
+              class="text-muted">{{currentTask && currentTask.estimatedTimeReadable ? currentTask.estimatedTimeReadable : '0h'}}</small>
+          </nz-form-item>
+        </div>
+        <div *ngIf="progressData">
+          <nz-form-item>
+            <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
+            <nz-progress [nzPercent]="progressData.progress" nzStatus="active" class="progress-success"></nz-progress>
+            <small
+              class="text-muted">{{progressData && progressData.totalLoggedTimeReadable ? progressData.totalLoggedTimeReadable : '0h'}}</small>
+          </nz-form-item>
 
-                    <nz-form-item *ngIf="progressData.overProgress">
-                      <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Exceeded</nz-form-label>
-                        <nz-progress [nzPercent]="progressData.overProgress" nzStatus="exception" [nzShowInfo]="false" class="progress-exception"></nz-progress>
-                        <small class="text-muted">{{progressData && progressData.overLoggedTimeReadable ? progressData.overLoggedTimeReadable : '0h'}}</small>
-                    </nz-form-item>
-                </div>
-            </div>
-
-
-            <div class="timelog-history-box">
-              <nz-collapse nzAccordion>
-                <nz-collapse-panel  [nzHeader]="'Timelog History'" (nzActiveChange)="getLogHistory($event)" [nzActive]="false" [nzShowArrow]="true">
-
-                  <nz-spin [nzSpinning]="getTimeLogInProcess">
-                    <nz-list [nzDataSource]="timelogHistoryList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-                      <ng-template #item let-item>
-                        <nz-list-item class="timelog-history">
-                          <div class="media">
-                            <nz-avatar nzSize="small" *ngIf="item.profilePic" nzIcon="user" class="m-r-10" [nzSrc]="item.profilePic" nzShape="circle"></nz-avatar>
-                            <nz-avatar nzSize="small" *ngIf="!item.profilePic" nzIcon="user" class="m-r-10" nzShape="circle"></nz-avatar>
-                            <div class="media-body">
-                              <h6 class="m-b-0"><span class="p-r-10">{{item.user}}</span></h6>
-<!--                              <div class="font-size-13" [innerHTML]="item.description | safeHtml" ></div>-->
-                              <div>
-                                <small class="text-muted text-right"><span>Logged : {{ item.totalLoggedTimeReadable }}</span></small>
-                              </div>
-                            </div>
-                          </div>
-                        </nz-list-item>
-                      </ng-template>
-                    </nz-list>
-                  </nz-spin>
-
-                </nz-collapse-panel>
-
-                <nz-collapse-panel  [nzHeader]="'Pinned Comments and History'" [nzActive]="true" [nzShowArrow]="true">
+          <nz-form-item *ngIf="progressData.overProgress">
+            <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Exceeded</nz-form-label>
+            <nz-progress [nzPercent]="progressData.overProgress" nzStatus="exception" [nzShowInfo]="false"
+                         class="progress-exception"></nz-progress>
+            <small
+              class="text-muted">{{progressData && progressData.overLoggedTimeReadable ? progressData.overLoggedTimeReadable : '0h'}}</small>
+          </nz-form-item>
+        </div>
+      </div>
 
 
-                    <nz-tabset nzSize="small">
-                      <nz-tab nzTitle="Pinned Comments">
+      <div class="timelog-history-box">
+        <nz-collapse nzAccordion>
+          <nz-collapse-panel [nzHeader]="'Timelog History'" (nzActiveChange)="getLogHistory($event)" [nzActive]="false"
+                             [nzShowArrow]="true">
 
-                        <div *ngIf="taskId">
-                          <div class="comment-history-scrollable">
-                            <nz-spin nzTip="Loading..." [nzSpinning]="getCommentInProcess">
-                              <ng-container *ngIf="showPinnedCommentsList">
-                                <aavantan-app-activity *ngIf="pinnedCommentsList && pinnedCommentsList.length>0" [taskId]="taskId" [commentsList]="pinnedCommentsList"></aavantan-app-activity>
-                              </ng-container>
-                              <div *ngIf="pinnedCommentsList && pinnedCommentsList.length===0">
-                                <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
-                                <ng-template #contentActivity>
-                                  <span> No Pinned Comments</span>
-                                </ng-template>
-                              </div>
-                            </nz-spin>
-                          </div>
-
+            <nz-spin [nzSpinning]="getTimeLogInProcess">
+              <nz-list [nzDataSource]="timelogHistoryList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+                <ng-template #item let-item>
+                  <nz-list-item class="timelog-history">
+                    <div class="media">
+                      <nz-avatar nzSize="small" *ngIf="item.profilePic" nzIcon="user" class="m-r-10"
+                                 [nzSrc]="item.profilePic" nzShape="circle"></nz-avatar>
+                      <nz-avatar nzSize="small" *ngIf="!item.profilePic" nzIcon="user" class="m-r-10"
+                                 nzShape="circle"></nz-avatar>
+                      <div class="media-body">
+                        <h6 class="m-b-0"><span class="p-r-10">{{item.user}}</span></h6>
+                        <!--                              <div class="font-size-13" [innerHTML]="item.description | safeHtml" ></div>-->
+                        <div>
+                          <small class="text-muted text-right"><span>Logged : {{ item.totalLoggedTimeReadable }}</span></small>
                         </div>
+                      </div>
+                    </div>
+                  </nz-list-item>
+                </ng-template>
+              </nz-list>
+            </nz-spin>
 
-                        <div *ngIf="!taskId">
-                          <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
-                          <ng-template #contentActivity>
-                            <span> No Comments</span>
-                          </ng-template>
-                        </div>
+          </nz-collapse-panel>
 
-                      </nz-tab>
-                      <nz-tab nzSize="small" nzTitle="History">
+          <nz-collapse-panel [nzHeader]="'Pinned Comments and History'" [nzActive]="true" [nzShowArrow]="true">
 
-                        <div *ngIf="taskId">
-                          <div class="comment-history-scrollable">
-                            <nz-spin nzTip="Loading..." [nzSpinning]="getHistoryInProcess">
-                              <aavantan-app-history *ngIf="historyList && historyList.length>0" [taskId]="taskId" [historyList]="historyList"></aavantan-app-history>
-                              <div *ngIf="historyList && historyList.length===0">
-                                <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
-                                <ng-template #contentActivity>
-                                  <span> No History</span>
-                                </ng-template>
-                              </div>
-                            </nz-spin>
-                          </div>
-                        </div>
 
-                        <div *ngIf="!taskId">
-                          <nz-empty [nzNotFoundContent]="contentHistory"></nz-empty>
-                          <ng-template #contentHistory>
-                            <span> No History </span>
-                          </ng-template>
-                        </div>
+            <nz-tabset nzSize="small">
+              <nz-tab nzTitle="Pinned Comments">
 
-                      </nz-tab>
-                    </nz-tabset>
+                <div *ngIf="taskId">
+                  <div class="comment-history-scrollable">
+                    <nz-spin nzTip="Loading..." [nzSpinning]="getCommentInProcess">
+                      <ng-container *ngIf="showPinnedCommentsList">
+                        <aavantan-app-activity *ngIf="pinnedCommentsList && pinnedCommentsList.length>0"
+                                               [taskId]="taskId"
+                                               [commentsList]="pinnedCommentsList"></aavantan-app-activity>
+                      </ng-container>
+                      <div *ngIf="pinnedCommentsList && pinnedCommentsList.length===0">
+                        <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                        <ng-template #contentActivity>
+                          <span> No Pinned Comments</span>
+                        </ng-template>
+                      </div>
+                    </nz-spin>
+                  </div>
 
-                </nz-collapse-panel>
-              </nz-collapse>
-            </div>
+                </div>
 
-        </section>
+                <div *ngIf="!taskId">
+                  <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                  <ng-template #contentActivity>
+                    <span> No Comments</span>
+                  </ng-template>
+                </div>
 
-        <app-timelog *ngIf="timelogModalIsVisible" [timelogModalIsVisible]="timelogModalIsVisible" (toggleTimeLogShow)="timeLog($event)" [selectedTaskItem]="currentTask"></app-timelog>
+              </nz-tab>
+              <nz-tab nzSize="small" nzTitle="History">
 
-    </aside>
+                <div *ngIf="taskId">
+                  <div class="comment-history-scrollable">
+                    <nz-spin nzTip="Loading..." [nzSpinning]="getHistoryInProcess">
+                      <aavantan-app-history *ngIf="historyList && historyList.length>0" [taskId]="taskId"
+                                            [historyList]="historyList"></aavantan-app-history>
+                      <div *ngIf="historyList && historyList.length===0">
+                        <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                        <ng-template #contentActivity>
+                          <span> No History</span>
+                        </ng-template>
+                      </div>
+                    </nz-spin>
+                  </div>
+                </div>
 
-  <app-add-epic *ngIf="epicModalIsVisible" (toggleEpicShow)="toggleNewEpicModal()" [selectedTaskType]="selectedTaskType" [taskTypeDataSource]="taskTypeDataSource" [epicModalIsVisible]="epicModalIsVisible"></app-add-epic>
+                <div *ngIf="!taskId">
+                  <nz-empty [nzNotFoundContent]="contentHistory"></nz-empty>
+                  <ng-template #contentHistory>
+                    <span> No History </span>
+                  </ng-template>
+                </div>
+
+              </nz-tab>
+            </nz-tabset>
+
+          </nz-collapse-panel>
+        </nz-collapse>
+      </div>
+
+    </section>
+
+    <app-timelog *ngIf="timelogModalIsVisible" [timelogModalIsVisible]="timelogModalIsVisible"
+                 (toggleTimeLogShow)="timeLog($event)" [selectedTaskItem]="currentTask"></app-timelog>
+
+  </aside>
+
+  <app-add-epic *ngIf="epicModalIsVisible" (toggleEpicShow)="toggleNewEpicModal()" [selectedTaskType]="selectedTaskType"
+                [taskTypeDataSource]="taskTypeDataSource" [epicModalIsVisible]="epicModalIsVisible"></app-add-epic>
 
 </div>

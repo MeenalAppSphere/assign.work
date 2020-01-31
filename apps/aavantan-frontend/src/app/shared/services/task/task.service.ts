@@ -125,7 +125,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
 
     return this._http.post(TaskUrls.updateComment, comment).pipe(
       map((res: BaseResponseModel<string>) => {
-        this.notification.success('Success', res.data);
+        this.notification.success('Success', 'Comment Updated Successfully');
         return res;
       }),
       catchError(err => {

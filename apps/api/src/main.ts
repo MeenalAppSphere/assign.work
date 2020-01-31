@@ -6,7 +6,6 @@
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app/app.module';
-import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 import { GenericExceptionFilter } from './shared/exceptionFilters/generic.exceptionFilter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -16,7 +15,7 @@ async function bootstrap() {
   const globalPrefix = 'api';
 
   // app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
-  app.useGlobalInterceptors(new ResponseInterceptor());
+  // app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new GenericExceptionFilter());
   app.setGlobalPrefix(globalPrefix);
 
