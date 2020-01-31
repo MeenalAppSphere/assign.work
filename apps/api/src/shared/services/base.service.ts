@@ -155,6 +155,27 @@ export class BaseService<T extends Document> {
     session.endSession();
   }
 
+  async withRetrySession(txnFn: Function) {
+    while (true) {
+      const session = await this.startSession();
+      try {
+        const result = await txnFn(session);
+        await this.commitTransaction(session);
+        return result;
+      } catch (e) {
+        const isTransientError = e.errorLabels && e.errorLabels.includes('TransientTransactionError');
+        if (!isTransientError) {
+          await this.handleError(session, e);
+        }
+      }
+    }
+  }
+
+  protected async handleError(session, err) {
+    await this.abortTransaction(session);
+    throw err;
+  }
+
   private queryBuilder(model: MongooseQueryModel, query: DocumentQuery<any, any>) {
     if (model.populate && model.populate.length) {
       query.populate(model.populate);

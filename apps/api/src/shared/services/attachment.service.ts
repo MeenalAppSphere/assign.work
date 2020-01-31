@@ -28,7 +28,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
 
   constructor(
     @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
-    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef
+    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef,
   ) {
     super(_attachmentModel);
     aws.config.update({

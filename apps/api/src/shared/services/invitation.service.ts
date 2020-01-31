@@ -18,7 +18,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
 
   constructor(
     @InjectModel(DbCollection.invitations) protected readonly _invitationModel: Model<Invitation & Document>,
-    private _moduleRef: ModuleRef, private _generalService: GeneralService
+    private _moduleRef: ModuleRef, private _generalService: GeneralService,
   ) {
     super(_invitationModel);
   }

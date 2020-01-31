@@ -13,6 +13,7 @@ import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
 import { SprintModule } from '../sprint/sprint.module';
 import * as aws from 'aws-sdk';
 import { InvitationsModule } from '../invitations/invitations.module';
+import { PublicModule } from '../public/public.module';
 
 @Module({
   imports: [
@@ -28,10 +29,10 @@ import { InvitationsModule } from '../invitations/invitations.module';
     AttachmentModule,
     TaskTimeLogModule,
     SprintModule,
-    InvitationsModule
+    InvitationsModule,
+    PublicModule
   ],
   controllers: [],
-  providers: []
 })
 export class AppModule {
 

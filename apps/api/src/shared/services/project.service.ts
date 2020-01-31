@@ -61,8 +61,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
-    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef,
-    private _emailService: EmailService
+    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef, private _emailService: EmailService,
   ) {
     super(_projectModel);
   }

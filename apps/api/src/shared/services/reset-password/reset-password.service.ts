@@ -8,7 +8,7 @@ import { DbCollection, ResetPasswordModel } from '@aavantan-app/models';
 export class ResetPasswordService extends BaseService<ResetPasswordModel & Document> {
 
   constructor(
-    @InjectModel(DbCollection.resetPassword) protected readonly _resetPasswordModel: Model<ResetPasswordModel & Document>
+    @InjectModel(DbCollection.resetPassword) protected readonly _resetPasswordModel: Model<ResetPasswordModel & Document>,
   ) {
     super(_resetPasswordModel);
   }

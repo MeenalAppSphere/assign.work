@@ -1,12 +1,16 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
+  BaseResponseModel,
   GetAllTaskRequestModel,
   MoveTaskToStage,
   ProjectStatus,
   Sprint,
-  SprintStage, SprintStageTask,
+  SprintStage,
+  SprintStageTask,
   SprintStatusEnum,
-  Task, TaskType, User
+  Task,
+  TaskType,
+  User
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -29,24 +33,24 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
-  public selectedTaskItem:Task;
+  public selectedTaskItem: Task;
   public getStageInProcess: boolean;
-  public activeSprintData:Sprint;
+  public activeSprintData: Sprint;
   public taskTypeDataSource: TaskType[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
   public statusSprintDataSource: ProjectStatus[] = [];
-  public sprintCloseInProcess:boolean;
-  public closeSprintModalIsVisible:boolean;
-  public isVisibleCloseSprint:boolean;
+  public sprintCloseInProcess: boolean;
+  public closeSprintModalIsVisible: boolean;
+  public isVisibleCloseSprint: boolean;
   public radioOptionValue = 'a';
   public dateFormat = 'MM/dd/yyyy';
   public sprintForm: FormGroup;
 
-  public moveFromStage:SprintStage;
+  public moveFromStage: SprintStage;
 
 
-  public sprintDataSource:Sprint[] = [
+  public sprintDataSource: Sprint[] = [
     {
       id: '1',
       name: 'Sprint 1',
@@ -92,22 +96,22 @@ export class BoardComponent implements OnInit, OnDestroy {
               private _sprintService: SprintService,
               protected notification: NzNotificationService,
               private modalService: NzModalService,
-              private _userQuery:UserQuery, private router:Router) {
+              private _userQuery: UserQuery, private router: Router) {
 
-        this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-          if (res) {
-            this.taskTypeDataSource = res.settings.taskTypes;
-          }
-        });
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.taskTypeDataSource = res.settings.taskTypes;
+      }
+    });
   }
 
   ngOnInit() {
 
     this.activeSprintData = this._generalService.currentProject.sprint;
 
-    if(this._generalService.currentProject.sprintId && this._generalService.currentProject.id){
+    if (this._generalService.currentProject.sprintId && this._generalService.currentProject.id) {
       this.getBoardData();
-    }else{
+    } else {
       this.notification.info('Info', 'Sprint not found');
     }
 
@@ -115,7 +119,7 @@ export class BoardComponent implements OnInit, OnDestroy {
       if (res) {
         this.statusSprintDataSource = res.settings.status;
       }
-    })
+    });
 
     this.sprintForm = new FormGroup({
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
@@ -125,44 +129,42 @@ export class BoardComponent implements OnInit, OnDestroy {
       sprintStatus: new FormControl(null, []),
       duration: new FormControl(null, [Validators.required]),
       startedAt: new FormControl(null, []),
-      endAt: new FormControl(null, []),
+      endAt: new FormControl(null, [])
     });
 
   }
 
 
-  public filterTask(user:User){
-    console.log('isSelected before',user.isSelected);
-    user.isSelected=!user.isSelected;
-    console.log('isSelected after',user.isSelected);
+  public filterTask(user: User) {
+    console.log('isSelected before', user.isSelected);
+    user.isSelected = !user.isSelected;
+    console.log('isSelected after', user.isSelected);
     this.boardData = this.boardDataClone;
 
-    if(this.boardData && this.boardData.stages && this.boardData.stages.length){
+    if (this.boardData && this.boardData.stages && this.boardData.stages.length) {
 
-      this.boardData.stages.forEach((stage)=>{
+      this.boardData.stages.forEach((stage) => {
 
-        if(stage.tasks && stage.tasks.length){
-          let tasks:SprintStageTask[] = [];
+        if (stage.tasks && stage.tasks.length) {
+          let tasks: SprintStageTask[] = [];
 
-          tasks = stage.tasks.filter((task)=>{
+          tasks = stage.tasks.filter((task) => {
             // console.log(task.task.assignee.emailId +'---'+ user.emailId)
-            if(task.task.assigneeId && task.task.assignee.emailId === user.emailId){
+            if (task.task.assigneeId && task.task.assignee.emailId === user.emailId) {
               return task;
             }
           });
           stage.tasks = tasks;
         }
 
-      })
+      });
 
     }
 
   }
 
-
-
-  async getBoardData(){
-    try{
+  async getBoardData() {
+    try {
 
       const json: GetAllTaskRequestModel = {
         projectId: this._generalService.currentProject.id,
@@ -171,51 +173,80 @@ export class BoardComponent implements OnInit, OnDestroy {
 
       this.getStageInProcess = true;
       const data = await this._sprintService.getBoardData(json).toPromise();
-      if(data.data){
-
-        data.data.stages.forEach((stage)=>{
-          stage.tasks.forEach((task)=>{
-            if(!task.task.priority){
-              task.task.priority = {
-                name :null,
-                color:'#6E829C'
-              }
-            }
-            if(!task.task.taskType){
-              task.task.taskType = {
-                name :null,
-                color:'#6E829C'
-              }
-            }
-          })
-        })
-        this.boardData = data.data;
-        this.boardDataClone = cloneDeep(data.data);
-      }
+      this.prepareBoardData(data);
       this.getStageInProcess = false;
-    }catch (e) {
+    } catch (e) {
       this.getStageInProcess = false;
     }
 
   }
 
-  public moveTask(task: SprintStageTask, stageId:string){
-    try{
+  private prepareBoardData(data: BaseResponseModel<Sprint>) {
+    if (data.data) {
+      data.data.stages.forEach((stage) => {
+        stage.tasks.forEach((task) => {
+          if (!task.task.priority) {
+            task.task.priority = {
+              name: null,
+              color: '#6E829C'
+            };
+          }
+          if (!task.task.taskType) {
+            task.task.taskType = {
+              name: null,
+              color: '#6E829C'
+            };
+          }
+        });
+      });
+      this.boardData = data.data;
+      this.boardDataClone = cloneDeep(data.data);
+    }
+  }
+
+  public async moveTask(task: SprintStageTask, stage: SprintStage) {
+    //push to target stage for ui
+    stage.tasks.push(task);
+
+    //pop from source stage
+    if (this.moveFromStage) {
+      this.moveFromStage.tasks = this.moveFromStage.tasks.filter((ele) => {
+        if (ele.taskId !== task.taskId) {
+          return ele;
+        }
+      });
+    }
+
+    try {
 
       const json: MoveTaskToStage = {
-        projectId : this._generalService.currentProject.id,
+        projectId: this._generalService.currentProject.id,
         sprintId: this.activeSprintData.id,
-        stageId: stageId,
+        stageId: stage.id,
         taskId: task.taskId
-      }
+      };
 
       // console.log('json :', json);
 
       this.getStageInProcess = true;
-      this._sprintService.moveTaskToStage(json).toPromise();
+      const result = await this._sprintService.moveTaskToStage(json).toPromise();
+      this.prepareBoardData(result);
       this.moveFromStage = null;
       this.getStageInProcess = false;
-    }catch (e) {
+    } catch (e) {
+
+      // revert ui changes
+      if (this.moveFromStage) {
+        this.moveFromStage.tasks.push(task);
+      }
+
+      //pop from source stage
+      stage.tasks = stage.tasks.filter((ele) => {
+        if (ele.taskId !== task.taskId) {
+          return ele;
+        }
+      });
+
       this.getStageInProcess = false;
     }
   }
@@ -224,22 +255,8 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.moveFromStage = item;
   }
 
-  onDragEnd($event, item: SprintStage) {
-
-    this.moveTask($event.data, item.id);
-
-    //push to target stage
-    item.tasks.push($event.data);
-
-    //pop from source stage
-    if(this.moveFromStage) {
-      this.moveFromStage.tasks = this.moveFromStage.tasks.filter((ele) => {
-        if (ele.taskId !== $event.data.taskId) {
-          return ele;
-        }
-      })
-    }
-
+  async onDragEnd($event, item: SprintStage) {
+    this.moveTask($event.data, item);
   }
 
   //============ close sprint =============//
@@ -269,28 +286,28 @@ export class BoardComponent implements OnInit, OnDestroy {
   //---------------------------------------//
 
   public viewTask(task: Task) {
-    this.router.navigateByUrl("dashboard/task/"+task.displayName);
+    this.router.navigateByUrl('dashboard/task/' + task.displayName);
   }
 
-  public addTaskNavigate(){
-    let displayName: string= null;
-    if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
-      displayName=this.taskTypeDataSource[0].displayName;
+  public addTaskNavigate() {
+    let displayName: string = null;
+    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
+      displayName = this.taskTypeDataSource[0].displayName;
     }
 
-    if(!displayName){
+    if (!displayName) {
       this.notification.error('Info', 'Please create Stages, Task Types, Status, Priority from settings');
-      setTimeout(()=>{
-        this.router.navigateByUrl("dashboard/settings");
-      },1000);
-      return
+      setTimeout(() => {
+        this.router.navigateByUrl('dashboard/settings');
+      }, 1000);
+      return;
     }
-    this.router.navigateByUrl("dashboard/task/"+displayName);
+    this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
-  public timeLog(item:Task) {
+  public timeLog(item: Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
-    this.selectedTaskItem=item;
+    this.selectedTaskItem = item;
   }
 
 

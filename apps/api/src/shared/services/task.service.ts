@@ -27,7 +27,7 @@ import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
 import { orderBy } from 'lodash';
 import * as moment from 'moment';
-import { secondsToString, stringToSeconds } from '../helpers/helpers';
+import { generateUtcDate, secondsToString, stringToSeconds } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 import { SprintService } from './sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
@@ -427,36 +427,30 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * get task details, push new comment to tasks comments array
    * @param model
    */
-  async addComment(model: AddCommentModel): Promise<TaskComments> {
+  async addComment(model: AddCommentModel) {
     // check if comment is available or not
     if (!model || !model.comment) {
       throw new BadRequestException('please add comment');
     }
 
-    // start session
-    const session = await this.startSession();
-
-    try {
+    return this.withRetrySession(async (session: ClientSession) => {
       await this.getProjectDetails(model.projectId);
 
       // get task details
       const taskDetails = await this.findById(model.taskId);
 
       model.comment.createdById = this._generalService.userId;
-      model.comment.createdAt = new Date();
-      model.comment.updatedAt = new Date();
+      model.comment.createdAt = generateUtcDate();
+      model.comment.updatedAt = generateUtcDate();
 
       // push comment to task's comments array
       taskDetails.comments.push(model.comment);
       // save task
-      await taskDetails.save();
+      await taskDetails.save({ session });
 
       // save task history
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
       await this._taskHistoryService.addHistory(taskHistory, session);
-
-      // commit transaction
-      await this.commitTransaction(session);
 
       // return newly created comment
       let newComment: any = taskDetails.comments[taskDetails.comments.length - 1];
@@ -466,10 +460,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         newComment.uuid = model.comment.uuid;
       }
       return newComment;
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
+    });
   }
 
   /**
@@ -485,36 +476,47 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       throw new BadRequestException('invalid request');
     }
 
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    return this.withRetrySession(async (session) => {
+      // get project details
+      await this.getProjectDetails(model.projectId);
+      const taskDetails = await this.getTaskDetails(model.taskId);
 
-    const taskDetails = await this.getTaskDetails(model.taskId);
-
-    // find comment and update it
-    taskDetails.comments = taskDetails.comments.map(com => {
-      if (com['_id'].toString() === model.comment.id) {
-        return {
-          ...com,
-          ...model.comment,
-          updatedAt: new Date()
-        };
+      // find comment in task db
+      const commentIndex = taskDetails.comments.findIndex(comment => comment._id.toString() === model.comment.id);
+      if (commentIndex === -1) {
+        throw new BadRequestException('Comment not found');
       }
-      return com;
-    });
+      const commentObj = taskDetails.comments[commentIndex];
 
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, model.taskId, taskDetails);
-    await this.updateHelper(model.taskId, taskDetails, taskHistory);
-    return 'Comment Updated Successfully';
+      // update comment object
+      taskDetails.comments[commentIndex] = {
+        ...commentObj,
+        comment: model.comment.comment, updatedById: this._generalService.userId, updatedAt: generateUtcDate()
+      };
+
+      // create task history object
+      const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentUpdated, model.taskId, taskDetails);
+
+      // update task by id
+      await this.updateById(taskDetails.id, {
+        $set: { [`comments.${commentIndex}`]: taskDetails.comments[commentIndex] }
+      }, session);
+
+      // add comment updated history
+      await this._taskHistoryService.addHistory(taskHistory, session);
+      return commentObj;
+    });
   }
 
   async pinComment(model: CommentPinModel): Promise<string> {
     if (!model || !model.commentId) {
       throw new BadRequestException('invalid request');
     }
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    await this.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.taskId);
     const commentIndex = taskDetails.comments.findIndex(comment => comment['_id'].toString() === model.commentId);
 
-    taskDetails.comments[commentIndex].updatedAt = new Date();
+    taskDetails.comments[commentIndex].updatedAt = generateUtcDate();
     taskDetails.comments[commentIndex].isPinned = model.isPinned;
 
     const session = await this._taskModel.db.startSession();

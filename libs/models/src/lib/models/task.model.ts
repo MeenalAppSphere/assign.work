@@ -61,6 +61,8 @@ export class TaskComments {
   createdBy?: User;
   createdAt: Date;
   updatedAt: Date;
+  updatedById?: string;
+  updatedBy?: User;
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
   isPinned: boolean;

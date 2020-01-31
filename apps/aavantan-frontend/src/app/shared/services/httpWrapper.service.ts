@@ -88,7 +88,7 @@ export class HttpWrapperService {
     }
 
     // locale header
-    options.headers['Accept-Language'] = this._generalService.userLocale || 'en-Us';
+    options.headers['Accept-Language'] = navigator.language;
 
     // time zone offset
     options.headers['X-Timezone-Offset'] = new Date().getTimezoneOffset().toString();

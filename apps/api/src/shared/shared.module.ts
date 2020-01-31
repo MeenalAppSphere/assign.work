@@ -16,6 +16,10 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { DbModule } from '../db/db.module';
 import { ResetPasswordService } from './services/reset-password/reset-password.service';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { resolvePathHelper } from './helpers/helpers';
+import { GenericExceptionFilter } from './exceptionFilters/generic.exceptionFilter';
 
 const providers = [
   UsersService,
@@ -41,11 +45,11 @@ const providers = [
       transports: [
         new winston.transports.File({
           format: winston.format.combine(
-            winston.format.timestamp()
+            winston.format.timestamp(),
+            winston.format.prettyPrint()
           ),
-          filename: 'error.log'
+          filename: resolvePathHelper('error.log')
         })
-
       ]
     }),
     DbModule
@@ -56,7 +60,15 @@ const providers = [
     ...providers
   ],
   providers: [
-    ...providers
+    ...providers,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GenericExceptionFilter
+    }
   ]
 })
 export class SharedModule {

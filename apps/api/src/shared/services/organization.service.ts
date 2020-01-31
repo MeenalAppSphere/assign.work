@@ -15,7 +15,8 @@ export class OrganizationService extends BaseService<Organization & Document> im
 
   constructor(
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
-    private _moduleRef: ModuleRef, private _generalService: GeneralService
+    private _moduleRef: ModuleRef,
+    private _generalService: GeneralService
   ) {
     super(_organizationModel);
   }

@@ -54,7 +54,7 @@ export class TaskController {
 
   @Post('add-comment')
   async addComment(@Body() model: AddCommentModel) {
-    return await this._taskService.addComment(model);
+      return this._taskService.addComment(model);
   }
 
   @Post('update-comment')
