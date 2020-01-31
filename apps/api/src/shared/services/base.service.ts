@@ -1,7 +1,6 @@
 import { ClientSession, Document, DocumentQuery, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
 import { DEFAULT_QUERY_FILTER } from '../helpers/defaultValueConstant';
-import { Logger } from 'winston';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -13,7 +12,7 @@ const myPaginationLabels = {
 
 
 export class BaseService<T extends Document> {
-  constructor(private model: Model<T>, protected readonly logger: Logger) {
+  constructor(private model: Model<T>) {
   }
 
   get dbModel() {

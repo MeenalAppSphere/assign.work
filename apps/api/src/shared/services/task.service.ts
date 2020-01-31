@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
   AddCommentModel,
@@ -31,7 +31,6 @@ import { generateUtcDate, secondsToString, stringToSeconds } from '../helpers/he
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 import { SprintService } from './sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
-import { Logger } from 'winston';
 
 /**
  * common task population object
@@ -71,9 +70,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
     private _taskHistoryService: TaskHistoryService, private _generalService: GeneralService,
-    private _moduleRef: ModuleRef, @Inject('winston') protected readonly logger: Logger
+    private _moduleRef: ModuleRef
   ) {
-    super(_taskModel, logger);
+    super(_taskModel);
   }
 
   onModuleInit(): any {
