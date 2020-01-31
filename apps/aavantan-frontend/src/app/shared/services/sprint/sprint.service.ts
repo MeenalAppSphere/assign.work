@@ -19,7 +19,6 @@ import {
   Sprint,
   SprintBaseRequest,
   SprintErrorResponse,
-  Task,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
@@ -138,9 +137,9 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  moveTaskToStage(json: MoveTaskToStage): Observable<BaseResponseModel<Task>> {
+  moveTaskToStage(json: MoveTaskToStage): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.moveTaskToStage, json).pipe(
-      map((res: BaseResponseModel<Task>) => {
+      map((res: BaseResponseModel<Sprint>) => {
         this.notification.success('Success', 'Task Moved Successfully');
         return res;
       }),

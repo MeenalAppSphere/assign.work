@@ -757,7 +757,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       await this.commitTransaction(session);
 
-      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, detailedFiledSelection);
+      const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
       return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
     } catch (e) {
       await this.abortTransaction(session);
