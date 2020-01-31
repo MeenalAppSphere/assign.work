@@ -2,13 +2,14 @@ import { BaseService } from './base.service';
 import { ClientSession, Document, Model } from 'mongoose';
 import { DbCollection, Invitation, MongooseQueryModel, Organization, Project, User } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
-import { BadRequestException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Inject, OnModuleInit } from '@nestjs/common';
 import { isInvitationExpired } from '../helpers/helpers';
 import { ProjectService } from './project.service';
 import { ModuleRef } from '@nestjs/core';
 import { OrganizationService } from './organization.service';
 import { UsersService } from './users.service';
 import { GeneralService } from './general.service';
+import { Logger } from 'winston';
 
 export class InvitationService extends BaseService<Invitation & Document> implements OnModuleInit {
 
@@ -18,9 +19,10 @@ export class InvitationService extends BaseService<Invitation & Document> implem
 
   constructor(
     @InjectModel(DbCollection.invitations) protected readonly _invitationModel: Model<Invitation & Document>,
-    private _moduleRef: ModuleRef, private _generalService: GeneralService
+    private _moduleRef: ModuleRef, private _generalService: GeneralService,
+    @Inject('winston') protected readonly logger: Logger
   ) {
-    super(_invitationModel);
+    super(_invitationModel, logger);
   }
 
   onModuleInit(): any {

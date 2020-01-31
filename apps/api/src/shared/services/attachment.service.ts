@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -20,6 +21,7 @@ import {
 } from '../helpers/defaultValueConstant';
 import { UsersService } from './users.service';
 import { ModuleRef } from '@nestjs/core';
+import { Logger } from 'winston';
 
 @Injectable()
 export class AttachmentService extends BaseService<AttachmentModel & Document> implements OnModuleInit {
@@ -28,9 +30,10 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
 
   constructor(
     @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
-    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef
+    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef,
+    @Inject('winston') protected readonly logger: Logger
   ) {
-    super(_attachmentModel);
+    super(_attachmentModel, logger);
     aws.config.update({
       region: 'ap-south-1',
       accessKeyId: process.env.AWS_ACCESSKEYID,

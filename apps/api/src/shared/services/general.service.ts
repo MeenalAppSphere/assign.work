@@ -11,5 +11,5 @@ export class GeneralService {
     this._userId = value;
   }
 
-  private _userId: string;
+  public _userId: string;
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
   AddCommentModel,
@@ -31,6 +31,7 @@ import { secondsToString, stringToSeconds } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 import { SprintService } from './sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
+import { Logger } from 'winston';
 
 /**
  * common task population object
@@ -70,9 +71,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
     private _taskHistoryService: TaskHistoryService, private _generalService: GeneralService,
-    private _moduleRef: ModuleRef
+    private _moduleRef: ModuleRef, @Inject('winston') protected readonly logger: Logger
   ) {
-    super(_taskModel);
+    super(_taskModel, logger);
   }
 
   onModuleInit(): any {
@@ -428,19 +429,22 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model
    */
   async addComment(model: AddCommentModel) {
+    console.log('userId :- ', this._generalService.userId);
     // let retryCount = 3;
     // await this.withRetrySession(async (session) => {
     // while (retryCount > 0) {
     //   retryCount--;
-      // check if comment is available or not
-      if (!model || !model.comment) {
-        throw new BadRequestException('please add comment');
-      }
+    // check if comment is available or not
+    if (!model || !model.comment) {
+      throw new BadRequestException('please add comment');
+    }
 
-      // start session
-      const session = await this.startSession();
+    // start session
+    const session = await this.dbModel.db.startSession();
 
-      try {
+    // try {
+      return this.withRetrySession(async () => {
+        // throw new Error('hey hey this is error');
         await this.getProjectDetails(model.projectId);
 
         // get task details
@@ -460,7 +464,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         await this._taskHistoryService.addHistory(taskHistory, session);
 
         // commit transaction
-        await this.commitTransaction(session);
+        // await this.commitTransaction(session);
 
         // return newly created comment
         let newComment: any = taskDetails.comments[taskDetails.comments.length - 1];
@@ -470,16 +474,18 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           newComment.uuid = model.comment.uuid;
         }
         return newComment;
-      } catch (e) {
-        // console.log(e);
-        // const isTransientError = e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult');
-        // if (!isTransientError) {
-          await this.abortTransaction(session);
-          return e;
-          // throw e;
-        // }
-      }
-      // });
+      });
+    // } catch (e) {
+    //   // console.log(e);
+    //   // const isTransientError = e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult');
+    //   // if (!isTransientError) {
+    //   //   await this.abortTransaction(session);
+    //   // return e;
+    //   // throw e;
+    //   // }
+    //   await this.handleError(session, e);
+    // }
+    // });
     // }
   }
 

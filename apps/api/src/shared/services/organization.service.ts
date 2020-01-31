@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from './base.service';
 import { DbCollection, Organization, User } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,6 +7,7 @@ import { UsersService } from './users.service';
 import { ModuleRef } from '@nestjs/core';
 import { GeneralService } from './general.service';
 import { ProjectService } from './project.service';
+import { Logger } from 'winston';
 
 @Injectable()
 export class OrganizationService extends BaseService<Organization & Document> implements OnModuleInit {
@@ -15,9 +16,10 @@ export class OrganizationService extends BaseService<Organization & Document> im
 
   constructor(
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
-    private _moduleRef: ModuleRef, private _generalService: GeneralService
+    @Inject('winston') protected readonly logger: Logger, private _moduleRef: ModuleRef,
+    private _generalService: GeneralService
   ) {
-    super(_organizationModel);
+    super(_organizationModel, logger);
   }
 
   onModuleInit(): any {

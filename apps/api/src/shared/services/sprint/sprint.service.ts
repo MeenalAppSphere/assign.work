@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
 import {
   AddTaskRemoveTaskToSprintResponseModel,
@@ -35,6 +35,7 @@ import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from './sprint-utility.service';
 import { TaskHistoryService } from '../task-history.service';
+import { Logger } from 'winston';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -79,9 +80,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
-    private _generalService: GeneralService, private _moduleRef: ModuleRef
+    private _generalService: GeneralService, private _moduleRef: ModuleRef,
+    @Inject('winston') protected readonly logger: Logger
   ) {
-    super(_sprintModel);
+    super(_sprintModel, logger);
     this._sprintUtilityService = new SprintUtilityService(_sprintModel);
   }
 

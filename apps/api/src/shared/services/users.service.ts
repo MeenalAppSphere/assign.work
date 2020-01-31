@@ -7,13 +7,14 @@ import { ProjectService } from './project.service';
 import { slice } from 'lodash';
 import { GeneralService } from './general.service';
 import { secondsToHours } from '../helpers/helpers';
+import { Logger } from 'winston';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> {
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
               @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService,
-              private _generalService: GeneralService) {
-    super(_userModel);
+              private _generalService: GeneralService, @Inject('winston') protected readonly logger: Logger) {
+    super(_userModel, logger);
   }
 
   async getAllWithPagination() {

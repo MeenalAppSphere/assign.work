@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
   BasePaginatedResponse,
@@ -11,15 +11,16 @@ import {
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
+import { Logger } from 'winston';
 
 @Injectable()
 export class TaskHistoryService extends BaseService<TaskHistory & Document> {
   constructor(
     @InjectModel(DbCollection.taskHistory) protected readonly _taskHistoryModel: Model<TaskHistory & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    private readonly _generalService: GeneralService
+    private readonly _generalService: GeneralService, @Inject('winston') protected readonly logger: Logger
   ) {
-    super(_taskHistoryModel);
+    super(_taskHistoryModel, logger);
   }
 
   /**

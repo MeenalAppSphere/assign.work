@@ -1,6 +1,7 @@
 import { ClientSession, Document, DocumentQuery, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
 import { DEFAULT_QUERY_FILTER } from '../helpers/defaultValueConstant';
+import { Logger } from 'winston';
 
 const myPaginationLabels = {
   docs: 'items',
@@ -12,7 +13,7 @@ const myPaginationLabels = {
 
 
 export class BaseService<T extends Document> {
-  constructor(private model: Model<T>) {
+  constructor(private model: Model<T>, protected readonly logger: Logger) {
   }
 
   get dbModel() {
@@ -163,31 +164,19 @@ export class BaseService<T extends Document> {
         await this.commitTransaction(session);
         return result;
       } catch (e) {
-        const isTransientError = e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult');
+        const isTransientError = e.errorLabels && e.errorLabels.includes('TransientTransactionError');
         if (!isTransientError) {
-          await this.abortTransaction(session);
-          throw e;
+          await this.handleError(session, e);
         }
       }
     }
   }
 
-  async retryUnknownTransactionCommit(session: ClientSession) {
-    while (true) {
-      try {
-        await session.commitTransaction();
-        break;
-      } catch (e) {
-        if (e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult')) {
-          // Keep retrying the transaction
-          continue;
-        }
-
-        // The transaction cannot be retried,
-        // return the exception
-        return e;
-      }
-    }
+  protected async handleError(session, err) {
+    await this.abortTransaction(session);
+    console.log(err.stack);
+    this.logger.error(err.message, [{stack: err.stack}]);
+    throw err;
   }
 
   private queryBuilder(model: MongooseQueryModel, query: DocumentQuery<any, any>) {

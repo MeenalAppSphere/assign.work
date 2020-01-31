@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   DbCollection,
@@ -44,6 +44,7 @@ import { ModuleRef } from '@nestjs/core';
 import { EmailService } from './email.service';
 import { OrganizationService } from './organization.service';
 import { EmailTemplatePathEnum } from '../../../../../libs/models/src/lib/enums/email-template.enum';
+import { Logger } from 'winston';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -61,10 +62,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
-    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef,
-    private _emailService: EmailService
+    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef, private _emailService: EmailService,
+    @Inject('winston') protected readonly logger: Logger
   ) {
-    super(_projectModel);
+    super(_projectModel, logger);
   }
 
   onModuleInit(): any {

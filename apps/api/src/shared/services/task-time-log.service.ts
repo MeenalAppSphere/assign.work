@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
   AddTaskTimeModel,
@@ -22,6 +22,7 @@ import * as moment from 'moment';
 import { secondsToString, stringToSeconds } from '../helpers/helpers';
 import { TaskHistoryService } from './task-history.service';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
+import { Logger } from 'winston';
 
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
@@ -30,9 +31,10 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> {
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
-    private _taskHistoryService: TaskHistoryService, private readonly _generalService: GeneralService
+    private _taskHistoryService: TaskHistoryService, private readonly _generalService: GeneralService,
+    @Inject('winston') protected readonly logger: Logger
   ) {
-    super(_taskTimeLogModel);
+    super(_taskTimeLogModel, logger);
   }
 
   /**
