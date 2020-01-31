@@ -463,6 +463,10 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.displayName = this.selectedTaskType.displayName;
     }
 
+    this.pinnedCommentsList = null;
+    this.historyList = null;
+    this.progressData = null;
+
     this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
 
   }
