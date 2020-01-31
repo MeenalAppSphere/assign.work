@@ -18,6 +18,7 @@ import { DbModule } from '../db/db.module';
 import { ResetPasswordService } from './services/reset-password/reset-password.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { resolvePathHelper } from './helpers/helpers';
 
 const providers = [
   UsersService,
@@ -43,11 +44,11 @@ const providers = [
       transports: [
         new winston.transports.File({
           format: winston.format.combine(
-            winston.format.timestamp()
+            winston.format.timestamp(),
+            winston.format.prettyPrint()
           ),
-          filename: 'error.log'
+          filename: resolvePathHelper('error.log')
         })
-
       ]
     }),
     DbModule

@@ -97,6 +97,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
     resp.data = null;
     resp.hasError = true;
     resp.message = resp.errors[0].message;
+    // resp.logLink = resolvePathHelper('error.log');
 
     response.status(resp.status).json(resp);
   }
