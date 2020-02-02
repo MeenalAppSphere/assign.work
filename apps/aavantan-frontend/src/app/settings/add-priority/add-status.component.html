@@ -1,0 +1,14 @@
+<nz-modal [(nzVisible)]="addStatusModalIsVisible" [nzTitle]="titleTemp" nzClassName="status-modal" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
+  <form  autocomplete="off" nz-form>
+    <div>
+
+    </div>
+    <div *nzModalFooter>
+      <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button nz-button nzSize="small" nzType="primary">Save</button>
+    </div>
+    <ng-template #titleTemp>
+      <span>Add Status</span>
+    </ng-template>
+  </form>
+</nz-modal>

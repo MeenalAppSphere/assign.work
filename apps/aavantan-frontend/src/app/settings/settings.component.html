@@ -371,6 +371,8 @@
 
           <aside class="col-md-3">
 
+            <button nz-button nzType="link" (click)="toggleAddStatusShow()">+ Add Status</button>
+
             <form nz-form (submit)="addStatus()" [formGroup]="statusForm">
 
               <nz-form-item>
@@ -608,6 +610,15 @@
       [projectModalIsVisible]="projectModalIsVisible"
       (toggleShow)="projectModalShow()">
     </aavantan-app-add-project>
+  </ng-container>
+  <!-- endregion -->
+
+  <!-- region add project -->
+  <ng-container *ngIf="addStatusModalIsVisible">
+    <aavantan-add-status
+      [addStatusModalIsVisible]="addStatusModalIsVisible"
+      (toggleAddStatusShow)="toggleAddStatusShow()">
+    </aavantan-add-status>
   </ng-container>
   <!-- endregion -->
 

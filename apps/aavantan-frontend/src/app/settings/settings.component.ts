@@ -77,6 +77,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
 
+  public addStatusModalIsVisible:boolean;
 
   public workingDays : ProjectWorkingDays[] = [
     {
@@ -443,6 +444,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }), (error => {
       this.deleteStatusInProcess = false;
     }));
+  }
+
+  public toggleAddStatusShow(){
+    this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
   //================== Priority ==================//
