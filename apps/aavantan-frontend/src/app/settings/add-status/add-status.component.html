@@ -1,0 +1,26 @@
+<nz-modal [(nzVisible)]="addStatusModalIsVisible" [nzTitle]="titleTemp" nzClassName="status-modal" nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+  <form  autocomplete="off" nz-form (submit)="addStatus()" [formGroup]="statusForm">
+    <div>
+
+        <nz-form-item>
+
+          <nz-form-label>Status title<span class="text-danger">*</span></nz-form-label>
+          <nz-form-control>
+            <input nz-input nzSize="small" formControlName="name" placeholder="Enter Status title"
+                   maxlength="30"/>
+          </nz-form-control>
+
+        </nz-form-item>
+
+    </div>
+    <div *nzModalFooter>
+      <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button nz-button nzType="primary" (click)="addStatus()" [disabled]="statusForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">
+        {{addEditprojectStatusData?.id ? 'Save' : 'Add'}}
+      </button>
+    </div>
+    <ng-template #titleTemp>
+      <span>{{addEditprojectStatusData?.id ? 'Edit status' : 'Add status'}}</span>
+    </ng-template>
+  </form>
+</nz-modal>

@@ -242,6 +242,21 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       );
   }
 
+  removePriority(projectId:string, priorityId:string): Observable<BaseResponseModel<Project>> {
+    return this._http.delete(ProjectUrls.removeTaskType
+      .replace(':projectId', projectId)
+      .replace(':priorityId', priorityId)
+    )
+      .pipe(
+        map(res => {
+          this.updateCurrentProjectState(res.data);
+          this.notification.success('Success', 'Priority Removed Successfully');
+          return res;
+        }),
+        catchError(e => this.handleError(e))
+      );
+  }
+
   addTaskType(id: string, taskType: TaskType): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.addTaskType.replace(':projectId', id), taskType)
       .pipe(

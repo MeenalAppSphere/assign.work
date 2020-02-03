@@ -1,0 +1,32 @@
+<nz-modal [(nzVisible)]="addPriorityModalIsVisible" [nzTitle]="titleTemp" nzClassName="priority-modal" nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+  <form nz-form (submit)="savePriority()" [formGroup]="priorityForm">
+    <div class="task-type-section">
+
+      <nz-form-item>
+        <nz-form-label>Priority<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and title)</small></nz-form-label>
+
+        <nz-form-control>
+          <nz-input-group [nzAddOnBefore]="profixIconButton">
+            <input class="task-type-input" type="text" nzSize="small" formControlName="name" nz-input
+                   placeholder="eg: Low"/>
+          </nz-input-group
+          >
+          <ng-template #profixIconButton>
+            <input type="color" nzSize="small" formControlName="color"/>
+          </ng-template>
+        </nz-form-control>
+
+      </nz-form-item>
+
+    </div>
+    <div *nzModalFooter>
+      <button type="button" nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button type="submit" nz-button nzType="primary" (click)="savePriority()" [disabled]="priorityForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">
+        {{addEditprojectPriorityData?.id ? 'Save' : 'Add'}}
+      </button>
+    </div>
+    <ng-template #titleTemp>
+      <span>{{addEditprojectPriorityData?.id ? 'Edit priority' : 'Add priority'}}</span>
+    </ng-template>
+  </form>
+</nz-modal>

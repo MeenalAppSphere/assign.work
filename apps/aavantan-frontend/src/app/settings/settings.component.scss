@@ -1,4 +1,7 @@
 #settings-page{
+  .right-30 {
+    right:30px!important;
+  }
   .assigned-user-input {
     height: 36px;
   }
@@ -89,10 +92,22 @@
         opacity: 1;
         text-shadow: none;
         right: 10px;
+        &:hover{
+          color: red;
+        }
       }
-      i:hover{
-        color: red;
+      i.edit{
+        position: absolute;
+        top: 13px;
+        font-size: 14px;
+        opacity: 1;
+        text-shadow: none;
+        right: 30px;
+        &:hover{
+          color: #ff8828;
+        }
       }
+
       img{
         border-radius: 50%;
       }

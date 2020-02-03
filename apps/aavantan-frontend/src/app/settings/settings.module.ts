@@ -4,7 +4,8 @@ import { SettingsComponent } from './settings.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { SortableModule, TypeaheadModule } from 'ngx-bootstrap';
-import { ColorPickerModule } from 'ngx-color-picker';
+import { AddPriorityComponent } from './add-priority/add-priority.component';
+import { AddStatusComponent } from './add-status/add-status.component';
 
 const routes: Routes = [
   { path: '', component: SettingsComponent }
@@ -16,13 +17,13 @@ const routes: Routes = [
     CommonModule,
     SharedModule,
     TypeaheadModule,
-    SortableModule,
-    ColorPickerModule
+    SortableModule
   ],
   exports: [],
   declarations: [
     SettingsComponent,
-    AddStatusComponent
+    AddStatusComponent,
+    AddPriorityComponent
   ]
 })
 export class SettingsModule {

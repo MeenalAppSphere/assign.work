@@ -87,10 +87,19 @@
       <ng-template #templateExtra>
 
         <span *ngIf="activeView.view==='workflow'">
-        <button  nz-button nzType="primary" size="small" (click)="showAddWorkflowForm()">
-          {{ !AddWorkflowFormIsVisible ? '+ Add New Workflow' : 'Show Workflow List'}}</button>
-        <button class="m-l-5" nz-button nzType="default" size="small" >Delete</button>
+          <button  nz-button nzType="primary" size="small" (click)="showAddWorkflowForm()">
+            {{ !AddWorkflowFormIsVisible ? '+ Add New Workflow' : 'Show Workflow List'}}</button>
+          <button class="m-l-5" nz-button nzType="default" size="small" >Delete</button>
         </span>
+
+        <span *ngIf="activeView.view==='status'">
+          <button nz-button nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>
+        </span>
+
+        <span *ngIf="activeView.view==='priority'">
+          <button nz-button nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>
+        </span>
+
         <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project</button>
 
       </ng-template>
@@ -369,9 +378,8 @@
 
         <section class="row">
 
+          <!--
           <aside class="col-md-3">
-
-            <button nz-button nzType="link" (click)="toggleAddStatusShow()">+ Add Status</button>
 
             <form nz-form (submit)="addStatus()" [formGroup]="statusForm">
 
@@ -392,22 +400,45 @@
             </form>
 
           </aside>
+          -->
 
-          <aside class="col-md-3" *ngIf="statusList && statusList.length>0">
-
-            <nz-form-label>Default Status</nz-form-label>
+          <aside class="col-md-4" *ngIf="statusList && statusList.length>0">
 
             <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
 
+              <nz-form-label class="m-b-10">Default Status</nz-form-label>
+
               <ul class="stages-list">
                 <li *ngFor="let item of statusList"><span>{{item.name}}</span>
-                  <!--                  <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+
+                  <span class="float-right">
+                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>
+                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+                    </span>
+
                 </li>
               </ul>
 
             </nz-spin>
 
           </aside>
+
+
+          <aside class="col-md-12" *ngIf="!statusList || statusList.length===0">
+            <nz-empty
+              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+              [nzNotFoundContent]="contentTpl"
+              [nzNotFoundFooter]="footerTpl">
+              <ng-template #contentTpl>
+                <span>No Status found</span>
+              </ng-template>
+              <ng-template #footerTpl>
+<!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>-->
+              </ng-template>
+            </nz-empty>
+          </aside>
+
+
 
         </section>
       </ng-container>
@@ -417,6 +448,7 @@
 
         <section class="row task-type-section">
 
+          <!--
           <aside class="col-md-3">
 
             <form nz-form (submit)="savePriority()" [formGroup]="priorityForm">
@@ -444,12 +476,13 @@
             </form>
 
           </aside>
+          -->
 
-          <aside class="col-md-3" *ngIf="priorityList && priorityList.length>0">
-
-            <nz-form-label>Default Priorities</nz-form-label>
+          <aside class="col-md-4" *ngIf="priorityList && priorityList.length>0">
 
             <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
+
+              <nz-form-label class="m-b-10">Default Priorities</nz-form-label>
 
               <ul class="stages-list">
 
@@ -457,7 +490,11 @@
                   <div>
                     <i nz-tooltip [nzTitle]="item.color"  [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
                     <span class="p-l-10">{{item.name}}</span></div>
-<!--                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+
+                    <span class="float-right">
+                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>
+                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline" class="edit right-30"></i>
+                    </span>
                 </li>
 
               </ul>
@@ -465,6 +502,22 @@
             </nz-spin>
 
           </aside>
+
+
+          <aside class="col-md-12" *ngIf="!priorityList || priorityList.length===0">
+            <nz-empty
+              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+              [nzNotFoundContent]="contentTpl"
+              [nzNotFoundFooter]="footerTpl">
+              <ng-template #contentTpl>
+                <span>No Priority found</span>
+              </ng-template>
+              <ng-template #footerTpl>
+<!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>-->
+              </ng-template>
+            </nz-empty>
+          </aside>
+
 
         </section>
       </ng-container>
@@ -539,10 +592,9 @@
         <aside class="col-md-12">
           <div *ngIf="!projectCapacityMembersList || projectCapacityMembersList.length===0">
             <nz-empty
-              [nzNotFoundImage]=" 'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
               [nzNotFoundContent]="contentTpl"
-              [nzNotFoundFooter]="footerTpl"
-            >
+              [nzNotFoundFooter]="footerTpl">
               <ng-template #contentTpl>
                 <span>Please add collaborator to add capacity</span>
               </ng-template>
@@ -613,12 +665,24 @@
   </ng-container>
   <!-- endregion -->
 
-  <!-- region add project -->
+  <!-- region add/edit status -->
   <ng-container *ngIf="addStatusModalIsVisible">
     <aavantan-add-status
+      [addEditprojectStatusData]="addEditprojectStatusData"
       [addStatusModalIsVisible]="addStatusModalIsVisible"
-      (toggleAddStatusShow)="toggleAddStatusShow()">
+      (toggleAddStatusShow)="toggleAddStatusShow($event)">
     </aavantan-add-status>
+  </ng-container>
+  <!-- endregion -->
+
+  <!-- region add/edit priority -->
+  <ng-container *ngIf="addPriorityModalIsVisible">
+    <aavantan-add-priority
+      [priorityList]="priorityList"
+      [addEditprojectPriorityData]="addEditprojectPriorityData"
+      [addPriorityModalIsVisible]="addPriorityModalIsVisible"
+      (toggleAddPriorityShow)="toggleAddPriorityShow($event)">
+    </aavantan-add-priority>
   </ng-container>
   <!-- endregion -->
 

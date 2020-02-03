@@ -73,11 +73,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public deleteStageInProcess: boolean = false;
   public deleteStatusInProcess: boolean = false;
   public deleteTaskTypeInProcess: boolean = false;
+  public deletePriorityInProcess: boolean = false;
   public getProjectsInProcess:boolean = true;
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
 
+  public addEditprojectStatusData:ProjectStatus;
+  public addEditprojectPriorityData:ProjectPriority;
   public addStatusModalIsVisible:boolean;
+  public addPriorityModalIsVisible:boolean;
 
   public workingDays : ProjectWorkingDays[] = [
     {
@@ -446,7 +450,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public toggleAddStatusShow(){
+  public toggleAddStatusShow(item?:ProjectStatus){
+    if(item){
+      this.addEditprojectStatusData = item;
+    }
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
@@ -475,6 +482,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }), (error => {
       this.updateRequestInProcess = false;
     }));
+  }
+
+
+  public removePriority(item:ProjectPriority){
+    this.deletePriorityInProcess = true;
+    this._projectService.removePriority(this.currentProject.id, item.id).subscribe((res => {
+      this.deletePriorityInProcess = false;
+    }), (error => {
+      this.deletePriorityInProcess = false;
+    }));
+  }
+
+  public toggleAddPriorityShow(item?:ProjectPriority){
+    if(item){
+      this.addEditprojectPriorityData=item;
+    }
+    this.addPriorityModalIsVisible = !this.addPriorityModalIsVisible;
   }
 
   //================== task type ==================//

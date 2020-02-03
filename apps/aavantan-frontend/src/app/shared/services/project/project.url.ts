@@ -16,6 +16,7 @@ export const ProjectUrls = {
   removeStatus: `${createUrl('project/:projectId/remove-status/:statusId')}`,
   addTaskType: `${createUrl('project/:projectId/add-task-type')}`,
   addPriority: `${createUrl('project/:projectId/add-priority')}`,
+  removePriority: `${createUrl('project/:projectId/remove-priority/:priorityId')}`,
   removeTaskType: `${createUrl('project/:projectId/remove-task-type/:taskTypeId')}`,
 
   updateCapacity: `${createUrl('project/:projectId/update-working-capacity')}`,
