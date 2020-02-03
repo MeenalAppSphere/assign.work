@@ -155,16 +155,29 @@ export class BaseService<T extends Document> {
     session.endSession();
   }
 
+  /**
+   * retry failed session implementation
+   * accepts a function which get's called inside a while loop
+   * if an error occurs regarding transaction error then it will try to rerun the session
+   * and if there any errors which are not type of transaction error then it will throw and log error
+   * @param txnFn
+   */
   async withRetrySession(txnFn: Function) {
     while (true) {
+      // create a session
       const session = await this.startSession();
       try {
+        // execute requested function
         const result = await txnFn(session);
+        // if all seems good commit transaction
         await this.commitTransaction(session);
+        // return result
         return result;
       } catch (e) {
+        // if error type is TransientTransactionError then try to re commit the session
         const isTransientError = e.errorLabels && e.errorLabels.includes('TransientTransactionError');
         if (!isTransientError) {
+          // if not transaction error then throw it away
           await this.handleError(session, e);
         }
       }
