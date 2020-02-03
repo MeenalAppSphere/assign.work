@@ -1,25 +1,21 @@
-import { Project, ProjectStages, ProjectStatus } from './project.model';
+import { Project, ProjectStatus } from './project.model';
 import { User } from './user.model';
+import { BaseDbModel } from './base.model';
 
-export class WorkflowModel {
-  _id?: string;
-  id?: string;
+export class WorkflowModel extends BaseDbModel {
   name: string;
   projectId: string;
   project?: Project;
-  stageId: string;
-  stage?: ProjectStages;
-  previousStageId: string;
-  previousStage?: ProjectStages;
+  columns: WorkflowColumn[];
+  isActive: boolean;
+}
+
+export class WorkflowColumn extends BaseDbModel {
+  name: string;
+  statues: string[];
   defaultStatusId: string;
   defaultStatus?: ProjectStatus;
   defaultAssigneeId: string;
   defaultAssignee?: User;
-  allowedStatuses: string[];
-  allowedStatusesDetails?: ProjectStatus[];
-  createdById: string;
-  createdBy?: User;
-  updatedById: string;
-  updatedBy: User;
-  isDeleted: boolean;
+  isActive: boolean;
 }

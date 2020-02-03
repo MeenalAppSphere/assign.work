@@ -52,3 +52,6 @@ export const DEFAULT_INVITATION_EXPIRY = 259200;
 // default reset password code expiry in seconds
 export const DEFAULT_RESET_PASSWORD_CODE_EXPIRY = 10800;
 
+// max transaction retry timeout in seconds
+export const MAX_TRANSACTION_RETRY_TIMEOUT = 120000;
+
