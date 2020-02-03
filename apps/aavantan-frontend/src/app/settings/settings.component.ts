@@ -453,6 +453,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public toggleAddStatusShow(item?:ProjectStatus){
     if(item){
       this.addEditprojectStatusData = item;
+    }else {
+      this.addEditprojectStatusData = null;
     }
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
@@ -497,6 +499,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public toggleAddPriorityShow(item?:ProjectPriority){
     if(item){
       this.addEditprojectPriorityData=item;
+    }else{
+      this.addEditprojectPriorityData=null;
     }
     this.addPriorityModalIsVisible = !this.addPriorityModalIsVisible;
   }
