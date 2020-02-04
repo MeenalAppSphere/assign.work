@@ -21,6 +21,7 @@ import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { resolvePathHelper } from './helpers/helpers';
 import { GenericExceptionFilter } from './exceptionFilters/generic.exceptionFilter';
 import { WorkflowService } from './services/workflow/workflow.service';
+import { TaskStatusService } from './services/task-status/task-status.service';
 
 const providers = [
   UsersService,
@@ -35,7 +36,8 @@ const providers = [
   InvitationService,
   EmailService,
   ResetPasswordService,
-  WorkflowService
+  WorkflowService,
+  TaskStatusService
 ];
 
 @Global()

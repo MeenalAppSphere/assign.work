@@ -14,6 +14,8 @@ import { SprintModule } from '../sprint/sprint.module';
 import * as aws from 'aws-sdk';
 import { InvitationsModule } from '../invitations/invitations.module';
 import { PublicModule } from '../public/public.module';
+import { TaskStatusModule } from '../task-status/task-status.module';
+import { WorkflowModule } from '../workflow/workflow.module';
 
 @Module({
   imports: [
@@ -30,9 +32,11 @@ import { PublicModule } from '../public/public.module';
     TaskTimeLogModule,
     SprintModule,
     InvitationsModule,
-    PublicModule
+    PublicModule,
+    TaskStatusModule,
+    WorkflowModule
   ],
-  controllers: [],
+  controllers: []
 })
 export class AppModule {
 

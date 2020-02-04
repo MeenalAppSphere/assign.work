@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, Types } from 'mongoose';
 import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
 import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import {
@@ -53,6 +53,7 @@ export const projectSchema = new Schema({
     taskTypes: [],
     priorities: [],
     status: [],
+    statuses: [{ type: Types.ObjectId }],
     tags: [projectTagsSchema],
     required: false
   },

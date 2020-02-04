@@ -5,6 +5,7 @@ export enum DbCollection {
   tasks = 'tasks',
   taskHistory = 'task-history',
   taskTimeLog = 'task-time-log',
+  taskStatus = 'task-status',
   sprint = 'sprint',
   attachments = 'attachments',
   invitations = 'invitations',

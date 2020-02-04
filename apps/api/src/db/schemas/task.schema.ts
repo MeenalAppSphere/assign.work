@@ -52,6 +52,7 @@ export const taskSchema = new Schema({
   progress: { type: Number, default: 0 },
   overProgress: { type: Number, default: 0 },
   status: { type: String },
+  statusId: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
   relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false }],

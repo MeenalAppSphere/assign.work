@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from
 import { InjectModel } from '@nestjs/mongoose';
 import {
   DbCollection,
+  EmailTemplatePathEnum,
   GetAllProjectsModel,
   Invitation,
   MongooseQueryModel,
@@ -49,12 +50,16 @@ import { InvitationService } from '../invitation.service';
 import { ModuleRef } from '@nestjs/core';
 import { EmailService } from '../email.service';
 import { OrganizationService } from '../organization.service';
-import { EmailTemplatePathEnum } from '../../../../../../libs/models/src/lib/enums/email-template.enum';
 import { ProjectUtilityService } from './project.utility.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
   select: 'firstName lastName emailId userName profilePic'
+}, {
+  path: 'settings.statuses',
+  populate: {
+    path: 'category'
+  }
 }];
 
 @Injectable()
