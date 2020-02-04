@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import {
   DEFAULT_PROJECT_TEMPLATE_TYPE,
   DEFAULT_WORKING_CAPACITY,

@@ -4,7 +4,7 @@ import { DbCollection, Invitation, MongooseQueryModel, Organization, Project, Us
 import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, OnModuleInit } from '@nestjs/common';
 import { isInvitationExpired } from '../helpers/helpers';
-import { ProjectService } from './project.service';
+import { ProjectService } from './project/project.service';
 import { ModuleRef } from '@nestjs/core';
 import { OrganizationService } from './organization.service';
 import { UsersService } from './users.service';

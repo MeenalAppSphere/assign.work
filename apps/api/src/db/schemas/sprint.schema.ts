@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import { DbCollection, SprintStatus } from '@aavantan-app/models';
 import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../../shared/helpers/defaultValueConstant';
 

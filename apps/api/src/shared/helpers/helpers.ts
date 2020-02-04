@@ -7,6 +7,7 @@ import {
   DEFAULT_INVITATION_EXPIRY,
   DEFAULT_RESET_PASSWORD_CODE_EXPIRY
 } from './defaultValueConstant';
+import { BadRequestException } from '@nestjs/common';
 
 /**
  * converts given string to seconds
@@ -161,4 +162,8 @@ export const generateRandomCode = (digit: number = 6) => {
  */
 export const generateUUId = () => {
   return moment.utc().valueOf();
+};
+
+export const BadRequest = (msg: string) => {
+  throw new BadRequestException(msg);
 };

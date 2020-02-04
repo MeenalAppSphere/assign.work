@@ -29,21 +29,28 @@ import {
   UserStatus
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Types } from 'mongoose';
-import { BaseService } from './base.service';
-import { UsersService } from './users.service';
-import { GeneralService } from './general.service';
+import { BaseService } from '../base.service';
+import { UsersService } from '../users.service';
+import { GeneralService } from '../general.service';
 import {
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
-} from '../helpers/defaultValueConstant';
-import { generateUtcDate, hourToSeconds, secondsToHours, validWorkingDaysChecker } from '../helpers/helpers';
-import { environment } from '../../environments/environment';
-import { InvitationService } from './invitation.service';
+} from '../../helpers/defaultValueConstant';
+import {
+  BadRequest,
+  generateUtcDate,
+  hourToSeconds,
+  secondsToHours,
+  validWorkingDaysChecker
+} from '../../helpers/helpers';
+import { environment } from '../../../environments/environment';
+import { InvitationService } from '../invitation.service';
 import { ModuleRef } from '@nestjs/core';
-import { EmailService } from './email.service';
-import { OrganizationService } from './organization.service';
-import { EmailTemplatePathEnum } from '../../../../../libs/models/src/lib/enums/email-template.enum';
+import { EmailService } from '../email.service';
+import { OrganizationService } from '../organization.service';
+import { EmailTemplatePathEnum } from '../../../../../../libs/models/src/lib/enums/email-template.enum';
+import { ProjectUtilityService } from './project.utility.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -55,13 +62,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _userService: UsersService;
   private _invitationService: InvitationService;
   private _organizationService: OrganizationService;
+  private _utilityService: ProjectUtilityService;
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
     @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
-    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef, private _emailService: EmailService,
+    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef, private _emailService: EmailService
   ) {
     super(_projectModel);
   }
@@ -71,6 +79,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._userService = this._moduleRef.get('UsersService');
     this._invitationService = this._moduleRef.get('InvitationService');
     this._organizationService = this._moduleRef.get('OrganizationService');
+
+    this._utilityService = new ProjectUtilityService();
   }
 
   /**
@@ -892,7 +902,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * get project details by id
    * @param id: project id
    */
-  private async getProjectDetails(id: string): Promise<Project> {
+  public async getProjectDetails(id: string): Promise<Project> {
     if (!this.isValidObjectId(id)) {
       throw new NotFoundException('Project not found');
     }
@@ -908,10 +918,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
     if (!projectDetails) {
       throw new NotFoundException('Project not found');
     } else {
-      const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
-
-      if (!isMember) {
-        throw new BadRequestException('You are not a part of Project');
+      if (!this._utilityService.userPartOfProject(this._generalService.userId, projectDetails)) {
+        BadRequest('You are not a part of Project');
       }
     }
     return projectDetails;

@@ -16,7 +16,7 @@ import { ClientSession, Document, Model } from 'mongoose';
 import { get, Response } from 'request';
 import { UsersService } from '../shared/services/users.service';
 import { ModuleRef } from '@nestjs/core';
-import { ProjectService } from '../shared/services/project.service';
+import { ProjectService } from '../shared/services/project/project.service';
 import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DbCollection, MongoosePaginateQuery, Project, SearchUserModel, User } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, QueryFindOneAndUpdateOptions, Types } from 'mongoose';
 import { BaseService } from './base.service';
-import { ProjectService } from './project.service';
+import { ProjectService } from './project/project.service';
 import { slice } from 'lodash';
 import { GeneralService } from './general.service';
 import { secondsToHours } from '../helpers/helpers';

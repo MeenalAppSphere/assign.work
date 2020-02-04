@@ -1,20 +1,16 @@
 import { Schema, Types } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
-const workFlowColumnSchema = new Schema({
-  name: { type: String, required: [true, 'Column Name is required'] },
-  statues: [{ type: Types.ObjectId }],
-  defaultStatusId: { type: Types.ObjectId, required: [true, 'Default Status name is required'] },
+const workflowStatusesSchema = new Schema({
+  status: { type: Types.ObjectId },
   defaultAssigneeId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.users,
     default: null
   },
-  isActive: { type: Boolean, default: false },
-  columnOrderNo: { type: Number },
   createdAt: { type: Date },
   updatedAt: { type: Date },
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
@@ -22,14 +18,14 @@ const workFlowColumnSchema = new Schema({
   isDeleted: { type: Boolean, default: false }
 });
 
-export const workFlowSchema = new Schema({
+export const workflowSchema = new Schema({
   name: { type: String, required: [true, 'Workflow Name is required'] },
   projectId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.projects,
     required: [true, 'Please Select Project First!']
   },
-  columns: [workFlowColumnSchema],
+  statuses: [workflowStatusesSchema],
   isActive: { type: Boolean, default: false },
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
@@ -38,7 +34,7 @@ export const workFlowSchema = new Schema({
 
 
 // options
-workFlowSchema
+workflowSchema
   .set('toObject', { virtuals: true })
   .set('toJSON', {
     virtuals: true, transform: (doc, ret) => {
@@ -48,24 +44,24 @@ workFlowSchema
   });
 
 // virtual
-workFlowSchema.virtual('project', {
+workflowSchema.virtual('project', {
   ref: DbCollection.projects,
   localField: 'projectId',
   foreignField: '_id'
 });
 
-workFlowSchema.virtual('createdBy', {
+workflowSchema.virtual('createdBy', {
   ref: DbCollection.users,
   localField: 'createdById',
   foreignField: '_id'
 });
 
-workFlowSchema.virtual('updatedBy', {
+workflowSchema.virtual('updatedBy', {
   ref: DbCollection.users,
   localField: 'updatedById',
   foreignField: '_id'
 });
 
 // plugins
-workFlowSchema
+workflowSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

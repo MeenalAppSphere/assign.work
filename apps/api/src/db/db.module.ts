@@ -11,6 +11,7 @@ import { taskTimeLogSchema } from './schemas/task-time-log.schema';
 import { sprintSchema } from './schemas/sprint.schema';
 import { invitationSchema } from './schemas/invitations.schema';
 import { resetPasswordSchema } from './schemas/reset-password.schema';
+import { workflowSchema } from './schemas/workflow.schema';
 
 @Module({
   imports: [
@@ -54,6 +55,10 @@ import { resetPasswordSchema } from './schemas/reset-password.schema';
       name: DbCollection.resetPassword,
       schema: resetPasswordSchema,
       collection: DbCollection.resetPassword
+    }, {
+      name: DbCollection.workflow,
+      schema: workflowSchema,
+      collection: DbCollection.workflow
     }])
   ],
   exports: [

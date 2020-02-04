@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 

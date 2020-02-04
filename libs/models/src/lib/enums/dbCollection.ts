@@ -8,5 +8,6 @@ export enum DbCollection {
   sprint = 'sprint',
   attachments = 'attachments',
   invitations = 'invitations',
-  resetPassword = 'reset-password'
+  resetPassword = 'reset-password',
+  workflow = 'workflow'
 }

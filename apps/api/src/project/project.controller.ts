@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Param, Post, Put, UseGuards } from '@nestjs/common';
-import { ProjectService } from '../shared/services/project.service';
+import { ProjectService } from '../shared/services/project/project.service';
 import {
   GetAllProjectsModel,
   Project,
