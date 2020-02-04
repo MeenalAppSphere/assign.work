@@ -12,6 +12,7 @@ import { sprintSchema } from './schemas/sprint.schema';
 import { invitationSchema } from './schemas/invitations.schema';
 import { resetPasswordSchema } from './schemas/reset-password.schema';
 import { workflowSchema } from './schemas/workflow.schema';
+import { taskStatusSchema } from './schemas/task-status.schema';
 
 @Module({
   imports: [
@@ -59,6 +60,10 @@ import { workflowSchema } from './schemas/workflow.schema';
       name: DbCollection.workflow,
       schema: workflowSchema,
       collection: DbCollection.workflow
+    }, {
+      name: DbCollection.taskStatus,
+      schema: taskStatusSchema,
+      collection: DbCollection.taskStatus
     }])
   ],
   exports: [
