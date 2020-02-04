@@ -8,6 +8,7 @@ $side-nav-bg :#EEF4FC;
 $board-card-header: #f7f7f7;
 $board-card-body: #f7f7f7;
 $color-black:#333333;
+$color-black-dark:#000000;
 $color-red:#F82222;
 $color-gray-light: #00255B;
 $menu-color:#Cbe3ff;
@@ -560,6 +561,9 @@ $color-gray-light-2:#7A869A;
 /* font and text */
 .text-black{
   color: $color-black!important;
+}
+.text-black-dark{
+  color: $color-black-dark!important;
 }
 .text-red{
   color: $color-red!important;
