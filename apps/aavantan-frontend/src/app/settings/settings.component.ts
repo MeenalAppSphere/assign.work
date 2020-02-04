@@ -36,10 +36,13 @@ import { Subject } from 'rxjs';
 export class SettingsComponent implements OnInit, OnDestroy {
   public response: any;
   public collaboratorForm: FormGroup;
+  public workflowForm: FormGroup;
+
 
   public projectModalIsVisible:boolean;
   public selectedCollaborator: User;
   public selectedCollaborators: User[] = [];
+  public defaultAssigneeDataSource: User[] = [];
   public userDataSource: User[] = [];
   public collaboratorsDataSource: User[] = [];
   public isCollaboratorExits:boolean = false;
@@ -64,10 +67,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public currentOrganization:Organization;
   public currentProject: Project = null;
+  public isSearchingDefaultUser: boolean = false;
   public addCollaboratorsInProcess: boolean = false;
   public resendInviteInProcess:boolean = false;
   public removeCollaboratorInProcess:boolean=false;
   public modelChangedSearchCollaborators = new Subject<string>();
+  public modelChangedSearchDefaultAssignee = new Subject<string>();
+  public selectedDefaultAssignee: User = {};
   public isSearching: boolean;
   public updateRequestInProcess: boolean = false;
   public deleteStageInProcess: boolean = false;
@@ -105,6 +111,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
     },{
       day :'Sun',
       selected :false
+    }
+  ];
+
+  public workflowStatusList: ProjectStatus[]=[
+    {
+      name:'TO DO'
+    },
+    {
+      name:'Ready'
+    },
+    {
+      name:'Work In Progress'
+    },
+    {
+      name:'Progress 50%'
+    },
+    {
+      name:'Done'
+    },
+    {
+      name:'Close'
     }
   ];
 
@@ -187,6 +214,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       name: new FormControl(null, [Validators.required])
     });
 
+    this.workflowForm = this.FB.group({
+      name: new FormControl(null, [Validators.required])
+    });
+
     this.createProjectForm();
 
     this.taskTypeForm = this.FB.group({
@@ -250,6 +281,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       });
     // end search collaborators
+
+
+
+    // search default assignee
+    this.modelChangedSearchDefaultAssignee
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        const queryText = this.workflowForm.get('assigneeId').value;
+        const name = this.selectedDefaultAssignee.firstName + ' ' + this.selectedDefaultAssignee.lastName;
+        if (!queryText || this.workflowForm.get('assigneeId').value === name) {
+          return;
+        }
+        this.isSearchingDefaultUser = true;
+        const json: SearchProjectCollaborators = {
+          projectId: this._generalService.currentProject.id,
+          query: queryText
+        };
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
+          this.isSearchingDefaultUser = false;
+          this.defaultAssigneeDataSource = data.data;
+        });
+
+      });
+    // end search assignee
 
   }
 
@@ -613,6 +669,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   //================== workflow =====================//
+
+  public selectDefaultAssigneeTypeahead(user: User) {
+    if (user && user.emailId) {
+      this.selectedDefaultAssignee = user;
+      let userName = user && user.firstName ? user.firstName : user.emailId;
+      if (user && user.firstName && user && user.lastName) {
+        userName = userName + ' ' + user.lastName;
+      }
+      this.workflowForm.get('assigneeId').patchValue(userName);
+    }
+    this.modelChangedSearchDefaultAssignee.next();
+  }
+
   public showAddWorkflowForm(){
     this. AddWorkflowFormIsVisible = !this.AddWorkflowFormIsVisible;
   }
