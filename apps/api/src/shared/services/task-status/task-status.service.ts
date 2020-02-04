@@ -40,7 +40,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       }
 
       // check basic validations...
-      this._utilityService.addUpdateValidityChecker(model);
+      this._utilityService.statusValidations(model);
 
       // check if duplicate
       if (await this.isDuplicate(model)) {
@@ -79,7 +79,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
         queryFilter['categoryId'] = null;
       }
 
-      return await this.find({ filter: queryFilter });
+      return await this.find({ filter: queryFilter, populate: 'category' });
     } catch (e) {
       throw e;
     }

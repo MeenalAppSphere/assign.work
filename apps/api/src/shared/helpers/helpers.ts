@@ -164,6 +164,25 @@ export const generateUUId = () => {
   return moment.utc().valueOf();
 };
 
+/**
+ * throw new bad request exception
+ * @param msg
+ * @constructor
+ */
 export const BadRequest = (msg: string) => {
   throw new BadRequestException(msg);
 };
+
+/**
+ * check is valid string or not
+ * @param term
+ */
+export const isValidString = (term: string) => {
+  return /^[A-Za-z]+$/.test(term);
+};
+
+
+/**
+ * helper function to convert _id to id in aggregate query
+ */
+export const aggregateConvert_idToId = { $addFields: { id: '$_id' } };
