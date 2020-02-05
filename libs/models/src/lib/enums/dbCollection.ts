@@ -5,11 +5,12 @@ export enum DbCollection {
   tasks = 'tasks',
   taskHistory = 'task-history',
   taskTimeLog = 'task-time-log',
+  taskType = 'task-type',
   taskStatus = 'task-status',
+  taskPriority = 'task-priority',
   sprint = 'sprint',
   attachments = 'attachments',
   invitations = 'invitations',
   resetPassword = 'reset-password',
-  workflow = 'workflow',
-  taskType = 'task-type'
+  workflow = 'workflow'
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
 import { DbCollection, TaskType } from '@aavantan-app/models';
 import { ProjectService } from '../project/project.service';
@@ -78,7 +78,7 @@ export class TaskTypeService extends BaseService<TaskType & Document> implements
       await this._projectService.getProjectDetails(projectId);
 
       if (!this.isValidObjectId(taskTypeId)) {
-        BadRequest('Task type not found...');
+        BadRequest('Task Type not found...');
       }
 
       const taskType = await this.findOne({
@@ -88,10 +88,11 @@ export class TaskTypeService extends BaseService<TaskType & Document> implements
 
       if (taskType) {
         taskType.id = taskType._id;
-        return taskType;
       } else {
-        BadRequest('Task type not found...');
+        BadRequest('Task Type not found...');
       }
+
+      return taskType;
     } catch (e) {
       throw e;
     }
@@ -102,18 +103,26 @@ export class TaskTypeService extends BaseService<TaskType & Document> implements
    * @param projectId
    * @param taskTypeId
    */
-  async getDetails(projectId: string, taskTypeId: string) {
-    if (!this.isValidObjectId(taskTypeId)) {
-      throw new NotFoundException('Task Type not found..');
-    }
+  async getDetails(projectId: string, taskTypeId: string): Promise<TaskType> {
+    try {
+      if (!this.isValidObjectId(taskTypeId)) {
+        BadRequest('Task Type not found..');
+      }
 
-    const taskTypeDetail = await this.findOne({
-      filter: { _id: taskTypeId, projectId: projectId },
-      lean: true
-    });
+      const taskTypeDetail = await this.findOne({
+        filter: { _id: taskTypeId, projectId: projectId },
+        lean: true
+      });
 
-    if (!taskTypeDetail) {
-      throw new NotFoundException('Task Type not found...');
+      if (!taskTypeDetail) {
+        BadRequest('Task Type not found...');
+      } else {
+        taskTypeDetail.id = taskTypeDetail._id;
+      }
+
+      return taskTypeDetail;
+    } catch (e) {
+      throw e;
     }
   }
 

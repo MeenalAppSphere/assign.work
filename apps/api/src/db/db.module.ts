@@ -13,6 +13,7 @@ import { invitationSchema } from './schemas/invitations.schema';
 import { resetPasswordSchema } from './schemas/reset-password.schema';
 import { workflowSchema } from './schemas/workflow.schema';
 import { taskStatusSchema } from './schemas/task-status.schema';
+import { taskPrioritySchema } from './schemas/task-priority.schema';
 
 @Module({
   imports: [
@@ -64,6 +65,10 @@ import { taskStatusSchema } from './schemas/task-status.schema';
       name: DbCollection.taskStatus,
       schema: taskStatusSchema,
       collection: DbCollection.taskStatus
+    }, {
+      name: DbCollection.taskPriority,
+      schema: taskPrioritySchema,
+      collection: DbCollection.taskPriority
     }])
   ],
   exports: [

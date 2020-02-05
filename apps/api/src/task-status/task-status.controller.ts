@@ -1,7 +1,7 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskStatusService } from '../shared/services/task-status/task-status.service';
-import { TaskStatusModel } from '../../../../libs/models/src/lib/models/task-status.model';
+import { TaskStatusModel, TaskStatusWithCategoryModel } from '@aavantan-app/models';
 
 @Controller('task-status')
 @UseGuards(AuthGuard('jwt'))
@@ -23,6 +23,11 @@ export class TaskStatusController {
   @Post('get-all')
   async getAllTaskStatues(@Body('projectId') projectId: string) {
     return await this._taskStatusService.getAllStatues(projectId, false);
+  }
+
+  @Post('get-all')
+  async getAllTaskStatuesCategoryWise(@Body('projectId') projectId: string): Promise<TaskStatusWithCategoryModel[]> {
+    return await this._taskStatusService.getAllStatusesCategoryWise(projectId);
   }
 
   @Post('get-all-categories')

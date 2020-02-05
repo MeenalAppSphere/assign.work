@@ -4,21 +4,20 @@ import { DbCollection } from '@aavantan-app/models';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
-export const taskStatusSchema = new Schema({
-  name: { type: String, required: [true, 'Status name is required'], text: true },
+export const taskPrioritySchema = new Schema({
+  name: { type: String, required: [true, 'Priority name is required'], text: true },
+  color: { type: String, required: [true, 'Priority color is required'] },
   projectId: { type: Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
-  isCategory: { type: Boolean, default: false },
-  categoryId: { type: Types.ObjectId, ref: DbCollection.taskStatus, default: null },
   ...baseSchemaFields
 }, schemaOptions);
 
 // options
-taskStatusSchema
+taskPrioritySchema
   .set('toObject', { virtuals: true })
   .set('toJSON', { virtuals: true });
 
 // virtual
-taskStatusSchema
+taskPrioritySchema
   .virtual('category', {
     ref: DbCollection.taskStatus,
     localField: 'categoryId',
@@ -26,7 +25,7 @@ taskStatusSchema
     justOne: true
   });
 
-taskStatusSchema
+taskPrioritySchema
   .virtual('project', {
     ref: DbCollection.projects,
     localField: 'projectId',
@@ -34,5 +33,5 @@ taskStatusSchema
   });
 
 // plugins
-taskStatusSchema
+taskPrioritySchema
   .plugin(mongooseValidationErrorTransform);

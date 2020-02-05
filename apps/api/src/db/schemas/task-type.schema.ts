@@ -5,10 +5,10 @@ import { baseSchemaFields, schemaOptions } from './base.schema';
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
 export const taskTypeSchema = new Schema({
-  name: { type: String, required: true, text: true },
-  color: { type: String, required: true },
-  displayName: { type: String, required: true },
-  projectId: { type: Schema.Types.ObjectId, ref: DbCollection.projects, required: true },
+  name: { type: String, required: [true, 'Task type name is required'], text: true },
+  color: { type: String, required: [true, 'Task type color is required'] },
+  displayName: { type: String, required: [true, 'Task type display name is required'] },
+  projectId: { type: Schema.Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
   ...baseSchemaFields
 }, schemaOptions);
 
@@ -25,6 +25,14 @@ taskTypeSchema
     transform: (doc, ret) => {
       ret.id = ret._id;
     }
+  });
+
+// virtual
+taskTypeSchema
+  .virtual('project', {
+    ref: DbCollection.projects,
+    localField: 'projectId',
+    foreignField: '_id'
   });
 
 

@@ -33,7 +33,7 @@ import * as moment from 'moment';
 import { generateUtcDate, hourToSeconds, secondsToString, validWorkingDaysChecker } from '../../helpers/helpers';
 import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
-import { SprintUtilityService } from './sprint-utility.service';
+import { SprintUtilityService } from './sprint.utility.service';
 import { TaskHistoryService } from '../task-history.service';
 
 const commonPopulationForSprint = [{
