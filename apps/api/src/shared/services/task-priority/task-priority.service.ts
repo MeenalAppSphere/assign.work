@@ -1,8 +1,7 @@
 import { BaseService } from '../base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { TaskPriorityModel } from '../../../../../../libs/models/src/lib/models/task-priority.model';
+import { DbCollection, TaskPriorityModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
-import { DbCollection } from '@aavantan-app/models';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
 import { OnModuleInit } from '@nestjs/common';

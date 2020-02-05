@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../db/schemas/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const paginate = require('mongoose-paginate-v2');

@@ -6,7 +6,7 @@ import { projectSchema } from './schemas/project.schema';
 import { organizationSchema } from './schemas/organization.schema';
 import { taskSchema } from './schemas/task.schema';
 import { taskHistorySchema } from './schemas/task-history.schema';
-import { attachmentSchema } from '../attachment/attachment.schema';
+import { attachmentSchema } from './schemas/attachment.schema';
 import { taskTimeLogSchema } from './schemas/task-time-log.schema';
 import { sprintSchema } from './schemas/sprint.schema';
 import { invitationSchema } from './schemas/invitations.schema';
