@@ -16,6 +16,7 @@ import { JoyrideModule } from 'ngx-joyride';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-sprint.component';
 import { DndModule } from 'ngx-drag-drop';
+import { BoardDesignComponent } from './board-design/board-design.component';
 
 @NgModule({
   imports: [
@@ -39,7 +40,8 @@ import { DndModule } from 'ngx-drag-drop';
     ActivesprintComponent,
     PermissionsComponent,
     CollaboratorsComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
+    BoardDesignComponent
   ],
   providers: [
     ThemeConstantService,

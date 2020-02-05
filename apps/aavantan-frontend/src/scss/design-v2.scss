@@ -757,6 +757,15 @@ $color-gray-light-2:#7A869A;
   }
 }
 
+
+/* board-design */
+.board-design {
+  .ant-input {
+    padding: 4.5px 10px!important;
+  }
+}
+
+
 /* for mobile view */
 
 @media only screen and (max-width: 768px) {

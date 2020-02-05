@@ -1,0 +1,86 @@
+<nz-card nzBordered="false" nzSize="small" class="board-design">
+
+<div class="row">
+  <div class="col-md-3">
+    <h5 class="m-t-10">Status</h5>
+    <nz-card nzSize="small" >
+      <aside class="status-list">
+        <div class="item" *ngFor="let item of statusList">
+          {{item.name}}
+        </div>
+      </aside>
+    </nz-card>
+  </div>
+  <div class="col-md-9">
+    <div class="row">
+      <div class="col-md-3">
+        <form nz-form [formGroup]="boardDesignForm" (ngSubmit)="saveForm()">
+          <nz-form-item class="m-b-10">
+            <nz-form-control>
+              <nz-input-group>
+                <input formControlName="name" nzSize="small" nz-input type="text" placeholder="Board Setting Name"/>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+
+        </form>
+      </div>
+      <div class="col-md-9 text-right">
+        <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save</button>
+      </div>
+    </div>
+    <nz-card nzSize="small" >
+      <section class="sprintboard-container p-l-10">
+        <div class="row flex-row flex-nowrap" *ngIf="stagesList && stagesList.length>0">
+
+          <div class="column" *ngFor="let item of stagesList; let last">
+            <div class="card card-block cursor-move">
+
+              <div class="card-header">{{item.name}}
+                <div class="pull-left" style="line-height: 10px;">
+                  <small class="text-muted font-size-10 placeholder"><span class="invisible">Total hours</span></small>&nbsp;
+                  <span class="font-size-12 placeholder"><span class="invisible">2Hrs</span></span>
+                </div>
+              </div>
+
+              <div class="card-body">
+
+                <div>
+                  <div class="task-card"
+                        [ngStyle]="{'border-left': '4px solid #0090FB'}">
+                    <h6 [ngStyle]="{'color': '#EF1B1B'}"><span class="placeholder"><span class="invisible">#TASK-100</span></span>
+                      <span class="float-right duration placeholder"><span class="invisible">1 Sec ago</span></span>
+                    </h6>
+                    <div class="task-body">
+                      <div class="placeholder">
+                        <a href="" class="task-title invisible">
+                          Task name
+                        </a>
+                      </div>
+                    </div>
+                    <div class="task-footer">
+                      <span>
+                        <nz-avatar class="m-r-5" nzSize="18" nzIcon="user" nzText="A" nzShape="circle"></nz-avatar>
+                        <span class="profile-name placeholder"><span class="invisible">Jone Doe</span></span>
+                      </span>
+                      <span class="pull-right">
+                            <a href="javascript:void(0);" class="text-primary placeholder">
+                              <span class="invisible"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</span></a>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </nz-card>
+  </div>
+</div>
+
+
+
+
+</nz-card>
