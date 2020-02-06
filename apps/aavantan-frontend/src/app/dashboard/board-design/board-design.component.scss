@@ -1,0 +1,41 @@
+.board-design {
+  .status-list {
+    .item {
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      border-radius: 3px;
+      background: #ffffff;
+      border: 1px solid #d8d8d8;
+      &:hover {
+        cursor: move;
+        background: #f5f5f5;
+      }
+    }
+  }
+
+  .placeholder {
+    background: #ebebeb;
+    border-radius: 3px;
+  }
+
+  .dndPlaceholder {
+    border: 2px dashed #c3c3c3;
+    line-height: 95px;
+    color: #c3c3c3;
+    text-align: center;
+    min-height: 105px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+  }
+
+  .dndColumnPlaceholder {
+    border: 2px dashed #c30d0c;
+    color: #c3c3c3;
+    text-align: center;
+    border-radius: 5px;
+    margin-right: 20px;
+    padding: 20px;
+    min-width: 200px;
+  }
+
+}

@@ -5,6 +5,7 @@ import { BoardComponent } from './board/board.component';
 import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardDataResolver } from '../resolver/dashboardData.resolver';
+import { BoardDesignComponent } from './board-design/board-design.component';
 
 const routes: Routes = [
   {
@@ -23,6 +24,7 @@ const routes: Routes = [
       },
       { path: 'project', loadChildren: () => import('../project/project.module').then(p => p.ProjectModule) },
       { path: 'board', component: BoardComponent },
+      { path: 'board-design', component: BoardDesignComponent },
       { path: 'active_sprint', component: ActivesprintComponent },
       { path: 'backlog', loadChildren: () => import('../backlog/backlog.module').then(p => p.BacklogModule) },
       { path: 'task', loadChildren: () => import('../task/task.module').then(p => p.TaskModule) },
