@@ -22,7 +22,7 @@ import {
   TaskTimeLogHistoryModel,
   TaskTimeLogHistoryResponseModel,
   TaskTimeLogResponse,
-  TaskType,
+  TaskTypeModel,
   UpdateCommentModel,
   User
 } from '@aavantan-app/models';
@@ -56,7 +56,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectedAssignee: User = {};
   public selectedRelatedItem: Task;
   public selectedDependentItem: Task;
-  public selectedTaskType: TaskType;
+  public selectedTaskType: TaskTypeModel;
   public selectedPriority: ProjectPriority;
   public selectedStage: ProjectStages;
   public selectedStatus: ProjectStatus;
@@ -90,7 +90,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public epicDataSource = [];
 
-  public taskTypeDataSource: TaskType[] = [];
+  public taskTypeDataSource: TaskTypeModel[] = [];
   public stagesDataSource: ProjectStages[] = [];
   public statusDataSource: ProjectStatus[] = [];
   public priorityDataSource: ProjectPriority[] = [];
@@ -212,7 +212,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         if (this.taskTypeDataSource && this.displayName) {
 
-          const arr: TaskType[] = this.taskTypeDataSource.filter((ele) => {
+          const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
             return ele.displayName === this.displayName.split('-')[0];
           });
 
@@ -562,7 +562,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.taskId = this.taskData.data.id;
       this.getMessage();
       this.getHistory();
-      this.selectTaskType(this.taskData.data.taskType as TaskType);
+      this.selectTaskType(this.taskData.data.taskType as TaskTypeModel);
       this.selectStatus(this.taskData.data.status as ProjectStatus);
       this.selectPriority(this.taskData.data.priority as ProjectPriority);
       this.selectDependentItemTypeahead(this.taskData.data.dependentItem as Task);
@@ -794,7 +794,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.modelChanged.next();
   }
 
-  public selectTaskType(item: TaskType) {
+  public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
   }
 

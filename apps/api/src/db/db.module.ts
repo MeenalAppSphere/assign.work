@@ -14,6 +14,7 @@ import { resetPasswordSchema } from './schemas/reset-password.schema';
 import { workflowSchema } from './schemas/workflow.schema';
 import { taskStatusSchema } from './schemas/task-status.schema';
 import { taskPrioritySchema } from './schemas/task-priority.schema';
+import { taskTypeSchema } from './schemas/task-type.schema';
 
 @Module({
   imports: [
@@ -69,6 +70,10 @@ import { taskPrioritySchema } from './schemas/task-priority.schema';
       name: DbCollection.taskPriority,
       schema: taskPrioritySchema,
       collection: DbCollection.taskPriority
+    }, {
+      name: DbCollection.taskType,
+      schema: taskTypeSchema,
+      collection: DbCollection.taskType
     }])
   ],
   exports: [

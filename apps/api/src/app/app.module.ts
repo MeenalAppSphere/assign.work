@@ -16,10 +16,12 @@ import { InvitationsModule } from '../invitations/invitations.module';
 import { PublicModule } from '../public/public.module';
 import { TaskStatusModule } from '../task-status/task-status.module';
 import { WorkflowModule } from '../workflow/workflow.module';
+import { TaskPriorityModule } from '../task-priority/task-priority.module';
+import { TaskTypeModule } from '../task-type/task-type.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://appsphere:use588mead@cluster0-shard-00-00-fdpyz.mongodb.net:27017,cluster0-shard-00-01-fdpyz.mongodb.net:27017,cluster0-shard-00-02-fdpyz.mongodb.net:27017/AavantanCADB?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority',
+    MongooseModule.forRoot('mongodb+srv://user1:user123@cluster0-i2eid.mongodb.net/test?retryWrites=true&w=majority',
       { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true }),
     SharedModule,
     AuthModule,
@@ -34,6 +36,8 @@ import { WorkflowModule } from '../workflow/workflow.module';
     InvitationsModule,
     PublicModule,
     TaskStatusModule,
+    TaskPriorityModule,
+    TaskTypeModule,
     WorkflowModule
   ],
   controllers: []

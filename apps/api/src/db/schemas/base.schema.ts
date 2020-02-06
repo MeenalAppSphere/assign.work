@@ -15,8 +15,8 @@ export const schemaOptions: SchemaOptions = {
 };
 
 export const baseSchemaFields = {
-  createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: [true, 'Created by is required'] },
+  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false }
 };
 

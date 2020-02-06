@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
-import { DbCollection, TaskType } from '@aavantan-app/models';
+import { DbCollection, TaskTypeModel } from '@aavantan-app/models';
 import { ProjectService } from '../project/project.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -9,12 +9,12 @@ import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { TaskTypeUtilityService } from './task-type.utility.service';
 
 @Injectable()
-export class TaskTypeService extends BaseService<TaskType & Document> implements OnModuleInit {
+export class TaskTypeService extends BaseService<TaskTypeModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _utilityService: TaskTypeUtilityService;
 
   constructor(
-    @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskType & Document>,
+    @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskTypeModel & Document>,
     private _moduleRef: ModuleRef
   ) {
     super(_taskTypeModel);
@@ -32,7 +32,7 @@ export class TaskTypeService extends BaseService<TaskType & Document> implements
    * check model validations
    * @param model
    */
-  async addUpdate(model: TaskType) {
+  async addUpdate(model: TaskTypeModel) {
     return await this.withRetrySession(async (session: ClientSession) => {
       if (model.id) {
         await this.getDetails(model.projectId, model.id);
@@ -43,7 +43,7 @@ export class TaskTypeService extends BaseService<TaskType & Document> implements
       // check task type validations...
       this._utilityService.taskTypeValidations(model);
 
-      const taskType = new TaskType();
+      const taskType = new TaskTypeModel();
       taskType.projectId = model.projectId;
       taskType.displayName = model.displayName;
       taskType.name = model.name;
@@ -103,7 +103,7 @@ export class TaskTypeService extends BaseService<TaskType & Document> implements
    * @param projectId
    * @param taskTypeId
    */
-  async getDetails(projectId: string, taskTypeId: string): Promise<TaskType> {
+  async getDetails(projectId: string, taskTypeId: string): Promise<TaskTypeModel> {
     try {
       if (!this.isValidObjectId(taskTypeId)) {
         BadRequest('Task Type not found..');
@@ -133,7 +133,7 @@ export class TaskTypeService extends BaseService<TaskType & Document> implements
    * @param taskType
    * @param exceptThisId
    */
-  public async isDuplicate(taskType: TaskType, exceptThisId: string = null): Promise<boolean> {
+  public async isDuplicate(taskType: TaskTypeModel, exceptThisId: string = null): Promise<boolean> {
     const queryFilter = {
       $and: [
         { projectId: taskType.projectId },

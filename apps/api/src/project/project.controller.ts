@@ -15,7 +15,7 @@ import {
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
-  TaskType
+  TaskTypeModel
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiImplicitBody } from '@nestjs/swagger';
@@ -80,7 +80,7 @@ export class ProjectController {
   }
 
   @Post(':id/add-task-type')
-  async addTaskType(@Param('id') id: string, @Body() taskType: TaskType) {
+  async addTaskType(@Param('id') id: string, @Body() taskType: TaskTypeModel) {
     return await this._projectService.createTaskType(id, taskType);
   }
 

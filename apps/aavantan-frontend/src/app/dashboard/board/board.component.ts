@@ -9,7 +9,7 @@ import {
   SprintStageTask,
   SprintStatusEnum,
   Task,
-  TaskType,
+  TaskTypeModel,
   User
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
@@ -36,7 +36,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   public selectedTaskItem: Task;
   public getStageInProcess: boolean;
   public activeSprintData: Sprint;
-  public taskTypeDataSource: TaskType[] = [];
+  public taskTypeDataSource: TaskTypeModel[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
   public statusSprintDataSource: ProjectStatus[] = [];

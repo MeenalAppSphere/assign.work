@@ -7,6 +7,7 @@ import { ProjectService } from '../project/project.service';
 import { OnModuleInit } from '@nestjs/common';
 import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { TaskPriorityUtilityService } from './task-priority.utility.service';
+import { GeneralService } from '../general.service';
 
 export class TaskPriorityService extends BaseService<TaskPriorityModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
@@ -14,7 +15,7 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
 
   constructor(
     @InjectModel(DbCollection.taskPriority) private readonly _taskPriorityModel: Model<TaskPriorityModel & Document>,
-    private _moduleRef: ModuleRef
+    private _moduleRef: ModuleRef, private _generalService: GeneralService
   ) {
     super(_taskPriorityModel);
   }
@@ -46,9 +47,11 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
       taskPriority.projectId = model.projectId;
       taskPriority.name = model.name;
       taskPriority.color = model.color;
+      taskPriority.createdById = this._generalService.userId;
 
       if (!model.id) {
         const newTaskPriority = await this.create([taskPriority], session);
+        await this._projectService.updateById(model.projectId, { $push: { 'settings.priorities': newTaskPriority[0].id } }, session);
         return newTaskPriority[0];
       } else {
         // update task priority by id

@@ -1,7 +1,7 @@
 import { Organization } from './organization.model';
 import { Types } from 'mongoose';
 
-import { ProjectTemplateEnum, Sprint, TaskType, User } from '@aavantan-app/models';
+import { ProjectTemplateEnum, Sprint, TaskTypeModel, User } from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Project {
@@ -37,7 +37,7 @@ export class ProjectMembers {
 
 export class ProjectSettings {
   stages: ProjectStages[];
-  taskTypes: TaskType[];
+  taskTypes: TaskTypeModel[];
   priorities: ProjectPriority[];
   status?: ProjectStatus[];
   tags?: ProjectTags[];

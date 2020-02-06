@@ -1,13 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ROUTES } from './side-nav-routes.config';
 import { ThemeConstantService } from '../../services/theme-constant.service';
-import { Organization, TaskType } from '@aavantan-app/models';
+import { Organization, TaskTypeModel } from '@aavantan-app/models';
 import { UserQuery } from '../../../queries/user/user.query';
 import { Router } from '@angular/router';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { GeneralService } from '../../services/general.service';
-import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { OrganizationService } from '../../services/organization/organization.service';
 
 @Component({
@@ -22,7 +21,7 @@ export class SideNavComponent implements OnInit, OnDestroy{
     public adminMenuItems: any[]
     isFolded : boolean;
     isSideNavDark : boolean;
-    public taskTypeDataSource: TaskType[] = [];
+    public taskTypeDataSource: TaskTypeModel[] = [];
     public currentOrganization: Organization;
     public organizations:string[] | Organization[]=[];
     public switchOrganizationInProcess:boolean;
@@ -60,7 +59,7 @@ export class SideNavComponent implements OnInit, OnDestroy{
         this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
     }
 
-     public createNewTask(item?:TaskType){
+     public createNewTask(item?:TaskTypeModel){
         let displayName: string= null;
         if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
             displayName=this.taskTypeDataSource[0].displayName;
@@ -93,10 +92,10 @@ export class SideNavComponent implements OnInit, OnDestroy{
 
       } catch (e) {
         this.switchOrganizationInProcess = false;
-      }       
+      }
     }
-     
-     
+
+
      public ngOnDestroy(){
     }
 }

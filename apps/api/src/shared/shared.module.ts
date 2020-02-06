@@ -22,6 +22,8 @@ import { resolvePathHelper } from './helpers/helpers';
 import { GenericExceptionFilter } from './exceptionFilters/generic.exceptionFilter';
 import { WorkflowService } from './services/workflow/workflow.service';
 import { TaskStatusService } from './services/task-status/task-status.service';
+import { TaskPriorityService } from './services/task-priority/task-priority.service';
+import { TaskTypeService } from './services/task-type/task-type.service';
 
 const providers = [
   UsersService,
@@ -37,7 +39,9 @@ const providers = [
   EmailService,
   ResetPasswordService,
   WorkflowService,
-  TaskStatusService
+  TaskStatusService,
+  TaskPriorityService,
+  TaskTypeService
 ];
 
 @Global()

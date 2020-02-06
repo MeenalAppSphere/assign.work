@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { GetAllTaskRequestModel, Task, TaskType, User } from '@aavantan-app/models';
-import { NavigationExtras, Router } from '@angular/router';
+import { GetAllTaskRequestModel, Task, TaskTypeModel, User } from '@aavantan-app/models';
+import { Router } from '@angular/router';
 import { TaskService } from '../shared/services/task/task.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { TaskQuery } from '../queries/task/task.query';
@@ -17,7 +17,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public myTaskList: Task[] = [];
   public allTaskList: Task[] = [];
   public view: String = 'listView';
-  public taskTypeDataSource: TaskType[] = [];
+  public taskTypeDataSource: TaskTypeModel[] = [];
   public getTaskInProcess: boolean= true;
 
   constructor(protected notification: NzNotificationService,
@@ -68,7 +68,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     });
   }
 
-  public createTask(item?:TaskType) {
+  public createTask(item?:TaskTypeModel) {
     let displayName:string = null;
 
     if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){

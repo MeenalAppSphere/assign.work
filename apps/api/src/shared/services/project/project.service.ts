@@ -25,7 +25,7 @@ import {
   Sprint,
   SprintStage,
   SwitchProjectRequest,
-  TaskType,
+  TaskTypeModel,
   User,
   UserStatus
 } from '@aavantan-app/models';
@@ -617,7 +617,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param id: string project id
    * @param taskType: TaskType TaskType request Model
    */
-  async createTaskType(id: string, taskType: TaskType) {
+  async createTaskType(id: string, taskType: TaskTypeModel) {
     if (!taskType || !taskType.name) {
       throw new BadRequestException('Please add Task Type name');
     }

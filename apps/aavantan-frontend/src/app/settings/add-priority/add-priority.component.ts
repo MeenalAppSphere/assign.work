@@ -3,7 +3,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ProjectPriority, ProjectStatus } from '@aavantan-app/models';
+import { ProjectPriority } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 
 @Component({
@@ -32,13 +32,15 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
     this.priorityForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required]),
-      id: new FormControl(null)
+      id: new FormControl(null),
+      projectId: new FormControl(this._generalService.currentProject.id)
     });
 
     if(this.addEditprojectPriorityData){
       this.priorityForm.get('name').patchValue(this.addEditprojectPriorityData.name);
       this.priorityForm.get('color').patchValue(this.addEditprojectPriorityData.color);
       this.priorityForm.get('id').patchValue(this.addEditprojectPriorityData.id);
+      this.priorityForm.get('projectId').patchValue(this._generalService.currentProject.id);
     }
   }
 
@@ -69,7 +71,7 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this._projectService.addPriority(this._generalService.currentProject.id, this.priorityForm.value).subscribe((res => {
+      this._projectService.addPriority(this.priorityForm.value).subscribe((res => {
 
         this.priorityForm.reset();
         this.updateRequestInProcess = false;

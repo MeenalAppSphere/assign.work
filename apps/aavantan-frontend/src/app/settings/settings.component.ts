@@ -12,12 +12,11 @@ import {
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchUserModel,
-  TaskType,
+  TaskTypeModel,
   User
 } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
-import { TypeaheadMatch } from 'ngx-bootstrap';
 import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
 import { UserQuery } from '../queries/user/user.query';
@@ -59,7 +58,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   };
   public stagesList: any = [];
   public statusList: ProjectStatus[] = [];
-  public typesList: TaskType[] = [];
+  public typesList: TaskTypeModel[] = [];
   public priorityList: ProjectPriority[] = [];
   public projectMembersList: ProjectMembers[] = [];
   public projectCapacityMembersList: ProjectMembers[] = [];
@@ -567,7 +566,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.notification.error('Error', 'Please check Display name, Color and Task type');
       return;
     }
-    const dup: TaskType[] = this.typesList.filter((ele) => {
+    const dup: TaskTypeModel[] = this.typesList.filter((ele) => {
       if (ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName) {
         return ele;
       }
@@ -586,7 +585,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public removeTaskType(taskType: TaskType) {
+  public removeTaskType(taskType: TaskTypeModel) {
     this.deleteTaskTypeInProcess = true;
     this._projectService.removeTaskType(this.currentProject.id, taskType.id).subscribe((res => {
       this.deleteTaskTypeInProcess = false;

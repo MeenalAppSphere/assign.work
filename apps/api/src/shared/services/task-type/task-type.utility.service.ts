@@ -1,4 +1,4 @@
-import { TaskType } from '@aavantan-app/models';
+import { TaskTypeModel } from '@aavantan-app/models';
 import { BadRequest, isValidString } from '../../helpers/helpers';
 
 export class TaskTypeUtilityService {
@@ -9,7 +9,7 @@ export class TaskTypeUtilityService {
    * check common validation for creating/ updating task type
    * @param taskType
    */
-  public taskTypeValidations(taskType: TaskType) {
+  public taskTypeValidations(taskType: TaskTypeModel) {
     if (!taskType || !taskType.name) {
       BadRequest('Please add Task Type name');
     }

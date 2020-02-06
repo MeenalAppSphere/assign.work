@@ -9,7 +9,7 @@ import {
   SprintBaseRequest,
   SprintErrorResponse,
   Task,
-  TaskType,
+  TaskTypeModel,
   User
 } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -53,7 +53,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public activeSprintData: Sprint;
   public activeSprintId: string;
   public haveUnpublishedTasks: boolean;
-  public taskTypeDataSource: TaskType[] = [];
+  public taskTypeDataSource: TaskTypeModel[] = [];
 
   public searchValue: string;
   public searchTaskListInProgress: boolean;
