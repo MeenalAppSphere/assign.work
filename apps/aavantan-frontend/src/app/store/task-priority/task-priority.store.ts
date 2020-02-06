@@ -6,12 +6,20 @@ export interface TaskPriorityState {
   priorities: TaskPriorityModel[];
   getAllInProcess: boolean;
   getAllSuccess: boolean;
+  addNewInProcess: boolean;
+  addNewSuccess: boolean;
+  updateInProcess: boolean;
+  updateSuccess: boolean;
 }
 
 const initialState: TaskPriorityState = {
   priorities: null,
   getAllInProcess: false,
-  getAllSuccess: false
+  getAllSuccess: false,
+  addNewInProcess: false,
+  addNewSuccess: false,
+  updateInProcess: false,
+  updateSuccess: false
 };
 
 @Injectable({ providedIn: 'root' })
