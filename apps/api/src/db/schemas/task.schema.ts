@@ -38,7 +38,7 @@ export const taskSchema = new Schema({
   assigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
   watchers: [{ type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }],
   attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
-  taskType: { type: String, required: [true, 'Please add task type'] },
+  // taskType: { type: String, required: [true, 'Please add task type'] },
   taskTypeId: { type: Schema.Types.ObjectId, ref: DbCollection.taskType },
   comments: [commentSchema],
   estimatedTime: { type: Number, default: 0 },
@@ -47,13 +47,13 @@ export const taskSchema = new Schema({
   totalLoggedTime: { type: Number, default: 0 },
   startedAt: { type: Date },
   finishedAt: { type: Date },
-  priority: { type: String },
+  // priority: { type: String },
   priorityId: { type: Schema.Types.ObjectId, ref: DbCollection.taskPriority },
   tags: [],
   url: { type: String },
   progress: { type: Number, default: 0 },
   overProgress: { type: Number, default: 0 },
-  status: { type: String },
+  // status: { type: String },
   statusId: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
@@ -125,6 +125,24 @@ taskSchema.virtual('attachmentsDetails', {
 taskSchema.virtual('sprint', {
   ref: DbCollection.sprint,
   localField: 'sprintId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('status', {
+  ref: DbCollection.taskStatus,
+  localField: 'statusId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('priority', {
+  ref: DbCollection.taskPriority,
+  localField: 'priorityId',
+  foreignField: '_id'
+});
+
+taskSchema.virtual('taskType', {
+  ref: DbCollection.taskType,
+  localField: 'taskTypeId',
   foreignField: '_id'
 });
 

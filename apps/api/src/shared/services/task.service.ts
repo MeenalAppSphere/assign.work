@@ -106,15 +106,21 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       select: 'emailId userName firstName lastName profilePic -_id',
       justOne: true
     }, {
-      path: 'statusId'
+      path: 'status',
+      select: 'name',
+      justOne: true
     }, {
-      path: 'taskTypeId'
+      path: 'taskType',
+      select: 'name displayName color',
+      justOne: true
     }, {
-      path: 'priorityId'
+      path: 'priority',
+      select: 'name color',
+      justOne: true
     }];
 
     // set selection fields
-    model.select = '_id name taskType priority status sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName';
+    model.select = '_id name taskTypeId priorityId statusId sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName';
 
     let filter = {};
     if (onlyMyTask) {
@@ -676,6 +682,18 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    */
   private parseTaskObjectForUi(task: Task, projectDetails: Project) {
     task.id = task['_id'];
+
+    if (task.taskType) {
+      task.taskType.id = task.taskType._id;
+    }
+
+    if (task.status) {
+      task.status.id = task.status._id;
+    }
+
+    if (task.priority) {
+      task.priority.id = task.priority._id;
+    }
 
     // task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
     // task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);

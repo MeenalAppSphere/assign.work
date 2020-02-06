@@ -1,9 +1,11 @@
 import { TaskHistoryActionEnum } from '../enums/task.enum';
-import { Project, ProjectPriority, ProjectStatus } from './project.model';
+import { Project } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';
 import { MongoosePaginateQuery } from '../queryOptions';
 import { Sprint } from './sprint.model';
+import { TaskStatusModel } from './task-status.model';
+import { TaskPriorityModel } from './task-priority.model';
 
 export class Task {
   id?: string;
@@ -30,13 +32,13 @@ export class Task {
   watchers?: string[];
   startedAt?: Date;
   finishedAt?: Date;
-  priority?: string | ProjectPriority;
+  priority?: TaskPriorityModel;
   priorityId?: string;
   tags?: string[];
   url?: string;
   progress?: number;
   overProgress?: number;
-  status?: string | ProjectStatus;
+  status?: TaskStatusModel;
   statusId?: string;
   sprintId?: string;
   sprint?: Sprint;
