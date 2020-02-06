@@ -14,3 +14,4 @@ export * from './reset-password.model';
 export * from './workflow.model';
 export * from './task-status.model';
 export * from './task-priority.model';
+export * from './board.model';
