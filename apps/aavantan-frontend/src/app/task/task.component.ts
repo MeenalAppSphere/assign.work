@@ -40,6 +40,9 @@ import { debounceTime } from 'rxjs/operators';
 import { ProjectService } from '../shared/services/project/project.service';
 import 'quill-mention';
 import 'quill-emoji';
+import { TaskStatusQuery } from '../queries/task-status/task-status.query';
+import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query';
+import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -140,7 +143,9 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _userService: UserService,
               private _projectService: ProjectService,
               private router: Router,
-              private cdr: ChangeDetectorRef) {
+              private cdr: ChangeDetectorRef,
+              private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
+              private _taskTypeQuery: TaskTypeQuery) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -205,26 +210,55 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         this.currentProject = res;
         this.stagesDataSource = res.settings.stages;
-        this.taskTypeDataSource = res.settings.taskTypes;
+        // this.taskTypeDataSource = res.settings.taskTypes;
         // this.assigneeDataSource = res.members;
-        this.priorityDataSource = res.settings.priorities;
-        this.statusDataSource = res.settings.status;
+        // this.priorityDataSource = res.settings.priorities;
+        // this.statusDataSource = res.settings.status;
 
-        if (this.taskTypeDataSource && this.displayName) {
-
-          const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
-            return ele.displayName === this.displayName.split('-')[0];
-          });
-
-          if (arr && arr.length) {
-            this.selectedTaskType = arr[0];
-          }
-
-        } else {
-          this.selectedTaskType = this.taskTypeDataSource[0];
-        }
+        // if (this.taskTypeDataSource && this.displayName) {
+        //
+        //   const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
+        //     return ele.displayName === this.displayName.split('-')[0];
+        //   });
+        //
+        //   if (arr && arr.length) {
+        //     this.selectedTaskType = arr[0];
+        //   }
+        //
+        // } else {
+        //   this.selectedTaskType = this.taskTypeDataSource[0];
+        // }
 
       }
+    });
+
+    // get all task statuses from store
+    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
+      this.statusDataSource = statuses;
+    });
+
+    // get all task types from store
+    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
+      this.taskTypeDataSource = types;
+
+      if (this.taskTypeDataSource && this.displayName) {
+
+        const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
+          return ele.displayName === this.displayName.split('-')[0];
+        });
+
+        if (arr && arr.length) {
+          this.selectedTaskType = arr[0];
+        }
+
+      } else {
+        this.selectedTaskType = this.taskTypeDataSource[0];
+      }
+    });
+
+    // get all task priorities from store
+    this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
+      this.priorityDataSource = priorities;
     });
 
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {

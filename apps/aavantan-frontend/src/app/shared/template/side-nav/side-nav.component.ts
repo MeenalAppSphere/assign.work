@@ -8,6 +8,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationService } from '../../services/organization/organization.service';
+import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
 
 @Component({
     selector: 'app-sidenav',
@@ -31,18 +32,16 @@ export class SideNavComponent implements OnInit, OnDestroy{
                  private _userQuery: UserQuery,
                  private _organizationService: OrganizationService,
                  private _generalService: GeneralService,
-                 private router:Router) {
+                 private router:Router, private _taskTypeQuery: TaskTypeQuery) {
 
 
 
         this.organizations = this._generalService.user.organizations;
 
-        this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-            if (res) {
-              this.taskTypeDataSource = res.settings.taskTypes;
-              // console.log('Task Type', this.taskTypeDataSource)
-            }
-          });
+      // get all task types from store
+      this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
+        this.taskTypeDataSource = types;
+      });
 
         this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
           if (res) {

@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { ProjectStatus } from '@aavantan-app/models';
+import { TaskStatusModel } from '@aavantan-app/models';
 import { UserQuery } from '../../queries/user/user.query';
-import { DndDropzoneDirective } from 'ngx-drag-drop';
+import { TaskStatusQuery } from '../../queries/task-status/task-status.query';
 
 @Component({
   selector: 'aavantan-board-design',
@@ -13,20 +13,16 @@ import { DndDropzoneDirective } from 'ngx-drag-drop';
 export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public boardDesignForm: FormGroup;
-  public statusList: ProjectStatus[] = [];
+  public statusList: TaskStatusModel[] = [];
   public stagesList: any = [];
-  @ViewChild('columnDragged', { static: true, read: DndDropzoneDirective }) public columnDragged: DndDropzoneDirective;
 
-  constructor(private FB: FormBuilder, private _userQuery: UserQuery) {
+  constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery) {
   }
 
   ngOnInit() {
-
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.stagesList = res.settings.stages;
-        this.statusList = res.settings.status;
-      }
+    // get all task statuses from store
+    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
+      this.statusList = statuses;
     });
 
     this.boardDesignForm = this.FB.group({
