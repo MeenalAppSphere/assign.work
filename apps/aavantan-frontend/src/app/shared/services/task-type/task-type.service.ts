@@ -7,7 +7,6 @@ import { TaskTypeUrls } from './task-type.url';
 import { catchError, map } from 'rxjs/operators';
 import { BaseResponseModel, TaskTypeModel } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
-import { TaskUrls } from '../task/task.url';
 
 export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
   constructor(protected notification: NzNotificationService, protected taskTypeStore: TaskTypeStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
@@ -33,7 +32,7 @@ export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
 
   createTaskType(taskType: TaskTypeModel): Observable<BaseResponseModel<TaskTypeModel>> {
     this.updateState({ addNewInProcess: true, addNewSuccess: false });
-    return this._http.post(TaskUrls.addTask, taskType).pipe(
+    return this._http.post(TaskTypeUrls.addTaskType, taskType).pipe(
       map((res: BaseResponseModel<TaskTypeModel>) => {
 
         this.store.update(state => {
@@ -57,7 +56,7 @@ export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
 
   updateTaskType(taskType: TaskTypeModel): Observable<BaseResponseModel<TaskTypeModel>> {
     this.updateState({ updateInProcess: true, updateSuccess: false });
-    return this._http.post(TaskUrls.addTask, taskType).pipe(
+    return this._http.post(TaskTypeUrls.updateTaskType, taskType).pipe(
       map((res: BaseResponseModel<TaskTypeModel>) => {
         this.updateState({ updateInProcess: false, updateSuccess: true });
         this.notification.success('Success', 'Task Type Updated Successfully');

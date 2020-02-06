@@ -29,6 +29,7 @@ import { Subject } from 'rxjs';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
+import { TaskTypeService } from '../shared/services/task-type/task-type.service';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -121,7 +122,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
-              private _userService: UserService, private modalService: NzModalService,
+              private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
               private _taskTypeQuery: TaskTypeQuery) {
 
@@ -194,7 +195,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
-      color: new FormControl(null, [Validators.required])
+      color: new FormControl(null, [Validators.required]),
+      description: new FormControl(''),
+      projectId: new FormControl(this.currentProject.id)
     });
 
     this.priorityForm = this.FB.group({
@@ -549,8 +552,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
     this.updateRequestInProcess = true;
-    this._projectService.addTaskType(this.currentProject.id, this.taskTypeForm.value).subscribe((res => {
-      this.taskTypeForm.reset();
+    this._taskTypeService.createTaskType(this.taskTypeForm.value).subscribe((res => {
+      this.taskTypeForm.reset({ projectId: this.currentProject.id });
       this.updateRequestInProcess = false;
     }), (error => {
       this.updateRequestInProcess = false;
