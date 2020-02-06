@@ -35,7 +35,16 @@ export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
     this.updateState({ addNewInProcess: true, addNewSuccess: false });
     return this._http.post(TaskUrls.addTask, taskType).pipe(
       map((res: BaseResponseModel<TaskTypeModel>) => {
-        this.updateState({ addNewInProcess: false, addNewSuccess: true });
+
+        this.updateStateWithPreviousState((state: TaskTypeState): TaskTypeState => {
+          return {
+            ...state,
+            addNewSuccess: true,
+            addNewInProcess: false,
+            types: [...state.types, res.data]
+          };
+        });
+
         this.notification.success('Success', 'Task Type Created Successfully');
         return res;
       }),
