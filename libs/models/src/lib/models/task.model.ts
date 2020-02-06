@@ -17,6 +17,7 @@ export class Task {
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
   taskType?: any;
+  taskTypeId?: any;
   comments?: TaskComments[];
   estimatedTime?: number;
   estimatedTimeReadable?: string;
@@ -30,11 +31,13 @@ export class Task {
   startedAt?: Date;
   finishedAt?: Date;
   priority?: string | ProjectPriority;
+  priorityId?: string;
   tags?: string[];
   url?: string;
   progress?: number;
   overProgress?: number;
   status?: string | ProjectStatus;
+  statusId?: string;
   sprintId?: string;
   sprint?: Sprint;
   relatedItemId?: string[];
@@ -139,7 +142,7 @@ export class DeleteCommentModel extends BaseTaskRequestModel {
 export class CommentPinModel extends BaseTaskRequestModel {
   commentId?: string;
   isPinned?: boolean;
-  comment?:string;
+  comment?: string;
 }
 
 export class GetTaskHistoryModel extends MongoosePaginateQuery {

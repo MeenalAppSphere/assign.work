@@ -169,17 +169,20 @@ export class TaskComponent implements OnInit, OnDestroy {
       projectId: [null],
       name: [null, [Validators.required]],
       taskType: [null, [Validators.required]],
+      taskTypeId: [null, [Validators.required]],
       description: [null],
       assigneeId: [null],
       createdById: [null],
       sprint: [null],
       priority: [null],
+      priorityId: [null],
       watchers: [null],
       dependentItemId: [null],
       relatedItemId: [null],
       tags: [null],
       epic: [null],
       status: [null],
+      statusId: [null],
       estimatedTime: [null],
       remainingHours: [null],
       remainingMinutes: [null]
@@ -210,25 +213,6 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         this.currentProject = res;
         this.stagesDataSource = res.settings.stages;
-        // this.taskTypeDataSource = res.settings.taskTypes;
-        // this.assigneeDataSource = res.members;
-        // this.priorityDataSource = res.settings.priorities;
-        // this.statusDataSource = res.settings.status;
-
-        // if (this.taskTypeDataSource && this.displayName) {
-        //
-        //   const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
-        //     return ele.displayName === this.displayName.split('-')[0];
-        //   });
-        //
-        //   if (arr && arr.length) {
-        //     this.selectedTaskType = arr[0];
-        //   }
-        //
-        // } else {
-        //   this.selectedTaskType = this.taskTypeDataSource[0];
-        // }
-
       }
     });
 
@@ -723,9 +707,16 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.createdById = this._generalService.user.id;
 
     task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
+    task.taskTypeId = task.taskType;
+
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
+
     task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
+    task.statusId = task.status;
+
     task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
+    task.priorityId = task.priority;
+
     task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
     task.relatedItemId = this.listOfSelectedRelatedItems;
     task.attachments = this.attachementIds;

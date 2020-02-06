@@ -27,10 +27,13 @@ import { TaskHistoryService } from './task-history.service';
 import { GeneralService } from './general.service';
 import { orderBy } from 'lodash';
 import * as moment from 'moment';
-import { generateUtcDate, secondsToString, stringToSeconds } from '../helpers/helpers';
+import { BadRequest, generateUtcDate, secondsToString, stringToSeconds } from '../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
 import { SprintService } from './sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
+import { TaskTypeService } from './task-type/task-type.service';
+import { TaskPriorityService } from './task-priority/task-priority.service';
+import { TaskStatusService } from './task-status/task-status.service';
 
 /**
  * common task population object
@@ -65,6 +68,9 @@ const taskBasicPopulation: any[] = [{
 @Injectable()
 export class TaskService extends BaseService<Task & Document> implements OnModuleInit {
   private _sprintService: SprintService;
+  private _taskTypeService: TaskTypeService;
+  private _taskPriorityService: TaskPriorityService;
+  private _taskStatusService: TaskStatusService;
 
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
@@ -77,6 +83,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
   onModuleInit(): any {
     this._sprintService = this._moduleRef.get('SprintService');
+    this._taskTypeService = this._moduleRef.get('TaskTypeService');
+    this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
+    this._taskStatusService = this._moduleRef.get('TaskStatusService');
   }
 
   /**
@@ -96,6 +105,12 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       path: 'assignee',
       select: 'emailId userName firstName lastName profilePic -_id',
       justOne: true
+    }, {
+      path: 'statusId'
+    }, {
+      path: 'taskTypeId'
+    }, {
+      path: 'priorityId'
     }];
 
     // set selection fields
@@ -137,28 +152,24 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async addTask(model: Task): Promise<Task> {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    return this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this.getProjectDetails(model.projectId);
 
-    const session = await this._taskModel.db.startSession();
-    session.startTransaction();
+      // validation
+      if (!model || !model.taskType) {
+        BadRequest('Please add Task Type');
+      }
 
-    // validation
-    if (!model || !model.taskType) {
-      throw new BadRequestException('Please add Task Type');
-    }
+      const lastTask = await this._taskModel.find({
+        projectId: model.projectId
+      }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
-    const lastTask = await this._taskModel.find({
-      projectId: model.projectId
-    }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
+      const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
 
-    const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
+      if (!taskTypeDetails) {
+        BadRequest('Task Type not found');
+      }
 
-    if (!taskTypeDetails) {
-      throw new BadRequestException('Task Type not found');
-    }
-
-    try {
-      // display name processing
       if (lastTask[0]) {
         // tslint:disable-next-line:radix
         const lastInsertedNo = parseInt(lastTask[0].displayName.split('-')[1]);
@@ -213,14 +224,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       const createdTask = await this.create([model], session);
       const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, createdTask[0].id, createdTask[0]);
       await this._taskHistoryService.addHistory(taskHistory, session);
-      await session.commitTransaction();
-      session.endSession();
       return createdTask[0];
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
+    });
   }
 
   /**
@@ -230,108 +235,107 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async updateTask(model: Task): Promise<Task> {
-    if (!model || !model.id) {
-      throw new BadRequestException();
-    }
+    return this.withRetrySession(async (session: ClientSession) => {
+      if (!model || !model.id) {
+        BadRequest('Task not found');
+      }
 
-    const projectDetails = await this.getProjectDetails(model.projectId);
-    const taskDetails = await this.getTaskDetails(model.id);
+      const projectDetails = await this.getProjectDetails(model.projectId);
+      const taskDetails = await this.getTaskDetails(model.id);
 
-    const session = await this._taskModel.db.startSession();
-    session.startTransaction();
+      // check if task assignee id is available or not
+      // if not then assign it to task creator
+      model.assigneeId = model.assigneeId || this._generalService.userId;
 
-    // check if task assignee id is available or not
-    // if not then assign it to task creator
-    model.assigneeId = model.assigneeId || this._generalService.userId;
+      // check if estimated time updated and one have already logged in this task
+      if (model.estimatedTimeReadable) {
+        // estimate time is present then it should be in string parse it to seconds
+        model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
 
-    // check if estimated time updated and one have already logged in this task
-    if (model.estimatedTimeReadable) {
-      // estimate time is present then it should be in string parse it to seconds
-      model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
+        // ensure estimated time is changed
+        if (model.estimatedTime !== taskDetails.estimatedTime) {
+          // check if task is in the sprint you can't update estimate
+          if (taskDetails.sprintId) {
+            throw new BadRequestException('task is in sprint you can\'t update estimate time');
+          }
 
-      // ensure estimated time is changed
-      if (model.estimatedTime !== taskDetails.estimatedTime) {
-        // check if task is in the sprint you can't update estimate
-        if (taskDetails.sprintId) {
-          throw new BadRequestException('task is in sprint you can\'t update estimate time');
-        }
+          // if time is logged in this task then and then only re calculate task overall progress
+          if (taskDetails.totalLoggedTime > 0) {
 
-        // if time is logged in this task then and then only re calculate task overall progress
-        if (taskDetails.totalLoggedTime > 0) {
+            // calculate progress and over progress
+            const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
 
-          // calculate progress and over progress
-          const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
+            // if process is grater 100 then over time is added
+            // in this case calculate overtime and set remaining time to 0
+            if (progress > 100) {
+              model.progress = 100;
+              model.remainingTime = 0;
+              model.overLoggedTime = taskDetails.totalLoggedTime - model.estimatedTime;
 
-          // if process is grater 100 then over time is added
-          // in this case calculate overtime and set remaining time to 0
-          if (progress > 100) {
-            model.progress = 100;
-            model.remainingTime = 0;
-            model.overLoggedTime = taskDetails.totalLoggedTime - model.estimatedTime;
-
-            const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
-            model.overProgress = overProgress > 100 ? 100 : overProgress;
-          } else {
-            // normal time logged
-            // set overtime 0 and calculate remaining time
-            model.progress = progress;
-            model.remainingTime = model.estimatedTime - taskDetails.totalLoggedTime;
-            model.overLoggedTime = 0;
-            model.overProgress = 0;
+              const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
+              model.overProgress = overProgress > 100 ? 100 : overProgress;
+            } else {
+              // normal time logged
+              // set overtime 0 and calculate remaining time
+              model.progress = progress;
+              model.remainingTime = model.estimatedTime - taskDetails.totalLoggedTime;
+              model.overLoggedTime = 0;
+              model.overProgress = 0;
+            }
           }
         }
       }
-    }
 
-    // model task-type and model display-name changed then re assign display-name with new task-type
-    if (model.taskType && model.displayName) {
-      const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
+      // model task-type and model display-name changed then re assign display-name with new task-type
+      if (model.taskType && model.displayName) {
+        const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
 
-      // check if task type changed than update task display name
-      const separateDisplayName = model.displayName.split('-');
-      const mainDisplayName = separateDisplayName[0];
+        // check if task type changed than update task display name
+        const separateDisplayName = model.displayName.split('-');
+        const mainDisplayName = separateDisplayName[0];
 
-      if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name.toLowerCase()) {
-        model.displayName = `${taskTypeDetails.displayName}-${separateDisplayName[1]}`;
+        if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name.toLowerCase()) {
+          model.displayName = `${taskTypeDetails.displayName}-${separateDisplayName[1]}`;
+        }
       }
-    }
 
-    model.progress = model.progress || 0;
-    model.overProgress = model.overProgress || 0;
+      model.progress = model.progress || 0;
+      model.overProgress = model.overProgress || 0;
 
-    // check if tags is undefined assign blank array to that, this is the check for old data
-    projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
+      // check if tags is undefined assign blank array to that, this is the check for old data
+      projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
 
-    // tags processing
-    // if any new tag found that is not in projectDetails then need to add that in project
+      // tags processing
+      // if any new tag found that is not in projectDetails then need to add that in project
 
-    const isNewTag = model.tags.some(s => {
-      return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
+      const isNewTag = model.tags.some(s => {
+        return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
+      });
+
+      if (isNewTag) {
+        const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
+
+        // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
+        if (newTags.length) {
+          projectDetails.settings.tags = newTags.map(tag => {
+            return {
+              name: tag,
+              id: new Types.ObjectId().toHexString()
+            };
+          });
+
+          await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+            $set: { 'settings.tags': projectDetails.settings.tags }
+          }, { session });
+        }
+      }
+
+      const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
+      await this.updateHelper(model.id, model, taskHistory, session);
+
+      const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
+      return this.parseTaskObjectForUi(task, projectDetails);
     });
-
-    if (isNewTag) {
-      const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
-
-      // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
-      if (newTags.length) {
-        projectDetails.settings.tags = newTags.map(tag => {
-          return {
-            name: tag,
-            id: new Types.ObjectId().toHexString()
-          };
-        });
-
-        await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
-          $set: { 'settings.tags': projectDetails.settings.tags }
-        }, { session });
-      }
-    }
-
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
-    await this.updateHelper(model.id, model, taskHistory, session);
-
-    const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
-    return this.parseTaskObjectForUi(task, projectDetails);
   }
 
   /**
@@ -673,9 +677,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private parseTaskObjectForUi(task: Task, projectDetails: Project) {
     task.id = task['_id'];
 
-    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
-    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
-    task.status = projectDetails.settings.status.find(t => t.id === task.status);
+    // task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
+    // task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
+    // task.status = projectDetails.settings.status.find(t => t.id === task.status);
     task.isSelected = !!task.sprintId;
 
     // convert all time keys to string from seconds
