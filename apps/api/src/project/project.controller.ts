@@ -4,18 +4,15 @@ import {
   GetAllProjectsModel,
   Project,
   ProjectMembers,
-  ProjectPriority,
   ProjectStages,
   ProjectStageSequenceChangeRequest,
-  ProjectStatus,
   ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
-  SwitchProjectRequest,
-  TaskTypeModel
+  SwitchProjectRequest
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiImplicitBody } from '@nestjs/swagger';
@@ -79,39 +76,9 @@ export class ProjectController {
     return await this._projectService.removeStage(id, stageId);
   }
 
-  @Post(':id/add-task-type')
-  async addTaskType(@Param('id') id: string, @Body() taskType: TaskTypeModel) {
-    return await this._projectService.createTaskType(id, taskType);
-  }
-
-  @Delete(':id/remove-task-type/:taskTypeId')
-  async removeTaskType(@Param('id') id: string, @Param('taskTypeId') taskTypeId: string) {
-    return await this._projectService.removeTaskType(id, taskTypeId);
-  }
-
-  @Post(':id/add-status')
-  async addStatus(@Param('id') id: string, @Body() status: ProjectStatus) {
-    return await this._projectService.createStatus(id, status);
-  }
-
-  @Delete(':id/remove-status/:statusId')
-  async removeStatus(@Param('id') id: string, @Param('statusId') statusId: string) {
-    return await this._projectService.removeStatus(id, statusId);
-  }
-
   @Put(':id/update-working-capacity')
   async updateCollaboratorWorkingCapacity(@Param('id') id: string, @Body() dto: ProjectWorkingCapacityUpdateDto[]) {
     return await this._projectService.updateCollaboratorWorkingCapacity(id, dto);
-  }
-
-  @Post(':id/add-priority')
-  async addPriority(@Param('id') id: string, @Body() priority: ProjectPriority) {
-    return await this._projectService.createPriority(id, priority);
-  }
-
-  @Delete(':id/remove-priority/:priorityId')
-  async removePriority(@Param('id') id: string, @Param('priorityId') priorityId: string) {
-    return await this._projectService.removePriority(id, priorityId);
   }
 
   @Post('switch-project')

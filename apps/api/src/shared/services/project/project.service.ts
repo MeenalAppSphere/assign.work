@@ -10,10 +10,8 @@ import {
   Project,
   ProjectInvitationType,
   ProjectMembers,
-  ProjectPriority,
   ProjectStages,
   ProjectStageSequenceChangeRequest,
-  ProjectStatus,
   ProjectTags,
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
@@ -25,7 +23,6 @@ import {
   Sprint,
   SprintStage,
   SwitchProjectRequest,
-  TaskTypeModel,
   User,
   UserStatus
 } from '@aavantan-app/models';
@@ -610,122 +607,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this.abortTransaction(session);
       throw e;
     }
-  }
-
-  /**
-   * create task type
-   * @param id: string project id
-   * @param taskType: TaskType TaskType request Model
-   */
-  async createTaskType(id: string, taskType: TaskTypeModel) {
-    if (!taskType || !taskType.name) {
-      throw new BadRequestException('Please add Task Type name');
-    }
-
-    if (!taskType.color) {
-      throw new BadRequestException('Please choose color');
-    }
-
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (projectDetails.settings.taskTypes && projectDetails.settings.taskTypes.length) {
-      const isDuplicateName = projectDetails.settings.taskTypes.some(s => s.name.toLowerCase().trim() === taskType.name.toLowerCase().trim());
-      const isDuplicateColor = projectDetails.settings.taskTypes.some(s => s.color.toLowerCase() === taskType.color.toLowerCase());
-
-      if (isDuplicateName) {
-        throw new BadRequestException('Tasktype Name Already Exists...');
-      }
-
-      if (isDuplicateColor) {
-        throw new BadRequestException('Tasktype Color Already Exists...');
-      }
-    } else {
-      projectDetails.settings.taskTypes = [];
-    }
-
-    taskType.id = new Types.ObjectId().toHexString();
-    // projectDetails.settings.taskTypes.push(taskType);
-    return await this.updateProjectHelper(id, { $push: { 'settings.taskTypes': taskType } });
-  }
-
-  async removeTaskType(id: string, taskTypeId: string) {
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    projectDetails.settings.taskTypes = projectDetails.settings.taskTypes.filter(f => f.id !== taskTypeId);
-    return await this.updateProjectHelper(id, { $set: { 'settings.taskTypes': projectDetails.settings.taskTypes } });
-  }
-
-  /**
-   * create project status
-   * @param id: string Project Id
-   * @param status: ProjectStatus Project Status Model
-   */
-  async createStatus(id: string, status: ProjectStatus) {
-
-    if (!status.name) {
-      throw new BadRequestException('Please add Status name');
-    }
-
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (projectDetails.settings.status && projectDetails.settings.status.length) {
-      const isDuplicate = projectDetails.settings.status.some(s => s.name.toLowerCase().trim() === status.name.toLowerCase().trim());
-
-      if (isDuplicate) {
-        throw new BadRequestException('Status Name Already Exists');
-      }
-    } else {
-      projectDetails.settings.status = [];
-    }
-
-    status.id = new Types.ObjectId().toHexString();
-    // projectDetails.settings.status.push(status);
-    return await this.updateProjectHelper(id, { $push: { 'settings.status': status } });
-  }
-
-  async removeStatus(id: string, statusId: string) {
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    projectDetails.settings.status = projectDetails.settings.status.filter(f => f.id !== statusId);
-    return await this.updateProjectHelper(id, { $set: { 'settings.status': projectDetails.settings.status } });
-  }
-
-  /**
-   * create project priority
-   * @param id: string project id
-   * @param priority: ProjectPriority Project Priority Model
-   */
-  async createPriority(id: string, priority: ProjectPriority) {
-    if (!priority || !priority.name) {
-      throw new BadRequestException('Please add name');
-    }
-
-    if (!priority.color) {
-      throw new BadRequestException('Please select color');
-    }
-
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (projectDetails.settings.priorities) {
-      const isDuplicate = projectDetails.settings.priorities.some(s => s.name.toLowerCase().trim() === priority.name.toLowerCase().trim());
-
-      if (isDuplicate) {
-        throw new BadRequestException('Priority Name Already Exists');
-      }
-    } else {
-      projectDetails.settings.priorities = [];
-    }
-
-    priority.id = new Types.ObjectId().toHexString();
-    projectDetails.settings.priorities.push(priority);
-    return await this.updateProjectHelper(id, { $push: { 'settings.priorities': priority } });
-  }
-
-  async removePriority(id: string, priorityId: string) {
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    projectDetails.settings.priorities = projectDetails.settings.priorities.filter(f => f.id !== priorityId);
-    return await this.updateProjectHelper(id, { $set: { 'settings.priorities': projectDetails.settings.priorities } });
   }
 
   /**
