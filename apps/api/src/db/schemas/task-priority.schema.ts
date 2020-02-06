@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { baseSchemaFields, schemaOptions } from './base.schema';
+import { baseSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import { DbCollection } from '@aavantan-app/models';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -35,4 +35,4 @@ taskPrioritySchema
 
 // plugins
 taskPrioritySchema
-  .plugin(mongooseValidationErrorTransform);
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

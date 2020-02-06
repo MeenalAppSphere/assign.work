@@ -13,12 +13,13 @@ import {
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
-  ProjectStatus,
   SearchProjectCollaborators,
   Sprint,
   Task,
   TaskComments,
   TaskHistory,
+  TaskPriorityModel,
+  TaskStatusModel,
   TaskTimeLogHistoryModel,
   TaskTimeLogHistoryResponseModel,
   TaskTimeLogResponse,
@@ -62,7 +63,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectedTaskType: TaskTypeModel;
   public selectedPriority: ProjectPriority;
   public selectedStage: ProjectStages;
-  public selectedStatus: ProjectStatus;
+  public selectedStatus: TaskStatusModel;
   public timelogModalIsVisible: boolean = false;
   public epicModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
@@ -95,8 +96,8 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public taskTypeDataSource: TaskTypeModel[] = [];
   public stagesDataSource: ProjectStages[] = [];
-  public statusDataSource: ProjectStatus[] = [];
-  public priorityDataSource: ProjectPriority[] = [];
+  public statusDataSource: TaskStatusModel[] = [];
+  public priorityDataSource: TaskPriorityModel[] = [];
   public displayName: string;
   public taskData: BaseResponseModel<Task>;
   public taskId: string;
@@ -581,7 +582,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.getMessage();
       this.getHistory();
       this.selectTaskType(this.taskData.data.taskType as TaskTypeModel);
-      this.selectStatus(this.taskData.data.status as ProjectStatus);
+      this.selectStatus(this.taskData.data.status);
       this.selectPriority(this.taskData.data.priority as ProjectPriority);
       this.selectDependentItemTypeahead(this.taskData.data.dependentItem as Task);
       if (this.taskData.data.assignee && this.taskData.data.assigneeId) {
@@ -706,16 +707,16 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.projectId = this.currentProject.id;
     task.createdById = this._generalService.user.id;
 
-    task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
-    task.taskTypeId = task.taskType;
+    // task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
+    task.taskTypeId = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
 
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
 
-    task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
-    task.statusId = task.status;
+    // task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
+    task.statusId = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
 
-    task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
-    task.priorityId = task.priority;
+    // task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
+    task.priorityId = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
 
     task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
     task.relatedItemId = this.listOfSelectedRelatedItems;
@@ -842,7 +843,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
-  public selectStatus(item: ProjectStatus) {
+  public selectStatus(item: TaskStatusModel) {
     this.selectedStatus = item;
   }
 
