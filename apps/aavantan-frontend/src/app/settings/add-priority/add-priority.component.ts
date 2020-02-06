@@ -3,7 +3,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ProjectPriority } from '@aavantan-app/models';
+import { ProjectPriority, TaskPriorityModel } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 
 @Component({
@@ -13,17 +13,17 @@ import { ProjectService } from '../../shared/services/project/project.service';
 })
 export class AddPriorityComponent implements OnInit, OnDestroy {
   @Input() public addPriorityModalIsVisible: boolean = false;
-  @Input() public addEditprojectPriorityData:ProjectPriority;
-  @Input() public priorityList:ProjectPriority[];
+  @Input() public addEditprojectPriorityData: TaskPriorityModel;
+  @Input() public priorityList: ProjectPriority[];
 
   @Output() toggleAddPriorityShow: EventEmitter<any> = new EventEmitter<any>();
 
   public priorityForm: FormGroup;
-  public updateRequestInProcess:boolean;
+  public updateRequestInProcess: boolean;
 
   constructor(protected notification: NzNotificationService,
               private _taskService: TaskService,
-              private _projectService:ProjectService,
+              private _projectService: ProjectService,
               private _generalService: GeneralService,
               private FB: FormBuilder) {
   }
@@ -33,13 +33,15 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required]),
       id: new FormControl(null),
-      projectId: new FormControl(this._generalService.currentProject.id)
+      projectId: new FormControl(this._generalService.currentProject.id),
+      description: new FormControl('')
     });
 
-    if(this.addEditprojectPriorityData){
+    if (this.addEditprojectPriorityData) {
       this.priorityForm.get('name').patchValue(this.addEditprojectPriorityData.name);
       this.priorityForm.get('color').patchValue(this.addEditprojectPriorityData.color);
       this.priorityForm.get('id').patchValue(this.addEditprojectPriorityData.id);
+      this.priorityForm.get('description').patchValue(this.addEditprojectPriorityData.description);
       this.priorityForm.get('projectId').patchValue(this._generalService.currentProject.id);
     }
   }
@@ -52,7 +54,7 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
 
     this.updateRequestInProcess = true;
 
-    if(this.addEditprojectPriorityData && this.addEditprojectPriorityData.id){
+    if (this.addEditprojectPriorityData && this.addEditprojectPriorityData.id) {
 
       console.log('Updated Priority :', this.priorityForm.value);
       this.updateRequestInProcess = false;

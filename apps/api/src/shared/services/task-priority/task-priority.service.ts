@@ -43,6 +43,11 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
       // check task priority validations...
       this._utilityService.taskPriorityValidations(model);
 
+      // check if duplicate
+      if (await this.isDuplicate(model)) {
+        BadRequest('Duplicate Task Priority is not allowed..');
+      }
+
       const taskPriority = new TaskPriorityModel();
       taskPriority.projectId = model.projectId;
       taskPriority.name = model.name;
@@ -141,8 +146,8 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
         { projectId: taskPriority.projectId },
         {
           $or: [
-            { name: taskPriority.name.trim() },
-            { color: taskPriority.color.trim() }
+            { name: { $regex: `^${taskPriority.name.trim()}$`, $options: 'i' } },
+            { color: { $regex: `^${taskPriority.color.trim()}$`, $options: 'i' } }
           ]
         }
       ]

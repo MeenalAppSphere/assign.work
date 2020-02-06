@@ -1,9 +1,11 @@
-<nz-modal [(nzVisible)]="addPriorityModalIsVisible" [nzTitle]="titleTemp" nzClassName="priority-modal" nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+<nz-modal [(nzVisible)]="addPriorityModalIsVisible" [nzTitle]="titleTemp" nzClassName="priority-modal"
+          nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
   <form nz-form (submit)="savePriority()" [formGroup]="priorityForm">
     <div class="task-type-section">
 
       <nz-form-item>
-        <nz-form-label>Priority<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and title)</small></nz-form-label>
+        <nz-form-label>Priority<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
+          title)</small></nz-form-label>
 
         <nz-form-control>
           <nz-input-group [nzAddOnBefore]="profixIconButton">
@@ -18,10 +20,21 @@
 
       </nz-form-item>
 
+      <nz-form-item>
+
+        <nz-form-label>Description</nz-form-label>
+        <nz-form-control>
+          <textarea nz-input nzSize="small" formControlName="description" maxlength="250"
+                    placeholder="Enter Status Description" rows="5"></textarea>
+        </nz-form-control>
+
+      </nz-form-item>
+
     </div>
     <div *nzModalFooter>
       <button type="button" nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
-      <button type="submit" nz-button nzType="primary" (click)="savePriority()" [disabled]="priorityForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">
+      <button type="submit" nz-button nzType="primary" (click)="savePriority()" [disabled]="priorityForm.invalid"
+              [nzLoading]="updateRequestInProcess" nzSize="small">
         {{addEditprojectPriorityData?.id ? 'Save' : 'Add'}}
       </button>
     </div>

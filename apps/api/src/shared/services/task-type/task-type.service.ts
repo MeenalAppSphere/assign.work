@@ -44,6 +44,11 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
       // check task type validations...
       this._utilityService.taskTypeValidations(model);
 
+      // check if duplicate
+      if (await this.isDuplicate(model)) {
+        BadRequest('Duplicate Task Type is not allowed..');
+      }
+
       const taskType = new TaskTypeModel();
       taskType.projectId = model.projectId;
       taskType.displayName = model.displayName;
@@ -142,9 +147,9 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         { projectId: taskType.projectId },
         {
           $or: [
-            { name: taskType.name.trim() },
-            { color: taskType.color.trim() },
-            { displayName: taskType.displayName.trim() }
+            { name: { $regex: `^${taskType.name.trim()}$`, $options: 'i' } },
+            { color: { $regex: `^${taskType.color.trim()}$`, $options: 'i' } },
+            { displayName: { $regex: `^${taskType.displayName.trim()}$`, $options: 'i' } }
           ]
         }
       ]

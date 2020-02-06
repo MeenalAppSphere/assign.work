@@ -142,7 +142,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
    */
   private async isDuplicate(model: TaskStatusModel, exceptThis?: string): Promise<boolean> {
     const queryFilter = {
-      projectId: model.projectId, name: { $regex: `^${model.name}$`, $options: 'i' }
+      projectId: model.projectId, name: { $regex: `^${model.name.trim()}$`, $options: 'i' }
     };
 
     if (exceptThis) {
