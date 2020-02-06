@@ -17,6 +17,8 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public stagesList: any = [];
   @ViewChild('columnDragged', { static: true, read: DndDropzoneDirective }) public columnDragged: DndDropzoneDirective;
 
+  public addStatusModalIsVisible:boolean;
+
   constructor(private FB: FormBuilder, private _userQuery: UserQuery) {
   }
 
@@ -41,6 +43,10 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public saveForm() {
 
+  }
+
+  public toggleAddStatusShow(item?:ProjectStatus){
+    this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
 

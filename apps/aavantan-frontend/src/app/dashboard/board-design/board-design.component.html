@@ -1,105 +1,130 @@
 <nz-card nzBordered="false" nzSize="small" class="board-design">
 
-<div class="row">
 
-  <div class="col-md-3">
-
-    <h5 class="m-t-10">Status</h5>
-
-    <nz-card nzSize="small" >
-      <aside class="status-list">
-        <div class="item" *ngFor="let item of statusList" [dndDraggable]="item" [dndEffectAllowed]="'move'">
-          {{item.name}}
-        </div>
-      </aside>
-    </nz-card>
-
+  <div class="m-b-15 m-t-15">
+      <span class="p-r-15 font-size-18 text-black">Board Settings</span>
+      <img src="../../../assets/images/icons/info.svg" height="16" class="cursor-pointer" nz-tooltip [nzTitle]="templateTitleText"/>
+    <ng-template #templateTitleText>
+      About Board Settings...
+    </ng-template>
   </div>
 
-  <div class="col-md-9">
 
-    <div class="row">
-      <div class="col-md-3">
-        <form nz-form [formGroup]="boardDesignForm" (ngSubmit)="saveForm()">
-          <nz-form-item class="m-b-10">
-            <nz-form-control>
-              <nz-input-group>
-                <input formControlName="name" nzSize="small" nz-input type="text" placeholder="Board Setting Name"/>
-              </nz-input-group>
-            </nz-form-control>
-          </nz-form-item>
+        <div class="row">
 
-        </form>
-      </div>
-      <div class="col-md-9 text-right">
-        <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save</button>
-      </div>
-    </div>
+          <div class="col-md-3">
 
-    <nz-card nzSize="small">
-      <section class="sprintboard-container p-l-10">
-
-        <div class="row flex-row flex-nowrap"
-             dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" #columnDragged>
-
-          <div dndPlaceholderRef class="dndColumnPlaceholder">
-            Drop a column here...
-          </div>
-
-          <div class="column" *ngFor="let item of stagesList; let last" [dndDraggable]="item" [dndEffectAllowed]="'move'">
-
-            <div class="card card-block cursor-move">
-
-              <div class="card-header">{{item.name}}
-                <div class="pull-left" style="line-height: 10px;">
-                  <small class="text-muted font-size-10 placeholder"><span class="invisible">Total hours</span></small>&nbsp;
-                  <span class="font-size-12 placeholder"><span class="invisible">2Hrs</span></span>
-                </div>
+            <div class="row">
+              <div class="col text-left">
+                <button nz-button nzType="link" (click)="toggleAddStatusShow()">+ Add New Status</button>
               </div>
-
-              <div class="card-body" dndDropzone dndEffectAllowed="copyMove" dndHorizontal="true">
-
-                <div>
-                  <div class="task-card"
-                        [ngStyle]="{'border-left': '4px solid #0090FB'}">
-                    <h6 [ngStyle]="{'color': '#EF1B1B'}"><span class="placeholder"><span class="invisible">#TASK-100</span></span>
-                      <span class="float-right duration placeholder"><span class="invisible">1 Sec ago</span></span>
-                    </h6>
-                    <div class="task-body">
-                      <div class="placeholder">
-                        <a href="" class="task-title invisible">
-                          Task name
-                        </a>
-                      </div>
-                    </div>
-                    <div class="task-footer">
-                      <span>
-                        <nz-avatar class="m-r-5" nzSize="18" nzIcon="user" nzText="A" nzShape="circle"></nz-avatar>
-                        <span class="profile-name placeholder"><span class="invisible">Jone Doe</span></span>
-                      </span>
-                      <span class="pull-right">
-                            <a href="javascript:void(0);" class="text-primary placeholder">
-                              <span class="invisible"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</span></a>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div dndPlaceholderRef class="dndPlaceholder">
-                  Drop Here...
-                </div>
-
-              </div>
-
             </div>
 
-          </div>
-        </div>
-      </section>
-    </nz-card>
+            <nz-card nzSize="small" class="m-t-10 status-box">
+              <h5 class="m-t-0 m-b-15">Status</h5>
+              <aside class="status-list status-box-scrollable">
+                <div class="item" *ngFor="let item of statusList" [dndDraggable]="item" [dndEffectAllowed]="'move'">
+                  {{item.name}}
+                </div>
+              </aside>
+            </nz-card>
 
-  </div>
-</div>
+          </div>
+
+          <div class="col-md-9">
+
+            <div class="row">
+              <div class="col-md-4">
+                <form nz-form [formGroup]="boardDesignForm" (ngSubmit)="saveForm()">
+                  <nz-form-item class="m-b-10">
+                    <nz-form-control>
+                      <nz-input-group>
+                        <input formControlName="name" nzSize="small" maxlength="50" nz-input type="text" placeholder="Board Setting Name"/>
+                      </nz-input-group>
+                    </nz-form-control>
+                  </nz-form-item>
+                </form>
+              </div>
+
+              <div class="col-md-8 text-right">
+                <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save Settings</button>
+              </div>
+            </div>
+
+            <nz-card nzSize="small">
+
+              <h5 class="m-t-0 m-b-15">New Setting</h5>
+
+              <section class="sprintboard-container p-l-10">
+
+                <div class="row flex-row flex-nowrap"
+                     dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" #columnDragged>
+
+                  <div dndPlaceholderRef class="dndColumnPlaceholder">
+                    Drop a column here...
+                  </div>
+
+                  <div class="column" *ngFor="let item of stagesList; let last" [dndDraggable]="item" [dndEffectAllowed]="'move'">
+
+                    <div class="card card-block cursor-move">
+
+                      <div class="card-header">{{item.name}}
+                        <div class="pull-left" style="line-height: 10px;">
+
+                        </div>
+                      </div>
+
+                      <div class="card-body status-list status-box-scrollable" dndDropzone dndEffectAllowed="copyMove" dndHorizontal="true">
+
+                        <div class="item">
+                          Moved Status
+                        </div>
+                        <div class="item">
+                          Moved Status
+                        </div>
+                        <div class="item">
+                          Moved Status
+                        </div>
+                        <div class="item">
+                          Moved Status
+                        </div>
+                        <div class="item">
+                          Moved Status
+                        </div>
+                        <div class="item">
+                          Moved Status
+                        </div>
+                        <div class="item">
+                          Moved Status
+                        </div>
+                        
+
+                        <div dndPlaceholderRef class="dndPlaceholder">
+                          Drop Here...
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                </div>
+              </section>
+            </nz-card>
+
+          </div>
+    </div>
+
+
+
+  <!-- region add/edit status -->
+  <ng-container *ngIf="addStatusModalIsVisible">
+    <aavantan-add-status
+      [addStatusModalIsVisible]="addStatusModalIsVisible"
+      (toggleAddStatusShow)="toggleAddStatusShow($event)">
+    </aavantan-add-status>
+  </ng-container>
+  <!-- endregion -->
 
 
 

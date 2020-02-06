@@ -23,19 +23,37 @@
     line-height: 95px;
     color: #c3c3c3;
     text-align: center;
-    min-height: 105px;
+    min-height: 45px;
     border-radius: 5px;
     margin-bottom: 8px;
   }
 
   .dndColumnPlaceholder {
-    border: 2px dashed #c30d0c;
+    border: 2px dashed #c3c3c3;
+    line-height: 50px;
     color: #c3c3c3;
     text-align: center;
     border-radius: 5px;
     margin-right: 20px;
     padding: 20px;
-    min-width: 200px;
+    min-height: 105px;
+    max-height: 105px;
+    min-width: 290px;
   }
 
+  .sprintboard-container {
+    height: calc(100vh - 275px);
+    overflow:hidden;
+    overflow-x: auto;
+    .status-box-scrollable {
+      max-height: calc(100vh - 300px);
+    }
+  }
+  .status-box {
+    background: #F7F7F7;
+    .status-box-scrollable {
+      overflow-y: auto;
+      height: calc(100vh - 274px);
+    }
+  }
 }
