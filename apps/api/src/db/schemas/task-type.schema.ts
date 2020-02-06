@@ -9,6 +9,7 @@ export const taskTypeSchema = new Schema({
   color: { type: String, required: [true, 'Task type color is required'] },
   displayName: { type: String, required: [true, 'Task type display name is required'] },
   projectId: { type: Schema.Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
+  description: { type: String },
   ...baseSchemaFields
 }, schemaOptions);
 

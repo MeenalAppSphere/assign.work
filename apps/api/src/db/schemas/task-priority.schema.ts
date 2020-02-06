@@ -8,6 +8,7 @@ export const taskPrioritySchema = new Schema({
   name: { type: String, required: [true, 'Priority name is required'], text: true },
   color: { type: String, required: [true, 'Priority color is required'] },
   projectId: { type: Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
+  description: { type: String },
   ...baseSchemaFields
 }, schemaOptions);
 

@@ -1,5 +1,5 @@
 import { BaseService } from '../base.service';
-import { DbCollection, TaskStatusModel, TaskStatusWithCategoryModel } from '@aavantan-app/models';
+import { DbCollection, TaskStatusModel } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from '../project/project.service';
@@ -7,6 +7,7 @@ import { NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { TaskStatusUtilityService } from './task-status.utility.service';
 import { BadRequest } from '../../helpers/helpers';
+import { GeneralService } from '../general.service';
 
 export class TaskStatusService extends BaseService<TaskStatusModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
@@ -14,7 +15,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
   constructor(
     @InjectModel(DbCollection.taskStatus) protected readonly _taskStatusModel: Model<TaskStatusModel & Document>,
-    private readonly _moduleRef: ModuleRef
+    private readonly _moduleRef: ModuleRef, private readonly _generalService: GeneralService
   ) {
     super(_taskStatusModel);
   }
@@ -49,8 +50,8 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       const status = new TaskStatusModel();
       status.name = model.name;
       status.projectId = model.projectId;
-      status.categoryId = model.categoryId;
-      status.isCategory = model.isCategory;
+      status.description = model.description;
+      status.createdById = this._generalService.userId;
 
       if (!model.id) {
         return await this.create([status], session);
@@ -64,9 +65,8 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
   /**
    * get all statuses by project id
    * @param projectId
-   * @param onlyCategory
    */
-  async getAllStatues(projectId: string, onlyCategory: boolean) {
+  async getAllStatues(projectId: string) {
     try {
       await this._projectService.getProjectDetails(projectId);
 
@@ -74,25 +74,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
         projectId: projectId
       };
 
-      // if onlyCategory true then only return top level statuses who have no category as parent
-      if (onlyCategory) {
-        queryFilter['categoryId'] = null;
-      }
-
       return await this.find({ filter: queryFilter, populate: 'category' });
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  /**
-   * get all statuses category wise
-   * @param projectId
-   */
-  async getAllStatusesCategoryWise(projectId: string): Promise<TaskStatusWithCategoryModel[]> {
-    try {
-      const allStatuses = await this.getAllStatues(projectId, false);
-      return this._utilityService.parseStatusesWithCategory(allStatuses);
     } catch (e) {
       throw e;
     }

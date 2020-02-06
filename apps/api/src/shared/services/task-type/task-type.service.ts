@@ -7,6 +7,7 @@ import { ClientSession, Document, Model } from 'mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { TaskTypeUtilityService } from './task-type.utility.service';
+import { GeneralService } from '../general.service';
 
 @Injectable()
 export class TaskTypeService extends BaseService<TaskTypeModel & Document> implements OnModuleInit {
@@ -15,7 +16,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
 
   constructor(
     @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskTypeModel & Document>,
-    private _moduleRef: ModuleRef
+    private readonly _moduleRef: ModuleRef, private readonly _generalService: GeneralService
   ) {
     super(_taskTypeModel);
   }
@@ -48,6 +49,8 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
       taskType.displayName = model.displayName;
       taskType.name = model.name;
       taskType.color = model.color;
+      taskType.description = model.description;
+      taskType.createdById = this._generalService.userId;
 
       if (!model.id) {
         const newTaskType = await this.create([taskType], session);

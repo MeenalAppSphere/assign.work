@@ -15,7 +15,7 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
 
   constructor(
     @InjectModel(DbCollection.taskPriority) private readonly _taskPriorityModel: Model<TaskPriorityModel & Document>,
-    private _moduleRef: ModuleRef, private _generalService: GeneralService
+    private _moduleRef: ModuleRef, private readonly _generalService: GeneralService
   ) {
     super(_taskPriorityModel);
   }
@@ -47,6 +47,7 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
       taskPriority.projectId = model.projectId;
       taskPriority.name = model.name;
       taskPriority.color = model.color;
+      taskPriority.description = model.description;
       taskPriority.createdById = this._generalService.userId;
 
       if (!model.id) {
