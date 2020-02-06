@@ -8,6 +8,12 @@ export class TaskPriorityQuery extends Query<TaskPriorityState> {
   priorities$ = this.select(s => s.priorities);
   getAllInProcess$ = this.select(s => s.getAllInProcess);
 
+  addNewInProcess$ = this.select(s => s.addNewInProcess);
+  addNewSuccess$ = this.select(s => s.addNewSuccess);
+
+  updateInProcess$ = this.select(s => s.updateInProcess);
+  updateSuccess$ = this.select(s => s.updateSuccess);
+
   constructor(protected store: TaskPriorityStore) {
     super(store);
   }
