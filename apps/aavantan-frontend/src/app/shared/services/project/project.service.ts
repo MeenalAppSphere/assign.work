@@ -28,12 +28,13 @@ import { Observable } from 'rxjs';
 import { UserStore } from '../../../store/user/user.store';
 import { cloneDeep } from 'lodash';
 import { TaskPriority } from 'aws-sdk/clients/swf';
+import { TaskPriorityStore } from '../../../store/task-priority/task-priority.store';
 
 
 @Injectable()
 export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   constructor(protected projectStore: ProjectStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              protected notification: NzNotificationService, private userStore: UserStore) {
+              protected notification: NzNotificationService, private userStore: UserStore, private taskPriorityStore: TaskPriorityStore) {
     super(projectStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -246,7 +247,17 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     return this._http.post(ProjectUrls.addPriority, priority)
       .pipe(
         map(res => {
-          this.updateCurrentProjectState(res.data);
+
+          // add new created priority to store's priority array
+          this.taskPriorityStore.update((state) => {
+            return {
+              ...state,
+              addNewSuccess: true,
+              addNewInProcess: false,
+              priorities: [...state.priorities, res.data]
+            };
+          });
+
           this.notification.success('Success', 'Priority Created Successfully');
           return res;
         }),

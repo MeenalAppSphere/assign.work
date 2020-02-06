@@ -22,17 +22,6 @@ export class BaseService<S extends Store, St> {
   }
 
   /**
-   * update state with previous state
-   * get's a function as parameter and calls that function and passes the state as parameter
-   * @param callback
-   */
-  protected updateStateWithPreviousState(callback: Function) {
-    this.store.update((state => {
-      return callback(state);
-    }));
-  }
-
-  /**
    * generic handle error function
    * shows notification and throws down the error
    * @param response

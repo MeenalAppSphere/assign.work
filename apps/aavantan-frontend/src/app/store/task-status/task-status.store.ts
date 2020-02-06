@@ -13,7 +13,7 @@ export interface TaskStatusState {
 }
 
 const initialState: TaskStatusState = {
-  statuses: null,
+  statuses: [],
   getAllInProcess: false,
   getAllSuccess: false,
   addNewInProcess: false,

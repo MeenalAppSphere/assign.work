@@ -36,7 +36,7 @@ export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
     return this._http.post(TaskUrls.addTask, taskType).pipe(
       map((res: BaseResponseModel<TaskTypeModel>) => {
 
-        this.updateStateWithPreviousState((state: TaskTypeState): TaskTypeState => {
+        this.store.update(state => {
           return {
             ...state,
             addNewSuccess: true,

@@ -12,6 +12,16 @@
 
         </nz-form-item>
 
+      <nz-form-item>
+
+        <nz-form-label>Status Description</nz-form-label>
+        <nz-form-control>
+          <textarea nz-input nzSize="small" formControlName="description" maxlength="250"
+                    placeholder="Enter Status Description" rows="5"></textarea>
+        </nz-form-control>
+
+      </nz-form-item>
+
     </div>
     <div *nzModalFooter>
       <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>

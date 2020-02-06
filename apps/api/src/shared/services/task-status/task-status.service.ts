@@ -32,7 +32,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
    */
   async addUpdate(model: TaskStatusModel) {
 
-    this.withRetrySession(async (session: ClientSession) => {
+    return this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId);
 
       if (model.id) {
@@ -54,7 +54,12 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       status.createdById = this._generalService.userId;
 
       if (!model.id) {
-        return await this.create([status], session);
+        const newStatus = await this.create([status], session);
+
+        await this._projectService.updateById(model.projectId, {
+          $push: { 'settings.statuses': newStatus[0] }
+        }, session);
+        return newStatus[0];
       } else {
         // perform update status here..
       }
@@ -74,7 +79,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
         projectId: projectId
       };
 
-      return await this.find({ filter: queryFilter, populate: 'category' });
+      return await this.find({ filter: queryFilter });
     } catch (e) {
       throw e;
     }
@@ -137,7 +142,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
    */
   private async isDuplicate(model: TaskStatusModel, exceptThis?: string): Promise<boolean> {
     const queryFilter = {
-      projectId: model.projectId, name: model.name.trim().toLowerCase()
+      projectId: model.projectId, name: { $regex: `^${model.name}$`, $options: 'i' }
     };
 
     if (exceptThis) {

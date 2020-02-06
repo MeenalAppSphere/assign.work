@@ -176,11 +176,15 @@ export const BadRequest = (msg: string) => {
 /**
  * check is valid string or not
  * @param term
+ * @param whiteSpaceAllowed
  */
-export const isValidString = (term: string) => {
-  return /^[A-Za-z]+$/.test(term);
+export const isValidString = (term: string, whiteSpaceAllowed: boolean = false) => {
+  if (whiteSpaceAllowed) {
+    return /^[A-Za-z\s*]+$/.test(term);
+  } else {
+    return /^[A-Za-z]+$/.test(term);
+  }
 };
-
 
 /**
  * helper function to convert _id to id in aggregate query

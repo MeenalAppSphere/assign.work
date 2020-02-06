@@ -16,7 +16,7 @@ export class TaskStatusUtilityService {
     }
 
     // is status name has valid string
-    if (!isValidString(status.name)) {
+    if (!isValidString(status.name, true)) {
       BadRequest('No Special characters allowed in status name');
     }
   }

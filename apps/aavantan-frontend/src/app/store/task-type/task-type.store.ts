@@ -13,7 +13,7 @@ export interface TaskTypeState {
 }
 
 const initialState: TaskTypeState = {
-  types: null,
+  types: [],
   getAllInProcess: false,
   getAllSuccess: false,
   addNewInProcess: false,

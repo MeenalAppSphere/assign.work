@@ -13,7 +13,7 @@ export interface TaskPriorityState {
 }
 
 const initialState: TaskPriorityState = {
-  priorities: null,
+  priorities: [],
   getAllInProcess: false,
   getAllSuccess: false,
   addNewInProcess: false,
