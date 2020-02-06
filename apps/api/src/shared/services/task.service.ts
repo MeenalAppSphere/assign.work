@@ -63,6 +63,18 @@ const taskBasicPopulation: any[] = [{
   path: 'sprint',
   select: 'name goal',
   justOne: true
+}, {
+  path: 'status',
+  select: 'name',
+  justOne: true
+}, {
+  path: 'taskType',
+  select: 'name displayName color',
+  justOne: true
+}, {
+  path: 'priority',
+  select: 'name color',
+  justOne: true
 }];
 
 @Injectable()
