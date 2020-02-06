@@ -1,17 +1,23 @@
 <nz-card nzBordered="false" nzSize="small" class="board-design">
 
 <div class="row">
+
   <div class="col-md-3">
+
     <h5 class="m-t-10">Status</h5>
+
     <nz-card nzSize="small" >
       <aside class="status-list">
-        <div class="item" *ngFor="let item of statusList">
+        <div class="item" *ngFor="let item of statusList" [dndDraggable]="item" [dndEffectAllowed]="'move'">
           {{item.name}}
         </div>
       </aside>
     </nz-card>
+
   </div>
+
   <div class="col-md-9">
+
     <div class="row">
       <div class="col-md-3">
         <form nz-form [formGroup]="boardDesignForm" (ngSubmit)="saveForm()">
@@ -29,11 +35,19 @@
         <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save</button>
       </div>
     </div>
-    <nz-card nzSize="small" >
-      <section class="sprintboard-container p-l-10">
-        <div class="row flex-row flex-nowrap" *ngIf="stagesList && stagesList.length>0">
 
-          <div class="column" *ngFor="let item of stagesList; let last">
+    <nz-card nzSize="small">
+      <section class="sprintboard-container p-l-10">
+
+        <div class="row flex-row flex-nowrap"
+             dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" #columnDragged>
+
+          <div dndPlaceholderRef class="dndColumnPlaceholder">
+            Drop a column here...
+          </div>
+
+          <div class="column" *ngFor="let item of stagesList; let last" [dndDraggable]="item" [dndEffectAllowed]="'move'">
+
             <div class="card card-block cursor-move">
 
               <div class="card-header">{{item.name}}
@@ -43,7 +57,7 @@
                 </div>
               </div>
 
-              <div class="card-body">
+              <div class="card-body" dndDropzone dndEffectAllowed="copyMove" dndHorizontal="true">
 
                 <div>
                   <div class="task-card"
@@ -70,13 +84,20 @@
                     </div>
                   </div>
                 </div>
+
+                <div dndPlaceholderRef class="dndPlaceholder">
+                  Drop Here...
+                </div>
+
               </div>
 
             </div>
+
           </div>
         </div>
       </section>
     </nz-card>
+
   </div>
 </div>
 
