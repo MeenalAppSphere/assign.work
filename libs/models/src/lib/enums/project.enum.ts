@@ -9,3 +9,9 @@ export enum ProjectInvitationType {
   signUp,
   normal
 }
+
+export enum ProjectDefaultStatusEnum {
+  toDo = 'Todo',
+  inProgress = 'In Progress',
+  done = 'Done'
+}

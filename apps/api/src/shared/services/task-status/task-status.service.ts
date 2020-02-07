@@ -1,5 +1,5 @@
 import { BaseService } from '../base.service';
-import { DbCollection, TaskStatusModel } from '@aavantan-app/models';
+import { DbCollection, Project, TaskStatusModel } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from '../project/project.service';
@@ -113,6 +113,17 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
     } catch (e) {
       throw e;
     }
+  }
+
+  /**
+   * create default statues for project
+   * @param project
+   * @param session
+   */
+  async createDefaultStatuses(project: Project, session: ClientSession) {
+    const defaultStatuses = this._utilityService.prepareDefaultStatuses(project);
+
+    return await this.create(defaultStatuses, session);
   }
 
   /**

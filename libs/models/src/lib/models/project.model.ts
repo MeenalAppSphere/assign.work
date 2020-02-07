@@ -1,7 +1,14 @@
 import { Organization } from './organization.model';
 import { Types } from 'mongoose';
 
-import { ProjectTemplateEnum, Sprint, TaskTypeModel, User } from '@aavantan-app/models';
+import {
+  ProjectTemplateEnum,
+  Sprint,
+  TaskPriorityModel,
+  TaskStatusModel,
+  TaskTypeModel,
+  User
+} from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Project {
@@ -16,8 +23,10 @@ export class Project {
   avatar?: string;
   progress?: number;
   template: ProjectTemplateEnum;
-  createdBy?: string | User;
-  updatedBy?: string | User;
+  createdBy?: User;
+  createdById?: string;
+  updatedBy?: User;
+  updatedById?: string;
   updated?: string | User;
   settings?: ProjectSettings;
   sprintId?: string;
@@ -38,8 +47,8 @@ export class ProjectMembers {
 export class ProjectSettings {
   stages: ProjectStages[];
   taskTypes: TaskTypeModel[];
-  priorities: ProjectPriority[];
-  status?: ProjectStatus[];
+  priorities: TaskPriorityModel[];
+  status?: TaskStatusModel[];
   tags?: ProjectTags[];
 }
 

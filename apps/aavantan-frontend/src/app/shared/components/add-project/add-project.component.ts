@@ -236,7 +236,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this.createProjectInProcess = true;
     const project: Project = { ...this.projectForm.getRawValue() };
-    project.createdBy = this._generalService.user.id;
 
     try {
       const createdProject = await this._projectService.createProject(project).toPromise();

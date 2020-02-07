@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { baseSchemaFields, mongooseErrorTransformPluginOptions } from './base.schema';
+import { basicSchemaFields, mongooseErrorTransformPluginOptions } from './base.schema';
 import { DbCollection } from '@aavantan-app/models';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -17,7 +17,7 @@ export const boardSchema = new Schema({
     columnColor: { type: String },
     defaultAssigneeId: { type: Types.ObjectId, ref: DbCollection.users }
   },
-  ...baseSchemaFields
+  ...basicSchemaFields
 });
 
 

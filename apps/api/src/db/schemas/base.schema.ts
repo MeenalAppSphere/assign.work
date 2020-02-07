@@ -14,10 +14,11 @@ export const schemaOptions: SchemaOptions = {
   id: true
 };
 
-export const baseSchemaFields = {
+export const basicSchemaFields = {
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: [true, 'Created by is required'] },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  deletedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }
 };
 
 export const mongooseErrorTransformPluginOptions = {

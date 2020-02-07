@@ -52,12 +52,7 @@ import { ProjectUtilityService } from './project.utility.service';
 const projectBasicPopulation = [{
   path: 'members.userDetails',
   select: 'firstName lastName emailId userName profilePic'
-}, {
-  path: 'settings.statuses',
-  populate: {
-    path: 'category'
-  }
-}];
+}, { path: 'settings.statuses' }, { path: 'settings.taskTypes' }, { path: 'settings.priorities' }];
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
@@ -100,11 +95,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
       throw new BadRequestException('Please Enter Project Name');
     }
 
-    // check if created by is available or not
-    if (!model.createdBy || !this.isValidObjectId(model.createdBy as string)) {
-      throw new BadRequestException('User not found');
-    }
-
     // get organization details
     const organizationDetails = await this.getOrganizationDetails(model.organization as string);
 
@@ -117,6 +107,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const session = await this.startSession();
 
     model = new this._projectModel(model);
+    model.createdById = this._generalService.userId;
     model.organization = this.toObjectId(model.organization as string);
     model.settings.taskTypes = [];
     model.settings.priorities = [];
@@ -798,7 +789,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
       .populate([{
         path: 'createdBy',
         select: 'firstName lastName emailId'
-      }, { path: 'organization', select: 'name' }])
+      }, {
+        path: 'organization',
+        select: 'name'
+      }, { path: 'settings.statuses' }, { path: 'settings.taskTypes' }, { path: 'settings.priorities' }])
       .lean().exec();
 
     if (!projectDetails) {

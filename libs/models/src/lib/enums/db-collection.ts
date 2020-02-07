@@ -12,5 +12,6 @@ export enum DbCollection {
   attachments = 'attachments',
   invitations = 'invitations',
   resetPassword = 'reset-password',
-  workflow = 'workflow'
+  workflow = 'workflow',
+  board = 'board'
 }
