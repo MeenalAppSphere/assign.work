@@ -37,11 +37,10 @@ boardSchema
   });
 
 boardSchema
-  .virtual('columns.includedStatus', {
+  .virtual('columns.includedStatuses', {
     ref: DbCollection.taskStatus,
     localField: 'columns.includedStatusesId',
-    foreignField: '_id',
-    justOne: true
+    foreignField: '_id'
   });
 
 boardSchema

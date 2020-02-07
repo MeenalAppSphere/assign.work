@@ -48,15 +48,14 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         lean: true,
         populate: [{
           path: 'columns.headerStatus'
-        }, { path: 'columns.includedStatus' }, {
+        }, { path: 'columns.includedStatuses' }, {
           path: 'columns.defaultAssignee',
           select: 'firstName lastName emailId userName profilePic'
         }]
       });
 
       if (board) {
-        board.id = board._id;
-        return board;
+        return this._utilityService.convertToVm(board);
       } else {
         BadRequest('Board not found...');
       }

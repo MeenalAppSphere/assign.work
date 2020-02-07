@@ -6,6 +6,10 @@ export class BoardUtilityService {
   constructor() {
   }
 
+  /**
+   * check validation for creating a board
+   * @param model
+   */
   checkValidations(model: BoardModel) {
     if (!model.name) {
       BadRequest('Board Name is required');
@@ -16,6 +20,11 @@ export class BoardUtilityService {
     }
   }
 
+  /**
+   * prepare default board model
+   * creates a board object with default status as columns
+   * @param project
+   */
   prepareDefaultBoardModel(project: Project) {
     const board = new BoardModel();
 
@@ -39,4 +48,26 @@ export class BoardUtilityService {
     return board;
   }
 
+  /**
+   * convertToVm
+   * convert board object to vm
+   * @param board
+   */
+  convertToVm(board: BoardModel): BoardModel {
+    board.id = board._id;
+
+    board.columns = board.columns.map(column => {
+      column.headerStatus.id = column.headerStatus._id;
+      column.defaultAssignee.id = column.defaultAssignee._id;
+
+      column.includedStatuses = column.includedStatuses.map(includeStatus => {
+        includeStatus.id = includeStatus._id;
+        return includeStatus;
+      });
+
+      return column;
+    });
+
+    return board;
+  }
 }
