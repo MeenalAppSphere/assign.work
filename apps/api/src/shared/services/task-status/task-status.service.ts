@@ -100,7 +100,6 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
       const status = await this.findOne({
         filter: { projectId, _id: statusId },
-        populate: 'category',
         lean: true
       });
 

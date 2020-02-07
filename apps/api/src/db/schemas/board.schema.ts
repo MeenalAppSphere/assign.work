@@ -31,7 +31,7 @@ boardSchema
 boardSchema
   .virtual('columns.headerStatus', {
     ref: DbCollection.taskStatus,
-    localField: 'headerStatusId',
+    localField: 'columns.headerStatusId',
     foreignField: '_id',
     justOne: true
   });
@@ -39,7 +39,7 @@ boardSchema
 boardSchema
   .virtual('columns.includedStatus', {
     ref: DbCollection.taskStatus,
-    localField: 'includedStatusesId',
+    localField: 'columns.includedStatusesId',
     foreignField: '_id',
     justOne: true
   });
@@ -47,7 +47,7 @@ boardSchema
 boardSchema
   .virtual('columns.defaultAssignee', {
     ref: DbCollection.users,
-    localField: 'defaultAssigneeId',
+    localField: 'columns.defaultAssigneeId',
     foreignField: '_id',
     justOne: true
   });

@@ -96,7 +96,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * return {Project}
    */
   async createProject(model: Project) {
-    return this.withRetrySession(async (session: ClientSession) => {
+    const newProject = await this.withRetrySession(async (session: ClientSession) => {
       // get organization details
       await this.getOrganizationDetails(model.organizationId);
 
@@ -124,6 +124,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       if (defaultStatues && defaultStatues.length) {
         defaultStatues.forEach(status => {
           projectModel.settings.statuses.push(status.id);
+          createdProject[0].settings.statuses.push(status.id);
         });
       }
 
@@ -145,6 +146,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this._userService.updateUser(userDetails.id, userDetails, session);
       return createdProject[0];
     });
+    // get project by id and send it
+    return await this.findById(newProject.id);
   }
 
   /**

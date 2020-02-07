@@ -17,6 +17,7 @@ import { InvitationService } from '../shared/services/invitation/invitation.serv
 import { TaskPriorityService } from '../shared/services/task-priority/task-priority.service';
 import { TaskStatusService } from '../shared/services/task-status/task-status.service';
 import { TaskTypeService } from '../shared/services/task-type/task-type.service';
+import { BoardService } from '../shared/services/board/board.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -38,7 +39,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService,
               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService,
-              private _taskTypeService: TaskTypeService) {
+              private _taskTypeService: TaskTypeService, private _boardService: BoardService) {
   }
 
   ngOnInit() {
@@ -242,6 +243,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // get all task priorities
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+
+    // get active board data
+    this._boardService.getActiveBoard({
+      projectId: this._generalService.currentProject.id,
+      boardId: this._generalService.currentProject.activeBoardId
+    }).subscribe();
   }
 
   ngOnDestroy(): void {

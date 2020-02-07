@@ -19,3 +19,8 @@ export class BoardModel extends BaseDbModel {
   project?: Project;
   columns: BoardColumns[];
 }
+
+export class GetActiveBoardRequestModel {
+  projectId: string;
+  boardId: string;
+}

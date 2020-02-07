@@ -95,7 +95,7 @@ export class UsersService extends BaseService<User & Document> {
         },
         {
           path: 'currentProject',
-          select: 'name description members settings template createdById updatedBy sprintId',
+          select: 'name description members settings template createdById updatedBy sprintId activeBoardId',
           justOne: true,
           populate: [{
             path: 'members.userDetails',

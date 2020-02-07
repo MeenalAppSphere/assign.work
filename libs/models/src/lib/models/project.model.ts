@@ -1,6 +1,7 @@
 import { Organization } from './organization.model';
 
 import {
+  BoardModel,
   ProjectTemplateEnum,
   Sprint,
   TaskPriorityModel,
@@ -31,6 +32,8 @@ export class Project {
   settings?: ProjectSettings;
   sprintId?: string;
   sprint?: Sprint;
+  activeBoardId?: string;
+  activeBoard?: BoardModel;
 }
 
 export class ProjectMembers {

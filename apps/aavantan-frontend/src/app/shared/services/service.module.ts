@@ -14,6 +14,7 @@ import { InvitationService } from './invitation/invitation.service';
 import { TaskPriorityService } from './task-priority/task-priority.service';
 import { TaskStatusService } from './task-status/task-status.service';
 import { TaskTypeService } from './task-type/task-type.service';
+import { BoardService } from './board/board.service';
 
 @NgModule()
 export class ServiceModule {
@@ -36,7 +37,8 @@ export class ServiceModule {
         InvitationService,
         TaskPriorityService,
         TaskStatusService,
-        TaskTypeService
+        TaskTypeService,
+        BoardService
       ]
     };
   }
