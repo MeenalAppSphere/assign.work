@@ -69,7 +69,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
    */
   private async isDuplicate(board: BoardModel, exceptThis?: string): Promise<boolean> {
     const queryFilter = {
-      projectId: model.projectId, name: { $regex: `^${board.name.trim()}$`, $options: 'i' }
+      projectId: board.projectId, name: { $regex: `^${board.name.trim()}$`, $options: 'i' }
     };
 
     if (exceptThis) {
