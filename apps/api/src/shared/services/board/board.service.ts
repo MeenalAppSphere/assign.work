@@ -27,8 +27,6 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
   async createDefaultBoard(project: Project, session: ClientSession) {
     const board = this._utilityService.prepareDefaultBoardModel(project);
-
-
     return await this.create([board], session);
   }
 }

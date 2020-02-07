@@ -216,7 +216,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.projectModalIsVisible = true;
               } else {
                 // now every thing seems good now get initial data
-                this.getInitialData();
+                // wrapped in set timeout because we need to wait till all data processed from store
+                setTimeout(() => {
+                  this.getInitialData();
+                }, 500);
               }
             }
           }
@@ -232,13 +235,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private getInitialData() {
     // get all task statuses
-    this._taskStatusService.getAllTaskStatuses(this._generalService.user.currentProject.id).subscribe();
+    this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
 
     // get all task types
-    this._taskTypeService.getAllTaskTypes(this._generalService.user.currentProject.id).subscribe();
+    this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
 
     // get all task priorities
-    this._taskPriorityService.getAllTaskPriorities(this._generalService.user.currentProject.id).subscribe();
+    this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
   }
 
   ngOnDestroy(): void {

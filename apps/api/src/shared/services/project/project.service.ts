@@ -118,23 +118,23 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create project and get project id from them
       const createdProject = await this.create([projectModel], session);
 
-      // // create default statues for project
-      // const defaultStatues = await this._taskStatusService.createDefaultStatuses(createdProject[0], session);
-      //
-      // if (defaultStatues && defaultStatues.length) {
-      //   defaultStatues.forEach(status => {
-      //     projectModel.settings.statuses.push(status.id);
-      //   });
-      // }
-      //
-      // // create default board goes here
-      // const defaultBoard = await this._boardService.createDefaultBoard(projectModel, session);
-      //
-      // // update project and set default statues and active board
-      // await this.updateById(createdProject[0].id, {
-      //   $push: { 'settings.statues': { $each: projectModel.settings.statuses } },
-      //   $set: { activeBoardId: defaultBoard[0].id }
-      // }, session);
+      // create default statues for project
+      const defaultStatues = await this._taskStatusService.createDefaultStatuses(createdProject[0], session);
+
+      if (defaultStatues && defaultStatues.length) {
+        defaultStatues.forEach(status => {
+          projectModel.settings.statuses.push(status.id);
+        });
+      }
+
+      // create default board goes here
+      const defaultBoard = await this._boardService.createDefaultBoard(createdProject[0], session);
+
+      // update project and set default statues and active board
+      await this.updateById(createdProject[0].id, {
+        $push: { 'settings.statuses': { $each: projectModel.settings.statuses } },
+        $set: { activeBoardId: defaultBoard[0].id }
+      }, session);
 
       // set created project as current project of user
       userDetails.currentProject = createdProject[0].id;
