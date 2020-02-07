@@ -1,5 +1,5 @@
 import { BaseService } from '../base.service';
-import { BoardModel, DbCollection } from '@aavantan-app/models';
+import { BoardModel, DbCollection, Project } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,15 +25,10 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     this._utilityService = new BoardUtilityService();
   }
 
-  async createBoard(model: BoardModel) {
-    return this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+  async createDefaultBoard(project: Project, session: ClientSession) {
+    const board = this._utilityService.prepareDefaultBoardModel(project);
 
-      // check basic validations
-      this._utilityService.checkValidations(model);
 
-      // start board creating process
-      const defaultStatuses = projectDetails.settings.status.find(status => status.isDefault);
-    });
+    return await this.create([board], session);
   }
 }

@@ -3,9 +3,9 @@ import { Project, TaskStatusModel, User } from '@aavantan-app/models';
 
 export class BoardColumns {
   headerStatusId: string;
-  headerStatus: TaskStatusModel;
+  headerStatus?: TaskStatusModel;
   includedStatusesId: string[];
-  includedStatuses: TaskStatusModel[];
+  includedStatuses?: TaskStatusModel[];
   isActive: boolean;
   columnOrderNo: number;
   columnColor: string;

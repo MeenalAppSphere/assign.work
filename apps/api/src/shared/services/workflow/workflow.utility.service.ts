@@ -27,7 +27,7 @@ export class WorkflowUtilityService {
 
     // check if all status are available
     const allStatuesAvailable = model.statuses.every(status => {
-      return projectDetails.settings.status.some(projectStatus => projectStatus.id === status.status);
+      return projectDetails.settings.statuses.some(projectStatus => projectStatus.id === status.status);
     });
     if (!allStatuesAvailable) {
       BadRequest('One of the status is not found in project');

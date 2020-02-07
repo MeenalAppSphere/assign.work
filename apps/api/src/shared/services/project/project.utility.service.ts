@@ -28,6 +28,7 @@ export class ProjectUtilityService {
       statuses: [],
       tags: []
     };
+    project.members = [];
 
     return project;
   }

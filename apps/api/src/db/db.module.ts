@@ -15,6 +15,7 @@ import { workflowSchema } from './schemas/workflow.schema';
 import { taskStatusSchema } from './schemas/task-status.schema';
 import { taskPrioritySchema } from './schemas/task-priority.schema';
 import { taskTypeSchema } from './schemas/task-type.schema';
+import { boardSchema } from './schemas/board.schema';
 
 @Module({
   imports: [
@@ -74,6 +75,10 @@ import { taskTypeSchema } from './schemas/task-type.schema';
       name: DbCollection.taskType,
       schema: taskTypeSchema,
       collection: DbCollection.taskType
+    }, {
+      name: DbCollection.board,
+      schema: boardSchema,
+      collection: DbCollection.board
     }])
   ],
   exports: [

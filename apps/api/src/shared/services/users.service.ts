@@ -77,7 +77,7 @@ export class UsersService extends BaseService<User & Document> {
     const userDetails = await this._userModel.findById(new Types.ObjectId(id))
       .populate([{
         path: 'projects',
-        select: 'name description organization createdAt createdBy updatedAt',
+        select: 'name description organizationId createdAt createdById updatedAt',
         populate: {
           path: 'createdBy',
           select: 'firstName lastName'
@@ -95,7 +95,7 @@ export class UsersService extends BaseService<User & Document> {
         },
         {
           path: 'currentProject',
-          select: 'name description members settings template createdBy updatedBy sprintId',
+          select: 'name description members settings template createdById updatedBy sprintId',
           justOne: true,
           populate: [{
             path: 'members.userDetails',
@@ -146,7 +146,7 @@ export class UsersService extends BaseService<User & Document> {
       const userProjects =
         slice(
           userDetails.projects
-            .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
+            .filter(f => f.organizationId.toString() === userDetails.currentOrganizationId)
             .filter(f => f._id.toString() !== userDetails.currentProject.id),
           0, 1
         ).map((pro: any) => {

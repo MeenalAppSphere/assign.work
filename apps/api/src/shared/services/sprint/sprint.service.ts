@@ -982,7 +982,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     } else {
       // don't create new sprint but move all tasks to backlog with a status
-      const isValidFinalStageOfTask = projectDetails.settings.status.find(status => status.id === model.finalStatusOfTasks);
+      const isValidFinalStageOfTask = projectDetails.settings.statuses.find(status => status.id === model.finalStatusOfTasks);
       if (!isValidFinalStageOfTask) {
         throw new BadRequestException('task status is not valid, please try again');
       }

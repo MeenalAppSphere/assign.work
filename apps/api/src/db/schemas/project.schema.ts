@@ -50,7 +50,7 @@ export const projectSchema = new Schema({
     tags: [projectTagsSchema],
     required: false
   },
-  activeBoardId: { type: Types.ObjectId, ref: DbCollection.board, required: [true, 'Please Choose a board first'] },
+  activeBoardId: { type: Types.ObjectId, ref: DbCollection.board },
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   ...basicSchemaFields
 }, schemaOptions);
@@ -74,9 +74,17 @@ projectSchema
   });
 
 projectSchema
-  .virtual('sprint', {
-    ref: DbCollection.sprint,
-    localField: 'sprintId',
+  .virtual('members.userDetails', {
+    ref: DbCollection.users,
+    localField: 'members.userId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
+  .virtual('createdBy', {
+    ref: DbCollection.users,
+    localField: 'createdById',
     foreignField: '_id',
     justOne: true
   });

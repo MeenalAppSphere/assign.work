@@ -24,6 +24,7 @@ import { WorkflowService } from './services/workflow/workflow.service';
 import { TaskStatusService } from './services/task-status/task-status.service';
 import { TaskPriorityService } from './services/task-priority/task-priority.service';
 import { TaskTypeService } from './services/task-type/task-type.service';
+import { BoardService } from './services/board/board.service';
 
 const providers = [
   UsersService,
@@ -41,7 +42,8 @@ const providers = [
   WorkflowService,
   TaskStatusService,
   TaskPriorityService,
-  TaskTypeService
+  TaskTypeService,
+  BoardService
 ];
 
 @Global()

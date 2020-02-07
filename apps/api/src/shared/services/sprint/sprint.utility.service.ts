@@ -187,9 +187,9 @@ export class SprintUtilityService {
   parseTaskObjectForUi(task: Task, projectDetails: Project) {
     task.id = task['_id'];
 
-    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
-    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
-    task.status = projectDetails.settings.status.find(t => t.id === task.status);
+    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskTypeId);
+    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priorityId);
+    task.status = projectDetails.settings.statuses.find(t => t.id === task.statusId);
     task.isSelected = !!task.sprintId;
 
     // convert all time keys to string from seconds

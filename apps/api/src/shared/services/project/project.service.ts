@@ -49,6 +49,7 @@ import { EmailService } from '../email.service';
 import { OrganizationService } from '../organization.service';
 import { ProjectUtilityService } from './project.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
+import { BoardService } from '../board/board.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -62,6 +63,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _organizationService: OrganizationService;
   private _utilityService: ProjectUtilityService;
   private _taskStatusService: TaskStatusService;
+  private _boardService: BoardService;
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
@@ -79,6 +81,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._invitationService = this._moduleRef.get('InvitationService');
     this._organizationService = this._moduleRef.get('OrganizationService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
+    this._boardService = this._moduleRef.get('BoardService');
 
     this._utilityService = new ProjectUtilityService();
   }
@@ -101,9 +104,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
       this._utilityService.checkAddProjectValidations(model);
 
       // get user details
-      const userDetails = await this._userService.findById(model.createdById);
+      const userDetails = await this._userService.findById(this._generalService.userId);
       if (!userDetails) {
-        throw new BadRequestException('User not found');
+        BadRequest('User not found');
       }
 
       const projectModel = this._utilityService.prepareProjectModelFromRequest(model);
@@ -113,24 +116,25 @@ export class ProjectService extends BaseService<Project & Document> implements O
       projectModel.members.push(this._utilityService.prepareProjectMemberModel(userDetails));
 
       // create project and get project id from them
-      const createdProject = await this.create([model], session);
+      const createdProject = await this.create([projectModel], session);
 
-      // create default statues for project
-      const defaultStatues = await this._taskStatusService.createDefaultStatuses(createdProject[0], session);
-      const defaultStatuesIds: string[] = [];
-
-      if (defaultStatues && defaultStatues.length) {
-        defaultStatues.forEach(status => {
-          defaultStatuesIds.push(status.id);
-        });
-      }
-
-      // create default board goes here
-
-      // update project and set default statues and active board
-      await this.updateById(createdProject[0].id, {
-        $push: { 'settings.statues': { $each: defaultStatuesIds } }
-      }, session);
+      // // create default statues for project
+      // const defaultStatues = await this._taskStatusService.createDefaultStatuses(createdProject[0], session);
+      //
+      // if (defaultStatues && defaultStatues.length) {
+      //   defaultStatues.forEach(status => {
+      //     projectModel.settings.statuses.push(status.id);
+      //   });
+      // }
+      //
+      // // create default board goes here
+      // const defaultBoard = await this._boardService.createDefaultBoard(projectModel, session);
+      //
+      // // update project and set default statues and active board
+      // await this.updateById(createdProject[0].id, {
+      //   $push: { 'settings.statues': { $each: projectModel.settings.statuses } },
+      //   $set: { activeBoardId: defaultBoard[0].id }
+      // }, session);
 
       // set created project as current project of user
       userDetails.currentProject = createdProject[0].id;
