@@ -19,7 +19,9 @@ const routes: Routes = [
     TypeaheadModule,
     SortableModule
   ],
-  exports: [],
+  exports: [
+    AddStatusComponent
+  ],
   declarations: [
     SettingsComponent,
     AddStatusComponent,

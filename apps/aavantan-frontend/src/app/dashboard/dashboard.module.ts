@@ -17,6 +17,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-sprint.component';
 import { DndModule } from 'ngx-drag-drop';
 import { BoardDesignComponent } from './board-design/board-design.component';
+import { SettingsModule } from '../settings/settings.module';
 
 @NgModule({
   imports: [
@@ -29,7 +30,8 @@ import { BoardDesignComponent } from './board-design/board-design.component';
     PopoverModule.forRoot(),
     JoyrideModule.forRoot(),
     NzToolTipModule,
-    DndModule
+    DndModule,
+    SettingsModule
   ],
   exports: [
   ],

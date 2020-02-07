@@ -759,6 +759,15 @@ $color-gray-light-2:#7A869A;
 
 
 /* board-design */
+.board-design > .ant-card-small > .ant-card-head {
+  padding: 6px 15px;
+  font-size: 18px;
+  border: none;
+  .ant-card-extra {
+    float: left!important;
+  }
+}
+
 .board-design {
   .ant-input {
     padding: 4.5px 10px!important;

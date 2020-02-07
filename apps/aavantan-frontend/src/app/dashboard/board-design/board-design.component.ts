@@ -16,6 +16,8 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public statusList: TaskStatusModel[] = [];
   public stagesList: any = [];
 
+  public addStatusModalIsVisible:boolean;
+
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery) {
   }
 
@@ -37,6 +39,10 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public saveForm() {
 
+  }
+
+  public toggleAddStatusShow(item?:ProjectStatus){
+    this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
 
