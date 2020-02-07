@@ -26,9 +26,61 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     this._utilityService = new BoardUtilityService();
   }
 
+  /**
+   * create default board
+   * create board with default status which are created with new project
+   * @param project
+   * @param session
+   */
   async createDefaultBoard(project: Project, session: ClientSession) {
     const board = this._utilityService.prepareDefaultBoardModel(project);
     return await this.create([board], session);
+  }
+
+  /**
+   * create a new board
+   * @param board
+   */
+  async createNewBoard(board: BoardModel) {
+    return this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.getProjectDetails(board.projectId);
+
+      // check validations
+      this._utilityService.checkValidations(board);
+
+      // check is duplicate name
+      if (await this.isDuplicate(board)) {
+        BadRequest('Duplicate board name is not allowed');
+      }
+
+      // create a new board model
+      const boardModel = new BoardModel();
+      boardModel.createdById = this._generalService.userId;
+
+      // create and return new bord
+      return await this.create([boardModel], session);
+    });
+  }
+
+  /**
+   * is duplicate board
+   * @param board
+   * @param exceptThis
+   */
+  private async isDuplicate(board: BoardModel, exceptThis?: string): Promise<boolean> {
+    const queryFilter = {
+      projectId: model.projectId, name: { $regex: `^${board.name.trim()}$`, $options: 'i' }
+    };
+
+    if (exceptThis) {
+      queryFilter['_id'] = { $ne: exceptThis };
+    }
+
+    const queryResult = await this.find({
+      filter: queryFilter
+    });
+
+    return !!(queryResult && queryResult.length);
   }
 
   /**

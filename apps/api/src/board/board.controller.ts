@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { GetActiveBoardRequestModel } from '@aavantan-app/models';
+import { BoardModel, GetActiveBoardRequestModel } from '@aavantan-app/models';
 import { BoardService } from '../shared/services/board/board.service';
 
 @Controller('board')
@@ -10,10 +10,10 @@ export class BoardController {
   constructor(private readonly _boardService: BoardService) {
   }
 
-  // @Post('create')
-  // async createTaskStatus(@Body() model: TaskStatusModel) {
-  //   return await this._taskStatusService.addUpdate(model);
-  // }
+  @Post('create')
+  async createBoard(@Body() model: BoardModel) {
+    return await this._boardService.createNewBoard(model);
+  }
 
   // @Post('update')
   // async updateTaskStatus(@Body() model: TaskStatusModel) {
