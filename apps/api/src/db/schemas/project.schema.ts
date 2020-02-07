@@ -15,12 +15,6 @@ const projectTagsSchema = new Schema({
   isDeleted: { type: Boolean, default: false }
 }, schemaOptions);
 
-const projectTaskTypeSchema = new Schema({
-  name: { type: String, required: true },
-  color: { type: String, required: true },
-  displayName: { type: String, required: true }
-}, schemaOptions);
-
 export const projectSchema = new Schema({
   name: { type: String, required: [true, 'Project Name is required'] },
   description: { type: String },
@@ -52,7 +46,6 @@ export const projectSchema = new Schema({
     stages: [],
     taskTypes: [],
     priorities: [],
-    status: [],
     statuses: [{ type: Types.ObjectId }],
     tags: [projectTagsSchema],
     required: false
