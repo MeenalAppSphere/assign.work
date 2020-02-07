@@ -120,10 +120,10 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
    * @param project
    * @param session
    */
-  async createDefaultStatuses(project: Project, session: ClientSession) {
+  async createDefaultStatuses(project: Project, session: ClientSession): Promise<Array<Document & TaskStatusModel>> {
     const defaultStatuses = this._utilityService.prepareDefaultStatuses(project);
 
-    return await this.create(defaultStatuses, session);
+    return await this.create(defaultStatuses, session) as Array<Document & TaskStatusModel>;
   }
 
   /**

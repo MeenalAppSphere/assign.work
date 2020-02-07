@@ -31,7 +31,7 @@ export const projectSchema = new Schema({
       type: Array, default: DEFAULT_WORKING_DAYS
     }
   },
-  organization: {
+  organizationId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.organizations,
     required: [true, 'Please select Organization.']

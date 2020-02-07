@@ -48,6 +48,7 @@ import { ModuleRef } from '@nestjs/core';
 import { EmailService } from '../email.service';
 import { OrganizationService } from '../organization.service';
 import { ProjectUtilityService } from './project.utility.service';
+import { TaskStatusService } from '../task-status/task-status.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -60,6 +61,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _invitationService: InvitationService;
   private _organizationService: OrganizationService;
   private _utilityService: ProjectUtilityService;
+  private _taskStatusService: TaskStatusService;
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
@@ -76,6 +78,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._userService = this._moduleRef.get('UsersService');
     this._invitationService = this._moduleRef.get('InvitationService');
     this._organizationService = this._moduleRef.get('OrganizationService');
+    this._taskStatusService = this._moduleRef.get('TaskStatusService');
 
     this._utilityService = new ProjectUtilityService();
   }
@@ -90,60 +93,54 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * return {Project}
    */
   async createProject(model: Project) {
-    // validations
-    if (model.name && !model.name.trim()) {
-      throw new BadRequestException('Please Enter Project Name');
-    }
+    return this.withRetrySession(async (session: ClientSession) => {
+      // get organization details
+      await this.getOrganizationDetails(model.organizationId);
 
-    // get organization details
-    const organizationDetails = await this.getOrganizationDetails(model.organization as string);
+      // check validations
+      this._utilityService.checkAddProjectValidations(model);
 
-    // get user details
-    const userDetails = await this._userService.findById(model.createdBy as string);
-    if (!userDetails) {
-      throw new BadRequestException('User not found');
-    }
+      // get user details
+      const userDetails = await this._userService.findById(model.createdById);
+      if (!userDetails) {
+        throw new BadRequestException('User not found');
+      }
 
-    const session = await this.startSession();
+      const projectModel = this._utilityService.prepareProjectModelFromRequest(model);
+      projectModel.createdById = this._generalService.userId;
 
-    model = new this._projectModel(model);
-    model.createdById = this._generalService.userId;
-    model.organization = this.toObjectId(model.organization as string);
-    model.settings.taskTypes = [];
-    model.settings.priorities = [];
-    model.settings.stages = [];
-    model.settings.status = [];
-    model.settings.tags = [];
+      // add project creator as project collaborator when new project is created
+      projectModel.members.push(this._utilityService.prepareProjectMemberModel(userDetails));
 
-    // add project creator as project collaborator when new project is created
-    model.members.push({
-      userId: userDetails.id,
-      emailId: userDetails.emailId,
-      isEmailSent: true,
-      isInviteAccepted: true,
-      workingCapacity: DEFAULT_WORKING_CAPACITY,
-      workingCapacityPerDay: DEFAULT_WORKING_CAPACITY_PER_DAY,
-      workingDays: DEFAULT_WORKING_DAYS
-    });
-
-    try {
       // create project and get project id from them
       const createdProject = await this.create([model], session);
 
+      // create default statues for project
+      const defaultStatues = await this._taskStatusService.createDefaultStatuses(createdProject[0], session);
+      const defaultStatuesIds: string[] = [];
+
+      if (defaultStatues && defaultStatues.length) {
+        defaultStatues.forEach(status => {
+          defaultStatuesIds.push(status.id);
+        });
+      }
+
+      // create default board goes here
+
+      // update project and set default statues and active board
+      await this.updateById(createdProject[0].id, {
+        $push: { 'settings.statues': { $each: defaultStatuesIds } }
+      }, session);
+
       // set created project as current project of user
       userDetails.currentProject = createdProject[0].id;
-
       // push project to user projects array
       userDetails.projects.push(createdProject[0].id);
+
       // update user
       await this._userService.updateUser(userDetails.id, userDetails, session);
-
-      await this.commitTransaction(session);
       return createdProject[0];
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
+    });
   }
 
   /**
@@ -162,7 +159,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
 
     // get organization details
-    const organizationDetails = await this.getOrganizationDetails(model.organization as string);
+    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
     const projectDetails = await this.getProjectDetails(model.id);
 
     // get user details
@@ -175,7 +172,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     const updatedProject = new Project();
     updatedProject.name = model.name;
-    updatedProject.updatedBy = this._generalService.userId;
+    updatedProject.updatedById = this._generalService.userId;
     updatedProject.description = model.description;
 
     try {

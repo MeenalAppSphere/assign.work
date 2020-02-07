@@ -117,7 +117,7 @@ export class BoardComponent implements OnInit, OnDestroy {
 
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
-        this.statusSprintDataSource = res.settings.status;
+        this.statusSprintDataSource = res.settings.statuses;
       }
     });
 

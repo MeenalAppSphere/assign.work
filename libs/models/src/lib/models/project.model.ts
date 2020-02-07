@@ -1,5 +1,4 @@
 import { Organization } from './organization.model';
-import { Types } from 'mongoose';
 
 import {
   ProjectTemplateEnum,
@@ -18,7 +17,8 @@ export class Project {
   access?: string;
   version?: string;
   members: ProjectMembers[];
-  organization: string | Organization | Types.ObjectId;
+  organization: Organization;
+  organizationId?: string;
   description?: string;
   avatar?: string;
   progress?: number;
@@ -45,10 +45,10 @@ export class ProjectMembers {
 }
 
 export class ProjectSettings {
-  stages: ProjectStages[];
+  stages?: ProjectStages[];
   taskTypes: TaskTypeModel[];
   priorities: TaskPriorityModel[];
-  status?: TaskStatusModel[];
+  statuses?: TaskStatusModel[];
   tags?: ProjectTags[];
 }
 

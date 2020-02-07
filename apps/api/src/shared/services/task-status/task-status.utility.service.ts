@@ -28,7 +28,7 @@ export class TaskStatusUtilityService {
       status.name = ProjectDefaultStatusEnum[statusKey];
       status.isDefault = true;
       status.projectId = project.id;
-      status.createdById = project.createdBy;
+      status.createdById = project.createdById;
       status.description = `${status.name} is a default status which is provided when you create a new Project`;
 
       statuses.push(status);
