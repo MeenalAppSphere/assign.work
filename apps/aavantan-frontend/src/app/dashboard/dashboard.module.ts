@@ -18,6 +18,7 @@ import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-spr
 import { DndModule } from 'ngx-drag-drop';
 import { BoardDesignComponent } from './board-design/board-design.component';
 import { SettingsModule } from '../settings/settings.module';
+import { AssignUserComponent } from './board-design/assign-user/assign-user.component';
 
 @NgModule({
   imports: [
@@ -43,7 +44,8 @@ import { SettingsModule } from '../settings/settings.module';
     PermissionsComponent,
     CollaboratorsComponent,
     CloseSprintComponent,
-    BoardDesignComponent
+    BoardDesignComponent,
+    AssignUserComponent
   ],
   providers: [
     ThemeConstantService,
