@@ -18,17 +18,16 @@
 
       <nz-card nzSize="small" class="status-box">
         <div class="row m-b-20">
-          <div class="col text-black-dark">Status</div>
-          <div class="col text-right">
+          <div class="col-sm-4 text-black-dark">Status</div>
+          <div class="col-sm-8 text-right">
             <a class="text-primary" (click)="toggleAddStatusShow()">+ Add New Status</a>
           </div>
         </div>
         <aside class="status-list status-box-scrollable">
-          <div class="item" *ngFor="let item of statusList" [dndDraggable]="item" [dndEffectAllowed]="'move'">
+          <div class="item text-black" *ngFor="let item of statusList" [dndDraggable]="item" [dndEffectAllowed]="'move'">
             {{item.name}}
             <span class="float-right">
-              <i class="fas fa-ellipsis-v"></i>
-              <i class="fas fa-ellipsis-v"></i>
+              <img src="../../../assets/images/icons/ellipsis-move.svg" />
             </span>
           </div>
         </aside>
@@ -86,11 +85,11 @@
 
                   <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses">
                     <div class="flex-row">
-                      <span>
+                      <span class="text-black">
                         {{ includedStatus?.name }}
                       </span>
                       <span class="pull-right cursor-pointer" (click)="toggleAssignUserModalShow()">
-                        <i nz-icon nzType="user" nzTheme="outline"></i>
+                        <i nz-icon nzType="user" nzTheme="outline" nz-tooltip [nzTitle]="'Default Assignee'"></i>
                       </span>
                     </div>
                   </div>

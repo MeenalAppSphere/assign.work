@@ -26,6 +26,10 @@ $color-gray-light-2:#7A869A;
   //padding: calc(70px + 10px) 25px 10px 25px;
 }
 
+.ant-card-bordered {
+  border: 1px solid #DEDFE2;
+}
+
 .ant-input:focus {
   border: 1px solid $theme-blue!important;
   box-shadow: none;
@@ -759,6 +763,11 @@ $color-gray-light-2:#7A869A;
 
 
 /* board-design */
+.assigne-user-modal {
+  .ant-modal-header {
+    padding: 1rem 1rem;
+  }
+}
 .board-design > .ant-card-small > .ant-card-head {
   padding: 6px 15px;
   font-size: 18px;
@@ -770,6 +779,7 @@ $color-gray-light-2:#7A869A;
 
 .board-design {
   .ant-input {
+    border-color:#DEDFE2!important;
     padding: 4.5px 10px!important;
     border-radius: 3px!important;
   }
