@@ -89,7 +89,8 @@
                       <span class="text-black">
                         {{ includedStatus?.status?.name }}
                       </span>
-                      <span class="pull-right cursor-pointer" (click)="toggleAssignUserModalShow()">
+                      <span class="pull-right cursor-pointer"
+                            (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)">
                         <i nz-icon nzType="user" nzTheme="outline" nz-tooltip [nzTitle]="'Default Assignee'"></i>
                       </span>
                     </div>
@@ -135,7 +136,8 @@
   <ng-container *ngIf="assignUserModalIsVisible">
     <aavantan-assign-user
       [assignUserModalIsVisible]="assignUserModalIsVisible"
-      (toggleAssignUserModalShow)="toggleAssignUserModalShow($event)">
+      (assignUserEvent)="assignDefaultUser($event)"
+      (toggleAssignUserModalShow)="hideDefaultAssigneeModal()">
     </aavantan-assign-user>
   </ng-container>
   <!-- endregion -->

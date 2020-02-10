@@ -184,8 +184,6 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     });
 
     return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
-
-
   }
 
   /**

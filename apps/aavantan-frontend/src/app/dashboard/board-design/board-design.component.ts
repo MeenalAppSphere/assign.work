@@ -1,7 +1,12 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { BoardAddNewColumnModel, BoardModel, TaskStatusModel, User } from '@aavantan-app/models';
+import {
+  BoardAddNewColumnModel,
+  BoardAssignDefaultAssigneeToStatusModel,
+  BoardModel,
+  TaskStatusModel
+} from '@aavantan-app/models';
 import { UserQuery } from '../../queries/user/user.query';
 import { TaskStatusQuery } from '../../queries/task-status/task-status.query';
 import { BoardService } from '../../shared/services/board/board.service';
@@ -21,6 +26,10 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public activeBoard: BoardModel;
   public getActiveBoardInProcess: boolean;
   public addColumnInBoardInProcess: boolean;
+  public showHideColumnInProcess: boolean;
+  public addDefaultAssigneeInProcess: boolean;
+  public defaultAssigneeColumnId: string;
+  public defaultAssigneeStatusId: string;
 
   public addStatusModalIsVisible: boolean;
   public assignUserModalIsVisible: boolean;
@@ -47,6 +56,16 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     // add a column in process
     this._boardQuery.addColumnInBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
       this.addColumnInBoardInProcess = inProcess;
+    });
+
+    // show/ hide column in process
+    this._boardQuery.showHideColumnInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.showHideColumnInProcess = inProcess;
+    });
+
+    // add default assignee in process
+    this._boardQuery.addDefaultAssigneeInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.addDefaultAssigneeInProcess = inProcess;
     });
 
     // get all task statuses from store
@@ -99,10 +118,40 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
-  public toggleAssignUserModalShow(user?: User) {
-    this.assignUserModalIsVisible = !this.assignUserModalIsVisible;
+  /**
+   * assign a default user to status
+   * @param assigneeId
+   */
+  public assignDefaultUser(assigneeId?: string) {
+    if (assigneeId) {
+      const requestModel = new BoardAssignDefaultAssigneeToStatusModel();
+      requestModel.assigneeId = assigneeId;
+      requestModel.boardId = this.activeBoard.id;
+      requestModel.projectId = this.activeBoard.projectId;
+      requestModel.columnId = this.defaultAssigneeColumnId;
+      requestModel.statusId = this.defaultAssigneeStatusId;
+
+      this._boardService.addDefaultAssigneeToStatus(requestModel).subscribe();
+
+      this.resetDefaultAssigneePopupFlags();
+    }
   }
 
+  showDefaultAssigneeModal(columnId: string, statusId: string) {
+    this.defaultAssigneeColumnId = columnId;
+    this.defaultAssigneeStatusId = statusId;
+    this.assignUserModalIsVisible = true;
+  }
+
+  hideDefaultAssigneeModal() {
+    this.assignUserModalIsVisible = false;
+  }
+
+  private resetDefaultAssigneePopupFlags() {
+    this.defaultAssigneeColumnId = null;
+    this.defaultAssigneeStatusId = null;
+    this.hideDefaultAssigneeModal();
+  }
 
   public ngOnDestroy(): void {
   }

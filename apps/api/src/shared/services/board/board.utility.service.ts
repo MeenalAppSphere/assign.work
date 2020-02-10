@@ -70,7 +70,9 @@ export class BoardUtilityService {
             includeStatus.defaultAssignee.id = includeStatus.defaultAssignee._id;
           }
 
-          includeStatus.status.id = includeStatus.status._id;
+          if (includeStatus.status) {
+            includeStatus.status.id = includeStatus.status._id;
+          }
           return includeStatus;
         });
       }

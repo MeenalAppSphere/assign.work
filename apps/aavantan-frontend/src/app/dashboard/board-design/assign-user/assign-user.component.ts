@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ProjectMembers, SearchProjectCollaborators, User } from '@aavantan-app/models';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { SearchProjectCollaborators, User } from '@aavantan-app/models';
 import { debounceTime } from 'rxjs/operators';
 import { UserService } from '../../../shared/services/user/user.service';
 import { Subject } from 'rxjs';
@@ -17,17 +17,18 @@ export class AssignUserComponent implements OnInit, OnDestroy {
 
   @Input() public assignUserModalIsVisible: boolean = false;
   @Output() toggleAssignUserModalShow: EventEmitter<any> = new EventEmitter<any>();
+  @Output() assignUserEvent: EventEmitter<any> = new EventEmitter<any>();
 
   public userForm: FormGroup;
   public assignRequestInProcess: boolean;
   public selectedAssignee: User = {};
   public assigneeDataSource: User[] = [];
   public modelChanged = new Subject<string>();
-  public isSearching:boolean;
+  public isSearching: boolean;
 
   constructor(protected notification: NzNotificationService,
               private _userService: UserService,
-              private _generalService:GeneralService,
+              private _generalService: GeneralService,
               private FB: FormBuilder) {
   }
 
@@ -35,8 +36,6 @@ export class AssignUserComponent implements OnInit, OnDestroy {
     this.userForm = this.FB.group({
       assigneeId: new FormControl(null)
     });
-
-
 
     // search assignee
     this.modelChanged
@@ -61,8 +60,6 @@ export class AssignUserComponent implements OnInit, OnDestroy {
       });
     // end search assignee
 
-
-
   }
 
   public assignedToMe() {
@@ -76,12 +73,10 @@ export class AssignUserComponent implements OnInit, OnDestroy {
       userName = userName + ' ' + this._generalService.user.lastName;
     }
     this.userForm.get('assigneeId').patchValue(userName);
-
   }
 
-
-  public assign(){
-
+  public assign() {
+    this.assignUserEvent.emit(this.userForm.getRawValue());
   }
 
   public selectAssigneeTypeahead(user: User) {
@@ -101,7 +96,5 @@ export class AssignUserComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-
   }
-
 }

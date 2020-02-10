@@ -6,6 +6,7 @@ import { catchError, map } from 'rxjs/operators';
 import {
   BaseResponseModel,
   BoardAddNewColumnModel,
+  BoardAssignDefaultAssigneeToStatusModel,
   BoardModel,
   BoardShowHideColumn,
   GetActiveBoardRequestModel
@@ -76,6 +77,20 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
       }),
       catchError((e) => {
         this.updateState({ showHideColumnInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
+  addDefaultAssigneeToStatus(requestModel: BoardAssignDefaultAssigneeToStatusModel) {
+    this.updateState({ addDefaultAssigneeInProcess: true });
+    return this._http.post(BoardUrls.addDefaultAssignee, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ addDefaultAssigneeInProcess: false, activeBoard: res.data });
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ addDefaultAssigneeInProcess: false });
         return this.handleError(e);
       })
     );
