@@ -8,6 +8,9 @@ export class BoardQuery extends Query<BoardState> {
   getAllInProcess$ = this.select(s => s.getAllInProcess);
   activeBoard$ = this.select(s => s.activeBoard);
   getActiveBoardInProcess$ = this.select(s => s.getActiveBoardInProcess);
+  addColumnInBoardInProcess$ = this.select(s => s.addColumnInProcess);
+  showHideColumnInProcess$ = this.select(s => s.showHideColumnInProcess);
+
 
   constructor(protected store: BoardStore) {
     super(store);

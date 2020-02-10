@@ -3,7 +3,7 @@ import { DbCollection, Project, TaskStatusModel } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from '../project/project.service';
-import { NotFoundException, OnModuleInit } from '@nestjs/common';
+import { OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { TaskStatusUtilityService } from './task-status.utility.service';
 import { BadRequest } from '../../helpers/helpers';
@@ -131,17 +131,25 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
    * @param projectId
    */
   async getDetails(statusId: string, projectId: string) {
-    if (!this.isValidObjectId(statusId)) {
-      throw new NotFoundException('Status not found');
-    }
+    try {
+      if (!this.isValidObjectId(statusId)) {
+        BadRequest('Status not found');
+      }
 
-    const statusDetail = await this.findOne({
-      filter: { _id: statusId, projectId: projectId },
-      lean: true
-    });
+      const statusDetail = await this.findOne({
+        filter: { _id: statusId, projectId: projectId },
+        lean: true
+      });
 
-    if (!statusDetail) {
-      throw new NotFoundException('Status not found');
+      if (!statusDetail) {
+        BadRequest('Status not found');
+      } else {
+        statusDetail.id = statusDetail._id;
+      }
+
+      return statusDetail;
+    } catch (e) {
+      throw e;
     }
   }
 

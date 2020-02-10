@@ -3,7 +3,13 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
-import { BaseResponseModel, BoardModel, GetActiveBoardRequestModel } from '@aavantan-app/models';
+import {
+  BaseResponseModel,
+  BoardAddNewColumnModel,
+  BoardModel,
+  BoardShowHideColumn,
+  GetActiveBoardRequestModel
+} from '@aavantan-app/models';
 import { BoardUrls } from './board.url';
 import { BoardState, BoardStore } from '../../../store/board/board.store';
 import { Injectable } from '@angular/core';
@@ -47,28 +53,32 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
-  // createTaskStatus(taskStatus: TaskStatusModel): Observable<BaseResponseModel<TaskStatusModel>> {
-  //   this.updateState({ addNewInProcess: true, addNewSuccess: false });
-  //   return this._http.post(BoardUrls.createBoard, taskStatus).pipe(
-  //     map((res: BaseResponseModel<TaskStatusModel>) => {
-  //
-  //       this.store.update(state => {
-  //         return {
-  //           ...state,
-  //           addNewSuccess: true,
-  //           addNewInProcess: false,
-  //           statuses: [...state.statuses, res.data]
-  //         };
-  //       });
-  //
-  //       this.notification.success('Success', 'Task Status Created Successfully');
-  //       return res;
-  //     }),
-  //     catchError(err => {
-  //       this.updateState({ addNewInProcess: false, addNewSuccess: false });
-  //       return this.handleError(err);
-  //     })
-  //   );
-  // }
+  addColumn(requestModel: BoardAddNewColumnModel) {
+    this.updateState({ addColumnInProcess: true });
+    return this._http.post(BoardUrls.addColumn, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ addColumnInProcess: false, activeBoard: res.data });
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ addColumnInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
+  showHideColumn(requestModel: BoardShowHideColumn) {
+    this.updateState({ showHideColumnInProcess: true });
+    return this._http.post(BoardUrls.showHideColumn, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ showHideColumnInProcess: false, activeBoard: res.data });
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ showHideColumnInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
 
 }

@@ -1,7 +1,17 @@
 import { BaseService } from '../base.service';
-import { BoardModel, DbCollection, GetActiveBoardRequestModel, Project } from '@aavantan-app/models';
+import {
+  BoardAddNewColumnModel,
+  BoardAssignDefaultAssigneeToStatusModel,
+  BoardColumns,
+  BoardModel,
+  BoardShowHideColumn,
+  DbCollection,
+  GetActiveBoardRequestModel,
+  MongooseQueryModel,
+  Project
+} from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
-import { OnModuleInit } from '@nestjs/common';
+import { NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { GeneralService } from '../general.service';
@@ -38,6 +48,121 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
+   * create a new column from a status
+   * @param requestModel
+   */
+  async addNewColumn(requestModel: BoardAddNewColumnModel) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+      // get board details
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+      let column = new BoardColumns();
+
+      // check if already a column
+      const isAlreadyAColumnIndex = boardDetails.columns.findIndex(col => col.headerStatusId.toString() === requestModel.statusId);
+      if (isAlreadyAColumnIndex > -1) {
+        column = boardDetails.columns.splice(isAlreadyAColumnIndex, 1)[0];
+
+        // add column at a specific index
+        this._utilityService.addColumnAtSpecificIndex(boardDetails, requestModel.columnIndex, column);
+      } else {
+        // if not a column then move if a status which is already merged
+        // check if status is already merged in a column
+        const alreadyMergedInColumnIndex = this._utilityService.alreadyMergedInColumnIndex(boardDetails, requestModel.statusId);
+
+        if (alreadyMergedInColumnIndex > -1) {
+          // if already merged in column than un-merge / remove it from that column
+          this._utilityService.unMergeFromAColumn(boardDetails, alreadyMergedInColumnIndex, requestModel.statusId);
+        }
+
+        // create new column object
+        column.headerStatusId = requestModel.statusId;
+        column.includedStatusesId = [requestModel.statusId];
+        column.columnColor = '';
+        column.defaultAssigneeId = this._generalService.userId;
+        column.columnOrderNo = requestModel.columnIndex + 1;
+
+        // add column at a specific index
+        this._utilityService.addColumnAtSpecificIndex(boardDetails, requestModel.columnIndex, column);
+      }
+
+      // reassign column order no
+      boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
+
+      // update board by id and set columns
+      await this.updateById(requestModel.boardId, {
+        $set: { columns: boardDetails.columns }
+      }, session);
+    });
+
+    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
+   * show / hides a column on board
+   * @param requestModel
+   */
+  async showHideColumn(requestModel: BoardShowHideColumn) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+      // get board details
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+
+      // get column index from columns array
+      const columnIndex = boardDetails.columns.findIndex(col => {
+        return col.headerStatusId === requestModel.columnId;
+      });
+
+      if (columnIndex === -1) {
+        BadRequest('Column not found');
+      }
+
+      // update board and set column active or de-active
+      await this.updateById(requestModel.boardId, {
+        $set: {
+          [`columns.${columnIndex}.isActive`]: requestModel.isShown
+        }
+      }, session);
+    });
+
+    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
+   * add default assignee to a status
+   */
+  async addDefaultAssigneeToStatus(requestModel: BoardAssignDefaultAssigneeToStatusModel) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+      // get board details
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+
+      // get column index from columns array
+      const columnIndex = boardDetails.columns.findIndex(col => {
+        return col.headerStatusId === requestModel.columnId;
+      });
+
+      if (columnIndex === -1) {
+        BadRequest('Column not found');
+      }
+
+      // update board and set column active or de-active
+      // await this.updateById(requestModel.boardId, {
+      //   $set: {
+      //     [`columns.${columnIndex}.isActive`]: requestModel.show
+      //   }
+      // }, session);
+    });
+
+    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+
+
+  }
+
+  /**
    * create a new board
    * @param board
    */
@@ -56,6 +181,8 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // create a new board model
       const boardModel = new BoardModel();
       boardModel.createdById = this._generalService.userId;
+      boardModel.name = board.name;
+      boardModel.projectId = board.projectId;
 
       // create and return new bord
       return await this.create([boardModel], session);
@@ -113,6 +240,39 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       }
     } catch (e) {
       throw e;
+    }
+  }
+
+  /**
+   * get board details by id
+   * @param boardId
+   * @param projectId
+   * @param getFullDetails
+   */
+  async getDetails(boardId: string, projectId: string, getFullDetails: boolean = false) {
+    if (!this.isValidObjectId(boardId)) {
+      throw new NotFoundException('Board not found');
+    }
+
+    const queryModel = new MongooseQueryModel();
+    queryModel.filter = { _id: boardId, projectId: projectId };
+    queryModel.lean = true;
+
+    if (getFullDetails) {
+      queryModel.populate = [{
+        path: 'columns.headerStatus'
+      }, { path: 'columns.includedStatuses' }, {
+        path: 'columns.defaultAssignee',
+        select: 'firstName lastName emailId userName profilePic'
+      }];
+    }
+
+    const board = await this.findOne(queryModel);
+
+    if (!board) {
+      throw new NotFoundException('Board not found');
+    } else {
+      return this._utilityService.convertToVm(board);
     }
   }
 

@@ -8,6 +8,8 @@ export interface BoardState {
   getAllSuccess: boolean;
   activeBoard: BoardModel;
   getActiveBoardInProcess: boolean;
+  addColumnInProcess: boolean;
+  showHideColumnInProcess: boolean;
 }
 
 const initialState: BoardState = {
@@ -15,7 +17,9 @@ const initialState: BoardState = {
   getAllInProcess: false,
   getAllSuccess: false,
   activeBoard: null,
-  getActiveBoardInProcess: false
+  getActiveBoardInProcess: false,
+  addColumnInProcess: false,
+  showHideColumnInProcess: false
 };
 
 @Injectable({ providedIn: 'root' })

@@ -24,10 +24,11 @@
           </div>
         </div>
         <aside class="status-list status-box-scrollable">
-          <div class="item text-black" *ngFor="let item of statusList" [dndDraggable]="item" [dndEffectAllowed]="'move'">
+          <div class="item text-black" *ngFor="let item of statusList" [dndDraggable]="item"
+               [dndEffectAllowed]="'move'">
             {{item.name}}
             <span class="float-right">
-              <img src="../../../assets/images/icons/ellipsis-move.svg" />
+              <img src="../../../assets/images/icons/ellipsis-move.svg"/>
             </span>
           </div>
         </aside>
@@ -63,7 +64,7 @@
         <section class="sprintboard-container p-l-10" *ngIf="!getActiveBoardInProcess">
 
           <div class="row flex-row flex-nowrap"
-               dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false">
+               dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" (dndDrop)="onColumnDropped($event)">
 
             <div dndPlaceholderRef class="dndColumnPlaceholder">
               Drop a column here...
@@ -108,6 +109,10 @@
         </section>
 
         <nz-spin nzTip="Getting Active Board..." *ngIf="getActiveBoardInProcess" nzSize="large">
+          <div class="d-flex align-items-center justify-content-center"></div>
+        </nz-spin>
+
+        <nz-spin nzTip="Adding a Column..." *ngIf="addColumnInBoardInProcess" nzSize="large">
           <div class="d-flex align-items-center justify-content-center"></div>
         </nz-spin>
 

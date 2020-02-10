@@ -1,6 +1,11 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { BoardModel, GetActiveBoardRequestModel } from '@aavantan-app/models';
+import {
+  BoardAddNewColumnModel,
+  BoardModel,
+  BoardShowHideColumn,
+  GetActiveBoardRequestModel
+} from '@aavantan-app/models';
 import { BoardService } from '../shared/services/board/board.service';
 
 @Controller('board')
@@ -28,5 +33,15 @@ export class BoardController {
   @Post('get-active-board')
   async getActiveBoard(@Body() model: GetActiveBoardRequestModel) {
     return await this._boardService.getBoardById(model);
+  }
+
+  @Post('add-column')
+  async addColumn(@Body() model: BoardAddNewColumnModel) {
+    return await this._boardService.addNewColumn(model);
+  }
+
+  @Post('show-hide-column')
+  async showHideColumn(@Body() model: BoardShowHideColumn) {
+    return await this._boardService.showHideColumn(model);
   }
 }

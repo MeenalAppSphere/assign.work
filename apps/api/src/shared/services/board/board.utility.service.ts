@@ -1,4 +1,4 @@
-import { BoardModel, Project } from '@aavantan-app/models';
+import { BoardColumns, BoardModel, Project } from '@aavantan-app/models';
 import { BadRequest } from '../../helpers/helpers';
 import { DEFAULT_BOARD_NAME } from '../../helpers/defaultValueConstant';
 
@@ -57,17 +57,46 @@ export class BoardUtilityService {
     board.id = board._id;
 
     board.columns = board.columns.map(column => {
-      column.headerStatus.id = column.headerStatus._id;
-      column.defaultAssignee.id = column.defaultAssignee._id;
+      if (column.headerStatus) {
+        column.headerStatus.id = column.headerStatus._id;
+      }
 
-      column.includedStatuses = column.includedStatuses.map(includeStatus => {
-        includeStatus.id = includeStatus._id;
-        return includeStatus;
-      });
+      if (column.defaultAssignee) {
+        column.defaultAssignee.id = column.defaultAssignee._id;
+      }
+
+      if (column.includedStatuses && column.includedStatuses.length) {
+        column.includedStatuses = column.includedStatuses.map(includeStatus => {
+          includeStatus.id = includeStatus._id;
+          return includeStatus;
+        });
+      }
 
       return column;
     });
 
     return board;
   }
+
+  alreadyMergedInColumnIndex(board: BoardModel, statusId: string): number {
+    return board.columns.findIndex(column => {
+      return column.includedStatusesId.includes(statusId);
+    });
+  }
+
+  addColumnAtSpecificIndex(board: BoardModel, columnIndex: number, column: BoardColumns) {
+    board.columns.splice(columnIndex, 0, column);
+  }
+
+  unMergeFromAColumn(board: BoardModel, columnIndex: number, statusId: string) {
+    board.columns[columnIndex].includedStatusesId.filter(includedStatus => includedStatus.toString() !== statusId);
+  }
+
+  reassignColumnOrderNo(board: BoardModel): BoardColumns[] {
+    return board.columns.map((column, index) => {
+      column.columnOrderNo = index + 1;
+      return column;
+    });
+  }
+
 }

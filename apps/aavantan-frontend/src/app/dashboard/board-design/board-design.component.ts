@@ -1,12 +1,13 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { BoardModel, TaskStatusModel, User } from '@aavantan-app/models';
+import { BoardAddNewColumnModel, BoardModel, TaskStatusModel, User } from '@aavantan-app/models';
 import { UserQuery } from '../../queries/user/user.query';
 import { TaskStatusQuery } from '../../queries/task-status/task-status.query';
 import { BoardService } from '../../shared/services/board/board.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { BoardQuery } from '../../queries/board/board.query';
+import { DndDropEvent } from 'ngx-drag-drop/dnd-dropzone.directive';
 
 @Component({
   selector: 'aavantan-board-design',
@@ -19,6 +20,7 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public statusList: TaskStatusModel[] = [];
   public activeBoard: BoardModel;
   public getActiveBoardInProcess: boolean;
+  public addColumnInBoardInProcess: boolean;
 
   public addStatusModalIsVisible: boolean;
   public assignUserModalIsVisible: boolean;
@@ -40,6 +42,11 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     // set get active board in process flag from store
     this._boardQuery.getActiveBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
       this.getActiveBoardInProcess = inProcess;
+    });
+
+    // add a column in process
+    this._boardQuery.addColumnInBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.addColumnInBoardInProcess = inProcess;
     });
 
     // get all task statuses from store
@@ -67,11 +74,32 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
+  public onColumnDropped(event: DndDropEvent) {
+    const addColumnRequest = new BoardAddNewColumnModel();
+    addColumnRequest.columnIndex = event.index;
+    addColumnRequest.projectId = this._generalService.currentProject.id;
+    addColumnRequest.boardId = this.activeBoard.id;
+
+    // column moved from here to there
+    if (event.data.headerStatusId) {
+      addColumnRequest.statusId = event.data.headerStatusId;
+    } else {
+      // new status added from left side
+      addColumnRequest.statusId = event.data.id;
+    }
+
+    this._boardService.addColumn(addColumnRequest).subscribe();
+  }
+
+  public onStatusDropped(event, index) {
+    console.log(index);
+  }
+
   public toggleAddStatusShow(item?: TaskStatusModel) {
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
-  public toggleAssignUserModalShow(user?:User){
+  public toggleAssignUserModalShow(user?: User) {
     this.assignUserModalIsVisible = !this.assignUserModalIsVisible;
   }
 
