@@ -5,6 +5,8 @@ import {
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
 } from '../../helpers/defaultValueConstant';
+import { NotFoundException } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 export class ProjectUtilityService {
   constructor() {
@@ -51,6 +53,9 @@ export class ProjectUtilityService {
    * @param projectDetails
    */
   public userPartOfProject(userId: string, projectDetails: Project) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new NotFoundException('User not found');
+    }
     return projectDetails.members.some(s => s.userId === userId && s.isInviteAccepted === true) || (projectDetails.createdBy as User)['_id'].toString() === userId;
   }
 }

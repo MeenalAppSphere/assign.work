@@ -11,11 +11,14 @@ export const boardSchema = new Schema({
   columns: {
     type: Array,
     headerStatusId: { type: Types.ObjectId, ref: DbCollection.taskStatus },
-    includedStatusesId: [{ type: Types.ObjectId, ref: DbCollection.taskStatus }],
+    includedStatuses: {
+      type: Array,
+      statusId: { type: Types.ObjectId, ref: DbCollection.taskStatus },
+      defaultAssigneeId: { type: Types.ObjectId, ref: DbCollection.users }
+    },
     isActive: { type: Boolean, default: true },
     columnOrderNo: { type: Number },
-    columnColor: { type: String },
-    defaultAssigneeId: { type: Types.ObjectId, ref: DbCollection.users }
+    columnColor: { type: String }
   },
   ...basicSchemaFields
 });
@@ -37,20 +40,20 @@ boardSchema
   });
 
 boardSchema
-  .virtual('columns.includedStatuses', {
+  .virtual('columns.includedStatuses.status', {
     ref: DbCollection.taskStatus,
-    localField: 'columns.includedStatusesId',
-    foreignField: '_id'
-  });
-
-boardSchema
-  .virtual('columns.defaultAssignee', {
-    ref: DbCollection.users,
-    localField: 'columns.defaultAssigneeId',
+    localField: 'columns.includedStatuses.statusId',
     foreignField: '_id',
     justOne: true
   });
 
+boardSchema
+  .virtual('columns.includedStatuses.defaultAssignee', {
+    ref: DbCollection.users,
+    localField: 'columns.includedStatuses.defaultAssigneeId',
+    foreignField: '_id',
+    justOne: true
+  });
 
 boardSchema
   .virtual('project', {

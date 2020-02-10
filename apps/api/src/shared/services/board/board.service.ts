@@ -18,11 +18,20 @@ import { GeneralService } from '../general.service';
 import { BoardUtilityService } from './board.utility.service';
 import { ProjectService } from '../project/project.service';
 import { BadRequest } from '../../helpers/helpers';
+import { ProjectUtilityService } from '../project/project.utility.service';
+
+const detailsBoardPopulationObject = [{
+  path: 'columns.headerStatus', select: 'name _id'
+}, { path: 'columns.includedStatuses.status', select: 'name _id' }, {
+  path: 'columns.includedStatuses.defaultAssignee',
+  select: 'firstName lastName emailId userName profilePic'
+}];
 
 export class BoardService extends BaseService<BoardModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
 
   private _utilityService: BoardUtilityService;
+  private _projectUtilityService: ProjectUtilityService;
 
   constructor(
     @InjectModel(DbCollection.board) protected readonly _boardModel: Model<BoardModel & Document>,
@@ -33,7 +42,9 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
   onModuleInit(): any {
     this._projectService = this._moduleRef.get('ProjectService');
+
     this._utilityService = new BoardUtilityService();
+    this._projectUtilityService = new ProjectUtilityService();
   }
 
   /**
@@ -78,9 +89,8 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
         // create new column object
         column.headerStatusId = requestModel.statusId;
-        column.includedStatusesId = [requestModel.statusId];
+        column.includedStatuses = [{ statusId: requestModel.statusId, defaultAssigneeId: this._generalService.userId }];
         column.columnColor = '';
-        column.defaultAssigneeId = this._generalService.userId;
         column.columnOrderNo = requestModel.columnIndex + 1;
 
         // add column at a specific index
@@ -136,25 +146,41 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   async addDefaultAssigneeToStatus(requestModel: BoardAssignDefaultAssigneeToStatusModel) {
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      await this._projectService.getProjectDetails(requestModel.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
       // get board details
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
 
       // get column index from columns array
       const columnIndex = boardDetails.columns.findIndex(col => {
-        return col.headerStatusId === requestModel.columnId;
+        return col.headerStatusId.toString() === requestModel.columnId;
       });
 
       if (columnIndex === -1) {
         BadRequest('Column not found');
       }
 
-      // update board and set column active or de-active
-      // await this.updateById(requestModel.boardId, {
-      //   $set: {
-      //     [`columns.${columnIndex}.isActive`]: requestModel.show
-      //   }
-      // }, session);
+      // get status index from a column
+      const statusIndex = boardDetails.columns[columnIndex].includedStatuses.findIndex(includedStatus => {
+        return includedStatus.statusId.toString() === requestModel.statusId;
+      });
+
+      if (statusIndex === -1) {
+        BadRequest('Status not found in column');
+      }
+
+      // check if assignee is part or project
+      if (!this._projectUtilityService.userPartOfProject(requestModel.assigneeId, projectDetails)) {
+        BadRequest('User not found or user is not a part of Project');
+      }
+
+      const updateDocObject = {
+        [`columns.${columnIndex}.includedStatuses.${statusIndex}.defaultAssigneeId`]: requestModel.assigneeId
+      };
+
+      // update board and set default assignee for a status
+      await this.updateById(requestModel.boardId, {
+        $set: updateDocObject
+      }, session);
     });
 
     return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
@@ -225,12 +251,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       const board = await this.findOne({
         filter: { projectId: model.projectId, _id: model.boardId },
         lean: true,
-        populate: [{
-          path: 'columns.headerStatus'
-        }, { path: 'columns.includedStatuses' }, {
-          path: 'columns.defaultAssignee',
-          select: 'firstName lastName emailId userName profilePic'
-        }]
+        populate: detailsBoardPopulationObject
       });
 
       if (board) {
@@ -259,12 +280,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     queryModel.lean = true;
 
     if (getFullDetails) {
-      queryModel.populate = [{
-        path: 'columns.headerStatus'
-      }, { path: 'columns.includedStatuses' }, {
-        path: 'columns.defaultAssignee',
-        select: 'firstName lastName emailId userName profilePic'
-      }];
+      queryModel.populate = detailsBoardPopulationObject;
     }
 
     const board = await this.findOne(queryModel);

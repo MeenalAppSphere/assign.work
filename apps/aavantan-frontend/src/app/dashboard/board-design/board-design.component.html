@@ -87,7 +87,7 @@
                   <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses">
                     <div class="flex-row">
                       <span class="text-black">
-                        {{ includedStatus?.name }}
+                        {{ includedStatus?.status?.name }}
                       </span>
                       <span class="pull-right cursor-pointer" (click)="toggleAssignUserModalShow()">
                         <i nz-icon nzType="user" nzTheme="outline" nz-tooltip [nzTitle]="'Default Assignee'"></i>

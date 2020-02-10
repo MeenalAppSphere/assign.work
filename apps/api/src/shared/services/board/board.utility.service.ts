@@ -37,11 +37,13 @@ export class BoardUtilityService {
     project.settings.statuses.forEach((status: any, index) => {
       board.columns.push({
         headerStatusId: status,
-        includedStatusesId: [status],
+        includedStatuses: [{
+          statusId: status,
+          defaultAssigneeId: project.createdById
+        }],
         isActive: true,
         columnOrderNo: index + 1,
-        columnColor: '',
-        defaultAssigneeId: project.createdById
+        columnColor: ''
       });
     });
 
@@ -61,13 +63,14 @@ export class BoardUtilityService {
         column.headerStatus.id = column.headerStatus._id;
       }
 
-      if (column.defaultAssignee) {
-        column.defaultAssignee.id = column.defaultAssignee._id;
-      }
-
       if (column.includedStatuses && column.includedStatuses.length) {
         column.includedStatuses = column.includedStatuses.map(includeStatus => {
-          includeStatus.id = includeStatus._id;
+
+          if (includeStatus.defaultAssignee) {
+            includeStatus.defaultAssignee.id = includeStatus.defaultAssignee._id;
+          }
+
+          includeStatus.status.id = includeStatus.status._id;
           return includeStatus;
         });
       }
@@ -80,7 +83,7 @@ export class BoardUtilityService {
 
   alreadyMergedInColumnIndex(board: BoardModel, statusId: string): number {
     return board.columns.findIndex(column => {
-      return column.includedStatusesId.includes(statusId);
+      return column.includedStatuses.some(status => status.statusId.toString() === statusId);
     });
   }
 
@@ -89,7 +92,7 @@ export class BoardUtilityService {
   }
 
   unMergeFromAColumn(board: BoardModel, columnIndex: number, statusId: string) {
-    board.columns[columnIndex].includedStatusesId.filter(includedStatus => includedStatus.toString() !== statusId);
+    board.columns[columnIndex].includedStatuses.filter(includedStatus => includedStatus.statusId.toString() !== statusId);
   }
 
   reassignColumnOrderNo(board: BoardModel): BoardColumns[] {

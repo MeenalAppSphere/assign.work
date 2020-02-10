@@ -2,6 +2,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
   BoardAddNewColumnModel,
+  BoardAssignDefaultAssigneeToStatusModel,
   BoardModel,
   BoardShowHideColumn,
   GetActiveBoardRequestModel
@@ -43,5 +44,10 @@ export class BoardController {
   @Post('show-hide-column')
   async showHideColumn(@Body() model: BoardShowHideColumn) {
     return await this._boardService.showHideColumn(model);
+  }
+
+  @Post('add-default-assignee')
+  async addDefaultAssignee(@Body() model: BoardAssignDefaultAssigneeToStatusModel) {
+    return await this._boardService.addDefaultAssigneeToStatus(model);
   }
 }
