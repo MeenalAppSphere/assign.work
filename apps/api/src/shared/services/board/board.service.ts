@@ -3,6 +3,7 @@ import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
   BoardColumns,
+  BoardMergeStatusToColumn,
   BoardModel,
   BoardShowHideColumn,
   DbCollection,
@@ -71,7 +72,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       let column = new BoardColumns();
 
       // check if already a column
-      const isAlreadyAColumnIndex = boardDetails.columns.findIndex(col => col.headerStatusId.toString() === requestModel.statusId);
+      const isAlreadyAColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.statusId);
       if (isAlreadyAColumnIndex > -1) {
         column = boardDetails.columns.splice(isAlreadyAColumnIndex, 1)[0];
 
@@ -80,11 +81,11 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       } else {
         // if not a column then move if a status which is already merged
         // check if status is already merged in a column
-        const alreadyMergedInColumnIndex = this._utilityService.alreadyMergedInColumnIndex(boardDetails, requestModel.statusId);
+        const columnIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.statusId);
 
-        if (alreadyMergedInColumnIndex > -1) {
+        if (columnIndex > -1) {
           // if already merged in column than un-merge / remove it from that column
-          this._utilityService.unMergeFromAColumn(boardDetails, alreadyMergedInColumnIndex, requestModel.statusId);
+          this._utilityService.unMergeStatusFromAColumn(boardDetails, columnIndex, requestModel.statusId);
         }
 
         // create new column object
@@ -110,6 +111,71 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
+   * merge status to column or column to column
+   * @param requestModel
+   */
+  async mergeStatusToColumn(requestModel: BoardMergeStatusToColumn) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+      // get board details
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+
+      // get new column index where element is dropped
+      const newColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.newColumnId);
+      if (newColumnIndex === -1) {
+        BadRequest('Column not found where to move');
+      }
+
+      // ensure that moving element is column or status
+      const previousColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.previousId);
+      if (previousColumnIndex > -1) {
+        // moving a column
+        const foundColumn = this._utilityService.removeColumnFromBoard(boardDetails, previousColumnIndex);
+
+        // move found column to new column as status
+        boardDetails.columns[newColumnIndex].includedStatuses.push(...foundColumn.includedStatuses);
+      } else {
+        // moving a status
+
+        // get column where this status exists
+        const columnIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.previousId);
+        if (columnIndex > -1) {
+
+          // get status index from the founded column
+          const statusIndex = this._utilityService.getStatusIndex(boardDetails.columns, columnIndex, requestModel.previousId);
+          if (statusIndex > -1) {
+
+            // get status from previous status
+            const foundStatus = boardDetails.columns[columnIndex].includedStatuses[statusIndex];
+
+            // remove status from previous column
+            this._utilityService.unMergeStatusFromAColumn(boardDetails, columnIndex, requestModel.previousId);
+
+            // add status to new column
+            boardDetails.columns[newColumnIndex].includedStatuses.push(foundStatus);
+          } else {
+            // status not found
+            BadRequest('Status not found from a column');
+          }
+        } else {
+          // column not found
+          BadRequest('Column not found where to move');
+        }
+      }
+
+      // reassign column order no
+      boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
+
+      // update board by id and set columns
+      await this.updateById(requestModel.boardId, {
+        $set: { columns: boardDetails.columns }
+      }, session);
+
+    });
+  }
+
+  /**
    * show / hides a column on board
    * @param requestModel
    */
@@ -121,9 +187,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
 
       // get column index from columns array
-      const columnIndex = boardDetails.columns.findIndex(col => {
-        return col.headerStatusId === requestModel.columnId;
-      });
+      const columnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.columnId);
 
       if (columnIndex === -1) {
         BadRequest('Column not found');
@@ -151,18 +215,14 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
 
       // get column index from columns array
-      const columnIndex = boardDetails.columns.findIndex(col => {
-        return col.headerStatusId.toString() === requestModel.columnId;
-      });
+      const columnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.columnId);
 
       if (columnIndex === -1) {
         BadRequest('Column not found');
       }
 
       // get status index from a column
-      const statusIndex = boardDetails.columns[columnIndex].includedStatuses.findIndex(includedStatus => {
-        return includedStatus.statusId.toString() === requestModel.statusId;
-      });
+      const statusIndex = this._utilityService.getStatusIndex(boardDetails.columns, columnIndex, requestModel.statusId);
 
       if (statusIndex === -1) {
         BadRequest('Status not found in column');

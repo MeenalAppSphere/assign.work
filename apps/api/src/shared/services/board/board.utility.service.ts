@@ -83,7 +83,17 @@ export class BoardUtilityService {
     return board;
   }
 
-  alreadyMergedInColumnIndex(board: BoardModel, statusId: string): number {
+  getColumnIndex(columns: BoardColumns[], columnId: string): number {
+    return columns.findIndex(col => col.headerStatusId.toString() === columnId);
+  }
+
+  getStatusIndex(columns: BoardColumns[], columnIndex: number, statusId: string): number {
+    return columns[columnIndex].includedStatuses.findIndex(includedStatus => {
+      return includedStatus.statusId.toString() === statusId;
+    });
+  }
+
+  getColumnIndexFromStatus(board: BoardModel, statusId: string): number {
     return board.columns.findIndex(column => {
       return column.includedStatuses.some(status => status.statusId.toString() === statusId);
     });
@@ -93,7 +103,11 @@ export class BoardUtilityService {
     board.columns.splice(columnIndex, 0, column);
   }
 
-  unMergeFromAColumn(board: BoardModel, columnIndex: number, statusId: string) {
+  removeColumnFromBoard(board: BoardModel, columnIndex: number): BoardColumns {
+    return board.columns.splice(columnIndex, 1)[0];
+  }
+
+  unMergeStatusFromAColumn(board: BoardModel, columnIndex: number, statusId: string) {
     board.columns[columnIndex].includedStatuses.filter(includedStatus => includedStatus.statusId.toString() !== statusId);
   }
 

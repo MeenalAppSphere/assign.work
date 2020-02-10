@@ -7,6 +7,7 @@ import {
   BaseResponseModel,
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardMergeStatusToColumn,
   BoardModel,
   BoardShowHideColumn,
   GetActiveBoardRequestModel
@@ -63,6 +64,20 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
       }),
       catchError((e) => {
         this.updateState({ addColumnInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
+  mergeStatus(requestModel: BoardMergeStatusToColumn) {
+    this.updateState({ mergeStatusInProcess: true });
+    return this._http.post(BoardUrls.mergeStatus, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ mergeStatusInProcess: false, activeBoard: res.data });
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ mergeStatusInProcess: false });
         return this.handleError(e);
       })
     );

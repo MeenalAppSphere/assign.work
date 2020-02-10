@@ -4,6 +4,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardMergeStatusToColumn,
   BoardModel,
   TaskStatusModel
 } from '@aavantan-app/models';
@@ -110,8 +111,12 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     this._boardService.addColumn(addColumnRequest).subscribe();
   }
 
-  public onStatusDropped(event, index) {
-    console.log(index);
+  public onStatusDropped(event) {
+    const mergeStatusRequestModel = new BoardMergeStatusToColumn();
+    mergeStatusRequestModel.projectId = this._generalService.currentProject.id;
+    mergeStatusRequestModel.boardId = this.activeBoard.id;
+
+    this._boardService.mergeStatus(requestModel).subscribe();
   }
 
   public toggleAddStatusShow(item?: TaskStatusModel) {
