@@ -14,11 +14,32 @@ import { BoardService } from '../../shared/services/board/board.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { BoardQuery } from '../../queries/board/board.query';
 import { DndDropEvent } from 'ngx-drag-drop/dnd-dropzone.directive';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'aavantan-board-design',
   templateUrl: './board-design.component.html',
-  styleUrls: ['./board-design.component.scss']
+  styleUrls: ['./board-design.component.scss'],
+  animations: [
+    trigger(
+      'inOutAnimation',
+      [
+        transition(
+          ':enter',
+          [
+            style({transform: 'translateX(-100%)'}),
+            animate('300ms ease-in', style({transform: 'translateX(0%)'}))
+          ]
+        ),
+        transition(
+          ':leave',
+          [
+            animate('300ms ease-in', style({transform: 'translateX(-100%)'}))
+          ]
+        )
+      ]
+    )
+  ]
 })
 export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -34,6 +55,9 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public addStatusModalIsVisible: boolean;
   public assignUserModalIsVisible: boolean;
+  public showHiddenStatusModalIsVisible: boolean;
+
+  public isOpenStatusSidebar:boolean = true;
 
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
               private _boardService: BoardService, private _generalService: GeneralService,
@@ -42,10 +66,15 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
 
+    this.boardDesignForm = this.FB.group({
+      name: new FormControl(null, [Validators.required])
+    });
+
     // get active board data from store
     this._boardQuery.activeBoard$.pipe(untilDestroyed(this)).subscribe(board => {
       if (board) {
         this.activeBoard = board;
+        this.boardDesignForm.get('name').patchValue(this.activeBoard.name);
       }
     });
 
@@ -74,9 +103,7 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
       this.statusList = statuses;
     });
 
-    this.boardDesignForm = this.FB.group({
-      name: new FormControl(null, [Validators.required])
-    });
+
 
     // get active board data
     this._boardService.getActiveBoard({
@@ -116,7 +143,7 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     mergeStatusRequestModel.projectId = this._generalService.currentProject.id;
     mergeStatusRequestModel.boardId = this.activeBoard.id;
 
-    this._boardService.mergeStatus(requestModel).subscribe();
+    this._boardService.mergeStatus(mergeStatusRequestModel).subscribe();
   }
 
   public toggleAddStatusShow(item?: TaskStatusModel) {
@@ -156,6 +183,13 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     this.defaultAssigneeColumnId = null;
     this.defaultAssigneeStatusId = null;
     this.hideDefaultAssigneeModal();
+  }
+
+  public toggleHiddenStatusModalShow() {
+    this.showHiddenStatusModalIsVisible = !this.showHiddenStatusModalIsVisible;
+  }
+  public toggleStatusSidebar() {
+    this.isOpenStatusSidebar = !this.isOpenStatusSidebar;
   }
 
   public ngOnDestroy(): void {

@@ -19,6 +19,7 @@ import { DndModule } from 'ngx-drag-drop';
 import { BoardDesignComponent } from './board-design/board-design.component';
 import { SettingsModule } from '../settings/settings.module';
 import { AssignUserComponent } from './board-design/assign-user/assign-user.component';
+import { HiddenStatusComponent } from './board-design/hidden-status/hidden-status.component';
 
 @NgModule({
   imports: [
@@ -45,7 +46,8 @@ import { AssignUserComponent } from './board-design/assign-user/assign-user.comp
     CollaboratorsComponent,
     CloseSprintComponent,
     BoardDesignComponent,
-    AssignUserComponent
+    AssignUserComponent,
+    HiddenStatusComponent
   ],
   providers: [
     ThemeConstantService,

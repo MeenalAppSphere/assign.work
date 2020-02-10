@@ -14,13 +14,18 @@
 
   <div class="row">
 
-    <div class="col-md-3">
+    <div class="col-md-3" [@inOutAnimation] *ngIf="isOpenStatusSidebar">
 
       <nz-card nzSize="small" class="status-box">
+
+        <button (click)="toggleStatusSidebar()" nz-button nzSize="default" class="btn-double-arrow">
+          <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Collapse status'">
+        </button>
+
         <div class="row m-b-20">
           <div class="col-sm-4 text-black-dark">Status</div>
           <div class="col-sm-8 text-right">
-            <a class="text-primary" (click)="toggleAddStatusShow()">+ Add New Status</a>
+            <a class="text-primary p-r-50" (click)="toggleAddStatusShow()">+ Add New Status</a>
           </div>
         </div>
         <aside class="status-list status-box-scrollable">
@@ -36,7 +41,11 @@
 
     </div>
 
-    <div class="col-md-9">
+    <div class="col-md-9" [ngClass]="!isOpenStatusSidebar ? 'col-md-12 p-l-45' : 'col-md-9'">
+
+      <button (click)="toggleStatusSidebar()" *ngIf="!isOpenStatusSidebar" nz-button nzSize="default" class="btn-double-arrow-close">
+        <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Show status'">
+      </button>
 
       <div class="row">
         <div class="col-md-4">
@@ -54,6 +63,8 @@
 
         <div class="col-md-8 text-right">
           <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save Settings</button>
+          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5" [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip [nzTitle]="'Hide status'"></i>Hidden Status</button>
+
         </div>
       </div>
 
@@ -61,43 +72,53 @@
 
         <h5 class="m-t-0 m-b-15">New Setting</h5>
 
-        <section class="sprintboard-container p-l-10" *ngIf="!getActiveBoardInProcess">
 
-          <div class="row flex-row flex-nowrap"
-               dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" (dndDrop)="onColumnDropped($event)">
+        <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Adding a Column...'" [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess" nzSize="large">
 
-            <div dndPlaceholderRef class="dndColumnPlaceholder">
-              Drop a column here...
-            </div>
+          <section class="sprintboard-container p-l-10" >
 
-            <div class="column" *ngFor="let column of activeBoard?.columns; let last" [dndDraggable]="column"
-                 [dndEffectAllowed]="'move'">
+            <div class="row flex-row flex-nowrap" *ngIf="!getActiveBoardInProcess"
+                 dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" (dndDrop)="onColumnDropped($event)">
 
-              <div class="card card-block cursor-move">
+              <div dndPlaceholderRef class="dndColumnPlaceholder">
+                Drop a column here...
+              </div>
 
-                <div class="card-header">{{column.headerStatus?.name}}
-                  <div class="pull-left" style="line-height: 10px;">
+              <div class="column" *ngFor="let column of activeBoard?.columns; let last" [dndDraggable]="column"
+                   [dndEffectAllowed]="'move'">
 
-                  </div>
-                </div>
+                <div class="card card-block cursor-move">
 
-                <div class="card-body status-list status-box-scrollable" dndDropzone dndEffectAllowed="copyMove"
-                     dndHorizontal="true">
+                  <div class="card-header">{{column.headerStatus?.name}}
+                    <div class="pull-left" style="line-height: 10px;">
 
-                  <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses">
-                    <div class="flex-row">
-                      <span class="text-black">
-                        {{ includedStatus?.status?.name }}
-                      </span>
-                      <span class="pull-right cursor-pointer"
-                            (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)">
-                        <i nz-icon nzType="user" nzTheme="outline" nz-tooltip [nzTitle]="'Default Assignee'"></i>
-                      </span>
                     </div>
                   </div>
 
-                  <div dndPlaceholderRef class="dndPlaceholder">
-                    Drop Here...
+                  <div class="card-body status-list status-box-scrollable" dndDropzone dndEffectAllowed="copyMove"
+                       dndHorizontal="true">
+
+                    <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses">
+                      <div class="flex-row">
+                        <span class="text-black">
+                          {{ includedStatus?.status?.name }}
+                        </span>
+                        <span class="pull-right cursor-pointer">
+
+                          <nz-avatar nzIcon="user" (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)" *ngIf="!activeBoard?.columns?.includedStatuses?.defaultAssignee.profilePic" nz-tooltip [nzTitle]="'Default Assignee'"></nz-avatar>
+
+                          <nz-avatar nzType="user" nzIcon="user" (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)" *ngIf="activeBoard?.columns?.includedStatuses?.defaultAssignee.profilePic" [nzSrc]="activeBoard?.columns?.includedStatuses?.defaultAssignee.profilePic" nz-tooltip [nzTitle]="activeBoard?.columns?.includedStatuses?.defaultAssignee.firstName +' '+activeBoard?.columns?.includedStatuses?.defaultAssignee.lastName"></nz-avatar>
+
+                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip [nzTitle]="'Hide status'"></i>
+
+                        </span>
+                      </div>
+                    </div>
+
+                    <div dndPlaceholderRef class="dndPlaceholder">
+                      Drop Here...
+                    </div>
+
                   </div>
 
                 </div>
@@ -105,17 +126,10 @@
               </div>
 
             </div>
+          </section>
 
-          </div>
-        </section>
-
-        <nz-spin nzTip="Getting Active Board..." *ngIf="getActiveBoardInProcess" nzSize="large">
-          <div class="d-flex align-items-center justify-content-center"></div>
         </nz-spin>
 
-        <nz-spin nzTip="Adding a Column..." *ngIf="addColumnInBoardInProcess" nzSize="large">
-          <div class="d-flex align-items-center justify-content-center"></div>
-        </nz-spin>
 
       </nz-card>
 
@@ -139,6 +153,16 @@
       (assignUserEvent)="assignDefaultUser($event)"
       (toggleAssignUserModalShow)="hideDefaultAssigneeModal()">
     </aavantan-assign-user>
+  </ng-container>
+  <!-- endregion -->
+
+
+  <!-- region hidden status -->
+  <ng-container *ngIf="showHiddenStatusModalIsVisible">
+    <aavantan-hidden-status
+      [showHiddenStatusModalIsVisible]="showHiddenStatusModalIsVisible"
+      (toggleHiddenStatusModalShow)="toggleHiddenStatusModalShow()">
+    </aavantan-hidden-status>
   </ng-container>
   <!-- endregion -->
 

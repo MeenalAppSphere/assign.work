@@ -1,4 +1,27 @@
 .board-design {
+  .btn-double-arrow {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    min-width: 24px;
+    width: 24px;
+    line-height: 8px;
+    text-align: center;
+    padding: 7px!important;
+    z-index: 1;
+    transform: rotateY(180deg);
+  }
+  .btn-double-arrow-close {
+    position: absolute;
+    left: 7px;
+    top: -1px;
+    min-width: 24px;
+    width: 24px;
+    line-height: 8px;
+    text-align: center;
+    padding: 7px!important;
+    z-index: 1;
+  }
   .status-list {
     .item {
       padding: 13px 15px;
@@ -49,7 +72,7 @@
     overflow:hidden;
     overflow-x: auto;
     .status-box-scrollable {
-      max-height: calc(100vh - 300px);
+      height: calc(100vh - 300px);
     }
   }
   .status-box {
