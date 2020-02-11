@@ -55,6 +55,8 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public showColumnStatusInProcess: boolean;
   public hideColumnStatusInProcess: boolean;
 
+  public updateBoardInProcess: boolean;
+
   public addDefaultAssigneeInProcess: boolean;
   public mergeStatusInProcess: boolean;
   public mergeColumnInProcess: boolean;
@@ -89,7 +91,9 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     }).subscribe();
 
     this.boardDesignForm = this.FB.group({
-      name: new FormControl(null, [Validators.required])
+      name: new FormControl(null, [Validators.required]),
+      projectId: new FormControl(),
+      id: new FormControl()
     });
 
     // get active board data from store
@@ -97,7 +101,14 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
       if (board) {
         this.activeBoard = board;
         this.boardDesignForm.get('name').patchValue(this.activeBoard.name);
+        this.boardDesignForm.get('projectId').patchValue(this.activeBoard.projectId);
+        this.boardDesignForm.get('id').patchValue(this.activeBoard.id);
       }
+    });
+
+    // set update board in process flag from store
+    this._boardQuery.updateBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.updateBoardInProcess = inProcess;
     });
 
     // set get active board in process flag from store
@@ -157,7 +168,11 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public saveForm() {
+    const board = this.boardDesignForm.getRawValue();
 
+    if (board.id) {
+      this._boardService.updateBoard(board).subscribe();
+    }
   }
 
   public onColumnDropped(event: DndDropEvent) {

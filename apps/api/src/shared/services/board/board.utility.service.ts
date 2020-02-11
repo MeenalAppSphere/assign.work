@@ -15,9 +15,9 @@ export class BoardUtilityService {
       BadRequest('Board Name is required');
     }
 
-    if (!model.columns || !model.columns.length) {
-      BadRequest('At-least one column is required for creating a Board');
-    }
+    // if (!model.columns || !model.columns.length) {
+    //   BadRequest('At-least one column is required for creating a Board');
+    // }
   }
 
   /**

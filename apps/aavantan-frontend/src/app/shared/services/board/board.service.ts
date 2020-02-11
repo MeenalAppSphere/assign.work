@@ -45,6 +45,20 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
+  updateBoard(requestModel: BoardModel) {
+    this.updateState({ updateBoardInProcess: true });
+    return this._http.post(BoardUrls.updateBoard, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ updateBoardInProcess: false });
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ updateBoardInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
   getActiveBoard(requestModel: GetActiveBoardRequestModel) {
     this.updateState({ activeBoard: null, getActiveBoardInProcess: true });
     return this._http.post(BoardUrls.getActiveBoard, requestModel).pipe(

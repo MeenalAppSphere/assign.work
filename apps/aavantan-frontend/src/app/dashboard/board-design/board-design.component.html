@@ -50,7 +50,7 @@
 
       <div class="row">
         <div class="col-md-4">
-          <form nz-form [formGroup]="boardDesignForm" (ngSubmit)="saveForm()">
+          <form nz-form [formGroup]="boardDesignForm">
             <nz-form-item class="m-b-10">
               <nz-form-control>
                 <nz-input-group>
@@ -63,7 +63,9 @@
         </div>
 
         <div class="col-md-8 text-right">
-          <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save Settings</button>
+          <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid"
+                  (click)="saveForm()" [nzLoading]="updateBoardInProcess">Save Settings
+          </button>
           <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"
                   [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip
                                                          [nzTitle]="'Hide status'"></i>Hidden Status
