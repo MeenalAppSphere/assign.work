@@ -43,7 +43,8 @@
 
     <div class="col-md-9" [ngClass]="!isOpenStatusSidebar ? 'col-md-12 p-l-45' : 'col-md-9'">
 
-      <button (click)="toggleStatusSidebar()" *ngIf="!isOpenStatusSidebar" nz-button nzSize="default" class="btn-double-arrow-close">
+      <button (click)="toggleStatusSidebar()" *ngIf="!isOpenStatusSidebar" nz-button nzSize="default"
+              class="btn-double-arrow-close">
         <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Show status'">
       </button>
 
@@ -63,7 +64,10 @@
 
         <div class="col-md-8 text-right">
           <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save Settings</button>
-          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5" [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip [nzTitle]="'Hide status'"></i>Hidden Status</button>
+          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"
+                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip
+                                                         [nzTitle]="'Hide status'"></i>Hidden Status
+          </button>
 
         </div>
       </div>
@@ -73,9 +77,11 @@
         <h5 class="m-t-0 m-b-15">New Setting</h5>
 
 
-        <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Adding a Column...'" [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess" nzSize="large">
+        <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Processing Board...'"
+                 [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess || mergeColumnInProcess"
+                 nzSize="large">
 
-          <section class="sprintboard-container p-l-10" >
+          <section class="sprintboard-container p-l-10">
 
             <div class="row flex-row flex-nowrap" *ngIf="!getActiveBoardInProcess"
                  dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" (dndDrop)="onColumnDropped($event)">
@@ -96,20 +102,30 @@
                   </div>
 
                   <div class="card-body status-list status-box-scrollable" dndDropzone dndEffectAllowed="copyMove"
-                       dndHorizontal="true">
+                       dndHorizontal="true" (dndDrop)="mergeRequest($event, column.headerStatusId)">
 
-                    <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses">
+                    <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses"
+                         [dndDraggable]="includedStatus.status"
+                         [dndEffectAllowed]="'move'">
                       <div class="flex-row">
                         <span class="text-black">
                           {{ includedStatus?.status?.name }}
                         </span>
                         <span class="pull-right cursor-pointer">
 
-                          <nz-avatar nzIcon="user" (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)" *ngIf="!activeBoard?.columns?.includedStatuses?.defaultAssignee.profilePic" nz-tooltip [nzTitle]="'Default Assignee'"></nz-avatar>
+                          <nz-avatar nzIcon="user"
+                                     (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)"
+                                     *ngIf="!includedStatus?.defaultAssignee?.profilePic" nz-tooltip
+                                     [nzTitle]="'Default Assignee'"></nz-avatar>
 
-                          <nz-avatar nzType="user" nzIcon="user" (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)" *ngIf="activeBoard?.columns?.includedStatuses?.defaultAssignee.profilePic" [nzSrc]="activeBoard?.columns?.includedStatuses?.defaultAssignee.profilePic" nz-tooltip [nzTitle]="activeBoard?.columns?.includedStatuses?.defaultAssignee.firstName +' '+activeBoard?.columns?.includedStatuses?.defaultAssignee.lastName"></nz-avatar>
+                          <nz-avatar nzType="user" nzIcon="user"
+                                     (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)"
+                                     *ngIf="includedStatus?.defaultAssignee?.profilePic"
+                                     [nzSrc]="includedStatus?.defaultAssignee?.profilePic" nz-tooltip
+                                     [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>
 
-                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip [nzTitle]="'Hide status'"></i>
+                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip
+                             [nzTitle]="'Hide status'"></i>
 
                         </span>
                       </div>

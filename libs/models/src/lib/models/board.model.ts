@@ -35,8 +35,13 @@ export class GetActiveBoardRequestModel {
 }
 
 export class BoardMergeStatusToColumn extends BoardModelBaseRequest {
-  newColumnId: string;
-  previousId: string;
+  nextColumnId: string;
+  statusId: string;
+}
+
+export class BoardMergeColumnToColumn extends BoardModelBaseRequest {
+  nextColumnId: string;
+  columnId: string;
 }
 
 export class BoardAddNewColumnModel extends BoardModelBaseRequest {

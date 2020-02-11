@@ -108,7 +108,7 @@ export class BoardUtilityService {
   }
 
   unMergeStatusFromAColumn(board: BoardModel, columnIndex: number, statusId: string) {
-    board.columns[columnIndex].includedStatuses.filter(includedStatus => includedStatus.statusId.toString() !== statusId);
+    board.columns[columnIndex].includedStatuses = board.columns[columnIndex].includedStatuses.filter(includedStatus => includedStatus.statusId.toString() !== statusId);
   }
 
   reassignColumnOrderNo(board: BoardModel): BoardColumns[] {

@@ -3,6 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
   BoardShowHideColumn,
@@ -42,9 +43,14 @@ export class BoardController {
     return await this._boardService.addNewColumn(model);
   }
 
-  @Post('merge-status')
+  @Post('merge-status-to-column')
   async mergeStatusToColumn(@Body() model: BoardMergeStatusToColumn) {
     return await this._boardService.mergeStatusToColumn(model);
+  }
+
+  @Post('merge-column-to-column')
+  async mergeColumnToColumn(@Body() model: BoardMergeColumnToColumn) {
+    return await this._boardService.mergeColumnToColumn(model);
   }
 
   @Post('show-hide-column')

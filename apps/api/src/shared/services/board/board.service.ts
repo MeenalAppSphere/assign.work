@@ -2,7 +2,9 @@ import { BaseService } from '../base.service';
 import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardColumnIncludedStatus,
   BoardColumns,
+  BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
   BoardShowHideColumn,
@@ -111,7 +113,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
-   * merge status to column or column to column
+   * merge status to column
    * @param requestModel
    */
   async mergeStatusToColumn(requestModel: BoardMergeStatusToColumn) {
@@ -122,46 +124,106 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
 
       // get new column index where element is dropped
-      const newColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.newColumnId);
-      if (newColumnIndex === -1) {
+      const nextColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.nextColumnId);
+      if (nextColumnIndex === -1) {
         BadRequest('Column not found where to move');
       }
 
+      // check status id present or not
+      if (!requestModel.statusId) {
+        BadRequest('Status not found to move');
+      }
+
+      // if column id and status id both are same then don't do any thing just return it
+      if (requestModel.nextColumnId === requestModel.statusId) {
+        return;
+      }
+
+      // get column where this status already exists
+      const previousColumnIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.statusId);
+      let newStatus: BoardColumnIncludedStatus = new BoardColumnIncludedStatus();
+      if (previousColumnIndex > -1) {
+
+        // get status index from the founded column
+        const statusIndex = this._utilityService.getStatusIndex(boardDetails.columns, previousColumnIndex, requestModel.statusId);
+        if (statusIndex > -1) {
+
+          // get status from previous status
+          newStatus = boardDetails.columns[previousColumnIndex].includedStatuses[statusIndex];
+
+          // remove status from previous column
+          this._utilityService.unMergeStatusFromAColumn(boardDetails, previousColumnIndex, requestModel.statusId);
+
+          // add status to new column
+          boardDetails.columns[nextColumnIndex].includedStatuses.push(newStatus);
+
+          // if previous column don't have any status then remove it from board
+          if (!boardDetails.columns[previousColumnIndex].includedStatuses.length) {
+            this._utilityService.removeColumnFromBoard(boardDetails, previousColumnIndex);
+          }
+
+        } else {
+          // status not found
+          BadRequest('Status not found from a column');
+        }
+      } else {
+        // status not included in any column create new BoardColumnIncludedStatus an push it to next column
+        newStatus.statusId = requestModel.statusId;
+        newStatus.defaultAssigneeId = this._generalService.userId;
+
+        // add status to new column
+        boardDetails.columns[nextColumnIndex].includedStatuses.push(newStatus);
+      }
+
+      // reassign column order no
+      boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
+
+      // update board by id and set columns
+      return await this.updateById(requestModel.boardId, {
+        $set: { columns: boardDetails.columns }
+      }, session);
+
+    });
+
+    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
+   * merge column to column
+   * @param requestModel
+   */
+  async mergeColumnToColumn(requestModel: BoardMergeColumnToColumn) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+
+      if (requestModel.nextColumnId === requestModel.columnId) {
+        BadRequest('Can not Merge Column to same Column');
+      }
+
+      // get board details
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+
+      // get new column index where element is dropped
+      const nextColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.nextColumnId);
+      if (nextColumnIndex === -1) {
+        BadRequest('Next column not found');
+      }
+
       // ensure that moving element is column or status
-      const previousColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.previousId);
+      const previousColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.columnId);
       if (previousColumnIndex > -1) {
         // moving a column
-        const foundColumn = this._utilityService.removeColumnFromBoard(boardDetails, previousColumnIndex);
+        const previousColumn = boardDetails.columns[previousColumnIndex];
 
         // move found column to new column as status
-        boardDetails.columns[newColumnIndex].includedStatuses.push(...foundColumn.includedStatuses);
+        boardDetails.columns[nextColumnIndex].includedStatuses.push(...previousColumn.includedStatuses);
+
+        // remove previous column from board
+        this._utilityService.removeColumnFromBoard(boardDetails, previousColumnIndex);
       } else {
-        // moving a status
-
-        // get column where this status exists
-        const columnIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.previousId);
-        if (columnIndex > -1) {
-
-          // get status index from the founded column
-          const statusIndex = this._utilityService.getStatusIndex(boardDetails.columns, columnIndex, requestModel.previousId);
-          if (statusIndex > -1) {
-
-            // get status from previous status
-            const foundStatus = boardDetails.columns[columnIndex].includedStatuses[statusIndex];
-
-            // remove status from previous column
-            this._utilityService.unMergeStatusFromAColumn(boardDetails, columnIndex, requestModel.previousId);
-
-            // add status to new column
-            boardDetails.columns[newColumnIndex].includedStatuses.push(foundStatus);
-          } else {
-            // status not found
-            BadRequest('Status not found from a column');
-          }
-        } else {
-          // column not found
-          BadRequest('Column not found where to move');
-        }
+        // column not found
+        BadRequest('Column not found...');
       }
 
       // reassign column order no
@@ -173,6 +235,8 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       }, session);
 
     });
+
+    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
   }
 
   /**

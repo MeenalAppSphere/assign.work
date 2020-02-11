@@ -4,6 +4,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
   TaskStatusModel
@@ -27,14 +28,14 @@ import { animate, style, transition, trigger } from '@angular/animations';
         transition(
           ':enter',
           [
-            style({transform: 'translateX(-100%)'}),
-            animate('300ms ease-in', style({transform: 'translateX(0%)'}))
+            style({ transform: 'translateX(-100%)' }),
+            animate('300ms ease-in', style({ transform: 'translateX(0%)' }))
           ]
         ),
         transition(
           ':leave',
           [
-            animate('300ms ease-in', style({transform: 'translateX(-100%)'}))
+            animate('300ms ease-in', style({ transform: 'translateX(-100%)' }))
           ]
         )
       ]
@@ -50,6 +51,8 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public addColumnInBoardInProcess: boolean;
   public showHideColumnInProcess: boolean;
   public addDefaultAssigneeInProcess: boolean;
+  public mergeStatusInProcess: boolean;
+  public mergeColumnInProcess: boolean;
   public defaultAssigneeColumnId: string;
   public defaultAssigneeStatusId: string;
 
@@ -57,7 +60,7 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public assignUserModalIsVisible: boolean;
   public showHiddenStatusModalIsVisible: boolean;
 
-  public isOpenStatusSidebar:boolean = true;
+  public isOpenStatusSidebar: boolean = true;
 
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
               private _boardService: BoardService, private _generalService: GeneralService,
@@ -98,11 +101,20 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
       this.addDefaultAssigneeInProcess = inProcess;
     });
 
+    // merge status in process
+    this._boardQuery.mergeStatusInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.mergeStatusInProcess = inProcess;
+    });
+
+    // merge column in process
+    this._boardQuery.mergeColumnInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.mergeColumnInProcess = inProcess;
+    });
+
     // get all task statuses from store
     this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
       this.statusList = statuses;
     });
-
 
 
     // get active board data
@@ -138,12 +150,26 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     this._boardService.addColumn(addColumnRequest).subscribe();
   }
 
-  public onStatusDropped(event) {
-    const mergeStatusRequestModel = new BoardMergeStatusToColumn();
-    mergeStatusRequestModel.projectId = this._generalService.currentProject.id;
-    mergeStatusRequestModel.boardId = this.activeBoard.id;
+  public mergeRequest(event: DndDropEvent, nextColumnId: string) {
+    if (event.data.headerStatusId) {
+      // merge column to column
+      const mergeColumnRequestModel = new BoardMergeColumnToColumn();
+      mergeColumnRequestModel.projectId = this._generalService.currentProject.id;
+      mergeColumnRequestModel.boardId = this.activeBoard.id;
+      mergeColumnRequestModel.nextColumnId = nextColumnId;
+      mergeColumnRequestModel.columnId = event.data.headerStatusId;
 
-    this._boardService.mergeStatus(mergeStatusRequestModel).subscribe();
+      this._boardService.mergeColumnToColumn(mergeColumnRequestModel).subscribe();
+    } else {
+      // merge status to column
+      const mergeStatusRequestModel = new BoardMergeStatusToColumn();
+      mergeStatusRequestModel.projectId = this._generalService.currentProject.id;
+      mergeStatusRequestModel.boardId = this.activeBoard.id;
+      mergeStatusRequestModel.nextColumnId = nextColumnId;
+      mergeStatusRequestModel.statusId = event.data.id;
+
+      this._boardService.mergeStatusToColumn(mergeStatusRequestModel).subscribe();
+    }
   }
 
   public toggleAddStatusShow(item?: TaskStatusModel) {
@@ -188,6 +214,7 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public toggleHiddenStatusModalShow() {
     this.showHiddenStatusModalIsVisible = !this.showHiddenStatusModalIsVisible;
   }
+
   public toggleStatusSidebar() {
     this.isOpenStatusSidebar = !this.isOpenStatusSidebar;
   }
