@@ -9,7 +9,7 @@ import {
   BoardMergeStatusToColumn,
   BoardModel,
   BoardShowColumnStatus,
-  TaskStatusModel
+  TaskStatusModel, User
 } from '@aavantan-app/models';
 import { UserQuery } from '../../queries/user/user.query';
 import { TaskStatusQuery } from '../../queries/task-status/task-status.query';
@@ -70,6 +70,8 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public showHiddenStatusModalIsVisible: boolean;
 
   public isOpenStatusSidebar: boolean = true;
+
+  public assignUserDetails: User;
 
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
               private _boardService: BoardService, private _generalService: GeneralService,
@@ -237,7 +239,8 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  showDefaultAssigneeModal(columnId: string, statusId: string) {
+  showDefaultAssigneeModal(columnId: string, statusId: string, user?:User) {
+    this.assignUserDetails = user;
     this.defaultAssigneeColumnId = columnId;
     this.defaultAssigneeStatusId = statusId;
     this.assignUserModalIsVisible = true;

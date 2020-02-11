@@ -122,7 +122,7 @@
                                      [nzTitle]="'Default Assignee'"></nz-avatar>
 
                           <nz-avatar nzType="user" nzIcon="user"
-                                     (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)"
+                                     (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId, includedStatus?.defaultAssignee)"
                                      *ngIf="includedStatus?.defaultAssignee?.profilePic"
                                      [nzSrc]="includedStatus?.defaultAssignee?.profilePic" nz-tooltip
                                      [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>
@@ -170,6 +170,7 @@
   <!-- region add/edit status -->
   <ng-container *ngIf="assignUserModalIsVisible">
     <aavantan-assign-user
+      [userDetails]="assignUserDetails"
       [assignUserModalIsVisible]="assignUserModalIsVisible"
       (assignUserEvent)="assignDefaultUser($event)"
       (toggleAssignUserModalShow)="hideDefaultAssigneeModal()">

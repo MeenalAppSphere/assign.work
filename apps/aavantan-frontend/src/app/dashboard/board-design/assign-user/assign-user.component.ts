@@ -6,6 +6,7 @@ import { debounceTime } from 'rxjs/operators';
 import { UserService } from '../../../shared/services/user/user.service';
 import { Subject } from 'rxjs';
 import { GeneralService } from '../../../shared/services/general.service';
+import { cloneDeep, uniqBy } from 'lodash';
 
 
 @Component({
@@ -16,12 +17,14 @@ import { GeneralService } from '../../../shared/services/general.service';
 export class AssignUserComponent implements OnInit, OnDestroy {
 
   @Input() public assignUserModalIsVisible: boolean = false;
+  @Input() public userDetails: User;
   @Output() toggleAssignUserModalShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() assignUserEvent: EventEmitter<any> = new EventEmitter<any>();
 
   public userForm: FormGroup;
   public assignRequestInProcess: boolean;
   public selectedAssignee: User = {};
+  public currentUser: User = {};
   public assigneeDataSource: User[] = [];
   public modelChanged = new Subject<string>();
   public isSearching: boolean;
@@ -36,6 +39,13 @@ export class AssignUserComponent implements OnInit, OnDestroy {
     this.userForm = this.FB.group({
       assigneeId: new FormControl(null)
     });
+
+    if(this.userDetails) {
+      this.userForm.get('assigneeId').patchValue(this.userDetails.firstName +' '+this.userDetails.lastName);
+      this.selectedAssignee = this.userDetails;
+    }
+
+    this.currentUser = cloneDeep(this._generalService.user);
 
     // search assignee
     this.modelChanged
@@ -64,19 +74,19 @@ export class AssignUserComponent implements OnInit, OnDestroy {
 
   public assignedToMe() {
 
-    this.selectedAssignee.id = this._generalService.user.id;
-    this.selectedAssignee.firstName = this._generalService.user.firstName;
-    this.selectedAssignee.lastName = this._generalService.user.lastName ? this._generalService.user.lastName : null;
+    this.selectedAssignee.id = this.currentUser.id;
+    this.selectedAssignee.firstName = this.currentUser.firstName;
+    this.selectedAssignee.lastName = this.currentUser.lastName ? this.currentUser.lastName : null;
 
-    let userName = this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId;
-    if (this._generalService.user.firstName && this._generalService.user.lastName) {
-      userName = userName + ' ' + this._generalService.user.lastName;
+    let userName = this.currentUser.firstName ? this.currentUser.firstName : this.currentUser.emailId;
+    if (this.currentUser.firstName && this.currentUser.lastName) {
+      userName = userName + ' ' + this.currentUser.lastName;
     }
     this.userForm.get('assigneeId').patchValue(userName);
   }
 
   public assign() {
-    this.assignUserEvent.emit(this.userForm.getRawValue());
+    this.assignUserEvent.emit(this.selectedAssignee.id);
   }
 
   public selectAssigneeTypeahead(user: User) {
