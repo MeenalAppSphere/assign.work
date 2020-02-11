@@ -3,10 +3,12 @@ import { AuthGuard } from '@nestjs/passport';
 import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardHideColumnStatus,
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
-  BoardShowHideColumn,
+  BoardModelBaseRequest,
+  BoardShowColumnStatus,
   GetActiveBoardRequestModel
 } from '@aavantan-app/models';
 import { BoardService } from '../shared/services/board/board.service';
@@ -53,9 +55,19 @@ export class BoardController {
     return await this._boardService.mergeColumnToColumn(model);
   }
 
-  @Post('show-hide-column')
-  async showHideColumn(@Body() model: BoardShowHideColumn) {
-    return await this._boardService.showHideColumn(model);
+  @Post('show-column-status')
+  async showColumnStatus(@Body() model: BoardShowColumnStatus) {
+    return await this._boardService.showColumnStatus(model);
+  }
+
+  @Post('hide-column-status')
+  async hideColumnStatus(@Body() model: BoardHideColumnStatus) {
+    return await this._boardService.hideColumnStatus(model);
+  }
+
+  @Post('get-hidden-statuses')
+  async getAllHiddenStatuses(@Body() model: BoardModelBaseRequest) {
+    return await this._boardService.getAllHiddenStatusesOfABoard(model);
   }
 
   @Post('add-default-assignee')

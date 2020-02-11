@@ -7,6 +7,8 @@ export const BoardUrls = {
   addColumn: createUrl('board/add-column'),
   mergeStatusToColumn: createUrl('board/merge-status-to-column'),
   mergeColumnToColumn: createUrl('board/merge-column-to-column'),
-  showHideColumn: createUrl('board/show-hide-column'),
+  showColumnStatus: createUrl('board/show-column-status'),
+  hideColumnStatus: createUrl('board/hide-column-status'),
+  getAllHiddenStatus: createUrl('board/get-hidden-statuses'),
   addDefaultAssignee: createUrl('board/add-default-assignee')
 };

@@ -1,17 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
-import { BoardModel } from '@aavantan-app/models';
+import { BoardModel, TaskStatusModel } from '@aavantan-app/models';
 
 export interface BoardState {
   boards: BoardModel[];
   getAllInProcess: boolean;
   getAllSuccess: boolean;
   activeBoard: BoardModel;
+  hiddenStatuses: TaskStatusModel[];
   getActiveBoardInProcess: boolean;
   addColumnInProcess: boolean;
   mergeStatusInProcess: boolean;
   mergeColumnInProcess: boolean;
-  showHideColumnInProcess: boolean;
+  showColumnStatusInProcess: boolean;
+  hideColumnStatusInProcess: boolean;
+  getHiddenStatusesInProcess: boolean;
   addDefaultAssigneeInProcess: boolean;
 }
 
@@ -20,11 +23,14 @@ const initialState: BoardState = {
   getAllInProcess: false,
   getAllSuccess: false,
   activeBoard: null,
+  hiddenStatuses: [],
   getActiveBoardInProcess: false,
   addColumnInProcess: false,
   mergeStatusInProcess: false,
   mergeColumnInProcess: false,
-  showHideColumnInProcess: false,
+  showColumnStatusInProcess: false,
+  hideColumnStatusInProcess: false,
+  getHiddenStatusesInProcess: false,
   addDefaultAssigneeInProcess: false
 };
 

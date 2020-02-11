@@ -14,9 +14,9 @@ export const boardSchema = new Schema({
     includedStatuses: {
       type: Array,
       statusId: { type: Types.ObjectId, ref: DbCollection.taskStatus },
-      defaultAssigneeId: { type: Types.ObjectId, ref: DbCollection.users }
+      defaultAssigneeId: { type: Types.ObjectId, ref: DbCollection.users },
+      isShown: { type: Boolean, default: true }
     },
-    isActive: { type: Boolean, default: true },
     columnOrderNo: { type: Number },
     columnColor: { type: String }
   },

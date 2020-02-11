@@ -4,9 +4,11 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardHideColumnStatus,
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
+  BoardShowColumnStatus,
   TaskStatusModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../../queries/user/user.query';
@@ -49,12 +51,17 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public activeBoard: BoardModel;
   public getActiveBoardInProcess: boolean;
   public addColumnInBoardInProcess: boolean;
-  public showHideColumnInProcess: boolean;
+
+  public showColumnStatusInProcess: boolean;
+  public hideColumnStatusInProcess: boolean;
+
   public addDefaultAssigneeInProcess: boolean;
   public mergeStatusInProcess: boolean;
   public mergeColumnInProcess: boolean;
   public defaultAssigneeColumnId: string;
   public defaultAssigneeStatusId: string;
+  public getHiddenStatusesInProcess: boolean = false;
+  public hiddenStatuses: TaskStatusModel[] = [];
 
   public addStatusModalIsVisible: boolean;
   public assignUserModalIsVisible: boolean;
@@ -68,6 +75,18 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+
+    // get active board data
+    this._boardService.getActiveBoard({
+      projectId: this._generalService.currentProject.id,
+      boardId: this._generalService.currentProject.activeBoardId
+    }).subscribe();
+
+    // get all hidden statuses
+    this._boardService.getAllHiddenStatuses({
+      projectId: this._generalService.currentProject.id,
+      boardId: this._generalService.currentProject.activeBoardId
+    }).subscribe();
 
     this.boardDesignForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
@@ -91,9 +110,14 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
       this.addColumnInBoardInProcess = inProcess;
     });
 
-    // show/ hide column in process
-    this._boardQuery.showHideColumnInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
-      this.showHideColumnInProcess = inProcess;
+    // show column in process
+    this._boardQuery.showColumnStatusInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.showColumnStatusInProcess = inProcess;
+    });
+
+    // hide column in process
+    this._boardQuery.hideColumnStatusInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.hideColumnStatusInProcess = inProcess;
     });
 
     // add default assignee in process
@@ -111,17 +135,20 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mergeColumnInProcess = inProcess;
     });
 
+    // merge column in process
+    this._boardQuery.getHiddenStatusesInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.getHiddenStatusesInProcess = inProcess;
+    });
+
+    // merge column in process
+    this._boardQuery.hiddenStatuses$.pipe(untilDestroyed(this)).subscribe(list => {
+      this.hiddenStatuses = list;
+    });
+
     // get all task statuses from store
     this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
       this.statusList = statuses;
     });
-
-
-    // get active board data
-    this._boardService.getActiveBoard({
-      projectId: this._generalService.currentProject.id,
-      boardId: this._generalService.currentProject.activeBoardId
-    }).subscribe();
 
   }
 
@@ -205,10 +232,30 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     this.assignUserModalIsVisible = false;
   }
 
+  public hideStatus(columnId: string, statusId: string) {
+    const hideStatusRequest = new BoardHideColumnStatus();
+    hideStatusRequest.boardId = this.activeBoard.id;
+    hideStatusRequest.projectId = this.activeBoard.projectId;
+    hideStatusRequest.columnId = columnId;
+    hideStatusRequest.statusId = statusId;
+
+    this._boardService.hideColumnStatus(hideStatusRequest).subscribe();
+  }
+
   private resetDefaultAssigneePopupFlags() {
     this.defaultAssigneeColumnId = null;
     this.defaultAssigneeStatusId = null;
     this.hideDefaultAssigneeModal();
+  }
+
+  public showColumnStatus(statusId: string) {
+    const showStatusRequest = new BoardShowColumnStatus();
+    showStatusRequest.boardId = this.activeBoard.id;
+    showStatusRequest.projectId = this.activeBoard.projectId;
+    showStatusRequest.statusId = statusId;
+
+    this._boardService.showColumnStatus(showStatusRequest).subscribe();
+    this.toggleHiddenStatusModalShow();
   }
 
   public toggleHiddenStatusModalShow() {

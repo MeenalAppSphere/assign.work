@@ -11,7 +11,10 @@ export class BoardQuery extends Query<BoardState> {
   addColumnInBoardInProcess$ = this.select(s => s.addColumnInProcess);
   mergeStatusInProcess$ = this.select(s => s.mergeStatusInProcess);
   mergeColumnInProcess$ = this.select(s => s.mergeColumnInProcess);
-  showHideColumnInProcess$ = this.select(s => s.showHideColumnInProcess);
+  showColumnStatusInProcess$ = this.select(s => s.showColumnStatusInProcess);
+  hideColumnStatusInProcess$ = this.select(s => s.hideColumnStatusInProcess);
+  getHiddenStatusesInProcess$ = this.select(s => s.getHiddenStatusesInProcess);
+  hiddenStatuses$ = this.select(s => s.hiddenStatuses);
   addDefaultAssigneeInProcess$ = this.select(s => s.addDefaultAssigneeInProcess);
 
   constructor(protected store: BoardStore) {

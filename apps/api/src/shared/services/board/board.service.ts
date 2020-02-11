@@ -4,10 +4,12 @@ import {
   BoardAssignDefaultAssigneeToStatusModel,
   BoardColumnIncludedStatus,
   BoardColumns,
+  BoardHideColumnStatus,
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
-  BoardShowHideColumn,
+  BoardModelBaseRequest,
+  BoardShowColumnStatus,
   DbCollection,
   GetActiveBoardRequestModel,
   MongooseQueryModel,
@@ -92,7 +94,11 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
         // create new column object
         column.headerStatusId = requestModel.statusId;
-        column.includedStatuses = [{ statusId: requestModel.statusId, defaultAssigneeId: this._generalService.userId }];
+        column.includedStatuses = [{
+          statusId: requestModel.statusId,
+          defaultAssigneeId: this._generalService.userId,
+          isShown: true
+        }];
         column.columnColor = '';
         column.columnOrderNo = requestModel.columnIndex + 1;
 
@@ -170,6 +176,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         // status not included in any column create new BoardColumnIncludedStatus an push it to next column
         newStatus.statusId = requestModel.statusId;
         newStatus.defaultAssigneeId = this._generalService.userId;
+        newStatus.isShown = true;
 
         // add status to new column
         boardDetails.columns[nextColumnIndex].includedStatuses.push(newStatus);
@@ -240,15 +247,65 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
-   * show / hides a column on board
+   * show column status
    * @param requestModel
    */
-  async showHideColumn(requestModel: BoardShowHideColumn) {
+  async showColumnStatus(requestModel: BoardShowColumnStatus) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+      // get board details
+      const boardDetails = await this.findOne({
+        filter: { projectId: requestModel.projectId, _id: requestModel.boardId },
+        lean: true
+      });
+
+      if (!requestModel.statusId) {
+        BadRequest('Status not found');
+      }
+
+      const columnIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.statusId);
+      if (columnIndex === -1) {
+        BadRequest('Column not found where this status was previously added');
+      }
+
+      // get status index from column
+      const statusIndex = this._utilityService.getStatusIndex(boardDetails.columns, columnIndex, requestModel.statusId);
+
+      // doc updated object
+      const updateDocObject = {
+        $set: {
+          [`columns.${columnIndex}.includedStatuses.${statusIndex}.isShown`]: true
+        }
+      };
+
+      // update board and set column status shown or hidden
+      await this.updateById(requestModel.boardId, updateDocObject, session);
+    });
+
+    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
+   * hide a status from column on board
+   * @param requestModel
+   */
+  async hideColumnStatus(requestModel: BoardHideColumnStatus) {
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
       await this._projectService.getProjectDetails(requestModel.projectId);
       // get board details
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+
+      // column id present or not
+      if (!requestModel.columnId) {
+        BadRequest('Column not found');
+      }
+
+      // status id present or not
+      if (!requestModel.statusId) {
+        BadRequest('Status not found');
+      }
 
       // get column index from columns array
       const columnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.columnId);
@@ -257,15 +314,49 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         BadRequest('Column not found');
       }
 
-      // update board and set column active or de-active
-      await this.updateById(requestModel.boardId, {
+      // get status index from column
+      const statusIndex = this._utilityService.getStatusIndex(boardDetails.columns, columnIndex, requestModel.statusId);
+
+      // get column from status
+      const column = boardDetails.columns[columnIndex];
+      // get status from column
+      const status = column.includedStatuses[statusIndex];
+
+      // check one trying to hide main status of column (i.e :- headerStatus of a column )
+      if (column.headerStatusId === status.statusId) {
+        BadRequest('You can hide default status');
+      }
+
+      // doc updated object
+      const updateDocObject = {
         $set: {
-          [`columns.${columnIndex}.isActive`]: requestModel.isShown
+          [`columns.${columnIndex}.includedStatuses.${statusIndex}.isShown`]: false
         }
-      }, session);
+      };
+
+      // update board and set column status to hidden
+      await this.updateById(requestModel.boardId, updateDocObject, session);
     });
 
     return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
+   * get all hidden status of a board
+   */
+  async getAllHiddenStatusesOfABoard(requestModel: BoardModelBaseRequest) {
+    try {
+      await this._projectService.getProjectDetails(requestModel.projectId);
+
+      const board = await this.findOne({
+        filter: { projectId: requestModel.projectId, _id: requestModel.boardId },
+        lean: true,
+        populate: detailsBoardPopulationObject
+      });
+      return this._utilityService.filterHiddenStatues(board);
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**

@@ -7,11 +7,14 @@ import {
   BaseResponseModel,
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardHideColumnStatus,
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
-  BoardShowHideColumn,
-  GetActiveBoardRequestModel
+  BoardModelBaseRequest,
+  BoardShowColumnStatus,
+  GetActiveBoardRequestModel,
+  TaskStatusModel
 } from '@aavantan-app/models';
 import { BoardUrls } from './board.url';
 import { BoardState, BoardStore } from '../../../store/board/board.store';
@@ -98,15 +101,54 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
-  showHideColumn(requestModel: BoardShowHideColumn) {
-    this.updateState({ showHideColumnInProcess: true });
-    return this._http.post(BoardUrls.showHideColumn, requestModel).pipe(
+  showColumnStatus(requestModel: BoardShowColumnStatus) {
+    this.updateState({ showColumnStatusInProcess: true });
+    return this._http.post(BoardUrls.showColumnStatus, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
-        this.updateState({ showHideColumnInProcess: false, activeBoard: res.data });
+
+        // update the store
+        this.store.update((state: BoardState) => {
+          return {
+            ...state,
+            showColumnStatusInProcess: false,
+            activeBoard: res.data,
+            hiddenStatuses: state.hiddenStatuses.filter(status => status.id !== requestModel.statusId)
+          };
+        });
+
         return res;
       }),
       catchError((e) => {
-        this.updateState({ showHideColumnInProcess: false });
+        this.updateState({ showColumnStatusInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
+  hideColumnStatus(requestModel: BoardHideColumnStatus) {
+    this.updateState({ hideColumnStatusInProcess: true });
+    return this._http.post(BoardUrls.hideColumnStatus, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ hideColumnStatusInProcess: false, activeBoard: res.data });
+        this.getAllHiddenStatuses({ projectId: requestModel.projectId, boardId: requestModel.boardId }).subscribe();
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ hideColumnStatusInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
+  getAllHiddenStatuses(requestModel: BoardModelBaseRequest) {
+    this.updateState({ getHiddenStatusesInProcess: true });
+    return this._http.post(BoardUrls.getAllHiddenStatus, requestModel).pipe(
+      map((res: BaseResponseModel<TaskStatusModel[]>) => {
+        this.updateState({ getHiddenStatusesInProcess: false, hiddenStatuses: res.data });
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ getHiddenStatusesInProcess: false, hiddenStatuses: [] });
         return this.handleError(e);
       })
     );

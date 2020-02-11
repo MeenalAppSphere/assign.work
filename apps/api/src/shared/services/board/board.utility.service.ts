@@ -1,4 +1,4 @@
-import { BoardColumns, BoardModel, Project } from '@aavantan-app/models';
+import { BoardColumns, BoardModel, Project, TaskStatusModel } from '@aavantan-app/models';
 import { BadRequest } from '../../helpers/helpers';
 import { DEFAULT_BOARD_NAME } from '../../helpers/defaultValueConstant';
 
@@ -39,9 +39,9 @@ export class BoardUtilityService {
         headerStatusId: status,
         includedStatuses: [{
           statusId: status,
-          defaultAssigneeId: project.createdById
+          defaultAssigneeId: project.createdById,
+          isShown: true
         }],
-        isActive: true,
         columnOrderNo: index + 1,
         columnColor: ''
       });
@@ -64,7 +64,7 @@ export class BoardUtilityService {
       }
 
       if (column.includedStatuses && column.includedStatuses.length) {
-        column.includedStatuses = column.includedStatuses.map(includeStatus => {
+        column.includedStatuses = column.includedStatuses.filter(col => col.isShown).map(includeStatus => {
 
           if (includeStatus.defaultAssignee) {
             includeStatus.defaultAssignee.id = includeStatus.defaultAssignee._id;
@@ -118,4 +118,21 @@ export class BoardUtilityService {
     });
   }
 
+  filterHiddenStatues(board: BoardModel): TaskStatusModel[] {
+    const statues: TaskStatusModel[] = [];
+    board.columns.forEach(column => {
+      column.includedStatuses.forEach(status => {
+        if (!status.isShown) {
+
+          if (status.status) {
+            status.status.id = status.status._id;
+          }
+
+          statues.push(status.status);
+        }
+      });
+    });
+
+    return statues;
+  }
 }

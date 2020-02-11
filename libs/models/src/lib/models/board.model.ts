@@ -6,13 +6,13 @@ export class BoardColumnIncludedStatus {
   status?: TaskStatusModel;
   defaultAssigneeId: string;
   defaultAssignee?: User;
+  isShown: boolean;
 }
 
 export class BoardColumns {
   headerStatusId: string;
   headerStatus?: TaskStatusModel;
   includedStatuses: BoardColumnIncludedStatus[];
-  isActive: boolean;
   columnOrderNo: number;
   columnColor: string;
 }
@@ -49,9 +49,13 @@ export class BoardAddNewColumnModel extends BoardModelBaseRequest {
   columnIndex: number;
 }
 
-export class BoardShowHideColumn extends BoardModelBaseRequest {
+export class BoardShowColumnStatus extends BoardModelBaseRequest {
+  statusId: string;
+}
+
+export class BoardHideColumnStatus extends BoardModelBaseRequest {
   columnId: string;
-  isShown: boolean;
+  statusId: string;
 }
 
 export class BoardAssignDefaultAssigneeToStatusModel extends BoardModelBaseRequest {

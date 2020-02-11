@@ -32,7 +32,7 @@
           <div class="item text-black" *ngFor="let item of statusList" [dndDraggable]="item"
                [dndEffectAllowed]="'move'">
             {{item.name}}
-            <span class="float-right">
+            <span class="float-right" dndHandle>
               <img src="../../../assets/images/icons/ellipsis-move.svg"/>
             </span>
           </div>
@@ -78,7 +78,8 @@
 
 
         <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Processing Board...'"
-                 [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess || mergeColumnInProcess"
+                 [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+                 || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess"
                  nzSize="large">
 
           <section class="sprintboard-container p-l-10">
@@ -125,7 +126,9 @@
                                      [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>
 
                           <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip
-                             [nzTitle]="'Hide status'"></i>
+                             *ngIf="includedStatus.statusId !== column.headerStatusId"
+                             [nzTitle]="'Hide status'"
+                             (click)="hideStatus(column.headerStatusId, includedStatus.statusId)"></i>
 
                         </span>
                       </div>
@@ -177,6 +180,9 @@
   <ng-container *ngIf="showHiddenStatusModalIsVisible">
     <aavantan-hidden-status
       [showHiddenStatusModalIsVisible]="showHiddenStatusModalIsVisible"
+      [getHiddenStatusInProcess]="getHiddenStatusesInProcess"
+      [statusList]="hiddenStatuses"
+      (showColumnStatusEvent)="showColumnStatus($event)"
       (toggleHiddenStatusModalShow)="toggleHiddenStatusModalShow()">
     </aavantan-hidden-status>
   </ng-container>

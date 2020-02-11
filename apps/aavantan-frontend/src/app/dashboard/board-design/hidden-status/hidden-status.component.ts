@@ -1,12 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { BoardColumnIncludedStatus, BoardModel, SearchProjectCollaborators, User } from '@aavantan-app/models';
-import { debounceTime } from 'rxjs/operators';
-import { UserService } from '../../../shared/services/user/user.service';
-import { Subject } from 'rxjs';
-import { GeneralService } from '../../../shared/services/general.service';
-
+import { TaskStatusModel } from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-hidden-status',
@@ -16,8 +10,11 @@ import { GeneralService } from '../../../shared/services/general.service';
 export class HiddenStatusComponent implements OnInit, OnDestroy {
 
   @Input() public showHiddenStatusModalIsVisible: boolean = false;
+  @Input() public statusList: TaskStatusModel[] = [];
+  @Input() public getHiddenStatusInProcess: boolean = false;
+
   @Output() toggleHiddenStatusModalShow: EventEmitter<any> = new EventEmitter<any>();
-  @Input() public statusList: BoardColumnIncludedStatus[] = [];
+  @Output() showColumnStatusEvent: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(protected notification: NzNotificationService) {
   }
@@ -28,6 +25,10 @@ export class HiddenStatusComponent implements OnInit, OnDestroy {
 
   handleCancel(): void {
     this.toggleHiddenStatusModalShow.emit();
+  }
+
+  showStatus(statusId: string) {
+    this.showColumnStatusEvent.emit(statusId);
   }
 
   ngOnDestroy() {
