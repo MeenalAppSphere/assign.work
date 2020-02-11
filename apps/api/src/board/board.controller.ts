@@ -22,13 +22,13 @@ export class BoardController {
 
   @Post('create')
   async createBoard(@Body() model: BoardModel) {
-    return await this._boardService.createNewBoard(model);
+    return await this._boardService.createUpdateBoard(model);
   }
 
-  // @Post('update')
-  // async updateTaskStatus(@Body() model: TaskStatusModel) {
-  //   return await this._taskStatusService.addUpdate(model);
-  // }
+  @Post('update')
+  async updateBoard(@Body() model: BoardModel) {
+    return await this._boardService.createUpdateBoard(model);
+  }
 
   @Post('get-all')
   async getAllTaskStatues(@Body('projectId') projectId: string) {

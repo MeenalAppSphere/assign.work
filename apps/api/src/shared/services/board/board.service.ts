@@ -64,6 +64,58 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
+   * create a new board or updates a existing board
+   * @param board
+   */
+  async createUpdateBoard(board: BoardModel) {
+    return this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.getProjectDetails(board.projectId);
+
+      // get board details when board id is present
+      if (board.id) {
+        await this.getDetails(board.id, board.projectId);
+      }
+
+      // check validations
+      this._utilityService.checkValidations(board);
+
+      if (!board.id) {
+        // check is duplicate name
+        if (await this.isDuplicate(board)) {
+          BadRequest('Duplicate board name is not allowed');
+        }
+      } else {
+        // check is duplicate name except this one
+        if (await this.isDuplicate(board, board.id)) {
+          BadRequest('Duplicate board name is not allowed');
+        }
+      }
+
+      if (!board.id) {
+        // create a new board model
+        const boardModel = new BoardModel();
+        boardModel.createdById = this._generalService.userId;
+        boardModel.name = board.name;
+        boardModel.projectId = board.projectId;
+
+        // create and return new bord
+        return await this.create([boardModel], session);
+      } else {
+        // update existing board
+        const updateBoardDoc = {
+          $set: {
+            name: board.name,
+            updatedById: this._generalService.userId
+          }
+        };
+
+        // update board with id
+        return await this.updateById(board.id, updateBoardDoc, session);
+      }
+    });
+  }
+
+  /**
    * create a new column from a status
    * @param requestModel
    */
@@ -399,33 +451,6 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     });
 
     return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
-  }
-
-  /**
-   * create a new board
-   * @param board
-   */
-  async createNewBoard(board: BoardModel) {
-    return this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(board.projectId);
-
-      // check validations
-      this._utilityService.checkValidations(board);
-
-      // check is duplicate name
-      if (await this.isDuplicate(board)) {
-        BadRequest('Duplicate board name is not allowed');
-      }
-
-      // create a new board model
-      const boardModel = new BoardModel();
-      boardModel.createdById = this._generalService.userId;
-      boardModel.name = board.name;
-      boardModel.projectId = board.projectId;
-
-      // create and return new bord
-      return await this.create([boardModel], session);
-    });
   }
 
   /**

@@ -83,34 +83,71 @@ export class BoardUtilityService {
     return board;
   }
 
+  /**
+   * get column index by column id from board columns
+   * @param columns
+   * @param columnId
+   */
   getColumnIndex(columns: BoardColumns[], columnId: string): number {
     return columns.findIndex(col => col.headerStatusId.toString() === columnId);
   }
 
+  /**
+   * get status index from a board column
+   * @param columns
+   * @param columnIndex
+   * @param statusId
+   */
   getStatusIndex(columns: BoardColumns[], columnIndex: number, statusId: string): number {
     return columns[columnIndex].includedStatuses.findIndex(includedStatus => {
       return includedStatus.statusId.toString() === statusId;
     });
   }
 
+  /**
+   * get column index by status id from board columns
+   * @param board
+   * @param statusId
+   */
   getColumnIndexFromStatus(board: BoardModel, statusId: string): number {
     return board.columns.findIndex(column => {
       return column.includedStatuses.some(status => status.statusId.toString() === statusId);
     });
   }
 
+  /***
+   * add a columns at a specific index in board
+   * @param board
+   * @param columnIndex
+   * @param column
+   */
   addColumnAtSpecificIndex(board: BoardModel, columnIndex: number, column: BoardColumns) {
     board.columns.splice(columnIndex, 0, column);
   }
 
+  /**
+   * removes a column from a board
+   * @param board
+   * @param columnIndex
+   */
   removeColumnFromBoard(board: BoardModel, columnIndex: number): BoardColumns {
     return board.columns.splice(columnIndex, 1)[0];
   }
 
+  /**
+   * removes a status from a column
+   * @param board
+   * @param columnIndex
+   * @param statusId
+   */
   unMergeStatusFromAColumn(board: BoardModel, columnIndex: number, statusId: string) {
     board.columns[columnIndex].includedStatuses = board.columns[columnIndex].includedStatuses.filter(includedStatus => includedStatus.statusId.toString() !== statusId);
   }
 
+  /**
+   * re assignee column order no after column alteration happens
+   * @param board
+   */
   reassignColumnOrderNo(board: BoardModel): BoardColumns[] {
     return board.columns.map((column, index) => {
       column.columnOrderNo = index + 1;
@@ -118,6 +155,10 @@ export class BoardUtilityService {
     });
   }
 
+  /**
+   * filter hidden status from all the status from the all the columns from a board
+   * @param board
+   */
   filterHiddenStatues(board: BoardModel): TaskStatusModel[] {
     const statues: TaskStatusModel[] = [];
     board.columns.forEach(column => {
