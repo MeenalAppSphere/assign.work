@@ -5,9 +5,8 @@ import {
   MoveTaskToStage,
   ProjectStatus,
   Sprint,
-  SprintStage,
-  SprintStageTask,
-  SprintStatusEnum,
+  SprintColumn,
+  SprintColumnTask,
   Task,
   TaskTypeModel,
   User
@@ -47,50 +46,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   public dateFormat = 'MM/dd/yyyy';
   public sprintForm: FormGroup;
 
-  public moveFromStage: SprintStage;
-
-
-  public sprintDataSource: Sprint[] = [
-    {
-      id: '1',
-      name: 'Sprint 1',
-      projectId: '',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '2',
-      name: 'Sprint 2',
-      projectId: '',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '3',
-      name: 'Sprint 3',
-      projectId: '',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    }
-  ];
+  public moveFromStage: SprintColumn;
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
@@ -136,25 +92,23 @@ export class BoardComponent implements OnInit, OnDestroy {
 
 
   public filterTask(user: User) {
-    console.log('isSelected before', user.isSelected);
     user.isSelected = !user.isSelected;
-    console.log('isSelected after', user.isSelected);
     this.boardData = this.boardDataClone;
 
-    if (this.boardData && this.boardData.stages && this.boardData.stages.length) {
+    if (this.boardData && this.boardData.columns && this.boardData.columns.length) {
 
-      this.boardData.stages.forEach((stage) => {
+      this.boardData.columns.forEach((column) => {
 
-        if (stage.tasks && stage.tasks.length) {
-          let tasks: SprintStageTask[] = [];
+        if (column.tasks && column.tasks.length) {
+          let tasks: SprintColumnTask[];
 
-          tasks = stage.tasks.filter((task) => {
+          tasks = column.tasks.filter((task) => {
             // console.log(task.task.assignee.emailId +'---'+ user.emailId)
             if (task.task.assigneeId && task.task.assignee.emailId === user.emailId) {
               return task;
             }
           });
-          stage.tasks = tasks;
+          column.tasks = tasks;
         }
 
       });
@@ -183,7 +137,7 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   private prepareBoardData(data: BaseResponseModel<Sprint>) {
     if (data.data) {
-      data.data.stages.forEach((stage) => {
+      data.data.columns.forEach((stage) => {
         stage.tasks.forEach((task) => {
           if (!task.task.priority) {
             task.task.priority = {
@@ -204,7 +158,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async moveTask(task: SprintStageTask, stage: SprintStage) {
+  public async moveTask(task: SprintColumnTask, stage: SprintColumn) {
     //push to target stage for ui
     stage.tasks.push(task);
 
@@ -251,11 +205,11 @@ export class BoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDragStart(item: SprintStage) {
+  onDragStart(item: SprintColumn) {
     this.moveFromStage = item;
   }
 
-  async onDragEnd($event, item: SprintStage) {
+  async onDragEnd($event, item: SprintColumn) {
     this.moveTask($event.data, item);
   }
 

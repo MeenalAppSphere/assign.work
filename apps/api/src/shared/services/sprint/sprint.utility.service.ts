@@ -151,11 +151,11 @@ export class SprintUtilityService {
     // calculate over progress
     sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
 
-    // loop over stages and convert total estimation time to readable format
-    if (sprint.stages) {
-      sprint.stages.forEach(stage => {
-        stage.stage = projectDetails.settings.stages.find(st => st.id === stage.id);
-        stage.totalEstimationReadable = secondsToString(stage.totalEstimation);
+    // loop over columns and convert total estimation time to readable format
+    if (sprint.columns) {
+      sprint.columns.forEach(column => {
+        // column.stage = projectDetails.settings.stages.find(st => st.id === stage.id);
+        column.totalEstimationReadable = secondsToString(column.totalEstimation);
       });
     }
 
@@ -230,7 +230,7 @@ export class SprintUtilityService {
     }
 
     // check if sprint has any tasks or not
-    const checkIfThereAnyTasks = sprintDetails.stages.some(stage => {
+    const checkIfThereAnyTasks = sprintDetails.columns.some(stage => {
       return !!stage.tasks.length;
     });
 

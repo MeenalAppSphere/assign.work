@@ -1,5 +1,5 @@
 import { BoardColumns, BoardModel, Project, TaskStatusModel } from '@aavantan-app/models';
-import { BadRequest } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { DEFAULT_BOARD_NAME } from '../../helpers/defaultValueConstant';
 
 export class BoardUtilityService {
@@ -33,6 +33,9 @@ export class BoardUtilityService {
     board.columns = [];
     board.createdById = project.createdById;
     board.isDeleted = false;
+    board.publishedById = project.createdById;
+    board.publishedAt = generateUtcDate();
+    board.isPublished = true;
 
     project.settings.statuses.forEach((status: any, index) => {
       board.columns.push({

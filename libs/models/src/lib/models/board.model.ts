@@ -27,6 +27,10 @@ export class BoardModel extends BaseDbModel {
   projectId: string;
   project?: Project;
   columns?: BoardColumns[];
+  isPublished: boolean;
+  publishedById: string;
+  publishedBy?: User;
+  publishedAt?: Date;
 }
 
 export class GetActiveBoardRequestModel {

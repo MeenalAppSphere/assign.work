@@ -14,10 +14,10 @@ import {
   PublishSprintModel,
   RemoveTaskFromSprintModel,
   Sprint,
+  SprintColumn,
   SprintErrorEnum,
   SprintErrorResponse,
   SprintErrorResponseItem,
-  SprintStage,
   SprintStatusEnum,
   Task,
   TaskAssigneeMap,
@@ -51,11 +51,11 @@ const commonPopulationForSprint = [{
 }];
 
 const detailedPopulationForSprint = [...commonPopulationForSprint, {
-  path: 'stages.tasks.addedBy',
+  path: 'columns.tasks.addedBy',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
-  path: 'stages.tasks.task',
+  path: 'columns.tasks.task',
   select: 'name displayName sprintId priority taskType status assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime',
   justOne: true,
   populate: {
@@ -203,14 +203,14 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     });
 
     // create stages array for sprint from project
-    model.sprint.stages = [];
+    model.sprint.columns = [];
     projectDetails.settings.stages.forEach(stage => {
-      const sprintStage = new SprintStage();
+      const sprintStage = new SprintColumn();
       sprintStage.id = stage.id;
       sprintStage.status = [];
       sprintStage.tasks = [];
       sprintStage.totalEstimation = 0;
-      model.sprint.stages.push(sprintStage);
+      model.sprint.columns.push(sprintStage);
     });
 
     // set sprint created by id
@@ -331,7 +331,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // gather all task from all stages to this variable
       const allStagesTasksIds: Array<string | Types.ObjectId> = [];
-      sprintDetails.stages.forEach(stage => {
+      sprintDetails.columns.forEach(stage => {
         allStagesTasksIds.push(...stage.tasks.map(task => task.taskId.toString()));
       });
 
@@ -375,10 +375,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           task.id = task['_id'];
 
           // minus task estimation from stages[0].totalEstimation ( first stage )
-          sprintDetails.stages[0].totalEstimation -= task.estimatedTime;
+          sprintDetails.columns[0].totalEstimation -= task.estimatedTime;
 
           // remove task from stage
-          sprintDetails.stages[0].tasks = sprintDetails.stages[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
+          sprintDetails.columns[0].tasks = sprintDetails.columns[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
 
           // minus task estimation from sprint total estimation
           sprintDetails.totalEstimation -= task.estimatedTime;
@@ -512,7 +512,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         for (let i = 0; i < newTasksDetails.length; i++) {
 
           // check if task is already in any of sprint stage
-          const taskIsAlreadyInSprint = sprintDetails.stages.some(stage => {
+          const taskIsAlreadyInSprint = sprintDetails.columns.some(stage => {
             return stage.tasks.some(task => task.taskId === newTasksDetails[i].id);
           });
 
@@ -525,9 +525,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           sprintDetails.totalEstimation += newTasksDetails[i].estimatedTime;
 
           // add task estimation to stage total estimation
-          sprintDetails.stages[0].totalEstimation += newTasksDetails[i].estimatedTime;
+          sprintDetails.columns[0].totalEstimation += newTasksDetails[i].estimatedTime;
           // add task to stage
-          sprintDetails.stages[0].tasks.push({
+          sprintDetails.columns[0].tasks.push({
             taskId: newTasksDetails[i].id,
             addedAt: generateUtcDate(),
             addedById: this._generalService.userId
@@ -543,7 +543,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // update sprint
       await this.updateById(model.sprintId, {
         $set: {
-          stages: sprintDetails.stages,
+          stages: sprintDetails.columns,
           totalEstimation: sprintDetails.totalEstimation,
           totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
           totalRemainingTime: sprintDetails.totalRemainingTime
@@ -628,8 +628,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         task.id = task['_id'];
 
         // minus task estimation from stages[0].totalEstimation ( first stage )
-        sprintDetails.stages[0].totalEstimation -= task.estimatedTime;
-        sprintDetails.stages[0].tasks = sprintDetails.stages[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
+        sprintDetails.columns[0].totalEstimation -= task.estimatedTime;
+        sprintDetails.columns[0].tasks = sprintDetails.columns[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
 
         // minus task estimation from sprint total estimation
         sprintDetails.totalEstimation -= task.estimatedTime;
@@ -691,7 +691,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       const sprintDetails = await this.getSprintDetails(model.sprintId);
 
       // check task is in sprint or not
-      const isTaskInSprint = sprintDetails.stages.some(stage => stage.tasks.some(task => task.taskId.toString() === model.taskId));
+      const isTaskInSprint = sprintDetails.columns.some(stage => stage.tasks.some(task => task.taskId.toString() === model.taskId));
 
       if (!isTaskInSprint) {
         throw new BadRequestException('This Task is not added in sprint');
@@ -723,12 +723,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       }
 
       // find current stage id where task is already added
-      const currentStageId = sprintDetails.stages.find(stage => {
+      const currentStageId = sprintDetails.columns.find(stage => {
         return stage.tasks.some(task => task.taskId.toString() === model.taskId);
       }).id;
 
       // loop over stages
-      sprintDetails.stages.forEach((stage) => {
+      sprintDetails.columns.forEach((stage) => {
         // remove task from current stage and minus estimation time from total stage estimation time
         if (stage.id === currentStageId) {
           stage.totalEstimation -= taskDetail.estimatedTime;
@@ -877,15 +877,15 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // find out newly created stages from project details
     const newStagesFromProject = projectDetails.settings.stages.filter(stage => {
-      return !sprintDetails.stages.some(sprintStage => sprintStage.id === stage.id);
+      return !sprintDetails.columns.some(sprintStage => sprintStage.id === stage.id);
     });
 
-    const newStagesModels: SprintStage[] = [];
+    const newStagesModels: SprintColumn[] = [];
 
     // create new stages model for adding in db
     newStagesFromProject.forEach(newStage => {
       // create sprint model
-      const sprintStage = new SprintStage();
+      const sprintStage = new SprintColumn();
       sprintStage.id = newStage.id;
       sprintStage.status = [];
       sprintStage.tasks = [];
@@ -948,7 +948,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
     // tasks is only added in only first stage means stage[0]
-    sprint.stages[0].tasks.forEach(obj => {
+    sprint.columns[0].tasks.forEach(obj => {
       obj.task = this._sprintUtilityService.parseTaskObjectForUi(obj.task, projectDetails);
     });
 
@@ -966,7 +966,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     const allTaskList = [];
 
     // loop over stages and add all task to allTaskList
-    currentSprintDetails.stages.forEach(stage => {
+    currentSprintDetails.columns.forEach(stage => {
       stage.tasks.forEach(task => {
         allTaskList.push(task.taskId);
       });

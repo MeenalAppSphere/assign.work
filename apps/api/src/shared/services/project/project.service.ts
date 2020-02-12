@@ -21,7 +21,7 @@ import {
   SearchProjectRequest,
   SearchProjectTags,
   Sprint,
-  SprintStage,
+  SprintColumn,
   SwitchProjectRequest,
   User,
   UserStatus
@@ -528,7 +528,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       if (projectDetails.sprintId) {
 
         // create sprint model
-        const sprintStage = new SprintStage();
+        const sprintStage = new SprintColumn();
         sprintStage.id = stage.id;
         sprintStage.status = [];
         sprintStage.tasks = [];

@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
-import { basicSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
@@ -10,7 +10,7 @@ export const taskTypeSchema = new Schema({
   displayName: { type: String, required: [true, 'Task type display name is required'] },
   projectId: { type: Schema.Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
   description: { type: String },
-  ...basicSchemaFields
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options

@@ -1,6 +1,6 @@
 import { Schema, Types } from 'mongoose';
 import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
-import { basicSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import {
   DEFAULT_PROJECT_TEMPLATE_TYPE,
   DEFAULT_WORKING_CAPACITY,
@@ -52,7 +52,7 @@ export const projectSchema = new Schema({
   },
   activeBoardId: { type: Types.ObjectId, ref: DbCollection.board },
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
-  ...basicSchemaFields
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options

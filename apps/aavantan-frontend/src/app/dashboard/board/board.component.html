@@ -66,13 +66,13 @@
     <div class="shadow-div-right"></div>
 
     <div class="container-fluid">
-      <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.stages && boardData.stages.length>0">
+      <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.columns && boardData.columns.length>0">
 
         <div class="column dndList" joyrideStep="board" title="Board" text="Board"
-             *ngFor="let item of boardData.stages; let last">
+             *ngFor="let item of boardData.columns; let last">
           <div class="card card-block">
 
-            <div class="card-header">{{item.stage.name}} <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>
+            <div class="card-header">{{item.name}} <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>
               <div class="pull-left" style="line-height: 10px;">
                 <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
                 <span class="font-size-12">{{item.totalEstimationReadable}}</span>
@@ -242,5 +242,5 @@
 
 <app-close-sprint *ngIf="closeSprintModalIsVisible" [closeSprintModalIsVisible]="closeSprintModalIsVisible"
                   [boardData]="boardData" [activeSprintData]="activeSprintData"
-                  (toggleCloseSprintShow)="toggleCloseSprintShow($event)"></app-close-sprint>
+                  (toggleCloseSprintShow)="toggleCloseSprintShow()"></app-close-sprint>
 

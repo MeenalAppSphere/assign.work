@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import { DbCollection, SprintStatus } from '@aavantan-app/models';
 import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../../shared/helpers/defaultValueConstant';
 
@@ -30,7 +30,7 @@ export const sprintSchema = new Schema({
     updatedAt: { type: Date },
     id: { type: String }
   },
-  stages: {
+  columns: {
     type: Array,
     default: [],
     status: [],
@@ -42,8 +42,10 @@ export const sprintSchema = new Schema({
       description: { type: String },
       sequenceNumber: { type: Number },
       addedAt: { type: Date },
+      addedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
       updatedAt: { type: Date },
-      addedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
+      movedAt: { type: Date },
+      movedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
     }
   },
   membersCapacity: {
@@ -56,9 +58,8 @@ export const sprintSchema = new Schema({
   totalEstimation: { type: Number, default: 0 },
   totalLoggedTime: { type: Number, default: 0 },
   totalOverLoggedTime: { type: Number, default: 0 },
-  createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
-  isDeleted: { type: Boolean, default: false }
+  boardId: { type: Schema.Types.ObjectId, ref: DbCollection.board },
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options
@@ -90,15 +91,15 @@ sprintSchema.virtual('updatedBy', {
   foreignField: '_id'
 });
 
-sprintSchema.virtual('stages.tasks.task', {
+sprintSchema.virtual('columns.tasks.task', {
   ref: DbCollection.tasks,
-  localField: 'stages.tasks.taskId',
+  localField: 'columns.tasks.taskId',
   foreignField: '_id'
 });
 
-sprintSchema.virtual('stages.tasks.addedBy', {
+sprintSchema.virtual('columns.tasks.addedBy', {
   ref: DbCollection.users,
-  localField: 'stages.tasks.addedById',
+  localField: 'columns.tasks.addedById',
   foreignField: '_id'
 });
 

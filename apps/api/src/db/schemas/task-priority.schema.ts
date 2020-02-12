@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { basicSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import { DbCollection } from '@aavantan-app/models';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -9,7 +9,7 @@ export const taskPrioritySchema = new Schema({
   color: { type: String, required: [true, 'Priority color is required'] },
   projectId: { type: Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
   description: { type: String },
-  ...basicSchemaFields
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options
