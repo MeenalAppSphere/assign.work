@@ -155,7 +155,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
 
     result.items = result.items.map(task => {
-      return this.parseTaskObjectForUi(task, projectDetails);
+      return this.parseTaskObjectForUi(task);
     });
 
     return result;
@@ -173,20 +173,15 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     return this.withRetrySession(async (session: ClientSession) => {
       const projectDetails = await this.getProjectDetails(model.projectId);
 
-      // validation
-      if (!model || !model.taskType) {
-        BadRequest('Please add Task Type');
-      }
-
-      const lastTask = await this._taskModel.find({
-        projectId: model.projectId
-      }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
-
       const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
 
       if (!taskTypeDetails) {
         BadRequest('Task Type not found');
       }
+
+      const lastTask = await this._taskModel.find({
+        projectId: model.projectId
+      }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
       if (lastTask[0]) {
         // tslint:disable-next-line:radix
@@ -253,7 +248,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async updateTask(model: Task): Promise<Task> {
-    return this.withRetrySession(async (session: ClientSession) => {
+    await this.withRetrySession(async (session: ClientSession) => {
       if (!model || !model.id) {
         BadRequest('Task not found');
       }
@@ -306,7 +301,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // model task-type and model display-name changed then re assign display-name with new task-type
       if (model.taskType && model.displayName) {
-        const taskTypeDetails = projectDetails.settings.taskTypes.find(f => f.id === model.taskType);
+        const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
 
         // check if task type changed than update task display name
         const separateDisplayName = model.displayName.split('-');
@@ -349,11 +344,16 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
-      await this.updateHelper(model.id, model, taskHistory, session);
 
-      const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
-      return this.parseTaskObjectForUi(task, projectDetails);
+      // update task by id
+      await this.updateById(model.id, model, session);
+
+      // add comment updated history
+      await this._taskHistoryService.addHistory(taskHistory, session);
     });
+
+    const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
+    return this.parseTaskObjectForUi(task);
   }
 
   /**
@@ -412,7 +412,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     if (!task) {
       throw new BadRequestException('task not found');
     }
-    return this.parseTaskObjectForUi(task, projectDetails);
+    return this.parseTaskObjectForUi(task);
   }
 
   async getTasks(model: TaskFilterDto) {
@@ -690,9 +690,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   /**
    * parse task object, convert seconds to readable string, fill task type, priority, status etc..
    * @param task : Task
-   * @param projectDetails: Project
    */
-  private parseTaskObjectForUi(task: Task, projectDetails: Project) {
+  private parseTaskObjectForUi(task: Task) {
     task.id = task['_id'];
 
     if (task.taskType) {

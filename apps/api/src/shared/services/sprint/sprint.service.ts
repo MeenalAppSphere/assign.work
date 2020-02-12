@@ -23,17 +23,24 @@ import {
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
-import { Document, Model, Types } from 'mongoose';
+import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from '../general.service';
 import * as moment from 'moment';
-import { generateUtcDate, hourToSeconds, secondsToString, validWorkingDaysChecker } from '../../helpers/helpers';
+import {
+  BadRequest,
+  generateUtcDate,
+  hourToSeconds,
+  secondsToString,
+  validWorkingDaysChecker
+} from '../../helpers/helpers';
 import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from './sprint.utility.service';
 import { TaskHistoryService } from '../task-history.service';
 import { TaskTimeLogService } from '../task-time-log.service';
 import { ProjectService } from '../project/project.service';
+import { BoardUtilityService } from '../board/board.utility.service';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -65,7 +72,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
 }];
 
 const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById';
-const detailedFiledSelection = `${commonFieldSelection} stages `;
+const detailedFiledSelection = `${commonFieldSelection} columns `;
 
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> implements OnModuleInit {
@@ -76,6 +83,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   private _taskTimeLogService: TaskTimeLogService;
 
   private _sprintUtilityService: SprintUtilityService;
+  private _boardUtilityService: BoardUtilityService;
 
   constructor(
     @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
@@ -90,6 +98,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
 
     this._sprintUtilityService = new SprintUtilityService(this._sprintModel);
+    this._boardUtilityService = new BoardUtilityService();
   }
 
   /**
@@ -117,7 +126,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // loop over sprints array and prepare vm object for all sprints
     result.items.forEach(sprint => {
-      sprint = this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
+      sprint = this._sprintUtilityService.prepareSprintVm(sprint);
     });
     return result;
   }
@@ -140,7 +149,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     let sprint = await this._sprintModel.findOne(filter).populate(detailedPopulationForSprint).select(detailedFiledSelection).lean().exec();
-    sprint = this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
+    sprint = this._sprintUtilityService.prepareSprintVm(sprint);
 
     // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
     // tasks is only added in only first stage means stage[0]
@@ -164,73 +173,60 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model: CreateSprintModel
    */
   public async createSprint(model: CreateSprintModel) {
-    // region validations
-    // sprint
-    if (!model.sprint) {
-      throw new BadRequestException('invalid request sprint details missing');
-    }
 
-    // perform common validations
-    this._sprintUtilityService.commonSprintValidator(model.sprint);
-    // endregion
+    const newSprint = await this.withRetrySession(async (session: ClientSession) => {
+      // perform common validations
+      this._sprintUtilityService.commonSprintValidator(model.sprint);
 
-    // get project details and check if current user is member of project
-    const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId);
+      // get project details and check if current user is member of project
+      const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
 
-    // check if project have stages
-    if (!projectDetails.settings.stages.length) {
-      throw new BadRequestException('No stages found in Project please create at least one stage');
-    }
+      if (!projectDetails.activeBoard) {
+        BadRequest('Active board not found, Sprint can not be created');
+      }
 
-    // sprint unique name validation per project
-    const isSprintNameAvailable = await this._sprintUtilityService.sprintNameAvailable(model.sprint.projectId, model.sprint.name);
+      // sprint duplicate name validation per project
+      if (await this.isDuplicate(model.sprint)) {
+        BadRequest('Duplicate Sprint Name is not allowed');
+      }
 
-    if (!isSprintNameAvailable) {
-      throw new BadRequestException('Sprint name already exits');
-    }
+      // add all project collaborators as sprint member and add their's work capacity to total capacity
+      model.sprint.membersCapacity = [];
+      model.sprint.totalCapacity = 0;
 
-    // add all project collaborators as sprint member and add their's work capacity to total capacity
-    model.sprint.membersCapacity = [];
-    model.sprint.totalCapacity = 0;
-
-    // add only those members who accepted invitation of project means active collaborator of project
-    projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
-      model.sprint.membersCapacity.push({
-        userId: member.userId,
-        workingCapacity: member.workingCapacity,
-        workingCapacityPerDay: member.workingCapacityPerDay,
-        workingDays: member.workingDays
+      // add only those members who accepted invitation of project means active collaborator of project
+      projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
+        model.sprint.membersCapacity.push({
+          userId: member.userId,
+          workingCapacity: member.workingCapacity,
+          workingCapacityPerDay: member.workingCapacityPerDay,
+          workingDays: member.workingDays
+        });
+        model.sprint.totalCapacity += Number(member.workingCapacity);
       });
-      model.sprint.totalCapacity += Number(member.workingCapacity);
+
+      // create stages array for sprint from project
+      model.sprint.columns = [];
+
+      projectDetails.activeBoard.columns.forEach(column => {
+        const sprintColumn = new SprintColumn();
+        sprintColumn.name = column.headerStatus.name;
+        sprintColumn.id = column.headerStatusId;
+        sprintColumn.status = [];
+        sprintColumn.tasks = [];
+        sprintColumn.totalEstimation = 0;
+
+        model.sprint.columns.push(sprintColumn);
+      });
+
+      // set sprint created by id
+      model.sprint.createdById = this._generalService.userId;
+
+      return await this.create([model.sprint], session);
     });
 
-    // create stages array for sprint from project
-    model.sprint.columns = [];
-    projectDetails.settings.stages.forEach(stage => {
-      const sprintStage = new SprintColumn();
-      sprintStage.id = stage.id;
-      sprintStage.status = [];
-      sprintStage.tasks = [];
-      sprintStage.totalEstimation = 0;
-      model.sprint.columns.push(sprintStage);
-    });
-
-    // set sprint created by id
-    model.sprint.createdById = this._generalService.userId;
-
-    // create session and use it for whole transaction
-    const session = await this.startSession();
-
-    try {
-      const newSprint = await this.create([model.sprint], session);
-      await this.commitTransaction(session);
-
-      const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
-      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
+    const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
+    return this._sprintUtilityService.prepareSprintVm(sprint);
   }
 
   /**
@@ -309,7 +305,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(model.sprint.id, commonPopulationForSprint, commonFieldSelection);
-      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
+      return this._sprintUtilityService.prepareSprintVm(sprint);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -321,29 +317,25 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model: AssignTasksToSprintModel
    */
   public async assignTasksToSprint(model: AssignTasksToSprintModel): Promise<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse> {
-    // start the session
-    const session = await this.startSession();
-
-    try {
-      // get project details by project id
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+    return await this.withRetrySession(async (session: ClientSession) => {
+      const project = await this._projectService.getProjectDetails(model.projectId, true);
 
       // get sprint details from sprint id
       const sprintDetails = await this.getSprintDetails(model.sprintId);
 
-      // gather all task from all stages to this variable
-      const allStagesTasksIds: Array<string | Types.ObjectId> = [];
-      sprintDetails.columns.forEach(stage => {
-        allStagesTasksIds.push(...stage.tasks.map(task => task.taskId.toString()));
+      // gather all task from all columns to this variable
+      const allColumnsTasksIds: Array<string | Types.ObjectId> = [];
+      sprintDetails.columns.forEach(column => {
+        allColumnsTasksIds.push(...column.tasks.map(task => task.taskId.toString()));
       });
 
       // get all task that need to be added to sprint
       let newTasks: Array<string | Types.ObjectId> = model.tasks.filter(task => {
-        return !allStagesTasksIds.includes(task);
+        return !allColumnsTasksIds.includes(task);
       });
 
       // get all removed task from sprint
-      let removedTasks: Array<string | Types.ObjectId> = allStagesTasksIds.filter(task => {
+      let removedTasks: Array<string | Types.ObjectId> = allColumnsTasksIds.filter(task => {
         return !model.tasks.includes(task as string);
       });
 
@@ -374,13 +366,14 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         // update task in db set sprintId to null
         for (let i = 0; i < removedTasksDetails.length; i++) {
           const task = removedTasksDetails[i];
+          const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
           task.id = task['_id'];
 
           // minus task estimation from stages[0].totalEstimation ( first stage )
-          sprintDetails.columns[0].totalEstimation -= task.estimatedTime;
+          sprintDetails.columns[columnIndex].totalEstimation -= task.estimatedTime;
 
           // remove task from stage
-          sprintDetails.columns[0].tasks = sprintDetails.columns[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
+          sprintDetails.columns[columnIndex].tasks = sprintDetails.columns[columnIndex].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
 
           // minus task estimation from sprint total estimation
           sprintDetails.totalEstimation -= task.estimatedTime;
@@ -430,7 +423,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
             sprintError.tasksErrors.push(checkTask);
           } else {
             // no error then get task assignee id and push it to the task assignee mapping holder variable
-            const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === task.assigneeId);
+            const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === task.assigneeId.toString());
 
             // if assignee already added then only update it's totalEstimation
             if (assigneeIndex > -1) {
@@ -512,6 +505,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
         // now all validations have been completed add task to sprint
         for (let i = 0; i < newTasksDetails.length; i++) {
+          const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, newTasksDetails[i].statusId);
 
           // check if task is already in any of sprint stage
           const taskIsAlreadyInSprint = sprintDetails.columns.some(stage => {
@@ -527,9 +521,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           sprintDetails.totalEstimation += newTasksDetails[i].estimatedTime;
 
           // add task estimation to stage total estimation
-          sprintDetails.columns[0].totalEstimation += newTasksDetails[i].estimatedTime;
+          sprintDetails.columns[columnIndex].totalEstimation += newTasksDetails[i].estimatedTime;
           // add task to stage
-          sprintDetails.columns[0].tasks.push({
+          sprintDetails.columns[columnIndex].tasks.push({
             taskId: newTasksDetails[i].id,
             addedAt: generateUtcDate(),
             addedById: this._generalService.userId
@@ -545,7 +539,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // update sprint
       await this.updateById(model.sprintId, {
         $set: {
-          stages: sprintDetails.columns,
+          columns: sprintDetails.columns,
           totalEstimation: sprintDetails.totalEstimation,
           totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
           totalRemainingTime: sprintDetails.totalRemainingTime
@@ -558,9 +552,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // bulk update all added tasks and set sprint id
       await this._taskService.bulkUpdate({ _id: { $in: newTasks } }, { $set: { sprintId: model.sprintId } }, session);
 
-      // commit transaction
-      await this.commitTransaction(session);
-
       return {
         totalCapacity: sprintDetails.totalCapacity,
         totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
@@ -570,11 +561,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
         tasks: model.tasks
       };
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
-
+    });
   }
 
   /**
@@ -631,7 +618,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         const task = taskDetails[i];
         task.id = task['_id'];
 
-        // minus task estimation from stages[0].totalEstimation ( first stage )
+        // minus task estimation from columns[0].totalEstimation ( first stage )
         sprintDetails.columns[0].totalEstimation -= task.estimatedTime;
         sprintDetails.columns[0].tasks = sprintDetails.columns[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
 
@@ -733,7 +720,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         return stage.tasks.some(task => task.taskId.toString() === model.taskId);
       }).id;
 
-      // loop over stages
+      // loop over columns
       sprintDetails.columns.forEach((stage) => {
         // remove task from current stage and minus estimation time from total stage estimation time
         if (stage.id === currentStageId) {
@@ -762,7 +749,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.commitTransaction(session);
 
       const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
-      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
+      return this._sprintUtilityService.prepareSprintVm(sprint);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -859,7 +846,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // return sprint details
       const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
-      return this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
+      return this._sprintUtilityService.prepareSprintVm(sprint);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -881,7 +868,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // validations
     this._sprintUtilityService.publishSprintValidations(sprintDetails);
 
-    // find out newly created stages from project details
+    // find out newly created columns from project details
     const newStagesFromProject = projectDetails.settings.stages.filter(stage => {
       return !sprintDetails.columns.some(sprintStage => sprintStage.id === stage.id);
     });
@@ -950,7 +937,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // prepare sprint vm model
-    sprint = this._sprintUtilityService.prepareSprintVm(sprint, projectDetails);
+    sprint = this._sprintUtilityService.prepareSprintVm(sprint);
 
     // prepare tasks details object only for stage[0], because this is unpublished sprint and in when sprint is not published at that time
     // tasks is only added in only first stage means stage[0]
@@ -1029,6 +1016,27 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     //   await this.abortTransaction(session);
     // }
 
+  }
+
+  /**
+   * is duplicate sprint name
+   * @param model
+   * @param exceptThis
+   */
+  private async isDuplicate(model: Sprint, exceptThis?: string): Promise<boolean> {
+    const queryFilter = {
+      projectId: model.projectId, name: { $regex: `^${model.name.trim()}$`, $options: 'i' }
+    };
+
+    if (exceptThis) {
+      queryFilter['_id'] = { $ne: exceptThis };
+    }
+
+    const queryResult = await this.find({
+      filter: queryFilter
+    });
+
+    return !!(queryResult && queryResult.length);
   }
 
   /**

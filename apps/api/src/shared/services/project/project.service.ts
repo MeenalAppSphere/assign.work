@@ -782,21 +782,35 @@ export class ProjectService extends BaseService<Project & Document> implements O
   /**
    * get project details by id
    * @param id: project id
+   * @param getFullDetails
    */
-  public async getProjectDetails(id: string): Promise<Project> {
+  public async getProjectDetails(id: string, getFullDetails: boolean = false): Promise<Project> {
     if (!this.isValidObjectId(id)) {
       throw new NotFoundException('Project not found');
     }
 
-    const projectDetails: Project = await this._projectModel.findById(id)
-      .select('name members settings createdById updatedBy sprintId organizationId')
-      .populate([{
+    const populate: any = [
+      {
         path: 'createdBy',
         select: 'firstName lastName emailId'
       }, {
         path: 'organization',
         select: 'name'
-      }, { path: 'settings.statuses' }, { path: 'settings.taskTypes' }, { path: 'settings.priorities' }])
+      }, { path: 'settings.statuses' }, { path: 'settings.taskTypes' }, { path: 'settings.priorities' }];
+
+    if (getFullDetails) {
+      populate.push({
+        path: 'activeBoard',
+        select: 'name projectId columns publishedAt publishedById createdById',
+        populate: {
+          path: 'columns.headerStatus columns.includedStatuses.status columns.includedStatuses.defaultAssignee'
+        }
+      });
+    }
+
+    const projectDetails: Project = await this._projectModel.findById(id)
+      .select('name members settings createdById updatedBy sprintId organizationId activeBoardId')
+      .populate(populate)
       .lean().exec();
 
     if (!projectDetails) {

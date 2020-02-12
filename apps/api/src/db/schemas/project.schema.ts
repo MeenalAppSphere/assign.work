@@ -96,3 +96,11 @@ projectSchema
     foreignField: '_id',
     justOne: true
   });
+
+projectSchema
+  .virtual('activeBoard', {
+    ref: DbCollection.board,
+    localField: 'activeBoardId',
+    foreignField: '_id',
+    justOne: true
+  });

@@ -112,9 +112,9 @@ export class BoardUtilityService {
    * @param board
    * @param statusId
    */
-  getColumnIndexFromStatus(board: BoardModel, statusId: string): number {
+  getColumnIndexFromStatus(board: BoardModel, statusId: string = ''): number {
     return board.columns.findIndex(column => {
-      return column.includedStatuses.some(status => status.statusId.toString() === statusId);
+      return column.includedStatuses.some(status => status.statusId.toString() === statusId.toString());
     });
   }
 

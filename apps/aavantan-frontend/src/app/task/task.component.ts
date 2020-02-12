@@ -727,7 +727,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
 
 
-    if (!task.taskType) {
+    if (!task.taskTypeId) {
       this.notification.error('Error', 'Please select task type');
       return;
     }
