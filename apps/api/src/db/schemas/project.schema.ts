@@ -66,6 +66,14 @@ projectSchema
 
 // virtual
 projectSchema
+  .virtual('organization', {
+    ref: DbCollection.organizations,
+    localField: 'organizationId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
   .virtual('members.userDetails', {
     ref: DbCollection.users,
     localField: 'members.userId',

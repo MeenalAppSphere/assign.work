@@ -7,7 +7,7 @@ export class BoardUtilityService {
   }
 
   /**
-   * check validation for creating a board
+   * check validation for creating/ updating a board
    * @param model
    */
   checkValidations(model: BoardModel) {

@@ -656,7 +656,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         ]
       }]
     };
-    query.select = 'name description template createdAt updatedAt';
+    query.select = 'name description template createdAt updatedAt createdById';
     query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
     query.sort = 'updatedAt';
     query.sortBy = 'desc';
@@ -789,7 +789,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
 
     const projectDetails: Project = await this._projectModel.findById(id)
-      .select('name members settings createdBy updatedBy sprintId organization')
+      .select('name members settings createdById updatedBy sprintId organizationId')
       .populate([{
         path: 'createdBy',
         select: 'firstName lastName emailId'
