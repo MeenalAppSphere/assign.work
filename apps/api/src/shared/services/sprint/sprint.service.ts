@@ -10,7 +10,6 @@ import {
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
   MoveTaskToStage,
-  Project,
   PublishSprintModel,
   RemoveTaskFromSprintModel,
   Sprint,
@@ -21,10 +20,8 @@ import {
   SprintStatusEnum,
   Task,
   TaskAssigneeMap,
-  TaskTimeLog,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel,
-  User
+  UpdateSprintModel
 } from '@aavantan-app/models';
 import { Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -35,6 +32,8 @@ import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from './sprint.utility.service';
 import { TaskHistoryService } from '../task-history.service';
+import { TaskTimeLogService } from '../task-time-log.service';
+import { ProjectService } from '../project/project.service';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -70,24 +69,27 @@ const detailedFiledSelection = `${commonFieldSelection} stages `;
 
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> implements OnModuleInit {
+
+  private _projectService: ProjectService;
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
+  private _taskTimeLogService: TaskTimeLogService;
+
   private _sprintUtilityService: SprintUtilityService;
 
   constructor(
     @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
-    @InjectModel(DbCollection.taskTimeLog) protected readonly _taskTimeLogModel: Model<TaskTimeLog & Document>,
     private _generalService: GeneralService, private _moduleRef: ModuleRef
   ) {
     super(_sprintModel);
-    this._sprintUtilityService = new SprintUtilityService(_sprintModel);
   }
 
   onModuleInit(): any {
+    this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+
+    this._sprintUtilityService = new SprintUtilityService(this._sprintModel);
   }
 
   /**
@@ -96,7 +98,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model
    */
   public async getAllSprints(model: GetAllSprintRequestModel) {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
     // set populate fields
     model.populate = [{
@@ -125,7 +127,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * model: GetSprintByIdRequestModel
    */
   public async getSprintById(model: GetSprintByIdRequestModel, onlyPublished: boolean = false) {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
     const filter = {
       _id: model.sprintId,
@@ -173,7 +175,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // endregion
 
     // get project details and check if current user is member of project
-    const projectDetails = await this.getProjectDetails(model.sprint.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId);
 
     // check if project have stages
     if (!projectDetails.settings.stages.length) {
@@ -249,7 +251,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     this._sprintUtilityService.commonSprintValidator(model.sprint);
 
     // get project details
-    const projectDetails = await this.getProjectDetails(model.sprint.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId);
 
     // check if project have stages
     if (!projectDetails.settings.stages.length) {
@@ -324,7 +326,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     try {
       // get project details by project id
-      const projectDetails = await this.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       // get sprint details from sprint id
       const sprintDetails = await this.getSprintDetails(model.sprintId);
@@ -395,7 +397,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           {
             $match: {
               projectId: this.toObjectId(model.projectId),
-              _id: { $in: newTasks } ,
+              _id: { $in: newTasks },
               isDeleted: false
             }
           }
@@ -474,11 +476,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
             // get all already logged time for current sprint time span, commented out for version 2
 
             // get assignee logged time for start and end date of sprint
-            // const assigneeAlreadyLoggedForTheDate = await this._taskTimeLogModel.find({
+            // const assigneeAlreadyLoggedForTheDate = await this._taskTimeLogService.find({
+            // filter: {
             //   createdById: this.toObjectId(taskAssigneeMap[i].memberId),
             //   startedAt: { '$gte': moment(sprintDetails.startedAt).startOf('day').toDate() },
             //   endAt: { '$lt': moment(sprintDetails.endAt).endOf('day').toDate() },
-            //   isDeleted: false
             // });
             //
             // // calculate total of already logged time of assignee
@@ -598,18 +600,20 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     try {
       // get project details by project id
-      const projectDetails = await this.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       // get sprint details from sprint id
       const sprintDetails = await this.getSprintDetails(model.sprintId);
 
       // get all tasks details from given tasks array
-      const taskDetails: Task[] = await this._taskModel.find({
-        projectId: this.toObjectId(model.projectId),
-        sprintId: this.toObjectId(model.sprintId),
-        _id: { $in: model.tasks },
-        isDeleted: false
-      }).lean();
+      const taskDetails: Task[] = await this._taskService.find({
+        filter: {
+          projectId: this.toObjectId(model.projectId),
+          sprintId: this.toObjectId(model.sprintId),
+          _id: { $in: model.tasks }
+        },
+        lean: true
+      });
 
       // check if there any task found
       if (!taskDetails.length) {
@@ -635,7 +639,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         sprintDetails.totalEstimation -= task.estimatedTime;
 
         // update task model
-        await this._taskModel.updateOne({ _id: task.id }, { sprintId: null }, { session });
+        await this._taskService.updateById(task.id, { sprintId: null }, session);
       }
 
       // set total remaining capacity by dividing sprint members totalCapacity - totalEstimation
@@ -685,7 +689,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     try {
       // get project details
-      const projectDetails = await this.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       // get sprint details from sprint id
       const sprintDetails = await this.getSprintDetails(model.sprintId);
@@ -698,11 +702,13 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       }
 
       // get all tasks details from given tasks array
-      const taskDetail: Task = await this._taskModel.findOne({
-        projectId: this.toObjectId(model.projectId),
-        _id: model.taskId,
-        isDeleted: false
-      }).lean();
+      const taskDetail: Task = await this._taskService.findOne({
+        filter: {
+          projectId: this.toObjectId(model.projectId),
+          _id: model.taskId
+        },
+        lean: true
+      });
 
       if (!taskDetail) {
         throw new BadRequestException('Task not found');
@@ -774,7 +780,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // get project details
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
     // check if all members are part of the project
     const everyMemberThere = model.capacity.every(member => projectDetails.members.some(proejctMember => {
@@ -869,7 +875,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model: PublishSprintModel
    */
   public async publishSprint(model: PublishSprintModel) {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
     const sprintDetails = await this.getSprintDetails(model.sprintId);
 
     // validations
@@ -910,7 +916,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.updateById(model.sprintId, updateSprintObject, session);
 
       // update project and set published sprint as active sprint in project
-      await this._projectModel.updateOne({ _id: model.projectId }, { $set: { sprintId: model.sprintId } }, { session });
+      await this._projectService.updateById(model.projectId, { $set: { sprintId: model.sprintId } }, session);
       await this.commitTransaction(session);
       return 'Sprint Published Successfully';
     } catch (e) {
@@ -926,7 +932,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @returns {Promise<DocumentQuery<(Sprint & Document)[], Sprint & Document> & {}>}
    */
   public async getUnPublishSprint(projectId: string) {
-    const projectDetails = await this.getProjectDetails(projectId);
+    const projectDetails = await this._projectService.getProjectDetails(projectId);
 
     // create query object for sprint
     const queryObjectForUnPublishedSprint = {
@@ -960,7 +966,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model
    */
   public async closeSprint(model: CloseSprintModel) {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
     const currentSprintDetails = await this.getSprintDetails(model.sprintId);
 
     const allTaskList = [];
@@ -1023,28 +1029,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     //   await this.abortTransaction(session);
     // }
 
-  }
-
-  /**
-   * get project details by id
-   * @param id: project id
-   */
-  private async getProjectDetails(id: string): Promise<Project> {
-    if (!this.isValidObjectId(id)) {
-      throw new BadRequestException('Project Not Found');
-    }
-    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
-
-    if (!projectDetails) {
-      throw new NotFoundException('Project Not Found');
-    } else {
-      const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
-
-      if (!isMember) {
-        throw new BadRequestException('You are not a part of Project');
-      }
-    }
-    return projectDetails;
   }
 
   /**
