@@ -38,8 +38,8 @@ export class Sprint {
 
 export class SprintColumn {
   id: string;
+  statusId: string;
   name?: string;
-  status: string[];
   tasks: SprintColumnTask[];
   totalEstimation: number;
   totalEstimationReadable?: string;
@@ -140,8 +140,8 @@ export class AddTaskRemoveTaskToSprintResponseModel {
   tasks: string[];
 }
 
-export class MoveTaskToStage extends SprintBaseRequest {
-  stageId: string;
+export class MoveTaskToColumnModel extends SprintBaseRequest {
+  columnId: string;
   taskId: string;
 }
 

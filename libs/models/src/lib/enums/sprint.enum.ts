@@ -11,3 +11,7 @@ export enum SprintErrorEnum {
   alreadyInSprint = 'Task is already in a sprint',
   memberCapacityExceed = 'Member Working Capacity Limit is Exceeded'
 }
+
+export enum SprintActionEnum {
+  taskMovedToColumn= 'Task moved to a new column in Sprint'
+}

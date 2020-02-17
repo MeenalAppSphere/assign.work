@@ -232,7 +232,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
         let: { 'projectId': '$projectId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$projectId'] } } },
-          { $project: { members: 1, organization: 1 } },
+          { $project: { members: 1, organizationId: 1 } },
           { $project: { 'members.workingCapacity': 0, 'members.workingCapacityPerDay': 0, 'members.workingDays': 0 } }
         ],
         as: 'project'
@@ -241,7 +241,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
       {
         $lookup: {
           from: DbCollection.organizations,
-          let: { 'organizationId': '$project.organization' },
+          let: { 'organizationId': '$project.organizationId' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$organizationId'] } } },
             { $project: { members: 1 } }

@@ -530,7 +530,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // create sprint model
         const sprintStage = new SprintColumn();
         sprintStage.id = stage.id;
-        sprintStage.status = [];
+        sprintStage.statusId = stage.id;
         sprintStage.tasks = [];
         sprintStage.totalEstimation = 0;
 

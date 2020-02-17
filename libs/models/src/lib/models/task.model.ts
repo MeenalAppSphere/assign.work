@@ -9,6 +9,7 @@ import { TaskPriorityModel } from './task-priority.model';
 
 export class Task {
   id?: string;
+  _id?: string;
   name: string;
   displayName?: string;
   description?: string;

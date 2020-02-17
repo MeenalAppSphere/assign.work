@@ -151,10 +151,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
           const taskArray: Task[] = [];
           const ids: string[] = [];
-          this.sprintData.columns[0].tasks.forEach((ele) => {
-            ele.task.isSelected = true;
-            taskArray.push(ele.task);
-            ids.push(ele.task.id);
+
+          this.sprintData.columns.forEach(column => {
+            column.tasks.forEach((ele) => {
+              ele.task.isSelected = true;
+              taskArray.push(ele.task);
+              ids.push(ele.task.id);
+            });
           });
 
           this.draftSprint = {

@@ -7,7 +7,7 @@ import {
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
-  MoveTaskToStage,
+  MoveTaskToColumnModel,
   PublishSprintModel,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
@@ -41,8 +41,8 @@ export class SprintController {
   // }
 
   @Post('move-task')
-  async moveTask(@Body() model: MoveTaskToStage) {
-    return await this._sprintService.moveTaskToStage(model);
+  async moveTask(@Body() model: MoveTaskToColumnModel) {
+    return await this._sprintService.moveTaskToColumn(model);
   }
 
   @Post('all')

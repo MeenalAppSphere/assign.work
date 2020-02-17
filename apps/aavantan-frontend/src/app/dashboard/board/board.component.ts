@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/cor
 import {
   BaseResponseModel,
   GetAllTaskRequestModel,
-  MoveTaskToStage,
+  MoveTaskToColumnModel,
   ProjectStatus,
   Sprint,
   SprintColumn,
@@ -158,9 +158,9 @@ export class BoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async moveTask(task: SprintColumnTask, stage: SprintColumn) {
+  public async moveTask(task: SprintColumnTask, column: SprintColumn) {
     //push to target stage for ui
-    stage.tasks.push(task);
+    column.tasks.push(task);
 
     //pop from source stage
     if (this.moveFromStage) {
@@ -173,10 +173,10 @@ export class BoardComponent implements OnInit, OnDestroy {
 
     try {
 
-      const json: MoveTaskToStage = {
+      const json: MoveTaskToColumnModel = {
         projectId: this._generalService.currentProject.id,
         sprintId: this.activeSprintData.id,
-        stageId: stage.id,
+        columnId: column.id,
         taskId: task.taskId
       };
 
@@ -195,7 +195,7 @@ export class BoardComponent implements OnInit, OnDestroy {
       }
 
       //pop from source stage
-      stage.tasks = stage.tasks.filter((ele) => {
+      column.tasks = column.tasks.filter((ele) => {
         if (ele.taskId !== task.taskId) {
           return ele;
         }

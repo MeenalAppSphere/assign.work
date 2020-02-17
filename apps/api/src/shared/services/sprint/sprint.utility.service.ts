@@ -1,12 +1,22 @@
 import { Document, Model } from 'mongoose';
-import { Project, Sprint, SprintErrorEnum, SprintErrorResponseItem, Task } from '@aavantan-app/models';
+import {
+  EmailTemplatePathEnum,
+  Project,
+  Sprint,
+  SprintErrorEnum,
+  SprintErrorResponseItem,
+  Task,
+  User
+} from '@aavantan-app/models';
 import { BadRequestException } from '@nestjs/common';
 import * as moment from 'moment';
 import { BadRequest, secondsToHours, secondsToString } from '../../helpers/helpers';
-import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import { DEFAULT_DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import { EmailService } from '../email.service';
 
 export class SprintUtilityService {
-  constructor(protected readonly _sprintModel: Model<Sprint & Document>) {
+
+  constructor(protected readonly _sprintModel: Model<Sprint & Document>, protected _emailService: EmailService) {
   }
 
   /**
@@ -188,12 +198,12 @@ export class SprintUtilityService {
    * @param task : Task
    * @param projectDetails: Project
    */
-  parseTaskObjectForUi(task: Task, projectDetails: Project) {
+  parseTaskObjectVm(task: Task, projectDetails: Project) {
     task.id = task['_id'];
 
-    task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskTypeId);
-    task.priority = projectDetails.settings.priorities.find(t => t.id === task.priorityId);
-    task.status = projectDetails.settings.statuses.find(t => t.id === task.statusId);
+    // task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskTypeId);
+    // task.priority = projectDetails.settings.priorities.find(t => t.id === task.priorityId);
+    // task.status = projectDetails.settings.statuses.find(t => t.id === task.statusId);
     task.isSelected = !!task.sprintId;
 
     // convert all time keys to string from seconds
@@ -243,7 +253,44 @@ export class SprintUtilityService {
     }
   }
 
-  removeTasksFromSprintCalculation() {
+  /**
+   * prepare publish sprint template for sending mail when sprint is published
+   * @param sprint
+   * @param user
+   * @param workingCapacity
+   */
+  prepareSprintPublishEmailTemplate(sprint: Sprint, user: User, workingCapacity: number): Promise<string> {
+    const templateData = {
+      user,
+      sprint: {
+        name: sprint.name,
+        startedAt: moment(sprint.startedAt).format(DEFAULT_DATE_FORMAT),
+        endAt: moment(sprint.endAt).format(DEFAULT_DATE_FORMAT),
+        workingCapacity: secondsToString(workingCapacity)
+      }
+    };
+    return this._emailService.getTemplate(EmailTemplatePathEnum.publishSprint, templateData);
+  }
 
+  /**
+   * get column index from column id
+   * @param sprint
+   * @param columnId
+   */
+  getColumnIndexFromColumn(sprint: Sprint, columnId: string) {
+    return sprint.columns.findIndex(column => {
+      return column.id.toString() === columnId.toString();
+    });
+  }
+
+  /**
+   *
+   * @param sprint
+   * @param taskId
+   */
+  getColumnIndexFromTask(sprint: Sprint, taskId: string = ''): number {
+    return sprint.columns.findIndex(column => {
+      return column.tasks.some(task => task.taskId.toString() === taskId.toString());
+    });
   }
 }

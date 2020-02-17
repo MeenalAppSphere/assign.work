@@ -5,6 +5,9 @@ export const DEFAULT_QUERY_FILTER = {
   isDeleted: false
 };
 
+// default date format
+export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY';
+
 // default project template type
 export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.softwareDevelopment;
 
