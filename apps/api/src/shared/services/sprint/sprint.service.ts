@@ -7,7 +7,6 @@ import {
   CloseSprintModel,
   CreateSprintModel,
   DbCollection,
-  EmailSubjectEnum,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
   MoveTaskToColumnModel,
@@ -909,20 +908,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       const sprintDetails = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, detailedFiledSelection);
 
+      if (sprintDetails.sprintStatus) {
+        BadRequest(`This sprint can't be published, because sprint is already ${sprintDetails.sprintStatus}`);
+      }
+
       // check validations
       this._sprintUtilityService.publishSprintValidations(sprintDetails);
-
-      // prepare sprint email templates
-      const sprintEmailArray = [];
-
-      for (let i = 0; i < sprintDetails.membersCapacity.length; i++) {
-        const member = sprintDetails.membersCapacity[i];
-        sprintEmailArray.push({
-          to: member.user.emailId,
-          subject: EmailSubjectEnum.sprintPublished,
-          message: await this._sprintUtilityService.prepareSprintPublishEmailTemplate(sprintDetails, member.user, member.workingCapacity)
-        });
-      }
 
       // update sprint in db
       await this.updateById(model.sprintId, {
@@ -936,10 +927,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // update project and set published sprint as active sprint in project
       await this._projectService.updateById(model.projectId, { $set: { sprintId: model.sprintId } }, session);
 
-      // send mail to all the sprint members
-      sprintEmailArray.forEach(email => {
-        this._emailService.sendMail([email.to], email.subject, email.message);
-      });
+      // send publish sprint emails
+      this._sprintUtilityService.sendPublishedSprintEmails(sprintDetails);
 
       return 'Sprint Published Successfully';
     });

@@ -32,7 +32,7 @@ export class BoardController {
 
   @Post('get-all')
   async getAllTaskStatues(@Body('projectId') projectId: string) {
-    return await this._boardService.getAll(projectId);
+    return this._boardService.getAllBoards(projectId);
   }
 
   @Post('get-active-board')

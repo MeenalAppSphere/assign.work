@@ -1,4 +1,4 @@
-import { TaskHistoryActionEnum } from '../enums/task.enum';
+import { TaskHistoryActionEnum } from '../enums';
 import { Project } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';

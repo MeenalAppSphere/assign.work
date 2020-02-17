@@ -1,5 +1,6 @@
 import { Document, Model } from 'mongoose';
 import {
+  EmailSubjectEnum,
   EmailTemplatePathEnum,
   Project,
   Sprint,
@@ -253,13 +254,32 @@ export class SprintUtilityService {
     }
   }
 
+  public async sendPublishedSprintEmails(sprintDetails: Sprint) {
+    // prepare sprint email templates
+    const sprintEmailArray = [];
+
+    for (let i = 0; i < sprintDetails.membersCapacity.length; i++) {
+      const member = sprintDetails.membersCapacity[i];
+      sprintEmailArray.push({
+        to: member.user.emailId,
+        subject: EmailSubjectEnum.sprintPublished,
+        message: await this.prepareSprintPublishEmailTemplate(sprintDetails, member.user, member.workingCapacity)
+      });
+    }
+
+    // send mail to all the sprint members
+    sprintEmailArray.forEach(email => {
+      this._emailService.sendMail([email.to], email.subject, email.message);
+    });
+  }
+
   /**
    * prepare publish sprint template for sending mail when sprint is published
    * @param sprint
    * @param user
    * @param workingCapacity
    */
-  prepareSprintPublishEmailTemplate(sprint: Sprint, user: User, workingCapacity: number): Promise<string> {
+  private prepareSprintPublishEmailTemplate(sprint: Sprint, user: User, workingCapacity: number): Promise<string> {
     const templateData = {
       user,
       sprint: {

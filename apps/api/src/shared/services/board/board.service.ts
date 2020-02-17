@@ -53,6 +53,16 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
+   * get all boards list
+   * @param projectId
+   */
+  getAllBoards(projectId: string) {
+    return this.dbModel.aggregate([
+      { $match: { projectId: projectId, isDeleted: false } }
+    ]);
+  }
+
+  /**
    * create default board
    * create board with default status which are created with new project
    * @param project
