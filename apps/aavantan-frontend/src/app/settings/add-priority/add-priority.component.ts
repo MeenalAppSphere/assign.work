@@ -52,8 +52,6 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.updateRequestInProcess = true;
-
     if (this.addEditprojectPriorityData && this.addEditprojectPriorityData.id) {
 
       console.log('Updated Priority :', this.priorityForm.value);
@@ -72,6 +70,8 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
         this.notification.error('Error', 'Duplicate color or name');
         return;
       }
+
+      this.updateRequestInProcess = true;
 
       this._projectService.addPriority(this.priorityForm.value).subscribe((res => {
 

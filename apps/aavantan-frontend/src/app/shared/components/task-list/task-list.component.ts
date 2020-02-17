@@ -20,6 +20,7 @@ export class TaskListComponent implements OnInit {
   @Input() public showProgressOption: boolean = true;
   @Input() public showSorting: boolean = false;
   @Input() public sprintId: string;
+  @Input() public activeSprintId: string;
   @Input() public isDraftTable: boolean;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
@@ -89,18 +90,19 @@ export class TaskListComponent implements OnInit {
 
 
   public selectTaskForSprint(task: Task, bool: boolean) {
-    if(!this.tasksSelected.sprintId){
+    if(this.tasksSelected.sprintId || this.activeSprintId) {
+
+      const taskIndex = this.tasksSelected.tasks.findIndex(t => t.id === task.id);
+      if (taskIndex === -1) {
+        this.tasksSelected.tasks.push(task);
+      } else {
+        this.tasksSelected.tasks[taskIndex].isSelected = bool;
+      }
+      this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
+    }else {
       this.notification.error('Error', 'Create a new Sprint to add tasks');
       return;
     }
-
-    const taskIndex = this.tasksSelected.tasks.findIndex(t => t.id === task.id);
-    if (taskIndex === -1) {
-      this.tasksSelected.tasks.push(task);
-    } else {
-      this.tasksSelected.tasks[taskIndex].isSelected = bool;
-    }
-    this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
   }
 
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {

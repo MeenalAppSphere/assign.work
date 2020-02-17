@@ -43,11 +43,11 @@ export class SideNavComponent implements OnInit, OnDestroy{
         this.taskTypeDataSource = types;
       });
 
-        this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
-          if (res) {
-            this.currentOrganization = res;
-          }
-        });
+      this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
+        if (res) {
+          this.currentOrganization = res;
+        }
+      });
 
     }
 

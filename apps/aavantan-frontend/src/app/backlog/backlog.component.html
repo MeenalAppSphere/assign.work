@@ -26,9 +26,9 @@
       <nz-spin nzTip="Checking Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
 
 
-        <div class="row clearfix m-b-10 m-t-10" *ngIf="sprintData && sprintData.id">
+        <div class="row clearfix m-b-10 m-t-10">
 
-          <div class="col">
+           <div class="col" *ngIf="sprintData && sprintData.id">
             <span class="font-size-14">
 
               <span class="font-size-18 m-r-30 text-black font-weight-normal">{{sprintData.name}}</span>
@@ -50,15 +50,11 @@
                 <span class="font-weight-light"> Remains</span>
               </span>
             </span>
+          </div>
 
-<!--            <span class="float-right font-weight-light" >-->
-<!--              <a href="javascript:void(0);" (click)="toggleAddSprint()" class="p-r-25">Edit Sprint </a>-->
-<!--              <a href="javascript:void(0);" (click)="toggleTeamCapacity()">Edit Capacity </a>-->
-<!--            </span>-->
 
-        </div>
           <div class="col text-right">
-            <span *ngIf="activeSprintId ||  (sprintData?.id) || !isDisabledCreateBtn" >
+            <span *ngIf="activeSprintId ||  (sprintData?.id) " >
               <button class="m-l-10" [disabled]="!haveUnpublishedTasks" [nzLoading]="publishSprintInProcess" nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
               <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button (click)="saveSprint()">Save Sprint</button>
             </span>
@@ -87,46 +83,25 @@
 
             </nz-empty>
         </div>
-        <ng-container *ngIf="draftData && draftData.length>0">
+        <ng-container>
           <div>
 
               <aavantan-task-list
                 [taskByUser]="'all'"
                 [taskList]="draftData"
                 [sprintId]="sprintData.id"
+                [activeSprintId]="activeSprintData?.id"
                 [isDraftTable]="true"
                 [view]="view"
                 [showLogOption]="false"
                 [showCheckboxOption]="false"
                 [showProgressOption]="false"
-                (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
-              ></aavantan-task-list>
+                (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)">
+              </aavantan-task-list>
 
           </div>
         </ng-container>
 
-<!-- old code -->
-<!--        <ng-container *ngIf="sprintData && !sprintData.id && draftData && draftData.length===0">-->
-<!--          <nz-empty-->
-<!--            class="draft-sprint-box"-->
-<!--            [nzNotFoundImage]="false"-->
-<!--            [nzNotFoundContent]="contentTpl"-->
-<!--            [nzNotFoundFooter]="footerTpl">-->
-
-<!--            <ng-template #contentTpl>-->
-
-<!--              <span *ngIf="!activeSprintId" class="font-size-16">You have <span class="text-danger">{{allTaskList ? allTaskList.length : '0'}} task</span> in backlog</span>-->
-<!--              <span *ngIf="activeSprintId" class="font-size-16"><span class="text-success">"{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}"</span> is already running-->
-<!--                <br><span class="text-gray-light font-size-12">(You cannot start other Sprint before completing this active Sprint)</span>-->
-<!--              </span>-->
-
-<!--            </ng-template>-->
-
-<!--            <ng-template #footerTpl>-->
-<!--              <button [disabled]="activeSprintId" nz-button nzSize="small" nzType="primary" class="btn-medium" (click)="toggleAddSprint()">+ Create Sprint</button>-->
-<!--            </ng-template>-->
-<!--          </nz-empty>-->
-<!--        </ng-container>-->
 
 
       </nz-spin>
@@ -171,8 +146,8 @@
       <ng-container *ngIf="allTaskList && allTaskList.length > 0">
 
         <aavantan-task-list
-          *ngIf="sprintData && sprintData.id"
-          [sprintId]="sprintData.id"
+          [sprintId]="sprintData?.id"
+          [activeSprintId]="activeSprintData?.id"
           [showSorting]="true"
           [taskByUser]="'all'"
           [taskList]="allTaskList"
@@ -183,17 +158,17 @@
           (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
         ></aavantan-task-list>
 
-        <aavantan-task-list
-          *ngIf="sprintData && !sprintData.id"
-          [taskByUser]="'all'"
-          [showSorting]="true"
-          [taskList]="allTaskList"
-          [view]="view"
-          [showLogOption]="false"
-          [showCheckboxOption]="true"
-          [showProgressOption]="false"
-          (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"
-        ></aavantan-task-list>
+<!--        <aavantan-task-list-->
+<!--          *ngIf="sprintData && !sprintData.id"-->
+<!--          [taskByUser]="'all'"-->
+<!--          [showSorting]="true"-->
+<!--          [taskList]="allTaskList"-->
+<!--          [view]="view"-->
+<!--          [showLogOption]="false"-->
+<!--          [showCheckboxOption]="true"-->
+<!--          [showProgressOption]="false"-->
+<!--          (tasksSelectedForDraftSprint)="getTasksSelectedForSprint($event)"-->
+<!--        ></aavantan-task-list>-->
 
       </ng-container>
 
@@ -215,6 +190,8 @@
       </ng-container>
 
     </section>
+
+
   </nz-card>
 </nz-spin>
 

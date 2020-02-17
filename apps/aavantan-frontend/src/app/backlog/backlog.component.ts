@@ -21,6 +21,7 @@ import { cloneDeep, uniqBy } from 'lodash';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
+import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -62,14 +63,15 @@ export class BacklogComponent implements OnInit, OnDestroy {
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
+              private _taskTypeQuery: TaskTypeQuery,
               private _userQuery: UserQuery,
               private _sprintService: SprintService,
               protected notification: NzNotificationService,
               private router: Router) {
 
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
-        this.taskTypeDataSource = res.settings.taskTypes;
+        this.taskTypeDataSource = res;
       }
     });
 
@@ -252,6 +254,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
       tasks = uniqBy(tasks, 'id');
       this.draftSprint.tasks = tasks;
     } else {
+      if(!this.draftSprint){
+        this.draftSprint = {
+          ids :[],
+          tasks : []
+        }
+      }
       this.draftSprint.tasks = ev.tasks.filter(task => task.isSelected);
     }
 
@@ -290,7 +298,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       const sprintData: AssignTasksToSprintModel = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.sprintData.id,
+        sprintId: this.sprintData.id ? this.sprintData.id : this.activeSprintData.id,
         tasks: this.draftSprint.ids
       };
 

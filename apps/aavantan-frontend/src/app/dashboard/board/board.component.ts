@@ -19,6 +19,7 @@ import { UserQuery } from '../../queries/user/user.query';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { cloneDeep } from 'lodash';
+import { TaskTypeQuery } from '../../queries/task-type/task-type.query';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -50,15 +51,17 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
+              private _taskTypeQuery : TaskTypeQuery,
               protected notification: NzNotificationService,
               private modalService: NzModalService,
               private _userQuery: UserQuery, private router: Router) {
 
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
-        this.taskTypeDataSource = res.settings.taskTypes;
+        this.taskTypeDataSource = res;
       }
     });
+
   }
 
   ngOnInit() {
