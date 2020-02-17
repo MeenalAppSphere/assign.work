@@ -206,6 +206,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
           // check url contains task id
           if (TaskUrl.includes('task/')) {
             this.router.navigateByUrl(TaskUrl);
+
+            // wrapped in set timeout because we need to wait till all data processed from store
+            setTimeout(() => {
+              this.getInitialData();
+            }, 500);
+
           } else {
 
             // check if user have organization
