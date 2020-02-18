@@ -535,7 +535,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
         // now all validations have been completed add task to sprint
         for (let i = 0; i < newTasksDetails.length; i++) {
-          const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, newTasksDetails[i].statusId);
+          const columnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, newTasksDetails[i].statusId);
 
           // check if task is already in any of sprint column
           const taskIsAlreadyInSprint = sprintDetails.columns.some(column => {

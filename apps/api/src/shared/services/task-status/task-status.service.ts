@@ -1,5 +1,5 @@
 import { BaseService } from '../base.service';
-import { DbCollection, Project, TaskStatusModel } from '@aavantan-app/models';
+import { BoardColumns, DbCollection, Project, TaskStatusModel } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from '../project/project.service';
@@ -8,9 +8,11 @@ import { ModuleRef } from '@nestjs/core';
 import { TaskStatusUtilityService } from './task-status.utility.service';
 import { BadRequest } from '../../helpers/helpers';
 import { GeneralService } from '../general.service';
+import { BoardService } from '../board/board.service';
 
 export class TaskStatusService extends BaseService<TaskStatusModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
+  private _boardService: BoardService;
   private _utilityService: TaskStatusUtilityService;
 
   constructor(
@@ -22,6 +24,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
   onModuleInit(): any {
     this._projectService = this._moduleRef.get('ProjectService');
+    this._boardService = this._moduleRef.get('BoardService');
 
     this._utilityService = new TaskStatusUtilityService();
   }
@@ -33,7 +36,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
   async addUpdate(model: TaskStatusModel) {
 
     return this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       if (model.id) {
         await this.getDetails(model.id, model.projectId);
@@ -54,11 +57,39 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       status.createdById = this._generalService.userId;
 
       if (!model.id) {
+        // create new status
         const newStatus = await this.create([status], session);
 
+        // update project
         await this._projectService.updateById(model.projectId, {
           $push: { 'settings.statuses': newStatus[0] }
         }, session);
+
+        // update board and add this status as a column
+        if (projectDetails.activeBoardId) {
+          const boardDetails = await this._boardService.getDetails(projectDetails.activeBoardId, model.projectId);
+
+          // create new column object
+          const column = new BoardColumns();
+          column.headerStatusId = newStatus[0]._id;
+          column.includedStatuses = [{
+            statusId: newStatus[0]._id,
+            defaultAssigneeId: this._generalService.userId,
+            isShown: true
+          }];
+          column.columnColor = '';
+          column.columnOrderNo = 0;
+          column.isHidden = false;
+
+          const boardUpdateObject = {
+            $push: {
+              'columns': column
+            }
+          };
+
+          // update board by id
+          await this._boardService.updateById(projectDetails.activeBoardId, boardUpdateObject, session);
+        }
 
         newStatus[0].id = newStatus[0]._id;
         return newStatus[0];
