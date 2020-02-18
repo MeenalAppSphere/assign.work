@@ -15,6 +15,8 @@ $menu-color:#Cbe3ff;
 $very-light-gray:#F7F7F7;
 $dark-blue-black:#0B1B31;
 $color-gray-light-2:#7A869A;
+$color-green : #42E3A3;
+
 
 /* common */
 .box-shadow{
@@ -563,7 +565,7 @@ $color-gray-light-2:#7A869A;
 }
 
 /* font and text */
-.text-black{
+.text-black {
   color: $color-black!important;
 }
 .text-black-dark{
@@ -578,10 +580,12 @@ $color-gray-light-2:#7A869A;
 .dark-blue-black{
   color: $dark-blue-black!important;
 }
-.text-gray-light-2{
+.text-gray-light-2 {
   color: $color-gray-light-2!important;
 }
-
+.text-green {
+  color:$color-green!important;
+}
 
 /* project modal */
 .project-modal {
@@ -784,6 +788,39 @@ $color-gray-light-2:#7A869A;
     border-radius: 3px!important;
   }
 }
+
+
+/* sprint report */
+.sprint-progress {
+
+  .ant-progress-bg {
+    border-radius: 4px!important;
+  }
+
+}
+
+.items-summary {
+
+  .ant-table table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+}
+
+
+.items-summary-footer {
+
+  background: #F1F2F4 0% 0% no-repeat padding-box;
+  border-radius: 4px;
+
+  tr > th {
+    padding: 5px 5px;
+    color: $color-gray-light;
+    font-weight: 500;
+  }
+}
+
 
 
 /* for mobile view */
