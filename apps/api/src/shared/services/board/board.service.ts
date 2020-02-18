@@ -14,7 +14,8 @@ import {
   DbCollection,
   GetActiveBoardRequestModel,
   MongooseQueryModel,
-  Project
+  Project,
+  TaskStatusModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { NotFoundException, OnModuleInit } from '@nestjs/common';
@@ -140,8 +141,20 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
       const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
+      const statusDetails = await this._taskStatusService.findOne({
+        filter: {
+          _id: requestModel.statusId, projectId: requestModel.projectId
+        },
+        lean: true,
+        select: 'name'
+      });
+
+      if (!statusDetails) {
+        BadRequest('Status not found');
+      }
+
       // get board details
-      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId, true);
       let column = new BoardColumns();
 
       // check if already a column
@@ -166,6 +179,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
         // create new column object
         column.headerStatusId = requestModel.statusId;
+        column.headerStatus = { name: statusDetails.name } as TaskStatusModel;
         column.includedStatuses = [{
           statusId: requestModel.statusId,
           defaultAssigneeId: this._generalService.userId,
@@ -203,7 +217,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // get project details
       const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
       // get board details
-      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId, true);
 
       // get new column index where element is dropped
       const nextColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.nextColumnId);
@@ -271,7 +285,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
     });
 
-    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+    return await this.getDetails(requestModel.boardId, requestModel.projectId);
   }
 
   /**
@@ -288,7 +302,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       }
 
       // get board details
-      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId, true);
 
       // get new column index where element is dropped
       const nextColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.nextColumnId);
@@ -338,10 +352,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // get project details
       const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
       // get board details
-      const boardDetails = await this.findOne({
-        filter: { projectId: requestModel.projectId, _id: requestModel.boardId },
-        lean: true
-      });
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId, true);
 
       // get column index from current board
       const columnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.columnId);

@@ -374,8 +374,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       }
 
       // region remove task from sprint
-      // check if any task is removed or not
-      if (removedTasks.length) {
+      // check if any task is removed or not and also check if sprint is not published then and only then one can remove tasks from the sprint
+      if (removedTasks.length && sprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
         removedTasks = removedTasks.map(task => this.toObjectId(task as string));
         const removedTasksDetails = await this._taskService.dbModel.aggregate([
           {
@@ -535,7 +535,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
         // now all validations have been completed add task to sprint
         for (let i = 0; i < newTasksDetails.length; i++) {
-          const columnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, newTasksDetails[i].statusId);
+          const columnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, newTasksDetails[i].statusId);
 
           // check if task is already in any of sprint column
           const taskIsAlreadyInSprint = sprintDetails.columns.some(column => {
