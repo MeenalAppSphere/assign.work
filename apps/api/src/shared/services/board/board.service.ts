@@ -26,6 +26,7 @@ import { ProjectService } from '../project/project.service';
 import { BadRequest } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
+import { SprintService } from '../sprint/sprint.service';
 
 const detailsBoardPopulationObject = [{
   path: 'columns.headerStatus', select: 'name _id'
@@ -37,6 +38,7 @@ const detailsBoardPopulationObject = [{
 export class BoardService extends BaseService<BoardModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _taskStatusService: TaskStatusService;
+  private _sprintService: SprintService;
 
   private _utilityService: BoardUtilityService;
   private _projectUtilityService: ProjectUtilityService;
@@ -50,6 +52,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
   onModuleInit(): any {
     this._projectService = this._moduleRef.get('ProjectService');
+    this._sprintService = this._moduleRef.get('SprintService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
 
     this._utilityService = new BoardUtilityService();
@@ -136,7 +139,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   async addNewColumn(requestModel: BoardAddNewColumnModel) {
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      await this._projectService.getProjectDetails(requestModel.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
       // get board details
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
       let column = new BoardColumns();
@@ -144,6 +147,9 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // check if already a column
       const isAlreadyAColumnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.statusId);
       if (isAlreadyAColumnIndex > -1) {
+
+        // set is hidden false if it's already a column in board
+        boardDetails.columns[isAlreadyAColumnIndex].isHidden = false;
         column = boardDetails.columns.splice(isAlreadyAColumnIndex, 1)[0];
 
         // add column at a specific index
@@ -167,6 +173,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         }];
         column.columnColor = '';
         column.columnOrderNo = requestModel.columnIndex + 1;
+        column.isHidden = false;
 
         // add column at a specific index
         this._utilityService.addColumnAtSpecificIndex(boardDetails, requestModel.columnIndex, column);
@@ -174,6 +181,9 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
       // reassign column order no
       boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
+
+      // update active sprint
+      await this.updateActiveSprint(projectDetails, boardDetails, session);
 
       // update board by id and set columns
       await this.updateById(requestModel.boardId, {
@@ -191,7 +201,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   async mergeStatusToColumn(requestModel: BoardMergeStatusToColumn) {
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      await this._projectService.getProjectDetails(requestModel.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
       // get board details
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
 
@@ -251,6 +261,9 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // reassign column order no
       boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
 
+      // update active sprint
+      await this.updateActiveSprint(projectDetails, boardDetails, session);
+
       // update board by id and set columns
       return await this.updateById(requestModel.boardId, {
         $set: { columns: boardDetails.columns }
@@ -268,7 +281,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   async mergeColumnToColumn(requestModel: BoardMergeColumnToColumn) {
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      await this._projectService.getProjectDetails(requestModel.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
 
       if (requestModel.nextColumnId === requestModel.columnId) {
         BadRequest('Can not Merge Column to same Column');
@@ -301,6 +314,9 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
       // reassign column order no
       boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
+
+      // update active sprint
+      await this.updateActiveSprint(projectDetails, boardDetails, session);
 
       // update board by id and set columns
       await this.updateById(requestModel.boardId, {
@@ -336,13 +352,11 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // update column is hidden status to true
       boardDetails.columns[columnIndex].isHidden = true;
 
-      // check if there active sprint then re order sprint columns
-      if (projectDetails.sprintId && projectDetails.sprint) {
-        // update sprint columns
-      }
-
       // reassign column index
-      this._utilityService.reassignColumnOrderNo(boardDetails);
+      boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
+
+      // update active sprint
+      await this.updateActiveSprint(projectDetails, boardDetails, session);
 
       // update board and set column status shown or hidden
       await this.updateById(requestModel.boardId, {
@@ -508,6 +522,27 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     });
 
     return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
+   * update active sprint from project
+   * @param projectDetails
+   * @param boardDetails
+   * @param session
+   */
+  private async updateActiveSprint(projectDetails: Project, boardDetails: BoardModel, session: ClientSession) {
+    // check if there active sprint then re order sprint columns
+    if (projectDetails.sprintId) {
+
+      // get sprint details
+      let sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId);
+
+      // update sprint columns
+      sprintDetails = this._sprintService.reassignSprintColumns(boardDetails, sprintDetails);
+
+      // update sprint in db
+      await this._sprintService.updateById(projectDetails.sprintId, sprintDetails, session);
+    }
   }
 
   /**

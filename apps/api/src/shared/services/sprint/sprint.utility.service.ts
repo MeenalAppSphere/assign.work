@@ -1,5 +1,6 @@
 import { Document, Model } from 'mongoose';
 import {
+  BoardModel,
   EmailSubjectEnum,
   EmailTemplatePathEnum,
   Project,
@@ -14,6 +15,7 @@ import * as moment from 'moment';
 import { BadRequest, secondsToHours, secondsToString } from '../../helpers/helpers';
 import { DEFAULT_DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { EmailService } from '../email.service';
+import { orderBy } from 'lodash';
 
 export class SprintUtilityService {
 
@@ -166,8 +168,10 @@ export class SprintUtilityService {
     // calculate over progress
     sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
 
-    // loop over columns and convert total estimation time to readable format
+    // loop over columns and filter out hidden columns and
+    // convert total estimation time to readable format
     if (sprint.columns) {
+      sprint.columns = sprint.columns.filter(column => !column.isHidden);
       sprint.columns.forEach(column => {
         // column.stage = projectDetails.settings.stages.find(st => st.id === stage.id);
         column.totalEstimationReadable = secondsToString(column.totalEstimation);
@@ -301,6 +305,32 @@ export class SprintUtilityService {
     return sprint.columns.findIndex(column => {
       return column.id.toString() === columnId.toString();
     });
+  }
+
+  /**
+   * calculate total estimate for all the sprint columns
+   */
+  calculateTotalEstimateForColumns(sprint: Sprint) {
+    return sprint.columns.map(column => {
+      column.totalEstimation = column.tasks.reduce((previousValue, currentValue) => {
+        return previousValue + (currentValue.task ? currentValue.task.estimatedTime : 0);
+      }, 0);
+    });
+  }
+
+  /**
+   * re order sprint columns with board columns
+   */
+  reOrderSprintColumns(board: BoardModel, sprint: Sprint) {
+    const sprintColumns = [];
+    board.columns = orderBy(board.columns, 'columnOrderNo', 'asc');
+
+    board.columns.forEach((column, index) => {
+      const sprintColumnIndex = this.getColumnIndexFromColumn(sprint, column.headerStatusId);
+      sprintColumns.splice(index, 0, sprint.columns[sprintColumnIndex]);
+    });
+
+    return sprintColumns;
   }
 
   /**
