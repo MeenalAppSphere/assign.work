@@ -87,13 +87,6 @@ export class BoardUtilityService {
           if (includeStatus.status) {
             includeStatus.status.id = includeStatus.status._id;
           }
-
-          // push status to already mapped statuses
-          // if column is hidden than don't push them to mappedStatuses because it's not going to show in board
-          if (!column.isHidden) {
-            alreadyMappedStatuses.push(includeStatus.statusId.toString());
-          }
-
           return includeStatus;
         });
       }
@@ -101,6 +94,10 @@ export class BoardUtilityService {
       // if column is hidden then push it to un mapped columns array
       if (column.isHidden) {
         board.unMappedColumns.push(column);
+      } else {
+        // push status to already mapped statuses
+        // if column is hidden than don't push them to mappedStatuses because it's not going to show in board
+        alreadyMappedStatuses.push(...column.includedStatuses.map(includedStatus => includedStatus.statusId.toString()));
       }
 
       return column;
@@ -111,6 +108,7 @@ export class BoardUtilityService {
 
     // filter already mapped statuses and assign it to unMapped statuses
     board.unMappedStatuses = statuses.filter(status => {
+      status.id = status._id.toString();
       return !alreadyMappedStatuses.some(mStatus => mStatus.toString() === status._id.toString());
     });
     return board;

@@ -15,6 +15,8 @@ export class BoardQuery extends Query<BoardState> {
   mergeStatusInProcess$ = this.select(s => s.mergeStatusInProcess);
   mergeColumnInProcess$ = this.select(s => s.mergeColumnInProcess);
 
+  hideColumnInProcess$ = this.select(s => s.hideColumnInProcess);
+
   showColumnStatusInProcess$ = this.select(s => s.showColumnStatusInProcess);
   hideColumnStatusInProcess$ = this.select(s => s.hideColumnStatusInProcess);
 

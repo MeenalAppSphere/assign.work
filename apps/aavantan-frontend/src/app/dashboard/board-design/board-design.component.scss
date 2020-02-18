@@ -74,6 +74,11 @@
     .status-box-scrollable {
       height: calc(100vh - 300px);
     }
+
+    .sprintboard-column-container {
+      min-height: 105px;
+    }
+
   }
   .status-box {
     .status-box-scrollable {

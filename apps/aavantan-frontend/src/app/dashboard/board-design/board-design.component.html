@@ -88,13 +88,13 @@
 
         <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Processing Board...'"
                  [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
-                 || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess"
+                 || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
                  nzSize="large">
 
           <section class="sprintboard-container p-l-10">
 
-            <div class="row flex-row flex-nowrap" *ngIf="!getActiveBoardInProcess"
-                 dndDropzone dndEffectAllowed="copyMove" dndHorizontal="false" (dndDrop)="onColumnDropped($event)">
+            <div class="row flex-row flex-nowrap sprintboard-column-container" *ngIf="!getActiveBoardInProcess"
+                 dndDropzone dndEffectAllowed="copyMove" dndHorizontal="true" (dndDrop)="onColumnDropped($event)">
 
               <div dndPlaceholderRef class="dndColumnPlaceholder">
                 Drop a column here...
@@ -109,7 +109,7 @@
 
                     <div class="pull-left">
                       <i nz-icon nzType="close" nzTheme="outline" nz-tooltip
-                         *ngIf="!column.headerStatus?.isDefault"
+                         *ngIf="!column.headerStatus?.isDefault" (click)="hideColumn(column.headerStatusId)"
                          [nzTitle]="'Hide Column'"></i>
                     </div>
 

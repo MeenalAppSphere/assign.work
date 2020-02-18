@@ -4,12 +4,14 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import {
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardHideColumnModel,
   BoardHideColumnStatus,
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
   BoardShowColumnStatus,
-  TaskStatusModel, User
+  TaskStatusModel,
+  User
 } from '@aavantan-app/models';
 import { UserQuery } from '../../queries/user/user.query';
 import { TaskStatusQuery } from '../../queries/task-status/task-status.query';
@@ -54,6 +56,8 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public showColumnStatusInProcess: boolean;
   public hideColumnStatusInProcess: boolean;
+
+  public hideColumnInProcess: boolean;
 
   public updateBoardInProcess: boolean;
 
@@ -153,14 +157,14 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
       this.getHiddenStatusesInProcess = inProcess;
     });
 
+    // hide column in process
+    this._boardQuery.hideColumnInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.hideColumnInProcess = inProcess;
+    });
+
     // merge column in process
     this._boardQuery.hiddenStatuses$.pipe(untilDestroyed(this)).subscribe(list => {
       this.hiddenStatuses = list;
-    });
-
-    // get all task statuses from store
-    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
-      this.statusList = statuses;
     });
 
   }
@@ -239,7 +243,7 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  showDefaultAssigneeModal(columnId: string, statusId: string, user?:User) {
+  showDefaultAssigneeModal(columnId: string, statusId: string, user?: User) {
     this.assignUserDetails = user;
     this.defaultAssigneeColumnId = columnId;
     this.defaultAssigneeStatusId = statusId;
@@ -248,6 +252,15 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   hideDefaultAssigneeModal() {
     this.assignUserModalIsVisible = false;
+  }
+
+  public hideColumn(columnId: string) {
+    const hideColumnRequest = new BoardHideColumnModel();
+    hideColumnRequest.columnId = columnId;
+    hideColumnRequest.boardId = this.activeBoard.id;
+    hideColumnRequest.projectId = this.activeBoard.projectId;
+
+    this._boardService.hideColumn(hideColumnRequest).subscribe();
   }
 
   public hideStatus(columnId: string, statusId: string) {

@@ -149,7 +149,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         // add column at a specific index
         this._utilityService.addColumnAtSpecificIndex(boardDetails, requestModel.columnIndex, column);
       } else {
-        // if not a column then move if a status which is already merged
+        // if not a column then move the status which is already merged
         // check if status is already merged in a column
         const columnIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.statusId);
 
@@ -571,6 +571,13 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
    * @param getFullDetails
    */
   async getDetails(boardId: string, projectId: string, getFullDetails: boolean = false) {
+
+    const statuses = await this._taskStatusService.getAll({ projectId });
+
+    if (!statuses || !statuses.length) {
+      BadRequest('No Status found in Project');
+    }
+
     if (!this.isValidObjectId(boardId)) {
       throw new NotFoundException('Board not found');
     }
@@ -588,7 +595,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     if (!board) {
       throw new NotFoundException('Board not found');
     } else {
-      return this._utilityService.convertToVm(board);
+      return this._utilityService.convertToVm(board, statuses);
     }
   }
 
