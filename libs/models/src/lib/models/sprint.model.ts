@@ -43,6 +43,7 @@ export class SprintColumn {
   tasks: SprintColumnTask[];
   totalEstimation: number;
   totalEstimationReadable?: string;
+  isHidden: boolean;
 }
 
 export class SprintColumnTask {

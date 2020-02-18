@@ -248,6 +248,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         sprintColumn.statusId = column.headerStatusId;
         sprintColumn.tasks = [];
         sprintColumn.totalEstimation = 0;
+        sprintColumn.isHidden = column.isHidden;
 
         model.sprint.columns.push(sprintColumn);
       });

@@ -15,6 +15,7 @@ export class BoardColumns {
   includedStatuses: BoardColumnIncludedStatus[];
   columnOrderNo: number;
   columnColor: string;
+  isHidden?: boolean;
 }
 
 export class BoardModelBaseRequest {
@@ -31,6 +32,8 @@ export class BoardModel extends BaseDbModel {
   publishedById: string;
   publishedBy?: User;
   publishedAt?: Date;
+  unMappedStatuses?: TaskStatusModel[];
+  unMappedColumns?: BoardColumns[];
 }
 
 export class GetActiveBoardRequestModel {
@@ -55,6 +58,10 @@ export class BoardAddNewColumnModel extends BoardModelBaseRequest {
 
 export class BoardShowColumnStatus extends BoardModelBaseRequest {
   statusId: string;
+}
+
+export class BoardHideColumnModel extends BoardModelBaseRequest {
+  columnId: string;
 }
 
 export class BoardHideColumnStatus extends BoardModelBaseRequest {

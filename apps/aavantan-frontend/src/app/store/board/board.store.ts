@@ -15,6 +15,7 @@ export interface BoardState {
   mergeStatusInProcess: boolean;
   mergeColumnInProcess: boolean;
   showColumnStatusInProcess: boolean;
+  hideColumnInProcess: boolean;
   hideColumnStatusInProcess: boolean;
   getHiddenStatusesInProcess: boolean;
   addDefaultAssigneeInProcess: boolean;
@@ -32,6 +33,7 @@ const initialState: BoardState = {
   addColumnInProcess: false,
   mergeStatusInProcess: false,
   mergeColumnInProcess: false,
+  hideColumnInProcess: false,
   showColumnStatusInProcess: false,
   hideColumnStatusInProcess: false,
   getHiddenStatusesInProcess: false,

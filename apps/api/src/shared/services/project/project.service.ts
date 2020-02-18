@@ -533,6 +533,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         sprintStage.statusId = stage.id;
         sprintStage.tasks = [];
         sprintStage.totalEstimation = 0;
+        sprintStage.isHidden = false;
 
         // update sprint and add a stage
         await this._sprintModel.updateOne({ _id: projectDetails.sprintId }, {

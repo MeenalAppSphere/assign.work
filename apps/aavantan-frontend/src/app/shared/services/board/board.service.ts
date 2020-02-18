@@ -7,6 +7,7 @@ import {
   BaseResponseModel,
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
+  BoardHideColumnModel,
   BoardHideColumnStatus,
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
@@ -110,6 +111,20 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
       }),
       catchError((e) => {
         this.updateState({ mergeColumnInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
+  hideColumn(requestModel: BoardHideColumnModel) {
+    this.updateState({ hideColumnInProcess: true });
+    return this._http.post(BoardUrls.hideColumn, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ hideColumnInProcess: false, activeBoard: res.data });
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ hideColumnInProcess: false });
         return this.handleError(e);
       })
     );

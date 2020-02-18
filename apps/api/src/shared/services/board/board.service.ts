@@ -4,6 +4,7 @@ import {
   BoardAssignDefaultAssigneeToStatusModel,
   BoardColumnIncludedStatus,
   BoardColumns,
+  BoardHideColumnModel,
   BoardHideColumnStatus,
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
@@ -24,6 +25,7 @@ import { BoardUtilityService } from './board.utility.service';
 import { ProjectService } from '../project/project.service';
 import { BadRequest } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
+import { TaskStatusService } from '../task-status/task-status.service';
 
 const detailsBoardPopulationObject = [{
   path: 'columns.headerStatus', select: 'name _id'
@@ -34,6 +36,7 @@ const detailsBoardPopulationObject = [{
 
 export class BoardService extends BaseService<BoardModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
+  private _taskStatusService: TaskStatusService;
 
   private _utilityService: BoardUtilityService;
   private _projectUtilityService: ProjectUtilityService;
@@ -47,6 +50,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
   onModuleInit(): any {
     this._projectService = this._moduleRef.get('ProjectService');
+    this._taskStatusService = this._moduleRef.get('TaskStatusService');
 
     this._utilityService = new BoardUtilityService();
     this._projectUtilityService = new ProjectUtilityService();
@@ -309,6 +313,49 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
+   * hide column from board screen
+   * @param requestModel
+   */
+  async hideColumn(requestModel: BoardHideColumnModel) {
+    await this.withRetrySession(async (session: ClientSession) => {
+
+      // get project details
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
+      // get board details
+      const boardDetails = await this.findOne({
+        filter: { projectId: requestModel.projectId, _id: requestModel.boardId },
+        lean: true
+      });
+
+      // get column index from current board
+      const columnIndex = this._utilityService.getColumnIndex(boardDetails.columns, requestModel.columnId);
+      if (columnIndex === -1) {
+        BadRequest('Column not found');
+      }
+
+      // update column is hidden status to true
+      boardDetails.columns[columnIndex].isHidden = true;
+
+      // check if there active sprint then re order sprint columns
+      if (projectDetails.sprintId && projectDetails.sprint) {
+        // update sprint columns
+      }
+
+      // reassign column index
+      this._utilityService.reassignColumnOrderNo(boardDetails);
+
+      // update board and set column status shown or hidden
+      await this.updateById(requestModel.boardId, {
+        $set: {
+          columns: boardDetails.columns
+        }
+      }, session);
+    });
+
+    return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
    * show column status
    * @param requestModel
    */
@@ -491,6 +538,11 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   async getBoardById(model: GetActiveBoardRequestModel) {
     try {
       await this._projectService.getProjectDetails(model.projectId);
+      const statuses = await this._taskStatusService.getAll({ projectId: model.projectId });
+
+      if (!statuses || !statuses.length) {
+        BadRequest('No Status found in Project');
+      }
 
       if (!this.isValidObjectId(model.boardId)) {
         BadRequest('Board not found...');
@@ -503,7 +555,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       });
 
       if (board) {
-        return this._utilityService.convertToVm(board);
+        return this._utilityService.convertToVm(board, statuses);
       } else {
         BadRequest('Board not found...');
       }
