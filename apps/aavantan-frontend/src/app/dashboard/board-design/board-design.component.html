@@ -33,7 +33,7 @@
           <nz-spin [nzTip]="'Loading Statuses...'" [nzSpinning]="getActiveBoardInProcess" nzSize="large">
 
             <div class="item text-black" *ngFor="let item of activeBoard?.unMappedStatuses" [dndDraggable]="item"
-                 [dndEffectAllowed]="'move'" [dndDisableIf]="item.isDefault">
+                 [dndEffectAllowed]="'move'">
               {{item.name}}
               <span class="float-right" dndHandle>
                 <img src="../../../assets/images/icons/ellipsis-move.svg"/>
@@ -138,10 +138,10 @@
                                      [nzSrc]="includedStatus?.defaultAssignee?.profilePic" nz-tooltip
                                      [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>
 
-                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip
-                             *ngIf="includedStatus.statusId !== column.headerStatusId"
-                             [nzTitle]="'Hide status'"
-                             (click)="hideStatus(column.headerStatusId, includedStatus.statusId)"></i>
+<!--                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip-->
+<!--                             *ngIf="includedStatus.statusId !== column.headerStatusId"-->
+<!--                             [nzTitle]="'Hide status'"-->
+<!--                             (click)="hideStatus(column.headerStatusId, includedStatus.statusId)"></i>-->
 
                         </span>
                       </div>

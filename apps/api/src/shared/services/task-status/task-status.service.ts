@@ -59,6 +59,8 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
         await this._projectService.updateById(model.projectId, {
           $push: { 'settings.statuses': newStatus[0] }
         }, session);
+
+        newStatus[0].id = newStatus[0]._id;
         return newStatus[0];
       } else {
         // perform update status here..

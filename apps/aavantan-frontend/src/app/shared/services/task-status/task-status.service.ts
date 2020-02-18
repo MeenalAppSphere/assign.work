@@ -7,9 +7,11 @@ import { BaseResponseModel, TaskStatusModel } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { TaskStatusState, TaskStatusStore } from '../../../store/task-status/task-status.store';
 import { TaskStatusUrls } from './task-status.url';
+import { BoardStore } from '../../../store/board/board.store';
 
 export class TaskStatusService extends BaseService<TaskStatusStore, TaskStatusState> {
-  constructor(protected notification: NzNotificationService, protected taskStatusStore: TaskStatusStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
+  constructor(protected notification: NzNotificationService, protected taskStatusStore: TaskStatusStore, private _http: HttpWrapperService,
+              private _generalService: GeneralService, private _boardStore: BoardStore) {
     super(taskStatusStore, notification);
 
     this.notification.config({
@@ -42,6 +44,16 @@ export class TaskStatusService extends BaseService<TaskStatusStore, TaskStatusSt
             addNewSuccess: true,
             addNewInProcess: false,
             statuses: [...state.statuses, res.data]
+          };
+        });
+
+        this._boardStore.update(state => {
+          return {
+            ...state,
+            activeBoard: {
+              ...state.activeBoard,
+              unMappedStatuses: [...state.activeBoard.unMappedStatuses, res.data]
+            }
           };
         });
 
