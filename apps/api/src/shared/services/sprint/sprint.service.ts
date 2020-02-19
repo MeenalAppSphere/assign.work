@@ -271,6 +271,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       return await this.create([model.sprint], session);
     });
 
+    // sprint created now update proejct and add sprint id as project sprintId
+    await this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.updateById(model.sprint.projectId, { $set: { sprintId: newSprint[0].id } }, session);
+    });
+
     const sprint = await this.getSprintDetails(newSprint[0].id, model.sprint.projectId, commonPopulationForSprint, commonFieldSelection);
     return this._sprintUtilityService.prepareSprintVm(sprint);
   }
@@ -365,7 +370,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._projectService.getProjectDetails(model.projectId, true);
 
       // sprint details
-      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, detailedPopulationForSprint, detailedFiledSelection);
 
       // check sprint status validations
       if (sprintDetails.sprintStatus) {
@@ -387,9 +392,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // task details
       const taskDetails = await this._taskService.getTaskDetails(model.taskId, model.projectId);
 
-      // check if task is already in any of sprint column
       const taskIsAlreadyInSprint = sprintDetails.columns.some(column => {
-        return column.tasks.some(task => task.taskId === taskDetails.id);
+        return column.tasks.filter(task => !task.removedById).some(task => task.taskId === taskDetails.id);
       });
 
       if (taskIsAlreadyInSprint) {
@@ -517,7 +521,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // update sprint by id
       await this.updateById(model.sprintId, {
         $set: {
-          [`columns${columnIndex}`]: sprintDetails.columns[columnIndex],
+          [`columns.${columnIndex}`]: sprintDetails.columns[columnIndex],
           totalEstimation: sprintDetails.totalEstimation
         }
       }, session);
@@ -528,6 +532,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       taskHistory.task = taskDetails;
       taskHistory.sprintId = sprintDetails.id;
       taskHistory.createdAt = generateUtcDate();
+      taskHistory.createdById = this._generalService.userId;
       taskHistory.action = TaskHistoryActionEnum.removedFromSprint;
       taskHistory.desc = TaskHistoryActionEnum.removedFromSprint;
 
@@ -538,6 +543,16 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._taskService.updateById(taskDetails.id, {
         $set: { sprintId: null }
       }, session);
+
+      return {
+        totalCapacity: sprintDetails.totalCapacity,
+        totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
+        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+        totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
+        totalEstimation: sprintDetails.totalEstimation,
+        totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
+        tasks: taskDetails.id
+      };
 
     });
   }
@@ -1169,18 +1184,32 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   private async processAddTaskToSprint(sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
     const columnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, taskDetails.statusId);
+    const isDeletedTaskIndex = sprintDetails.columns[columnIndex].tasks.findIndex(task => task.taskId.toString() === taskDetails.id);
 
     // add task estimation to sprint total estimation
     sprintDetails.totalEstimation += taskDetails.estimatedTime;
 
     // add task estimation to column total estimation
     sprintDetails.columns[columnIndex].totalEstimation += taskDetails.estimatedTime;
-    // add task to column
-    sprintDetails.columns[columnIndex].tasks.push({
-      taskId: taskDetails.id,
-      addedAt: generateUtcDate(),
-      addedById: this._generalService.userId
-    });
+
+    // if task is not deleted earlier then add new task to column
+    if (isDeletedTaskIndex === -1) {
+      // add task to column
+      sprintDetails.columns[columnIndex].tasks.push({
+        taskId: taskDetails.id,
+        addedAt: generateUtcDate(),
+        addedById: this._generalService.userId
+      });
+    } else {
+      // if task is deleted than set removed by id to null
+      sprintDetails.columns[columnIndex].tasks[columnIndex] = {
+        taskId: sprintDetails.columns[columnIndex].tasks[columnIndex].taskId,
+        removedById: null,
+        removedAt: null,
+        addedAt: generateUtcDate(),
+        addedById: this._generalService.userId
+      };
+    }
 
     // set total remaining capacity by subtracting sprint members totalCapacity - totalEstimation
     sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
@@ -1189,7 +1218,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // update sprint by id and update sprint columns
     await this.updateById(sprintDetails.id, {
       $set: {
-        columns: sprintDetails.columns,
+        [`columns.${columnIndex}`]: sprintDetails.columns[columnIndex],
         totalEstimation: sprintDetails.totalEstimation,
         totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
         totalRemainingTime: sprintDetails.totalRemainingTime
@@ -1201,6 +1230,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     taskHistory.desc = TaskHistoryActionEnum.addedToSprint;
     taskHistory.action = TaskHistoryActionEnum.addedToSprint;
     taskHistory.createdAt = generateUtcDate();
+    taskHistory.createdById = this._generalService.userId;
     taskHistory.taskId = taskDetails.id;
     taskHistory.sprintId = sprintDetails.id;
 

@@ -130,7 +130,14 @@ export class SprintUtilityService {
     // loop over columns and filter out hidden columns and
     // convert total estimation time to readable format
     if (sprint.columns) {
-      sprint.columns = sprint.columns.filter(column => !column.isHidden);
+
+      sprint.columns = sprint.columns.filter(column => !column.isHidden).map(column => {
+        column.tasks = column.tasks.filter(task => !task.removedById);
+        return column;
+      });
+
+      this.calculateTotalEstimateForColumns(sprint);
+
       sprint.columns.forEach(column => {
         column.totalEstimationReadable = secondsToString(column.totalEstimation);
       });

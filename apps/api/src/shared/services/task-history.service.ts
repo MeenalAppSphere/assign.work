@@ -29,13 +29,7 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
    * @returns {Promise<(TaskHistory & Document)[] | (TaskHistory & Document)>}
    */
   async addHistory(model: TaskHistory, session: ClientSession) {
-    try {
-      return await this.create([model], session);
-    } catch (e) {
-      await session.abortTransaction();
-      await session.endSession();
-      throw e;
-    }
+    return await this.create([model], session);
   }
 
   /**
