@@ -489,7 +489,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._projectService.getProjectDetails(model.projectId);
 
       // get sprint details
-      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
       // check if requested task is in sprint
       const taskIsInSprint = sprintDetails.columns.some(column => {
@@ -566,7 +566,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       const project = await this._projectService.getProjectDetails(model.projectId, true);
 
       // get sprint details from sprint id
-      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
       // gather all task from all columns to this variable
       const allColumnsTasksIds: Array<string | Types.ObjectId> = [];
@@ -830,7 +830,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // process moving
     await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId);
-      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
       // check task is in sprint or not
       const currentColumnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, model.taskId);
@@ -1088,12 +1088,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // prepare sprint vm model
     sprint = this._sprintUtilityService.prepareSprintVm(sprint);
-
-    // prepare task object vm
-    sprint.columns[0].tasks.forEach(obj => {
-      obj.task = this._sprintUtilityService.parseTaskObjectVm(obj.task, projectDetails);
-    });
-
     return sprint;
   }
 
@@ -1278,7 +1272,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param populate: population array
    * @param select: filed selection string
    */
-  public async getSprintDetails(sprintId: string, projectId: string, populate: any[] = [], select: string = detailedFiledSelection): Promise<Sprint> {
+  public async getSprintDetails(sprintId: string, projectId: string, populate: any[] = detailedPopulationForSprint, select: string = detailedFiledSelection): Promise<Sprint> {
     if (!this.isValidObjectId(sprintId)) {
       throw new BadRequestException('Sprint Not Found');
     }

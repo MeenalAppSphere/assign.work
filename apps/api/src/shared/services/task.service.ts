@@ -374,7 +374,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     // check if task is in sprint
     if (taskDetails.sprintId) {
-      const sprintDetails = await this._sprintService.getSprintDetails(taskDetails.sprintId, model.projectId);
+      const sprintDetails = await this._sprintService.getSprintDetails(taskDetails.sprintId, model.projectId, [], '');
 
       // if sprint found then check if sprint is active or not..
       if (sprintDetails) {
