@@ -69,19 +69,6 @@ export class SprintUtilityService {
   }
 
   /**
-   * check whether sprint name is available or not
-   * @param projectId
-   * @param name
-   */
-  async sprintNameAvailable(projectId: string, name: string): Promise<boolean> {
-    const sprintNameAvailability = await this._sprintModel.find({
-      projectId: projectId, name: { $regex: new RegExp(`^${name.trim()}$`), $options: 'i' }, isDeleted: false
-    }).select('name').countDocuments();
-
-    return sprintNameAvailability === 0;
-  }
-
-  /**
    * check whether task is valid or not to add in sprint or move in a stage
    * @param task
    * @param isMoveTaskProcess
@@ -135,56 +122,18 @@ export class SprintUtilityService {
     }
 
     sprint.id = sprint['_id'];
-    // convert total capacity in readable format
-    sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
 
-    // convert estimation time in readable format
-    sprint.totalEstimationReadable = secondsToString(sprint.totalEstimation);
-
-    // calculate total remaining capacity
-    sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation || 0;
-    sprint.totalRemainingCapacityReadable = secondsToString(sprint.totalRemainingCapacity);
-
-    // convert total logged time in readable format
-    sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
-
-    // convert total over logged time in readable format
-    sprint.totalOverLoggedTimeReadable = secondsToString(sprint.totalOverLoggedTime || 0);
-
-    // calculate progress
-    sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
-    if (sprint.progress > 100) {
-      sprint.progress = 100;
-
-      // set total remaining time to zero
-      sprint.totalRemainingTime = 0;
-      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
-    } else {
-      // calculate total remaining time
-      sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
-      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
-    }
-
-    // calculate over progress
-    sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+    // calculate sprint totals
+    this.calculateSprintEstimates(sprint);
 
     // loop over columns and filter out hidden columns and
     // convert total estimation time to readable format
     if (sprint.columns) {
       sprint.columns = sprint.columns.filter(column => !column.isHidden);
       sprint.columns.forEach(column => {
-        // column.stage = projectDetails.settings.stages.find(st => st.id === stage.id);
         column.totalEstimationReadable = secondsToString(column.totalEstimation);
       });
     }
-
-    // seconds to hour for ui
-    sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
-    sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
-    sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
-    sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
-    sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
-    sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
 
     // loop over sprint members and convert working capacity to readable format
     if (sprint.membersCapacity) {
@@ -192,10 +141,10 @@ export class SprintUtilityService {
         // convert capacity to hours again
         member.workingCapacity = secondsToHours(member.workingCapacity);
         member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
-        // member.workingCapacityPerDayReadable = secondsToString(member.workingCapacityPerDay);
       });
-      return sprint;
     }
+
+    return sprint;
   }
 
   /**
@@ -258,7 +207,7 @@ export class SprintUtilityService {
     }
   }
 
-  public async sendPublishedSprintEmails(sprintDetails: Sprint) {
+  async sendPublishedSprintEmails(sprintDetails: Sprint) {
     // prepare sprint email templates
     const sprintEmailArray = [];
 
@@ -305,6 +254,60 @@ export class SprintUtilityService {
     return sprint.columns.findIndex(column => {
       return column.id.toString() === columnId.toString();
     });
+  }
+
+  /**
+   * calculate sprint estimates
+   * and convert seconds to readable format
+   * @param sprint
+   */
+  calculateSprintEstimates(sprint: Sprint) {
+
+    // convert total capacity in readable format
+    sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
+
+    // convert estimation time in readable format
+    sprint.totalEstimationReadable = secondsToString(sprint.totalEstimation);
+
+    // calculate total remaining capacity
+    sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation || 0;
+    sprint.totalRemainingCapacityReadable = secondsToString(sprint.totalRemainingCapacity);
+
+    // convert total logged time in readable format
+    sprint.totalLoggedTimeReadable = secondsToString(sprint.totalLoggedTime);
+
+    // convert total over logged time in readable format
+    sprint.totalOverLoggedTimeReadable = secondsToString(sprint.totalOverLoggedTime || 0);
+
+    // calculate progress
+    sprint.progress = Number(((100 * sprint.totalLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+    if (sprint.progress > 100) {
+      sprint.progress = 100;
+
+      // set total remaining time to zero
+      sprint.totalRemainingTime = 0;
+      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
+    } else {
+      // calculate total remaining time
+      sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime || 0;
+      sprint.totalRemainingTimeReadable = secondsToString(sprint.totalRemainingTime);
+    }
+
+    // calculate over progress
+    sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+
+    // convert seconds to hours for displaying on ui
+    sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
+    sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
+    sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
+    sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
+    sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
+    sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
+
+    // calculate sprint columns estimates
+    if (sprint.columns) {
+      this.calculateTotalEstimateForColumns(sprint);
+    }
   }
 
   /**

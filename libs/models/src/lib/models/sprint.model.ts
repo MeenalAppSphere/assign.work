@@ -6,6 +6,7 @@ import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Sprint {
   id?: string;
+  _id?: string;
   name: string;
   projectId: string;
   project?: Project;
@@ -120,6 +121,11 @@ export class UpdateSprintModel extends CreateSprintModel {
 export class SprintBaseRequest {
   projectId: string;
   sprintId: string;
+}
+
+export class AddTaskToSprintModel extends SprintBaseRequest{
+  taskId: string;
+  adjustHoursAllowed?: boolean;
 }
 
 export class AssignTasksToSprintModel extends SprintBaseRequest {

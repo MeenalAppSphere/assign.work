@@ -821,6 +821,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
         BadRequest('You are not a part of Project');
       }
     }
+
+    projectDetails.id = projectDetails._id.toString();
     return projectDetails;
   }
 

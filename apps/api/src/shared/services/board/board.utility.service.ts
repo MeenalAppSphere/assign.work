@@ -120,7 +120,7 @@ export class BoardUtilityService {
    * @param columnId
    */
   getColumnIndex(columns: BoardColumns[], columnId: string): number {
-    return columns.findIndex(col => col.headerStatusId.toString() === columnId);
+    return columns.findIndex(col => col.headerStatusId.toString() === columnId.toString());
   }
 
   /**

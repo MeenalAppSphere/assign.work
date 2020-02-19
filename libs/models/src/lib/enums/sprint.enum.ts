@@ -9,9 +9,10 @@ export enum SprintErrorEnum {
   taskNoAssignee = 'Please assign a Assignee to Add Task in the Sprint',
   taskNoEstimate = 'Please add Task Estimation',
   alreadyInSprint = 'Task is already in a sprint',
-  memberCapacityExceed = 'Member Working Capacity Limit is Exceeded'
+  memberCapacityExceed = 'Member Working Capacity Limit is Exceeded',
+  sprintCapacityExceed = 'Sprint Capacity Limit is Exceeded'
 }
 
 export enum SprintActionEnum {
-  taskMovedToColumn= 'Task moved to a new column in Sprint'
+  taskMovedToColumn = 'Task moved to a new column in Sprint'
 }

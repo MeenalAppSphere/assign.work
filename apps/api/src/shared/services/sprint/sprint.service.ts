@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from
 import { BaseService } from '../base.service';
 import {
   AddTaskRemoveTaskToSprintResponseModel,
+  AddTaskToSprintModel,
   AssignTasksToSprintModel,
   BasePaginatedResponse,
   BoardModel,
@@ -340,6 +341,160 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.abortTransaction(session);
       throw e;
     }
+  }
+
+  /**
+   * add task to sprint
+   * check validations
+   * check if sprint allows to adjust hours then directly add task
+   * but if not then check for some capacity related validation before adding task to sprint
+   * @param model
+   */
+  public async addTaskToSprint(model: AddTaskToSprintModel) {
+    this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.getProjectDetails(model.projectId, true);
+
+      // sprint details
+      const sprintDetails = await this.getSprintDetails(model.sprintId);
+
+      // check sprint status validations
+      if (sprintDetails.sprintStatus) {
+        switch (sprintDetails.sprintStatus.status) {
+          case SprintStatusEnum.inProgress:
+            if (moment(sprintDetails.endAt).isBefore(moment(), 'd')) {
+              BadRequest('Sprint end date is passed, so you can\'t add new task to it');
+            }
+            break;
+          case SprintStatusEnum.completed:
+            BadRequest('this sprint is completed you can\'t add task to sprint');
+            break;
+          case SprintStatusEnum.closed:
+            BadRequest('this sprint is closed you can\'t add task to sprint');
+            break;
+        }
+      }
+
+      // task details
+      const taskDetails = await this._taskService.getTaskDetails(model.taskId);
+
+      // check if task is already in any of sprint column
+      const taskIsAlreadyInSprint = sprintDetails.columns.some(column => {
+        return column.tasks.some(task => task.taskId === taskDetails.id);
+      });
+
+      if (taskIsAlreadyInSprint) {
+        BadRequest('This task is already added in sprint');
+      }
+
+      taskDetails.id = model.taskId;
+
+      const sprintError: SprintErrorResponse = new SprintErrorResponse();
+      sprintError.tasksErrors = [];
+      sprintError.membersErrors = [];
+
+      // check if task is allowed to added to sprint
+      const isTaskAllowedToAddInSprint = this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(taskDetails);
+
+      if (isTaskAllowedToAddInSprint instanceof SprintErrorResponseItem) {
+        sprintError.tasksErrors.push(isTaskAllowedToAddInSprint);
+
+        return sprintError;
+      } else {
+        // if adjustHoursAllowed not allowed than apply strict check for sprint timings
+        if (!model.adjustHoursAllowed) {
+
+          // check if sprint have over logged time
+          if (sprintDetails.totalOverLoggedTime) {
+            sprintError.tasksErrors.push({
+              name: taskDetails.displayName,
+              id: taskDetails.id,
+              reason: SprintErrorEnum.sprintCapacityExceed
+            });
+
+            return sprintError;
+          } else {
+            let allTaskTotalEstimation = 0;
+            let currentTaskAssigneeTotalEstimation = 0;
+            const currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
+
+            // get all tasks from the sprint and push it to all tasks array
+            sprintDetails.columns.forEach(column => {
+              column.tasks.forEach(task => {
+                allTaskTotalEstimation += task.task.estimatedTime;
+
+                if (task.task.assigneeId.toString() === taskDetails.assigneeId.toString()) {
+                  currentTaskAssigneeTotalEstimation += task.task.estimatedTime;
+                }
+              });
+            });
+
+            if (allTaskTotalEstimation + taskDetails.estimatedTime > sprintDetails.totalCapacity) {
+              sprintError.tasksErrors.push({
+                name: taskDetails.displayName,
+                id: taskDetails.id,
+                reason: SprintErrorEnum.sprintCapacityExceed
+              });
+
+              return sprintError;
+            } else if (currentTaskAssigneeTotalEstimation + taskDetails.estimatedTime > currentAssigneeDetails.workingCapacity) {
+              sprintError.membersErrors.push({
+                id: currentAssigneeDetails.userId.toString(),
+                reason: SprintErrorEnum.memberCapacityExceed
+              });
+
+              return sprintError;
+            } else {
+              return await this.processAddTaskToSprint(sprintDetails, taskDetails, session);
+            }
+          }
+        } else {
+          return await this.processAddTaskToSprint(sprintDetails, taskDetails, session);
+        }
+      }
+    });
+  }
+
+  private async processAddTaskToSprint(sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
+    const columnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, taskDetails.statusId);
+
+    // add task estimation to sprint total estimation
+    sprintDetails.totalEstimation += taskDetails.estimatedTime;
+
+    // add task estimation to column total estimation
+    sprintDetails.columns[columnIndex].totalEstimation += taskDetails.estimatedTime;
+    // add task to column
+    sprintDetails.columns[columnIndex].tasks.push({
+      taskId: taskDetails.id,
+      addedAt: generateUtcDate(),
+      addedById: this._generalService.userId
+    });
+
+    // set total remaining capacity by subtracting sprint members totalCapacity - totalEstimation
+    sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
+    sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
+
+    // update sprint by id and update sprint columns
+    await this.updateById(sprintDetails.id, {
+      $set: {
+        columns: sprintDetails.columns,
+        totalEstimation: sprintDetails.totalEstimation,
+        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+        totalRemainingTime: sprintDetails.totalRemainingTime
+      }
+    }, session);
+
+    // update task by id and set sprint id
+    await this._taskService.updateById(taskDetails.id, { $set: { sprintId: sprintDetails.id } }, session);
+
+    return {
+      totalCapacity: sprintDetails.totalCapacity,
+      totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
+      totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+      totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
+      totalEstimation: sprintDetails.totalEstimation,
+      totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
+      tasks: taskDetails.id
+    };
   }
 
   /**
@@ -1084,7 +1239,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     });
 
     const newColumns = activeBoard.columns.filter(column => {
-      return activeSprint.columns.some(sprintColumn => sprintColumn.id.toString() !== column.headerStatusId.toString());
+      return !activeSprint.columns.some(sprintColumn => sprintColumn.id.toString() === column.headerStatusId.toString());
     });
 
     if (newColumns.length) {
@@ -1149,6 +1304,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     if (!sprintDetails) {
       throw new NotFoundException('Sprint Not Found');
     }
+    sprintDetails.id = sprintDetails._id.toString();
     return sprintDetails;
   }
 }
