@@ -75,7 +75,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
     justOne: true
   }, {
     path: 'taskType',
-    select: 'name',
+    select: 'name color',
     justOne: true
   }, {
     path: 'status',
@@ -83,7 +83,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
     justOne: true
   }, {
     path: 'priority',
-    select: 'name',
+    select: 'name color',
     justOne: true
   }]
 }];
