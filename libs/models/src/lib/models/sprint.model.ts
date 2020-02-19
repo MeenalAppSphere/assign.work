@@ -59,6 +59,9 @@ export class SprintColumnTask {
   movedAt?: Date;
   movedById?: string;
   movedBy?: User;
+  removedAt?: Date;
+  removedById?: string;
+  removedBy?: User;
 }
 
 export class SprintAutoUpdate {
@@ -123,18 +126,18 @@ export class SprintBaseRequest {
   sprintId: string;
 }
 
-export class AddTaskToSprintModel extends SprintBaseRequest{
+export class AddTaskToSprintModel extends SprintBaseRequest {
   taskId: string;
   adjustHoursAllowed?: boolean;
+}
+
+export class RemoveTaskFromSprintModel extends SprintBaseRequest {
+  taskId: string;
 }
 
 export class AssignTasksToSprintModel extends SprintBaseRequest {
   tasks: string[];
   adjustHoursAllowed?: boolean;
-}
-
-export class RemoveTaskFromSprintModel extends SprintBaseRequest {
-  tasks: string[];
 }
 
 export class AddTaskRemoveTaskToSprintResponseModel {
@@ -144,7 +147,7 @@ export class AddTaskRemoveTaskToSprintResponseModel {
   totalRemainingCapacityReadable: string;
   totalEstimation: number;
   totalEstimationReadable: string;
-  tasks: string[];
+  tasks: string;
 }
 
 export class MoveTaskToColumnModel extends SprintBaseRequest {

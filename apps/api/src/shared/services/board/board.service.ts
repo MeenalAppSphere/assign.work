@@ -546,7 +546,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     if (projectDetails.sprintId) {
 
       // get sprint details
-      let sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId);
+      let sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails.id);
 
       // update sprint columns
       sprintDetails = this._sprintService.reassignSprintColumns(boardDetails, sprintDetails);

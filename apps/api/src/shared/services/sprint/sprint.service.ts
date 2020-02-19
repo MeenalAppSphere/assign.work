@@ -43,7 +43,6 @@ import { TaskService } from '../task.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from './sprint.utility.service';
 import { TaskHistoryService } from '../task-history.service';
-import { TaskTimeLogService } from '../task-time-log.service';
 import { ProjectService } from '../project/project.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
@@ -70,11 +69,23 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   path: 'columns.tasks.task',
   select: 'name displayName sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime',
   justOne: true,
-  populate: {
+  populate: [{
     path: 'assignee',
     select: 'emailId userName firstName lastName profilePic -_id',
     justOne: true
-  }
+  }, {
+    path: 'taskType',
+    select: 'name',
+    justOne: true
+  }, {
+    path: 'status',
+    select: 'name',
+    justOne: true
+  }, {
+    path: 'priority',
+    select: 'name',
+    justOne: true
+  }]
 }];
 
 const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById';
@@ -86,7 +97,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   private _projectService: ProjectService;
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
-  private _taskTimeLogService: TaskTimeLogService;
 
   private _sprintUtilityService: SprintUtilityService;
   private _boardUtilityService: BoardUtilityService;
@@ -103,8 +113,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
 
-    this._sprintUtilityService = new SprintUtilityService(this._sprintModel, this._emailService);
     this._boardUtilityService = new BoardUtilityService();
+    this._sprintUtilityService = new SprintUtilityService(this._boardUtilityService, this._emailService);
   }
 
   /**
@@ -261,7 +271,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       return await this.create([model.sprint], session);
     });
 
-    const sprint = await this.getSprintDetails(newSprint[0].id, commonPopulationForSprint, commonFieldSelection);
+    const sprint = await this.getSprintDetails(newSprint[0].id, model.sprint.projectId, commonPopulationForSprint, commonFieldSelection);
     return this._sprintUtilityService.prepareSprintVm(sprint);
   }
 
@@ -335,7 +345,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       }, { session });
       await this.commitTransaction(session);
 
-      const sprint = await this.getSprintDetails(model.sprint.id, commonPopulationForSprint, commonFieldSelection);
+      const sprint = await this.getSprintDetails(model.sprint.id, model.sprint.projectId, commonPopulationForSprint, commonFieldSelection);
       return this._sprintUtilityService.prepareSprintVm(sprint);
     } catch (e) {
       await this.abortTransaction(session);
@@ -350,12 +360,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * but if not then check for some capacity related validation before adding task to sprint
    * @param model
    */
-  public async addTaskToSprint(model: AddTaskToSprintModel) {
-    this.withRetrySession(async (session: ClientSession) => {
+  public async addTaskToSprint(model: AddTaskToSprintModel): Promise<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse> {
+    return await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId, true);
 
       // sprint details
-      const sprintDetails = await this.getSprintDetails(model.sprintId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
       // check sprint status validations
       if (sprintDetails.sprintStatus) {
@@ -375,7 +385,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       }
 
       // task details
-      const taskDetails = await this._taskService.getTaskDetails(model.taskId);
+      const taskDetails = await this._taskService.getTaskDetails(model.taskId, model.projectId);
 
       // check if task is already in any of sprint column
       const taskIsAlreadyInSprint = sprintDetails.columns.some(column => {
@@ -388,6 +398,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       taskDetails.id = model.taskId;
 
+      // sprint error holder variable
       const sprintError: SprintErrorResponse = new SprintErrorResponse();
       sprintError.tasksErrors = [];
       sprintError.membersErrors = [];
@@ -415,6 +426,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           } else {
             let allTaskTotalEstimation = 0;
             let currentTaskAssigneeTotalEstimation = 0;
+
+            // get task assignee details from sprint members
             const currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
 
             // get all tasks from the sprint and push it to all tasks array
@@ -428,6 +441,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
               });
             });
 
+            // check if sprint total capacity exceed after adding requested task estimated time
             if (allTaskTotalEstimation + taskDetails.estimatedTime > sprintDetails.totalCapacity) {
               sprintError.tasksErrors.push({
                 name: taskDetails.displayName,
@@ -437,6 +451,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
               return sprintError;
             } else if (currentTaskAssigneeTotalEstimation + taskDetails.estimatedTime > currentAssigneeDetails.workingCapacity) {
+              // check if task assignee capacity exceed after adding requested task estimated time
               sprintError.membersErrors.push({
                 id: currentAssigneeDetails.userId.toString(),
                 reason: SprintErrorEnum.memberCapacityExceed
@@ -444,57 +459,87 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
               return sprintError;
             } else {
+              // start task add process
               return await this.processAddTaskToSprint(sprintDetails, taskDetails, session);
             }
           }
         } else {
+          // start task add process
           return await this.processAddTaskToSprint(sprintDetails, taskDetails, session);
         }
       }
     });
   }
 
-  private async processAddTaskToSprint(sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
-    const columnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, taskDetails.statusId);
+  /**
+   * remove task from sprint
+   * get all tasks details, then minus theirs estimation from sprint total estimation
+   * filter it out from stage [0]
+   * update task and remove sprint Id from that task
+   * update sprint and return removed task id Array
+   * @param model: RemoveTaskFromSprintModel
+   * @return {Promise<void>}
+   */
+  public async removeTaskFromSprint(model: RemoveTaskFromSprintModel) {
+    return await this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.getProjectDetails(model.projectId);
 
-    // add task estimation to sprint total estimation
-    sprintDetails.totalEstimation += taskDetails.estimatedTime;
+      // get sprint details
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
-    // add task estimation to column total estimation
-    sprintDetails.columns[columnIndex].totalEstimation += taskDetails.estimatedTime;
-    // add task to column
-    sprintDetails.columns[columnIndex].tasks.push({
-      taskId: taskDetails.id,
-      addedAt: generateUtcDate(),
-      addedById: this._generalService.userId
-    });
+      // check if requested task is in sprint
+      const taskIsInSprint = sprintDetails.columns.some(column => {
+        return column.tasks.some(task => task.taskId.toString() === model.taskId);
+      });
 
-    // set total remaining capacity by subtracting sprint members totalCapacity - totalEstimation
-    sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
-    sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
-
-    // update sprint by id and update sprint columns
-    await this.updateById(sprintDetails.id, {
-      $set: {
-        columns: sprintDetails.columns,
-        totalEstimation: sprintDetails.totalEstimation,
-        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
-        totalRemainingTime: sprintDetails.totalRemainingTime
+      if (!taskIsInSprint) {
+        BadRequest('Task is not added to sprint, so you can\'t remove it');
       }
-    }, session);
 
-    // update task by id and set sprint id
-    await this._taskService.updateById(taskDetails.id, { $set: { sprintId: sprintDetails.id } }, session);
+      // get task details by id
+      const taskDetails = await this._taskService.getTaskDetails(model.taskId, model.projectId);
 
-    return {
-      totalCapacity: sprintDetails.totalCapacity,
-      totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
-      totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
-      totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
-      totalEstimation: sprintDetails.totalEstimation,
-      totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
-      tasks: taskDetails.id
-    };
+      // get column index from sprint columns
+      const columnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, model.taskId);
+      // get task index from column
+      const taskIndex = sprintDetails.columns[columnIndex].tasks.findIndex(task => task.taskId.toString() === model.taskId);
+
+      // mark task as removed and add removed by id
+      sprintDetails.columns[columnIndex].tasks[taskIndex].removedById = this._generalService.userId;
+      sprintDetails.columns[columnIndex].tasks[taskIndex].removedAt = generateUtcDate();
+
+      // minus task estimate from column's total estimate
+      sprintDetails.columns[columnIndex].totalEstimation -= taskDetails.estimatedTime;
+
+      // minus task estimate from sprint total estimations
+      sprintDetails.totalEstimation -= taskDetails.estimatedTime;
+
+      // update sprint by id
+      await this.updateById(model.sprintId, {
+        $set: {
+          [`columns${columnIndex}`]: sprintDetails.columns[columnIndex],
+          totalEstimation: sprintDetails.totalEstimation
+        }
+      }, session);
+
+      // create task history
+      const taskHistory = new TaskHistory();
+      taskHistory.taskId = taskDetails.id;
+      taskHistory.task = taskDetails;
+      taskHistory.sprintId = sprintDetails.id;
+      taskHistory.createdAt = generateUtcDate();
+      taskHistory.action = TaskHistoryActionEnum.removedFromSprint;
+      taskHistory.desc = TaskHistoryActionEnum.removedFromSprint;
+
+      // create task history
+      await this._taskHistoryService.addHistory(taskHistory, session);
+
+      // update task and remove sprint id
+      await this._taskService.updateById(taskDetails.id, {
+        $set: { sprintId: null }
+      }, session);
+
+    });
   }
 
   /**
@@ -506,7 +551,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       const project = await this._projectService.getProjectDetails(model.projectId, true);
 
       // get sprint details from sprint id
-      const sprintDetails = await this.getSprintDetails(model.sprintId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
       // gather all task from all columns to this variable
       const allColumnsTasksIds: Array<string | Types.ObjectId> = [];
@@ -750,95 +795,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   }
 
   /**
-   * remove task from sprint
-   * get all tasks details, then minus theirs estimation from sprint total estimation
-   * filter it out from stage [0]
-   * update task and remove sprint Id from that task
-   * update sprint and return removed task id Array
-   * @param model: RemoveTaskFromSprintModel
-   * @return {Promise<void>}
-   */
-  public async removeTaskFromSprint(model: RemoveTaskFromSprintModel): Promise<AddTaskRemoveTaskToSprintResponseModel> {
-    // region basic validation
-
-    // tasks array
-    if (!model.tasks || !model.tasks.length) {
-      throw new BadRequestException('Please add at least one task for remove...');
-    }
-    // endregion
-
-    // start the session
-    const session = await this.startSession();
-
-    try {
-      // get project details by project id
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
-
-      // get sprint details from sprint id
-      const sprintDetails = await this.getSprintDetails(model.sprintId);
-
-      // get all tasks details from given tasks array
-      const taskDetails: Task[] = await this._taskService.find({
-        filter: {
-          projectId: this.toObjectId(model.projectId),
-          sprintId: this.toObjectId(model.sprintId),
-          _id: { $in: model.tasks }
-        },
-        lean: true
-      });
-
-      // check if there any task found
-      if (!taskDetails.length) {
-        // if no return an error
-        throw new BadRequestException('no tasks found');
-      }
-
-      if (taskDetails.length < model.tasks.length) {
-        throw new BadRequestException('one of tasks not found');
-      }
-
-      // loop over all the tasks and minus estimation time from sprint total estimation
-      // update task in db set sprintId to null
-      for (let i = 0; i < taskDetails.length; i++) {
-        const task = taskDetails[i];
-        task.id = task['_id'];
-
-        // minus task estimation from columns[0].totalEstimation ( first stage )
-        sprintDetails.columns[0].totalEstimation -= task.estimatedTime;
-        sprintDetails.columns[0].tasks = sprintDetails.columns[0].tasks.filter(sprintTask => sprintTask.taskId.toString() !== task.id.toString());
-
-        // minus task estimation from sprint total estimation
-        sprintDetails.totalEstimation -= task.estimatedTime;
-
-        // update task model
-        await this._taskService.updateById(task.id, { sprintId: null }, session);
-      }
-
-      // set total remaining capacity by dividing sprint members totalCapacity - totalEstimation
-      sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
-      sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
-
-      // update sprint
-      await this.updateById(model.sprintId, sprintDetails, session);
-      await this.commitTransaction(session);
-
-      // return add deleted tasks id
-      return {
-        totalCapacity: sprintDetails.totalCapacity,
-        totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
-        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
-        totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
-        totalEstimation: sprintDetails.totalEstimation,
-        totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
-        tasks: model.tasks
-      };
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
-  }
-
-  /**
    * move task to a particular column
    * @param model
    */
@@ -859,7 +815,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // process moving
     await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId);
-      const sprintDetails = await this.getSprintDetails(model.sprintId);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
       // check task is in sprint or not
       const currentColumnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, model.taskId);
@@ -950,7 +906,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     });
 
     // return whole sprint details
-    const sprint = await this.getSprintDetails(model.sprintId, detailedPopulationForSprint, detailedFiledSelection);
+    const sprint = await this.getSprintDetails(model.sprintId, model.projectId, detailedPopulationForSprint, detailedFiledSelection);
     return this._sprintUtilityService.prepareSprintVm(sprint);
   }
 
@@ -983,7 +939,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // get sprint details by id
-    const sprintDetails = await this.getSprintDetails(model.sprintId);
+    const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
     if (sprintDetails.sprintStatus) {
       let msgStatus = '';
@@ -1043,7 +999,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.commitTransaction(session);
 
       // return sprint details
-      const sprint = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, commonFieldSelection);
+      const sprint = await this.getSprintDetails(model.sprintId, model.projectId, commonPopulationForSprint, commonFieldSelection);
       return this._sprintUtilityService.prepareSprintVm(sprint);
     } catch (e) {
       await this.abortTransaction(session);
@@ -1063,7 +1019,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     return await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId);
 
-      const sprintDetails = await this.getSprintDetails(model.sprintId, commonPopulationForSprint, detailedFiledSelection);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, commonPopulationForSprint, detailedFiledSelection);
 
       if (sprintDetails.sprintStatus) {
         BadRequest(`This sprint can't be published, because sprint is already ${sprintDetails.sprintStatus}`);
@@ -1202,66 +1158,66 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param activeSprint
    */
   public reassignSprintColumns(activeBoard: BoardModel, activeSprint: Sprint) {
-    const removedColumnsId = [];
+    return this._sprintUtilityService.reassignSprintColumns(activeBoard, activeSprint);
+  }
 
-    // check if there are any changes in board
-    activeSprint.columns.forEach(column => {
-      const columnIndexInBoard = this._boardUtilityService.getColumnIndex(activeBoard.columns, column.id);
+  /**
+   * add task to sprint db process
+   * @param sprintDetails
+   * @param taskDetails
+   * @param session
+   */
+  private async processAddTaskToSprint(sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
+    const columnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, taskDetails.statusId);
 
-      // column found then update it's is hidden and all other things
-      if (columnIndexInBoard > -1) {
-        column.isHidden = activeBoard.columns[columnIndexInBoard].isHidden;
-      } else {
-        /** if column not found then there should be some scenarios we have to check
-         * 1. column merged to a another column as a status
-         **/
-        const columnIndexFromStatuses = this._boardUtilityService.getColumnIndexFromStatus(activeBoard, column.id);
+    // add task estimation to sprint total estimation
+    sprintDetails.totalEstimation += taskDetails.estimatedTime;
 
-        if (columnIndexFromStatuses > -1) {
-          // now column found as a status so we need to move all the task of this column to the column we found in the sprint
-          // so first we need to find if found column is in sprint or not and if yes than move this columns tasks to that column task
-          const columnIndexInSprint = this._sprintUtilityService.getColumnIndexFromColumn(activeSprint, column.id);
+    // add task estimation to column total estimation
+    sprintDetails.columns[columnIndex].totalEstimation += taskDetails.estimatedTime;
+    // add task to column
+    sprintDetails.columns[columnIndex].tasks.push({
+      taskId: taskDetails.id,
+      addedAt: generateUtcDate(),
+      addedById: this._generalService.userId
+    });
 
-          if (columnIndexInSprint > -1) {
-            // now we found column in sprint than move all task from current column to this column
-            activeSprint.columns[columnIndexInSprint].tasks = column.tasks;
+    // set total remaining capacity by subtracting sprint members totalCapacity - totalEstimation
+    sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
+    sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
 
-            // push this column to removed columns id so we can remove this column later
-            removedColumnsId.push(column.id.toString());
-          }
-        }
+    // update sprint by id and update sprint columns
+    await this.updateById(sprintDetails.id, {
+      $set: {
+        columns: sprintDetails.columns,
+        totalEstimation: sprintDetails.totalEstimation,
+        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+        totalRemainingTime: sprintDetails.totalRemainingTime
       }
-    });
+    }, session);
 
-    // filter out removed columns from sprint
-    activeSprint.columns = activeSprint.columns.filter(column => {
-      return !removedColumnsId.includes(column.id.toString());
-    });
+    // create task history
+    const taskHistory = new TaskHistory();
+    taskHistory.desc = TaskHistoryActionEnum.addedToSprint;
+    taskHistory.action = TaskHistoryActionEnum.addedToSprint;
+    taskHistory.createdAt = generateUtcDate();
+    taskHistory.taskId = taskDetails.id;
+    taskHistory.sprintId = sprintDetails.id;
 
-    const newColumns = activeBoard.columns.filter(column => {
-      return !activeSprint.columns.some(sprintColumn => sprintColumn.id.toString() === column.headerStatusId.toString());
-    });
+    await this._taskHistoryService.addHistory(taskHistory, session);
 
-    if (newColumns.length) {
-      // create new columns in sprint
-      newColumns.forEach(column => {
-        const sprintColumn = new SprintColumn();
-        sprintColumn.id = column.headerStatusId;
-        sprintColumn.statusId = column.headerStatusId;
-        sprintColumn.name = column.headerStatus.name;
-        sprintColumn.tasks = [];
-        sprintColumn.totalEstimation = 0;
-        sprintColumn.isHidden = column.isHidden;
+    // update task by id and set sprint id
+    await this._taskService.updateById(taskDetails.id, { $set: { sprintId: sprintDetails.id } }, session);
 
-        activeSprint.columns.push(sprintColumn);
-      });
-    }
-
-    // calculate total estimation for all the sprint columns
-    this._sprintUtilityService.calculateTotalEstimateForColumns(activeSprint);
-    activeSprint.columns = this._sprintUtilityService.reOrderSprintColumns(activeBoard, activeSprint);
-
-    return activeSprint;
+    return {
+      totalCapacity: sprintDetails.totalCapacity,
+      totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
+      totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+      totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
+      totalEstimation: sprintDetails.totalEstimation,
+      totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
+      tasks: taskDetails.id
+    };
   }
 
   /**
@@ -1287,19 +1243,21 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
   /**
    * get sprint details by sprint id
-   * @param id: string sprint id
+   * @param sprintId
+   * @param projectId
    * @param populate: population array
    * @param select: filed selection string
    */
-  public async getSprintDetails(id: string, populate: any[] = [], select: string = detailedFiledSelection): Promise<Sprint> {
-    if (!this.isValidObjectId(id)) {
+  public async getSprintDetails(sprintId: string, projectId: string, populate: any[] = [], select: string = detailedFiledSelection): Promise<Sprint> {
+    if (!this.isValidObjectId(sprintId)) {
       throw new BadRequestException('Sprint Not Found');
     }
-    const sprintDetails: Sprint = await this._sprintModel.findOne({ _id: id, isDeleted: false })
-      .populate(populate)
-      .select(select)
-      .lean()
-      .exec();
+    const sprintDetails: Sprint = await this.findOne({
+      filter: { _id: sprintId, projectId },
+      populate,
+      lean: true,
+      select
+    });
 
     if (!sprintDetails) {
       throw new NotFoundException('Sprint Not Found');

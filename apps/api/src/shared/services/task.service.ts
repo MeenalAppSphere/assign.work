@@ -254,7 +254,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       const projectDetails = await this.getProjectDetails(model.projectId);
-      const taskDetails = await this.getTaskDetails(model.id);
+      const taskDetails = await this.getTaskDetails(model.id, model.projectId);
 
       // check if task assignee id is available or not
       // if not then assign it to task creator
@@ -368,13 +368,13 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
 
     const projectDetails = await this.getProjectDetails(model.projectId);
-    const taskDetails = await this.getTaskDetails(model.taskId);
+    const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
 
     const session = await this.startSession();
 
     // check if task is in sprint
     if (taskDetails.sprintId) {
-      const sprintDetails = await this._sprintService.getSprintDetails(taskDetails.sprintId);
+      const sprintDetails = await this._sprintService.getSprintDetails(taskDetails.sprintId, model.projectId);
 
       // if sprint found then check if sprint is active or not..
       if (sprintDetails) {
@@ -501,7 +501,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     return this.withRetrySession(async (session) => {
       // get project details
       await this.getProjectDetails(model.projectId);
-      const taskDetails = await this.getTaskDetails(model.taskId);
+      const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
 
       // find comment in task db
       const commentIndex = taskDetails.comments.findIndex(comment => comment._id.toString() === model.comment.id);
@@ -535,7 +535,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       throw new BadRequestException('invalid request');
     }
     await this.getProjectDetails(model.projectId);
-    const taskDetails = await this.getTaskDetails(model.taskId);
+    const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
     const commentIndex = taskDetails.comments.findIndex(comment => comment['_id'].toString() === model.commentId);
 
     taskDetails.comments[commentIndex].updatedAt = generateUtcDate();
@@ -565,7 +565,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
   async deleteComment(model: DeleteCommentModel) {
     const projectDetails = await this.getProjectDetails(model.projectId);
-    const taskDetails = await this.getTaskDetails(model.taskId);
+    const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
 
     taskDetails.comments = taskDetails.comments.filter(com => {
       return com.id !== model.commentId;
@@ -601,12 +601,16 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   /**
    * get task details by id
    * @param taskId
+   * @param projectId
    */
-  async getTaskDetails(taskId: string): Promise<Task> {
+  async getTaskDetails(taskId: string, projectId: string): Promise<Task> {
     if (!this.isValidObjectId(taskId)) {
       throw new BadRequestException('Task not found');
     }
-    const taskDetails: Task = await this._taskModel.findById(taskId).lean().exec();
+    const taskDetails: Task = await this.findOne({
+      filter: { _id: taskId, projectId },
+      lean: true
+    });
 
     if (!taskDetails) {
       throw new NotFoundException('Task not found');

@@ -97,16 +97,38 @@ sprintSchema.virtual('columns.tasks.task', {
   foreignField: '_id'
 });
 
+sprintSchema.virtual('columns.tasks.task.taskType', {
+  ref: DbCollection.taskType,
+  localField: 'columns.tasks.taskId.taskTypeId',
+  foreignField: '_id'
+});
+
+sprintSchema.virtual('columns.tasks.task.status', {
+  ref: DbCollection.taskStatus,
+  localField: 'columns.tasks.taskId.statusId',
+  foreignField: '_id',
+  justOne: true
+});
+
+sprintSchema.virtual('columns.tasks.task.priority', {
+  ref: DbCollection.taskPriority,
+  localField: 'columns.tasks.taskId.priorityId',
+  foreignField: '_id',
+  justOne: true
+});
+
 sprintSchema.virtual('columns.tasks.addedBy', {
   ref: DbCollection.users,
   localField: 'columns.tasks.addedById',
-  foreignField: '_id'
+  foreignField: '_id',
+  justOne: true
 });
 
 sprintSchema.virtual('membersCapacity.user', {
   ref: DbCollection.users,
   localField: 'membersCapacity.userId',
-  foreignField: '_id'
+  foreignField: '_id',
+  justOne: true
 });
 
 // plugins

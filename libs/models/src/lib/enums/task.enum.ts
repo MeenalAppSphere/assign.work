@@ -15,6 +15,7 @@ export enum TaskHistoryActionEnum {
   statusChanged = 'Status Changed',
   stageChanged = 'Stage Changed',
   addedToSprint = 'Added To Sprint',
+  removedFromSprint = 'Added To Sprint',
   timeLogged = 'Time Logged',
   timeLoggedInSprint = 'Time Logged in Sprint'
 }

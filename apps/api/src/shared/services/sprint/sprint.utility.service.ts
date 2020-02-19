@@ -1,10 +1,10 @@
-import { Document, Model } from 'mongoose';
 import {
   BoardModel,
   EmailSubjectEnum,
   EmailTemplatePathEnum,
   Project,
   Sprint,
+  SprintColumn,
   SprintErrorEnum,
   SprintErrorResponseItem,
   Task,
@@ -16,10 +16,11 @@ import { BadRequest, secondsToHours, secondsToString } from '../../helpers/helpe
 import { DEFAULT_DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { EmailService } from '../email.service';
 import { orderBy } from 'lodash';
+import { BoardUtilityService } from '../board/board.utility.service';
 
 export class SprintUtilityService {
 
-  constructor(protected readonly _sprintModel: Model<Sprint & Document>, protected _emailService: EmailService) {
+  constructor(protected readonly _boardUtilityService: BoardUtilityService, protected _emailService: EmailService) {
   }
 
   /**
@@ -345,5 +346,73 @@ export class SprintUtilityService {
     return sprint.columns.findIndex(column => {
       return column.tasks.some(task => task.taskId.toString() === taskId.toString());
     });
+  }
+
+  /**
+   * reassign sprint when a board get's updated
+   * @param activeBoard
+   * @param activeSprint
+   */
+  reassignSprintColumns(activeBoard: BoardModel, activeSprint: Sprint) {
+    const removedColumnsId = [];
+
+    // check if there are any changes in board
+    activeSprint.columns.forEach(column => {
+      const columnIndexInBoard = this._boardUtilityService.getColumnIndex(activeBoard.columns, column.id);
+
+      // column found then update it's is hidden and all other things
+      if (columnIndexInBoard > -1) {
+        column.isHidden = activeBoard.columns[columnIndexInBoard].isHidden;
+      } else {
+        /** if column not found then there should be some scenarios we have to check
+         * 1. column merged to a another column as a status
+         **/
+        const columnIndexFromStatuses = this._boardUtilityService.getColumnIndexFromStatus(activeBoard, column.id);
+
+        if (columnIndexFromStatuses > -1) {
+          // now column found as a status so we need to move all the task of this column to the column we found in the sprint
+          // so first we need to find if found column is in sprint or not and if yes than move this columns tasks to that column task
+          const columnIndexInSprint = this.getColumnIndexFromColumn(activeSprint, column.id);
+
+          if (columnIndexInSprint > -1) {
+            // now we found column in sprint than move all task from current column to this column
+            activeSprint.columns[columnIndexInSprint].tasks = column.tasks;
+
+            // push this column to removed columns id so we can remove this column later
+            removedColumnsId.push(column.id.toString());
+          }
+        }
+      }
+    });
+
+    // filter out removed columns from sprint
+    activeSprint.columns = activeSprint.columns.filter(column => {
+      return !removedColumnsId.includes(column.id.toString());
+    });
+
+    const newColumns = activeBoard.columns.filter(column => {
+      return !activeSprint.columns.some(sprintColumn => sprintColumn.id.toString() === column.headerStatusId.toString());
+    });
+
+    if (newColumns.length) {
+      // create new columns in sprint
+      newColumns.forEach(column => {
+        const sprintColumn = new SprintColumn();
+        sprintColumn.id = column.headerStatusId;
+        sprintColumn.statusId = column.headerStatusId;
+        sprintColumn.name = column.headerStatus.name;
+        sprintColumn.tasks = [];
+        sprintColumn.totalEstimation = 0;
+        sprintColumn.isHidden = column.isHidden;
+
+        activeSprint.columns.push(sprintColumn);
+      });
+    }
+
+    // calculate total estimation for all the sprint columns
+    this.calculateTotalEstimateForColumns(activeSprint);
+    activeSprint.columns = this.reOrderSprintColumns(activeBoard, activeSprint);
+
+    return activeSprint;
   }
 }
