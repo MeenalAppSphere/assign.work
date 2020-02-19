@@ -94,9 +94,9 @@ export class TaskListComponent implements OnInit {
   }
 
   public deselectTaskFromSprint(task: Task) {
-    task.isSelected = false;
+
     this.removeTaskFromSprint(task);
-    this.selectTaskForSprint(task, false);
+
   }
 
 
@@ -149,6 +149,8 @@ export class TaskListComponent implements OnInit {
       }
       this.removeTaskFromSprintInProgress = true;
       const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
+      task.isSelected = false;
+      this.selectTaskForSprint(task, false);
       this.removeTaskFromSprintInProgress = false;
     }catch (e) {
       this.removeTaskFromSprintInProgress = false;
