@@ -790,6 +790,18 @@ $color-green : #42E3A3;
 }
 
 
+.status-list {
+
+  .ant-empty-image img {
+    width: 130px !important;
+  }
+  .ant-empty-description {
+    font-size: 15px;
+  }
+
+}
+
+
 /* sprint report */
 .sprint-progress {
 

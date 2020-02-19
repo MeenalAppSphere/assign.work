@@ -1,4 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import * as Highcharts from 'highcharts';
+
+declare var require: any;
+let Boost = require('highcharts/modules/boost');
+let noData = require('highcharts/modules/no-data-to-display');
+let More = require('highcharts/highcharts-more');
+
+Boost(Highcharts);
+noData(Highcharts);
+More(Highcharts);
+noData(Highcharts);
 
 @Component({
   selector: 'aavantan-app-activesprint',
@@ -6,6 +17,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./activesprint.component.scss']
 })
 export class ActivesprintComponent implements OnInit {
+
 
   public itemsSummary = [
     {
@@ -87,6 +99,25 @@ export class ActivesprintComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+
+    setTimeout(function() {
+      Highcharts.chart('line-chart',
+        {
+          chart: {
+            type: 'scatter',
+            height: 700
+          },
+          title: {
+            text: 'Sample Scatter Plot'
+          },
+          credits: {
+            enabled: false
+          },
+
+
+        });
+    },10);
+
   }
 
 }

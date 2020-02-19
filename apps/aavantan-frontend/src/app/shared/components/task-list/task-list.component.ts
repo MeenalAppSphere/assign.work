@@ -1,5 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { DraftSprint, GetAllTaskRequestModel, Task, TaskFilterDto, TaskTimeLogResponse } from '@aavantan-app/models';
+import {
+  AddTaskToSprintModel,
+  DraftSprint,
+  GetAllTaskRequestModel, RemoveTaskFromSprintModel,
+  Task,
+  TaskFilterDto,
+  TaskTimeLogResponse
+} from '@aavantan-app/models';
 import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { TaskService } from '../../services/task/task.service';
@@ -31,6 +38,9 @@ export class TaskListComponent implements OnInit {
   public sortingRequest: TaskFilterDto = {
     sort:'', sortBy:''
   };
+
+  public addTaskToSprintInProgress: boolean;
+  public removeTaskFromSprintInProgress:boolean;
 
   //backlog page
   public tasksSelected: DraftSprint = {
@@ -85,6 +95,7 @@ export class TaskListComponent implements OnInit {
 
   public deselectTaskFromSprint(task: Task) {
     task.isSelected = false;
+    this.removeTaskFromSprint(task);
     this.selectTaskForSprint(task, false);
   }
 
@@ -94,7 +105,7 @@ export class TaskListComponent implements OnInit {
 
       const taskIndex = this.tasksSelected.tasks.findIndex(t => t.id === task.id);
       if (taskIndex === -1) {
-        this.tasksSelected.tasks.push(task);
+        this.addTaskToSprint(task);
       } else {
         this.tasksSelected.tasks[taskIndex].isSelected = bool;
       }
@@ -104,6 +115,50 @@ export class TaskListComponent implements OnInit {
       return;
     }
   }
+
+
+
+  async addTaskToSprint(task:Task){
+
+    try{
+      const json: AddTaskToSprintModel = {
+        projectId : this._generalService.currentProject.id,
+        sprintId : this.tasksSelected.sprintId ? this.tasksSelected.sprintId : this.activeSprintId,
+        adjustHoursAllowed:true,
+        taskId: task.id
+      }
+      this.addTaskToSprintInProgress = true;
+      const result = await this._sprintService.addTaskToSprint(json).toPromise();
+      this.tasksSelected.tasks.push(task);
+      this.addTaskToSprintInProgress = false;
+    }catch (e) {
+      this.addTaskToSprintInProgress = false;
+    }
+
+  }
+
+
+
+  async removeTaskFromSprint(task:Task){
+
+    try{
+      const json: RemoveTaskFromSprintModel = {
+        projectId : this._generalService.currentProject.id,
+        sprintId : this.tasksSelected.sprintId ? this.tasksSelected.sprintId : this.activeSprintId,
+        taskId: task.id
+      }
+      this.removeTaskFromSprintInProgress = true;
+      const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
+      this.removeTaskFromSprintInProgress = false;
+    }catch (e) {
+      this.removeTaskFromSprintInProgress = false;
+    }
+
+  }
+
+
+
+
 
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {
     this.sortingRequest.sort = type;

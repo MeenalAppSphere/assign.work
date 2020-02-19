@@ -30,7 +30,7 @@
         </div>
         <aside class="status-list status-box-scrollable">
 
-          <nz-spin [nzTip]="'Loading Statuses...'" [nzSpinning]="getActiveBoardInProcess" nzSize="large">
+          <nz-spin [nzTip]="'Loading Statuses...'" [nzSpinning]="getActiveBoardInProcess" nzSize="large" style="min-height:120px;">
 
             <div class="item text-black" *ngFor="let item of activeBoard?.unMappedStatuses" [dndDraggable]="item"
                  [dndEffectAllowed]="'move'">
@@ -38,6 +38,17 @@
               <span class="float-right" dndHandle>
                 <img src="../../../assets/images/icons/ellipsis-move.svg"/>
               </span>
+            </div>
+
+
+            <div *ngIf="activeBoard?.unMappedStatuses && activeBoard?.unMappedStatuses.length===0">
+              <nz-empty
+                [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+                [nzNotFoundContent]="contentTpl">
+                <ng-template #contentTpl>
+                  <span>All Status in used</span>
+                </ng-template>
+              </nz-empty>
             </div>
 
           </nz-spin>

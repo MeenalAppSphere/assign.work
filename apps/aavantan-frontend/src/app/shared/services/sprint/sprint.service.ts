@@ -5,7 +5,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import {
-  AddTaskRemoveTaskToSprintResponseModel,
+  AddTaskRemoveTaskToSprintResponseModel, AddTaskToSprintModel,
   AssignTasksToSprintModel,
   BasePaginatedResponse,
   BaseResponseModel,
@@ -190,4 +190,43 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
+
+  addTaskToSprint(sprintData: AddTaskToSprintModel): Observable<BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>> {
+    return this._http.post(SprintUrls.addSingleTask, sprintData).pipe(
+      map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>) => {
+
+        if(res){
+          this.notification.success('Success', 'Task successfully added to this Sprint');
+        }else{
+          this.notification.error('Error', 'Task not added to Sprint');
+        }
+
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  removeTaskFromSprint(sprintData: RemoveTaskFromSprintModel): Observable<BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>> {
+    return this._http.post(SprintUrls.removeSingleTask, sprintData).pipe(
+      map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>) => {
+
+        if(res){
+          this.notification.success('Success', 'Task successfully removed from this Sprint');
+        }else{
+          this.notification.error('Error', 'Task not removed from Sprint');
+        }
+
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+
 }

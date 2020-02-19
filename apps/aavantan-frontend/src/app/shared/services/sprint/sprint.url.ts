@@ -14,4 +14,7 @@ export const SprintUrls = {
   updateWorkingCapacity: createUrl('sprint/update-working-capacity'),
   getBoardData: createUrl('sprint/get-sprint'),
   closeSprint: createUrl('sprint/close-sprint'),
+
+  addSingleTask: createUrl('sprint/add-task'),
+  removeSingleTask: createUrl('sprint/remove-task'),
 };
