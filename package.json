@@ -65,6 +65,7 @@
     "core-js": "^2.5.4",
     "ejs": "^3.0.1",
     "highcharts": "^8.0.0",
+    "highcharts-angular": "^2.4.0",
     "humanize-duration": "^3.21.0",
     "jquery": "3.4.1",
     "lodash": "^4.17.15",

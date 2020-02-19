@@ -209,14 +209,30 @@
     <div class="row">
       <div class="col-md-6">
 
-        <div class="chart-box w-100"></div>
+        <div class="chart-box w-100">
+          <div class="text-black font-size-16">Efforts spent in hours per day</div>
+          <div class="text-gray-light-2 font-size-12">Day 10 is in progress</div>
+
+          <div id="line-chart" class="m-t-10">
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="lineChartOptions"
+            ></highcharts-chart>
+          </div>
+
+        </div>
 
       </div>
       <div class="col-md-6">
 
         <div class="chart-box w-100">
 
-          <div id="line-chart"></div>
+          <div id="column-chart">
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="columnChartOptions"
+            ></highcharts-chart>
+          </div>
 
         </div>
 

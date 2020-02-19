@@ -20,6 +20,7 @@ import { BoardDesignComponent } from './board-design/board-design.component';
 import { SettingsModule } from '../settings/settings.module';
 import { AssignUserComponent } from './board-design/assign-user/assign-user.component';
 import { HiddenStatusComponent } from './board-design/hidden-status/hidden-status.component';
+import { HighchartsChartModule } from 'highcharts-angular';
 
 @NgModule({
   imports: [
@@ -33,7 +34,8 @@ import { HiddenStatusComponent } from './board-design/hidden-status/hidden-statu
     JoyrideModule.forRoot(),
     NzToolTipModule,
     DndModule,
-    SettingsModule
+    SettingsModule,
+    HighchartsChartModule
   ],
   exports: [
   ],
