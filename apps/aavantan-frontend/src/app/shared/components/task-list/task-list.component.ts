@@ -76,10 +76,6 @@ export class TaskListComponent implements OnInit {
         duration: 0
       };
     }
-
-    console.log(this.taskList);
-    console.log(new Date(), this.tasksSelected);
-
   }
 
   public timeLog(item: Task) {
@@ -96,11 +92,8 @@ export class TaskListComponent implements OnInit {
   }
 
   public deselectTaskFromSprint(task: Task) {
-
     this.removeTaskFromSprint(task);
-
   }
-
 
   public selectTaskForSprint(task: Task, bool: boolean) {
     if (this.tasksSelected.sprintId || this.activeSprintId || this.sprintId) {
@@ -116,7 +109,6 @@ export class TaskListComponent implements OnInit {
       return;
     }
   }
-
 
   async addTaskToSprint(task: Task) {
 
@@ -135,9 +127,7 @@ export class TaskListComponent implements OnInit {
     } catch (e) {
       this.addTaskToSprintInProgress = false;
     }
-
   }
-
 
   async removeTaskFromSprint(task: Task) {
 
@@ -156,9 +146,7 @@ export class TaskListComponent implements OnInit {
     } catch (e) {
       this.removeTaskFromSprintInProgress = false;
     }
-
   }
-
 
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {
     this.sortingRequest.sort = type;
@@ -171,5 +159,4 @@ export class TaskListComponent implements OnInit {
     this._taskService.getAllTask(json).subscribe();
     console.log('Sorting Request: ', this.sortingRequest);
   }
-
 }

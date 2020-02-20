@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AssignTasksToSprintModel,
   DraftSprint,
-  GetAllSprintRequestModel,
   GetAllTaskRequestModel,
   GetUnpublishedRequestModel,
   Sprint,
@@ -29,11 +28,8 @@ import { TaskTypeQuery } from '../queries/task-type/task-type.query';
   styleUrls: ['./backlog.component.scss']
 })
 export class BacklogComponent implements OnInit, OnDestroy {
-  public allTaskList: Task[] = [];
-  public allTaskListBackup: Task[] = [];
-  public draftTaskList: Task[] = [];
-  public taskObj: Task;
-  public memberObj: User;
+  public backLogTasksList: Task[] = [];
+  public backLogTasksListBackup: Task[] = [];
   public view: String = 'listView';
   public totalDuration: Number = 0;
   public durationData: any;
@@ -42,17 +38,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public draftData: Task[] = [];
   public sprintModalIsVisible: boolean;
   public projectTeams: User[] = [];
-  public sprintData: Sprint;
-  public sprintList: Sprint[];
+  public unPublishedSprintData: Sprint;
   public teamCapacityModalIsVisible: boolean;
+
   public getTaskInProcess: boolean;
+  public getAllActiveSprintTasksInProcess: boolean;
+
   public gettingUnpublishedInProcess: boolean;
-  public gettingAllSprintInProcess: boolean;
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
   public saveSprintInProcess: boolean;
   public activeSprintData: Sprint;
-  public activeSprintId: string;
   public haveUnpublishedTasks: boolean;
   public taskTypeDataSource: TaskTypeModel[] = [];
 
@@ -74,18 +70,24 @@ export class BacklogComponent implements OnInit, OnDestroy {
         this.taskTypeDataSource = res;
       }
     });
-
   }
 
   ngOnInit() {
-
-    this.activeSprintData = this._generalService.currentProject.sprint;
-    this.activeSprintId = this._generalService.currentProject.sprintId;
-
     if (this._generalService.currentProject && this._generalService.currentProject.id) {
-      // this.getAllSprint();
+      // get all back log tasks
       this.getAllBacklogTask();
-      this.getUnpublishedSprint();
+
+      // if project has active sprint than get all tasks of that sprint
+      // if not get un-published sprint tasks
+
+      if (this._generalService.currentProject.sprintId) {
+        // get active sprint tasks
+        this.activeSprintData = this._generalService.currentProject.sprint;
+        this.getAllSprintTasks();
+      } else {
+        // get unpublished sprint tasks
+        this.getUnpublishedSprint();
+      }
     }
 
     // get current project from store
@@ -95,12 +97,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
     });
 
-    if (this.allTaskList && this.allTaskList.length > 0) {
+    if (this.backLogTasksList && this.backLogTasksList.length > 0) {
       this.countTotalDuration();
     }
 
     // Sprint wizard data
-    this.sprintData = {
+    this.unPublishedSprintData = {
       name: null,
       projectId: this._generalService.currentProject.id,
       createdById: this._generalService.user.id,
@@ -109,31 +111,46 @@ export class BacklogComponent implements OnInit, OnDestroy {
       endAt: null,
       sprintStatus: null
     };
-
   }
 
-  async getAllSprint() {
-    try {
+  public async getAllBacklogTask() {
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc',
+      onlyBackLog: true
+    };
 
-      this.gettingAllSprintInProcess = true;
-      const json: GetAllSprintRequestModel = {
-        projectId: this._generalService.currentProject.id
-      };
-
-      this._sprintService.getAllSprint(json).subscribe(data => {
-        this.sprintList = data.data.items;
-        if (this.sprintList && this.sprintList.length > 0) {
-          // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
-        }
-      });
-
-    } catch (e) {
-      this.gettingAllSprintInProcess = false;
+    this.getTaskInProcess = true;
+    const data = await this._taskService.getAllBacklogTasks(json).toPromise();
+    if (data.data && data.data.items.length > 0) {
+      this.backLogTasksList = cloneDeep(data.data.items);
+      this.backLogTasksListBackup = cloneDeep(data.data.items);
     }
 
+    this.getTaskInProcess = false;
   }
 
-  async getUnpublishedSprint(hideLoader?: boolean) {
+  public async getAllSprintTasks() {
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc',
+      onlyBackLog: false,
+      sprintId: this.activeSprintData.id
+    };
+
+    this.getAllActiveSprintTasksInProcess = true;
+
+    const data = await this._taskService.getAllTask(json).toPromise();
+    if (data.data && data.data.items.length > 0) {
+      this.draftData = data.data.items;
+    }
+
+    this.getAllActiveSprintTasksInProcess = false;
+  }
+
+  public async getUnpublishedSprint(hideLoader?: boolean) {
     if (hideLoader) {
       this.gettingUnpublishedInProcess = true;
     }
@@ -149,12 +166,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
         if ((typeof data.data) === 'string') {
 
         } else {
-          this.sprintData = data.data;
+          this.unPublishedSprintData = data.data;
 
           const taskArray: Task[] = [];
           const ids: string[] = [];
 
-          this.sprintData.columns.forEach(column => {
+          this.unPublishedSprintData.columns.forEach(column => {
             column.tasks.forEach((ele) => {
               ele.task.isSelected = true;
               taskArray.push(ele.task);
@@ -182,12 +199,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
-
   public onChangeSearch(value: any): void {
     this.searchTaskListInProgress = true;
-    this.allTaskList = this.allTaskListBackup;
+    this.backLogTasksList = this.backLogTasksListBackup;
     if (value) {
-      this.allTaskList = this.allTaskList.filter((ele) => {
+      this.backLogTasksList = this.backLogTasksList.filter((ele) => {
         let taskTypeName = '';
         let profileName = '';
         if (ele.taskType && ele.taskType.name) {
@@ -201,53 +217,22 @@ export class BacklogComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.allTaskList = this.allTaskListBackup;
+      this.backLogTasksList = this.backLogTasksListBackup;
     }
     this.searchTaskListInProgress = false;
 
   }
 
-  async getAllBacklogTask() {
-
-    const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
-      sort: 'createdAt',
-      sortBy: 'desc',
-      onlyBackLog: true
-    };
-
-    this.getTaskInProcess = true;
-    const data = await this._taskService.getAllBacklogTasks(json).toPromise();
-    if (data.data && data.data.items.length > 0) {
-      this.allTaskList = cloneDeep(data.data.items);
-      this.allTaskListBackup = cloneDeep(data.data.items);
-    }
-
-    this.getTaskInProcess = false;
-    // this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
-    //   if (res) {
-    //     this.getTaskInProcess=false;
-    //
-    //     this.allTaskList = cloneDeep(res);
-    //     this.allTaskListBackup = cloneDeep(res);
-    //
-    //   }
-    // });
-  }
-
   public countTotalDuration() {
-    this.allTaskList.forEach((ele) => {
+    this.backLogTasksList.forEach((ele) => {
       const duration = ele.estimatedTime ? ele.estimatedTime : 0;
       // @ts-ignore
       this.totalDuration += Number(duration);
-
       this.durationData = this._generalService.secondsToReadable(Number(this.totalDuration));
-
     });
   }
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
-
     if (this.haveUnpublishedTasks) {
       let tasks = this.draftSprint.tasks.concat(ev.tasks);
       tasks = tasks.filter(task => task.isSelected);
@@ -281,25 +266,25 @@ export class BacklogComponent implements OnInit, OnDestroy {
       estimatedTime = estimatedTime + Number(ele.estimatedTime);
     });
 
-    this.sprintData.totalEstimation = estimatedTime;
-    this.sprintData.totalEstimationReadable = this._generalService.secondsToReadable(this.sprintData.totalEstimation).readable;
-    this.sprintData.totalRemainingCapacity = (this.sprintData.totalCapacity * 3600) - estimatedTime;
-    this.sprintData.totalRemainingCapacityReadable = this._generalService.secondsToReadable(this.sprintData.totalRemainingCapacity).readable;
+    this.unPublishedSprintData.totalEstimation = estimatedTime;
+    this.unPublishedSprintData.totalEstimationReadable = this._generalService.secondsToReadable(this.unPublishedSprintData.totalEstimation).readable;
+    this.unPublishedSprintData.totalRemainingCapacity = (this.unPublishedSprintData.totalCapacity * 3600) - estimatedTime;
+    this.unPublishedSprintData.totalRemainingCapacityReadable = this._generalService.secondsToReadable(this.unPublishedSprintData.totalRemainingCapacity).readable;
   }
 
   public toggleAddSprint(data?: Sprint) {
     if (data) {
-      this.sprintData = data;
+      this.unPublishedSprintData = data;
     }
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
-  async saveSprint() {
+  public async saveSprint() {
     try {
 
       const sprintData: AssignTasksToSprintModel = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.sprintData.id ? this.sprintData.id : this.activeSprintData.id,
+        sprintId: this.unPublishedSprintData.id ? this.unPublishedSprintData.id : this.activeSprintData.id,
         tasks: this.draftSprint.ids
       };
 
@@ -324,13 +309,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  async publishSprint() {
-
+  public async publishSprint() {
     try {
-
       const sprintData: SprintBaseRequest = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.sprintData.id
+        sprintId: this.unPublishedSprintData.id
       };
 
       this.publishSprintInProcess = true;
@@ -340,21 +323,18 @@ export class BacklogComponent implements OnInit, OnDestroy {
         this.router.navigate(['dashboard', 'board']);
       }
       this.publishSprintInProcess = false;
-
     } catch (e) {
       this.createdSprintId = null;
       this.publishSprintInProcess = false;
     }
-
   }
 
   public toggleTeamCapacity(data?: Sprint) {
     if (data) {
-      this.sprintData = data;
+      this.unPublishedSprintData = data;
     }
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
-
 
   public addTaskNavigate() {
     let displayName: string = null;
@@ -371,7 +351,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
     this.router.navigateByUrl('dashboard/task/' + displayName);
   }
-
 
   public getUnique(arr, comp) {
 
@@ -390,6 +369,5 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public ngOnDestroy() {
 
   }
-
 
 }
