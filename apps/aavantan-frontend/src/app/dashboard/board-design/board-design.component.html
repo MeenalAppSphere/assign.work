@@ -81,7 +81,7 @@
           </form>
         </div>
 
-        <div class="col-md-8 text-right">
+        <div class="col-md-8" [ngClass]="activeBoard ? 'text-right' : 'text-left'">
           <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid"
                   (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
           </button>

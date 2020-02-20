@@ -562,6 +562,13 @@ $color-green : #42E3A3;
     max-height: 265px;
     overflow: auto;
   }
+
+
+  .ant-table-placeholder {
+    display: none!important;
+  }
+
+
 }
 
 /* font and text */
@@ -761,6 +768,17 @@ $color-green : #42E3A3;
     .anticon+span, span+.anticon {
       margin-left: 4px!important;
       font-size: 11px!important;
+    }
+  }
+}
+
+/* setting page */
+.board-settings-box {
+  .ant-table-body {
+    min-height: 200px;
+    .ant-btn {
+      padding: 6px 10px!important;
+      min-width: 60px!important;
     }
   }
 }

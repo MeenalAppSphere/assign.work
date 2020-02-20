@@ -149,7 +149,8 @@
 
         <section class="row">
 
-          <aside class="col-md-12">
+          <aside class="col-md-12 board-settings-box">
+
             <nz-table
               [nzFrontPagination]="false"
               [nzTotal]="getBoardListRequestModal.totalItems"
@@ -158,11 +159,13 @@
               [nzShowPagination]="true"
               (nzPageIndexChange)="boardPageChanged($event)"
               #smallTable
+              [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess"
               nzSize="small"
-              [nzData]="boardsList" [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess">
+              [nzData]="boardsList" >
 
               <thead (nzSortChange)="boardSortOrderChanged($event)">
               <tr>
+                <th data-label="SN">#</th>
                 <th nzSortKey="name" nzShowSort>Name</th>
                 <th>Created By</th>
                 <th nzSortKey="createdAt" nzShowSort>Created On</th>
@@ -173,15 +176,16 @@
 
 
               <tbody>
-              <tr *ngFor="let data of smallTable.data">
-                <td data-label="Name"><a class="cursor-pointer" (click)="editBoard(data.id)">{{data.name}}</a></td>
+              <tr *ngFor="let data of smallTable.data; let index = index;">
+                <td data-label="SN">{{(index+1)}}</td>
+                <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
                 <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                 <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
                 <td data-label="Published">
 
                   <span *ngIf="data.isPublished">Yes</span>
 
-                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="default" nz-button
+                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="small" nz-button
                           (click)="publishBoard(data.id)">
                     <span>Publish</span>
                   </button>
@@ -189,7 +193,7 @@
                 </td>
                 <td data-label="Published">
 
-                  <button *ngIf="!data.isPublished" type="button" nzType="danger" nzSize="default" nz-button
+                  <button *ngIf="!data.isPublished" type="button" nzType="danger" nzSize="small" nz-button
                           (click)="deleteBoard(data.id)">
                     <span>Delete</span>
                   </button>
@@ -198,6 +202,7 @@
               </tr>
               </tbody>
             </nz-table>
+
           </aside>
 
         </section>
