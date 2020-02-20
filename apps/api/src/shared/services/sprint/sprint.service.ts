@@ -1178,6 +1178,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   private async processAddTaskToSprint(sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
     const columnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, taskDetails.statusId);
+    if (columnIndex === -1) {
+      BadRequest('Column not found');
+    }
     const isDeletedTaskIndex = sprintDetails.columns[columnIndex].tasks.findIndex(task => task.taskId.toString() === taskDetails.id);
 
     // add task estimation to sprint total estimation
