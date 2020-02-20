@@ -88,7 +88,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   }]
 }];
 
-const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById';
+const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById removedById removedAt';
 const detailedFiledSelection = `${commonFieldSelection} columns `;
 
 @Injectable()

@@ -5,7 +5,8 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import {
-  AddTaskRemoveTaskToSprintResponseModel, AddTaskToSprintModel,
+  AddTaskRemoveTaskToSprintResponseModel,
+  AddTaskToSprintModel,
   AssignTasksToSprintModel,
   BasePaginatedResponse,
   BaseResponseModel,
@@ -25,10 +26,12 @@ import {
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
 import { catchError, map } from 'rxjs/operators';
+import { UserState, UserStore } from '../../../store/user/user.store';
 
 @Injectable()
 export class SprintService extends BaseService<TaskStore, TaskState> {
-  constructor(protected notification: NzNotificationService, protected taskStore: TaskStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
+  constructor(protected notification: NzNotificationService, protected taskStore: TaskStore, private _http: HttpWrapperService,
+              private _generalService: GeneralService, private _userStore: UserStore) {
     super(taskStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -98,6 +101,19 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.publishSprint, sprintData).pipe(
       map((res: BaseResponseModel<Sprint>) => {
         this.notification.success('Success', 'Sprint published successfully');
+
+        // update current project and set sprint id
+        this._userStore.update((state: UserState) => {
+          return {
+            ...state,
+            currentProject: {
+              ...state.currentProject,
+              sprintId: sprintData.sprintId
+            }
+          };
+        });
+        // set published sprint id to general service
+        this._generalService.currentProject.sprintId = sprintData.sprintId;
         return res;
       }),
       catchError(err => {
@@ -122,10 +138,10 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
       map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>) => {
 
 
-        if((!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.tasksErrors && res.data.tasksErrors.length > 0)
-          || (!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.membersErrors && res.data.membersErrors.length > 0)){
+        if ((!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.tasksErrors && res.data.tasksErrors.length > 0)
+          || (!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.membersErrors && res.data.membersErrors.length > 0)) {
           this.notification.error('Error', 'Task not added to Sprint, Please check task list for reason');
-        }else{
+        } else {
           this.notification.success('Success', 'Task successfully added to this Sprint');
         }
 
@@ -165,9 +181,9 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.removeTaskToSprint, sprintData).pipe(
       map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>) => {
 
-        if(res){
+        if (res) {
           this.notification.success('Success', 'Task successfully removed to this Sprint');
-        }else{
+        } else {
           this.notification.error('Error', 'Task not removed from Sprint');
         }
 
@@ -196,9 +212,9 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.addSingleTask, sprintData).pipe(
       map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>) => {
 
-        if(res){
+        if (res) {
           this.notification.success('Success', 'Task successfully added to this Sprint');
-        }else{
+        } else {
           this.notification.error('Error', 'Task not added to Sprint');
         }
 
@@ -214,9 +230,9 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.removeSingleTask, sprintData).pipe(
       map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>) => {
 
-        if(res){
+        if (res) {
           this.notification.success('Success', 'Task successfully removed from this Sprint');
-        }else{
+        } else {
           this.notification.error('Error', 'Task not removed from Sprint');
         }
 

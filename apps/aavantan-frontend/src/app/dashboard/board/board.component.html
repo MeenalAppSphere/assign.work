@@ -4,7 +4,7 @@
     <div class="col-md-4">
 
       <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button"
-              nz-button>{{activeSprintData && activeSprintData.name ? activeSprintData.name : 'Sprint'}}</button>
+              nz-button>{{boardData && boardData.name ? boardData.name : 'Sprint'}}</button>
 
       <span *ngIf="boardData?.endAt" class="sprint-date">
       <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10"> Ending on {{boardData?.endAt | date : 'MMM d'}}
@@ -241,6 +241,6 @@
              (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
 
 <app-close-sprint *ngIf="closeSprintModalIsVisible" [closeSprintModalIsVisible]="closeSprintModalIsVisible"
-                  [boardData]="boardData" [activeSprintData]="activeSprintData"
+                  [boardData]="boardData" [activeSprintData]="boardData"
                   (toggleCloseSprintShow)="toggleCloseSprintShow()"></app-close-sprint>
 

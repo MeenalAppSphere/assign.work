@@ -35,12 +35,10 @@ export class BoardComponent implements OnInit, OnDestroy {
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   public selectedTaskItem: Task;
   public getStageInProcess: boolean;
-  public activeSprintData: Sprint;
   public taskTypeDataSource: TaskTypeModel[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
   public statusSprintDataSource: ProjectStatus[] = [];
-  public sprintCloseInProcess: boolean;
   public closeSprintModalIsVisible: boolean;
   public isVisibleCloseSprint: boolean;
   public radioOptionValue = 'a';
@@ -66,7 +64,6 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    this.activeSprintData = this._generalService.currentProject.sprint;
 
     if (this._generalService.currentProject.sprintId && this._generalService.currentProject.id) {
       this.getBoardData();
@@ -178,7 +175,7 @@ export class BoardComponent implements OnInit, OnDestroy {
 
       const json: MoveTaskToColumnModel = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.activeSprintData.id,
+        sprintId: this.boardData.id,
         columnId: column.id,
         taskId: task.taskId
       };

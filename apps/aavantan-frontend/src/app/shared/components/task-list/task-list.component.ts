@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
   AddTaskToSprintModel,
   DraftSprint,
-  GetAllTaskRequestModel, RemoveTaskFromSprintModel,
+  GetAllTaskRequestModel,
+  RemoveTaskFromSprintModel,
   Task,
   TaskFilterDto,
   TaskTimeLogResponse
@@ -36,15 +37,15 @@ export class TaskListComponent implements OnInit {
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;
   public sortingRequest: TaskFilterDto = {
-    sort:'', sortBy:''
+    sort: '', sortBy: ''
   };
 
   public addTaskToSprintInProgress: boolean;
-  public removeTaskFromSprintInProgress:boolean;
+  public removeTaskFromSprintInProgress: boolean;
 
   //backlog page
   public tasksSelected: DraftSprint = {
-    sprintId:null,
+    sprintId: null,
     ids: [],
     tasks: [],
     duration: 0
@@ -52,24 +53,24 @@ export class TaskListComponent implements OnInit {
 
   constructor(protected notification: NzNotificationService,
               private router: Router,
-              private _generalService : GeneralService,
+              private _generalService: GeneralService,
               private _sprintService: SprintService,
-              private _taskService:TaskService) {
+              private _taskService: TaskService) {
   }
 
   ngOnInit() {
 
-    if(this.isDraftTable){
-      this.taskList.forEach((ele)=>{
-        if(ele.isSelected){
+    if (this.isDraftTable) {
+      this.taskList.forEach((ele) => {
+        if (ele.isSelected) {
           this.tasksSelected.ids.push(ele.id);
           this.tasksSelected.tasks.push(ele);
         }
-      })
+      });
       this.tasksSelected.sprintId = this.sprintId;
-    }else{
+    } else {
       this.tasksSelected = {
-        sprintId:this.sprintId,
+        sprintId: this.sprintId,
         ids: [],
         tasks: [],
         duration: 0
@@ -77,7 +78,7 @@ export class TaskListComponent implements OnInit {
     }
 
     console.log(this.taskList);
-    console.log(new Date(),this.tasksSelected);
+    console.log(new Date(), this.tasksSelected);
 
   }
 
@@ -85,12 +86,13 @@ export class TaskListComponent implements OnInit {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTaskItem = item;
   }
-  public toggleTimeLog(data:TaskTimeLogResponse, item:Task){
-    item.progress = data.progress
+
+  public toggleTimeLog(data: TaskTimeLogResponse, item: Task) {
+    item.progress = data.progress;
   }
 
   public viewTask(task: Task) {
-    this.router.navigateByUrl("dashboard/task/"+task.displayName);
+    this.router.navigateByUrl('dashboard/task/' + task.displayName);
   }
 
   public deselectTaskFromSprint(task: Task) {
@@ -101,7 +103,7 @@ export class TaskListComponent implements OnInit {
 
 
   public selectTaskForSprint(task: Task, bool: boolean) {
-    if(this.tasksSelected.sprintId || this.activeSprintId) {
+    if (this.tasksSelected.sprintId || this.activeSprintId || this.sprintId) {
 
       const taskIndex = this.tasksSelected.tasks.findIndex(t => t.id === task.id);
       if (taskIndex === -1) {
@@ -109,57 +111,53 @@ export class TaskListComponent implements OnInit {
       } else {
         this.tasksSelected.tasks[taskIndex].isSelected = bool;
       }
-      this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
-    }else {
+    } else {
       this.notification.error('Error', 'Create a new Sprint to add tasks');
       return;
     }
   }
 
 
+  async addTaskToSprint(task: Task) {
 
-  async addTaskToSprint(task:Task){
-
-    try{
+    try {
       const json: AddTaskToSprintModel = {
-        projectId : this._generalService.currentProject.id,
-        sprintId : this.tasksSelected.sprintId ? this.tasksSelected.sprintId : this.activeSprintId,
-        adjustHoursAllowed:true,
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.tasksSelected.sprintId || this.activeSprintId || this.sprintId,
+        adjustHoursAllowed: false,
         taskId: task.id
-      }
+      };
       this.addTaskToSprintInProgress = true;
       const result = await this._sprintService.addTaskToSprint(json).toPromise();
       this.tasksSelected.tasks.push(task);
+      this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
       this.addTaskToSprintInProgress = false;
-    }catch (e) {
+    } catch (e) {
       this.addTaskToSprintInProgress = false;
     }
 
   }
 
 
+  async removeTaskFromSprint(task: Task) {
 
-  async removeTaskFromSprint(task:Task){
-
-    try{
+    try {
       const json: RemoveTaskFromSprintModel = {
-        projectId : this._generalService.currentProject.id,
-        sprintId : this.tasksSelected.sprintId ? this.tasksSelected.sprintId : this.activeSprintId,
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.tasksSelected.sprintId ? this.tasksSelected.sprintId : this.activeSprintId,
         taskId: task.id
-      }
+      };
       this.removeTaskFromSprintInProgress = true;
       const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
       task.isSelected = false;
       this.selectTaskForSprint(task, false);
+      this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
       this.removeTaskFromSprintInProgress = false;
-    }catch (e) {
+    } catch (e) {
       this.removeTaskFromSprintInProgress = false;
     }
 
   }
-
-
-
 
 
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {
@@ -171,7 +169,7 @@ export class TaskListComponent implements OnInit {
       sortBy: type
     };
     this._taskService.getAllTask(json).subscribe();
-    console.log('Sorting Request: ',this.sortingRequest);
+    console.log('Sorting Request: ', this.sortingRequest);
   }
 
 }

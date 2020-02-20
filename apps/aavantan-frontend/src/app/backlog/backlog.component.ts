@@ -254,13 +254,14 @@ export class BacklogComponent implements OnInit, OnDestroy {
       tasks = uniqBy(tasks, 'id');
       this.draftSprint.tasks = tasks;
     } else {
-      if(!this.draftSprint){
+      if (!this.draftSprint) {
         this.draftSprint = {
-          ids :[],
-          tasks : []
-        }
+          ids: [],
+          tasks: []
+        };
       }
       this.draftSprint.tasks = ev.tasks.filter(task => task.isSelected);
+      // this.allTaskList = this.allTaskList.filter(task => task.isSelected);
     }
 
     this.draftSprint.ids = this.draftSprint.tasks.map(task => task.id);

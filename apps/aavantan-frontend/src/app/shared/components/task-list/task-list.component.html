@@ -65,7 +65,7 @@
 
               <th class="text-center" width="50" *ngIf="isDraftTable">#</th>
 
-              <th class="text-center" width="50" *ngIf="showCheckboxOption && (activeSprintId || tasksSelected?.sprintId)">#</th>
+              <th class="text-center" width="50" *ngIf="showCheckboxOption && (activeSprintId || tasksSelected?.sprintId || sprintId)">#</th>
 
               <th class="text-left" style="min-width:115px;">
                 <span>Priority</span>
@@ -110,7 +110,8 @@
                   <i *ngIf="isDraftTable" (click)="deselectTaskFromSprint(item)" nz-icon nzType="close-circle" class="remove-item cursor-pointer text-muted" theme="fill"></i>
                 </td>
 
-                <td data-label="#" *ngIf="showCheckboxOption && (activeSprintId || tasksSelected?.sprintId)" class="text-center">
+                <td data-label="#" *ngIf="showCheckboxOption &&
+                (activeSprintId || tasksSelected?.sprintId || sprintId)" class="text-center">
 
                   <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox [(ngModel)]="item.isSelected"
                          (nzCheckedChange)="selectTaskForSprint(item, $event)"></label>
