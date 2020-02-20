@@ -4,6 +4,7 @@ import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
 import {
+  BasePaginatedResponse,
   BaseResponseModel,
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
@@ -15,11 +16,13 @@ import {
   BoardModelBaseRequest,
   BoardShowColumnStatus,
   GetActiveBoardRequestModel,
+  GetAllBoardsRequestModel,
   TaskStatusModel
 } from '@aavantan-app/models';
 import { BoardUrls } from './board.url';
 import { BoardState, BoardStore } from '../../../store/board/board.store';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class BoardService extends BaseService<BoardStore, BoardState> {
@@ -32,11 +35,11 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     });
   }
 
-  getAllBoards(projectId: string) {
+  getAllBoards(requestModel: GetAllBoardsRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<BoardModel>>> {
     this.updateState({ boards: [], getAllInProcess: true, getAllSuccess: false });
-    return this._http.post(BoardUrls.getAllBoards, { projectId }).pipe(
-      map((res: BaseResponseModel<BoardModel[]>) => {
-        this.updateState({ boards: res.data, getAllInProcess: false, getAllSuccess: true });
+    return this._http.post(BoardUrls.getAllBoards, requestModel).pipe(
+      map((res: BaseResponseModel<BasePaginatedResponse<BoardModel>>) => {
+        this.updateState({ boards: res.data.items, getAllInProcess: false, getAllSuccess: true });
         return res;
       }),
       catchError((e) => {

@@ -80,6 +80,7 @@
   <section>
 
     <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:420px; overflow: scroll;">
+
       <ng-template #templateTitle>
         {{activeView.title}}
         <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTitle]="templateTitleText"/>
@@ -109,7 +110,7 @@
 
       </ng-template>
 
-
+      <!-- project tab -->
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
           <aside class="col-md-3">
@@ -142,7 +143,9 @@
           </aside>
         </section>
       </ng-container>
+      <!-- project tab -->
 
+      <!-- board_settings tab -->
       <ng-container *ngIf="activeView.view==='board_settings'">
 
         <section class="row">
@@ -151,12 +154,10 @@
             <nz-table
               #smallTable
               nzSize="small"
-              [nzData]="workflowList">
+              [nzData]="boardsList" [nzLoading]="getAllBoardsInProcess">
               <thead>
               <tr>
                 <th>Name</th>
-                <th width="100" class="text-center">Is Active</th>
-                <th>Types Involved</th>
                 <th>Created By</th>
                 <th>Created On</th>
                 <th width="30"></th>
@@ -165,11 +166,9 @@
               <tbody>
               <tr *ngFor="let data of smallTable.data">
                 <td data-label="Name"><a class="cursor-pointer" (click)="showAddWorkflowForm()">{{data.name}}</a></td>
-                <td data-label="Is Active" class="text-center">{{data.isActive ? 'Yes' : 'No'}}</td>
-                <td data-label="Types Involved">{{data.typesInvolved}}</td>
-                <td data-label="Created By">{{data.createdBy}}</td>
-                <td data-label="Created On">{{data.createdOn | date :'mediumDate'}}</td>
-                <td data-label=""><label nz-checkbox [(ngModel)]="data.isActive"></label></td>
+                <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
+                <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
+                <td data-label=""><label nz-checkbox [(ngModel)]="data.isPublished"></label></td>
               </tr>
               </tbody>
             </nz-table>
@@ -178,8 +177,9 @@
         </section>
 
       </ng-container>
+      <!-- board_settings tab -->
 
-
+      <!-- collaborators tab -->
       <ng-container *ngIf="activeView.view==='collaborators'">
         <section class="row">
           <aside class="col-md-3">
@@ -262,8 +262,9 @@
           </aside>
         </section>
       </ng-container>
+      <!-- collaborators tab -->
 
-      <!-- end collaborators -->
+      <!-- stages tab -->
       <ng-container *ngIf="activeView.view==='stages'">
 
         <section class="row">
@@ -382,9 +383,9 @@
 
         </section>
       </ng-container>
+      <!-- stages tab -->
 
-      <!-- end stages -->
-
+      <!-- status tab -->
       <ng-container *ngIf="activeView.view==='status'">
 
         <section class="row">
@@ -452,8 +453,9 @@
 
         </section>
       </ng-container>
+      <!-- status tab -->
 
-      <!-- end status -->
+      <!-- priority tab -->
       <ng-container *ngIf="activeView.view==='priority'">
 
         <section class="row task-type-section">
@@ -533,9 +535,9 @@
 
         </section>
       </ng-container>
+      <!-- priority tab -->
 
-      <!-- end priority -->
-
+      <!-- taskType tab -->
       <ng-container *ngIf="activeView.view==='taskType'">
 
         <section class="row task-type-section">
@@ -576,7 +578,7 @@
                 <nz-form-label>Description</nz-form-label>
                 <nz-form-control>
                   <textarea nz-input nzSize="small" formControlName="description" maxlength="250"
-                    placeholder="Enter Status Description" rows="5"></textarea>
+                            placeholder="Enter Status Description" rows="5"></textarea>
                 </nz-form-control>
 
               </nz-form-item>
@@ -614,10 +616,9 @@
 
         </section>
       </ng-container>
+      <!-- taskType tab -->
 
-      <!-- end taskType -->
-
-
+      <!-- capacity tab -->
       <ng-container *ngIf="activeView.view==='capacity'">
         <aside class="col-md-12">
           <div *ngIf="!projectCapacityMembersList || projectCapacityMembersList.length===0">
@@ -692,7 +693,7 @@
           </div>
         </aside>
       </ng-container>
-      <!-- end team capacity-->
+      <!-- capacity tab -->
 
     </nz-card>
   </section>

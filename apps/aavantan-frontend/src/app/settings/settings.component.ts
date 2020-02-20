@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  BoardModel,
+  GetAllBoardsRequestModel,
   GetAllProjectsModel,
   Organization,
   Project,
@@ -30,6 +32,8 @@ import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { TaskTypeService } from '../shared/services/task-type/task-type.service';
+import { BoardQuery } from '../queries/board/board.query';
+import { BoardService } from '../shared/services/board/board.service';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -67,6 +71,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public projectMembersList: ProjectMembers[] = [];
   public projectCapacityMembersList: ProjectMembers[] = [];
   public projectListData: Project[] = [];
+  public boardsList: BoardModel[] = [];
 
   public currentOrganization: Organization;
   public currentProject: Project = null;
@@ -78,12 +83,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public modelChangedSearchDefaultAssignee = new Subject<string>();
   public selectedDefaultAssignee: User = {};
   public isSearching: boolean;
+
   public updateRequestInProcess: boolean = false;
   public deleteStageInProcess: boolean = false;
   public deleteStatusInProcess: boolean = false;
   public deleteTaskTypeInProcess: boolean = false;
   public deletePriorityInProcess: boolean = false;
   public getProjectsInProcess: boolean = true;
+  public getAllBoardsInProcess: boolean = false;
+
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
 
@@ -93,38 +101,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public addPriorityModalIsVisible: boolean;
 
   public AddWorkflowFormIsVisible: boolean;
-  public workflowList = [
-    {
-      key: '1',
-      name: 'Work Flow 1',
-      isActive: true,
-      typesInvolved: 'BUG, TASK, EPIC',
-      createdBy: 'Aashish Patil',
-      createdOn: new Date()
-    },
-    {
-      key: '2',
-      name: 'Work Flow 2',
-      isActive: false,
-      typesInvolved: 'BUG, TASK, EPIC',
-      createdBy: 'Aashish Patil',
-      createdOn: new Date()
-    },
-    {
-      key: '3',
-      name: 'Work Flow 3',
-      isActive: false,
-      typesInvolved: 'BUG, TASK, EPIC',
-      createdBy: 'Aashish Patil',
-      createdOn: new Date()
-    }
-  ];
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
-              private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
-              private _taskTypeQuery: TaskTypeQuery) {
+              private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
+              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -133,6 +115,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentOrganization = this._generalService.currentOrganization;
+
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -157,6 +140,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.createProjectForm();
 
       }
+    });
+
+    // get all boards
+    this._boardQuery.boards$.pipe(untilDestroyed(this)).subscribe(boards => {
+      this.boardsList = boards;
+    });
+
+    // get all boards in process
+    this._boardQuery.getAllInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.getAllBoardsInProcess = inProcess;
     });
 
     // get all task statuses from store
@@ -299,10 +292,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.getProjectsInProcess = false;
     }
+  }
 
+  public getAllBoards() {
+    const getAllBoardsRequest = new GetAllBoardsRequestModel();
+    getAllBoardsRequest.projectId = this._generalService.currentProject.id;
+    getAllBoardsRequest.count = 20;
+
+    this._boardService.getAllBoards(getAllBoardsRequest).subscribe();
   }
 
   public activeTab(view: string, title: string) {
+    // get all boards list when board settings tab get's activate
+    if (view === 'board_settings') {
+      this.getAllBoards();
+    }
     this.activeView = {
       title: title,
       view: view
@@ -312,7 +316,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public saveProject() {
     this.updateProjectDetails(this.projectForm.value);
   }
-
 
   /*================== Collaborators tab ==================*/
 
@@ -378,7 +381,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-
   public addCollaborators(isInvite?: boolean) {
     let emailData = null;
 
@@ -410,7 +412,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
       this.selectedCollaborator = user;
@@ -418,7 +419,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     this.modelChangedSearchCollaborators.next();
   }
-
 
   /*================== Stage tab ==================*/
   public addStage() {
@@ -515,7 +515,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.updateRequestInProcess = false;
     }));
   }
-
 
   public removePriority(item: ProjectPriority) {
     this.deletePriorityInProcess = true;
@@ -668,7 +667,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public showAddWorkflowForm() {
     this.AddWorkflowFormIsVisible = !this.AddWorkflowFormIsVisible;
   }
-
 
   public ngOnDestroy(): void {
   }

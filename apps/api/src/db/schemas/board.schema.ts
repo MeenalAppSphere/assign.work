@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { commonSchemaFields, mongooseErrorTransformPluginOptions } from './base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import { DbCollection } from '@aavantan-app/models';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
@@ -24,7 +24,7 @@ export const boardSchema = new Schema({
   publishedAt: { type: Date },
   publishedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   ...commonSchemaFields
-});
+}, schemaOptions);
 
 
 // options

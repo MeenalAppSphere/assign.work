@@ -71,7 +71,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       await this._projectService.getProjectDetails(requestModel.projectId);
 
       // select columns
-      requestModel.select = 'name createdById publishedById projectId isPublished';
+      requestModel.select = 'name createdById publishedById projectId isPublished createdAt';
 
       // populate essential columns
       requestModel.populate = [{
