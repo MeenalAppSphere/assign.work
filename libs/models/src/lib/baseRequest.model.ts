@@ -6,6 +6,8 @@ export class BaseRequestModel {
   public to?: string;
   public page?: number = 1;
   public count?: number = 10;
+  public totalPages?: number;
+  public totalItems?: number;
 
   constructor() {
     this.page = 1;

@@ -151,6 +151,12 @@
 
           <aside class="col-md-12">
             <nz-table
+              [nzFrontPagination]="false"
+              [nzTotal]="getBoardListRequestModal.totalItems"
+              [nzPageIndex]="getBoardListRequestModal.page"
+              [nzPageSize]="getBoardListRequestModal.count"
+              [nzShowPagination]="true"
+              (nzPageIndexChange)="boardPageChanged($event)"
               #smallTable
               nzSize="small"
               [nzData]="boardsList" [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess">

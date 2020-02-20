@@ -312,8 +312,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  public getAllBoards() {
-    this._boardService.getAllBoards(this.getBoardListRequestModal).subscribe();
+  public async getAllBoards() {
+    try {
+      const result = await this._boardService.getAllBoards(this.getBoardListRequestModal).toPromise();
+      this.getBoardListRequestModal.page = result.data.page;
+      this.getBoardListRequestModal.count = result.data.count;
+      this.getBoardListRequestModal.totalItems = result.data.totalItems;
+      this.getBoardListRequestModal.totalPages = result.data.totalPages;
+    } catch (e) {
+    }
+
   }
 
   public activeTab(view: string, title: string) {
@@ -706,6 +714,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  public boardPageChanged(pageNo: number) {
+    this.getBoardListRequestModal.page = pageNo;
+    this.getAllBoards();
   }
 
   public ngOnDestroy(): void {
