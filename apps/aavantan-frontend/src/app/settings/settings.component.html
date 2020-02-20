@@ -166,11 +166,11 @@
               <thead (nzSortChange)="boardSortOrderChanged($event)">
               <tr>
                 <th data-label="SN">#</th>
-                <th nzSortKey="name" nzShowSort>Name</th>
+                <th width="35%" nzSortKey="name" nzShowSort>Name</th>
                 <th>Created By</th>
                 <th nzSortKey="createdAt" nzShowSort>Created On</th>
                 <th>Published</th>
-                <th>Action</th>
+                <th width="125px">Action</th>
               </tr>
               </thead>
 
@@ -181,22 +181,28 @@
                 <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
                 <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                 <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
+
                 <td data-label="Published">
 
-                  <span *ngIf="data.isPublished">Yes</span>
+                  <span *ngIf="data.isPublished">
+                    <nz-tag [nzColor]="'#b4efb3'">
+                      <i nz-icon nzType="check-circle" class="text-black" nzTheme="outline"></i>
+                      <span class="text-black font-size-12">&ensp;Published</span>
+                    </nz-tag>
 
-                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="small" nz-button
-                          (click)="publishBoard(data.id)">
-                    <span>Publish</span>
-                  </button>
+                  </span>
+
+                  <span *ngIf="!data.isPublished"></span>
 
                 </td>
-                <td data-label="Published">
 
-                  <button *ngIf="!data.isPublished" type="button" nzType="danger" nzSize="small" nz-button
-                          (click)="deleteBoard(data.id)">
-                    <span>Delete</span>
+                <td data-label="Action">
+
+                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="small" nz-button (click)="deleteBoard(data.id)">
+                    <span><i nz-icon nzType="check-circle" nzTheme="outline"></i> Publish</span>
                   </button>
+
+                  <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)" class="text-red m-l-15" nzTheme="outline"></i>
 
                 </td>
               </tr>

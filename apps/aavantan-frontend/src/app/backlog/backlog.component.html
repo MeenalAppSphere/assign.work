@@ -60,8 +60,8 @@
             <span *ngIf="activeSprintData?.id ||  (unPublishedSprintData?.id)">
               <button class="m-l-10" [disabled]="!haveUnpublishedTasks" [nzLoading]="publishSprintInProcess"
                       nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
-              <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button
-                      (click)="saveSprint()">Save Sprint</button>
+<!--              <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button-->
+<!--                      (click)="saveSprint()">Save Sprint</button>-->
             </span>
 
             <button *ngIf="unPublishedSprintData && unPublishedSprintData.id" nzSize="32" class="m-l-10" nz-button
