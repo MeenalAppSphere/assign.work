@@ -28,6 +28,7 @@ export const sprintSchema = new Schema({
       enum: Object.values(SprintStatus)
     },
     updatedAt: { type: Date },
+    updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
     id: { type: String }
   },
   columns: {

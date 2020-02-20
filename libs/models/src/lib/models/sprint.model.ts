@@ -72,6 +72,8 @@ export class SprintAutoUpdate {
 export class SprintStatus {
   status: SprintStatusEnum;
   updatedAt: Date;
+  updatedById?: string;
+  updatedBy?: User;
 }
 
 export class SprintMembersCapacity {

@@ -12,6 +12,7 @@ import {
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
   MoveTaskToColumnModel,
+  Project,
   PublishSprintModel,
   RemoveTaskFromSprintModel,
   Sprint,
@@ -20,6 +21,7 @@ import {
   SprintErrorEnum,
   SprintErrorResponse,
   SprintErrorResponseItem,
+  SprintStatus,
   SprintStatusEnum,
   Task,
   TaskAssigneeMap,
@@ -220,64 +222,75 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   public async createSprint(model: CreateSprintModel) {
 
     const newSprint = await this.withRetrySession(async (session: ClientSession) => {
+      const sprintModel = new Sprint();
+      sprintModel.projectId = model.sprint.projectId;
+      sprintModel.name = model.sprint.name;
+      sprintModel.goal = model.sprint.goal;
+      sprintModel.startedAt = model.sprint.startedAt;
+      sprintModel.endAt = model.sprint.endAt;
+
       // perform common validations
-      this._sprintUtilityService.commonSprintValidator(model.sprint);
+      this._sprintUtilityService.commonSprintValidator(sprintModel);
 
       // get project details and check if current user is member of project
-      const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
+      const projectDetails = await this._projectService.getProjectDetails(sprintModel.projectId, true);
 
       if (!projectDetails.activeBoard) {
         BadRequest('Active board not found, Sprint can not be created');
       }
 
       // sprint duplicate name validation per project
-      if (await this.isDuplicate(model.sprint)) {
+      if (await this.isDuplicate(sprintModel)) {
         BadRequest('Duplicate Sprint Name is not allowed');
       }
 
-      // add all project collaborators as sprint member and add their's work capacity to total capacity
-      model.sprint.membersCapacity = [];
-      model.sprint.totalCapacity = 0;
+      this.createSprintCommonProcess(model, projectDetails);
 
-      // add only those members who accepted invitation of project means active collaborator of project
-      projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
-        model.sprint.membersCapacity.push({
-          userId: member.userId,
-          workingCapacity: member.workingCapacity,
-          workingCapacityPerDay: member.workingCapacityPerDay,
-          workingDays: member.workingDays
-        });
-        model.sprint.totalCapacity += Number(member.workingCapacity);
-      });
-
-      // create columns array for sprint from project
-      model.sprint.columns = [];
-
-      projectDetails.activeBoard.columns.forEach(column => {
-        const sprintColumn = new SprintColumn();
-        sprintColumn.name = column.headerStatus.name;
-        sprintColumn.id = column.headerStatusId;
-        sprintColumn.statusId = column.headerStatusId;
-        sprintColumn.tasks = [];
-        sprintColumn.totalEstimation = 0;
-        sprintColumn.isHidden = column.isHidden;
-
-        model.sprint.columns.push(sprintColumn);
-      });
-
-      // set sprint created by id
-      model.sprint.createdById = this._generalService.userId;
-
-      return await this.create([model.sprint], session);
+      return await this.create([sprintModel], session);
     });
 
-    // sprint created now update proejct and add sprint id as project sprintId
+    // sprint created now update project and add sprint id as project sprintId
     await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.updateById(model.sprint.projectId, { $set: { sprintId: newSprint[0].id } }, session);
     });
 
     const sprint = await this.getSprintDetails(newSprint[0].id, model.sprint.projectId, commonPopulationForSprint, commonFieldSelection);
     return this._sprintUtilityService.prepareSprintVm(sprint);
+  }
+
+  private createSprintCommonProcess(model: CreateSprintModel, projectDetails: Project) {
+    // add all project collaborators as sprint member and add their's work capacity to total capacity
+    model.sprint.membersCapacity = [];
+    model.sprint.totalCapacity = 0;
+
+    // add only those members who accepted invitation of project means active collaborator of project
+    projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
+      model.sprint.membersCapacity.push({
+        userId: member.userId,
+        workingCapacity: member.workingCapacity,
+        workingCapacityPerDay: member.workingCapacityPerDay,
+        workingDays: member.workingDays
+      });
+      model.sprint.totalCapacity += Number(member.workingCapacity);
+    });
+
+    // create columns array for sprint from project
+    model.sprint.columns = [];
+
+    projectDetails.activeBoard.columns.forEach(column => {
+      const sprintColumn = new SprintColumn();
+      sprintColumn.name = column.headerStatus.name;
+      sprintColumn.id = column.headerStatusId;
+      sprintColumn.statusId = column.headerStatusId;
+      sprintColumn.tasks = [];
+      sprintColumn.totalEstimation = 0;
+      sprintColumn.isHidden = column.isHidden;
+
+      model.sprint.columns.push(sprintColumn);
+    });
+
+    // set sprint created by id
+    model.sprint.createdById = this._generalService.userId;
   }
 
   /**
@@ -1096,69 +1109,52 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model
    */
   public async closeSprint(model: CloseSprintModel) {
-    // const projectDetails = await this._projectService.getProjectDetails(model.projectId);
-    // const currentSprintDetails = await this.getSprintDetails(model.sprintId);
-    //
-    // const allTaskList = [];
-    //
-    // // loop over columns and add all task to allTaskList
-    // // currentSprintDetails.columns.forEach(column => {
-    // //   column.tasks.forEach(task => {
-    // //     allTaskList.push(task.taskId);
-    // //   });
-    // // });
-    //
-    // if (!allTaskList.length) {
-    //   throw new BadRequestException('this sprint don\'t have tasks');
-    // }
-    //
-    // const session = await this.startSession();
-    //
-    // if (model.createNewSprint) {
-    //
-    // } else {
-    //   // don't create new sprint but move all tasks to backlog with a status
-    //   const isValidFinalStageOfTask = projectDetails.settings.statuses.find(status => status.id === model.finalStatusOfTasks);
-    //   if (!isValidFinalStageOfTask) {
-    //     throw new BadRequestException('task status is not valid, please try again');
-    //   }
-    //
-    //   const taskUpdateFilter = {
-    //     _id: { $in: allTaskList }
-    //   };
-    //   const taskUpdateObject = {
-    //     sprintId: null, status: model.finalStatusOfTasks
-    //   };
-    //   await this._taskService.bulkUpdate(taskUpdateFilter, taskUpdateObject, session);
-    // }
-    // // const sprintDetails = await this.getSprintDetails(model.sprintId);
-    // //
-    // // if (sprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
-    // //   throw new BadRequestException('Sprint is not published...');
-    // // }
-    // //
-    // // const session = await this.startSession();
-    // //
-    // // const allTaskList = [];
-    // //
-    // // // loop over stages and add all task to allTaskList
-    // // sprintDetails.stages.forEach(stage => {
-    // //   stage.tasks.forEach(task => {
-    // //     allTaskList.push(task.taskId);
-    // //   });
-    // // });
-    // //
-    // // try {
-    // //   await this.update(model.sprintId, {
-    // //     $set: { 'sprintStatus.status': SprintStatusEnum.closed, 'sprintStatus.updatedAt': generateUtcDate() }
-    // //   }, session);
-    // //   await this._taskService.bulkUpdate({ _id: { $in: allTaskList } }, { $set: { sprintId: null } }, session);
-    // //   await this.commitTransaction(session);
-    // //   return 'Sprint Closed Successfully';
-    // // } catch (e) {
-    // //   await this.abortTransaction(session);
-    // // }
+    await this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.getProjectDetails(model.projectId);
+      const currentSprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
+      const allTaskList = [];
+      currentSprintDetails.columns.forEach(column => {
+        column.tasks.forEach(task => {
+          allTaskList.push(task.taskId);
+        });
+      });
+
+      if (!allTaskList.length) {
+        BadRequest('This Sprint don\'t have any tasks');
+      }
+
+      if (model.createNewSprint) {
+
+
+      } else {
+        await this.closeSprintCommonProcess(model.projectId, allTaskList, null, session);
+
+        const sprintStatus = new SprintStatus();
+        sprintStatus.status = SprintStatusEnum.completed;
+        sprintStatus.updatedAt = generateUtcDate();
+        sprintStatus.updatedById = this._generalService.userId;
+
+        await this.updateSprintStatus(model.sprintId, sprintStatus, session);
+      }
+    });
+  }
+
+  public async closeSprintCommonProcess(projectId: string, allTaskList: string[], sprintId: string, session: ClientSession) {
+    // update all task and assign sprint id to all of them using bulk update
+    await this._taskService.bulkUpdate({
+      _id: { $in: allTaskList }
+    }, { $set: { sprintId } }, session);
+
+    // update project and set sprint id
+    await this._projectService.updateById(projectId, { $set: { sprintId } }, session);
+  }
+
+  public async updateSprintStatus(sprintId: string, sprintStatus: SprintStatus, session: ClientSession) {
+    // update sprint status
+    return this.updateById(sprintId, {
+      $set: { sprintStatus }
+    }, session);
   }
 
   /**
