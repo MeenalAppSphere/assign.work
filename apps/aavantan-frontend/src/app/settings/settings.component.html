@@ -94,7 +94,6 @@
           <a nz-button nzType="primary" size="small" routerLink="/dashboard/board-setting">
              + New Board Setting
           </a>
-          <button class="m-l-5" nz-button nzType="default" size="small">Delete</button>
         </span>
 
         <span *ngIf="activeView.view==='status'">
@@ -154,14 +153,14 @@
             <nz-table
               #smallTable
               nzSize="small"
-              [nzData]="boardsList" [nzLoading]="getAllBoardsInProcess">
+              [nzData]="boardsList" [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess">
               <thead>
               <tr>
                 <th>Name</th>
                 <th>Created By</th>
                 <th>Created On</th>
                 <th>Published</th>
-                <th width="30"></th>
+                <th>Action</th>
               </tr>
               </thead>
               <tbody>
@@ -173,8 +172,17 @@
 
                   <span *ngIf="data.isPublished">Yes</span>
 
-                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="default" nz-button>
+                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="default" nz-button
+                          (click)="publishBoard(data.id)">
                     <span>Publish</span>
+                  </button>
+
+                </td>
+                <td data-label="Published">
+
+                  <button *ngIf="!data.isPublished" type="button" nzType="danger" nzSize="default" nz-button
+                          (click)="deleteBoard(data.id)">
+                    <span>Delete</span>
                   </button>
 
                 </td>

@@ -79,9 +79,24 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
+  deleteBoard(requestModel: BoardModelBaseRequest) {
+    this.updateState({ deleteBoardInProcess: true });
+    return this._http.post(BoardUrls.deleteBoard, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ deleteBoardInProcess: false });
+        this.notification.success('Success', 'Board Deleted Successfully');
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ deleteBoardInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
   publishBoard(requestModel: BoardModelBaseRequest) {
     this.updateState({ publishBoardInProcess: true });
-    return this._http.post(BoardUrls.createBoard, requestModel).pipe(
+    return this._http.post(BoardUrls.publishBoard, requestModel).pipe(
       map((res: BaseResponseModel<string>) => {
         this.updateState({ publishBoardInProcess: false });
 

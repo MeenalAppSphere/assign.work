@@ -171,6 +171,27 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     return this.getDetails(result.id, board.projectId, true);
   }
 
+  async deleteBoard(requestModel: BoardModelBaseRequest) {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
+
+      // if board is active than don't allow user to delete the board
+      if (projectDetails.activeBoardId === requestModel.boardId) {
+        BadRequest('You can delete current active board');
+      }
+
+      // get board details
+      await this.getDetails(requestModel.boardId, requestModel.projectId);
+
+      // update board and set deleted to true
+      await this.updateById(requestModel.boardId, {
+        $set: { isDeleted: true, deletedById: this._generalService.userId, deletedAt: generateUtcDate() }
+      }, session);
+
+      return 'Board Deleted Successfully';
+    });
+  }
+
   /**
    * create a new column from a status
    * @param requestModel
@@ -259,7 +280,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       if (projectDetails.activeBoardId === requestModel.boardId) {
         BadRequest('This board is already in use for this project');
       }
-      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId, true);
 
       // set this board as published board by setting isPublished as true
       await this.updateById(requestModel.boardId, {

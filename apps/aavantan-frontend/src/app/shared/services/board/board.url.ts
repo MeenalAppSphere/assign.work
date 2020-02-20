@@ -6,8 +6,8 @@ export const BoardUrls = {
 
   createBoard: createUrl('board/create'),
   updateBoard: createUrl('board/update'),
-
-  publishBoard: createUrl('board/update'),
+  deleteBoard: createUrl('board/delete'),
+  publishBoard: createUrl('board/publish'),
 
   addColumn: createUrl('board/add-column'),
 

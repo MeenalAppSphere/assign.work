@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   BoardModel,
+  BoardModelBaseRequest,
   GetAllBoardsRequestModel,
   GetAllProjectsModel,
   Organization,
@@ -91,7 +92,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public deleteTaskTypeInProcess: boolean = false;
   public deletePriorityInProcess: boolean = false;
   public getProjectsInProcess: boolean = true;
+
   public getAllBoardsInProcess: boolean = false;
+  public publishBoardInProcess: boolean = false;
+  public deleteBoardInProcess: boolean = false;
 
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
@@ -100,6 +104,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public addEditprojectPriorityData: ProjectPriority;
   public addStatusModalIsVisible: boolean;
   public addPriorityModalIsVisible: boolean;
+  public getBoardListRequestModal: GetAllBoardsRequestModel = new GetAllBoardsRequestModel();
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
@@ -110,6 +115,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
+
+    this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
+    this.getBoardListRequestModal.count = 20;
+    this.getBoardListRequestModal.page = 1;
   }
 
   ngOnInit(): void {
@@ -149,6 +158,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // get all boards in process
     this._boardQuery.getAllInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
       this.getAllBoardsInProcess = inProcess;
+    });
+
+    // publish board in process
+    this._boardQuery.publishBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.publishBoardInProcess = inProcess;
+    });
+
+    // delete board in process
+    this._boardQuery.deleteBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.deleteBoardInProcess = inProcess;
     });
 
     // get all task statuses from store
@@ -294,11 +313,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public getAllBoards() {
-    const getAllBoardsRequest = new GetAllBoardsRequestModel();
-    getAllBoardsRequest.projectId = this._generalService.currentProject.id;
-    getAllBoardsRequest.count = 20;
-
-    this._boardService.getAllBoards(getAllBoardsRequest).subscribe();
+    this._boardService.getAllBoards(this.getBoardListRequestModal).subscribe();
   }
 
   public activeTab(view: string, title: string) {
@@ -663,8 +678,34 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.modelChangedSearchDefaultAssignee.next();
   }
 
-  public editBoard(id: string) {
-    this.router.navigate(['dashboard', 'board-setting', id]);
+  public editBoard(boardId: string) {
+    this.router.navigate(['dashboard', 'board-setting', boardId]);
+  }
+
+  public async publishBoard(boardId: string) {
+    const request = new BoardModelBaseRequest();
+    request.boardId = boardId;
+    request.projectId = this._generalService.currentProject.id;
+
+    try {
+      await this._boardService.publishBoard(request).toPromise();
+      this.getAllBoards();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  public async deleteBoard(boardId: string) {
+    const request = new BoardModelBaseRequest();
+    request.boardId = boardId;
+    request.projectId = this._generalService.currentProject.id;
+
+    try {
+      await this._boardService.deleteBoard(request).toPromise();
+      this.getAllBoards();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   public ngOnDestroy(): void {

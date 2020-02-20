@@ -37,6 +37,11 @@ export class BoardController {
     return await this._boardService.publishBoard(model);
   }
 
+  @Post('delete')
+  async deleteBoard(@Body() model: BoardModelBaseRequest) {
+    return await this._boardService.deleteBoard(model);
+  }
+
   @Post('get-all')
   async getAllBoards(@Body() requestModel: GetAllBoardsRequestModel) {
     return this._boardService.getAllBoards(requestModel);

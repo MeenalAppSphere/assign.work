@@ -27,6 +27,7 @@ export class BoardQuery extends Query<BoardState> {
 
   createBoardInProcess$ = this.select(s => s.createBoardInProcess);
   updateBoardInProcess$ = this.select(s => s.updateBoardInProcess);
+  deleteBoardInProcess$ = this.select(s => s.deleteBoardInProcess);
   publishBoardInProcess$ = this.select(s => s.publishBoardInProcess);
 
   constructor(protected store: BoardStore) {

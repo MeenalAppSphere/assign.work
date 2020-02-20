@@ -18,7 +18,8 @@ export const commonSchemaFields = {
   createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: [true, 'Created by is required'] },
   updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
   isDeleted: { type: Boolean, default: false },
-  deletedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }
+  deletedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+  deletedAt: { type: Date }
 };
 
 export const mongooseErrorTransformPluginOptions = {

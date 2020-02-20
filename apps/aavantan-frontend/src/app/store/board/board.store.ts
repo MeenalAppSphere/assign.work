@@ -11,6 +11,7 @@ export interface BoardState {
 
   createBoardInProcess: boolean;
   updateBoardInProcess: boolean;
+  deleteBoardInProcess: boolean;
   publishBoardInProcess: boolean;
 
   getActiveBoardInProcess: boolean;
@@ -33,6 +34,7 @@ const initialState: BoardState = {
 
   createBoardInProcess: false,
   updateBoardInProcess: false,
+  deleteBoardInProcess: false,
   publishBoardInProcess: false,
 
   getActiveBoardInProcess: false,
