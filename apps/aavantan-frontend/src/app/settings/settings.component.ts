@@ -721,6 +721,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.getAllBoards();
   }
 
+  public boardSortOrderChanged(sort: { key: string; value: string }) {
+    this.getBoardListRequestModal.sort = sort.key;
+    this.getBoardListRequestModal.sortBy = sort.value === 'ascend' ? 'desc' : 'asc';
+    this.getAllBoards();
+  }
+
   public ngOnDestroy(): void {
   }
 

@@ -160,15 +160,18 @@
               #smallTable
               nzSize="small"
               [nzData]="boardsList" [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess">
-              <thead>
+
+              <thead (nzSortChange)="boardSortOrderChanged($event)">
               <tr>
-                <th>Name</th>
+                <th nzSortKey="name" nzShowSort>Name</th>
                 <th>Created By</th>
-                <th>Created On</th>
+                <th nzSortKey="createdAt" nzShowSort>Created On</th>
                 <th>Published</th>
                 <th>Action</th>
               </tr>
               </thead>
+
+
               <tbody>
               <tr *ngFor="let data of smallTable.data">
                 <td data-label="Name"><a class="cursor-pointer" (click)="editBoard(data.id)">{{data.name}}</a></td>
