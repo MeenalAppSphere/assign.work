@@ -789,19 +789,26 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._projectService.getProjectDetails(model.projectId);
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
-      // check task is in sprint or not
+      // gte column index where task is currently placed
       const currentColumnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, model.taskId);
-
+      // check if column exits in sprint
       if (currentColumnIndex === -1) {
         BadRequest('Task not found in sprint');
       }
 
+      // get new column index where task is dropped
       const newColumnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, model.columnId);
-
+      // check if new column exits in sprint
       if (newColumnIndex === -1) {
         BadRequest('Column not found where to move the task');
       }
 
+      // if current and new column both are same then throw error
+      if (currentColumnIndex === newColumnIndex) {
+        BadRequest('Task Sorting not allowed');
+      }
+
+      // get task details
       const taskDetail: Task = await this._taskService.findOne({
         filter: {
           projectId: this.toObjectId(model.projectId),
@@ -874,6 +881,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       history.task = taskDetail;
       history.desc = SprintActionEnum.taskMovedToColumn;
 
+      // add task history
       await this._taskHistoryService.addHistory(history, session);
     });
 
@@ -1054,9 +1062,15 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   public async closeSprint(model: CloseSprintModel) {
     return await this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
       const currentSprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
+      // check if sprint is running
+      if (!currentSprintDetails.sprintStatus || !currentSprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
+        BadRequest('This sprint is not running you can not close it');
+      }
+
+      // get all sprint task list
       const allTaskList = [];
       currentSprintDetails.columns.forEach(column => {
         column.tasks.forEach(task => {
@@ -1064,6 +1078,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         });
       });
 
+      // check if sprint has tasks
       if (!allTaskList.length) {
         BadRequest('This Sprint don\'t have any tasks');
       }
@@ -1071,19 +1086,31 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       let responseMsg = '';
 
       if (model.createNewSprint) {
+        // create new sprint and move all task of this sprint to new sprint
+
+        // new sprint
         const newSprint = await this.createSprintCommonProcess({ sprint: model.sprint }, projectDetails, session);
+
+        // close current sprint
         await this.closeSprintCommonProcess(model.projectId, allTaskList, newSprint[0].id, session);
+
         responseMsg = `Sprint Closed Successfully and all Task Moved to new Sprint Named :- ${model.sprint.name}`;
       } else {
+        // move all tasks of this sprint to backlog and close sprint
+
+        // close current sprint
         await this.closeSprintCommonProcess(model.projectId, allTaskList, null, session);
+
         responseMsg = `Sprint Closed Successfully`;
       }
 
+      // create sprint status object
       const sprintStatus = new SprintStatus();
       sprintStatus.status = SprintStatusEnum.closed;
       sprintStatus.updatedAt = generateUtcDate();
       sprintStatus.updatedById = this._generalService.userId;
 
+      // update sprint status to closed
       await this.updateSprintStatus(model.sprintId, sprintStatus, session);
       return responseMsg;
     });
