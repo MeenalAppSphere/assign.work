@@ -180,7 +180,7 @@
                 </td>
                 <td data-label="Published">
 
-                  <button  type="button" nzType="danger" nzSize="default" nz-button
+                  <button *ngIf="!data.isPublished" type="button" nzType="danger" nzSize="default" nz-button
                           (click)="deleteBoard(data.id)">
                     <span>Delete</span>
                   </button>
