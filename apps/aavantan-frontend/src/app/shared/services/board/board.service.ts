@@ -1,7 +1,6 @@
 import { BaseService } from '../base.service';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
-import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
 import {
   BasePaginatedResponse,
@@ -23,11 +22,12 @@ import { BoardUrls } from './board.url';
 import { BoardState, BoardStore } from '../../../store/board/board.store';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { UserStore } from '../../../store/user/user.store';
 
 @Injectable()
 export class BoardService extends BaseService<BoardStore, BoardState> {
   constructor(protected notification: NzNotificationService, protected boardStore: BoardStore, private _http: HttpWrapperService,
-              private _generalService: GeneralService) {
+              private _userStore: UserStore) {
     super(boardStore, notification);
 
     this.notification.config({
@@ -49,15 +49,58 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
+  createBoard(requestModel: BoardModel) {
+    this.updateState({ createBoardInProcess: true });
+    return this._http.post(BoardUrls.createBoard, requestModel).pipe(
+      map((res: BaseResponseModel<BoardModel>) => {
+        this.updateState({ createBoardInProcess: false, activeBoard: res.data });
+        this.notification.success('Success', 'Board Created Successfully');
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ createBoardInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
   updateBoard(requestModel: BoardModel) {
     this.updateState({ updateBoardInProcess: true });
     return this._http.post(BoardUrls.updateBoard, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
         this.updateState({ updateBoardInProcess: false });
+        this.notification.success('Success', 'Board Updated Successfully');
         return res;
       }),
       catchError((e) => {
         this.updateState({ updateBoardInProcess: false });
+        return this.handleError(e);
+      })
+    );
+  }
+
+  publishBoard(requestModel: BoardModelBaseRequest) {
+    this.updateState({ publishBoardInProcess: true });
+    return this._http.post(BoardUrls.createBoard, requestModel).pipe(
+      map((res: BaseResponseModel<string>) => {
+        this.updateState({ publishBoardInProcess: false });
+
+        // update current project on store and set this board as a active board in project
+        this._userStore.update(state => {
+          return {
+            ...state,
+            currentProject: {
+              ...state.currentProject,
+              activeBoardId: requestModel.boardId
+            }
+          };
+        });
+
+        this.notification.success('Success', 'Board Published Successfully');
+        return res;
+      }),
+      catchError((e) => {
+        this.updateState({ publishBoardInProcess: false });
         return this.handleError(e);
       })
     );
@@ -77,11 +120,16 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
+  setActiveBoard(board: BoardModel) {
+    this.updateState({ activeBoard: board });
+  }
+
   addColumn(requestModel: BoardAddNewColumnModel) {
     this.updateState({ addColumnInProcess: true });
     return this._http.post(BoardUrls.addColumn, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
         this.updateState({ addColumnInProcess: false, activeBoard: res.data });
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -96,6 +144,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     return this._http.post(BoardUrls.mergeStatusToColumn, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
         this.updateState({ mergeStatusInProcess: false, activeBoard: res.data });
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -110,6 +159,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     return this._http.post(BoardUrls.mergeColumnToColumn, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
         this.updateState({ mergeColumnInProcess: false, activeBoard: res.data });
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -124,6 +174,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     return this._http.post(BoardUrls.hideColumn, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
         this.updateState({ hideColumnInProcess: false, activeBoard: res.data });
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -148,6 +199,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
           };
         });
 
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -163,6 +215,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
       map((res: BaseResponseModel<BoardModel>) => {
         this.updateState({ hideColumnStatusInProcess: false, activeBoard: res.data });
         this.getAllHiddenStatuses({ projectId: requestModel.projectId, boardId: requestModel.boardId }).subscribe();
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -177,6 +230,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     return this._http.post(BoardUrls.getAllHiddenStatus, requestModel).pipe(
       map((res: BaseResponseModel<TaskStatusModel[]>) => {
         this.updateState({ getHiddenStatusesInProcess: false, hiddenStatuses: res.data });
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -191,6 +245,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     return this._http.post(BoardUrls.addDefaultAssignee, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
         this.updateState({ addDefaultAssigneeInProcess: false, activeBoard: res.data });
+        this.bordUpdatedNotification();
         return res;
       }),
       catchError((e) => {
@@ -200,4 +255,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
+  private bordUpdatedNotification() {
+    this.notification.success('Success', 'Board Updated Successfully');
+  }
 }

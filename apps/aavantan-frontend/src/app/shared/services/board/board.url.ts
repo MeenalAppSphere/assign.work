@@ -7,6 +7,8 @@ export const BoardUrls = {
   createBoard: createUrl('board/create'),
   updateBoard: createUrl('board/update'),
 
+  publishBoard: createUrl('board/update'),
+
   addColumn: createUrl('board/add-column'),
 
   mergeStatusToColumn: createUrl('board/merge-status-to-column'),

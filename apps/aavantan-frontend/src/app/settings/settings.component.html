@@ -91,7 +91,7 @@
       <ng-template #templateExtra>
 
         <span *ngIf="activeView.view==='board_settings'">
-          <a nz-button nzType="primary" size="small" routerLink="../../board-setting">
+          <a nz-button nzType="primary" size="small" routerLink="/dashboard/board-setting">
              + New Board Setting
           </a>
           <button class="m-l-5" nz-button nzType="default" size="small">Delete</button>
@@ -150,7 +150,7 @@
 
         <section class="row">
 
-          <aside class="col-md-12" *ngIf="!AddWorkflowFormIsVisible">
+          <aside class="col-md-12">
             <nz-table
               #smallTable
               nzSize="small"
@@ -160,15 +160,24 @@
                 <th>Name</th>
                 <th>Created By</th>
                 <th>Created On</th>
+                <th>Published</th>
                 <th width="30"></th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let data of smallTable.data">
-                <td data-label="Name"><a class="cursor-pointer" (click)="showAddWorkflowForm()">{{data.name}}</a></td>
+                <td data-label="Name"><a class="cursor-pointer" (click)="editBoard(data.id)">{{data.name}}</a></td>
                 <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                 <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
-                <td data-label=""><label nz-checkbox [(ngModel)]="data.isPublished"></label></td>
+                <td data-label="Published">
+
+                  <span *ngIf="data.isPublished">Yes</span>
+
+                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="default" nz-button>
+                    <span>Publish</span>
+                  </button>
+
+                </td>
               </tr>
               </tbody>
             </nz-table>

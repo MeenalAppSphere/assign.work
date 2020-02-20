@@ -14,7 +14,7 @@
 
   <div class="row">
 
-    <div class="col-md-3" [@inOutAnimation] *ngIf="isOpenStatusSidebar">
+    <div class="col-md-3" [hidden]="!activeBoard" [@inOutAnimation] *ngIf="isOpenStatusSidebar">
 
       <nz-card nzSize="small" class="status-box">
 
@@ -30,7 +30,8 @@
         </div>
         <aside class="status-list status-box-scrollable">
 
-          <nz-spin [nzTip]="'Loading Statuses...'" [nzSpinning]="getActiveBoardInProcess" nzSize="large" style="min-height:120px;">
+          <nz-spin [nzTip]="'Loading Statuses...'" [nzSpinning]="getActiveBoardInProcess" nzSize="large"
+                   style="min-height:120px;">
 
             <div class="item text-black" *ngFor="let item of activeBoard?.unMappedStatuses" [dndDraggable]="item"
                  [dndEffectAllowed]="'move'">
@@ -61,7 +62,7 @@
 
     <div class="col-md-9" [ngClass]="!isOpenStatusSidebar ? 'col-md-12 p-l-45' : 'col-md-9'">
 
-      <button (click)="toggleStatusSidebar()" *ngIf="!isOpenStatusSidebar" nz-button nzSize="default"
+      <button (click)="toggleStatusSidebar()" *ngIf="!isOpenStatusSidebar && activeBoard" nz-button nzSize="default"
               class="btn-double-arrow-close">
         <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Show status'">
       </button>
@@ -82,20 +83,19 @@
 
         <div class="col-md-8 text-right">
           <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid"
-                  (click)="saveForm()" [nzLoading]="updateBoardInProcess">Save Settings
+                  (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
           </button>
-<!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
-<!--                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip-->
-<!--                                                         [nzTitle]="'Hide status'"></i>Hidden Status-->
-<!--          </button>-->
+          <!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
+          <!--                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip-->
+          <!--                                                         [nzTitle]="'Hide status'"></i>Hidden Status-->
+          <!--          </button>-->
 
         </div>
       </div>
 
-      <nz-card nzSize="small">
+      <nz-card nzSize="small" *ngIf="activeBoard">
 
         <h5 class="m-t-0 m-b-15">New Setting</h5>
-
 
         <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Processing Board...'"
                  [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
@@ -149,10 +149,10 @@
                                      [nzSrc]="includedStatus?.defaultAssignee?.profilePic" nz-tooltip
                                      [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>
 
-<!--                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip-->
-<!--                             *ngIf="includedStatus.statusId !== column.headerStatusId"-->
-<!--                             [nzTitle]="'Hide status'"-->
-<!--                             (click)="hideStatus(column.headerStatusId, includedStatus.statusId)"></i>-->
+                          <!--                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip-->
+                          <!--                             *ngIf="includedStatus.statusId !== column.headerStatusId"-->
+                          <!--                             [nzTitle]="'Hide status'"-->
+                          <!--                             (click)="hideStatus(column.headerStatusId, includedStatus.statusId)"></i>-->
 
                         </span>
                       </div>
@@ -172,7 +172,6 @@
           </section>
 
         </nz-spin>
-
 
       </nz-card>
 
@@ -199,7 +198,6 @@
     </aavantan-assign-user>
   </ng-container>
   <!-- endregion -->
-
 
   <!-- region hidden status -->
   <ng-container *ngIf="showHiddenStatusModalIsVisible">

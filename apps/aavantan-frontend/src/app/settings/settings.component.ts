@@ -34,6 +34,7 @@ import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { TaskTypeService } from '../shared/services/task-type/task-type.service';
 import { BoardQuery } from '../queries/board/board.query';
 import { BoardService } from '../shared/services/board/board.service';
+import { Router } from '@angular/router';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -100,13 +101,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public addStatusModalIsVisible: boolean;
   public addPriorityModalIsVisible: boolean;
 
-  public AddWorkflowFormIsVisible: boolean;
-
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
-              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService) {
+              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -664,8 +663,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.modelChangedSearchDefaultAssignee.next();
   }
 
-  public showAddWorkflowForm() {
-    this.AddWorkflowFormIsVisible = !this.AddWorkflowFormIsVisible;
+  public editBoard(id: string) {
+    this.router.navigate(['dashboard', 'board-setting', id]);
   }
 
   public ngOnDestroy(): void {

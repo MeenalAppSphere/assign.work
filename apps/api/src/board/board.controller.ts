@@ -32,6 +32,11 @@ export class BoardController {
     return await this._boardService.createUpdateBoard(model);
   }
 
+  @Post('publish')
+  async publishBoard(@Body() model: BoardModelBaseRequest) {
+    return await this._boardService.publishBoard(model);
+  }
+
   @Post('get-all')
   async getAllBoards(@Body() requestModel: GetAllBoardsRequestModel) {
     return this._boardService.getAllBoards(requestModel);

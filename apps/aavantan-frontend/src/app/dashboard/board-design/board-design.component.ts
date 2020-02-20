@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import {
@@ -20,6 +20,7 @@ import { GeneralService } from '../../shared/services/general.service';
 import { BoardQuery } from '../../queries/board/board.query';
 import { DndDropEvent } from 'ngx-drag-drop/dnd-dropzone.directive';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'aavantan-board-design',
@@ -46,10 +47,11 @@ import { animate, style, transition, trigger } from '@angular/animations';
     )
   ]
 })
-export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
+export class BoardDesignComponent implements OnInit, OnDestroy {
+
+  public boardId: string;
   public boardDesignForm: FormGroup;
-  public statusList: TaskStatusModel[] = [];
   public activeBoard: BoardModel;
   public getActiveBoardInProcess: boolean;
   public addColumnInBoardInProcess: boolean;
@@ -60,6 +62,7 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public hideColumnInProcess: boolean;
 
   public updateBoardInProcess: boolean;
+  public createBoardInProcess: boolean;
 
   public addDefaultAssigneeInProcess: boolean;
   public mergeStatusInProcess: boolean;
@@ -78,27 +81,27 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
   public assignUserDetails: User;
 
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
-              private _boardService: BoardService, private _generalService: GeneralService,
-              private _boardQuery: BoardQuery) {
+              private _boardService: BoardService, private _generalService: GeneralService, private _boardQuery: BoardQuery,
+              private _activatedRoute: ActivatedRoute) {
   }
 
   ngOnInit() {
+    this.boardId = this._activatedRoute.snapshot.params['boardId'];
 
-    // get active board data
-    this._boardService.getActiveBoard({
-      projectId: this._generalService.currentProject.id,
-      boardId: this._generalService.currentProject.activeBoardId
-    }).subscribe();
-
-    // get all hidden statuses
-    this._boardService.getAllHiddenStatuses({
-      projectId: this._generalService.currentProject.id,
-      boardId: this._generalService.currentProject.activeBoardId
-    }).subscribe();
+    if (this.boardId) {
+      // get board data by board id
+      this._boardService.getActiveBoard({
+        projectId: this._generalService.currentProject.id,
+        boardId: this.boardId
+      }).subscribe();
+    } else {
+      // set active board as null because we want to create a new board
+      this._boardService.setActiveBoard(null);
+    }
 
     this.boardDesignForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
-      projectId: new FormControl(),
+      projectId: new FormControl(this._generalService.currentProject.id),
       id: new FormControl()
     });
 
@@ -110,6 +113,11 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
         this.boardDesignForm.get('projectId').patchValue(this.activeBoard.projectId);
         this.boardDesignForm.get('id').patchValue(this.activeBoard.id);
       }
+    });
+
+    // set update board in process flag from store
+    this._boardQuery.createBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.createBoardInProcess = inProcess;
     });
 
     // set update board in process flag from store
@@ -169,15 +177,13 @@ export class BoardDesignComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  ngAfterViewInit(): void {
-
-  }
-
   public saveForm() {
     const board = this.boardDesignForm.getRawValue();
 
     if (board.id) {
       this._boardService.updateBoard(board).subscribe();
+    } else {
+      this._boardService.createBoard(board).subscribe();
     }
   }
 

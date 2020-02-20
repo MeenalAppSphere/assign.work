@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { BoardComponent } from './board/board.component';
 import { ActivesprintComponent } from './activesprint/activesprint.component';
@@ -17,7 +17,7 @@ const routes: Routes = [
     resolve: [DashboardDataResolver],
     children: [
       {
-        path: '', redirectTo: '', pathMatch: 'full',component: HomeComponent
+        path: '', redirectTo: '', pathMatch: 'full', component: HomeComponent
       },
       {
         path: 'dashboard', component: HomeComponent
@@ -25,6 +25,7 @@ const routes: Routes = [
       { path: 'project', loadChildren: () => import('../project/project.module').then(p => p.ProjectModule) },
       { path: 'board', component: BoardComponent },
       { path: 'board-setting', component: BoardDesignComponent },
+      { path: 'board-setting/:boardId', component: BoardDesignComponent },
       { path: 'active_sprint', component: ActivesprintComponent },
       { path: 'backlog', loadChildren: () => import('../backlog/backlog.module').then(p => p.BacklogModule) },
       { path: 'task', loadChildren: () => import('../task/task.module').then(p => p.TaskModule) },

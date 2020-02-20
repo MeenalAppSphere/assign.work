@@ -9,7 +9,10 @@ export interface BoardState {
   activeBoard: BoardModel;
   hiddenStatuses: TaskStatusModel[];
 
+  createBoardInProcess: boolean;
   updateBoardInProcess: boolean;
+  publishBoardInProcess: boolean;
+
   getActiveBoardInProcess: boolean;
   addColumnInProcess: boolean;
   mergeStatusInProcess: boolean;
@@ -28,7 +31,10 @@ const initialState: BoardState = {
   activeBoard: null,
   hiddenStatuses: [],
 
+  createBoardInProcess: false,
   updateBoardInProcess: false,
+  publishBoardInProcess: false,
+
   getActiveBoardInProcess: false,
   addColumnInProcess: false,
   mergeStatusInProcess: false,

@@ -54,6 +54,27 @@ export class BoardUtilityService {
   }
 
   /**
+   * create board columns from project statuses
+   * @param statuses
+   * @param board
+   * @param defaultAssigneeId
+   */
+  createBoardColumns(statuses: TaskStatusModel[], board: BoardModel, defaultAssigneeId: string) {
+    statuses.forEach((status: any, index) => {
+      board.columns.push({
+        headerStatusId: status._id,
+        includedStatuses: [{
+          statusId: status._id,
+          defaultAssigneeId: defaultAssigneeId,
+          isShown: true
+        }],
+        columnOrderNo: index + 1,
+        columnColor: ''
+      });
+    });
+  }
+
+  /**
    * convertToVm
    * convert board object to vm
    * @param board

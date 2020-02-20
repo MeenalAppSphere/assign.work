@@ -26,7 +26,7 @@ import { ModuleRef } from '@nestjs/core';
 import { GeneralService } from '../general.service';
 import { BoardUtilityService } from './board.utility.service';
 import { ProjectService } from '../project/project.service';
-import { BadRequest } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { SprintService } from '../sprint/sprint.service';
@@ -88,6 +88,11 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         projectId: requestModel.projectId
       }, requestModel);
 
+      result.items = result.items.map(board => {
+        board.id = board._id.toString();
+        return board;
+      });
+
       return result;
     } catch (e) {
       throw e;
@@ -110,8 +115,8 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
    * @param board
    */
   async createUpdateBoard(board: BoardModel) {
-    return this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(board.projectId);
+    const result = await this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(board.projectId);
 
       // get board details when board id is present
       if (board.id) {
@@ -139,9 +144,16 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         boardModel.createdById = this._generalService.userId;
         boardModel.name = board.name;
         boardModel.projectId = board.projectId;
+        boardModel.columns = [];
+
+        // create board columns from the statuses we have in project
+        // get all status and create columns using them
+        const statuses = await this._taskStatusService.find({ filter: { projectId: projectDetails.id } });
+        this._utilityService.createBoardColumns(statuses, boardModel, this._generalService.userId);
 
         // create and return new bord
-        return await this.create([boardModel], session);
+        const newBoard = await this.create([boardModel], session);
+        return newBoard[0];
       } else {
         // update existing board
         const updateBoardDoc = {
@@ -155,6 +167,8 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         return await this.updateById(board.id, updateBoardDoc, session);
       }
     });
+
+    return this.getDetails(result.id, board.projectId, true);
   }
 
   /**
@@ -230,6 +244,43 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     });
 
     return await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+  }
+
+  /**
+   * publish a board
+   * update project's active board property
+   * if board have sprint than update it's column using new board settings
+   * @param requestModel
+   */
+  async publishBoard(requestModel: BoardModelBaseRequest) {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
+
+      if (projectDetails.activeBoardId === requestModel.boardId) {
+        BadRequest('This board is already in use for this project');
+      }
+      const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId);
+
+      // set this board as published board by setting isPublished as true
+      await this.updateById(requestModel.boardId, {
+        $set: {
+          isPublished: true, publishedAt: generateUtcDate(), publishedById: this._generalService.userId
+        }
+      }, session);
+
+      // set previous board's isPublished as false
+      await this.updateById(projectDetails.activeBoardId, { $set: { isPublished: false } }, session);
+
+      // check if project have active sprint than reassign sprint's columns as per new board suggests
+      if (projectDetails.sprintId) {
+        await this.updateActiveSprint(projectDetails, boardDetails, session);
+      }
+
+      // update project's active board id
+      await this._projectService.updateById(projectDetails.id, { $set: { activeBoardId: requestModel.boardId } }, session);
+
+      return 'Board Published Successfully';
+    });
   }
 
   /**
