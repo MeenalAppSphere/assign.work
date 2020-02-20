@@ -171,12 +171,16 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     return this.getDetails(result.id, board.projectId, true);
   }
 
+  /**
+   * delete board
+   * @param requestModel
+   */
   async deleteBoard(requestModel: BoardModelBaseRequest) {
     return this.withRetrySession(async (session: ClientSession) => {
       const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
 
       // if board is active than don't allow user to delete the board
-      if (projectDetails.activeBoardId === requestModel.boardId) {
+      if (projectDetails.activeBoardId.toString() === requestModel.boardId) {
         BadRequest('You can delete current active board');
       }
 
