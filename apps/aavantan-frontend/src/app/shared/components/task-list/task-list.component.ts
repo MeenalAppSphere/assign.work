@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import {
   AddTaskToSprintModel,
   DraftSprint,
@@ -19,7 +19,7 @@ import { SprintService } from '../../services/sprint/sprint.service';
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.scss']
 })
-export class TaskListComponent implements OnInit {
+export class TaskListComponent implements OnInit, OnChanges {
   @Input() public taskByUser: string;
   @Input() public taskList: Task[];
   @Input() public view: string;
@@ -59,7 +59,6 @@ export class TaskListComponent implements OnInit {
   }
 
   ngOnInit() {
-
     if (this.isDraftTable) {
       this.taskList.forEach((ele) => {
         if (ele.isSelected) {
@@ -75,6 +74,21 @@ export class TaskListComponent implements OnInit {
         tasks: [],
         duration: 0
       };
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.taskList && !changes.taskList.firstChange && changes.taskList.currentValue !== changes.taskList.previousValue) {
+      if (this.isDraftTable) {
+        this.taskList.forEach((ele) => {
+          if (ele.isSelected) {
+            if (!this.tasksSelected.ids.includes(ele.id)) {
+              this.tasksSelected.ids.push(ele.id);
+              this.tasksSelected.tasks.push(ele);
+            }
+          }
+        });
+      }
     }
   }
 
@@ -120,7 +134,7 @@ export class TaskListComponent implements OnInit {
         taskId: task.id
       };
       this.addTaskToSprintInProgress = true;
-      const result = await this._sprintService.addTaskToSprint(json).toPromise();
+      // const result = await this._sprintService.addTaskToSprint(json).toPromise();
       this.tasksSelected.tasks.push(task);
       this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
       this.addTaskToSprintInProgress = false;
@@ -138,7 +152,7 @@ export class TaskListComponent implements OnInit {
         taskId: task.id
       };
       this.removeTaskFromSprintInProgress = true;
-      const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
+      // const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
       task.isSelected = false;
       this.selectTaskForSprint(task, false);
       this.tasksSelectedForDraftSprint.emit(this.tasksSelected);
