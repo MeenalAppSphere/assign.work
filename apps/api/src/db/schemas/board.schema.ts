@@ -65,6 +65,22 @@ boardSchema
     foreignField: '_id'
   });
 
+boardSchema
+  .virtual('createdBy', {
+    ref: DbCollection.users,
+    localField: 'createdById',
+    foreignField: '_id',
+    justOne: true
+  });
+
+boardSchema
+  .virtual('publishedBy', {
+    ref: DbCollection.users,
+    localField: 'publishedById',
+    foreignField: '_id',
+    justOne: true
+  });
+
 // plugins
 boardSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

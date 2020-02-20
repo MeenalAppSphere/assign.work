@@ -10,7 +10,8 @@ import {
   BoardModel,
   BoardModelBaseRequest,
   BoardShowColumnStatus,
-  GetActiveBoardRequestModel
+  GetActiveBoardRequestModel,
+  GetAllBoardsRequestModel
 } from '@aavantan-app/models';
 import { BoardService } from '../shared/services/board/board.service';
 
@@ -32,8 +33,8 @@ export class BoardController {
   }
 
   @Post('get-all')
-  async getAllTaskStatues(@Body('projectId') projectId: string) {
-    return this._boardService.getAllBoards(projectId);
+  async getAllBoards(@Body() requestModel: GetAllBoardsRequestModel) {
+    return this._boardService.getAllBoards(requestModel);
   }
 
   @Post('get-active-board')

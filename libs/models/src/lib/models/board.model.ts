@@ -1,5 +1,8 @@
 import { BaseDbModel } from './base.model';
-import { Project, TaskStatusModel, User } from '@aavantan-app/models';
+import { TaskStatusModel } from './task-status.model';
+import { User } from './user.model';
+import { Project } from './project.model';
+import { MongoosePaginateQuery } from '../queryOptions';
 
 export class BoardColumnIncludedStatus {
   statusId: string;
@@ -34,6 +37,10 @@ export class BoardModel extends BaseDbModel {
   publishedAt?: Date;
   unMappedStatuses?: TaskStatusModel[];
   unMappedColumns?: BoardColumns[];
+}
+
+export class GetAllBoardsRequestModel extends MongoosePaginateQuery {
+  projectId: string;
 }
 
 export class GetActiveBoardRequestModel {

@@ -1,5 +1,6 @@
 import { BaseService } from '../base.service';
 import {
+  BasePaginatedResponse,
   BoardAddNewColumnModel,
   BoardAssignDefaultAssigneeToStatusModel,
   BoardColumnIncludedStatus,
@@ -13,6 +14,7 @@ import {
   BoardShowColumnStatus,
   DbCollection,
   GetActiveBoardRequestModel,
+  GetAllBoardsRequestModel,
   MongooseQueryModel,
   Project,
   TaskStatusModel
@@ -62,12 +64,34 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
   /**
    * get all boards list
-   * @param projectId
+   * @param requestModel
    */
-  getAllBoards(projectId: string) {
-    return this.dbModel.aggregate([
-      { $match: { projectId: projectId, isDeleted: false } }
-    ]);
+  async getAllBoards(requestModel: GetAllBoardsRequestModel) {
+    try {
+      await this._projectService.getProjectDetails(requestModel.projectId);
+
+      // select columns
+      requestModel.select = 'name createdById publishedById projectId isPublished';
+
+      // populate essential columns
+      requestModel.populate = [{
+        path: 'createdBy',
+        select: 'emailId userName firstName lastName profilePic -_id',
+        justOne: true
+      }, {
+        path: 'publishedBy',
+        select: 'emailId userName firstName lastName profilePic -_id',
+        justOne: true
+      }];
+
+      const result: BasePaginatedResponse<BoardModel> = await this.getAllPaginatedData({
+        projectId: requestModel.projectId
+      }, requestModel);
+
+      return result;
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
@@ -536,48 +560,6 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
-   * update active sprint from project
-   * @param projectDetails
-   * @param boardDetails
-   * @param session
-   */
-  private async updateActiveSprint(projectDetails: Project, boardDetails: BoardModel, session: ClientSession) {
-    // check if there active sprint then re order sprint columns
-    if (projectDetails.sprintId) {
-
-      // get sprint details
-      let sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails.id);
-
-      // update sprint columns
-      sprintDetails = this._sprintService.reassignSprintColumns(boardDetails, sprintDetails);
-
-      // update sprint in db
-      await this._sprintService.updateById(projectDetails.sprintId, sprintDetails, session);
-    }
-  }
-
-  /**
-   * is duplicate board
-   * @param board
-   * @param exceptThis
-   */
-  private async isDuplicate(board: BoardModel, exceptThis?: string): Promise<boolean> {
-    const queryFilter = {
-      projectId: board.projectId, name: { $regex: `^${board.name.trim()}$`, $options: 'i' }
-    };
-
-    if (exceptThis) {
-      queryFilter['_id'] = { $ne: exceptThis };
-    }
-
-    const queryResult = await this.find({
-      filter: queryFilter
-    });
-
-    return !!(queryResult && queryResult.length);
-  }
-
-  /**
    * get board by id
    * @param model
    */
@@ -643,6 +625,48 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     } else {
       return this._utilityService.convertToVm(board, statuses);
     }
+  }
+
+  /**
+   * update active sprint from project
+   * @param projectDetails
+   * @param boardDetails
+   * @param session
+   */
+  private async updateActiveSprint(projectDetails: Project, boardDetails: BoardModel, session: ClientSession) {
+    // check if there active sprint then re order sprint columns
+    if (projectDetails.sprintId) {
+
+      // get sprint details
+      let sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails.id);
+
+      // update sprint columns
+      sprintDetails = this._sprintService.reassignSprintColumns(boardDetails, sprintDetails);
+
+      // update sprint in db
+      await this._sprintService.updateById(projectDetails.sprintId, sprintDetails, session);
+    }
+  }
+
+  /**
+   * is duplicate board
+   * @param board
+   * @param exceptThis
+   */
+  private async isDuplicate(board: BoardModel, exceptThis?: string): Promise<boolean> {
+    const queryFilter = {
+      projectId: board.projectId, name: { $regex: `^${board.name.trim()}$`, $options: 'i' }
+    };
+
+    if (exceptThis) {
+      queryFilter['_id'] = { $ne: exceptThis };
+    }
+
+    const queryResult = await this.find({
+      filter: queryFilter
+    });
+
+    return !!(queryResult && queryResult.length);
   }
 
 }
