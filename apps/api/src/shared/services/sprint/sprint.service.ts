@@ -223,7 +223,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     const newSprint = await this.withRetrySession(async (session: ClientSession) => {
       // get project details and check if current user is member of project
-      const projectDetails = await this._projectService.getProjectDetails(sprintModel.projectId, true);
+      const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
 
       // create sprint common process
       const createdSprint = await this.createSprintCommonProcess(model, projectDetails, session);
@@ -1012,7 +1012,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.updateById(model.sprintId, {
         $set: {
           sprintStatus: {
-            status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate()
+            status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate(), updatedById: this._generalService.userId
           }
         }
       }, session);
@@ -1062,19 +1062,22 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   public async closeSprint(model: CloseSprintModel) {
     return await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
       const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+
+      // get current sprint details
       const currentSprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
       // check if sprint is running
-      if (!currentSprintDetails.sprintStatus || !currentSprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
+      if (!currentSprintDetails.sprintStatus || currentSprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
         BadRequest('This sprint is not running you can not close it');
       }
 
       // get all sprint task list
-      const allTaskList = [];
+      const allTaskList: Task[] = [];
       currentSprintDetails.columns.forEach(column => {
         column.tasks.forEach(task => {
-          allTaskList.push(task.taskId);
+          allTaskList.push(task.task);
         });
       });
 
@@ -1086,20 +1089,41 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       let responseMsg = '';
 
       if (model.createNewSprint) {
-        // create new sprint and move all task of this sprint to new sprint
+        // get last column of sprint and last column statuses
+        const lastColumn = currentSprintDetails.columns[currentSprintDetails.columns.length - 1];
 
-        // new sprint
-        const newSprint = await this.createSprintCommonProcess({ sprint: model.sprint }, projectDetails, session);
+        // get all unfinished tasks
+        const unFinishedTasks = allTaskList.filter(task => {
+          return task.statusId.toString() !== lastColumn.statusId.toString();
+        }).map(task => task._id.toString());
 
-        // close current sprint
-        await this.closeSprintCommonProcess(model.projectId, allTaskList, newSprint[0].id, session);
+        // get all finished tasks
+        const finishedTasks = allTaskList.filter(task => {
+          return task.statusId.toString() === lastColumn.statusId.toString();
+        }).map(task => task._id.toString());
+
+        // create new sprint and move all un-Finished task of this sprint to new sprint
+
+        // new sprint process
+        const newSprint = await this.createSprintCommonProcess({ sprint: model.sprint }, projectDetails, session, model.createAndPublishNewSprint);
+
+        // close current sprint and set new sprint id to unfinished tasks
+        await this.closeSprintCommonProcess(model.projectId, unFinishedTasks,
+          model.createAndPublishNewSprint ? newSprint[0].id : null,
+          session);
+
+        // update finished tasks and set sprint id to null
+        await this._taskService.bulkUpdate({
+          _id: { $in: allTaskList }
+        }, { $set: { sprintId: null } }, session);
 
         responseMsg = `Sprint Closed Successfully and all Task Moved to new Sprint Named :- ${model.sprint.name}`;
       } else {
-        // move all tasks of this sprint to backlog and close sprint
+        // move all tasks of this sprint to backlog and close the sprint
+        const allTasksListIds = allTaskList.map(task => task._id.toString());
 
         // close current sprint
-        await this.closeSprintCommonProcess(model.projectId, allTaskList, null, session);
+        await this.closeSprintCommonProcess(model.projectId, allTasksListIds, null, session);
 
         responseMsg = `Sprint Closed Successfully`;
       }
@@ -1162,8 +1186,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model
    * @param projectDetails
    * @param session
+   * @param createAndPublishNewSprint
    */
-  private async createSprintCommonProcess(model: CreateSprintModel, projectDetails: Project, session: ClientSession) {
+  private async createSprintCommonProcess(model: CreateSprintModel, projectDetails: Project, session: ClientSession, createAndPublishNewSprint: boolean = false) {
 
     const sprintModel = new Sprint();
     sprintModel.projectId = model.sprint.projectId;
@@ -1171,6 +1196,13 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     sprintModel.goal = model.sprint.goal;
     sprintModel.startedAt = model.sprint.startedAt;
     sprintModel.endAt = model.sprint.endAt;
+
+    // if create and publish new sprint is selected than set sprint as a published sprint
+    if (createAndPublishNewSprint) {
+      sprintModel.sprintStatus = {
+        status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate(), updatedById: this._generalService.userId
+      };
+    }
 
     // perform common validations
     this._sprintUtilityService.commonSprintValidator(sprintModel);

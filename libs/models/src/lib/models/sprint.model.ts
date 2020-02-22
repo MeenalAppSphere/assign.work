@@ -180,6 +180,7 @@ export class PublishSprintModel extends SprintBaseRequest {
 
 export class CloseSprintModel extends SprintBaseRequest {
   createNewSprint: boolean;
+  createAndPublishNewSprint: boolean;
   sprint?: Sprint;
   finalStatusOfTasks?: string;
 }
