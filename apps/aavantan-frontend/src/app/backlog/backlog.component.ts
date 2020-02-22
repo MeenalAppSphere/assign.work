@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
+  AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
   AssignTasksToSprintModel,
   DraftSprint,
@@ -56,6 +57,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public searchValue: string;
   public searchTaskListInProgress: boolean;
 
+  public sprintDurations:AddTaskRemoveTaskToSprintResponseModel;
+
 
   public tasksSelected: DraftSprint = {
     sprintId: null,
@@ -102,6 +105,18 @@ export class BacklogComponent implements OnInit, OnDestroy {
       if (  this._generalService.currentProject.sprintId) {
         // get active sprint tasks
         this.activeSprintData = this._generalService.currentProject.sprint;
+
+        this.sprintDurations = {
+          totalCapacity : this.activeSprintData.totalCapacity,
+          totalCapacityReadable : this.activeSprintData.totalCapacityReadable,
+          totalRemainingCapacity: this.activeSprintData.totalRemainingCapacity,
+          totalRemainingCapacityReadable : this.activeSprintData.totalRemainingCapacityReadable,
+          totalEstimation : this.activeSprintData.totalEstimation,
+          totalEstimationReadable : this.activeSprintData.totalEstimationReadable,
+          tasks:null
+        }
+
+
         this.getAllSprintTasks();
       } else {
         // get unpublished sprint tasks
@@ -358,12 +373,18 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.addTaskToSprintInProgress = true;
 
       const data = await this._sprintService.addTaskToSprint(json).toPromise();
+
       // if(data.data && data.data.tasksErrors ){
       //   this.notification.error('Error', 'Task not added to Sprint');
       //   task.isSelected = false;
       //   return;
+      // }else {
+      //  this.sprintDurations = data.data;
       // }
       // task.isSelected = isAdd;
+
+
+
       this.draftTaskList = [...this.draftTaskList, task];
       this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
 

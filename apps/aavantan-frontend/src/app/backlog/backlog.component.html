@@ -30,30 +30,32 @@
 
         <div class="row clearfix m-b-10 m-t-10">
 
-          <div class="col" *ngIf="unPublishedSprintData && unPublishedSprintData.id">
+          <div class="col" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
             <span class="font-size-14">
 
-              <span class="font-size-18 m-r-30 text-black font-weight-normal">{{unPublishedSprintData.name}}</span>
+              <span class="font-size-18 m-r-30 text-black font-weight-normal" *ngIf="unPublishedSprintData?.name">{{unPublishedSprintData?.name}}</span>
 
-              <span class="m-r-25 text-gray-light-2 font-size-13" *ngIf="unPublishedSprintData.totalEstimationReadable">
-                <span>{{unPublishedSprintData?.totalEstimationReadable}}</span>
+              <span class="m-r-25 text-gray-light-2 font-size-13" *ngIf="unPublishedSprintData?.totalEstimationReadable || sprintDurations.totalEstimationReadable">
+                <span>{{unPublishedSprintData?.totalEstimationReadable || sprintDurations?.totalEstimationReadable}}</span>
                 <span class="font-weight-light">  Sprint Hours </span>
               </span>
 
               <span class="m-r-10 text-gray-light-2 font-size-13">
-                <span>{{unPublishedSprintData.totalCapacityReadable}}</span>
+                <span>{{unPublishedSprintData?.totalCapacityReadable || sprintDurations?.totalCapacityReadable}}</span>
                 <span class="m-r-25 font-weight-light"> Sprint Capacity</span>
               </span>
 
 
               <span class="font-size-12 font-size-13"
-                    [ngClass]="{'text-gray-light-2': unPublishedSprintData.totalRemainingCapacity>0, 'text-red': unPublishedSprintData.totalRemainingCapacity<0}"
-                    *ngIf="unPublishedSprintData.totalRemainingCapacityReadable">
-                <span class="p-l-5">{{unPublishedSprintData?.totalRemainingCapacityReadable}}</span>
+                    [ngClass]="{'text-gray-light-2': unPublishedSprintData?.totalRemainingCapacity>0 || sprintDurations?.totalRemainingCapacity>0, 'text-red': unPublishedSprintData?.totalRemainingCapacity<0 || sprintDurations?.totalRemainingCapacity<0}"
+                    *ngIf="unPublishedSprintData?.totalRemainingCapacityReadable || sprintDurations?.totalRemainingCapacityReadable">
+                <span class="p-l-5">{{unPublishedSprintData?.totalRemainingCapacityReadable || sprintDurations?.totalRemainingCapacityReadable}}</span>
                 <span class="font-weight-light"> Remains</span>
               </span>
             </span>
           </div>
+
+
 
 
           <div class="col text-right">
@@ -168,7 +170,7 @@
 
                         <h6 class="m-b-0">
                           <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                            <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black">
+                            <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black font-weight-semibold">
                               {{item.name}}
                             </a>
                           </p>
@@ -343,7 +345,7 @@
 
                       <h6 class="m-b-0">
                         <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                          <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black">
+                          <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black font-weight-semibold">
                             {{item.name}}
                           </a>
                         </p>
