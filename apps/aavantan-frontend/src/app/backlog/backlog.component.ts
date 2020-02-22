@@ -75,7 +75,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public timelogModalIsVisible: boolean;
 
 
-
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
@@ -343,11 +342,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
 
-
-  public addTaskToSprint(task: Task, isAdd: boolean) {
+  public async addTaskToSprint(task: Task, isAdd: boolean) {
 
     try {
-      if(!isAdd){ return;}
+      if (!isAdd) {
+        return;
+      }
+
       const json: AddTaskToSprintModel = {
         projectId: this._generalService.currentProject.id,
         sprintId: this.tasksSelected.sprintId || this.activeSprintData.id,
@@ -355,10 +356,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
         taskId: task.id
       };
       this.addTaskToSprintInProgress = true;
-      // const result = await this._sprintService.addTaskToSprint(json).toPromise();
+
+      await this._sprintService.addTaskToSprint(json).toPromise();
+
       task.isSelected = isAdd;
-      this.draftTaskList.push(task);
-      console.log('addTaskToSprint :',this.draftTaskList);
+      this.draftTaskList = [...this.draftTaskList, task];
+      this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
+
       this.addTaskToSprintInProgress = false;
     } catch (e) {
       console.log(e);
@@ -366,7 +370,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  public removeTaskFromSprint(task: Task) {
+  public async removeTaskFromSprint(task: Task) {
     try {
       const json: RemoveTaskFromSprintModel = {
         projectId: this._generalService.currentProject.id,
@@ -374,10 +378,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
         taskId: task.id
       };
       this.removeTaskFromSprintInProgress = true;
-      // const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
+      await this._sprintService.removeTaskFromSprint(json).toPromise();
+
       task.isSelected = false;
-      this.draftTaskList = this.draftTaskList.filter((ele)=>{ if(ele.isSelected) return ele;});
-      console.log('removeTaskFromSprint : ',this.draftTaskList);
+      this.draftTaskList = this.draftTaskList.filter(draftTask => draftTask.id !== task.id);
+      this.backLogTasksList = [...this.backLogTasksList, task];
+
       this.removeTaskFromSprintInProgress = false;
     } catch (e) {
       console.log(e);
@@ -400,7 +406,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public viewTask(task: Task) {
     this.router.navigateByUrl('dashboard/task/' + task.displayName);
   }
-
 
 
   /** time log **/
