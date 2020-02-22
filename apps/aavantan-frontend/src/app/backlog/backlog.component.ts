@@ -359,7 +359,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       await this._sprintService.addTaskToSprint(json).toPromise();
 
-      task.isSelected = isAdd;
+      // task.isSelected = isAdd;
       this.draftTaskList = [...this.draftTaskList, task];
       this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
 
@@ -380,7 +380,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.removeTaskFromSprintInProgress = true;
       await this._sprintService.removeTaskFromSprint(json).toPromise();
 
-      task.isSelected = false;
+      // task.isSelected = false;
       this.draftTaskList = this.draftTaskList.filter(draftTask => draftTask.id !== task.id);
       this.backLogTasksList = [...this.backLogTasksList, task];
 

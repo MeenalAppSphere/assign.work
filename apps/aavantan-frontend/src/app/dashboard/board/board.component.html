@@ -105,10 +105,13 @@
                   <div class="task-footer">
                     <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{task.task.assignee.profilePic}}"
                                      nzShape="circle"></nz-avatar><span
-                      class="profile-name">{{task.task.assignee.firstName}}</span></span>
-                    <span class="pull-right"> <a (click)="timeLog(task.task)" href="javascript:void(0);"
-                                                 class="text-primary"><i nz-icon nzType="clock-circle"
-                                                                         theme="outline"></i> Log Time</a></span>
+                      class="profile-name">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span></span>
+                    <span class="pull-right">
+                      <a (click)="timeLog(task.task)" href="javascript:void(0);" class="text-primary">
+                      <i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                      <span class="p-l-5" nz-tooltip
+                            [nzTitle]="'Estimated time'" >{{task.task.estimatedTimeReadable}}</span>
+                    </span>
                   </div>
                 </div>
               </div>

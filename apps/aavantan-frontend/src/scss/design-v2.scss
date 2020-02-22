@@ -500,6 +500,11 @@ $color-green : #42E3A3;
     }
     .profile-name{
       line-height: 18px;
+      max-width: 100px;
+      display: table-cell;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
     }
   }
 }

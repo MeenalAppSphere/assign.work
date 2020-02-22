@@ -141,7 +141,7 @@
   </a>
 
 
-  <div *ngIf="!isFolded" class="d-inline-flex">
+  <div *ngIf="!isFolded" class="d-inline-flex" (click)="createNewTask()">
 
     <button nz-button nzType="link" nzGhost style="
     min-width: 40px;
@@ -163,7 +163,7 @@
     width: 136px;
     padding: 10px!important;
     line-height: 22px;
-    text-align: left;">
+    text-align: left;" >
       Create Task</button>
   </div>
 
