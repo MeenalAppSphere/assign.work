@@ -64,7 +64,7 @@
               <!--                      (click)="saveSprint()">Save Sprint</button>-->
             </span>
 
-            <button *ngIf="unPublishedSprintData && unPublishedSprintData.id" nzSize="32" class="m-l-10" nz-button
+            <button *ngIf="unPublishedSprintData?.id" nzSize="32" class="m-l-10" nz-button
                     nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">
               <i class="fas fa-ellipsis-v"></i>
             </button>
@@ -267,7 +267,7 @@
               <tr>
 
 
-                <th class="text-center" width="50" *ngIf="(activeSprintData?.id)">#</th>
+                <th class="text-center" width="50" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
 
                 <th class="text-left" style="min-width:115px;">
                   <span>Priority</span>
@@ -309,7 +309,7 @@
                   [ngClass]="{'has-missing-data':(!item.assignee || !item.estimatedTime) }">
 
 
-                <td data-label="#" *ngIf="activeSprintData?.id" class="text-center">
+                <td data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id" class="text-center">
 
                   <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox
                          (nzCheckedChange)="addTaskToSprint(item, $event)"></label>

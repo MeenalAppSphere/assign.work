@@ -99,7 +99,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       // if project has active sprint than get all tasks of that sprint
       // if not get un-published sprint tasks
 
-      if (this._generalService.currentProject.sprintId) {
+      if (  this._generalService.currentProject.sprintId) {
         // get active sprint tasks
         this.activeSprintData = this._generalService.currentProject.sprint;
         this.getAllSprintTasks();
@@ -351,14 +351,18 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       const json: AddTaskToSprintModel = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.tasksSelected.sprintId || this.activeSprintData.id,
+        sprintId: this.unPublishedSprintData.id || this.activeSprintData.id,
         adjustHoursAllowed: false,
         taskId: task.id
       };
       this.addTaskToSprintInProgress = true;
 
-      await this._sprintService.addTaskToSprint(json).toPromise();
-
+      const data = await this._sprintService.addTaskToSprint(json).toPromise();
+      // if(data.data && data.data.tasksErrors ){
+      //   this.notification.error('Error', 'Task not added to Sprint');
+      //   task.isSelected = false;
+      //   return;
+      // }
       // task.isSelected = isAdd;
       this.draftTaskList = [...this.draftTaskList, task];
       this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
