@@ -1141,6 +1141,15 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   }
 
   /**
+   * reassign sprint when a board get's updated
+   * @param activeBoard
+   * @param activeSprint
+   */
+  public reassignSprintColumns(activeBoard: BoardModel, activeSprint: Sprint) {
+    return this._sprintUtilityService.reassignSprintColumns(activeBoard, activeSprint);
+  }
+
+  /**
    * close sprint common process
    * set sprint id to all tasks
    * set sprint id to current project
@@ -1149,7 +1158,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param sprintId
    * @param session
    */
-  public async closeSprintCommonProcess(projectId: string, allTaskList: string[], sprintId: string, session: ClientSession) {
+  private async closeSprintCommonProcess(projectId: string, allTaskList: string[], sprintId: string, session: ClientSession) {
     // update all task and assign sprint id to all of them using bulk update
     await this._taskService.bulkUpdate({
       _id: { $in: allTaskList }
@@ -1165,20 +1174,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param sprintStatus
    * @param session
    */
-  public async updateSprintStatus(sprintId: string, sprintStatus: SprintStatus, session: ClientSession) {
+  private async updateSprintStatus(sprintId: string, sprintStatus: SprintStatus, session: ClientSession) {
     // update sprint status
     return this.updateById(sprintId, {
       $set: { sprintStatus }
     }, session);
-  }
-
-  /**
-   * reassign sprint when a board get's updated
-   * @param activeBoard
-   * @param activeSprint
-   */
-  public reassignSprintColumns(activeBoard: BoardModel, activeSprint: Sprint) {
-    return this._sprintUtilityService.reassignSprintColumns(activeBoard, activeSprint);
   }
 
   /**
