@@ -116,7 +116,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
 
     this._boardUtilityService = new BoardUtilityService();
-    this._sprintUtilityService = new SprintUtilityService(this._boardUtilityService, this._emailService);
+    this._sprintUtilityService = new SprintUtilityService();
   }
 
   /**

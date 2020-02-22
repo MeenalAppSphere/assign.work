@@ -7,13 +7,18 @@ import { ProjectService } from './project/project.service';
 import { slice } from 'lodash';
 import { GeneralService } from './general.service';
 import { secondsToHours } from '../helpers/helpers';
+import { SprintUtilityService } from './sprint/sprint.utility.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> {
+  private _sprintUtilityService: SprintUtilityService;
+
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
               @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService,
               private _generalService: GeneralService) {
     super(_userModel);
+
+    this._sprintUtilityService = new SprintUtilityService();
   }
 
   async getAllWithPagination() {
@@ -125,6 +130,7 @@ export class UsersService extends BaseService<User & Document> {
 
       if (userDetails.currentProject.sprint) {
         userDetails.currentProject.sprint.id = userDetails.currentProject.sprint._id;
+        this._sprintUtilityService.calculateSprintEstimates(userDetails.currentProject.sprint);
       }
     }
 

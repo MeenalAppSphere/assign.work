@@ -18,8 +18,12 @@ import { orderBy } from 'lodash';
 import { BoardUtilityService } from '../board/board.utility.service';
 
 export class SprintUtilityService {
+  private _boardUtilityService: BoardUtilityService;
+  protected _emailService: EmailService;
 
-  constructor(protected readonly _boardUtilityService: BoardUtilityService, protected _emailService: EmailService) {
+  constructor() {
+    this._boardUtilityService = new BoardUtilityService();
+    this._emailService = new EmailService();
   }
 
   /**
