@@ -1196,6 +1196,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     sprintModel.goal = model.sprint.goal;
     sprintModel.startedAt = model.sprint.startedAt;
     sprintModel.endAt = model.sprint.endAt;
+    sprintModel.createdById = this._generalService.userId;
 
     // if create and publish new sprint is selected than set sprint as a published sprint
     if (createAndPublishNewSprint) {
