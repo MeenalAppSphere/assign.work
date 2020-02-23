@@ -220,7 +220,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model: CreateSprintModel
    */
   public async createSprint(model: CreateSprintModel) {
-
+    // create sprint
     const newSprint = await this.withRetrySession(async (session: ClientSession) => {
       // get project details and check if current user is member of project
       const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
@@ -228,12 +228,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // create sprint common process
       const createdSprint = await this.createSprintCommonProcess(model, projectDetails, session);
 
-      // sprint created now update project and add sprint id as project sprintId
-      await this._projectService.updateById(model.sprint.projectId, { $set: { sprintId: createdSprint[0].id } }, session);
-
+      // return created sprint
       return createdSprint[0];
     });
 
+    // get sprint details and return response
     const sprint = await this.getSprintDetails(newSprint.id, model.sprint.projectId, commonPopulationForSprint, commonFieldSelection);
     return this._sprintUtilityService.prepareSprintVm(sprint);
   }
