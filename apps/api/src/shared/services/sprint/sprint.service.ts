@@ -1182,22 +1182,22 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // add all project collaborators as sprint member and add their's work capacity to total capacity
-    model.sprint.membersCapacity = [];
-    model.sprint.totalCapacity = 0;
+    sprintModel.membersCapacity = [];
+    sprintModel.totalCapacity = 0;
 
     // add only those members who accepted invitation of project means active collaborator of project
     projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
-      model.sprint.membersCapacity.push({
+      sprintModel.membersCapacity.push({
         userId: member.userId,
         workingCapacity: member.workingCapacity,
         workingCapacityPerDay: member.workingCapacityPerDay,
         workingDays: member.workingDays
       });
-      model.sprint.totalCapacity += Number(member.workingCapacity);
+      sprintModel.totalCapacity += Number(member.workingCapacity);
     });
 
     // create columns array for sprint from project
-    model.sprint.columns = [];
+    sprintModel.columns = [];
 
     projectDetails.activeBoard.columns.forEach(column => {
       const sprintColumn = new SprintColumn();
@@ -1208,11 +1208,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintColumn.totalEstimation = 0;
       sprintColumn.isHidden = column.isHidden;
 
-      model.sprint.columns.push(sprintColumn);
+      sprintModel.columns.push(sprintColumn);
     });
-
-    // set sprint created by id
-    model.sprint.createdById = this._generalService.userId;
 
     // create sprint
     return await this.create([sprintModel], session);
