@@ -359,75 +359,52 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       taskDetails.id = model.taskId;
 
-      // sprint error holder variable
-      const sprintError: SprintErrorResponse = new SprintErrorResponse();
-      sprintError.tasksErrors = [];
-      sprintError.membersErrors = [];
-
       // check if task is allowed to added to sprint
-      const isTaskAllowedToAddInSprint = this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(taskDetails);
+      this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(taskDetails);
 
-      if (isTaskAllowedToAddInSprint instanceof SprintErrorResponseItem) {
-        sprintError.tasksErrors.push(isTaskAllowedToAddInSprint);
+      // if adjustHoursAllowed not allowed than apply strict check for sprint timings
+      if (!model.adjustHoursAllowed) {
 
-        return sprintError;
-      } else {
-        // if adjustHoursAllowed not allowed than apply strict check for sprint timings
-        if (!model.adjustHoursAllowed) {
+        // check if sprint have over logged time
+        if (sprintDetails.totalOverLoggedTime) {
+          // throw error sprint capacity exceed
+          BadRequest(SprintErrorEnum.sprintCapacityExceed);
 
-          // check if sprint have over logged time
-          if (sprintDetails.totalOverLoggedTime) {
-            sprintError.tasksErrors.push({
-              name: taskDetails.displayName,
-              id: taskDetails.id,
-              reason: SprintErrorEnum.sprintCapacityExceed
-            });
-
-            return sprintError;
-          } else {
-            let allTaskTotalEstimation = 0;
-            let currentTaskAssigneeTotalEstimation = 0;
-
-            // get task assignee details from sprint members
-            const currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
-
-            // get all tasks from the sprint and push it to all tasks array
-            sprintDetails.columns.forEach(column => {
-              column.tasks.forEach(task => {
-                allTaskTotalEstimation += task.task.estimatedTime;
-
-                if (task.task.assigneeId.toString() === taskDetails.assigneeId.toString()) {
-                  currentTaskAssigneeTotalEstimation += task.task.estimatedTime;
-                }
-              });
-            });
-
-            // check if sprint total capacity exceed after adding requested task estimated time
-            if (allTaskTotalEstimation + taskDetails.estimatedTime > sprintDetails.totalCapacity) {
-              sprintError.tasksErrors.push({
-                name: taskDetails.displayName,
-                id: taskDetails.id,
-                reason: SprintErrorEnum.sprintCapacityExceed
-              });
-
-              return sprintError;
-            } else if (currentTaskAssigneeTotalEstimation + taskDetails.estimatedTime > currentAssigneeDetails.workingCapacity) {
-              // check if task assignee capacity exceed after adding requested task estimated time
-              sprintError.membersErrors.push({
-                id: currentAssigneeDetails.userId.toString(),
-                reason: SprintErrorEnum.memberCapacityExceed
-              });
-
-              return sprintError;
-            } else {
-              // start task add process
-              return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
-            }
-          }
         } else {
-          // start task add process
-          return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
+          let allTaskTotalEstimation = 0;
+          let currentTaskAssigneeTotalEstimation = 0;
+
+          // get task assignee details from sprint members
+          const currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
+
+          // get all tasks from the sprint and push it to all tasks array
+          sprintDetails.columns.forEach(column => {
+            column.tasks.forEach(task => {
+              allTaskTotalEstimation += task.task.estimatedTime;
+
+              if (task.task.assigneeId.toString() === taskDetails.assigneeId.toString()) {
+                currentTaskAssigneeTotalEstimation += task.task.estimatedTime;
+              }
+            });
+          });
+
+          // check if sprint total capacity exceed after adding requested task estimated time
+          if (allTaskTotalEstimation + taskDetails.estimatedTime > sprintDetails.totalCapacity) {
+            // throw error sprint capacity exceed
+            BadRequest(SprintErrorEnum.sprintCapacityExceed);
+
+          } else if (currentTaskAssigneeTotalEstimation + taskDetails.estimatedTime > currentAssigneeDetails.workingCapacity) {
+
+            // check if task assignee capacity exceed after adding requested task estimated time
+            BadRequest(SprintErrorEnum.memberCapacityExceed);
+          } else {
+            // start task add process
+            return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
+          }
         }
+      } else {
+        // start task add process
+        return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
       }
     });
   }
@@ -616,37 +593,25 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           task.id = task['_id'];
 
           // check if task is allowed to added to sprint
-          const checkTask = this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(task);
+          this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(task);
 
-          // check if error is returned from check task method
-          if (checkTask instanceof SprintErrorResponseItem) {
+          // no error then get task assignee id and push it to the task assignee mapping holder variable
+          const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === task.assigneeId.toString());
 
-            // add error to sprint task error holder
-            sprintError.tasksErrors.push(checkTask);
+          // if assignee already added then only update it's totalEstimation
+          if (assigneeIndex > -1) {
+            taskAssigneeMap[assigneeIndex].totalEstimation += task.estimatedTime;
           } else {
-            // no error then get task assignee id and push it to the task assignee mapping holder variable
-            const assigneeIndex = taskAssigneeMap.findIndex(assignee => assignee.memberId === task.assigneeId.toString());
-
-            // if assignee already added then only update it's totalEstimation
-            if (assigneeIndex > -1) {
-              taskAssigneeMap[assigneeIndex].totalEstimation += task.estimatedTime;
-            } else {
-              // push assignee to assignee task map holder variable
-              taskAssigneeMap.push({
-                // convert object id to string
-                memberId: (task.assigneeId as any).toString(),
-                totalEstimation: task.estimatedTime,
-                workingCapacity: 0,
-                alreadyLoggedTime: 0
-              });
-            }
+            // push assignee to assignee task map holder variable
+            taskAssigneeMap.push({
+              // convert object id to string
+              memberId: (task.assigneeId as any).toString(),
+              totalEstimation: task.estimatedTime,
+              workingCapacity: 0,
+              alreadyLoggedTime: 0
+            });
           }
         });
-
-        // check if we found some errors while checking tasks return that error
-        if (sprintError.tasksErrors.length) {
-          return sprintError;
-        }
 
         // region check exact capacity
         // if adjust hours not allowed then check for members capacity
@@ -829,12 +794,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       taskDetail.id = taskDetail._id.toString();
 
       // check task validity for moving in sprint
-      const checkTaskIsAllowedToMove = this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(taskDetail, true);
-
-      // if any error found in task validity checking return it
-      if (checkTaskIsAllowedToMove instanceof SprintErrorResponseItem) {
-        return checkTaskIsAllowedToMove;
-      }
+      this._sprintUtilityService.checkTaskIsAllowedToAddInSprint(taskDetail, true);
 
       // loop over columns
       // remove task from current column and add it to new column

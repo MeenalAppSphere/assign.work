@@ -77,41 +77,26 @@ export class SprintUtilityService {
    * @param task
    * @param isMoveTaskProcess
    */
-  checkTaskIsAllowedToAddInSprint(task: Task, isMoveTaskProcess: boolean = false): boolean | SprintErrorResponseItem {
+  checkTaskIsAllowedToAddInSprint(task: Task, isMoveTaskProcess: boolean = false) {
     // check if task found
     if (task) {
-      const sprintError = new SprintErrorResponseItem();
-      sprintError.name = task.displayName;
-      sprintError.id = task.id;
-
       // check task assignee
       if (!task.assigneeId) {
-        sprintError.reason = SprintErrorEnum.taskNoAssignee;
+        BadRequest(SprintErrorEnum.taskNoAssignee);
       }
 
       // check task estimation
       if (!task.estimatedTime) {
-        sprintError.reason = SprintErrorEnum.taskNoEstimate;
+        BadRequest(SprintErrorEnum.taskNoEstimate);
       }
 
       // check if task is already in sprint
       if (!isMoveTaskProcess && task.sprintId) {
-        sprintError.reason = SprintErrorEnum.alreadyInSprint;
+        BadRequest(SprintErrorEnum.alreadyInSprint);
       }
-
-      // if there any error return error
-      if (sprintError.reason) {
-        return sprintError;
-      }
-      // return true if no error
-      return true;
     } else {
       // if task not found return error
-      return {
-        id: task['_id'],
-        name: task.displayName,
-        reason: SprintErrorEnum.taskNotFound
-      };
+      BadRequest(SprintErrorEnum.taskNotFound);
     }
   }
 
