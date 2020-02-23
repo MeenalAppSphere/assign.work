@@ -19,7 +19,7 @@ import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
 import { cloneDeep, uniqBy } from 'lodash';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
@@ -85,6 +85,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
               private _userQuery: UserQuery,
               private _sprintService: SprintService,
               protected notification: NzNotificationService,
+              private modal: NzModalService,
               private router: Router) {
 
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -374,16 +375,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       const data = await this._sprintService.addTaskToSprint(json).toPromise();
 
-      // if(data.data && data.data.tasksErrors ){
-      //   this.notification.error('Error', 'Task not added to Sprint');
-      //   task.isSelected = false;
-      //   return;
-      // }else {
-      //  this.sprintDurations = data.data;
-      // }
-      // task.isSelected = isAdd;
+      if(data && data.hasError ){
 
+        // @ts-ignore
+        if(!await this.addTaskConfirmAfterError()){
+          task.isSelected = false;
+          return;
+        }
 
+      }else {
+       this.sprintDurations = data.data;
+      }
 
       this.draftTaskList = [...this.draftTaskList, task];
       this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
@@ -414,6 +416,19 @@ export class BacklogComponent implements OnInit, OnDestroy {
       console.log(e);
       this.removeTaskFromSprintInProgress = false;
     }
+  }
+
+  async addTaskConfirmAfterError() {
+
+      this.modal.confirm({
+        nzTitle: 'Still Want to add task?',
+        nzContent: 'May be this will effect your current Sprint',
+        nzOnOk: () =>
+          new Promise((resolve, reject) => {
+             return true;
+          }).catch(() => console.log('Oops errors!'))
+      });
+
   }
 
   public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {
