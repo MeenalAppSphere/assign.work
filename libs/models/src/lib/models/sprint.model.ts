@@ -49,6 +49,8 @@ export class SprintColumn {
 
 export class SprintColumnTask {
   taskId: string;
+  totalLoggedTime: number;
+  totalLoggedTimeReadable?: string;
   task?: Task;
   description?: string;
   sequenceNumber?: string;

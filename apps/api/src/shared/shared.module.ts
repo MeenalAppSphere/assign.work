@@ -8,7 +8,7 @@ import { AttachmentService } from './services/attachment.service';
 import { EasyconfigModule } from 'nestjs-easyconfig';
 import * as path from 'path';
 import { GeneralService } from './services/general.service';
-import { TaskTimeLogService } from './services/task-time-log.service';
+import { TaskTimeLogService } from './services/task-time-log/task-time-log.service';
 import { SprintService } from './services/sprint/sprint.service';
 import { InvitationService } from './services/invitation.service';
 import { EmailService } from './services/email.service';

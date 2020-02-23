@@ -138,6 +138,7 @@ export class SprintUtilityService {
         column.tasks = column.tasks.filter(task => !task.removedById);
         column.tasks = column.tasks.map(task => {
           task.task = this.parseTaskObjectVm(task.task);
+          task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
           return task;
         });
         return column;
@@ -359,6 +360,16 @@ export class SprintUtilityService {
   }
 
   /**
+   * get task index from current sprint column
+   * @param sprint
+   * @param columnIndex
+   * @param taskId
+   */
+  getTaskIndexFromColumn(sprint: Sprint, columnIndex: number, taskId: string) {
+    return sprint.columns[columnIndex].tasks.findIndex(task => task.taskId.toString() === taskId.toString());
+  }
+
+  /**
    * reassign sprint when a board get's updated
    * @param activeBoard
    * @param activeSprint
@@ -423,6 +434,7 @@ export class SprintUtilityService {
           });
         });
 
+        // create new column
         const sprintColumn = new SprintColumn();
         sprintColumn.id = nColumn.headerStatusId;
         sprintColumn.statusId = nColumn.headerStatusId;
@@ -431,6 +443,7 @@ export class SprintUtilityService {
         sprintColumn.totalEstimation = 0;
         sprintColumn.isHidden = false;
 
+        // add new column to sprint columns
         activeSprint.columns.push(sprintColumn);
       });
     }

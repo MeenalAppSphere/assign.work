@@ -109,6 +109,10 @@
                     <span class="pull-right">
                       <a (click)="timeLog(task.task)" href="javascript:void(0);" class="text-primary">
                       <i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+
+                      <span class="p-l-5" nz-tooltip
+                            [nzTitle]="'Logged time'" >{{task.task.totalLoggedTimeReadable}}</span>
+
                       <span class="p-l-5" nz-tooltip
                             [nzTitle]="'Estimated time'" >{{task.task.estimatedTimeReadable}}</span>
                     </span>

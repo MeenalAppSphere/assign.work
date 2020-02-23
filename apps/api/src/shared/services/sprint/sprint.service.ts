@@ -91,7 +91,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
 }];
 
 const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById removedById removedAt';
-const detailedFiledSelection = `${commonFieldSelection} columns `;
+const detailedFiledSelection = `${commonFieldSelection} columns`;
 
 @Injectable()
 export class SprintService extends BaseService<Sprint & Document> implements OnModuleInit {
@@ -729,7 +729,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           sprintDetails.columns[columnIndex].tasks.push({
             taskId: newTasksDetails[i].id,
             addedAt: generateUtcDate(),
-            addedById: this._generalService.userId
+            addedById: this._generalService.userId,
+            totalLoggedTime: 0
           });
         }
 
@@ -838,6 +839,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // loop over columns
       // remove task from current column and add it to new column
+
+      // get task that's going to move to new column
+      const oldTask = sprintDetails.columns[currentColumnIndex].tasks.find(task => task.taskId.toString() === model.taskId);
       sprintDetails.columns.forEach((column, index) => {
         // remove from current column and minus estimation time from total column estimation time
         if (index === currentColumnIndex) {
@@ -849,10 +853,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         if (index === newColumnIndex) {
           column.totalEstimation += taskDetail.estimatedTime;
           column.tasks.push({
-            taskId: model.taskId,
+            taskId: oldTask.taskId,
             addedAt: generateUtcDate(),
             addedById: this._generalService.userId,
-            description: SprintActionEnum.taskMovedToColumn
+            description: SprintActionEnum.taskMovedToColumn,
+            totalLoggedTime: oldTask.totalLoggedTime
           });
         }
 
@@ -1279,12 +1284,14 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintDetails.columns[columnIndex].tasks.push({
         taskId: taskDetails.id,
         addedAt: generateUtcDate(),
-        addedById: this._generalService.userId
+        addedById: this._generalService.userId,
+        totalLoggedTime: 0
       });
     } else {
       // if task is deleted than set removed by id to null
       sprintDetails.columns[columnIndex].tasks[columnIndex] = {
         taskId: sprintDetails.columns[columnIndex].tasks[columnIndex].taskId,
+        totalLoggedTime: sprintDetails.columns[columnIndex].tasks[columnIndex].totalLoggedTime,
         removedById: null,
         removedAt: null,
         addedAt: generateUtcDate(),

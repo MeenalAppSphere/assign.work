@@ -40,6 +40,7 @@ export const sprintSchema = new Schema({
       type: Array,
       default: [],
       taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
+      totalLoggedTime: { type: Number, default: 0 },
       description: { type: String },
       sequenceNumber: { type: Number },
       addedAt: { type: Date },
