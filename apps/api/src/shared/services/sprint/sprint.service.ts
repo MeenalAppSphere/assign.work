@@ -325,7 +325,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   public async addTaskToSprint(model: AddTaskToSprintModel): Promise<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse> {
     return await this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(model.projectId, true);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
 
       // sprint details
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, detailedPopulationForSprint, detailedFiledSelection);
@@ -422,12 +422,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
               return sprintError;
             } else {
               // start task add process
-              return await this.processAddTaskToSprint(sprintDetails, taskDetails, session);
+              return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
             }
           }
         } else {
           // start task add process
-          return await this.processAddTaskToSprint(sprintDetails, taskDetails, session);
+          return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
         }
       }
     });
@@ -1261,12 +1261,14 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
   /**
    * add task to sprint db process
+   * @param project
    * @param sprintDetails
    * @param taskDetails
    * @param session
    */
-  private async processAddTaskToSprint(sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
-    const columnIndex = this._sprintUtilityService.getColumnIndexFromColumn(sprintDetails, taskDetails.statusId);
+  private async processAddTaskToSprint(project: Project, sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
+    // get column index where we can add this task in sprint column from active board details
+    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, taskDetails.statusId);
     if (columnIndex === -1) {
       BadRequest('Column not found');
     }
