@@ -34,6 +34,7 @@ import { ModuleRef } from '@nestjs/core';
 import { TaskTypeService } from './task-type/task-type.service';
 import { TaskPriorityService } from './task-priority/task-priority.service';
 import { TaskStatusService } from './task-status/task-status.service';
+import { ProjectService } from './project/project.service';
 
 /**
  * common task population object
@@ -79,25 +80,27 @@ const taskBasicPopulation: any[] = [{
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> implements OnModuleInit {
+  private _projectService: ProjectService;
   private _sprintService: SprintService;
   private _taskTypeService: TaskTypeService;
   private _taskPriorityService: TaskPriorityService;
   private _taskStatusService: TaskStatusService;
+  private _taskHistoryService: TaskHistoryService;
 
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    private _taskHistoryService: TaskHistoryService, private _generalService: GeneralService,
-    private _moduleRef: ModuleRef
+    private _generalService: GeneralService, private _moduleRef: ModuleRef
   ) {
     super(_taskModel);
   }
 
   onModuleInit(): any {
+    this._projectService = this._moduleRef.get('ProjectService');
     this._sprintService = this._moduleRef.get('SprintService');
     this._taskTypeService = this._moduleRef.get('TaskTypeService');
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
+    this._taskHistoryService = this._moduleRef.get('TaskStatusService');
   }
 
   /**
@@ -106,7 +109,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param onlyMyTask: show only my task
    */
   async getAllTasks(model: GetAllTaskRequestModel, onlyMyTask: boolean = false): Promise<Partial<BasePaginatedResponse<Task>>> {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    await this._projectService.getProjectDetails(model.projectId);
 
     // set populate fields
     model.populate = [{
@@ -161,6 +164,10 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     return result;
   }
 
+  /**
+   * get my tasks
+   * @param model
+   */
   async getMyTask(model: GetMyTaskRequestModel): Promise<Partial<BasePaginatedResponse<Task>>> {
     return this.getAllTasks(model, true);
   }
@@ -171,7 +178,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    */
   async addTask(model: Task): Promise<Task> {
     return this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
 
@@ -228,9 +235,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
             };
           });
 
-          await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+          await this._projectService.updateById(model.projectId, {
             $set: { 'settings.tags': projectDetails.settings.tags }
-          }, { session });
+          }, session);
         }
       }
 
@@ -253,7 +260,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         BadRequest('Task not found');
       }
 
-      const projectDetails = await this.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
       const taskDetails = await this.getTaskDetails(model.id, model.projectId);
 
       // check if task assignee id is available or not
@@ -337,9 +344,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
             };
           });
 
-          await this._projectModel.updateOne({ _id: this.toObjectId(model.projectId) }, {
+          await this._projectService.updateById(model.projectId, {
             $set: { 'settings.tags': projectDetails.settings.tags }
-          }, { session });
+          }, session);
         }
       }
 
@@ -367,7 +374,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       throw new BadRequestException('Task not found');
     }
 
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    await this._projectService.getProjectDetails(model.projectId);
     const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
 
     const session = await this.startSession();
@@ -397,8 +404,12 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
   }
 
+  /**
+   * get task by id or display name
+   * @param model
+   */
   async getTaskByIdOrDisplayName(model: GetTaskByIdOrDisplayNameModel) {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    await this._projectService.getProjectDetails(model.projectId);
 
     const queryObj = {};
     if (Types.ObjectId.isValid(model.taskId)) {
@@ -415,14 +426,22 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     return this.parseTaskObjectForUi(task);
   }
 
+  /**
+   * get tasks
+   * @param model
+   */
   async getTasks(model: TaskFilterDto) {
     const query = this.prepareFilterQuery(model);
     query.populate(taskBasicPopulation);
     return this._taskModel.find(query);
   }
 
+  /**
+   * get comments
+   * @param model
+   */
   async getComments(model: GetCommentsModel): Promise<TaskComments[]> {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    await this._projectService.getProjectDetails(model.projectId);
 
     const data = await this._taskModel.findById(model.taskId).select('comments -_id').populate([{
       path: 'comments.createdBy',
@@ -456,7 +475,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
 
     return this.withRetrySession(async (session: ClientSession) => {
-      await this.getProjectDetails(model.projectId);
+      await this._projectService.getProjectDetails(model.projectId);
 
       // get task details
       const taskDetails = await this.findById(model.taskId);
@@ -500,7 +519,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     return this.withRetrySession(async (session) => {
       // get project details
-      await this.getProjectDetails(model.projectId);
+      await this._projectService.getProjectDetails(model.projectId);
       const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
 
       // find comment in task db
@@ -530,21 +549,27 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     });
   }
 
+  /**
+   * pin un-pin comment
+   * @param model
+   */
   async pinComment(model: CommentPinModel): Promise<string> {
     if (!model || !model.commentId) {
       throw new BadRequestException('invalid request');
     }
-    await this.getProjectDetails(model.projectId);
-    const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
-    const commentIndex = taskDetails.comments.findIndex(comment => comment['_id'].toString() === model.commentId);
 
-    taskDetails.comments[commentIndex].updatedAt = generateUtcDate();
-    taskDetails.comments[commentIndex].isPinned = model.isPinned;
+    return await this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.getProjectDetails(model.projectId);
 
-    const session = await this._taskModel.db.startSession();
-    session.startTransaction();
+      // get task details
+      const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
+      // find comment index from all comments
+      const commentIndex = taskDetails.comments.findIndex(comment => comment['_id'].toString() === model.commentId);
 
-    try {
+      // update comment and set inPinned
+      taskDetails.comments[commentIndex].updatedAt = generateUtcDate();
+      taskDetails.comments[commentIndex].isPinned = model.isPinned;
+
       // create task history object
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentPinned, model.taskId, taskDetails);
 
@@ -555,47 +580,27 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // return message
       return `Comment ${model.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
-
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
-  }
-
-  async deleteComment(model: DeleteCommentModel) {
-    const projectDetails = await this.getProjectDetails(model.projectId);
-    const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
-
-    taskDetails.comments = taskDetails.comments.filter(com => {
-      return com.id !== model.commentId;
     });
-
-    const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentDeleted, model.taskId, taskDetails);
-    await this.updateHelper(model.taskId, taskDetails, taskHistory);
-    return `Comment Deleted Successfully`;
   }
 
   /**
-   * get project details by id
-   * @param id: project id
+   * delete comment
+   * @param model
    */
-  private async getProjectDetails(id: string): Promise<Project> {
-    if (!this.isValidObjectId(id)) {
-      throw new BadRequestException('Project not found');
-    }
-    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
+  async deleteComment(model: DeleteCommentModel) {
+    return this.withRetrySession(async (session: ClientSession) => {
+      await this._projectService.getProjectDetails(model.projectId);
 
-    if (!projectDetails) {
-      throw new NotFoundException('Project not found');
-    } else {
-      const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
+      const taskDetails = await this.getTaskDetails(model.taskId, model.projectId);
 
-      if (!isMember) {
-        throw new BadRequestException('You are not a part of Project');
-      }
-    }
-    return projectDetails;
+      taskDetails.comments = taskDetails.comments.filter(com => {
+        return com.id !== model.commentId;
+      });
+
+      const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentDeleted, model.taskId, taskDetails);
+      await this.updateHelper(model.taskId, taskDetails, taskHistory);
+      return `Comment Deleted Successfully`;
+    });
   }
 
   /**
