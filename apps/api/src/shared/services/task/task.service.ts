@@ -100,7 +100,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._taskTypeService = this._moduleRef.get('TaskTypeService');
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
-    this._taskHistoryService = this._moduleRef.get('TaskStatusService');
+    this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
   }
 
   /**
