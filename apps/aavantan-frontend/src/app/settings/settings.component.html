@@ -178,16 +178,16 @@
               <tbody>
               <tr *ngFor="let data of smallTable.data; let index = index;">
                 <td data-label="SN">{{(index+1)}}</td>
-                <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
+                <td data-label="Name"><a class="cursor-pointer font-weight-semibold" (click)="editBoard(data.id)">{{data.name}}</a></td>
                 <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                 <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
 
                 <td data-label="Published">
 
                   <span *ngIf="data.isPublished">
-                    <nz-tag [nzColor]="'#b4efb3'">
-                      <i nz-icon nzType="check-circle" class="text-black" nzTheme="outline"></i>
-                      <span class="text-black font-size-12">&ensp;Published</span>
+                    <nz-tag [nzColor]="'#42E3A3'">
+                      <i nz-icon nzType="check" class="text-white" nzTheme="outline"></i>
+                      <span class="text-white font-size-12">&ensp;Published</span>
                     </nz-tag>
 
                   </span>
@@ -198,9 +198,7 @@
 
                 <td data-label="Action">
 
-                  <button *ngIf="!data.isPublished" type="button" nzType="primary" nzSize="small" nz-button (click)="deleteBoard(data.id)">
-                    <span><i nz-icon nzType="check-circle" nzTheme="outline"></i> Publish</span>
-                  </button>
+                  <span *ngIf="!data.isPublished" (click)="publishBoard(data.id)" class="text-primary cursor-pointer">Publish</span>
 
                   <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)" class="text-red m-l-15" nzTheme="outline"></i>
 

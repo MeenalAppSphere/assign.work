@@ -110,7 +110,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
-              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router) {
+              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
+              private modal: NzModalService) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -696,8 +697,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     request.projectId = this._generalService.currentProject.id;
 
     try {
-      await this._boardService.publishBoard(request).toPromise();
-      this.getAllBoards();
+
+      this.modal.confirm({
+        nzTitle: 'You want to Publish?',
+        nzContent: '',
+        nzOnOk: () =>
+          new Promise(async (resolve, reject) => {
+
+            await this._boardService.publishBoard(request).toPromise();
+            this.getAllBoards();
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+
+          }).catch(() => console.log('Oops errors!'))
+      });
     } catch (e) {
       console.log(e);
     }
@@ -709,8 +721,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
     request.projectId = this._generalService.currentProject.id;
 
     try {
-      await this._boardService.deleteBoard(request).toPromise();
-      this.getAllBoards();
+
+      this.modal.confirm({
+        nzTitle: 'You want to delete?',
+        nzContent: '',
+        nzOnOk: () =>
+          new Promise(async (resolve, reject) => {
+
+            await this._boardService.deleteBoard(request).toPromise();
+            this.getAllBoards();
+
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+
+          }).catch(() => console.log('Oops errors!'))
+      });
+
     } catch (e) {
       console.log(e);
     }

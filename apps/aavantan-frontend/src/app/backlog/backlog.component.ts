@@ -358,7 +358,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
 
-  public async addTaskToSprint(task: Task, isAdd: boolean) {
+  public async addTaskToSprint(task: Task, isAdd: boolean, adjustHoursAllowed?: boolean) {
 
     try {
       if (!isAdd) {
@@ -368,24 +368,27 @@ export class BacklogComponent implements OnInit, OnDestroy {
       const json: AddTaskToSprintModel = {
         projectId: this._generalService.currentProject.id,
         sprintId: this.unPublishedSprintData.id || this.activeSprintData.id,
-        adjustHoursAllowed: false,
-        taskId: task.id
+        taskId: task.id,
+        adjustHoursAllowed: adjustHoursAllowed
       };
+
       this.addTaskToSprintInProgress = true;
 
       const data = await this._sprintService.addTaskToSprint(json).toPromise();
 
-      if(data && data.hasError ){
-
-        // @ts-ignore
-        if(!await this.addTaskConfirmAfterError()){
-          task.isSelected = false;
-          return;
-        }
-
-      }else {
-       this.sprintDurations = data.data;
-      }
+      // if(data && data.data.resWithError ){
+      //
+      //   // @ts-ignore
+      //   if(!await this.addTaskConfirmAfterError()){
+      //     json.adjustHoursAllowed = true;
+      //     this.addTaskToSprint(task, true, true);
+      //     task.isSelected = false;
+      //     return;
+      //   }
+      //
+      // }else {
+      //  this.sprintDurations = data.data;
+      // }
 
       this.draftTaskList = [...this.draftTaskList, task];
       this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);

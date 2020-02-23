@@ -21,6 +21,7 @@ import { BoardQuery } from '../../queries/board/board.query';
 import { DndDropEvent } from 'ngx-drag-drop/dnd-dropzone.directive';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ActivatedRoute } from '@angular/router';
+import { NzModalService } from 'ng-zorro-antd';
 
 @Component({
   selector: 'aavantan-board-design',
@@ -82,7 +83,7 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
 
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
               private _boardService: BoardService, private _generalService: GeneralService, private _boardQuery: BoardQuery,
-              private _activatedRoute: ActivatedRoute) {
+              private _activatedRoute: ActivatedRoute, private modal: NzModalService) {
   }
 
   ngOnInit() {
@@ -261,12 +262,26 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
   }
 
   public hideColumn(columnId: string) {
-    const hideColumnRequest = new BoardHideColumnModel();
-    hideColumnRequest.columnId = columnId;
-    hideColumnRequest.boardId = this.activeBoard.id;
-    hideColumnRequest.projectId = this.activeBoard.projectId;
 
-    this._boardService.hideColumn(hideColumnRequest).subscribe();
+    this.modal.confirm({
+      nzTitle: 'Do you want to remove this?',
+      nzContent: '',
+      nzOnOk: () =>
+        new Promise((resolve, reject) => {
+
+          const hideColumnRequest = new BoardHideColumnModel();
+          hideColumnRequest.columnId = columnId;
+          hideColumnRequest.boardId = this.activeBoard.id;
+          hideColumnRequest.projectId = this.activeBoard.projectId;
+
+          this._boardService.hideColumn(hideColumnRequest).subscribe();
+
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+
+        }).catch(() => console.log('Oops errors!'))
+    });
+
+
   }
 
   public hideStatus(columnId: string, statusId: string) {
