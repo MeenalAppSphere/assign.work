@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { UsersService } from './services/users.service';
 import { ProjectService } from './services/project/project.service';
 import { OrganizationService } from './services/organization.service';
-import { TaskService } from './services/task.service';
+import { TaskService } from './services/task/task.service';
 import { TaskHistoryService } from './services/task-history.service';
 import { AttachmentService } from './services/attachment.service';
 import { EasyconfigModule } from 'nestjs-easyconfig';

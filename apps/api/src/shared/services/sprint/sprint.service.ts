@@ -41,7 +41,7 @@ import {
   secondsToString,
   validWorkingDaysChecker
 } from '../../helpers/helpers';
-import { TaskService } from '../task.service';
+import { TaskService } from '../task/task.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from './sprint.utility.service';
 import { TaskHistoryService } from '../task-history.service';

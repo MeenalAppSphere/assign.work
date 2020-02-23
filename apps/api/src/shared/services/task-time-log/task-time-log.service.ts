@@ -24,7 +24,7 @@ import { TaskHistoryService } from '../task-history.service';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { TaskTimeLogUtilityService } from './task-time-log.utility.service';
 import { ProjectService } from '../project/project.service';
-import { TaskService } from '../task.service';
+import { TaskService } from '../task/task.service';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';

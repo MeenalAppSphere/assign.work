@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { TaskService } from '../shared/services/task.service';
+import { TaskService } from '../shared/services/task/task.service';
 import {
   AddCommentModel,
   CommentPinModel,

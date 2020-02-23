@@ -21,13 +21,6 @@ export class UsersService extends BaseService<User & Document> {
     this._sprintUtilityService = new SprintUtilityService();
   }
 
-  async getAllWithPagination() {
-    const query = new Query();
-    const paginationRequest = new MongoosePaginateQuery();
-    paginationRequest.populate = 'projects';
-    return await this.getAllPaginatedData({}, paginationRequest);
-  }
-
   /**
    * search users
    * with email id, first name or last name, don't include current user
@@ -54,10 +47,21 @@ export class UsersService extends BaseService<User & Document> {
     });
   }
 
+  /**
+   * create new user
+   * @param user
+   * @param session
+   */
   async createUser(user: Partial<User & Document> | Array<Partial<User & Document>>, session: ClientSession) {
     return await this.create(user, session);
   }
 
+  /**
+   * update user
+   * @param id
+   * @param user
+   * @param session
+   */
   async updateUser(id: string, user: any, session?: ClientSession) {
     if (session) {
       return await this.updateById(id, user, session);
@@ -78,6 +82,10 @@ export class UsersService extends BaseService<User & Document> {
     }
   }
 
+  /**
+   * get user profile
+   * @param id
+   */
   async getUserProfile(id: string) {
     const userDetails = await this._userModel.findById(new Types.ObjectId(id))
       .populate([{
@@ -201,10 +209,6 @@ export class UsersService extends BaseService<User & Document> {
     delete model.organizations;
     delete model.projects;
     delete model.lastLoginProvider;
-  }
-
-  async findOrUpdateUser(filter: any, user: Partial<User>, options: QueryFindOneAndUpdateOptions) {
-    return this._userModel.findOneAndUpdate(filter, user, options);
   }
 
   /**

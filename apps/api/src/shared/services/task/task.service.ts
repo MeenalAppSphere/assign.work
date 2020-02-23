@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { BaseService } from './base.service';
+import { BaseService } from '../base.service';
 import {
   AddCommentModel,
   BasePaginatedResponse,
@@ -23,18 +23,18 @@ import {
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { TaskHistoryService } from './task-history.service';
-import { GeneralService } from './general.service';
+import { TaskHistoryService } from '../task-history.service';
+import { GeneralService } from '../general.service';
 import { orderBy } from 'lodash';
 import * as moment from 'moment';
-import { BadRequest, generateUtcDate, secondsToString, stringToSeconds } from '../helpers/helpers';
-import { DEFAULT_DECIMAL_PLACES } from '../helpers/defaultValueConstant';
-import { SprintService } from './sprint/sprint.service';
+import { BadRequest, generateUtcDate, secondsToString, stringToSeconds } from '../../helpers/helpers';
+import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
-import { TaskTypeService } from './task-type/task-type.service';
-import { TaskPriorityService } from './task-priority/task-priority.service';
-import { TaskStatusService } from './task-status/task-status.service';
-import { ProjectService } from './project/project.service';
+import { TaskTypeService } from '../task-type/task-type.service';
+import { TaskPriorityService } from '../task-priority/task-priority.service';
+import { TaskStatusService } from '../task-status/task-status.service';
+import { ProjectService } from '../project/project.service';
 
 /**
  * common task population object
