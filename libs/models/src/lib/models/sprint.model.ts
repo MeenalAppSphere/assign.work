@@ -17,6 +17,7 @@ export class Sprint {
   goal: string;
   startedAt: Date;
   endAt: Date;
+  sprintDaysLeft?: number;
   autoUpdate?: SprintAutoUpdate;
   sprintStatus: SprintStatus;
   columns?: SprintColumn[];

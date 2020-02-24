@@ -5,7 +5,6 @@ import {
   Sprint,
   SprintColumn,
   SprintErrorEnum,
-  SprintErrorResponseItem,
   Task,
   User
 } from '@aavantan-app/models';
@@ -111,6 +110,8 @@ export class SprintUtilityService {
     }
 
     sprint.id = sprint['_id'];
+    // count how many days left for sprint completion
+    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment(), 'd');
 
     // calculate sprint totals
     this.calculateSprintEstimates(sprint);
