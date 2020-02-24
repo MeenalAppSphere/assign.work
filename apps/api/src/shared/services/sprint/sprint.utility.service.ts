@@ -110,8 +110,6 @@ export class SprintUtilityService {
     }
 
     sprint.id = sprint['_id'];
-    // count how many days left for sprint completion
-    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment(), 'd');
 
     // calculate sprint totals
     this.calculateSprintEstimates(sprint);
@@ -260,6 +258,8 @@ export class SprintUtilityService {
    * @param sprint
    */
   calculateSprintEstimates(sprint: Sprint) {
+    // count how many days left for sprint completion
+    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment(), 'd');
 
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
