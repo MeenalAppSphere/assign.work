@@ -168,7 +168,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       }
     });
 
-    return this.getDetails(result.id, board.projectId, true);
+    return this.getDetails(board.id ? board.id : result.id, board.projectId, true);
   }
 
   /**
