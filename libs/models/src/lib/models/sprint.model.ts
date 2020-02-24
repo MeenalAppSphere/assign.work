@@ -89,8 +89,8 @@ export class SprintMembersCapacity {
 }
 
 export class SprintErrorResponse {
-  tasksErrors: SprintErrorResponseItem[];
-  membersErrors: SprintErrorResponseItem[];
+  tasksError: SprintErrorResponseItem;
+  membersError: SprintErrorResponseItem;
 }
 
 export class SprintErrorResponseItem {
