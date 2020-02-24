@@ -35,6 +35,8 @@ export class BoardComponent implements OnInit, OnDestroy {
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   public selectedTaskItem: Task;
   public getStageInProcess: boolean;
+  public closeSprintInProcess: boolean = false;
+
   public taskTypeDataSource: TaskTypeModel[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
@@ -229,6 +231,8 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   async closeSprint() {
+    this.closeSprintInProcess = true;
+
     const closeSprintRequest = new CloseSprintModel();
     closeSprintRequest.projectId = this._generalService.currentProject.id;
     closeSprintRequest.sprintId = this.boardData.id;
@@ -241,9 +245,12 @@ export class BoardComponent implements OnInit, OnDestroy {
     }
 
     try {
-      await this._sprintService.closeSprint(closeSprintRequest);
+      await this._sprintService.closeSprint(closeSprintRequest).toPromise();
+      this.closeSprintInProcess = false;
+
       this.isVisibleCloseSprint = false;
     } catch (e) {
+      this.closeSprintInProcess = false;
       console.log(e);
     }
   }
