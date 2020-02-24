@@ -100,7 +100,7 @@
 
             <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                      [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
-              <nz-table #listViewTable [nzData]="draftTaskList" nzSize="small" class="draft-table">
+              <nz-table *ngIf="draftTaskList?.length>0" #listViewTable [nzData]="draftTaskList" nzSize="small" class="draft-table">
                 <thead>
                 <tr>
 
@@ -264,7 +264,7 @@
           <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                    [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
 
-            <nz-table #listViewTable [nzData]="backLogTasksList" nzSize="small">
+            <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable [nzData]="backLogTasksList" nzSize="small">
               <thead>
               <tr>
 

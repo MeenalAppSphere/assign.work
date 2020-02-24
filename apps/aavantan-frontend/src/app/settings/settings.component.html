@@ -30,14 +30,14 @@
       </a>
     </li>
 
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"
-         (click)="activeTab('stages', 'Stages')">
-        <img *ngIf="activeView.view==='stages'" src="../../assets/images/icons/white_stages.svg"/>
-        <img *ngIf="activeView.view!=='stages'" src="../../assets/images/icons/stages.svg"/>
-        <div>Stages</div>
-      </a>
-    </li>
+<!--    <li>-->
+<!--      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"-->
+<!--         (click)="activeTab('stages', 'Stages')">-->
+<!--        <img *ngIf="activeView.view==='stages'" src="../../assets/images/icons/white_stages.svg"/>-->
+<!--        <img *ngIf="activeView.view!=='stages'" src="../../assets/images/icons/stages.svg"/>-->
+<!--        <div>Stages</div>-->
+<!--      </a>-->
+<!--    </li>-->
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='status'}"
@@ -178,7 +178,7 @@
               <tbody>
               <tr *ngFor="let data of smallTable.data; let index = index;">
                 <td data-label="SN">{{(index+1)}}</td>
-                <td data-label="Name"><a class="cursor-pointer font-weight-semibold" (click)="editBoard(data.id)">{{data.name}}</a></td>
+                <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
                 <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                 <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
 
