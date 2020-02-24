@@ -817,11 +817,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // get task that's going to move to new column
       const oldTask = sprintDetails.columns[currentColumnIndex].tasks.find(task => task.taskId.toString() === model.taskId);
-      sprintDetails.columns.forEach((column, index) => {
+      sprintDetails.columns = sprintDetails.columns.map((column, index) => {
         // remove from current column and minus estimation time from total column estimation time
         if (index === currentColumnIndex) {
           column.totalEstimation -= taskDetail.estimatedTime;
-          column.tasks = column.tasks.filter(task => task.taskId.toString() === model.taskId);
+          column.tasks = column.tasks.filter(task => task.taskId.toString() !== model.taskId.toString());
         }
 
         // add task to new column and also add task estimation to column total estimation
@@ -836,6 +836,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           });
         }
 
+        return column;
       });
 
       // update sprint columns
