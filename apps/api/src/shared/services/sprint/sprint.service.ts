@@ -25,7 +25,8 @@ import {
   TaskHistory,
   TaskHistoryActionEnum,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel
+  UpdateSprintModel,
+  SprintErrorResponseItem
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -353,6 +354,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // create sprint error response object
       const sprintErrorResponse = new SprintErrorResponse();
+      sprintErrorResponse.tasksError = new SprintErrorResponseItem();
+      sprintErrorResponse.membersError = new SprintErrorResponseItem();
 
       // set task error id and name
       sprintErrorResponse.tasksError.id = taskDetails.id;
@@ -1072,11 +1075,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         // get all unfinished tasks
         const unFinishedTasks = allTaskList.filter(task => {
           return task.statusId.toString() !== lastColumn.statusId.toString();
-        }).map(task => task._id.toString());
-
-        // get all finished tasks
-        const finishedTasks = allTaskList.filter(task => {
-          return task.statusId.toString() === lastColumn.statusId.toString();
         }).map(task => task._id.toString());
 
         // create new sprint and move all un-Finished task of this sprint to new sprint

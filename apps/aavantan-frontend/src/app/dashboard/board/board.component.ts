@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  BaseResponseModel,
+  BaseResponseModel, CloseSprintModel,
   GetAllTaskRequestModel,
   MoveTaskToColumnModel,
   ProjectStatus,
@@ -41,15 +41,15 @@ export class BoardComponent implements OnInit, OnDestroy {
   public statusSprintDataSource: ProjectStatus[] = [];
   public closeSprintModalIsVisible: boolean;
   public isVisibleCloseSprint: boolean;
-  public radioOptionValue = 'a';
+  public closeSprintModeSelection = 'createNewSprint';
   public dateFormat = 'MM/dd/yyyy';
-  public sprintForm: FormGroup;
+  public closeSprintNewSprintForm: FormGroup;
 
   public moveFromStage: SprintColumn;
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
-              private _taskTypeQuery : TaskTypeQuery,
+              private _taskTypeQuery: TaskTypeQuery,
               protected notification: NzNotificationService,
               private modalService: NzModalService,
               private _userQuery: UserQuery, private router: Router) {
@@ -77,9 +77,8 @@ export class BoardComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.sprintForm = new FormGroup({
+    this.closeSprintNewSprintForm = new FormGroup({
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
-      createdById: new FormControl(this._generalService.user.id, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
       goal: new FormControl(null, [Validators.required]),
       sprintStatus: new FormControl(null, []),
@@ -229,11 +228,27 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.isVisibleCloseSprint = true;
   }
 
-  handleOk(): void {
-    this.isVisibleCloseSprint = false;
+  async closeSprint() {
+    const closeSprintRequest = new CloseSprintModel();
+    closeSprintRequest.projectId = this._generalService.currentProject.id;
+    closeSprintRequest.sprintId = this.boardData.id;
+
+    if (this.closeSprintModeSelection === 'createNewSprint') {
+      closeSprintRequest.createAndPublishNewSprint = true;
+      closeSprintRequest.sprint = this.closeSprintNewSprintForm.getRawValue();
+    } else {
+      closeSprintRequest.createAndPublishNewSprint = false;
+    }
+
+    try {
+      await this._sprintService.closeSprint(closeSprintRequest);
+      this.isVisibleCloseSprint = false;
+    } catch (e) {
+      console.log(e);
+    }
   }
 
-  handleCancel(): void {
+  cancelCloseSprintDialog(): void {
     this.isVisibleCloseSprint = false;
   }
 

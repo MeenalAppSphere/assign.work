@@ -185,7 +185,6 @@ export class CloseSprintModel extends SprintBaseRequest {
   createNewSprint: boolean;
   createAndPublishNewSprint: boolean;
   sprint?: Sprint;
-  finalStatusOfTasks?: string;
 }
 
 export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {

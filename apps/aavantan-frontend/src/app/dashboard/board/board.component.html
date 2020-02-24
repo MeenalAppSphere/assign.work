@@ -150,22 +150,22 @@
   nzOkText="Submit"
   [nzWidth]="700"
   nzCancelText="Cancel"
-  (nzOnOk)="handleOk()"
+  (nzOnOk)="closeSprint()"
   nzClassName="close-sprint-modal-confirm-box"
-  (nzOnCancel)="handleCancel()">
+  (nzOnCancel)="cancelCloseSprintDialog()">
 
   <div>
-    <nz-radio-group [(ngModel)]="radioOptionValue" style="width: 100%;">
+    <nz-radio-group [(ngModel)]="closeSprintModeSelection" style="width: 100%;">
       <div class="row m-b-10">
         <div class="col-md-9">
-          <label nz-radio nzValue="a">Create new sprint and move all open items into it</label>
+          <label nz-radio nzValue="createNewSprint">Create new sprint and move all open items into it</label>
         </div>
         <div class="col-md-3">
 
         </div>
       </div>
 
-      <form *ngIf="radioOptionValue === 'a'" [formGroup]="sprintForm" autocomplete="off" nz-form>
+      <form *ngIf="closeSprintModeSelection === 'createSprint'" [formGroup]="closeSprintNewSprintForm" autocomplete="off" nz-form>
         <ng-container>
           <section class="draft-sprint-box">
 
@@ -209,35 +209,7 @@
 
       <div class="row">
         <div class="col-md-9 col-sm-7 p-t-20">
-          <label nz-radio nzValue="b">Move all open items of this sprint to Backlog with status</label>
-        </div>
-        <div class="col-md-3 col-sm-5">
-          <nz-form-item *ngIf="radioOptionValue === 'b'">
-            <nz-form-label nzFor="taskType">Select Status
-              <img src="../../../assets/images/icons/info.svg" height="12" nz-icon nz-tooltip
-                   [nzTitle]="templateTitleText" class="p-l-10"/>
-              <ng-template #templateTitleText>
-                Move all tasks into other Status
-              </ng-template>
-            </nz-form-label>
-            <nz-form-control class="issue-type-btn-grp">
-              <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight"
-                               style="width:100%!important;">
-                <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
-                        style="width:100%!important;">
-                  {{selectedSprintStatus && selectedSprintStatus.name ? selectedSprintStatus.name : 'Select Status'}} <i
-                  nz-icon nzType="caret-down" theme="outline"></i>
-                </button>
-              </nz-button-group>
-              <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
-                <ul nz-menu>
-                  <li nz-menu-item *ngFor="let item of statusSprintDataSource" (click)="selectStatus(item)">
-                    {{ item.name }}
-                  </li>
-                </ul>
-              </nz-dropdown-menu>
-            </nz-form-control>
-          </nz-form-item>
+          <label nz-radio nzValue="moveToBacklog">Move all open items of this sprint to Backlog!</label>
         </div>
       </div>
 

@@ -109,7 +109,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         BadRequest('User not found');
       }
 
-      if (!await this.isDuplicate(model)) {
+      if (await this.isDuplicate(model)) {
         BadRequest('Duplicate Project Name not allowed');
       }
 
