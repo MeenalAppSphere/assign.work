@@ -88,6 +88,7 @@
             <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid"
                     (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
             </button>
+            <button class="m-lg-0" nz-button nzType="primary" [disabled]="!boardDesignForm.valid">Save &amp; Publish</button>
             <!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
             <!--                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip-->
             <!--                                                         [nzTitle]="'Hide status'"></i>Hidden Status-->
@@ -98,7 +99,7 @@
 
         <nz-card nzSize="small" *ngIf="activeBoard">
 
-          <h5 class="m-t-0 m-b-15">New Setting</h5>
+          <h5 class="m-t-0 m-b-15">Board Flow</h5>
 
           <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Processing Board...'"
                    [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess

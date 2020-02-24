@@ -1,36 +1,10 @@
 <section class="collaborators-avatar">
   <div class="row board-header-section">
 
-    <div class="col-md-4">
+    <div class="col-md-8">
 
-      <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button"
+      <button nzType="primary" nzSize="small" class="p-l-10 p-r-20 sprint-name-button"
               nz-button>{{boardData && boardData.name ? boardData.name : 'Sprint'}}</button>
-
-      <span *ngIf="boardData?.endAt" class="sprint-date">
-      <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10"> Ending on {{boardData?.endAt | date : 'MMM d'}}
-        <i nz-icon nzType="info-circle" theme="outline" nzPlacement="top" class="font-size-14 text-gray-light cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"></i></span>
-        <ng-template #titleTemplate>
-          <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
-          <div><span class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
-          <div><span class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
-        </ng-template>
-      </span>
-
-      <!--   once we allow multiple sprint   -->
-      <!--      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">-->
-      <!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button" nz-button>{{sprintData.name}}-->
-      <!--          <img src="../../../assets/images/icons/arrow-point-to-down.svg" class="p-l-10" height="5"/>-->
-      <!--        </button>-->
-      <!--      </nz-button-group>-->
-      <!--      <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">-->
-      <!--        <ul nz-menu>-->
-      <!--          <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>-->
-      <!--        </ul>-->
-      <!--      </nz-dropdown-menu>-->
-
-    </div>
-
-    <div class="col-md-8 text-right user-filter-section">
 
       <span *ngIf="boardData && boardData.membersCapacity?.length>0">
 
@@ -47,12 +21,39 @@
         </span>
 
      </span>
+      <!--   once we allow multiple sprint   -->
+      <!--      <nz-button-group nz-dropdown [nzDropdownMenu]="changeSprintTemplate" nzPlacement="bottomLeft">-->
+      <!--        <button nzType="primary" nzSize="small" class="p-l-10 p-r-10 sprint-name-button" nz-button>{{sprintData.name}}-->
+      <!--          <img src="../../../assets/images/icons/arrow-point-to-down.svg" class="p-l-10" height="5"/>-->
+      <!--        </button>-->
+      <!--      </nz-button-group>-->
+      <!--      <nz-dropdown-menu #changeSprintTemplate="nzDropdownMenu">-->
+      <!--        <ul nz-menu>-->
+      <!--          <li nz-menu-item *ngFor="let item of sprintDataSource">{{item.name}}</li>-->
+      <!--        </ul>-->
+      <!--      </nz-dropdown-menu>-->
+
+    </div>
+
+    <div class="col-md-4 text-right user-filter-section">
+
+       <span *ngIf="boardData?.endAt" class="sprint-date">
+      <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10"> Ending on {{boardData?.endAt | date : 'MMM d'}}
+        <i nz-icon nzType="info-circle" theme="outline" nzPlacement="top" class="font-size-14 text-gray-light cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"></i></span>
+        <ng-template #titleTemplate>
+          <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
+          <div><span class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
+          <div><span class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
+        </ng-template>
+      </span>
+
 
       <span class="header-btn-group">
+
+        <button *ngIf="boardData" nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close Sprint </button>
+
         <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30" (click)="addTaskNavigate()">+ Add Task</button>
-        <button *ngIf="boardData" nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close
-          Sprint
-        </button>
+
       </span>
 
     </div>
@@ -93,7 +94,12 @@
                      [dndDraggable]="task" (dndStart)="onDragStart(item)" [dndEffectAllowed]="'move'">
                   <h6 [ngStyle]="{'color': task.task.taskType.color}">
                     <span class="cursor-pointer" (click)="viewTask(task.task)">#{{task.task.displayName}}</span>
-                    <span class="float-right duration">{{task.task.createdAt | dateAgo }}</span>
+                    <span class="float-right duration">
+                      <span nz-tooltip [nzTitle]="'Logged time'" >{{task.totalLoggedTimeReadable}}</span>
+
+                      <span class="p-l-5" nz-tooltip
+                            [nzTitle]="'Estimated time'" >{{task.task.estimatedTimeReadable}}</span>
+                    </span>
                   </h6>
                   <div class="task-body">
                     <div>
@@ -103,6 +109,8 @@
                     </div>
                   </div>
                   <div class="task-footer">
+
+                    <p class="font-size-13">{{task.task.status.name}}</p>
                     <span><nz-avatar class="m-r-5" nzIcon="user" nzSrc="{{task.task.assignee.profilePic}}"
                                      nzShape="circle"></nz-avatar><span
                       class="profile-name">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span></span>
@@ -110,11 +118,7 @@
                       <a (click)="timeLog(task.task)" href="javascript:void(0);" class="text-primary">
                       <i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
 
-                      <span class="p-l-5" nz-tooltip
-                            [nzTitle]="'Logged time'" >{{task.totalLoggedTimeReadable}}</span>
 
-                      <span class="p-l-5" nz-tooltip
-                            [nzTitle]="'Estimated time'" >{{task.task.estimatedTimeReadable}}</span>
                     </span>
                   </div>
                 </div>

@@ -27,15 +27,15 @@ export const ROUTES: SideNavInterface[] = [
     img: 'menu-board',
     submenu: []
   },
-  {
-    path: 'active_sprint',
-    title: 'Active Sprint',
-    iconType: '',
-    iconTheme: 'outline',
-    icon: 'line-chart',
-    img: 'menu-active-sprint',
-    submenu: []
-  },
+  // {
+  //   path: 'active_sprint',
+  //   title: 'Active Sprint',
+  //   iconType: '',
+  //   iconTheme: 'outline',
+  //   icon: 'line-chart',
+  //   img: 'menu-active-sprint',
+  //   submenu: []
+  // },
   {
     path: 'backlog',
     title: 'Backlog',
