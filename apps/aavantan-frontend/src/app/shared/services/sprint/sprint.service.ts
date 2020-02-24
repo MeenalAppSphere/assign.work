@@ -138,8 +138,8 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
       map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>) => {
 
 
-        if ((!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.tasksErrors && res.data.tasksErrors.length > 0)
-          || (!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.membersErrors && res.data.membersErrors.length > 0)) {
+        if ((!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.tasksError)
+          || (!(res.data instanceof AddTaskRemoveTaskToSprintResponseModel) && res.data.membersError)) {
           this.notification.error('Error', 'Task not added to Sprint, Please check task list for reason');
         } else {
           this.notification.success('Success', 'Task successfully added to this Sprint');
