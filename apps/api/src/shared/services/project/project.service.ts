@@ -22,7 +22,7 @@ import {
   SearchProjectTags,
   Sprint,
   SprintColumn,
-  SwitchProjectRequest,
+  SwitchProjectRequest, TaskStatusModel,
   User,
   UserStatus
 } from '@aavantan-app/models';
@@ -107,6 +107,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
       const userDetails = await this._userService.findById(this._generalService.userId);
       if (!userDetails) {
         BadRequest('User not found');
+      }
+
+      if (!await this.isDuplicate(model)) {
+        BadRequest('Duplicate Project Name not allowed');
       }
 
       const projectModel = this._utilityService.prepareProjectModelFromRequest(model);
@@ -846,6 +850,27 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }
     }
     return organizationDetails;
+  }
+
+  /**
+   * is duplicate project name
+   * @param model
+   * @param exceptThis
+   */
+  private async isDuplicate(model: Project, exceptThis?: string): Promise<boolean> {
+    const queryFilter = {
+      organizationId: model.organizationId, name: { $regex: `^${model.name.trim()}$`, $options: 'i' }
+    };
+
+    if (exceptThis) {
+      queryFilter['_id'] = { $ne: exceptThis };
+    }
+
+    const queryResult = await this.find({
+      filter: queryFilter
+    });
+
+    return !!(queryResult && queryResult.length);
   }
 
   /**
