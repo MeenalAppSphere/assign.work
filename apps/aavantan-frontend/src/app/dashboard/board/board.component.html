@@ -72,7 +72,7 @@
       <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.columns && boardData.columns.length>0">
 
         <div class="column dndList" joyrideStep="board" title="Board" text="Board"
-             *ngFor="let item of boardData.columns; let last">
+             *ngFor="let item of boardData.columns; let last;let columnIndex = index">
           <div class="card card-block">
 
             <div class="card-header">{{item.name}} <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>
@@ -117,7 +117,8 @@
                                      nzShape="circle"></nz-avatar><span
                       class="profile-name">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span></span>
                     <span class="pull-right">
-                      <a (click)="timeLog(task.task)" href="javascript:void(0);" class="text-primary">
+                      <a (click)="showTimeLogModal(columnIndex, i, task.task)" href="javascript:void(0);"
+                         class="text-primary">
                       <i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
 
 
@@ -231,8 +232,10 @@
 
 </nz-modal>
 
-<app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTaskItem"
-             (toggleTimeLogShow)="timeLog(selectedTaskItem)"></app-timelog>
+<ng-container *ngIf="timelogModalIsVisible && selectedTask?.taskItem">
+  <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTask.taskItem"
+               (toggleTimeLogShow)="hideTimeLogModal($event)"></app-timelog>
+</ng-container>
 
 <app-close-sprint *ngIf="closeSprintModalIsVisible" [closeSprintModalIsVisible]="closeSprintModalIsVisible"
                   [boardData]="boardData" [activeSprintData]="boardData"

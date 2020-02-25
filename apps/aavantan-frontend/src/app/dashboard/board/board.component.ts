@@ -9,7 +9,8 @@ import {
   SprintColumnTask,
   Task,
   TaskTypeModel,
-  User
+  User,
+  TaskTimeLogResponse
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -33,7 +34,9 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
-  public selectedTaskItem: Task;
+  public selectedTask = {
+    columnIndex: null, taskIndex: null, taskItem: null
+  };
   public getStageInProcess: boolean;
   public closeSprintInProcess: boolean = false;
 
@@ -288,11 +291,24 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
-  public timeLog(item: Task) {
+  public showTimeLogModal(columnIndex: number, taskIndex: number, taskItem: Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
-    this.selectedTaskItem = item;
+    this.selectedTask = {
+      columnIndex, taskIndex, taskItem
+    };
   }
 
+  public hideTimeLogModal(resp?: TaskTimeLogResponse) {
+    if (resp) {
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.totalLoggedTime;
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.totalLoggedTimeReadable;
+
+    }
+    this.timelogModalIsVisible = false;
+    this.selectedTask = {
+      columnIndex: null, taskIndex: null, taskItem: null
+    };
+  }
 
   ngOnDestroy() {
 

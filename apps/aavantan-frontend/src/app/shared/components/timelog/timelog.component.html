@@ -25,24 +25,24 @@
               <div class="col pr-0" style="width: 30px">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Hours<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input numeric numericType="number" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="0h" />
+                  <input nz-input numeric numericType="number" maxlength="2" formControlName="loggedHours" nzSize="small" type="text" placeholder="0h" />
                 </nz-form-control>
               </div>
 
               <div class="col pr-1" style="width: 30px">
                 <nz-form-control nzValidatingTip="Spent Time">
                   <nz-form-label>Min<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input numeric numericType="minutes" (keyup)="calcRemaining()" maxlength="2" formControlName="loggedMinutes" nzSize="small" type="text" placeholder="0m" />
+                  <input nz-input numeric numericType="minutes" maxlength="2" formControlName="loggedMinutes" nzSize="small" type="text" placeholder="0m" />
                 </nz-form-control>
               </div>
 
-              <div class="col pl-1">
-                <nz-form-control nzValidatingTip="Remaining Time">
-                  <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>
-                  <input style="width:47%; margin-right: 5%;" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="0h" />
-                  <input style="width:47%" nz-input disabled numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="0m" />
-                </nz-form-control>
-              </div>
+<!--              <div class="col pl-1">-->
+<!--                <nz-form-control nzValidatingTip="Remaining Time">-->
+<!--                  <nz-form-label>Remaining Time<span class="text-danger">*</span></nz-form-label>-->
+<!--                  <input style="width:47%; margin-right: 5%;" nz-input disabled numeric numericType="number" maxlength="2" formControlName="remainingHours" nzSize="small" type="text" placeholder="0h" />-->
+<!--                  <input style="width:47%" nz-input disabled numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes" nzSize="small" type="text" placeholder="0m" />-->
+<!--                </nz-form-control>-->
+<!--              </div>-->
 
             <div class="m-l-10 m-t-15 text-gray-light font-size-13">Note : All <span class="text-danger">*</span> fields are mandatory</div>
             <div *ngIf="errorMessage" class="m-l-10 m-t-15 text-danger font-size-13">{{errorMessage}}</div>

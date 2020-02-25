@@ -1209,19 +1209,20 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintModel.columns.push(sprintColumn);
     });
 
+    /** special cases for close sprint **/
     // if create and publish new sprint is selected than set sprint as a published one sprint
     if (model.doPublishSprint) {
       sprintModel.sprintStatus = {
         status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate(), updatedById: this._generalService.userId
       };
+    }
 
-      // if there's unFinished tasks than we need to move those to new sprint
-      if (model.unFinishedTasks && model.unFinishedTasks.length) {
-        // loop over un finished tasks and add them to respective columns of this sprint
-        model.unFinishedTasks.forEach(unFinishedTask => {
-          this._sprintUtilityService.addTaskToColumn(projectDetails, sprintModel, unFinishedTask, this._generalService.userId);
-        });
-      }
+    // if there's unFinished tasks than we need to move those to new sprint
+    if (model.unFinishedTasks && model.unFinishedTasks.length) {
+      // loop over un finished tasks and add them to respective columns of this sprint
+      model.unFinishedTasks.forEach(unFinishedTask => {
+        this._sprintUtilityService.addTaskToColumn(projectDetails, sprintModel, unFinishedTask, this._generalService.userId);
+      });
     }
 
     // create sprint
