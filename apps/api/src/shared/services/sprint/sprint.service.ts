@@ -1079,17 +1079,21 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
         // close current sprint and set new sprint id to unfinished tasks
         await this.closeSprintCommonProcess(model.projectId, unFinishedTasksIds,
-          model.createAndPublishNewSprint ? newSprint[0].id : null,
-          session);
+          newSprint[0].id, session);
 
         // update finished tasks and set sprint id to null
         await this._taskService.bulkUpdate({
           _id: { $in: finishedTasksIds }
         }, { $set: { sprintId: null } }, session);
 
+        // check if create and publish new sprint is true than send emails
+        if (model.createAndPublishNewSprint && newSprint) {
+          // send mails for sprint published
+          const sprintDetails = await this.getSprintDetails(newSprint[0].id, model.projectId);
+          this._sprintUtilityService.sendPublishedSprintEmails(sprintDetails);
+        }
         responseMsg = newSprint[0];
       } else {
-
         // close current sprint and move finished and un-finished tasks to back log
         await this.closeSprintCommonProcess(model.projectId, [...unFinishedTasksIds, ...finishedTasksIds], null, session);
 
@@ -1102,7 +1106,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintStatus.updatedAt = generateUtcDate();
       sprintStatus.updatedById = this._generalService.userId;
 
-      // update sprint status to closed
+      // close old sprint and set staus as completed
       await this.updateSprintStatus(model.sprintId, sprintStatus, session);
       return responseMsg;
     });
