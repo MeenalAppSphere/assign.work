@@ -1,12 +1,12 @@
 <section class="collaborators-avatar">
   <div class="row board-header-section">
 
-    <div class="col-md-8">
+    <div class="col-md-6">
 
-      <button nzType="primary" nzSize="small" class="p-l-10 p-r-20 sprint-name-button"
+      <button nzType="primary" nzSize="small" class="p-l-10 sprint-name-button"
               nz-button>{{boardData && boardData.name ? boardData.name : 'Sprint'}}</button>
 
-      <span *ngIf="boardData && boardData.membersCapacity?.length>0">
+      <span *ngIf="boardData && boardData.membersCapacity?.length>0" class="p-l-30">
 
         <span *ngFor="let item of boardData.membersCapacity">
           <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
@@ -35,7 +35,7 @@
 
     </div>
 
-    <div class="col-md-4 text-right user-filter-section">
+    <div class="col-md-6 text-right user-filter-section">
 
        <span *ngIf="boardData?.endAt" class="sprint-date">
       <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10"> Ending on {{boardData?.endAt | date : 'MMM d'}}
@@ -50,9 +50,9 @@
 
       <span class="header-btn-group">
 
-        <button *ngIf="boardData" nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5" (click)="toggleCloseSprintShow()">Close Sprint </button>
+        <button *ngIf="boardData" nzType="link" nzSize="small" nz-button class="btn-add-task m-l-5 m-l-30" (click)="toggleCloseSprintShow()">Close Sprint </button>
 
-        <button nzType="primary" nzSize="small" nz-button class="btn-add-task m-l-30" (click)="addTaskNavigate()">+ Add Task</button>
+        <button nzType="primary" nzSize="small" nz-button class="btn-add-task " (click)="addTaskNavigate()">+ Add Task</button>
 
       </span>
 
