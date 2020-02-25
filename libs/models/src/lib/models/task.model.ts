@@ -31,8 +31,6 @@ export class Task {
   overLoggedTime?: number;
   overLoggedTimeReadable?: string;
   watchers?: string[];
-  startedAt?: Date;
-  finishedAt?: Date;
   priority?: TaskPriorityModel;
   priorityId?: string;
   tags?: string[];

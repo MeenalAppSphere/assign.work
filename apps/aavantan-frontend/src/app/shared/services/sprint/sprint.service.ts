@@ -269,6 +269,5 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-
-
+  
 }
