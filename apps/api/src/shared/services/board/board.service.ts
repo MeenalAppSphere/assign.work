@@ -317,16 +317,18 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
         $set: boardUpdateModal
       }, session);
 
-      // set previous board's isPublished as false
-      await this.updateById(projectDetails.activeBoardId, { $set: { isPublished: false } }, session);
+      if (projectDetails.activeBoardId.toString() !== requestModel.boardId) {
+        // set previous board's isPublished as false
+        await this.updateById(projectDetails.activeBoardId, { $set: { isPublished: false } }, session);
 
-      // check if project have active sprint than reassign sprint's columns as per new board suggests
-      if (projectDetails.sprintId) {
-        await this.updateActiveSprint(projectDetails, boardDetails, session);
+        // check if project have active sprint than reassign sprint's columns as per new board suggests
+        if (projectDetails.sprintId) {
+          await this.updateActiveSprint(projectDetails, boardDetails, session);
+        }
+
+        // update project's active board id
+        await this._projectService.updateById(projectDetails.id, { $set: { activeBoardId: requestModel.boardId } }, session);
       }
-
-      // update project's active board id
-      await this._projectService.updateById(projectDetails.id, { $set: { activeBoardId: requestModel.boardId } }, session);
 
       return 'Board Published Successfully';
     });
