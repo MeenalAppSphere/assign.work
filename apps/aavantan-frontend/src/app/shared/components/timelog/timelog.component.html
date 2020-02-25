@@ -44,10 +44,11 @@
 <!--                </nz-form-control>-->
 <!--              </div>-->
 
-            <div class="m-l-10 m-t-15 text-gray-light font-size-13">Note : All <span class="text-danger">*</span> fields are mandatory</div>
-            <div *ngIf="errorMessage" class="m-l-10 m-t-15 text-danger font-size-13">{{errorMessage}}</div>
-
           </div>
+
+          <div class="m-t-10 text-gray-light font-size-13">Note : All <span class="text-danger">*</span> fields are mandatory</div>
+          <div *ngIf="errorMessage" class="m-l-10 m-t-15 text-danger font-size-13">{{errorMessage}}</div>
+
         </nz-form-item>
       </div>
       <div *nzModalFooter>

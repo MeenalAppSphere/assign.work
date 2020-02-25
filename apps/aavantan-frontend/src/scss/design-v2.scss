@@ -95,7 +95,7 @@ $color-green : #42E3A3;
 
 .ant-tag{
   margin: 0px;
-  border:0px;
+  border: 0px;
   height: 1.5rem;
 }
 
@@ -457,11 +457,10 @@ $color-green : #42E3A3;
           font-size: 10px;
           font-weight: 400;
           color: #182230;
-          opacity: 0.5;
         }
       }
       .task-body {
-        height: 43px;
+        height: 21px;
         font-size: 14px;
         color: $theme-blue;
         line-height: 21px;
@@ -472,12 +471,13 @@ $color-green : #42E3A3;
         -webkit-box-orient: vertical!important;
         .task-title{
           color: $color-black;
+          font-size: 14px;
         }
       }
       .task-footer {
-        margin-top: 10px;
-        height: 21px;
+        margin-top: 3px;
         font-size: 12px;
+        font-weight: 300;
         color: $color-gray-light;
       }
     }
@@ -500,11 +500,12 @@ $color-green : #42E3A3;
     }
     .profile-name{
       line-height: 18px;
-      max-width: 100px;
+      max-width: 130px;
       display: table-cell;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      color: $color-gray-light-2;
     }
   }
 }
@@ -761,7 +762,7 @@ $color-green : #42E3A3;
 }
 
 .ant-pagination-item-link {
-  color: #7A869A!important;
+  color: $color-gray-light-2!important;
   opacity: 1!important;
 }
 

@@ -381,11 +381,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
           if (errorResponse.tasksError) {
             // if sprint capacity is exceeding show confirm box to allow to exceed sprint capacity
             if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
-              if (await this.addTaskConfirmAfterError()) {
-                this.addTaskToSprint(task, true, true);
-                task.isSelected = false;
-                return;
-              }
+
+              // uncheck item code here
+
+              this.addTaskToSprintInProgress = false;
+              await this.addTaskConfirmAfterError(task);
+              return;
             } else {
               // show error toaster
               this.notification.error('Error', errorResponse.tasksError.reason);
@@ -393,11 +394,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
           } else {
             // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
             if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
-              if (await this.addTaskConfirmAfterError()) {
-                this.addTaskToSprint(task, true, true);
-                task.isSelected = false;
-                return;
-              }
+
+            // uncheck item code here
+
+              this.addTaskToSprintInProgress = false;
+              await this.addTaskConfirmAfterError(task);
+              return;
             } else {
               // show error toaster
               this.notification.error('Error', errorResponse.tasksError.reason);
@@ -442,12 +444,14 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addTaskConfirmAfterError() {
+  async addTaskConfirmAfterError(task:Task) {
     return this.modal.confirm({
       nzTitle: 'Still Want to add task?',
       nzContent: 'May be this will effect your current Sprint',
       nzOnOk: () =>
         new Promise((resolve, reject) => {
+          this.addTaskToSprint(task, true, true);
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
           return true;
         }).catch(() => console.log('Oops errors!'))
     });
