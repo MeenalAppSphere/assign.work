@@ -19,7 +19,7 @@
       <div class="col-md-4 p-t-30 bg-white relative">
         <nz-card class="p-h-60" nzBordered="false">
 
-          <p class="m-b-0">Welcome to</p>
+          <p class="m-b-0 text-black">Welcome to</p>
           <h2 class="m-b-25 font-weight-bold">Assign.Work</h2>
 
           <form
@@ -93,8 +93,8 @@
               <img class="btn-google" src="../../assets/images/icons/btn-google.svg" width="100%" (click) = 'loginWithGoogle()'>
             </div>
           </div>
-          <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>
-          <ng-template #prefixLock><i nz-icon nzType="lock"></i></ng-template>
+          <ng-template #prefixUser><i nz-icon nzType="mail" class="text-black"></i></ng-template>
+          <ng-template #prefixLock><i nz-icon nzType="lock" class="text-black"></i></ng-template>
         </nz-card>
 
         <div class="p-h-90 signup-link" style="position: absolute; bottom:20px; width: 100%;">Don't have an account? <a class="small font-weight-bold" [routerLink]="['/register']">Signup</a></div>
@@ -108,21 +108,21 @@
             <img src="../../assets/images/icons/feature_1.svg" class="mr-3" alt="Feature 1">
             <div class="media-body">
               <h5 class="mt-0 mb-0">List-based media object</h5>
-              Lorem ipsum is placeholder text commonly used in the graphic
+              <div class="font-weight-light">Lorem ipsum is placeholder text commonly used in the graphic</div>
             </div>
           </li>
           <li class="media my-4">
             <img src="../../assets/images/icons/feature_2.svg" class="mr-3" alt="Feature 2">
             <div class="media-body">
               <h5 class="mt-0 mb-0">List-based media object</h5>
-              Lorem ipsum is placeholder text commonly used in the graphic
+              <div class="font-weight-light">Lorem ipsum is placeholder text commonly used in the graphic</div>
             </div>
           </li>
           <li class="media">
             <img src="../../assets/images/icons/feature_3.svg" class="mr-3" alt="Feature 3">
             <div class="media-body">
               <h5 class="mt-0 mb-0">List-based media object</h5>
-              Lorem ipsum is placeholder text commonly used in the graphic
+              <div class="font-weight-light">Lorem ipsum is placeholder text commonly used in the graphic</div>
             </div>
           </li>
         </ul>
