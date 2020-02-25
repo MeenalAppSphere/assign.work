@@ -26,7 +26,7 @@ import {
   TaskHistoryActionEnum,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel,
-  SprintErrorResponseItem
+  SprintErrorResponseItem, CreateSprintCloseSprintCommonModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -1065,9 +1065,14 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       const lastColumn = currentSprintDetails.columns[currentSprintDetails.columns.length - 1];
 
       // get all unfinished tasks
-      const unFinishedTasksIds = allTaskList.filter(task => {
+      const unFinishedTasks = allTaskList.filter(task => {
         return task.statusId.toString() !== lastColumn.statusId.toString();
-      }).map(task => task._id.toString());
+      }).map(task => {
+        task.id = task._id.toString();
+        return task;
+      });
+
+      const unFinishedTasksIds = unFinishedTasks.map(task => task._id.toString());
 
       // get all finished tasks
       const finishedTasksIds = allTaskList.filter(task => {
@@ -1086,7 +1091,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         // create new sprint and move all un-Finished task of this sprint to new sprint
 
         // new sprint process
-        const newSprint = await this.createSprintCommonProcess({ sprint: model.sprint }, projectDetails, session, model.createAndPublishNewSprint);
+        const newSprint = await this.createSprintCommonProcess({
+          sprint: model.sprint, doPublishSprint: model.createAndPublishNewSprint, unFinishedTasks
+        }, projectDetails, session);
 
         // close current sprint and set new sprint id to unfinished tasks
         await this.closeSprintCommonProcess(model.projectId, unFinishedTasksIds,
@@ -1098,7 +1105,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           _id: { $in: finishedTasksIds }
         }, { $set: { sprintId: null } }, session);
 
-        responseMsg = `Sprint Closed Successfully and all Task Moved to new Sprint Named :- ${model.sprint.name}`;
+        responseMsg = newSprint[0];
       } else {
 
         // close current sprint and move finished and un-finished tasks to back log
@@ -1165,9 +1172,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model
    * @param projectDetails
    * @param session
-   * @param createAndPublishNewSprint
    */
-  private async createSprintCommonProcess(model: CreateSprintModel, projectDetails: Project, session: ClientSession, createAndPublishNewSprint: boolean = false) {
+  private async createSprintCommonProcess(model: CreateSprintCloseSprintCommonModel, projectDetails: Project, session: ClientSession) {
 
     const sprintModel = new Sprint();
     sprintModel.projectId = model.sprint.projectId;
@@ -1176,13 +1182,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     sprintModel.startedAt = model.sprint.startedAt;
     sprintModel.endAt = model.sprint.endAt;
     sprintModel.createdById = this._generalService.userId;
-
-    // if create and publish new sprint is selected than set sprint as a published sprint
-    if (createAndPublishNewSprint) {
-      sprintModel.sprintStatus = {
-        status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate(), updatedById: this._generalService.userId
-      };
-    }
+    sprintModel.totalEstimation = 0;
+    sprintModel.totalLoggedTime = 0;
+    sprintModel.totalOverLoggedTime = 0;
 
     // perform common validations
     this._sprintUtilityService.commonSprintValidator(sprintModel);
@@ -1213,7 +1215,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // create columns array for sprint from project
     sprintModel.columns = [];
-
     projectDetails.activeBoard.columns.forEach(column => {
       const sprintColumn = new SprintColumn();
       sprintColumn.name = column.headerStatus.name;
@@ -1225,6 +1226,21 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       sprintModel.columns.push(sprintColumn);
     });
+
+    // if create and publish new sprint is selected than set sprint as a published one sprint
+    if (model.doPublishSprint) {
+      sprintModel.sprintStatus = {
+        status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate(), updatedById: this._generalService.userId
+      };
+
+      // if there's unFinished tasks than we need to move those to new sprint
+      if (model.unFinishedTasks && model.unFinishedTasks.length) {
+        // loop over un finished tasks and add them to respective columns of this sprint
+        model.unFinishedTasks.forEach(unFinishedTask => {
+          this._sprintUtilityService.addTaskToColumn(projectDetails, sprintModel, unFinishedTask, this._generalService.userId);
+        });
+      }
+    }
 
     // create sprint
     return await this.create([sprintModel], session);
@@ -1238,43 +1254,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param session
    */
   private async processAddTaskToSprint(project: Project, sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
-    // get column index where we can add this task in sprint column from active board details
+
+    // adds a task to column by using task's status
+    this._sprintUtilityService.addTaskToColumn(project, sprintDetails, taskDetails, this._generalService.userId);
+
+    // get column index where task is added
     const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, taskDetails.statusId);
-    if (columnIndex === -1) {
-      BadRequest('Column not found');
-    }
-    const isDeletedTaskIndex = sprintDetails.columns[columnIndex].tasks.findIndex(task => task.taskId.toString() === taskDetails.id);
-
-    // add task estimation to sprint total estimation
-    sprintDetails.totalEstimation += taskDetails.estimatedTime;
-
-    // add task estimation to column total estimation
-    sprintDetails.columns[columnIndex].totalEstimation += taskDetails.estimatedTime;
-
-    // if task is not deleted earlier then add new task to column
-    if (isDeletedTaskIndex === -1) {
-      // add task to column
-      sprintDetails.columns[columnIndex].tasks.push({
-        taskId: taskDetails.id,
-        addedAt: generateUtcDate(),
-        addedById: this._generalService.userId,
-        totalLoggedTime: 0
-      });
-    } else {
-      // if task is deleted than set removed by id to null
-      sprintDetails.columns[columnIndex].tasks[isDeletedTaskIndex] = {
-        taskId: sprintDetails.columns[columnIndex].tasks[isDeletedTaskIndex].taskId,
-        totalLoggedTime: sprintDetails.columns[columnIndex].tasks[isDeletedTaskIndex].totalLoggedTime,
-        removedById: null,
-        removedAt: null,
-        addedAt: generateUtcDate(),
-        addedById: this._generalService.userId
-      };
-    }
-
-    // set total remaining capacity by subtracting sprint members totalCapacity - totalEstimation
-    sprintDetails.totalRemainingCapacity = sprintDetails.totalCapacity - sprintDetails.totalEstimation;
-    sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime;
 
     // update sprint by id and update sprint columns
     await this.updateById(sprintDetails.id, {

@@ -74,7 +74,6 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-
   getBoardData(json: GetAllTaskRequestModel): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.getBoardData, json).pipe(
       map((res: BaseResponseModel<Sprint>) => {
@@ -167,29 +166,43 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  closeSprint(json: CloseSprintModel): Observable<BaseResponseModel<string>> {
+  closeSprint(json: CloseSprintModel): Observable<BaseResponseModel<Sprint | string>> {
     return this._http.post(SprintUrls.closeSprint, json).pipe(
-      map((res: BaseResponseModel<string>) => {
+      map((res: BaseResponseModel<Sprint | string>) => {
 
-        // set sprint id to null for current project
+        /**
+         * check if new sprint created and create and publish sprint is selected
+         * then set current project sprint id to new sprint id else set it to null
+         * in current project and in user.current project
+         */
         this._userStore.update((state) => {
           return {
             ...state,
             currentProject: {
               ...state.currentProject,
-              sprintId: null
+              sprintId: json.createAndPublishNewSprint ? (res.data as Sprint).id : null,
+              sprint: json.createAndPublishNewSprint ? res.data as Sprint : null
             },
             user: {
               ...state.user,
               currentProject: {
                 ...state.user.currentProject,
-                sprintId: null
+                sprintId: (res.data as Sprint).id,
+                sprint: json.createAndPublishNewSprint ? res.data as Sprint : null
               }
             }
           };
         });
 
-        this.notification.success('Success', res.data);
+        let responseMsg = '';
+        if (json.createAndPublishNewSprint) {
+          res.data = res.data as Sprint;
+          responseMsg = `Sprint Closed Successfully and all Un Finished Task Moved to new Sprint Named :- ${res.data.name}`;
+        } else {
+          responseMsg = `Sprint Closed Successfully and all Un Finished To Back Log`;
+        }
+
+        this.notification.success('Success', responseMsg);
         return res;
       }),
       catchError(err => {
@@ -227,7 +240,6 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-
 
   addTaskToSprint(sprintData: AddTaskToSprintModel): Observable<BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>> {
     return this._http.post(SprintUrls.addSingleTask, sprintData).pipe(

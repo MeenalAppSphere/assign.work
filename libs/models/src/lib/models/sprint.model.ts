@@ -123,6 +123,12 @@ export class CreateSprintModel {
   sprint: Sprint;
 }
 
+export class CreateSprintCloseSprintCommonModel {
+  sprint: Sprint;
+  doPublishSprint?: boolean;
+  unFinishedTasks?: Task[];
+}
+
 export class UpdateSprintModel extends CreateSprintModel {
 }
 

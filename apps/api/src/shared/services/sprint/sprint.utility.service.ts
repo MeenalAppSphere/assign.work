@@ -1,7 +1,7 @@
 import {
   BoardModel,
   EmailSubjectEnum,
-  EmailTemplatePathEnum,
+  EmailTemplatePathEnum, Project,
   Sprint,
   SprintColumn,
   SprintErrorEnum,
@@ -10,7 +10,7 @@ import {
 } from '@aavantan-app/models';
 import { BadRequestException } from '@nestjs/common';
 import * as moment from 'moment';
-import { BadRequest, secondsToHours, secondsToString } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, secondsToHours, secondsToString } from '../../helpers/helpers';
 import { DEFAULT_DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { EmailService } from '../email.service';
 import { orderBy } from 'lodash';
@@ -97,6 +97,58 @@ export class SprintUtilityService {
       // if task not found return error
       BadRequest(SprintErrorEnum.taskNotFound);
     }
+  }
+
+  /**
+   * add task to column
+   * adds a task to a column by task status
+   * if task is deleted than it will re add task to sprint by setting removedAt to null
+   * @param project
+   * @param sprint
+   * @param task
+   * @param addedById
+   */
+  addTaskToColumn(project: Project, sprint: Sprint, task: Task, addedById: string) {
+    // get column index where we can add this task in sprint column from active board details
+    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
+    if (columnIndex === -1) {
+      BadRequest('Column not found');
+    }
+
+    // check if task is deleted or not
+    const isDeletedTaskIndex = sprint.columns[columnIndex].tasks.findIndex(innerTask => innerTask.taskId.toString() === task.id);
+
+    // add task estimation to sprint total estimation
+    sprint.totalEstimation += task.estimatedTime;
+
+    // add task estimation to column total estimation
+    sprint.columns[columnIndex].totalEstimation += task.estimatedTime;
+
+    // if task is not deleted earlier then add new task to column
+    if (isDeletedTaskIndex === -1) {
+      // add task to column
+      sprint.columns[columnIndex].tasks.push({
+        taskId: task.id,
+        addedAt: generateUtcDate(),
+        addedById: addedById,
+        totalLoggedTime: 0
+      });
+    } else {
+      // if task is deleted than set removedById to null and removedAt to null
+      sprint.columns[columnIndex].tasks[isDeletedTaskIndex] = {
+        taskId: sprint.columns[columnIndex].tasks[isDeletedTaskIndex].taskId,
+        totalLoggedTime: sprint.columns[columnIndex].tasks[isDeletedTaskIndex].totalLoggedTime,
+        removedById: null,
+        removedAt: null,
+        addedAt: generateUtcDate(),
+        addedById: addedById
+      };
+    }
+
+    // set total remaining capacity by subtracting sprint members totalCapacity - totalEstimation
+    sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation;
+    sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime;
+
   }
 
   /**
