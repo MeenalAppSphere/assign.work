@@ -4,7 +4,7 @@ import {
   AddTaskTimeModel,
   DbCollection,
   Project,
-  Sprint,
+  Sprint, SprintColumnTask,
   SprintStatusEnum,
   Task,
   TaskHistory,
@@ -101,10 +101,16 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
       await this.calculateTaskLogs(taskDetails, model, session);
 
       // region update sprint calculations
-      // ensure task is in sprint
       if (sprintDetails) {
         // calculate sprint calculations and update sprint
-        await this.calculateSprintLogs(sprintDetails, model, session);
+        const sprintTask = await this.calculateSprintLogs(sprintDetails, model, session);
+
+        /**
+         * replace task's logged time with sprint task's logged time
+         * because this task can be part of multiple sprint and one have logged time for this task in various sprint
+         * so we have replace it's total logged time with this sprint's task logged time
+         */
+        taskDetails.totalLoggedTime = sprintTask.totalLoggedTime;
       }
       // endregion
 
@@ -192,7 +198,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
    * @param model
    * @param session
    */
-  private async calculateSprintLogs(sprintDetails: Sprint, model: AddTaskTimeModel, session: ClientSession) {
+  private async calculateSprintLogs(sprintDetails: Sprint, model: AddTaskTimeModel, session: ClientSession): Promise<SprintColumnTask> {
 
     if (sprintDetails) {
       sprintDetails.id = sprintDetails._id.toString();
@@ -234,13 +240,15 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
        * update sprint by id and set totalLoggedTime, totalRemainingTime and totalOverLoggedTime
        * and also update task's totalLoggedTime in sprint column
        */
-      return this._sprintService.updateById(sprintDetails.id, {
+      await this._sprintService.updateById(sprintDetails.id, {
         totalLoggedTime: sprintDetails.totalLoggedTime,
         totalRemainingTime: sprintDetails.totalRemainingTime,
         totalOverLoggedTime: sprintDetails.totalOverLoggedTime,
         [`columns.${sprintColumnIndex}.tasks.${columnTaskIndex}.totalLoggedTime`]:
         sprintDetails.columns[sprintColumnIndex].tasks[columnTaskIndex].totalLoggedTime
       }, session);
+
+      return sprintDetails.columns[sprintColumnIndex].tasks[columnTaskIndex];
     }
   }
 

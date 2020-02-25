@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
 import {
-  SprintDurationsModel,
   AddTaskToSprintModel,
   BasePaginatedResponse,
   BoardModel,
   CloseSprintModel,
+  CreateSprintCloseSprintCommonModel,
   CreateSprintModel,
   DbCollection,
+  EmailSubjectEnum,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
   MoveTaskToColumnModel,
@@ -17,28 +18,23 @@ import {
   Sprint,
   SprintActionEnum,
   SprintColumn,
+  SprintDurationsModel,
   SprintErrorEnum,
   SprintErrorResponse,
+  SprintErrorResponseItem,
   SprintStatus,
   SprintStatusEnum,
   Task,
   TaskHistory,
   TaskHistoryActionEnum,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel,
-  SprintErrorResponseItem, CreateSprintCloseSprintCommonModel
+  UpdateSprintModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from '../general.service';
 import * as moment from 'moment';
-import {
-  BadRequest,
-  generateUtcDate,
-  hourToSeconds,
-  secondsToString,
-  validWorkingDaysChecker
-} from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, hourToSeconds, secondsToString } from '../../helpers/helpers';
 import { TaskService } from '../task/task.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from './sprint.utility.service';
@@ -983,7 +979,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._projectService.updateById(model.projectId, { $set: { sprintId: model.sprintId } }, session);
 
       // send publish sprint emails
-      this._sprintUtilityService.sendPublishedSprintEmails(sprintDetails);
+      this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintPublished);
 
       return sprintDetails;
     });
@@ -1067,8 +1063,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         BadRequest('This Sprint don\'t have any tasks');
       }
 
-      let responseMsg = '';
-
       if (model.createNewSprint) {
         // create new sprint and move all un-Finished task of this sprint to new sprint
 
@@ -1078,26 +1072,16 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         }, projectDetails, session);
 
         // close current sprint and set new sprint id to unfinished tasks
-        await this.closeSprintCommonProcess(model.projectId, unFinishedTasksIds,
-          newSprint[0].id, session);
+        await this.closeSprintCommonProcess(model.projectId, model.createAndPublishNewSprint, unFinishedTasksIds, newSprint[0].id, session);
 
         // update finished tasks and set sprint id to null
         await this._taskService.bulkUpdate({
           _id: { $in: finishedTasksIds }
         }, { $set: { sprintId: null } }, session);
 
-        // check if create and publish new sprint is true than send emails
-        if (model.createAndPublishNewSprint && newSprint) {
-          // send mails for sprint published
-          const sprintDetails = await this.getSprintDetails(newSprint[0].id, model.projectId);
-          this._sprintUtilityService.sendPublishedSprintEmails(sprintDetails);
-        }
-        responseMsg = newSprint[0];
       } else {
         // close current sprint and move finished and un-finished tasks to back log
-        await this.closeSprintCommonProcess(model.projectId, [...unFinishedTasksIds, ...finishedTasksIds], null, session);
-
-        responseMsg = `Sprint Closed Successfully`;
+        await this.closeSprintCommonProcess(model.projectId, false, [...unFinishedTasksIds, ...finishedTasksIds], null, session);
       }
 
       // create sprint status object
@@ -1108,7 +1092,21 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // close old sprint and set staus as completed
       await this.updateSprintStatus(model.sprintId, sprintStatus, session);
-      return responseMsg;
+
+      // get sprint details
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
+      this._sprintUtilityService.calculateSprintEstimates(sprintDetails);
+
+      // send emails for sprint is closed
+      this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintClosed);
+
+      // check if create and publish new sprint is true than send emails
+      if (model.createAndPublishNewSprint) {
+        // send mails for sprint published
+        this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintPublished);
+      }
+
+      return sprintDetails;
     });
   }
 
@@ -1126,18 +1124,20 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * set sprint id to all tasks
    * set sprint id to current project
    * @param projectId
+   * @param publishSprint
    * @param allTaskList
    * @param sprintId
    * @param session
    */
-  private async closeSprintCommonProcess(projectId: string, allTaskList: string[], sprintId: string, session: ClientSession) {
+  private async closeSprintCommonProcess(projectId: string, publishSprint: boolean, allTaskList: string[], sprintId: string, session: ClientSession) {
     // update all task and assign sprint id to all of them using bulk update
     await this._taskService.bulkUpdate({
       _id: { $in: allTaskList }
     }, { $set: { sprintId } }, session);
 
     // update project and set sprint id
-    await this._projectService.updateById(projectId, { $set: { sprintId } }, session);
+    // if sprint is going to published than set new sprintId from new sprint id else set it to null
+    await this._projectService.updateById(projectId, { $set: { sprintId: publishSprint ? sprintId : null } }, session);
   }
 
   /**

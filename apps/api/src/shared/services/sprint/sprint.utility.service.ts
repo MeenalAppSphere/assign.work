@@ -1,14 +1,15 @@
 import {
   BoardModel,
   EmailSubjectEnum,
-  EmailTemplatePathEnum, Project,
+  EmailTemplatePathEnum,
+  Project,
   Sprint,
   SprintColumn,
   SprintErrorEnum,
-  Task, UpdateSprintMemberWorkingCapacity,
+  Task,
+  UpdateSprintMemberWorkingCapacity,
   User
 } from '@aavantan-app/models';
-import { BadRequestException } from '@nestjs/common';
 import * as moment from 'moment';
 import {
   BadRequest,
@@ -266,7 +267,12 @@ export class SprintUtilityService {
     // }
   }
 
-  async sendPublishedSprintEmails(sprintDetails: Sprint) {
+  /**
+   * send sprint emails
+   * @param sprintDetails
+   * @param type
+   */
+  async sendSprintEmails(sprintDetails: Sprint, type: EmailSubjectEnum = EmailSubjectEnum.sprintPublished) {
     // prepare sprint email templates
     const sprintEmailArray = [];
 
@@ -274,8 +280,10 @@ export class SprintUtilityService {
       const member = sprintDetails.membersCapacity[i];
       sprintEmailArray.push({
         to: member.user.emailId,
-        subject: EmailSubjectEnum.sprintPublished,
-        message: await this.prepareSprintPublishEmailTemplate(sprintDetails, member.user, member.workingCapacity)
+        subject: type,
+        message: type === EmailSubjectEnum.sprintPublished ?
+          await this.prepareSprintPublishEmailTemplate(sprintDetails, member.user, member.workingCapacity) :
+          await this.prepareSprintClosedEmailTemplate(sprintDetails, member.user)
       });
     }
 
@@ -302,6 +310,19 @@ export class SprintUtilityService {
       }
     };
     return this._emailService.getTemplate(EmailTemplatePathEnum.publishSprint, templateData);
+  }
+
+  /**
+   * prepare close sprint template for sending mail when sprint is closed
+   * @param sprint
+   * @param user
+   */
+  private prepareSprintClosedEmailTemplate(sprint: Sprint, user: User): Promise<string> {
+    const templateData = {
+      user,
+      sprint
+    };
+    return this._emailService.getTemplate(EmailTemplatePathEnum.closeSprint, templateData);
   }
 
   /**

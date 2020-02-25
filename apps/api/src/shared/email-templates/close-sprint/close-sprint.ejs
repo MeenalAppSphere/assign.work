@@ -1,0 +1,31 @@
+<div>
+    <span>Dear <%= user.firstName %> <%= user.lastName %>
+        Sprint Named :- <b> <%= sprint.name %>
+            With Goal :- <%= sprint.goal %>
+        </b> has been closed! </span>
+
+    Please find sprint details as follows
+    <br>
+    <span> Total Estimation  :- <%= sprint.totalEstimationReadable %> </span>
+    <br>
+
+    <br>
+    <span> Total Logged time :- <%= sprint.totalLoggedTimeReadable %> </span>
+    <br>
+
+    <br>
+    <span> Total Remaining time :- <%= sprint.totalRemainingTimeReadable %> </span>
+    <br>
+
+    <br>
+    <span> Total Over Logged time :- <%= sprint.totalOverLoggedTimeReadable %> </span>
+    <br>
+
+    <br>
+    <span> Progress :- <%= sprint.progress %> %</span>
+    <br>
+
+    <br>
+    <span> OverProgress :- <%= sprint.overProgress %> %</span>
+    <br>
+</div>
