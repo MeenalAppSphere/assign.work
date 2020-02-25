@@ -9,7 +9,7 @@ import {
   BoardMergeColumnToColumn,
   BoardMergeStatusToColumn,
   BoardModel,
-  BoardShowColumnStatus,
+  BoardShowColumnStatus, SaveAndPublishBoardModel,
   TaskStatusModel,
   User
 } from '@aavantan-app/models';
@@ -185,6 +185,29 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
       this._boardService.updateBoard(board).subscribe();
     } else {
       this._boardService.createBoard(board).subscribe();
+    }
+  }
+
+  public saveAndPublish() {
+    const request = new SaveAndPublishBoardModel();
+    request.boardId = this.activeBoard.id;
+    request.projectId = this._generalService.currentProject.id;
+
+    request.board = new BoardModel();
+    request.board.name = this.boardDesignForm.get('name').value;
+
+    try {
+      this.modal.confirm({
+        nzTitle: 'Do You really want to Publish this Board?',
+        nzContent: '',
+        nzOnOk: () =>
+          new Promise(async (resolve, reject) => {
+            await this._boardService.publishBoard(request).toPromise();
+            resolve();
+          }).catch(() => console.log('Oops errors!'))
+      });
+    } catch (e) {
+      console.log(e);
     }
   }
 

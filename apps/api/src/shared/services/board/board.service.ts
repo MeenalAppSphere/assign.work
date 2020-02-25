@@ -16,7 +16,7 @@ import {
   GetActiveBoardRequestModel,
   GetAllBoardsRequestModel,
   MongooseQueryModel,
-  Project,
+  Project, SaveAndPublishBoardModel,
   TaskStatusModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -272,25 +272,49 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   }
 
   /**
-   * publish a board
+   * save and publish a board
    * update project's active board property
    * if board have sprint than update it's column using new board settings
    * @param requestModel
    */
-  async publishBoard(requestModel: BoardModelBaseRequest) {
+  async saveAndPublishBoard(requestModel: SaveAndPublishBoardModel) {
     return this.withRetrySession(async (session: ClientSession) => {
       const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
 
-      if (projectDetails.activeBoardId === requestModel.boardId) {
-        BadRequest('This board is already in use for this project');
+      // set saveAndPublish variable on basis of board object in request
+      const saveAndPublish = !!requestModel.board;
+
+      // if not save and publish request than prevent user from publish already publish board
+      if (!saveAndPublish) {
+        if (projectDetails.activeBoardId === requestModel.boardId) {
+          BadRequest('This board is already in published for this project');
+        }
       }
+
       const boardDetails = await this.getDetails(requestModel.boardId, requestModel.projectId, true);
+
+      let boardUpdateModal: any = {
+        isPublished: true, publishedAt: generateUtcDate(), publishedById: this._generalService.userId
+      };
+
+      // check it's save and publish board request
+      if (saveAndPublish) {
+
+        // check is duplicate name except this one
+        if (await this.isDuplicate(requestModel.board, boardDetails.id)) {
+          BadRequest('Duplicate board name is not allowed');
+        }
+
+        // update board modal and set name and updated by property
+        boardUpdateModal = {
+          ...boardUpdateModal,
+          name: requestModel.board.name, updatedById: this._generalService.userId
+        };
+      }
 
       // set this board as published board by setting isPublished as true
       await this.updateById(requestModel.boardId, {
-        $set: {
-          isPublished: true, publishedAt: generateUtcDate(), publishedById: this._generalService.userId
-        }
+        $set: boardUpdateModal
       }, session);
 
       // set previous board's isPublished as false

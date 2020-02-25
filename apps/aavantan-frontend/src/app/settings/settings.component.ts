@@ -12,7 +12,7 @@ import {
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
   ProjectWorkingDays,
-  ResendProjectInvitationModel,
+  ResendProjectInvitationModel, SaveAndPublishBoardModel,
   SearchProjectCollaborators,
   SearchUserModel,
   TaskTypeModel,
@@ -692,7 +692,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public async publishBoard(boardId: string) {
-    const request = new BoardModelBaseRequest();
+    const request = new SaveAndPublishBoardModel();
     request.boardId = boardId;
     request.projectId = this._generalService.currentProject.id;
 

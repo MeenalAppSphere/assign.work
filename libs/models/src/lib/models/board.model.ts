@@ -76,6 +76,10 @@ export class BoardHideColumnStatus extends BoardModelBaseRequest {
   statusId: string;
 }
 
+export class SaveAndPublishBoardModel extends BoardModelBaseRequest {
+  board?: BoardModel;
+}
+
 export class BoardAssignDefaultAssigneeToStatusModel extends BoardModelBaseRequest {
   columnId: string;
   assigneeId: string;
