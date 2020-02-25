@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { AppsService } from '../../shared/services/apps.service';
 import { NzModalService } from 'ng-zorro-antd';
-import { Project, ProjectTemplateEnum } from '@aavantan-app/models';
+import { Project, ProjectTemplateEnum, Sprint } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import * as Highcharts from 'highcharts';
 
@@ -12,6 +12,8 @@ import * as Highcharts from 'highcharts';
 export class HomeComponent implements OnInit {
   public view: string = 'listView';
   public projectList: Project[];
+  public selectedSprint: Sprint;
+  public sprintDataSource: Sprint[]= [];
 
   Highcharts: typeof Highcharts = Highcharts;
   lineChartOptions: Highcharts.Options = {};
@@ -107,6 +109,8 @@ export class HomeComponent implements OnInit {
     this.projectList = this._generalService.user.projects as Project[];
     this.showLineChart();
     this.showColumnChart();
+
+    this.selectedSprint = this.sprintDataSource[0];
   }
 
 
@@ -189,7 +193,9 @@ export class HomeComponent implements OnInit {
   }
 
 
-
+  public selectSprint(item:Sprint){
+      this.selectedSprint = item;
+  }
 
   showNewProject(newProjectContent: TemplateRef<{}>) {
     const modal = this.modalService.create({

@@ -23,22 +23,21 @@
       <span>11:47 AM IST</span>
     </div>
 
-    <button nz-dropdown type="button" [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomRight"
-            nzType="default" nzSize="32" class="float-right btn-ellipsis m-l-30" nz-button>
-      <i class="fas fa-ellipsis-v"></i>
-    </button>
 
+    <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
+      <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
+        {{selectedSprint?.name ? selectedSprint?.name : 'Sprint 1'}}
+        <i nz-icon nzType="caret-down" theme="outline"></i>
+      </button>
+    </nz-button-group>
     <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
       <ul nz-menu>
-        <li nz-menu-item>
-          Sprint 2
-        </li>
-        <li nz-menu-item>
-          Sprint 3
-        </li>
-        <li nz-menu-item>
-          Share
-        </li>
+        <li nz-menu-item>Sprint 2</li>
+        <li nz-menu-item>Sprint 3</li>
+        <li nz-menu-item>Sprint 4</li>
+<!--        <li nz-menu-item *ngFor="let item of sprintDataSource" (click)="selectSprint(item)">-->
+<!--           {{ item.name }}-->
+<!--        </li>-->
       </ul>
     </nz-dropdown-menu>
 

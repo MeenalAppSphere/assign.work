@@ -28,6 +28,8 @@
                 <p class="font-size-14 d-inline-block m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
                     <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
                     <span class="text-gray-light">{{ item.name }}</span>
+
+                    <i *ngIf="item.id===currentOrganization?.id" class="fas fa-check text-success float-right selected-org-check"></i>
                 </p>
             </li>
 
