@@ -21,9 +21,9 @@ export class TaskTimeLogUtilityService {
       BadRequest('Please add Spent Time');
     }
 
-    if (!timeLog.remainingTimeReadable) {
-      BadRequest('Please add Remaining Time');
-    }
+    // if (!timeLog.remainingTimeReadable) {
+    //   BadRequest('Please add Remaining Time');
+    // }
 
     if (!timeLog.desc) {
       BadRequest('Please add Description');

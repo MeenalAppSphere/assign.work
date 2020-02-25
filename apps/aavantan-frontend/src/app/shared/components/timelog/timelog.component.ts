@@ -38,15 +38,18 @@ export class TimelogComponent implements OnInit, OnDestroy {
       remainingMinutes: new FormControl(null),
       isPeriod:new FormControl(null),
     });
+
     this.today = [new Date(), new Date()];
     this.todaySingleDate=new Date();
     this.workingHoursPerDay = 3600 * 8; // 8 hrs in seconds
+
     this._generalService.currentProject.members.forEach((ele)=>{
       if(ele.userId===this._generalService.user.id){
         this.workingHoursPerDay = ele.workingCapacityPerDay;
         // console.log('workingHoursPerDay',this.workingHoursPerDay);
       }
-    })
+    });
+
     if(this.selectedTaskItem){
       this.calcRemaining();
     }
@@ -92,7 +95,7 @@ export class TimelogComponent implements OnInit, OnDestroy {
 
   public calcRemaining() {
 
-    const remainingTimeInSeconds = this.selectedTaskItem.remainingTime;
+    const remainingTimeInSeconds = this.selectedTaskItem.estimatedTime - this.selectedTaskItem.totalLoggedTime;
 
     const loggedHours = Number(this.timeLogForm.get('loggedHours').value);
     const loggedMinutes = Number(this.timeLogForm.get('loggedMinutes').value);

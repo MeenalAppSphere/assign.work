@@ -37,10 +37,10 @@ export class SprintController {
     return await this._sprintService.addTaskToSprint(model);
   }
 
-  @Post('assign-tasks')
-  async assignTasks(@Body() model: AssignTasksToSprintModel) {
-    return await this._sprintService.assignTasksToSprint(model);
-  }
+  // @Post('assign-tasks')
+  // async assignTasks(@Body() model: AssignTasksToSprintModel) {
+  //   return await this._sprintService.assignTasksToSprint(model);
+  // }
 
   @Post('remove-task')
   async removeTasks(@Body() model: RemoveTaskFromSprintModel) {

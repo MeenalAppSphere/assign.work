@@ -35,6 +35,7 @@ import { TaskTypeService } from '../task-type/task-type.service';
 import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { ProjectService } from '../project/project.service';
+import { TaskUtilityService } from './task.utility.service';
 
 /**
  * common task population object
@@ -87,6 +88,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private _taskStatusService: TaskStatusService;
   private _taskHistoryService: TaskHistoryService;
 
+  private _utilityService: TaskUtilityService;
+
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
     private _generalService: GeneralService, private _moduleRef: ModuleRef
@@ -101,6 +104,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+
+    this._utilityService = new TaskUtilityService();
   }
 
   /**
@@ -177,40 +182,40 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async addTask(model: Task): Promise<Task> {
-    return this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+    const newTask = await this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
 
       const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
+
+      // prepare task model
+      const taskModel = this._utilityService.prepareTaskObjectFromRequest(model, projectDetails);
 
       if (!taskTypeDetails) {
         BadRequest('Task Type not found');
       }
 
       const lastTask = await this._taskModel.find({
-        projectId: model.projectId
+        projectId: taskModel.projectId
       }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
 
       if (lastTask[0]) {
         // tslint:disable-next-line:radix
         const lastInsertedNo = parseInt(lastTask[0].displayName.split('-')[1]);
-        model.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
+        taskModel.displayName = `${taskTypeDetails.displayName}-${lastInsertedNo + 1}`;
       } else {
-        model.displayName = `${taskTypeDetails.displayName}-1`;
+        taskModel.displayName = `${taskTypeDetails.displayName}-1`;
       }
 
       // check if task assignee id is available or not
       // if not then assign it to task creator
-      model.assigneeId = model.assigneeId || this._generalService.userId;
-
-      // check if watchers added or not if not then assign blank array
-      model.watchers = model.watchers || [];
+      taskModel.assigneeId = taskModel.assigneeId || this._generalService.userId;
 
       // add task creator and assignee as default watcher
-      model.watchers = [
+      taskModel.watchers = [
         ...new Set([
           this._generalService.userId,
-          model.assigneeId ? model.assigneeId : '',
-          ...model.watchers
+          taskModel.assigneeId ? taskModel.assigneeId : '',
+          ...taskModel.watchers
         ])
       ].filter(watcher => watcher);
 
@@ -219,12 +224,12 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // tags processing
       // if any tag found that is not in projectDetails then need to add that in project
-      const isNewTag = model.tags.some(s => {
+      const isNewTag = taskModel.tags.some(s => {
         return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
       });
 
       if (isNewTag) {
-        const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
+        const newTags = [...new Set([...taskModel.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
 
         // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
         if (newTags.length) {
@@ -235,17 +240,26 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
             };
           });
 
-          await this._projectService.updateById(model.projectId, {
+          await this._projectService.updateById(taskModel.projectId, {
             $set: { 'settings.tags': projectDetails.settings.tags }
           }, session);
         }
       }
 
-      const createdTask = await this.create([model], session);
+      taskModel.createdById = this._generalService.userId;
+      const createdTask = await this.create([taskModel], session);
       const taskHistory: TaskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskCreated, createdTask[0].id, createdTask[0]);
       await this._taskHistoryService.addHistory(taskHistory, session);
       return createdTask[0];
     });
+
+    const task: Task = await this._taskModel.findOne({
+      _id: newTask.id, projectId: newTask.projectId
+    }).populate(taskBasicPopulation).select('-comments').lean().exec();
+    if (!task) {
+      throw new BadRequestException('task not found');
+    }
+    return this.parseTaskObjectForUi(task);
   }
 
   /**

@@ -169,20 +169,17 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.taskForm = this.FB.group({
       projectId: [null],
       name: [null, [Validators.required]],
-      taskType: [null, [Validators.required]],
       taskTypeId: [null, [Validators.required]],
       description: [null],
       assigneeId: [null],
       createdById: [null],
       sprint: [null],
-      priority: [null],
       priorityId: [null],
       watchers: [null],
       dependentItemId: [null],
       relatedItemId: [null],
       tags: [null],
       epic: [null],
-      status: [null],
       statusId: [null],
       estimatedTime: [null],
       remainingHours: [null],
@@ -472,6 +469,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public cancelTaskForm() {
     this.taskId = null;
     this.taskForm.reset();
+    this.currentTask = null;
     this.selectedStatus = null;
     this.selectedPriority = null;
     this.attachementIds = [];
@@ -731,10 +729,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.notification.error('Error', 'Please select task type');
       return;
     }
-    if (!task.assigneeId) {
-      this.notification.error('Error', 'Please select assignee');
-      return;
-    }
+
     if (!task.name) {
       this.notification.error('Error', 'Please enter task title');
       return;
@@ -775,12 +770,10 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskId = data.data.id;
         this.displayName = data.data.displayName;
 
-        // last call stay here after addition sprint
-        // this.taskForm.reset({ tags: [] });
-        // this.selectedStatus = null;
-        // this.selectedPriority = null;
-        // this.attachementIds = [];
+        this.selectStatus(data.data.status);
+        this.selectAssigneeTypeahead(data.data.assignee);
 
+        this.listOfSelectedWatchers = data.data.watchers;
       }
 
       this.createTaskInProcess = false;

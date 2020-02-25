@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  BaseResponseModel,
+  BaseResponseModel, CloseSprintModel,
   GetAllTaskRequestModel,
   MoveTaskToColumnModel,
   ProjectStatus,
@@ -9,7 +9,8 @@ import {
   SprintColumnTask,
   Task,
   TaskTypeModel,
-  User
+  User,
+  TaskTimeLogResponse
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -33,23 +34,27 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
-  public selectedTaskItem: Task;
+  public selectedTask = {
+    columnIndex: null, taskIndex: null, taskItem: null
+  };
   public getStageInProcess: boolean;
+  public closeSprintInProcess: boolean = false;
+
   public taskTypeDataSource: TaskTypeModel[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
   public statusSprintDataSource: ProjectStatus[] = [];
   public closeSprintModalIsVisible: boolean;
   public isVisibleCloseSprint: boolean;
-  public radioOptionValue = 'a';
+  public closeSprintModeSelection = 'createNewSprint';
   public dateFormat = 'MM/dd/yyyy';
-  public sprintForm: FormGroup;
+  public closeSprintNewSprintForm: FormGroup;
 
   public moveFromStage: SprintColumn;
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
-              private _taskTypeQuery : TaskTypeQuery,
+              private _taskTypeQuery: TaskTypeQuery,
               protected notification: NzNotificationService,
               private modalService: NzModalService,
               private _userQuery: UserQuery, private router: Router) {
@@ -77,15 +82,14 @@ export class BoardComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.sprintForm = new FormGroup({
+    this.closeSprintNewSprintForm = new FormGroup({
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
-      createdById: new FormControl(this._generalService.user.id, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
       goal: new FormControl(null, [Validators.required]),
-      sprintStatus: new FormControl(null, []),
       duration: new FormControl(null, [Validators.required]),
       startedAt: new FormControl(null, []),
-      endAt: new FormControl(null, [])
+      endAt: new FormControl(null, []),
+      createAndPublishNewSprint: new FormControl(false)
     });
 
   }
@@ -110,11 +114,8 @@ export class BoardComponent implements OnInit, OnDestroy {
           });
           column.tasks = tasks;
         }
-
       });
-
     }
-
   }
 
   async getBoardData() {
@@ -229,11 +230,42 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.isVisibleCloseSprint = true;
   }
 
-  handleOk(): void {
-    this.isVisibleCloseSprint = false;
+  async closeSprint() {
+    this.closeSprintInProcess = true;
+
+    const closeSprintRequest = new CloseSprintModel();
+    closeSprintRequest.projectId = this._generalService.currentProject.id;
+    closeSprintRequest.sprintId = this.boardData.id;
+
+    if (this.closeSprintModeSelection === 'createNewSprint') {
+      closeSprintRequest.createNewSprint = true;
+
+      const sprintForm = this.closeSprintNewSprintForm.getRawValue();
+      if (sprintForm.duration) {
+        sprintForm.startedAt = sprintForm.duration[0];
+        sprintForm.endAt = sprintForm.duration[1];
+        delete sprintForm.duration;
+      }
+
+      closeSprintRequest.sprint = sprintForm;
+      closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
+    } else {
+      closeSprintRequest.createNewSprint = false;
+    }
+
+    try {
+      await this._sprintService.closeSprint(closeSprintRequest).toPromise();
+      this.closeSprintInProcess = false;
+
+      this.isVisibleCloseSprint = false;
+      this.router.navigate(['dashboard']);
+    } catch (e) {
+      this.closeSprintInProcess = false;
+      console.log(e);
+    }
   }
 
-  handleCancel(): void {
+  cancelCloseSprintDialog(): void {
     this.isVisibleCloseSprint = false;
   }
 
@@ -259,11 +291,24 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
-  public timeLog(item: Task) {
+  public showTimeLogModal(columnIndex: number, taskIndex: number, taskItem: Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
-    this.selectedTaskItem = item;
+    this.selectedTask = {
+      columnIndex, taskIndex, taskItem
+    };
   }
 
+  public hideTimeLogModal(resp?: TaskTimeLogResponse) {
+    if (resp) {
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.totalLoggedTime;
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.totalLoggedTimeReadable;
+
+    }
+    this.timelogModalIsVisible = false;
+    this.selectedTask = {
+      columnIndex: null, taskIndex: null, taskItem: null
+    };
+  }
 
   ngOnDestroy() {
 

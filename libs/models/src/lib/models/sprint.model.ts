@@ -17,6 +17,7 @@ export class Sprint {
   goal: string;
   startedAt: Date;
   endAt: Date;
+  sprintDaysLeft?: number;
   autoUpdate?: SprintAutoUpdate;
   sprintStatus: SprintStatus;
   columns?: SprintColumn[];
@@ -89,8 +90,8 @@ export class SprintMembersCapacity {
 }
 
 export class SprintErrorResponse {
-  tasksErrors: SprintErrorResponseItem[];
-  membersErrors: SprintErrorResponseItem[];
+  tasksError: SprintErrorResponseItem;
+  membersError: SprintErrorResponseItem;
 }
 
 export class SprintErrorResponseItem {
@@ -122,6 +123,12 @@ export class CreateSprintModel {
   sprint: Sprint;
 }
 
+export class CreateSprintCloseSprintCommonModel {
+  sprint: Sprint;
+  doPublishSprint?: boolean;
+  unFinishedTasks?: Task[];
+}
+
 export class UpdateSprintModel extends CreateSprintModel {
 }
 
@@ -144,14 +151,13 @@ export class AssignTasksToSprintModel extends SprintBaseRequest {
   adjustHoursAllowed?: boolean;
 }
 
-export class AddTaskRemoveTaskToSprintResponseModel {
+export class SprintDurationsModel {
   totalCapacity: number;
   totalCapacityReadable: string;
   totalRemainingCapacity: number;
   totalRemainingCapacityReadable: string;
   totalEstimation: number;
   totalEstimationReadable: string;
-  tasks: string;
 }
 
 export class MoveTaskToColumnModel extends SprintBaseRequest {
@@ -184,7 +190,6 @@ export class CloseSprintModel extends SprintBaseRequest {
   createNewSprint: boolean;
   createAndPublishNewSprint: boolean;
   sprint?: Sprint;
-  finalStatusOfTasks?: string;
 }
 
 export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {

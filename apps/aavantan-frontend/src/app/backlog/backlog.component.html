@@ -33,34 +33,36 @@
           <div class="col" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
             <span class="font-size-14">
 
-              <span class="font-size-18 m-r-30 text-black font-weight-normal" *ngIf="unPublishedSprintData?.name">{{unPublishedSprintData?.name}}</span>
+              <span class="font-size-18 m-r-30 text-black font-weight-normal"
+                    *ngIf="unPublishedSprintData?.name">{{unPublishedSprintData?.name}}</span>
 
-              <span class="m-r-25 text-gray-light-2 font-size-13" *ngIf="unPublishedSprintData?.totalEstimationReadable || sprintDurations.totalEstimationReadable">
-                <span>{{unPublishedSprintData?.totalEstimationReadable || sprintDurations?.totalEstimationReadable}}</span>
+              <span class="m-r-25 text-gray-light-2 font-size-13"
+                    *ngIf="sprintDurations?.totalEstimationReadable">
+                <span>{{sprintDurations?.totalEstimationReadable}}</span>
                 <span class="font-weight-light">  Sprint Hours </span>
               </span>
 
               <span class="m-r-10 text-gray-light-2 font-size-13">
-                <span>{{unPublishedSprintData?.totalCapacityReadable || sprintDurations?.totalCapacityReadable}}</span>
+                <span>{{sprintDurations?.totalCapacityReadable}}</span>
                 <span class="m-r-25 font-weight-light"> Sprint Capacity</span>
               </span>
 
 
               <span class="font-size-12 font-size-13"
-                    [ngClass]="{'text-gray-light-2': unPublishedSprintData?.totalRemainingCapacity>0 || sprintDurations?.totalRemainingCapacity>0, 'text-red': unPublishedSprintData?.totalRemainingCapacity<0 || sprintDurations?.totalRemainingCapacity<0}"
-                    *ngIf="unPublishedSprintData?.totalRemainingCapacityReadable || sprintDurations?.totalRemainingCapacityReadable">
-                <span class="p-l-5">{{unPublishedSprintData?.totalRemainingCapacityReadable || sprintDurations?.totalRemainingCapacityReadable}}</span>
+                    [ngClass]="{'text-gray-light-2': sprintDurations?.totalRemainingCapacity>0,
+                    'text-red': sprintDurations?.totalRemainingCapacity<0}"
+                    *ngIf="sprintDurations?.totalRemainingCapacityReadable">
+                <span
+                  class="p-l-5">{{sprintDurations?.totalRemainingCapacityReadable}}</span>
                 <span class="font-weight-light"> Remains</span>
               </span>
             </span>
           </div>
 
 
-
-
           <div class="col text-right">
-            <span *ngIf="activeSprintData?.id ||  (unPublishedSprintData?.id)">
-              <button class="m-l-10" [disabled]="!haveUnpublishedTasks" [nzLoading]="publishSprintInProcess"
+            <span *ngIf="(unPublishedSprintData?.id)">
+              <button class="m-l-10" [disabled]="!draftTaskList.length" [nzLoading]="publishSprintInProcess"
                       nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
               <!--              <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button-->
               <!--                      (click)="saveSprint()">Save Sprint</button>-->
@@ -100,7 +102,8 @@
 
             <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                      [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
-              <nz-table *ngIf="draftTaskList?.length>0" #listViewTable [nzData]="draftTaskList" nzSize="small" class="draft-table">
+              <nz-table *ngIf="draftTaskList?.length>0" #listViewTable [nzData]="draftTaskList" nzSize="small"
+                        class="draft-table">
                 <thead>
                 <tr>
 
@@ -170,7 +173,8 @@
 
                         <h6 class="m-b-0">
                           <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                            <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black font-weight-semibold">
+                            <a href="javascript:void(0)" (click)="viewTask(item)"
+                               class="text-black font-weight-semibold">
                               {{item.name}}
                             </a>
                           </p>

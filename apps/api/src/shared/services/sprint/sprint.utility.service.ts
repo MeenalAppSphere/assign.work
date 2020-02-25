@@ -2,16 +2,22 @@ import {
   BoardModel,
   EmailSubjectEnum,
   EmailTemplatePathEnum,
+  Project,
   Sprint,
   SprintColumn,
   SprintErrorEnum,
-  SprintErrorResponseItem,
   Task,
+  UpdateSprintMemberWorkingCapacity,
   User
 } from '@aavantan-app/models';
-import { BadRequestException } from '@nestjs/common';
 import * as moment from 'moment';
-import { BadRequest, secondsToHours, secondsToString } from '../../helpers/helpers';
+import {
+  BadRequest,
+  generateUtcDate,
+  secondsToHours,
+  secondsToString,
+  validWorkingDaysChecker
+} from '../../helpers/helpers';
 import { DEFAULT_DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { EmailService } from '../email.service';
 import { orderBy } from 'lodash';
@@ -101,6 +107,58 @@ export class SprintUtilityService {
   }
 
   /**
+   * add task to column
+   * adds a task to a column by task status
+   * if task is deleted than it will re add task to sprint by setting removedAt to null
+   * @param project
+   * @param sprint
+   * @param task
+   * @param addedById
+   */
+  addTaskToColumn(project: Project, sprint: Sprint, task: Task, addedById: string) {
+    // get column index where we can add this task in sprint column from active board details
+    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
+    if (columnIndex === -1) {
+      BadRequest('Column not found');
+    }
+
+    // check if task is deleted or not
+    const isDeletedTaskIndex = sprint.columns[columnIndex].tasks.findIndex(innerTask => innerTask.taskId.toString() === task.id);
+
+    // add task estimation to sprint total estimation
+    sprint.totalEstimation += task.estimatedTime;
+
+    // add task estimation to column total estimation
+    sprint.columns[columnIndex].totalEstimation += task.estimatedTime;
+
+    // if task is not deleted earlier then add new task to column
+    if (isDeletedTaskIndex === -1) {
+      // add task to column
+      sprint.columns[columnIndex].tasks.push({
+        taskId: task.id,
+        addedAt: generateUtcDate(),
+        addedById: addedById,
+        totalLoggedTime: 0
+      });
+    } else {
+      // if task is deleted than set removedById to null and removedAt to null
+      sprint.columns[columnIndex].tasks[isDeletedTaskIndex] = {
+        taskId: sprint.columns[columnIndex].tasks[isDeletedTaskIndex].taskId,
+        totalLoggedTime: sprint.columns[columnIndex].tasks[isDeletedTaskIndex].totalLoggedTime,
+        removedById: null,
+        removedAt: null,
+        addedAt: generateUtcDate(),
+        addedById: addedById
+      };
+    }
+
+    // set total remaining capacity by subtracting sprint members totalCapacity - totalEstimation
+    sprint.totalRemainingCapacity = sprint.totalCapacity - sprint.totalEstimation;
+    sprint.totalRemainingTime = sprint.totalEstimation - sprint.totalLoggedTime;
+
+  }
+
+  /**
    * convert sprint object to it's view model
    * @param sprint
    * @returns {Sprint}
@@ -186,12 +244,12 @@ export class SprintUtilityService {
 
     // sprint start date is before today
     if (sprintStartDate.isBefore(moment(), 'd')) {
-      throw new BadRequestException('Sprint start date is before today!');
+      BadRequest('Sprint start date is before today!');
     }
 
     // sprint end date can not be before today
     if (sprintEndDate.isBefore(moment(), 'd')) {
-      throw new BadRequestException('Sprint end date is passed!');
+      BadRequest('Sprint end date is passed!');
     }
 
     // check if sprint has any tasks or not
@@ -200,11 +258,21 @@ export class SprintUtilityService {
     });
 
     if (!checkIfThereAnyTasks) {
-      throw new BadRequestException('No task found, Please add at least one task to publish the sprint');
+      BadRequest('No task found, Please add at least one task to publish the sprint');
     }
+
+    // commented out capacity check for now
+    // if (sprintDetails.totalEstimation > sprintDetails.totalCapacity) {
+    //   BadRequest('Sprint estimation is higher than the sprint capacity!');
+    // }
   }
 
-  async sendPublishedSprintEmails(sprintDetails: Sprint) {
+  /**
+   * send sprint emails
+   * @param sprintDetails
+   * @param type
+   */
+  async sendSprintEmails(sprintDetails: Sprint, type: EmailSubjectEnum = EmailSubjectEnum.sprintPublished) {
     // prepare sprint email templates
     const sprintEmailArray = [];
 
@@ -212,8 +280,10 @@ export class SprintUtilityService {
       const member = sprintDetails.membersCapacity[i];
       sprintEmailArray.push({
         to: member.user.emailId,
-        subject: EmailSubjectEnum.sprintPublished,
-        message: await this.prepareSprintPublishEmailTemplate(sprintDetails, member.user, member.workingCapacity)
+        subject: type,
+        message: type === EmailSubjectEnum.sprintPublished ?
+          await this.prepareSprintPublishEmailTemplate(sprintDetails, member.user, member.workingCapacity) :
+          await this.prepareSprintClosedEmailTemplate(sprintDetails, member.user)
       });
     }
 
@@ -243,6 +313,19 @@ export class SprintUtilityService {
   }
 
   /**
+   * prepare close sprint template for sending mail when sprint is closed
+   * @param sprint
+   * @param user
+   */
+  private prepareSprintClosedEmailTemplate(sprint: Sprint, user: User): Promise<string> {
+    const templateData = {
+      user,
+      sprint
+    };
+    return this._emailService.getTemplate(EmailTemplatePathEnum.closeSprint, templateData);
+  }
+
+  /**
    * get column index from column id
    * @param sprint
    * @param columnId
@@ -259,6 +342,8 @@ export class SprintUtilityService {
    * @param sprint
    */
   calculateSprintEstimates(sprint: Sprint) {
+    // count how many days left for sprint completion
+    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment(), 'd');
 
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
@@ -438,5 +523,33 @@ export class SprintUtilityService {
     activeSprint.columns = this.reOrderSprintColumns(activeBoard, activeSprint);
 
     return activeSprint;
+  }
+
+  /**
+   * update sprint member capacity validations
+   * @param model
+   * @param project
+   */
+  updateMemberCapacityValidations(model: UpdateSprintMemberWorkingCapacity, project: Project) {
+
+    // check capacity object is present or not
+    if (!model.capacity || !model.capacity.length) {
+      BadRequest('please add at least one member capacity');
+    }
+
+    // check if all members are part of the project
+    const everyMemberThere = model.capacity.every(member => project.members.some(proejctMember => {
+      return proejctMember.userId === member.memberId && proejctMember.isInviteAccepted;
+    }));
+    if (!everyMemberThere) {
+      BadRequest('One of member is not found in Project!');
+    }
+
+    // valid working days
+    const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
+
+    if (!validWorkingDays) {
+      BadRequest('One of Collaborator working days are invalid');
+    }
   }
 }
