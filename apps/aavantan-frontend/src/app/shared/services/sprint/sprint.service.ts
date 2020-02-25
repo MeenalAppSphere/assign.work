@@ -100,20 +100,22 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
   publishSprint(sprintData: SprintBaseRequest): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.publishSprint, sprintData).pipe(
       map((res: BaseResponseModel<Sprint>) => {
-        this.notification.success('Success', 'Sprint published successfully');
-
         // update current project and set sprint id
         this._userStore.update((state: UserState) => {
           return {
             ...state,
             currentProject: {
               ...state.currentProject,
-              sprintId: sprintData.sprintId
+              sprintId: res.data.id,
+              sprint: res.data
             }
           };
         });
         // set published sprint id to general service
-        this._generalService.currentProject.sprintId = sprintData.sprintId;
+        this._generalService.currentProject.sprintId = res.data.id;
+        this._generalService.currentProject.sprint = res.data;
+
+        this.notification.success('Success', 'Sprint published successfully');
         return res;
       }),
       catchError(err => {
@@ -165,10 +167,29 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  closeSprint(json: CloseSprintModel): Observable<BaseResponseModel<Sprint>> {
+  closeSprint(json: CloseSprintModel): Observable<BaseResponseModel<string>> {
     return this._http.post(SprintUrls.closeSprint, json).pipe(
-      map((res: BaseResponseModel<Sprint>) => {
-        this.notification.success('Success', 'Sprint closed Successfully');
+      map((res: BaseResponseModel<string>) => {
+
+        // set sprint id to null for current project
+        this._userStore.update((state) => {
+          return {
+            ...state,
+            currentProject: {
+              ...state.currentProject,
+              sprintId: null
+            },
+            user: {
+              ...state.user,
+              currentProject: {
+                ...state.user.currentProject,
+                sprintId: null
+              }
+            }
+          };
+        });
+
+        this.notification.success('Success', res.data);
         return res;
       }),
       catchError(err => {
@@ -208,16 +229,9 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
   }
 
 
-  addTaskToSprint(sprintData: AddTaskToSprintModel): Observable<BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>> {
+  addTaskToSprint(sprintData: AddTaskToSprintModel): Observable<BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>> {
     return this._http.post(SprintUrls.addSingleTask, sprintData).pipe(
-      map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel>) => {
-
-        if (res) {
-          this.notification.success('Success', 'Task successfully added to this Sprint');
-        } else {
-          this.notification.error('Error', 'Task not added to Sprint');
-        }
-
+      map((res: BaseResponseModel<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse>) => {
         return res;
       }),
       catchError(err => {

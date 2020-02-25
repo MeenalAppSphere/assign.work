@@ -83,10 +83,10 @@ export class BoardComponent implements OnInit, OnDestroy {
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
       goal: new FormControl(null, [Validators.required]),
-      sprintStatus: new FormControl(null, []),
       duration: new FormControl(null, [Validators.required]),
       startedAt: new FormControl(null, []),
-      endAt: new FormControl(null, [])
+      endAt: new FormControl(null, []),
+      createAndPublishNewSprint: new FormControl(false)
     });
 
   }
@@ -111,11 +111,8 @@ export class BoardComponent implements OnInit, OnDestroy {
           });
           column.tasks = tasks;
         }
-
       });
-
     }
-
   }
 
   async getBoardData() {
@@ -238,10 +235,19 @@ export class BoardComponent implements OnInit, OnDestroy {
     closeSprintRequest.sprintId = this.boardData.id;
 
     if (this.closeSprintModeSelection === 'createNewSprint') {
-      closeSprintRequest.createAndPublishNewSprint = true;
-      closeSprintRequest.sprint = this.closeSprintNewSprintForm.getRawValue();
+      closeSprintRequest.createNewSprint = true;
+
+      const sprintForm = this.closeSprintNewSprintForm.getRawValue();
+      if (sprintForm.duration) {
+        sprintForm.startedAt = sprintForm.duration[0];
+        sprintForm.endAt = sprintForm.duration[1];
+        delete sprintForm.duration;
+      }
+
+      closeSprintRequest.sprint = sprintForm;
+      closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
     } else {
-      closeSprintRequest.createAndPublishNewSprint = false;
+      closeSprintRequest.createNewSprint = false;
     }
 
     try {
@@ -249,6 +255,7 @@ export class BoardComponent implements OnInit, OnDestroy {
       this.closeSprintInProcess = false;
 
       this.isVisibleCloseSprint = false;
+      this.router.navigate(['dashboard']);
     } catch (e) {
       this.closeSprintInProcess = false;
       console.log(e);

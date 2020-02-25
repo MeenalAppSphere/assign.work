@@ -2,14 +2,16 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/cor
 import {
   AddTaskRemoveTaskToSprintResponseModel,
   AddTaskToSprintModel,
-  AssignTasksToSprintModel,
   DraftSprint,
   GetAllTaskRequestModel,
-  GetUnpublishedRequestModel, RemoveTaskFromSprintModel,
+  GetUnpublishedRequestModel,
+  RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
+  SprintErrorEnum,
   SprintErrorResponse,
-  Task, TaskFilterDto,
+  Task,
+  TaskFilterDto,
   TaskTypeModel,
   User
 } from '@aavantan-app/models';
@@ -57,8 +59,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public searchValue: string;
   public searchTaskListInProgress: boolean;
 
-  public sprintDurations:AddTaskRemoveTaskToSprintResponseModel;
-
+  public sprintId: string;
+  public sprintDurations: AddTaskRemoveTaskToSprintResponseModel;
 
   public tasksSelected: DraftSprint = {
     sprintId: null,
@@ -103,20 +105,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
       // if project has active sprint than get all tasks of that sprint
       // if not get un-published sprint tasks
 
-      if (  this._generalService.currentProject.sprintId) {
+      if (this._generalService.currentProject.sprintId) {
         // get active sprint tasks
         this.activeSprintData = this._generalService.currentProject.sprint;
+        this.sprintId = this.activeSprintData.id;
 
-        this.sprintDurations = {
-          totalCapacity : this.activeSprintData.totalCapacity,
-          totalCapacityReadable : this.activeSprintData.totalCapacityReadable,
-          totalRemainingCapacity: this.activeSprintData.totalRemainingCapacity,
-          totalRemainingCapacityReadable : this.activeSprintData.totalRemainingCapacityReadable,
-          totalEstimation : this.activeSprintData.totalEstimation,
-          totalEstimationReadable : this.activeSprintData.totalEstimationReadable,
-          tasks:null
-        }
-
+        this.setSprintDurations(this.activeSprintData);
 
         this.getAllSprintTasks();
       } else {
@@ -199,9 +193,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
         this.gettingUnpublishedInProcess = false;
 
         if ((typeof data.data) === 'string') {
-
+          // no un-published sprint found
         } else {
           this.unPublishedSprintData = data.data;
+          this.sprintId = this.unPublishedSprintData.id;
 
           const taskArray: Task[] = [];
           const ids: string[] = [];
@@ -225,6 +220,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
           } else {
             this.haveUnpublishedTasks = false;
           }
+
+          this.setSprintDurations(this.unPublishedSprintData);
         }
 
       });
@@ -313,7 +310,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
-
   public async publishSprint() {
     try {
       const sprintData: SprintBaseRequest = {
@@ -357,9 +353,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
-
   public async addTaskToSprint(task: Task, isAdd: boolean, adjustHoursAllowed?: boolean) {
-
     try {
       if (!isAdd) {
         return;
@@ -367,7 +361,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       const json: AddTaskToSprintModel = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.unPublishedSprintData.id || this.activeSprintData.id,
+        sprintId: this.sprintId,
         taskId: task.id,
         adjustHoursAllowed: adjustHoursAllowed
       };
@@ -376,19 +370,43 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       const data = await this._sprintService.addTaskToSprint(json).toPromise();
 
-      // if(data && data.data.resWithError ){
-      //
-      //   // @ts-ignore
-      //   if(!await this.addTaskConfirmAfterError()){
-      //     json.adjustHoursAllowed = true;
-      //     this.addTaskToSprint(task, true, true);
-      //     task.isSelected = false;
-      //     return;
-      //   }
-      //
-      // }else {
-      //  this.sprintDurations = data.data;
-      // }
+      if (data.data) {
+        // check if we found error while adding task
+
+        if (data.data.hasOwnProperty('tasksError') || data.data.hasOwnProperty('membersError')) {
+          const errorResponse = data.data as SprintErrorResponse;
+
+          // check if error is related to tasks error or members error
+          if (errorResponse.tasksError) {
+            // if sprint capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
+              if (await this.addTaskConfirmAfterError()) {
+                this.addTaskToSprint(task, true, true);
+                task.isSelected = false;
+                return;
+              }
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          } else {
+            // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
+              if (await this.addTaskConfirmAfterError()) {
+                this.addTaskToSprint(task, true, true);
+                task.isSelected = false;
+                return;
+              }
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          }
+        } else {
+          this.sprintDurations = data.data as AddTaskRemoveTaskToSprintResponseModel;
+          this.notification.success('Success', 'Task successfully added to this Sprint');
+        }
+      }
 
       this.draftTaskList = [...this.draftTaskList, task];
       this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
@@ -404,15 +422,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
     try {
       const json: RemoveTaskFromSprintModel = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.tasksSelected.sprintId || this.activeSprintData.id,
+        sprintId: this.sprintId,
         taskId: task.id
       };
       this.removeTaskFromSprintInProgress = true;
-      await this._sprintService.removeTaskFromSprint(json).toPromise();
+      const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
 
-      // task.isSelected = false;
-      this.draftTaskList = this.draftTaskList.filter(draftTask => draftTask.id !== task.id);
-      this.backLogTasksList = [...this.backLogTasksList, task];
+      if (result && result.data) {
+        this.draftTaskList = this.draftTaskList.filter(draftTask => draftTask.id !== task.id);
+        this.backLogTasksList = [...this.backLogTasksList, task];
+        this.sprintDurations = result.data;
+      }
 
       this.removeTaskFromSprintInProgress = false;
     } catch (e) {
@@ -422,15 +442,14 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   async addTaskConfirmAfterError() {
-
-      this.modal.confirm({
-        nzTitle: 'Still Want to add task?',
-        nzContent: 'May be this will effect your current Sprint',
-        nzOnOk: () =>
-          new Promise((resolve, reject) => {
-             return true;
-          }).catch(() => console.log('Oops errors!'))
-      });
+    return this.modal.confirm({
+      nzTitle: 'Still Want to add task?',
+      nzContent: 'May be this will effect your current Sprint',
+      nzOnOk: () =>
+        new Promise((resolve, reject) => {
+          return true;
+        }).catch(() => console.log('Oops errors!'))
+    });
 
   }
 
@@ -450,11 +469,21 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + task.displayName);
   }
 
-
   /** time log **/
   public timeLog(item: Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTimeLogTask = item;
+  }
+
+  private setSprintDurations(sprint: Sprint) {
+    this.sprintDurations = {
+      totalCapacity: sprint.totalCapacity,
+      totalCapacityReadable: sprint.totalCapacityReadable,
+      totalRemainingCapacity: sprint.totalRemainingCapacity,
+      totalRemainingCapacityReadable: sprint.totalRemainingCapacityReadable,
+      totalEstimation: sprint.totalEstimation,
+      totalEstimationReadable: sprint.totalEstimationReadable
+    };
   }
 
   public ngOnDestroy() {

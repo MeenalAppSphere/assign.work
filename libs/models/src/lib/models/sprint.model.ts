@@ -152,7 +152,6 @@ export class AddTaskRemoveTaskToSprintResponseModel {
   totalRemainingCapacityReadable: string;
   totalEstimation: number;
   totalEstimationReadable: string;
-  tasks: string;
 }
 
 export class MoveTaskToColumnModel extends SprintBaseRequest {

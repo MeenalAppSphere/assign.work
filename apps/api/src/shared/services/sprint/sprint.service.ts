@@ -439,7 +439,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._projectService.getProjectDetails(model.projectId);
 
       // get sprint details
-      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], detailedFiledSelection);
 
       // check if requested task is in sprint
       const taskIsInSprint = sprintDetails.columns.some(column => {
@@ -497,11 +497,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       return {
         totalCapacity: sprintDetails.totalCapacity,
         totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
-        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
-        totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
         totalEstimation: sprintDetails.totalEstimation,
         totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
-        tasks: taskDetails.id
+        totalRemainingCapacity: sprintDetails.totalCapacity - sprintDetails.totalEstimation,
+        totalRemainingCapacityReadable: secondsToString(sprintDetails.totalCapacity - sprintDetails.totalEstimation)
       };
 
     });
@@ -1004,7 +1003,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // send publish sprint emails
       this._sprintUtilityService.sendPublishedSprintEmails(sprintDetails);
 
-      return 'Sprint Published Successfully';
+      return sprintDetails;
     });
   }
 
@@ -1062,6 +1061,20 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         });
       });
 
+      // get last column of sprint and last column statuses because we consider last column as completed status of a task for a sprint
+      const lastColumn = currentSprintDetails.columns[currentSprintDetails.columns.length - 1];
+
+      // get all unfinished tasks
+      const unFinishedTasksIds = allTaskList.filter(task => {
+        return task.statusId.toString() !== lastColumn.statusId.toString();
+      }).map(task => task._id.toString());
+
+      // get all finished tasks
+      const finishedTasksIds = allTaskList.filter(task => {
+        return task.statusId.toString() === lastColumn.statusId.toString();
+      }).map(task => task._id.toString());
+
+
       // check if sprint has tasks
       if (!allTaskList.length) {
         BadRequest('This Sprint don\'t have any tasks');
@@ -1070,36 +1083,26 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       let responseMsg = '';
 
       if (model.createNewSprint) {
-        // get last column of sprint and last column statuses
-        const lastColumn = currentSprintDetails.columns[currentSprintDetails.columns.length - 1];
-
-        // get all unfinished tasks
-        const unFinishedTasks = allTaskList.filter(task => {
-          return task.statusId.toString() !== lastColumn.statusId.toString();
-        }).map(task => task._id.toString());
-
         // create new sprint and move all un-Finished task of this sprint to new sprint
 
         // new sprint process
         const newSprint = await this.createSprintCommonProcess({ sprint: model.sprint }, projectDetails, session, model.createAndPublishNewSprint);
 
         // close current sprint and set new sprint id to unfinished tasks
-        await this.closeSprintCommonProcess(model.projectId, unFinishedTasks,
+        await this.closeSprintCommonProcess(model.projectId, unFinishedTasksIds,
           model.createAndPublishNewSprint ? newSprint[0].id : null,
           session);
 
         // update finished tasks and set sprint id to null
         await this._taskService.bulkUpdate({
-          _id: { $in: allTaskList }
+          _id: { $in: finishedTasksIds }
         }, { $set: { sprintId: null } }, session);
 
         responseMsg = `Sprint Closed Successfully and all Task Moved to new Sprint Named :- ${model.sprint.name}`;
       } else {
-        // move all tasks of this sprint to backlog and close the sprint
-        const allTasksListIds = allTaskList.map(task => task._id.toString());
 
-        // close current sprint
-        await this.closeSprintCommonProcess(model.projectId, allTasksListIds, null, session);
+        // close current sprint and move finished and un-finished tasks to back log
+        await this.closeSprintCommonProcess(model.projectId, [...unFinishedTasksIds, ...finishedTasksIds], null, session);
 
         responseMsg = `Sprint Closed Successfully`;
       }
@@ -1259,9 +1262,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       });
     } else {
       // if task is deleted than set removed by id to null
-      sprintDetails.columns[columnIndex].tasks[columnIndex] = {
-        taskId: sprintDetails.columns[columnIndex].tasks[columnIndex].taskId,
-        totalLoggedTime: sprintDetails.columns[columnIndex].tasks[columnIndex].totalLoggedTime,
+      sprintDetails.columns[columnIndex].tasks[isDeletedTaskIndex] = {
+        taskId: sprintDetails.columns[columnIndex].tasks[isDeletedTaskIndex].taskId,
+        totalLoggedTime: sprintDetails.columns[columnIndex].tasks[isDeletedTaskIndex].totalLoggedTime,
         removedById: null,
         removedAt: null,
         addedAt: generateUtcDate(),
@@ -1303,8 +1306,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
       totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity),
       totalEstimation: sprintDetails.totalEstimation,
-      totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
-      tasks: taskDetails.id
+      totalEstimationReadable: secondsToString(sprintDetails.totalEstimation)
     };
   }
 

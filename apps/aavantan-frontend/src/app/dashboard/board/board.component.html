@@ -150,6 +150,7 @@
   [(nzVisible)]="isVisibleCloseSprint"
   nzTitle="Close Sprint"
   nzOkText="Submit"
+  nzMaskClosable="false"
   [nzWidth]="700"
   nzCancelText="Cancel"
   (nzOnOk)="closeSprint()"
@@ -199,6 +200,12 @@
                   <textarea formControlName="goal" nz-input [rows]="3"
                             placeholder="Enter Sprint Goal (max 250 character)" nzSize="small"
                             maxlength="250"></textarea>
+                </nz-form-item>
+              </div>
+
+              <div class="col-md-12">
+                <nz-form-item class="m-0">
+                  <label nz-checkbox formControlName="createAndPublishNewSprint">Publish New Sprint ?</label>
                 </nz-form-item>
               </div>
 
