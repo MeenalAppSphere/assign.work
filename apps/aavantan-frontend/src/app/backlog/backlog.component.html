@@ -455,5 +455,7 @@
 </aavantan-app-add-sprint>
 
 
-<app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTimeLogTask"
-             (toggleTimeLogShow)="timeLog(selectedTimeLogTask)"></app-timelog>
+<ng-container *ngIf="timelogModalIsVisible && selectedTimeLogTask">
+  <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTimeLogTask"
+               (toggleTimeLogShow)="timeLog(selectedTimeLogTask)"></app-timelog>
+</ng-container>
