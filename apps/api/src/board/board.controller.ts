@@ -11,7 +11,7 @@ import {
   BoardModelBaseRequest,
   BoardShowColumnStatus,
   GetActiveBoardRequestModel,
-  GetAllBoardsRequestModel
+  GetAllBoardsRequestModel, SaveAndPublishBoardModel
 } from '@aavantan-app/models';
 import { BoardService } from '../shared/services/board/board.service';
 
@@ -33,8 +33,13 @@ export class BoardController {
   }
 
   @Post('publish')
-  async publishBoard(@Body() model: BoardModelBaseRequest) {
-    return await this._boardService.publishBoard(model);
+  async publishBoard(@Body() model: SaveAndPublishBoardModel) {
+    return await this._boardService.saveAndPublishBoard(model);
+  }
+
+  @Post('save-publish')
+  async saveAndPublishBoard(@Body() model: SaveAndPublishBoardModel) {
+    return await this._boardService.saveAndPublishBoard(model);
   }
 
   @Post('delete')

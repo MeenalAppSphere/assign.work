@@ -15,7 +15,7 @@ import {
   BoardModelBaseRequest,
   BoardShowColumnStatus,
   GetActiveBoardRequestModel,
-  GetAllBoardsRequestModel,
+  GetAllBoardsRequestModel, SaveAndPublishBoardModel,
   TaskStatusModel
 } from '@aavantan-app/models';
 import { BoardUrls } from './board.url';
@@ -94,7 +94,7 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
     );
   }
 
-  publishBoard(requestModel: BoardModelBaseRequest) {
+  publishBoard(requestModel: SaveAndPublishBoardModel) {
     this.updateState({ publishBoardInProcess: true });
     return this._http.post(BoardUrls.publishBoard, requestModel).pipe(
       map((res: BaseResponseModel<string>) => {
