@@ -7,6 +7,8 @@
   box-shadow: none;
   margin-top: 0px;
   white-space: nowrap;
+  float: left;
+  margin-top: -2px;
   &:hover{
     background: none!important;
   }
@@ -16,6 +18,13 @@
 }
 .w-45px{
   width: 45px;
+}
+
+.status-tag {
+  border-radius: 4px;
+  font-size: 12px;
+  height: 1.25rem;
+  line-height: 1.25rem;
 }
 
 .dndList {
@@ -35,7 +44,6 @@
 }
 
 .dndDraggingSource {
-
   display: none;
 }
 

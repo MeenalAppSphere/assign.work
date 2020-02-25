@@ -383,7 +383,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
             if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
 
               // uncheck item code here
-              
+
               this.addTaskToSprintInProgress = false;
               await this.addTaskConfirmAfterError(task);
               return;
