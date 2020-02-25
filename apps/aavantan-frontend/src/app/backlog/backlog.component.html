@@ -85,14 +85,17 @@
 
         <div class="draft-sprint-box"
              *ngIf="unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0">
-          <nz-empty
-            [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-            [nzNotFoundContent]="contentTpl">
-            <ng-template #contentTpl>
-              <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
-            </ng-template>
+          <nz-spin *ngIf="draftTaskList?.length==0" [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+                   [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
+            <nz-empty
+              [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
+              [nzNotFoundContent]="contentTpl">
+              <ng-template #contentTpl>
+                <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
+              </ng-template>
 
-          </nz-empty>
+            </nz-empty>
+          </nz-spin>
         </div>
 
 
@@ -100,9 +103,9 @@
 
           <div *ngIf="activeSprintData?.id || unPublishedSprintData?.id">
 
-            <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+            <nz-spin *ngIf="draftTaskList?.length>0" [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                      [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
-              <nz-table *ngIf="draftTaskList?.length>0" #listViewTable [nzData]="draftTaskList" nzSize="small"
+              <nz-table  #listViewTable [nzData]="draftTaskList" nzSize="small"
                         class="draft-table">
                 <thead>
                 <tr>
