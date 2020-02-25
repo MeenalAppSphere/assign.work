@@ -151,7 +151,7 @@ export class AssignTasksToSprintModel extends SprintBaseRequest {
   adjustHoursAllowed?: boolean;
 }
 
-export class AddTaskRemoveTaskToSprintResponseModel {
+export class SprintDurationsModel {
   totalCapacity: number;
   totalCapacityReadable: string;
   totalRemainingCapacity: number;

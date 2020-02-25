@@ -5,12 +5,18 @@ import {
   Sprint,
   SprintColumn,
   SprintErrorEnum,
-  Task,
+  Task, UpdateSprintMemberWorkingCapacity,
   User
 } from '@aavantan-app/models';
 import { BadRequestException } from '@nestjs/common';
 import * as moment from 'moment';
-import { BadRequest, generateUtcDate, secondsToHours, secondsToString } from '../../helpers/helpers';
+import {
+  BadRequest,
+  generateUtcDate,
+  secondsToHours,
+  secondsToString,
+  validWorkingDaysChecker
+} from '../../helpers/helpers';
 import { DEFAULT_DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { EmailService } from '../email.service';
 import { orderBy } from 'lodash';
@@ -237,12 +243,12 @@ export class SprintUtilityService {
 
     // sprint start date is before today
     if (sprintStartDate.isBefore(moment(), 'd')) {
-      throw new BadRequestException('Sprint start date is before today!');
+      BadRequest('Sprint start date is before today!');
     }
 
     // sprint end date can not be before today
     if (sprintEndDate.isBefore(moment(), 'd')) {
-      throw new BadRequestException('Sprint end date is passed!');
+      BadRequest('Sprint end date is passed!');
     }
 
     // check if sprint has any tasks or not
@@ -251,8 +257,13 @@ export class SprintUtilityService {
     });
 
     if (!checkIfThereAnyTasks) {
-      throw new BadRequestException('No task found, Please add at least one task to publish the sprint');
+      BadRequest('No task found, Please add at least one task to publish the sprint');
     }
+
+    // commented out capacity check for now
+    // if (sprintDetails.totalEstimation > sprintDetails.totalCapacity) {
+    //   BadRequest('Sprint estimation is higher than the sprint capacity!');
+    // }
   }
 
   async sendPublishedSprintEmails(sprintDetails: Sprint) {
@@ -491,5 +502,33 @@ export class SprintUtilityService {
     activeSprint.columns = this.reOrderSprintColumns(activeBoard, activeSprint);
 
     return activeSprint;
+  }
+
+  /**
+   * update sprint member capacity validations
+   * @param model
+   * @param project
+   */
+  updateMemberCapacityValidations(model: UpdateSprintMemberWorkingCapacity, project: Project) {
+
+    // check capacity object is present or not
+    if (!model.capacity || !model.capacity.length) {
+      BadRequest('please add at least one member capacity');
+    }
+
+    // check if all members are part of the project
+    const everyMemberThere = model.capacity.every(member => project.members.some(proejctMember => {
+      return proejctMember.userId === member.memberId && proejctMember.isInviteAccepted;
+    }));
+    if (!everyMemberThere) {
+      BadRequest('One of member is not found in Project!');
+    }
+
+    // valid working days
+    const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
+
+    if (!validWorkingDays) {
+      BadRequest('One of Collaborator working days are invalid');
+    }
   }
 }

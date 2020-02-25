@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
 import {
-  AddTaskRemoveTaskToSprintResponseModel,
+  SprintDurationsModel,
   AddTaskToSprintModel,
   BasePaginatedResponse,
   BoardModel,
@@ -320,7 +320,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * but if not then check for some capacity related validation before adding task to sprint
    * @param model
    */
-  public async addTaskToSprint(model: AddTaskToSprintModel): Promise<AddTaskRemoveTaskToSprintResponseModel | SprintErrorResponse> {
+  public async addTaskToSprint(model: AddTaskToSprintModel): Promise<SprintDurationsModel | SprintErrorResponse> {
     return await this.withRetrySession(async (session: ClientSession) => {
       const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
 
@@ -875,59 +875,39 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model: UpdateSprintMemberWorkingCapacity[]
    */
   public async updateSprintMemberWorkingCapacity(model: UpdateSprintMemberWorkingCapacity) {
-    // check capacity object is present or not
-    if (!model.capacity || !model.capacity.length) {
-      throw new BadRequestException('please add at least one member capacity');
-    }
+    return await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
-    // get project details
-    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+      // validations
+      this._sprintUtilityService.updateMemberCapacityValidations(model, projectDetails);
 
-    // check if all members are part of the project
-    const everyMemberThere = model.capacity.every(member => projectDetails.members.some(proejctMember => {
-      return proejctMember.userId === member.memberId && proejctMember.isInviteAccepted;
-    }));
-    if (!everyMemberThere) {
-      throw new BadRequestException('One of member is not found in Project!');
-    }
+      // get sprint details by id
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
-    // valid working days
-    const validWorkingDays = model.capacity.every(ddt => validWorkingDaysChecker(ddt.workingDays));
+      if (sprintDetails.sprintStatus) {
+        let msgStatus = '';
+        // switch over sprint status
+        switch (sprintDetails.sprintStatus.status) {
+          case SprintStatusEnum.inProgress:
+            msgStatus = 'Published';
+            break;
+          case SprintStatusEnum.closed:
+            msgStatus = 'Closed';
+            break;
+          case SprintStatusEnum.completed:
+            msgStatus = 'Completed';
+        }
 
-    if (!validWorkingDays) {
-      throw new BadRequestException('One of Collaborator working days are invalid');
-    }
-
-    // get sprint details by id
-    const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
-
-    if (sprintDetails.sprintStatus) {
-      let msgStatus = '';
-      // switch over sprint status
-      switch (sprintDetails.sprintStatus.status) {
-        case SprintStatusEnum.inProgress:
-          msgStatus = 'Published';
-          break;
-        case SprintStatusEnum.closed:
-          msgStatus = 'Closed';
-          break;
-        case SprintStatusEnum.completed:
-          msgStatus = 'Completed';
+        throw new BadRequestException(`Sprint is already ${msgStatus}! You can not change it's Capacity`);
       }
 
-      throw new BadRequestException(`Sprint is already ${msgStatus}! You can not change it's Capacity`);
-    }
+      // check if all members are part of the sprint
+      const everyMemberThereInSprint = model.capacity.every(member => sprintDetails.membersCapacity.some(proejctMember => proejctMember.userId === member.memberId));
+      if (!everyMemberThereInSprint) {
+        throw new BadRequestException('One of member is not member in Sprint!');
+      }
 
-    // check if all members are part of the sprint
-    const everyMemberThereInSprint = model.capacity.every(member => sprintDetails.membersCapacity.some(proejctMember => proejctMember.userId === member.memberId));
-    if (!everyMemberThereInSprint) {
-      throw new BadRequestException('One of member is not member in Sprint!');
-    }
-
-    // crete db session and start transaction
-    const session = await this.startSession();
-
-    try {
       // total working capacity holder variable
       let totalWorkingCapacity = 0;
 
@@ -955,16 +935,18 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         }
       };
       // update sprint in database
-      await this._sprintModel.updateOne({ _id: model.sprintId }, updateObject, { session });
-      await this.commitTransaction(session);
+      await this.updateById(model.sprintId, updateObject, session);
 
-      // return sprint details
-      const sprint = await this.getSprintDetails(model.sprintId, model.projectId, commonPopulationForSprint, commonFieldSelection);
-      return this._sprintUtilityService.prepareSprintVm(sprint);
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
+      // return sprint totals
+      return {
+        totalCapacity: sprintDetails.totalCapacity,
+        totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
+        totalEstimation: sprintDetails.totalEstimation,
+        totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
+        totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
+        totalRemainingCapacityReadable: secondsToString(sprintDetails.totalRemainingCapacity)
+      };
+    });
   }
 
   /**

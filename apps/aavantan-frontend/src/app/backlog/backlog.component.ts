@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  AddTaskRemoveTaskToSprintResponseModel,
+  SprintDurationsModel,
   AddTaskToSprintModel,
   DraftSprint,
   GetAllTaskRequestModel,
@@ -60,7 +60,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public searchTaskListInProgress: boolean;
 
   public sprintId: string;
-  public sprintDurations: AddTaskRemoveTaskToSprintResponseModel;
+  public sprintDurations: SprintDurationsModel;
 
   public tasksSelected: DraftSprint = {
     sprintId: null,
@@ -331,9 +331,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  public toggleTeamCapacity(data?: Sprint) {
+  public toggleTeamCapacity(data?: SprintDurationsModel) {
     if (data) {
-      this.unPublishedSprintData = data;
+      this.sprintDurations = data;
     }
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
@@ -404,7 +404,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
             }
           }
         } else {
-          this.sprintDurations = data.data as AddTaskRemoveTaskToSprintResponseModel;
+          this.sprintDurations = data.data as SprintDurationsModel;
           this.notification.success('Success', 'Task successfully added to this Sprint');
         }
       }
