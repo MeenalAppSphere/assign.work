@@ -1,11 +1,15 @@
-import { Project, Task } from '@aavantan-app/models';
+import { EmailSubjectEnum, EmailTemplatePathEnum, Project, Task } from '@aavantan-app/models';
 import { BoardUtilityService } from '../board/board.utility.service';
+import { EmailService } from '../email.service';
+import { environment } from '../../../environments/environment';
 
 export class TaskUtilityService {
   private _boardUtilityService: BoardUtilityService;
+  private _emailService: EmailService;
 
   constructor() {
     this._boardUtilityService = new BoardUtilityService();
+    this._emailService = new EmailService();
   }
 
   /**
@@ -42,4 +46,19 @@ export class TaskUtilityService {
     return taskModel;
   }
 
+  async sendMailToTaskAssignee(task: Task, project: Project) {
+    const templateData = {
+      task,
+      project,
+      appUrl: environment.APP_URL
+    };
+
+    const emailObject = {
+      to: task.assignee.emailId,
+      subject: EmailSubjectEnum.taskAssigned,
+      message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskAssigned, templateData)
+    };
+
+    this._emailService.sendMail([emailObject.to], emailObject.subject, emailObject.message);
+  }
 }

@@ -3,4 +3,7 @@ export enum EmailTemplatePathEnum {
   resetPassword = 'reset-password/reset-password.ejs',
   publishSprint = 'publish-sprint/publish-sprint.ejs',
   closeSprint = 'close-sprint/close-sprint.ejs',
+  taskAssigned = 'task-assigned/task-assigned.ejs',
+  taskUpdated = 'task-updated/task-updated.ejs',
+  taskCommentAdded = 'task-comment-added/task-comment-added.ejs'
 }

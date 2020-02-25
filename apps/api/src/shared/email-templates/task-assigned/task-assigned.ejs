@@ -1,0 +1,13 @@
+<div>
+
+    <span>Dear <%= task.assignee.firstName %> <%= task.assignee.lastName %>
+        A task named :- <%= task.displayName %> has been assigned to you by :-
+        <b><%= task.createdBy.firstName %> <%= task.createdBy.lastName %></b>
+
+        in Project <b><%= project.name %></b>
+    </span>
+
+    <span>Please visit below link to get task details</span>
+    <a href="<%= appUrl %>dashboard/task/<%= task.displayName %>"><%= task.displayName %></a>
+
+</div>

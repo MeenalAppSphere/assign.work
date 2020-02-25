@@ -182,8 +182,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async addTask(model: Task): Promise<Task> {
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
     const newTask = await this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
 
       const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
 
@@ -214,10 +214,10 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.watchers = [
         ...new Set([
           this._generalService.userId,
-          taskModel.assigneeId ? taskModel.assigneeId : '',
+          taskModel.assigneeId,
           ...taskModel.watchers
         ])
-      ].filter(watcher => watcher);
+      ];
 
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
@@ -259,6 +259,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     if (!task) {
       throw new BadRequestException('task not found');
     }
+
+    this._utilityService.sendMailToTaskAssignee(task, projectDetails);
     return this.parseTaskObjectForUi(task);
   }
 
