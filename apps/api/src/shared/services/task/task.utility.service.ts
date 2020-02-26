@@ -46,6 +46,11 @@ export class TaskUtilityService {
     return taskModel;
   }
 
+  /**
+   * send email when task is created and assigned to someone
+   * @param task
+   * @param project
+   */
   async sendMailToTaskAssignee(task: Task, project: Project) {
     const templateData = {
       task,
@@ -60,5 +65,36 @@ export class TaskUtilityService {
     };
 
     this._emailService.sendMail([emailObject.to], emailObject.subject, emailObject.message);
+  }
+
+  /**
+   * send email when a task is updated
+   * @param task
+   * @param project
+   */
+  async sendMailForTaskUpdated(task: Task, project: Project) {
+    if (!task.updatedBy) {
+      return;
+    }
+    const sendEmailArrays = [];
+
+    for (const watcher of task.watchersDetails) {
+      const templateData = {
+        user: { firstName: watcher.firstName, lastName: watcher.lastName },
+        task,
+        project,
+        appUrl: environment.APP_URL
+      };
+
+      sendEmailArrays.push({
+        to: watcher.emailId,
+        subject: EmailSubjectEnum.taskUpdated,
+        message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskUpdated, templateData)
+      });
+    }
+
+    sendEmailArrays.forEach(email => {
+      this._emailService.sendMail([email.to], email.subject, email.message);
+    });
   }
 }

@@ -45,6 +45,10 @@ const taskBasicPopulation: any[] = [{
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
+  path: 'updatedBy',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
   path: 'assignee',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
@@ -271,17 +275,20 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async updateTask(model: Task): Promise<Task> {
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+    let isAssigneeChanged = false;
+
     await this.withRetrySession(async (session: ClientSession) => {
       if (!model || !model.id) {
         BadRequest('Task not found');
       }
 
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
       const taskDetails = await this.getTaskDetails(model.id, model.projectId);
 
       // check if task assignee id is available or not
       // if not then assign it to task creator
       model.assigneeId = model.assigneeId || this._generalService.userId;
+      isAssigneeChanged = taskDetails.assigneeId.toString() !== model.assigneeId;
 
       // check if estimated time updated and one have already logged in this task
       if (model.estimatedTimeReadable) {
@@ -337,6 +344,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       model.progress = model.progress || 0;
       model.overProgress = model.overProgress || 0;
+      model.updatedById = this._generalService.userId;
 
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
@@ -366,6 +374,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         }
       }
 
+      // create task history object
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
 
       // update task by id
@@ -376,6 +385,14 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     });
 
     const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
+
+    // check if assignee changed than send mail to new assignee
+    if (isAssigneeChanged) {
+      this._utilityService.sendMailToTaskAssignee(task, projectDetails);
+    }
+
+    // send mail for task updated to all the task watchers
+    this._utilityService.sendMailForTaskUpdated(task, projectDetails);
     return this.parseTaskObjectForUi(task);
   }
 
