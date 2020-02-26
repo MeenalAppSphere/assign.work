@@ -390,7 +390,7 @@ $color-green : #42E3A3;
   .shadow-div-right {
     height: calc(100vh - 150px);
     position: absolute;
-    right:0px;
+    right:-10px;
     top:0px;
     width: 40px;
     z-index: 2;
