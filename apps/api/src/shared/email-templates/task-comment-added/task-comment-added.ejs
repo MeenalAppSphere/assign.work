@@ -1,0 +1,13 @@
+<div>
+
+    <span>Dear <%= user.firstName %> <%= user.lastName %>
+        A comment added to a task named :- <%= task.displayName %> by :-
+        <b><%= comment.createdBy.firstName %> <%= comment.createdBy.lastName %></b>
+
+        in Project <b><%= project.name %></b>
+    </span>
+
+    <span>Please visit below link to get task details</span>
+    <a href="<%= appUrl %>dashboard/task/<%= task.displayName %>"><%= task.displayName %></a>
+
+</div>

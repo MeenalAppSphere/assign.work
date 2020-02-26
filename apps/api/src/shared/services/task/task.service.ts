@@ -11,15 +11,13 @@ import {
   GetCommentsModel,
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
-  Project,
   SprintStatusEnum,
   Task,
   TaskComments,
   TaskFilterDto,
   TaskHistory,
   TaskHistoryActionEnum,
-  UpdateCommentModel,
-  User
+  UpdateCommentModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -36,6 +34,7 @@ import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { ProjectService } from '../project/project.service';
 import { TaskUtilityService } from './task.utility.service';
+import { ProjectUtilityService } from '../project/project.utility.service';
 
 /**
  * common task population object
@@ -93,6 +92,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private _taskHistoryService: TaskHistoryService;
 
   private _utilityService: TaskUtilityService;
+  private _projectUtilityService: ProjectUtilityService;
 
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
@@ -110,6 +110,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
 
     this._utilityService = new TaskUtilityService();
+    this._projectUtilityService = new ProjectUtilityService();
   }
 
   /**
@@ -518,34 +519,64 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       throw new BadRequestException('please add comment');
     }
 
-    return this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(model.projectId);
+    // create comment
+    await this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       // get task details
       const taskDetails = await this.findById(model.taskId);
+      const commentModel = new TaskComments();
+      let newWatchers = [];
 
-      model.comment.createdById = this._generalService.userId;
-      model.comment.createdAt = generateUtcDate();
-      model.comment.updatedAt = generateUtcDate();
+      // get mentioned users from comment
+      newWatchers = this._utilityService.getMentionedUsersFromComment(model, taskDetails, projectDetails, newWatchers);
 
-      // push comment to task's comments array
-      taskDetails.comments.push(model.comment);
-      // save task
-      await taskDetails.save({ session });
+      commentModel.comment = model.comment.comment;
+      commentModel.createdById = this._generalService.userId;
+      commentModel.createdAt = generateUtcDate();
+      commentModel.updatedAt = generateUtcDate();
+      commentModel.isPinned = false;
+
+      // add comment to comments array
+      const taskUpdateObj: any = {
+        $push: {
+          'comments': commentModel
+        }
+      };
+
+      // add new watchers to watchers array
+      if (newWatchers.length) {
+        taskUpdateObj.$push.watchers = { $each: newWatchers };
+      }
+
+      // update task by id
+      await this.updateById(taskDetails.id, taskUpdateObj, session);
 
       // save task history
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
       await this._taskHistoryService.addHistory(taskHistory, session);
 
-      // return newly created comment
-      let newComment: any = taskDetails.comments[taskDetails.comments.length - 1];
-      if (newComment) {
-        newComment = newComment.toJSON();
-        newComment.id = newComment._id.toString();
-        newComment.uuid = model.comment.uuid;
-      }
-      return newComment;
+      return true;
     });
+
+    // get task details
+    try {
+      const task = await this.getTaskDetails(model.taskId, model.projectId);
+
+      if (task) {
+        // return newly created comment
+        const newComment: any = task.comments[task.comments.length - 1];
+        if (newComment) {
+          newComment.id = newComment._id.toString();
+          newComment.uuid = model.comment.uuid;
+          return newComment;
+        }
+      } else {
+        BadRequest('Task not found');
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**

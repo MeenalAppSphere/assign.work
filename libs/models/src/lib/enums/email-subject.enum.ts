@@ -4,5 +4,6 @@ export enum EmailSubjectEnum {
   taskMoved = 'Task moved to a column',
   taskAssigned = 'Task Assigned',
   taskUpdated = 'Task Updated',
-  taskCreated = 'Task Created'
+  taskCreated = 'Task Created',
+  taskCommentAdded = 'Task Comment Added'
 }
