@@ -13,7 +13,7 @@ import {
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
-  ProjectStatus,
+  ProjectStatus, ProjectTags,
   ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
@@ -319,14 +319,14 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       );
   }
 
-  searchTags(text: string): Observable<BaseResponseModel<string[]>> {
+  searchTags(text: string): Observable<BaseResponseModel<ProjectTags[]>> {
     const json: SearchProjectTags = {
       // organizationId: this._generalService.currentOrganization.id,
       projectId: this._generalService.currentProject.id,
       query: text
     };
     return this._http.post(ProjectUrls.searchTags, json).pipe(
-      map((res: BaseResponseModel<string[]>) => {
+      map((res: BaseResponseModel<ProjectTags[]>) => {
         return res;
       }),
       catchError(err => {
