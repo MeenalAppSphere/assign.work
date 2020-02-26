@@ -11,10 +11,10 @@ export const TaskUrls = {
   getTask: `${createUrl('task/get-task')}`,
   filterTask: `${createUrl('task/filter')}`,
 
-  addComment: `${createUrl('task/add-comment')}`,
-  getComments: `${createUrl('task/get-comments')}`,
-  updateComment: `${createUrl('task/update-comment')}`,
-  pinComment: `${createUrl('task/pin-comment')}`,
+  addComment: `${createUrl('task-comments/add')}`,
+  getComments: `${createUrl('task-comments/get-all')}`,
+  updateComment: `${createUrl('task-comments/update')}`,
+  pinComment: `${createUrl('task-comments/pin-comment')}`,
 
   attachement: `${createUrl('attachment/task/add')}`,
   removeAttachement: `${createUrl('attachment/:id')}`,

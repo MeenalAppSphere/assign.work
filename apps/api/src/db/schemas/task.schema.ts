@@ -39,7 +39,7 @@ export const taskSchema = new Schema({
   watchers: [{ type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }],
   attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
   taskTypeId: { type: Schema.Types.ObjectId, ref: DbCollection.taskType },
-  comments: [commentSchema],
+  comments: [{ type: Schema.Types.ObjectId, ref: DbCollection.taskComments }],
   estimatedTime: { type: Number, default: 0 },
   remainingTime: { type: Number, default: 0 },
   overLoggedTime: { type: Number, default: 0 },

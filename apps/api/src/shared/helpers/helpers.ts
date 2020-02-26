@@ -197,8 +197,12 @@ export const aggregateConvert_idToId = { $addFields: { id: '$_id' } };
  */
 export const getMentionedUsersFromComment = (comment: string = ''): string[] => {
   const parsedMentions = comment.match(/data-id="\w*"/g);
-  return parsedMentions.map(mention => {
-    mention = mention.replace('data-id="', '').replace('"', '');
-    return mention;
-  });
+  if (parsedMentions) {
+    return parsedMentions.map(mention => {
+      mention = mention.replace('data-id="', '').replace('"', '');
+      return mention;
+    });
+  } else {
+    return [];
+  }
 };

@@ -45,6 +45,8 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
   onModuleInit(): any {
     this._projectService = this._moduleRef.get('ProjectService');
+    this._taskService = this._moduleRef.get('TaskService');
+    this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
 
     this._utilityService = new TaskCommentUtilityService();
   }
@@ -62,7 +64,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     // get project details
     const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
     // get task details
-    const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId);
+    const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId, true);
 
     // add comment process
     const comment = await this.withRetrySession(async (session: ClientSession) => {
@@ -84,7 +86,8 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       if (newWatchers.length) {
         const taskUpdateObj: any = {
           $push: {
-            'watchers': { $each: newWatchers }
+            'watchers': { $each: newWatchers },
+            comments: newComment[0].id
           }
         };
         // update task and add new watcher's to task
@@ -111,7 +114,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
       // send email for comment added
       this._utilityService.sendMailForCommentAdded(taskDetails, projectDetails, commentDetails);
-
+      return commentDetails;
     } catch (e) {
       throw e;
     }
@@ -196,11 +199,20 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
   public async getAllTaskComments(projectId: string, taskId: string) {
     await this._projectService.getProjectDetails(projectId);
 
-    return this.find({
+    const comments = await this.find({
       filter: { taskId },
       populate: taskBasicPopulation,
       lean: true
     });
+
+    if (comments && comments.length) {
+      return comments.map(comment => {
+        comment.id = comment._id.toString();
+        return comment;
+      });
+    } else {
+      return [];
+    }
   }
 
   /**

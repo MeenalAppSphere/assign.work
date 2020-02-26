@@ -4,7 +4,7 @@ import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions 
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
-const taskCommentSchema = new Schema({
+export const taskCommentSchema = new Schema({
   comment: { type: String },
   attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
   isPinned: { type: Boolean, default: false },

@@ -16,6 +16,7 @@ import { taskStatusSchema } from './schemas/task-status.schema';
 import { taskPrioritySchema } from './schemas/task-priority.schema';
 import { taskTypeSchema } from './schemas/task-type.schema';
 import { boardSchema } from './schemas/board.schema';
+import { taskCommentSchema } from './schemas/task-comment.schema';
 
 @Module({
   imports: [
@@ -79,6 +80,10 @@ import { boardSchema } from './schemas/board.schema';
       name: DbCollection.board,
       schema: boardSchema,
       collection: DbCollection.board
+    }, {
+      name: DbCollection.taskComments,
+      schema: taskCommentSchema,
+      collection: DbCollection.taskComments
     }])
   ],
   exports: [

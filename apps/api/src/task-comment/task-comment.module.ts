@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { TaskCommentController } from './task-comment.controller';
 
 @Module({
-  controllers: []
+  controllers: [TaskCommentController]
 })
 export class TaskCommentModule {
 }

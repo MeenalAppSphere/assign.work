@@ -19,6 +19,7 @@ import { WorkflowModule } from '../workflow/workflow.module';
 import { TaskPriorityModule } from '../task-priority/task-priority.module';
 import { TaskTypeModule } from '../task-type/task-type.module';
 import { BoardModule } from '../board/board.module';
+import { TaskCommentModule } from '../task-comment/task-comment.module';
 
 @Module({
   imports: [
@@ -40,7 +41,8 @@ import { BoardModule } from '../board/board.module';
     TaskPriorityModule,
     TaskTypeModule,
     WorkflowModule,
-    BoardModule
+    BoardModule,
+    TaskCommentModule
   ],
   controllers: []
 })

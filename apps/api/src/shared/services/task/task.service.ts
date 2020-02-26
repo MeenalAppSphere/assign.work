@@ -682,14 +682,16 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * get task details by id
    * @param taskId
    * @param projectId
+   * @param getFullDetails
    */
-  async getTaskDetails(taskId: string, projectId: string): Promise<Task> {
+  async getTaskDetails(taskId: string, projectId: string, getFullDetails: boolean = false): Promise<Task> {
     if (!this.isValidObjectId(taskId)) {
       throw new BadRequestException('Task not found');
     }
     const taskDetails: Task = await this.findOne({
       filter: { _id: taskId, projectId },
-      lean: true
+      lean: true,
+      populate: getFullDetails ? taskBasicPopulation : []
     });
 
     if (!taskDetails) {

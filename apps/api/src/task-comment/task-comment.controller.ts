@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AddCommentModel, CommentPinModel, TaskStatusModel, UpdateCommentModel } from '@aavantan-app/models';
+import { AddCommentModel, CommentPinModel, UpdateCommentModel } from '@aavantan-app/models';
 import { TaskCommentService } from '../shared/services/task-comment/task-comment.service';
 
 @Controller('task-comments')
