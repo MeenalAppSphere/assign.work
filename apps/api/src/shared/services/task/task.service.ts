@@ -54,7 +54,7 @@ const taskBasicPopulation: any[] = [{
   justOne: true
 }, {
   path: 'watchersDetails',
-  select: 'emailId userName firstName lastName profilePic -_id'
+  select: 'emailId userName firstName lastName profilePic _id'
 }, {
   path: 'dependentItem',
   select: 'name displayName description url',
@@ -257,15 +257,22 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       return createdTask[0];
     });
 
-    const task: Task = await this._taskModel.findOne({
-      _id: newTask.id, projectId: newTask.projectId
-    }).populate(taskBasicPopulation).select('-comments').lean().exec();
-    if (!task) {
-      throw new BadRequestException('task not found');
-    }
+    try {
+      const task: Task = await this._taskModel.findOne({
+        _id: newTask.id, projectId: newTask.projectId
+      }).populate(taskBasicPopulation).select('-comments').lean().exec();
 
-    this._utilityService.sendMailToTaskAssignee(task, projectDetails);
-    return this.parseTaskObjectForUi(task);
+      if (!task) {
+        BadRequest('task not found');
+      }
+
+      // task is created now send all the mails
+      this._utilityService.sendMailForTaskCreated(task, projectDetails);
+
+      return this.parseTaskObjectForUi(task);
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
@@ -384,16 +391,20 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       await this._taskHistoryService.addHistory(taskHistory, session);
     });
 
-    const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
+    try {
+      const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
 
-    // check if assignee changed than send mail to new assignee
-    if (isAssigneeChanged) {
-      this._utilityService.sendMailToTaskAssignee(task, projectDetails);
+      // check if assignee changed than send mail to new assignee
+      if (isAssigneeChanged) {
+        this._utilityService.sendMailForTaskAssigned(task, projectDetails);
+      }
+
+      // send mail for task updated to all the task watchers
+      this._utilityService.sendMailForTaskUpdated(task, projectDetails);
+      return this.parseTaskObjectForUi(task);
+    } catch (e) {
+      throw e;
     }
-
-    // send mail for task updated to all the task watchers
-    this._utilityService.sendMailForTaskUpdated(task, projectDetails);
-    return this.parseTaskObjectForUi(task);
   }
 
   /**

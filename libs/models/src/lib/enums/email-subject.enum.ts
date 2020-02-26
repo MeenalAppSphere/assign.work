@@ -3,5 +3,6 @@ export enum EmailSubjectEnum {
   sprintClosed = 'Sprint Closed',
   taskMoved = 'Task moved to a column',
   taskAssigned = 'Task Assigned',
-  taskUpdated = 'Task Updated'
+  taskUpdated = 'Task Updated',
+  taskCreated = 'Task Created'
 }

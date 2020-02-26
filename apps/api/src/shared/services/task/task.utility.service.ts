@@ -1,4 +1,4 @@
-import { EmailSubjectEnum, EmailTemplatePathEnum, Project, Task } from '@aavantan-app/models';
+import { EmailSubjectEnum, EmailTemplatePathEnum, Project, SendEmailModel, Task } from '@aavantan-app/models';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { environment } from '../../../environments/environment';
@@ -51,20 +51,59 @@ export class TaskUtilityService {
    * @param task
    * @param project
    */
-  async sendMailToTaskAssignee(task: Task, project: Project) {
-    const templateData = {
+  async sendMailForTaskCreated(task: Task, project: Project) {
+    await this.sendMailForTaskAssigned(task, project);
+
+    // send mail to all task watchers except task assignee
+    task.watchersDetails = task.watchersDetails.filter(watcher => {
+      return watcher._id.toString() !== task.assigneeId.toString();
+    });
+
+    // prepare watchers mail data
+    const watchersEmailArray: SendEmailModel[] = [];
+    for (const watcher of task.watchersDetails) {
+      const taskWatchersEmailTemplateData = {
+        user: { firstName: watcher.firstName, lastName: watcher.lastName },
+        task,
+        project,
+        appUrl: environment.APP_URL
+      };
+
+      watchersEmailArray.push({
+        to: [watcher.emailId],
+        subject: EmailSubjectEnum.taskCreated,
+        message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskCreated, taskWatchersEmailTemplateData)
+      });
+    }
+
+    // send mail to all watcher
+    watchersEmailArray.forEach(email => {
+      this._emailService.sendMail(email.to, email.subject, email.message);
+    });
+
+  }
+
+  /**
+   * send email when a task is assigned to someone
+   * @param task
+   * @param project
+   */
+  public async sendMailForTaskAssigned(task: Task, project: Project) {
+    // send task assignee email
+    const taskAssigneeEmailTemplateData = {
       task,
       project,
       appUrl: environment.APP_URL
     };
 
-    const emailObject = {
-      to: task.assignee.emailId,
+    const taskAssigneeEmailObject: SendEmailModel = {
+      to: [task.assignee.emailId],
       subject: EmailSubjectEnum.taskAssigned,
-      message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskAssigned, templateData)
+      message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskAssigned, taskAssigneeEmailTemplateData)
     };
 
-    this._emailService.sendMail([emailObject.to], emailObject.subject, emailObject.message);
+    // send email to task assignee
+    this._emailService.sendMail(taskAssigneeEmailObject.to, taskAssigneeEmailObject.subject, taskAssigneeEmailObject.message);
   }
 
   /**
@@ -76,7 +115,12 @@ export class TaskUtilityService {
     if (!task.updatedBy) {
       return;
     }
-    const sendEmailArrays = [];
+    const sendEmailArrays: SendEmailModel[] = [];
+
+    // send mail to all task watchers except task assignee
+    task.watchersDetails = task.watchersDetails.filter(watcher => {
+      return watcher._id.toString() !== task.assigneeId.toString();
+    });
 
     for (const watcher of task.watchersDetails) {
       const templateData = {
@@ -87,14 +131,15 @@ export class TaskUtilityService {
       };
 
       sendEmailArrays.push({
-        to: watcher.emailId,
+        to: [watcher.emailId],
         subject: EmailSubjectEnum.taskUpdated,
         message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskUpdated, templateData)
       });
     }
 
     sendEmailArrays.forEach(email => {
-      this._emailService.sendMail([email.to], email.subject, email.message);
+      this._emailService.sendMail(email.to, email.subject, email.message);
     });
   }
 }
+
