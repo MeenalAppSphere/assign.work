@@ -37,7 +37,7 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
 
     history.action = action;
     history.taskId = taskId;
-    history.sprintId = sprintId;
+    history.sprintId = sprintId ? sprintId : null;
     history.desc = action;
     history.createdAt = generateUtcDate();
     history.createdById = this._generalService.userId;

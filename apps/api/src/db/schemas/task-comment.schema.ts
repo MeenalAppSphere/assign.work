@@ -8,6 +8,8 @@ const taskCommentSchema = new Schema({
   comment: { type: String },
   attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
   isPinned: { type: Boolean, default: false },
+  pinnedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+  pinnedAt: { type: Date },
   taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
   ...commonSchemaFields
 }, schemaOptions);
@@ -18,6 +20,14 @@ taskCommentSchema
   .set('toJSON', { virtuals: true });
 
 // virtual
+taskCommentSchema
+  .virtual('pinnedBy', {
+    ref: DbCollection.users,
+    localField: 'pinnedById',
+    foreignField: '_id',
+    justOne: true
+  });
+
 taskCommentSchema
   .virtual('task', {
     ref: DbCollection.tasks,

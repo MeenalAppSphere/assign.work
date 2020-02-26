@@ -5,7 +5,7 @@ import {
   DbCollection,
   TaskComments, TaskHistory,
   TaskHistoryActionEnum,
-  TaskPriorityModel
+  TaskPriorityModel, UpdateCommentModel
 } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
@@ -49,6 +49,10 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     this._utilityService = new TaskCommentUtilityService();
   }
 
+  /**
+   * add comment
+   * @param requestModel
+   */
   async addComment(requestModel: AddCommentModel) {
     // check if comment is available or not
     if (!requestModel || !requestModel.comment) {
@@ -63,11 +67,6 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     // add comment process
     const comment = await this.withRetrySession(async (session: ClientSession) => {
       const commentModel = new TaskComments();
-      let newWatchers = [];
-
-      // get mentioned users from comment
-      newWatchers = this._utilityService.getMentionedUsersFromComment(requestModel, taskDetails, projectDetails, newWatchers);
-
       commentModel.comment = requestModel.comment.comment;
       commentModel.createdById = this._generalService.userId;
       commentModel.createdAt = generateUtcDate();
@@ -77,6 +76,9 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
       // create new comment
       const newComment = await this.create([commentModel], session);
+
+      // get mentioned users from comment
+      const newWatchers = this._utilityService.getMentionedUsersFromComment(requestModel, taskDetails, projectDetails);
 
       // add new watchers to watchers array
       if (newWatchers.length) {
@@ -90,13 +92,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       }
 
       // creat task history object
-      const history = new TaskHistory();
-      history.action = TaskHistoryActionEnum.commentAdded;
-      history.taskId = requestModel.taskId;
-      history.task = taskDetails;
-      history.createdById = this._generalService.userId;
-      history.desc = TaskHistoryActionEnum.commentAdded;
-
+      const history = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.commentAdded, requestModel.taskId, taskDetails);
       // save task history
       await this._taskHistoryService.addHistory(history, session);
       return newComment[0];
@@ -121,6 +117,50 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     }
   }
 
+  /**
+   * update comment
+   * @param requestModel
+   */
+  async updateComment(requestModel: UpdateCommentModel) {
+    if (!requestModel || !requestModel.comment) {
+      throw new BadRequestException('please add comment');
+    }
+
+    if (!requestModel.comment.id) {
+      throw new BadRequestException('invalid request');
+    }
+
+    // update comment process
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+      // get task details
+      const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId);
+      // get comment details
+      const commentDetails = await this.getDetails(requestModel.comment.id, requestModel.taskId);
+
+      const commentUpdateObject = {
+        $set: {
+          comment: requestModel.comment.comment, updatedById: this._generalService.userId, updatedAt: generateUtcDate()
+        }
+      };
+
+      await this.updateById(requestModel.comment.id, commentUpdateObject, session);
+    });
+
+    try {
+      const commentDetails = await this.getDetails(requestModel.comment.id, requestModel.taskId, true);
+      return commentDetails;
+    } catch (e) {
+      throw e;
+    }
+
+  }
+
+  /**
+   * pin/ unpin task comment
+   * @param model
+   */
   async pinComment(model: CommentPinModel): Promise<string> {
     if (!model || !model.commentId) {
       throw new BadRequestException('invalid request');
@@ -134,7 +174,12 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       const commentDetails = await this.getDetails(model.commentId, model.taskId);
 
       // update comment by id
-      await this.updateById(commentDetails.id, { $set: { isPinned: model.isPinned } }, session);
+      await this.updateById(commentDetails.id, {
+        $set: {
+          isPinned: model.isPinned, pinnedById: model.isPinned ? this._generalService.userId : null,
+          pinnedAt: model.isPinned ? generateUtcDate() : null
+        }
+      }, session);
 
       // create task history object
       const taskHistory = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.commentPinned, model.taskId, taskDetails);
