@@ -61,6 +61,8 @@ export class TaskComments {
   id?: string;
   _id?: string;
   comment: string;
+  taskId: string;
+  task?: Task;
   createdById: string;
   createdBy?: User;
   createdAt: Date;
