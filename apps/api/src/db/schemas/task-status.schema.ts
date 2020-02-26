@@ -19,14 +19,6 @@ taskStatusSchema
 
 // virtual
 taskStatusSchema
-  .virtual('category', {
-    ref: DbCollection.taskStatus,
-    localField: 'categoryId',
-    foreignField: '_id',
-    justOne: true
-  });
-
-taskStatusSchema
   .virtual('project', {
     ref: DbCollection.projects,
     localField: 'projectId',

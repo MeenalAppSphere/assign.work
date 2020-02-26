@@ -11,15 +11,13 @@ import {
   GetCommentsModel,
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
-  Project,
   SprintStatusEnum,
   Task,
   TaskComments,
   TaskFilterDto,
   TaskHistory,
   TaskHistoryActionEnum,
-  UpdateCommentModel,
-  User
+  UpdateCommentModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -36,6 +34,7 @@ import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { ProjectService } from '../project/project.service';
 import { TaskUtilityService } from './task.utility.service';
+import { ProjectUtilityService } from '../project/project.utility.service';
 
 /**
  * common task population object
@@ -45,12 +44,16 @@ const taskBasicPopulation: any[] = [{
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
+  path: 'updatedBy',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
   path: 'assignee',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
   path: 'watchersDetails',
-  select: 'emailId userName firstName lastName profilePic -_id'
+  select: 'emailId userName firstName lastName profilePic _id'
 }, {
   path: 'dependentItem',
   select: 'name displayName description url',
@@ -89,6 +92,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private _taskHistoryService: TaskHistoryService;
 
   private _utilityService: TaskUtilityService;
+  private _projectUtilityService: ProjectUtilityService;
 
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
@@ -106,6 +110,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
 
     this._utilityService = new TaskUtilityService();
+    this._projectUtilityService = new ProjectUtilityService();
   }
 
   /**
@@ -182,8 +187,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async addTask(model: Task): Promise<Task> {
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
     const newTask = await this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
 
       const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
 
@@ -214,10 +219,10 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.watchers = [
         ...new Set([
           this._generalService.userId,
-          taskModel.assigneeId ? taskModel.assigneeId : '',
+          taskModel.assigneeId,
           ...taskModel.watchers
         ])
-      ].filter(watcher => watcher);
+      ];
 
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
@@ -253,13 +258,22 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       return createdTask[0];
     });
 
-    const task: Task = await this._taskModel.findOne({
-      _id: newTask.id, projectId: newTask.projectId
-    }).populate(taskBasicPopulation).select('-comments').lean().exec();
-    if (!task) {
-      throw new BadRequestException('task not found');
+    try {
+      const task: Task = await this._taskModel.findOne({
+        _id: newTask.id, projectId: newTask.projectId
+      }).populate(taskBasicPopulation).select('-comments').lean().exec();
+
+      if (!task) {
+        BadRequest('task not found');
+      }
+
+      // task is created now send all the mails
+      this._utilityService.sendMailForTaskCreated(task, projectDetails);
+
+      return this.parseTaskObjectForUi(task);
+    } catch (e) {
+      throw e;
     }
-    return this.parseTaskObjectForUi(task);
   }
 
   /**
@@ -269,17 +283,20 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async updateTask(model: Task): Promise<Task> {
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+    let isAssigneeChanged = false;
+
     await this.withRetrySession(async (session: ClientSession) => {
       if (!model || !model.id) {
         BadRequest('Task not found');
       }
 
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
       const taskDetails = await this.getTaskDetails(model.id, model.projectId);
 
       // check if task assignee id is available or not
       // if not then assign it to task creator
       model.assigneeId = model.assigneeId || this._generalService.userId;
+      isAssigneeChanged = taskDetails.assigneeId.toString() !== model.assigneeId;
 
       // check if estimated time updated and one have already logged in this task
       if (model.estimatedTimeReadable) {
@@ -335,6 +352,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       model.progress = model.progress || 0;
       model.overProgress = model.overProgress || 0;
+      model.updatedById = this._generalService.userId;
 
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
@@ -364,6 +382,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         }
       }
 
+      // create task history object
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
 
       // update task by id
@@ -373,8 +392,20 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       await this._taskHistoryService.addHistory(taskHistory, session);
     });
 
-    const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
-    return this.parseTaskObjectForUi(task);
+    try {
+      const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
+
+      // check if assignee changed than send mail to new assignee
+      if (isAssigneeChanged) {
+        this._utilityService.sendMailForTaskAssigned(task, projectDetails);
+      }
+
+      // send mail for task updated to all the task watchers
+      this._utilityService.sendMailForTaskUpdated(task, projectDetails);
+      return this.parseTaskObjectForUi(task);
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
@@ -488,34 +519,64 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       throw new BadRequestException('please add comment');
     }
 
-    return this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(model.projectId);
+    // create comment
+    await this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       // get task details
       const taskDetails = await this.findById(model.taskId);
+      const commentModel = new TaskComments();
+      let newWatchers = [];
 
-      model.comment.createdById = this._generalService.userId;
-      model.comment.createdAt = generateUtcDate();
-      model.comment.updatedAt = generateUtcDate();
+      // get mentioned users from comment
+      newWatchers = this._utilityService.getMentionedUsersFromComment(model, taskDetails, projectDetails, newWatchers);
 
-      // push comment to task's comments array
-      taskDetails.comments.push(model.comment);
-      // save task
-      await taskDetails.save({ session });
+      commentModel.comment = model.comment.comment;
+      commentModel.createdById = this._generalService.userId;
+      commentModel.createdAt = generateUtcDate();
+      commentModel.updatedAt = generateUtcDate();
+      commentModel.isPinned = false;
+
+      // add comment to comments array
+      const taskUpdateObj: any = {
+        $push: {
+          'comments': commentModel
+        }
+      };
+
+      // add new watchers to watchers array
+      if (newWatchers.length) {
+        taskUpdateObj.$push.watchers = { $each: newWatchers };
+      }
+
+      // update task by id
+      await this.updateById(taskDetails.id, taskUpdateObj, session);
 
       // save task history
       const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.commentAdded, model.taskId, taskDetails);
       await this._taskHistoryService.addHistory(taskHistory, session);
 
-      // return newly created comment
-      let newComment: any = taskDetails.comments[taskDetails.comments.length - 1];
-      if (newComment) {
-        newComment = newComment.toJSON();
-        newComment.id = newComment._id.toString();
-        newComment.uuid = model.comment.uuid;
-      }
-      return newComment;
+      return true;
     });
+
+    // get task details
+    try {
+      const task = await this.getTaskDetails(model.taskId, model.projectId);
+
+      if (task) {
+        // return newly created comment
+        const newComment: any = task.comments[task.comments.length - 1];
+        if (newComment) {
+          newComment.id = newComment._id.toString();
+          newComment.uuid = model.comment.uuid;
+          return newComment;
+        }
+      } else {
+        BadRequest('Task not found');
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**

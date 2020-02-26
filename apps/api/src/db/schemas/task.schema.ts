@@ -81,7 +81,7 @@ taskSchema.virtual('assignee', {
 });
 
 taskSchema.virtual('watchersDetails', {
-  ref: DbCollection.tasks,
+  ref: DbCollection.users,
   localField: 'watchers',
   foreignField: '_id'
 });

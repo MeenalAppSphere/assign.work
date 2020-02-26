@@ -8,6 +8,7 @@ export enum DbCollection {
   taskType = 'task-type',
   taskStatus = 'task-status',
   taskPriority = 'task-priority',
+  taskComments = 'task-comments',
   sprint = 'sprint',
   attachments = 'attachments',
   invitations = 'invitations',
