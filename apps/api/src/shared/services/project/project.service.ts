@@ -698,7 +698,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const project: any = await this.findOne(query);
 
     if (project && project.settings && project.settings.tags) {
-      return project.settings.tags.filter(tag => !tag.isDeleted && tag.name.toLowerCase().includes(model.query.toLowerCase())).map(tag => tag.name);
+      return project.settings.tags
+        .filter(tag => !tag.isDeleted && tag.name.toLowerCase().includes(model.query.toLowerCase()))
+        .map(tag => {
+          return {
+            id: tag._id.toString(),
+            name: tag.name
+          }
+        });
     } else {
       return [];
     }
