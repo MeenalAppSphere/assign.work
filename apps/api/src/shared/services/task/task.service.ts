@@ -188,6 +188,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    */
   async addTask(model: Task): Promise<Task> {
     const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+
+    // new task process
     const newTask = await this.withRetrySession(async (session: ClientSession) => {
 
       const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
@@ -258,6 +260,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       return createdTask[0];
     });
 
+    // get new task details and return it
     try {
       const task: Task = await this._taskModel.findOne({
         _id: newTask.id, projectId: newTask.projectId
@@ -286,6 +289,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     const projectDetails = await this._projectService.getProjectDetails(model.projectId);
     let isAssigneeChanged = false;
 
+    // update task process
     await this.withRetrySession(async (session: ClientSession) => {
       if (!model || !model.id) {
         BadRequest('Task not found');
@@ -392,6 +396,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       await this._taskHistoryService.addHistory(taskHistory, session);
     });
 
+    // get updated task details and return it
     try {
       const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
 

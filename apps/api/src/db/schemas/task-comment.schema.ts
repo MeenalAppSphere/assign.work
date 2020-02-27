@@ -21,6 +21,13 @@ taskCommentSchema
 
 // virtual
 taskCommentSchema
+  .virtual('attachmentsDetails', {
+    ref: DbCollection.attachments,
+    localField: 'attachments',
+    foreignField: '_id'
+  });
+
+taskCommentSchema
   .virtual('pinnedBy', {
     ref: DbCollection.users,
     localField: 'pinnedById',

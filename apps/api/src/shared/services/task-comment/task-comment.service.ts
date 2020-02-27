@@ -1,17 +1,19 @@
 import { BaseService } from '../base.service';
 import { ClientSession, Document, Model } from 'mongoose';
 import {
-  AddCommentModel, CommentPinModel,
+  AddCommentModel,
+  CommentPinModel,
   DbCollection,
-  TaskComments, TaskHistory,
+  DeleteCommentModel,
+  TaskComments,
   TaskHistoryActionEnum,
-  TaskPriorityModel, UpdateCommentModel
+  UpdateCommentModel
 } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
 import { BadRequestException, OnModuleInit } from '@nestjs/common';
-import { aggregateConvert_idToId, BadRequest, generateUtcDate } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { GeneralService } from '../general.service';
 import { TaskCommentUtilityService } from './task-comment.utility.service';
 import { TaskService } from '../task/task.service';
@@ -79,24 +81,27 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       // create new comment
       const newComment = await this.create([commentModel], session);
 
+      // task object for create task
+      const taskUpdateObj: any = {
+        $push: {
+          'comments': newComment[0].id
+        }
+      };
+
       // get mentioned users from comment
-      const newWatchers = this._utilityService.getMentionedUsersFromComment(requestModel, taskDetails, projectDetails);
+      const newWatchers = this._utilityService.getMentionedUsersFromComment(requestModel.comment.comment, taskDetails, projectDetails);
 
       // add new watchers to watchers array
       if (newWatchers.length) {
-        const taskUpdateObj: any = {
-          $push: {
-            'watchers': { $each: newWatchers },
-            comments: newComment[0].id
-          }
-        };
-        // update task and add new watcher's to task
-        await this._taskService.updateById(requestModel.taskId, taskUpdateObj, session);
+        taskUpdateObj.$push['watchers'] = { $each: newWatchers };
       }
 
-      // creat task history object
+      // update task and add new watcher's to task
+      await this._taskService.updateById(requestModel.taskId, taskUpdateObj, session);
+
+      // creat comment history object
       const history = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.commentAdded, requestModel.taskId, taskDetails);
-      // save task history
+      // save comment history
       await this._taskHistoryService.addHistory(history, session);
       return newComment[0];
     });
@@ -136,28 +141,81 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     // update comment process
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      await this._projectService.getProjectDetails(requestModel.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
       // get task details
       const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId);
       // get comment details
-      const commentDetails = await this.getDetails(requestModel.comment.id, requestModel.taskId);
+      await this.getDetails(requestModel.comment.id, requestModel.taskId);
 
-      const commentUpdateObject = {
+      const commentUpdateObject: any = {
         $set: {
           comment: requestModel.comment.comment, updatedById: this._generalService.userId, updatedAt: generateUtcDate()
         }
       };
 
+      // update comment by id
       await this.updateById(requestModel.comment.id, commentUpdateObject, session);
+
+      // get mentioned users from comment
+      const newWatchers = this._utilityService.getMentionedUsersFromComment(requestModel.comment.comment, taskDetails, projectDetails);
+
+      // add new watchers to watchers array
+      if (newWatchers.length) {
+        // update task and add new watcher's to task
+        await this._taskService.updateById(requestModel.taskId, {
+          $push: { watchers: { $each: newWatchers } }
+        }, session);
+      }
+
+      // creat comment history object
+      const history = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.commentUpdated, requestModel.taskId, taskDetails);
+      // save update comment history
+      await this._taskHistoryService.addHistory(history, session);
     });
 
+    // get updated comment and return it
     try {
       const commentDetails = await this.getDetails(requestModel.comment.id, requestModel.taskId, true);
       return commentDetails;
     } catch (e) {
       throw e;
     }
+  }
 
+  /**
+   * delete comment
+   * @param requestModel
+   */
+  async deleteComment(requestModel: DeleteCommentModel) {
+    if (!requestModel) {
+      BadRequest('project not found');
+    }
+
+    // delete comment process
+    return await this.withRetrySession(async (session) => {
+      // get project details
+      await this._projectService.getProjectDetails(requestModel.projectId);
+      // get task details
+      const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId);
+      // get comment details
+      await this.getDetails(requestModel.commentId, requestModel.taskId);
+
+      const commentDeleteObject = {
+        $set: {
+          isDeleted: true, deletedById: this._generalService.userId, deletedAt: generateUtcDate()
+        }
+      };
+
+      // update comment and set isDeleted true
+      await this.updateById(requestModel.commentId, commentDeleteObject, session);
+
+      // create history object for comment deleted
+      const history = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.commentDeleted, requestModel.taskId, taskDetails);
+      // save delete comment history
+      await this._taskHistoryService.addHistory(history, session);
+
+      return 'Comment Deleted Successfully';
+    });
   }
 
   /**
@@ -196,7 +254,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
   /**
    * get all task comments
    */
-  public async getAllTaskComments(projectId: string, taskId: string) {
+  async getAllTaskComments(projectId: string, taskId: string) {
     await this._projectService.getProjectDetails(projectId);
 
     const comments = await this.find({

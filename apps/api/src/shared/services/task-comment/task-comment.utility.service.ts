@@ -27,14 +27,14 @@ export class TaskCommentUtilityService {
 
   /**
    * get mentioned users from comment
-   * @param model
+   * @param comment
    * @param taskDetails
    * @param projectDetails
    */
-  public getMentionedUsersFromComment(model: AddCommentModel, taskDetails: Task, projectDetails: Project) {
+  public getMentionedUsersFromComment(comment: string, taskDetails: Task, projectDetails: Project) {
     let newWatchers = [];
     // check if comment has any @mention users
-    const mentionsFromComment = getMentionedUsersFromComment(model.comment.comment);
+    const mentionsFromComment = getMentionedUsersFromComment(comment);
     // if we found users than add them to task watchers, so they will get notifications when a task is updated
     if (mentionsFromComment.length) {
       newWatchers = mentionsFromComment.filter(mentionedUser => {

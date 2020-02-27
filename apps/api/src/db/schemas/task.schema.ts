@@ -4,28 +4,6 @@ import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schem
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
-const commentSchema = new Schema({
-  comment: { type: String },
-  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  createdAt: { type: Date },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
-  updatedAt: { type: Date },
-  attachments: [{ type: Schema.Types.ObjectId, ref: DbCollection.attachments }],
-  isPinned: { type: Boolean, default: false }
-});
-
-commentSchema.virtual('attachmentsDetails', {
-  ref: DbCollection.attachments,
-  localField: 'attachments',
-  foreignField: '_id'
-});
-
-commentSchema.virtual('createdBy', {
-  ref: DbCollection.users,
-  localField: 'createdById',
-  foreignField: '_id'
-});
-
 export const taskSchema = new Schema({
   name: { type: String, required: [true, 'Please Add task title'] },
   displayName: { type: String },
