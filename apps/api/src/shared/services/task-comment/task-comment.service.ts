@@ -5,6 +5,7 @@ import {
   CommentPinModel,
   DbCollection,
   DeleteCommentModel,
+  EmailSubjectEnum,
   TaskComments,
   TaskHistoryActionEnum,
   UpdateCommentModel
@@ -28,6 +29,10 @@ const taskBasicPopulation: any[] = [{
   justOne: true
 }, {
   path: 'updatedBy',
+  select: 'emailId userName firstName lastName profilePic -_id',
+  justOne: true
+}, {
+  path: 'pinnedBy',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }];
@@ -118,7 +123,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       commentDetails.uuid = requestModel.comment.uuid;
 
       // send email for comment added
-      this._utilityService.sendMailForCommentAdded(taskDetails, projectDetails, commentDetails);
+      this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentAdded, 'comment-added');
       return commentDetails;
     } catch (e) {
       throw e;
@@ -138,12 +143,13 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       throw new BadRequestException('invalid request');
     }
 
+    // get project details
+    const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
+    // get task details
+    const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId, true);
+
     // update comment process
     await this.withRetrySession(async (session: ClientSession) => {
-      // get project details
-      const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
-      // get task details
-      const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId);
       // get comment details
       await this.getDetails(requestModel.comment.id, requestModel.taskId);
 
@@ -176,6 +182,10 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     // get updated comment and return it
     try {
       const commentDetails = await this.getDetails(requestModel.comment.id, requestModel.taskId, true);
+
+      // send email
+      this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentUpdated, 'comment-updated');
+
       return commentDetails;
     } catch (e) {
       throw e;
@@ -220,35 +230,47 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
   /**
    * pin/ unpin task comment
-   * @param model
+   * @param requestModel
    */
-  async pinComment(model: CommentPinModel): Promise<string> {
-    if (!model || !model.commentId) {
+  async pinComment(requestModel: CommentPinModel): Promise<string> {
+    if (!requestModel || !requestModel.commentId) {
       throw new BadRequestException('invalid request');
     }
+    const projectDetails = await this._projectService.getProjectDetails(requestModel.projectId);
+    // get task details
+    const taskDetails = await this._taskService.getTaskDetails(requestModel.taskId, requestModel.projectId, true);
 
-    return await this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(model.projectId);
-
-      // get task details
-      const taskDetails = await this._taskService.getTaskDetails(model.taskId, model.projectId);
-      const commentDetails = await this.getDetails(model.commentId, model.taskId);
+    // pin comment process
+    await this.withRetrySession(async (session: ClientSession) => {
+      const commentDetails = await this.getDetails(requestModel.commentId, requestModel.taskId);
 
       // update comment by id
       await this.updateById(commentDetails.id, {
         $set: {
-          isPinned: model.isPinned, pinnedById: model.isPinned ? this._generalService.userId : null,
-          pinnedAt: model.isPinned ? generateUtcDate() : null
+          updatedAt: generateUtcDate(), updatedById: this._generalService.userId,
+          isPinned: requestModel.isPinned, pinnedById: requestModel.isPinned ? this._generalService.userId : null,
+          pinnedAt: requestModel.isPinned ? generateUtcDate() : null
         }
       }, session);
 
       // create task history object
-      const taskHistory = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.commentPinned, model.taskId, taskDetails);
+      const taskHistory = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.commentPinned, requestModel.taskId, taskDetails);
       await this._taskHistoryService.addHistory(taskHistory, session);
+    });
+
+    // get task details and send email
+    try {
+      const commentDetails = await this.getDetails(requestModel.commentId, requestModel.taskId, true);
+      // send email
+      this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails,
+        requestModel.isPinned ? EmailSubjectEnum.taskCommentPinned : EmailSubjectEnum.taskCommentUnPinned,
+        requestModel.isPinned ? 'pinned-comment' : 'un-pinned-comment');
 
       // return message
-      return `Comment ${model.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
-    });
+      return `Comment ${requestModel.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**

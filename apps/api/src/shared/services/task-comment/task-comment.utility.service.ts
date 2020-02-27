@@ -1,12 +1,4 @@
-import {
-  AddCommentModel,
-  EmailSubjectEnum,
-  EmailTemplatePathEnum,
-  Project,
-  SendEmailModel,
-  Task,
-  TaskComments
-} from '@aavantan-app/models';
+import { BuildEmailConfigurationModel, EmailSubjectEnum, Project, Task, TaskComments } from '@aavantan-app/models';
 import { BadRequest, getMentionedUsersFromComment } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { environment } from '../../../environments/environment';
@@ -19,10 +11,6 @@ export class TaskCommentUtilityService {
   constructor() {
     this._emailService = new EmailService();
     this._projectUtilityService = new ProjectUtilityService();
-  }
-
-  addTaskValidations() {
-
   }
 
   /**
@@ -53,30 +41,31 @@ export class TaskCommentUtilityService {
     return newWatchers;
   }
 
-  async sendMailForCommentAdded(task: Task, project: Project, comment: TaskComments) {
+  /**
+   * send email for comments actions like
+   * add comment, update comment, pin comment and un pin comment
+   * @param task
+   * @param project
+   * @param comment
+   * @param subject
+   * @param type
+   */
+  async sendMailForComments(task: Task, project: Project, comment: TaskComments, subject: EmailSubjectEnum, type: string) {
+    const emailConfiguration = new BuildEmailConfigurationModel(subject);
 
-    // prepare watchers mail data
-    const watchersEmailArray: SendEmailModel[] = [];
+    // prepare data for sending mail
     for (const watcher of task.watchersDetails) {
-      const taskCommentEmailTemplateData = {
+      emailConfiguration.recipients.push(watcher.emailId);
+      emailConfiguration.templateDetails.push({
         user: { firstName: watcher.firstName, lastName: watcher.lastName },
         task,
         project,
         comment,
+        type,
         appUrl: environment.APP_URL
-      };
-
-      watchersEmailArray.push({
-        to: [watcher.emailId],
-        subject: EmailSubjectEnum.taskCommentAdded,
-        message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskCommentAdded, taskCommentEmailTemplateData)
       });
     }
 
-    // send mail to all watcher
-    watchersEmailArray.forEach(email => {
-      this._emailService.sendMail(email.to, email.subject, email.message);
-    });
+    this._emailService.buildAndSendEmail(emailConfiguration);
   }
-
 }

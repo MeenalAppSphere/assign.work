@@ -1,4 +1,4 @@
-import { ProjectWorkingDays } from '@aavantan-app/models';
+import { EmailSubjectEnum, ProjectWorkingDays } from '@aavantan-app/models';
 import * as path from 'path';
 import * as moment from 'moment';
 
@@ -8,6 +8,7 @@ import {
   DEFAULT_RESET_PASSWORD_CODE_EXPIRY
 } from './defaultValueConstant';
 import { BadRequestException } from '@nestjs/common';
+import { emailSubjectTemplateMapper } from '../../../../../libs/models/src/lib/models/email.template.subject.mapper.model';
 
 /**
  * converts given string to seconds
@@ -205,4 +206,13 @@ export const getMentionedUsersFromComment = (comment: string = ''): string[] => 
   } else {
     return [];
   }
+};
+
+/**
+ * get email template path using email subject
+ * @param subject
+ */
+export const getEmailTemplateFromEmailSubject = (subject: EmailSubjectEnum) => {
+  const mapper = emailSubjectTemplateMapper();
+  return mapper.get(subject);
 };

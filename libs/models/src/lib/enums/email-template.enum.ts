@@ -6,5 +6,9 @@ export enum EmailTemplatePathEnum {
   taskCreated = 'task-created/task-created.ejs',
   taskAssigned = 'task-assigned/task-assigned.ejs',
   taskUpdated = 'task-updated/task-updated.ejs',
-  taskCommentAdded = 'task-comment-added/task-comment-added.ejs'
+  taskCommentAdded = 'task-comment/task-comment.ejs',
+  taskCommentUpdated = 'task-comment/task-comment.ejs',
+  taskCommentPinned = 'task-comment/task-comment.ejs',
+  taskCommentUnPinned = 'task-comment/task-comment.ejs',
+  taskMoved = 'task-moved/task-moved.ejs'
 }
