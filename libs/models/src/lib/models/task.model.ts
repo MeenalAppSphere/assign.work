@@ -92,9 +92,9 @@ export class TaskFilterQuery {
 }
 
 export class TaskFilterDto {
-  term: string;
-  projectId: string;
-  queries: TaskFilterQuery[];
+  term?: string;
+  projectId?: string;
+  queries?: TaskFilterQuery[];
   sort?: string;
   sortBy: string;
 }
@@ -131,7 +131,7 @@ export class AddCommentModel extends BaseTaskRequestModel {
 export class UpdateCommentModel extends BaseTaskRequestModel {
   comment: TaskComments;
 }
-
+backlog.component.ts(75,10)
 export class DeleteCommentModel extends BaseTaskRequestModel {
   commentId: string;
 }
