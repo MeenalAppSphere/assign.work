@@ -2,7 +2,7 @@ import * as aws from 'aws-sdk';
 import { DEFAULT_EMAIL_ADDRESS, DEFAULT_EMAIL_TEMPLATE_PATH } from '../helpers/defaultValueConstant';
 import * as ejs from 'ejs';
 import { getEmailTemplateFromEmailSubject, resolvePathHelper } from '../helpers/helpers';
-import { BuildEmailConfigurationModel, EmailSubjectEnum, SendEmailModel } from '@aavantan-app/models';
+import { BuildEmailConfigurationModel, SendEmailModel } from '@aavantan-app/models';
 
 
 export class EmailService {

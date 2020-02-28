@@ -1,5 +1,5 @@
 import { BuildEmailConfigurationModel, EmailSubjectEnum, Project, Task, TaskComments } from '@aavantan-app/models';
-import { BadRequest, getMentionedUsersFromComment } from '../../helpers/helpers';
+import { BadRequest, getMentionedUsersFromString } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { environment } from '../../../environments/environment';
 import { EmailService } from '../email.service';
@@ -22,7 +22,7 @@ export class TaskCommentUtilityService {
   public getMentionedUsersFromComment(comment: string, taskDetails: Task, projectDetails: Project) {
     let newWatchers = [];
     // check if comment has any @mention users
-    const mentionsFromComment = getMentionedUsersFromComment(comment);
+    const mentionsFromComment = getMentionedUsersFromString(comment);
     // if we found users than add them to task watchers, so they will get notifications when a task is updated
     if (mentionsFromComment.length) {
       newWatchers = mentionsFromComment.filter(mentionedUser => {

@@ -47,31 +47,6 @@ export class TaskController {
     return await this._taskService.deleteTask(model);
   }
 
-  @Post('get-comments')
-  async getComments(@Body() model: GetCommentsModel) {
-    return await this._taskService.getComments(model);
-  }
-
-  @Post('add-comment')
-  async addComment(@Body() model: AddCommentModel) {
-      return this._taskService.addComment(model);
-  }
-
-  @Post('update-comment')
-  async updateComment(@Body() model: UpdateCommentModel) {
-    return await this._taskService.updateComment(model);
-  }
-
-  @Post('pin-comment')
-  async pinComment(@Body() model: CommentPinModel) {
-    return await this._taskService.pinComment(model);
-  }
-
-  @Post('delete-comment')
-  async deleteComment(@Body() model: DeleteCommentModel) {
-    return await this._taskService.deleteComment(model);
-  }
-
   @Post('get-task')
   async getByIdOrDisplayName(@Body() model: GetTaskByIdOrDisplayNameModel) {
     return this._taskService.getTaskByIdOrDisplayName(model);
