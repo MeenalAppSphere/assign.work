@@ -1,4 +1,4 @@
-import { TaskHistoryActionEnum } from '../enums';
+import { TaskFilterCondition, TaskHistoryActionEnum } from '../enums';
 import { Project } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';
@@ -85,25 +85,16 @@ export class TaskHistory {
   desc?: string;
 }
 
+export class TaskFilterQuery {
+  key: string;
+  value: [];
+  condition: TaskFilterCondition
+}
+
 export class TaskFilterDto {
-  id?: string;
-  _id?: string;
-  name?: string;
-  displayName?: string;
-  description?: string;
-  project?: string | string[];
-  projectId?: string;
-  assignee?: string | string[];
-  taskType?: string | string[];
-  priority?: string | string[];
-  tags?: string | string[];
-  status?: string | string[];
-  sprint?: string | string[];
-  createdBy?: string | string[];
-  sort?: string;
-  sortBy?: string;
-  startedAt?: Date;
-  finishedAt?: Date;
+  term: string;
+  projectId: string;
+  queries: TaskFilterQuery[];
 }
 
 export class BaseTaskRequestModel {

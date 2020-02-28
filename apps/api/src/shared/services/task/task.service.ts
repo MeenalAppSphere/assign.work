@@ -1,31 +1,24 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
 import {
-  AddCommentModel,
   BasePaginatedResponse,
-  CommentPinModel,
   DbCollection,
-  DeleteCommentModel,
   DeleteTaskModel,
   GetAllTaskRequestModel,
-  GetCommentsModel,
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   SprintStatusEnum,
   Task,
-  TaskComments,
+  TaskFilterCondition,
   TaskFilterDto,
   TaskHistory,
-  TaskHistoryActionEnum,
-  UpdateCommentModel
+  TaskHistoryActionEnum
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
-import { orderBy } from 'lodash';
-import * as moment from 'moment';
-import { BadRequest, generateUtcDate, secondsToString, stringToSeconds } from '../../helpers/helpers';
+import { BadRequest, secondsToString, stringToSeconds } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
@@ -560,52 +553,72 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model : TaskFilterDto
    */
   private prepareFilterQuery(model: TaskFilterDto) {
-    const query = new Query();
-    const objectIds: string[] = [
-      'projectId',
-      'assigneeId',
-      'taskTypeId',
-      'priorityId',
-      'statusId',
-      'createdById',
-      'updatedById'
-    ];
+    const filterQuery = new Query();
 
-    const filter = {
-      $or: [],
-      $and: []
+    const filter: any = {
+      $and: [{
+        projectId: model.projectId
+      }, {
+        $or: [{
+          name: { $regex: new RegExp(model.term.toString()), $options: 'i' }
+        },
+          {
+            displayName: { $regex: new RegExp(model.term.toString()), $options: 'i' }
+          },
+          {
+            description: { $regex: new RegExp(model.term.toString()), $options: 'gi' }
+          },
+          {
+            tags: { $regex: new RegExp(model.term.toString()), $options: 'i' }
+          }]
+      }]
     };
 
-    const keys = Object.keys(model);
-
-    keys.filter(key => {
-      // and should be used for all the referenced columns
-      if (objectIds.includes(key)) {
-        if (Array.isArray(model[key])) {
-          filter.$and.push({ [key]: { $in: model[key] } });
+    if (model.queries && model.queries.length) {
+      model.queries.forEach(query => {
+        if (query.condition === TaskFilterCondition.and) {
+          filter.$and.push(
+            { [query.key]: { $in: query.value } }
+          );
         } else {
-          filter.$and.push({ [key]: model[key] });
+          filter.$and.push({
+            $or: [{ [query.key]: { $in: query.value } }]
+          });
         }
-      } else {
-        // or for or text related searches
-        if (Array.isArray(model[key])) {
-          filter.$or.push({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
-        } else {
-          filter.$or.push({ [key]: { $regex: new RegExp(model[key].toString()), $options: 'i' } });
-        }
-      }
-    });
-
-    if (!filter.$or.length) {
-      delete filter.$or;
+      });
     }
+    // const keys = Object.keys(model);
+    //
+    // keys.filter(key => {
+    //   // and should be used for all the referenced columns
+    //   if (objectIds.includes(key)) {
+    //     if (Array.isArray(model[key])) {
+    //       filter.$and.push({ [key]: { $in: model[key] } });
+    //     } else {
+    //       filter.$and.push({ [key]: model[key] });
+    //     }
+    //   } else {
+    //     // or for or text related searches
+    //     if (Array.isArray(model[key])) {
+    //       filter.$or.push({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
+    //     } else {
+    //       filter.$or.push({ [key]: { $regex: new RegExp(model[key].toString()), $options: 'i' } });
+    //     }
+    //   }
+    // });
+    //
+    // if (!filter.$or.length) {
+    //   delete filter.$or;
+    // }
 
-    query.setQuery(filter);
-    if (model.sort) {
-      query.sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 });
-    }
+    console.log(filter);
 
-    return query.lean();
+    filterQuery.setQuery(filter);
+    // if (model.sort) {
+    //   query.sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 });
+    // }
+
+    return filterQuery.lean();
   }
 
   /**

@@ -15,7 +15,7 @@ import {
   GetTaskByIdOrDisplayNameModel,
   GetTaskHistoryModel,
   Task,
-  TaskComments,
+  TaskComments, TaskFilterDto,
   TaskHistory,
   TaskTimeLog,
   TaskTimeLogHistoryModel,
@@ -85,6 +85,17 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
+  getTaskWithFilter(filter: TaskFilterDto) {
+    return this._http.post(TaskUrls.getAllTaskWithFilter, filter).pipe(
+      map((res: BaseResponseModel<Task[]>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
   updateTask(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.update, task).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -96,6 +107,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   removeAttachment(id: string): Observable<BaseResponseModel<Task>> {
     return this._http.delete(TaskUrls.removeAttachement.replace(':id', id)).pipe(
       map((res: BaseResponseModel<Task>) => {

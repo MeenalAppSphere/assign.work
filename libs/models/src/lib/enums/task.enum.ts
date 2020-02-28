@@ -19,3 +19,8 @@ export enum TaskHistoryActionEnum {
   timeLogged = 'Time Logged',
   timeLoggedInSprint = 'Time Logged in Sprint'
 }
+
+export enum TaskFilterCondition {
+  or= 'or',
+  and = 'and'
+}
