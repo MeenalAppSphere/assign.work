@@ -23,7 +23,7 @@ import { TaskCommentModule } from '../task-comment/task-comment.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://user1:user123@cluster0-i2eid.mongodb.net/test?retryWrites=true&w=majority',
+    MongooseModule.forRoot('mongodb+srv://appsphere:use588mead@cluster0-fdpyz.mongodb.net/test?retryWrites=true&w=majority',
       { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true }),
     SharedModule,
     AuthModule,
