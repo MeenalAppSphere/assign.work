@@ -561,18 +561,44 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    */
   private prepareFilterQuery(model: TaskFilterDto) {
     const query = new Query();
-    const otherKeys: Array<{ key: string, value: string }> = [];
+    const objectIds: string[] = [
+      'projectId',
+      'assigneeId',
+      'taskTypeId',
+      'priorityId',
+      'statusId',
+      'createdById',
+      'updatedById'
+    ];
+
     const filter = {
-      $or: []
+      $or: [],
+      $and: []
     };
 
-    Object.keys(model).forEach(key => {
-      if (Array.isArray(model[key])) {
-        filter.$or.push({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
+    const keys = Object.keys(model);
+
+    keys.filter(key => {
+      // and should be used for all the referenced columns
+      if (objectIds.includes(key)) {
+        if (Array.isArray(model[key])) {
+          filter.$and.push({ [key]: { $in: model[key] } });
+        } else {
+          filter.$and.push({ [key]: model[key] });
+        }
       } else {
-        filter.$or.push({ [key]: { $regex: new RegExp(model[key]), $options: 'i' } });
+        // or for or text related searches
+        if (Array.isArray(model[key])) {
+          filter.$or.push({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
+        } else {
+          filter.$or.push({ [key]: { $regex: new RegExp(model[key].toString()), $options: 'i' } });
+        }
       }
     });
+
+    if (!filter.$or.length) {
+      delete filter.$or;
+    }
 
     query.setQuery(filter);
     if (model.sort) {

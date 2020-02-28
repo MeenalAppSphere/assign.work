@@ -92,6 +92,7 @@ export class TaskFilterDto {
   displayName?: string;
   description?: string;
   project?: string | string[];
+  projectId?: string;
   assignee?: string | string[];
   taskType?: string | string[];
   priority?: string | string[];
