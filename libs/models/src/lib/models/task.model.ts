@@ -95,6 +95,8 @@ export class TaskFilterDto {
   term: string;
   projectId: string;
   queries: TaskFilterQuery[];
+  sort?: string;
+  sortBy: string;
 }
 
 export class BaseTaskRequestModel {
