@@ -131,7 +131,6 @@ export class AddCommentModel extends BaseTaskRequestModel {
 export class UpdateCommentModel extends BaseTaskRequestModel {
   comment: TaskComments;
 }
-backlog.component.ts(75,10)
 export class DeleteCommentModel extends BaseTaskRequestModel {
   commentId: string;
 }
