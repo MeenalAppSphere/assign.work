@@ -43,11 +43,18 @@ export class GenericExceptionFilter implements ExceptionFilter {
       resp.status = 500;
     } else if (exception instanceof Error.ValidationError) {
       // mongoose validation errors
-      resp.errors = [
-        ...(exception as any).message.map(m => {
-          return { type: 'error', message: m };
-        })
-      ];
+      if (Array.isArray(exception.message)) {
+        resp.errors = [
+          ...(exception as any).message.map(m => {
+            return { type: 'error', message: m };
+          })
+        ];
+      } else {
+        resp.errors = [{
+          message: exception.message,
+          type: 'error'
+        }];
+      }
       resp.status = 400;
     } else if (exception instanceof Error.CastError) {
       // mongoose cast errors

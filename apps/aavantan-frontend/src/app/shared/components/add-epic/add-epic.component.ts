@@ -1,20 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import {
-  Project,
-  ProjectMembers,
-  SearchProjectCollaborators,
-  Task,
-  TaskType,
-  TimeLog,
-  User
-} from '@aavantan-app/models';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ProjectMembers, SearchProjectCollaborators, Task, TaskTypeModel, User } from '@aavantan-app/models';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task/task.service';
 import { GeneralService } from '../../services/general.service';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { UserService } from '../../services/user/user.service';
+
 @Component({
   selector: 'app-add-epic',
   templateUrl: './add-epic.component.html',
@@ -23,8 +16,8 @@ import { UserService } from '../../services/user/user.service';
 export class AddEpicComponent implements OnInit {
   public epicForm:FormGroup;
   @Input() public epicModalIsVisible: Boolean = false;
-  @Input() public taskTypeDataSource: TaskType[] = [];
-  @Input() public selectedTaskType: TaskType;
+  @Input() public taskTypeDataSource: TaskTypeModel[] = [];
+  @Input() public selectedTaskType: TaskTypeModel;
   @Output() toggleEpicShow: EventEmitter<any> = new EventEmitter<any>();
 
   public listOfSelectedWatchers: any = [];
@@ -111,7 +104,7 @@ export class AddEpicComponent implements OnInit {
     }
   }
 
-  public selectTaskType(item: TaskType) {
+  public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
   }
 

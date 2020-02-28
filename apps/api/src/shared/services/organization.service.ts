@@ -6,7 +6,7 @@ import { Document, Model } from 'mongoose';
 import { UsersService } from './users.service';
 import { ModuleRef } from '@nestjs/core';
 import { GeneralService } from './general.service';
-import { ProjectService } from './project.service';
+import { ProjectService } from './project/project.service';
 
 @Injectable()
 export class OrganizationService extends BaseService<Organization & Document> implements OnModuleInit {

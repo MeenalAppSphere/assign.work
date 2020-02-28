@@ -11,6 +11,10 @@ import { ProjectService } from './project/project.service';
 import { TaskService } from './task/task.service';
 import { SprintService } from './sprint/sprint.service';
 import { InvitationService } from './invitation/invitation.service';
+import { TaskPriorityService } from './task-priority/task-priority.service';
+import { TaskStatusService } from './task-status/task-status.service';
+import { TaskTypeService } from './task-type/task-type.service';
+import { BoardService } from './board/board.service';
 
 @NgModule()
 export class ServiceModule {
@@ -30,7 +34,11 @@ export class ServiceModule {
         ProjectService,
         TaskService,
         SprintService,
-        InvitationService
+        InvitationService,
+        TaskPriorityService,
+        TaskStatusService,
+        TaskTypeService,
+        BoardService
       ]
     };
   }

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import { DbCollection, SprintStatus } from '@aavantan-app/models';
 import { DEFAULT_WORKING_CAPACITY, DEFAULT_WORKING_CAPACITY_PER_DAY } from '../../shared/helpers/defaultValueConstant';
 
@@ -28,9 +28,10 @@ export const sprintSchema = new Schema({
       enum: Object.values(SprintStatus)
     },
     updatedAt: { type: Date },
+    updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
     id: { type: String }
   },
-  stages: {
+  columns: {
     type: Array,
     default: [],
     status: [],
@@ -39,11 +40,14 @@ export const sprintSchema = new Schema({
       type: Array,
       default: [],
       taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
+      totalLoggedTime: { type: Number, default: 0 },
       description: { type: String },
       sequenceNumber: { type: Number },
       addedAt: { type: Date },
+      addedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
       updatedAt: { type: Date },
-      addedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
+      movedAt: { type: Date },
+      movedById: { type: Schema.Types.ObjectId, ref: DbCollection.users }
     }
   },
   membersCapacity: {
@@ -56,9 +60,8 @@ export const sprintSchema = new Schema({
   totalEstimation: { type: Number, default: 0 },
   totalLoggedTime: { type: Number, default: 0 },
   totalOverLoggedTime: { type: Number, default: 0 },
-  createdById: { type: Schema.Types.ObjectId, required: [true, 'Created by is required'], ref: DbCollection.users },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users },
-  isDeleted: { type: Boolean, default: false }
+  boardId: { type: Schema.Types.ObjectId, ref: DbCollection.board },
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options
@@ -90,22 +93,44 @@ sprintSchema.virtual('updatedBy', {
   foreignField: '_id'
 });
 
-sprintSchema.virtual('stages.tasks.task', {
+sprintSchema.virtual('columns.tasks.task', {
   ref: DbCollection.tasks,
-  localField: 'stages.tasks.taskId',
+  localField: 'columns.tasks.taskId',
   foreignField: '_id'
 });
 
-sprintSchema.virtual('stages.tasks.addedBy', {
-  ref: DbCollection.users,
-  localField: 'stages.tasks.addedById',
+sprintSchema.virtual('columns.tasks.task.taskType', {
+  ref: DbCollection.taskType,
+  localField: 'columns.tasks.taskId.taskTypeId',
   foreignField: '_id'
+});
+
+sprintSchema.virtual('columns.tasks.task.status', {
+  ref: DbCollection.taskStatus,
+  localField: 'columns.tasks.taskId.statusId',
+  foreignField: '_id',
+  justOne: true
+});
+
+sprintSchema.virtual('columns.tasks.task.priority', {
+  ref: DbCollection.taskPriority,
+  localField: 'columns.tasks.taskId.priorityId',
+  foreignField: '_id',
+  justOne: true
+});
+
+sprintSchema.virtual('columns.tasks.addedBy', {
+  ref: DbCollection.users,
+  localField: 'columns.tasks.addedById',
+  foreignField: '_id',
+  justOne: true
 });
 
 sprintSchema.virtual('membersCapacity.user', {
   ref: DbCollection.users,
   localField: 'membersCapacity.userId',
-  foreignField: '_id'
+  foreignField: '_id',
+  justOne: true
 });
 
 // plugins

@@ -7,11 +7,11 @@ export class BaseUserModel {
 export class BaseDbModel {
   _id?: string;
   id?: string;
-  createdAt: Date;
+  createdAt?: Date;
   updatedAt?: Date;
   isDeleted?: boolean;
-  createdById: string;
+  createdById?: string;
   createdBy?: User;
-  updatedById: string;
-  updatedBy: User;
+  updatedById?: string;
+  updatedBy?: User;
 }

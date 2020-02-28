@@ -14,6 +14,10 @@ import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { AuthService } from '../shared/services/auth.service';
 import { cloneDeep } from 'lodash';
 import { InvitationService } from '../shared/services/invitation/invitation.service';
+import { TaskPriorityService } from '../shared/services/task-priority/task-priority.service';
+import { TaskStatusService } from '../shared/services/task-status/task-status.service';
+import { TaskTypeService } from '../shared/services/task-type/task-type.service';
+import { BoardService } from '../shared/services/board/board.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -33,7 +37,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
               private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
-              private _invitationService: InvitationService, private _notificationService: NzNotificationService) {
+              private _invitationService: InvitationService, private _notificationService: NzNotificationService,
+              private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService,
+              private _taskTypeService: TaskTypeService, private _boardService: BoardService) {
   }
 
   ngOnInit() {
@@ -54,10 +60,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this._generalService.currentOrganization = cloneDeep(res);
     });
 
-    this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
-    this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
-    this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
-    this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+    this.themeService.isMenuFoldedChanges.pipe(untilDestroyed(this)).subscribe(isFolded => this.isFolded = isFolded);
+    this.themeService.isSideNavDarkChanges.pipe(untilDestroyed(this)).subscribe(isDark => this.isSideNavDark = isDark);
+    this.themeService.selectedHeaderColor.pipe(untilDestroyed(this)).subscribe(color => this.selectedHeaderColor = color);
+    this.themeService.isExpandChanges.pipe(untilDestroyed(this)).subscribe(isExpand => this.isExpand = isExpand);
   }
 
   projectModalShow(): void {
@@ -173,41 +179,82 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     try {
       if (this._generalService.user) {
+        // get query params from url
         const queryParams = this.activatedRoute.snapshot.queryParams;
+
+        // check url have invitation id
         if (queryParams.invitationId) {
-          console.log('queryParams', queryParams);
+          // start accept invitation process
           this.isAcceptInvitationInProcess = true;
           try {
+            // call accept invitation api
             await this._invitationService.acceptInvitation(queryParams.invitationId).toPromise();
+            // navigate to dash board after successfully accepting invitation
             this.router.navigate(['dashboard'], { replaceUrl: true });
 
+            // get user profile
             await this._userService.getProfile().toPromise();
             this.isAcceptInvitationInProcess = false;
           } catch (e) {
+            // reset flags and update url
             this.isAcceptInvitationInProcess = false;
             this.router.navigate(['dashboard'], { replaceUrl: true });
           }
 
         } else {
           const TaskUrl = this.router.routerState.snapshot.url;
+          // check url contains task id
           if (TaskUrl.includes('task/')) {
             this.router.navigateByUrl(TaskUrl);
+
+            // wrapped in set timeout because we need to wait till all data processed from store
+            setTimeout(() => {
+              this.getInitialData();
+            }, 500);
+
           } else {
+
+            // check if user have organization
             if (!this._generalService.user.currentOrganization) {
               this.organizationModalIsVisible = true;
             } else {
+              // check if user have project
               if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
                 this.projectModalIsVisible = true;
+              } else {
+                // now every thing seems good now get initial data
+                // wrapped in set timeout because we need to wait till all data processed from store
+                setTimeout(() => {
+                  this.getInitialData();
+                }, 500);
               }
             }
           }
         }
+
       }
+
     } catch (e) {
       this._notificationService.error('Error', 'Invalid user login');
       this.router.navigate(['login']);
     }
+  }
 
+  private getInitialData() {
+    // get all task statuses
+    this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
+
+    // get all task types
+    this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
+
+    // get all task priorities
+    this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+
+    // get active board data
+    // this._boardService.getActiveBoard({
+    //   projectId: this._generalService.currentProject.id,
+    //   boardId: this._generalService.currentProject.activeBoardId
+    // }).subscribe();
   }
 
   ngOnDestroy(): void {

@@ -496,11 +496,12 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   overflow: hidden;
   text-overflow: ellipsis;
   position: relative;
+  line-height: 13px!important;
   i {
     float: right;
     position: absolute;
     right: 2px;
-    top: 7px;
+    top: 10px!important;
   }
 }
 

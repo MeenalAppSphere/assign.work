@@ -182,25 +182,20 @@
           <div class="col-md-6">
             <nz-form-item>
               <nz-form-label nzFor="tags">Tags</nz-form-label>
-              <nz-form-control>
-                <nz-input-group [nzSuffix]="suffixIconSearchWTags">
 
-                  <nz-select
-                    nzSize="small"
-                    nzShowSearch
-                    nzAllowClear
-                    nzServerSearch
-                    nzPlaceHolder="Search/Select Tag"
-                    nzMode="multiple"
-                    [(ngModel)]="listOfSelectedTags"
-                    formControlName="tags"
-                    [nzShowArrow]="false"
-                    (keydown)="addNewTag($event)"
-                    [nzFilterOption]="nzFilterOption"
-                    (nzOnSearch)="searchTags($event)">
-                    <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option" [nzValue]="option"></nz-option>
-                  </nz-select>
+              <nz-form-control class="relative">
+
+                <nz-input-group [nzSuffix]="suffixIconSearchWTags">
+                  <input placeholder="Search Tags" class="p-l-10" formControlName="tags" nz-input (ngModelChange)="searchTags($event)" (keydown)="onKeydown($event)" nzSize="small" [nzAutocomplete]="autoTags"/>
                 </nz-input-group>
+
+
+                <nz-autocomplete #autoTags>
+                  <nz-auto-option *ngFor="let option of tagsDataSource" [nzLabel]="option" [nzValue]="option">
+                    &nbsp;<span class="m-r-5">{{option.name}}</span>
+                  </nz-auto-option>
+                </nz-autocomplete>
+
 
               </nz-form-control>
 
@@ -209,58 +204,49 @@
                 <i class="fas fa-spin fa-spinner" *ngIf="isSearchingTags"></i>
               </ng-template>
 
+              <div class="collaborators-badge m-t-5" *ngIf="listOfSelectedTags && listOfSelectedTags.length>0">
+                    <span class="badge badge-secondary" *ngFor="let item of listOfSelectedTags">
+                      &nbsp;<span class="m-r-5">{{item.name}}</span>
+                      <i class="fa fa-times" (click)='removeTag(item)'></i>
+                    </span>
+              </div>
+
             </nz-form-item>
 
-            <!--<nz-form-item>
-                <nz-form-label nzFor="tags">Tags</nz-form-label>
-                <nz-form-control>
-                    <nz-select style="width: 100%"
-                               nzSize="small"
-                               nzMode="multiple"
-                               nzAllowClear
-                               formControlName="tags"
-                               nzPlaceHolder="Search/Select Tag"
-                               (keydown)="addNewTag($event)"
-                               [(ngModel)]="listOfSelectedTags">
-                        <nz-option *ngFor="let option of tagsDataSource" [nzLabel]="option" [nzValue]="option"></nz-option>
-                    </nz-select>
-                </nz-form-control>
-            </nz-form-item>-->
           </div>
           <div class="col-md-6">
             <nz-form-item>
               <nz-form-label nzFor="watchers">Watchers</nz-form-label>
-              <nz-form-control>
-                <nz-input-group [nzSuffix]="suffixIconSearchWatchers">
 
-                  <nz-select
-                    nzSize="small"
-                    nzShowSearch
-                    nzAllowClear
-                    nzServerSearch
-                    nzPlaceHolder="Search/Select watcher"
-                    nzMode="multiple"
-                    [(ngModel)]="listOfSelectedWatchers"
-                    formControlName="watchers"
-                    [nzShowArrow]="false"
-                    [nzFilterOption]="nzFilterOption"
-                    (nzOnSearch)="searchWatchers($event)">
-                    <nz-option *ngFor="let option of assigneeDataSource" nzCustomContent
-                               [nzLabel]="option.firstName ? option.firstName : option.emailId"
-                               [nzValue]="option.id ? option.id : ''">
-                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"
-                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
-                      <span>{{option.firstName ? option.firstName : option.emailId}}</span>
-                    </nz-option>
-                  </nz-select>
-                </nz-input-group>
+                <nz-form-control class="relative">
 
-              </nz-form-control>
+                  <nz-input-group [nzSuffix]="suffixIconSearchWatchers">
+                    <input placeholder="Search/Select watcher" class="p-l-10" formControlName="watchers" nz-input (ngModelChange)="searchWatchers($event)" nzSize="small" [nzAutocomplete]="autoAssignee"/>
+                  </nz-input-group>
 
-              <ng-template #suffixIconSearchWatchers>
-                <i nz-icon nzType="search" *ngIf="!isSearchingWatchers"></i>
-                <i class="fas fa-spin fa-spinner" *ngIf="isSearchingWatchers"></i>
-              </ng-template>
+                  <nz-autocomplete #autoAssignee>
+                    <nz-auto-option *ngFor="let option of assigneeDataSource" [nzLabel]="option && option.firstName ? option.firstName : option.emailId" [nzValue]="option">
+                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                      <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
+                      <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
+                      <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small class="text-muted">{{ option.emailId }}</small></div>
+                    </nz-auto-option>
+                  </nz-autocomplete>
+
+                </nz-form-control>
+                <ng-template #suffixIconSearchWatchers>
+                  <i nz-icon nzType="search" *ngIf="!isSearchingWatchers"></i>
+                  <i class="fas fa-spin fa-spinner" *ngIf="isSearchingWatchers"></i>
+                </ng-template>
+
+                <div class="collaborators-badge m-t-5" *ngIf="listOfSelectedWatchers && listOfSelectedWatchers.length>0">
+                    <span class="badge badge-secondary" *ngFor="let item of listOfSelectedWatchers">
+                      <nz-avatar nzSize="small" nzIcon="user" [nzSrc]="item.profilePic"></nz-avatar>
+                      &nbsp;<span *ngIf="item.firstName">{{item.firstName}} {{item.lastName}}</span>
+                      <span *ngIf="!item.firstName">{{item.emailId}}</span>
+                      <i class="fa fa-times" (click)='removeCollaborators(item)'></i>
+                    </span>
+                </div>
 
             </nz-form-item>
           </div>

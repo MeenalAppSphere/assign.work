@@ -61,7 +61,6 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-
   getAllBacklogTasks(json: GetAllTaskRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
 
     return this._http.post(TaskUrls.getAllBacklogTasks, json).pipe(
@@ -170,7 +169,6 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
-
 
   addAttachment(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.attachement, task).pipe(

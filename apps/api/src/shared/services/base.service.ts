@@ -2,15 +2,6 @@ import { ClientSession, Document, DocumentQuery, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
 import { DEFAULT_QUERY_FILTER, MAX_TRANSACTION_RETRY_TIMEOUT } from '../helpers/defaultValueConstant';
 
-const myPaginationLabels = {
-  docs: 'items',
-  limit: 'count',
-  page: 'page',
-  totalDocs: 'totalItems',
-  totalPages: 'totalPages'
-};
-
-
 export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
   }

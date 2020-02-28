@@ -1,4 +1,4 @@
-import { Project, ProjectStatus } from './project.model';
+import { Project } from './project.model';
 import { User } from './user.model';
 import { BaseDbModel } from './base.model';
 
@@ -6,16 +6,13 @@ export class WorkflowModel extends BaseDbModel {
   name: string;
   projectId: string;
   project?: Project;
-  columns: WorkflowColumn[];
+  statuses: WorkflowStatuses[];
   isActive: boolean;
+  categoryOrder: string[];
 }
 
-export class WorkflowColumn extends BaseDbModel {
-  name: string;
-  statues: string[];
-  defaultStatusId: string;
-  defaultStatus?: ProjectStatus;
+export class WorkflowStatuses extends BaseDbModel {
+  status: string;
   defaultAssigneeId: string;
   defaultAssignee?: User;
-  isActive: boolean;
 }

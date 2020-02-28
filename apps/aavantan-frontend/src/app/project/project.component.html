@@ -28,8 +28,7 @@
 
           <ng-container *ngIf="myTaskList && myTaskList.length === 0">
             <nz-empty
-              [nzNotFoundImage]="
-                'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
               [nzNotFoundFooter]="footerTpl"
               [nzNotFoundContent]="contentTpl">
               <ng-template #contentTpl>
@@ -66,8 +65,7 @@
           <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
             <ng-container *ngIf="allTaskList && allTaskList.length === 0">
               <nz-empty
-                [nzNotFoundImage]="
-                  'https://gw.alipayobjects.com/mdn/miniapp_social/afts/img/A*pevERLJC9v0AAAAAAAAAAABjAQAAAQ/original'"
+                [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
                 [nzNotFoundFooter]="footerTpl"
                 [nzNotFoundContent]="contentTpl">
                 <ng-template #contentTpl>

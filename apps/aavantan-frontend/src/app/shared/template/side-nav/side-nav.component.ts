@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ROUTES } from './side-nav-routes.config';
 import { ThemeConstantService } from '../../services/theme-constant.service';
-import { Organization, TaskType } from '@aavantan-app/models';
+import { Organization, TaskTypeModel } from '@aavantan-app/models';
 import { UserQuery } from '../../../queries/user/user.query';
 import { Router } from '@angular/router';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { GeneralService } from '../../services/general.service';
-import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { OrganizationService } from '../../services/organization/organization.service';
+import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
 
 @Component({
     selector: 'app-sidenav',
@@ -22,7 +22,7 @@ export class SideNavComponent implements OnInit, OnDestroy{
     public adminMenuItems: any[]
     isFolded : boolean;
     isSideNavDark : boolean;
-    public taskTypeDataSource: TaskType[] = [];
+    public taskTypeDataSource: TaskTypeModel[] = [];
     public currentOrganization: Organization;
     public organizations:string[] | Organization[]=[];
     public switchOrganizationInProcess:boolean;
@@ -32,24 +32,22 @@ export class SideNavComponent implements OnInit, OnDestroy{
                  private _userQuery: UserQuery,
                  private _organizationService: OrganizationService,
                  private _generalService: GeneralService,
-                 private router:Router) {
+                 private router:Router, private _taskTypeQuery: TaskTypeQuery) {
 
 
 
         this.organizations = this._generalService.user.organizations;
 
-        this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-            if (res) {
-              this.taskTypeDataSource = res.settings.taskTypes;
-              // console.log('Task Type', this.taskTypeDataSource)
-            }
-          });
+      // get all task types from store
+      this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
+        this.taskTypeDataSource = types;
+      });
 
-        this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
-          if (res) {
-            this.currentOrganization = res;
-          }
-        });
+      this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
+        if (res) {
+          this.currentOrganization = res;
+        }
+      });
 
     }
 
@@ -60,7 +58,7 @@ export class SideNavComponent implements OnInit, OnDestroy{
         this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
     }
 
-     public createNewTask(item?:TaskType){
+     public createNewTask(item?:TaskTypeModel){
         let displayName: string= null;
         if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
             displayName=this.taskTypeDataSource[0].displayName;
@@ -93,10 +91,10 @@ export class SideNavComponent implements OnInit, OnDestroy{
 
       } catch (e) {
         this.switchOrganizationInProcess = false;
-      }       
+      }
     }
-     
-     
+
+
      public ngOnDestroy(){
     }
 }

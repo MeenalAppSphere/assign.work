@@ -84,7 +84,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.createFrom();
 
     if (this.currentOrganization) {
-      this.projectForm.get('organization').patchValue(this.currentOrganization.id);
+      this.projectForm.get('organizationId').patchValue(this.currentOrganization.id);
     }
 
     this.projectSource = [];
@@ -190,7 +190,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.projectForm = this.FB.group({
       name: [null, [Validators.required, Validators.pattern('^[a-zA-Z0-9 ]*$')]],
       description: [null],
-      organization: ['']
+      organizationId: ['']
     });
 
     this.collaboratorForm = this.FB.group({
@@ -200,7 +200,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   public selectOrg(item: Organization) {
-    this.projectForm.get('organization').patchValue(item.id);
+    this.projectForm.get('organizationId').patchValue(item.id);
     this.next();
   }
 
@@ -236,7 +236,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this.createProjectInProcess = true;
     const project: Project = { ...this.projectForm.getRawValue() };
-    project.createdBy = this._generalService.user.id;
 
     try {
       const createdProject = await this._projectService.createProject(project).toPromise();

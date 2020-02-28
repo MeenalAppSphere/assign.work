@@ -1,0 +1,39 @@
+<div>
+
+    <span>Dear <%= user.firstName %> <%= user.lastName %>
+
+        <% if (type === 'comment-added') { %>
+
+            A comment added to a task named :- <%= task.displayName %> by :-
+            <b><%= comment.createdBy.firstName %> <%= comment.createdBy.lastName %></b>
+
+        <% } %>
+
+        <% if (type === 'comment-updated') { %>
+
+            A comment updated to a task named :- <%= task.displayName %> by :-
+            <b><%= comment.updatedBy.firstName %> <%= comment.updatedBy.lastName %></b>
+
+        <% } %>
+
+        <% if (type === 'pinned-comment') { %>
+
+            A comment pinned to a task named :- <%= task.displayName %> by :-
+            <b><%= comment.pinnedBy.firstName %> <%= comment.pinnedBy.lastName %></b>
+
+        <% } %>
+
+        <% if (type === 'un-pinned-comment') { %>
+
+            A comment un-pinned to a task named :- <%= task.displayName %> by :-
+            <b><%= comment.updatedBy.firstName %> <%= comment.updatedBy.lastName %></b>
+
+        <% } %>
+
+        in Project <b><%= project.name %></b>
+    </span>
+
+    <span>Please visit below link to get task details</span>
+    <a href="<%= appUrl %>dashboard/task/<%= task.displayName %>"><%= task.displayName %></a>
+
+</div>
