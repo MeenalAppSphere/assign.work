@@ -1,4 +1,4 @@
-import { EmailSubjectEnum, EmailTemplatePathEnum } from '@aavantan-app/models';
+import { EmailTemplatePathEnum, EmailSubjectEnum } from '../enums';
 
 /**
  * email subject template mapper
