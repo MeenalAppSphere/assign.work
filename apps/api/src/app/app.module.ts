@@ -14,10 +14,16 @@ import { SprintModule } from '../sprint/sprint.module';
 import * as aws from 'aws-sdk';
 import { InvitationsModule } from '../invitations/invitations.module';
 import { PublicModule } from '../public/public.module';
+import { TaskStatusModule } from '../task-status/task-status.module';
+import { WorkflowModule } from '../workflow/workflow.module';
+import { TaskPriorityModule } from '../task-priority/task-priority.module';
+import { TaskTypeModule } from '../task-type/task-type.module';
+import { BoardModule } from '../board/board.module';
+import { TaskCommentModule } from '../task-comment/task-comment.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://appsphere:use588mead@cluster0-shard-00-00-fdpyz.mongodb.net:27017,cluster0-shard-00-01-fdpyz.mongodb.net:27017,cluster0-shard-00-02-fdpyz.mongodb.net:27017/AavantanCADB?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority',
+    MongooseModule.forRoot('mongodb+srv://appsphere:use588mead@cluster0-fdpyz.mongodb.net/test?retryWrites=true&w=majority',
       { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true }),
     SharedModule,
     AuthModule,
@@ -30,9 +36,15 @@ import { PublicModule } from '../public/public.module';
     TaskTimeLogModule,
     SprintModule,
     InvitationsModule,
-    PublicModule
+    PublicModule,
+    TaskStatusModule,
+    TaskPriorityModule,
+    TaskTypeModule,
+    WorkflowModule,
+    BoardModule,
+    TaskCommentModule
   ],
-  controllers: [],
+  controllers: []
 })
 export class AppModule {
 

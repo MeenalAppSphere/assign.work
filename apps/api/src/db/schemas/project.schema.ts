@@ -1,6 +1,6 @@
-import { Schema } from 'mongoose';
+import { Schema, Types } from 'mongoose';
 import { DbCollection, ProjectTemplateEnum } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 import {
   DEFAULT_PROJECT_TEMPLATE_TYPE,
   DEFAULT_WORKING_CAPACITY,
@@ -13,12 +13,6 @@ const mongooseValidationErrorTransform = require('mongoose-validation-error-tran
 const projectTagsSchema = new Schema({
   name: String,
   isDeleted: { type: Boolean, default: false }
-}, schemaOptions);
-
-const projectTaskTypeSchema = new Schema({
-  name: { type: String, required: true },
-  color: { type: String, required: true },
-  displayName: { type: String, required: true }
 }, schemaOptions);
 
 export const projectSchema = new Schema({
@@ -37,7 +31,7 @@ export const projectSchema = new Schema({
       type: Array, default: DEFAULT_WORKING_DAYS
     }
   },
-  organization: {
+  organizationId: {
     type: Schema.Types.ObjectId,
     ref: DbCollection.organizations,
     required: [true, 'Please select Organization.']
@@ -52,14 +46,13 @@ export const projectSchema = new Schema({
     stages: [],
     taskTypes: [],
     priorities: [],
-    status: [],
+    statuses: [{ type: Types.ObjectId }],
     tags: [projectTagsSchema],
     required: false
   },
+  activeBoardId: { type: Types.ObjectId, ref: DbCollection.board },
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
-  createdBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedBy: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
-  isDeleted: { type: Boolean, default: false }
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options
@@ -73,9 +66,41 @@ projectSchema
 
 // virtual
 projectSchema
+  .virtual('organization', {
+    ref: DbCollection.organizations,
+    localField: 'organizationId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
   .virtual('members.userDetails', {
     ref: DbCollection.users,
     localField: 'members.userId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
+  .virtual('members.userDetails', {
+    ref: DbCollection.users,
+    localField: 'members.userId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
+  .virtual('createdBy', {
+    ref: DbCollection.users,
+    localField: 'createdById',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
+  .virtual('activeBoard', {
+    ref: DbCollection.board,
+    localField: 'activeBoardId',
     foreignField: '_id',
     justOne: true
   });

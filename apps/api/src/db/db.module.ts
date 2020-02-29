@@ -6,11 +6,17 @@ import { projectSchema } from './schemas/project.schema';
 import { organizationSchema } from './schemas/organization.schema';
 import { taskSchema } from './schemas/task.schema';
 import { taskHistorySchema } from './schemas/task-history.schema';
-import { attachmentSchema } from '../attachment/attachment.schema';
+import { attachmentSchema } from './schemas/attachment.schema';
 import { taskTimeLogSchema } from './schemas/task-time-log.schema';
 import { sprintSchema } from './schemas/sprint.schema';
 import { invitationSchema } from './schemas/invitations.schema';
 import { resetPasswordSchema } from './schemas/reset-password.schema';
+import { workflowSchema } from './schemas/workflow.schema';
+import { taskStatusSchema } from './schemas/task-status.schema';
+import { taskPrioritySchema } from './schemas/task-priority.schema';
+import { taskTypeSchema } from './schemas/task-type.schema';
+import { boardSchema } from './schemas/board.schema';
+import { taskCommentSchema } from './schemas/task-comment.schema';
 
 @Module({
   imports: [
@@ -54,6 +60,30 @@ import { resetPasswordSchema } from './schemas/reset-password.schema';
       name: DbCollection.resetPassword,
       schema: resetPasswordSchema,
       collection: DbCollection.resetPassword
+    }, {
+      name: DbCollection.workflow,
+      schema: workflowSchema,
+      collection: DbCollection.workflow
+    }, {
+      name: DbCollection.taskStatus,
+      schema: taskStatusSchema,
+      collection: DbCollection.taskStatus
+    }, {
+      name: DbCollection.taskPriority,
+      schema: taskPrioritySchema,
+      collection: DbCollection.taskPriority
+    }, {
+      name: DbCollection.taskType,
+      schema: taskTypeSchema,
+      collection: DbCollection.taskType
+    }, {
+      name: DbCollection.board,
+      schema: boardSchema,
+      collection: DbCollection.board
+    }, {
+      name: DbCollection.taskComments,
+      schema: taskCommentSchema,
+      collection: DbCollection.taskComments
     }])
   ],
   exports: [

@@ -1,0 +1,34 @@
+<nz-modal [(nzVisible)]="showHiddenStatusModalIsVisible" [nzTitle]="titleTemp" nzClassName="hidden-status-modal"
+          nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+
+  <div class="status-list status-box-scrollable">
+
+    <div class="item text-black" *ngFor="let item of statusList" [dndDraggable]="item"
+         [dndEffectAllowed]="'move'">
+      {{item.name}}
+      <span class="float-right">
+              <i class="m-l-10" nz-icon nzType="eye" nzTheme="outline" nz-tooltip
+                 (click)="showStatus(item.id)"
+                 [nzTitle]="'Show status'"></i>
+            </span>
+    </div>
+
+    <nz-empty
+      *ngIf="!statusList?.length"
+      [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+      [nzNotFoundContent]="contentTpl">
+      <ng-template #contentTpl>
+        <span></span>
+      </ng-template>
+    </nz-empty>
+
+  </div>
+
+  <div *nzModalFooter>
+    <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+  </div>
+  <ng-template #titleTemp>
+    <span>Hidden Status</span>
+  </ng-template>
+
+</nz-modal>

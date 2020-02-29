@@ -6,6 +6,9 @@
   background: url('../../assets/images/others/login_wall.svg')no-repeat bottom center;
   background-size: contain;
 }
+.gradient{
+  background: transparent linear-gradient(180deg, #F9FAFB00 0%, #F5F5F5 100%) 0% 0% no-repeat padding-box;
+}
 .or-line{
   div{
     background: #D9D9D9;
@@ -39,7 +42,7 @@
     h5{
       font-size: 17px;
       font-weight: 500;
-      color: #2680EB;
+      color: #000000;
       line-height: 17px;
     }
   }

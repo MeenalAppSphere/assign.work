@@ -1,12 +1,15 @@
-import { TaskHistoryActionEnum } from '../enums/task.enum';
-import { Project, ProjectPriority, ProjectStatus } from './project.model';
+import { TaskFilterCondition, TaskHistoryActionEnum } from '../enums';
+import { Project } from './project.model';
 import { User } from './user.model';
 import { AttachmentModel } from './attachment.model';
 import { MongoosePaginateQuery } from '../queryOptions';
 import { Sprint } from './sprint.model';
+import { TaskStatusModel } from './task-status.model';
+import { TaskPriorityModel } from './task-priority.model';
 
 export class Task {
   id?: string;
+  _id?: string;
   name: string;
   displayName?: string;
   description?: string;
@@ -17,6 +20,7 @@ export class Task {
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
   taskType?: any;
+  taskTypeId?: any;
   comments?: TaskComments[];
   estimatedTime?: number;
   estimatedTimeReadable?: string;
@@ -27,14 +31,14 @@ export class Task {
   overLoggedTime?: number;
   overLoggedTimeReadable?: string;
   watchers?: string[];
-  startedAt?: Date;
-  finishedAt?: Date;
-  priority?: string | ProjectPriority;
+  priority?: TaskPriorityModel;
+  priorityId?: string;
   tags?: string[];
   url?: string;
   progress?: number;
   overProgress?: number;
-  status?: string | ProjectStatus;
+  status?: TaskStatusModel;
+  statusId?: string;
   sprintId?: string;
   sprint?: Sprint;
   relatedItemId?: string[];
@@ -57,6 +61,8 @@ export class TaskComments {
   id?: string;
   _id?: string;
   comment: string;
+  taskId: string;
+  task?: Task;
   createdById: string;
   createdBy?: User;
   createdAt: Date;
@@ -79,24 +85,18 @@ export class TaskHistory {
   desc?: string;
 }
 
+export class TaskFilterQuery {
+  key: string;
+  value: [];
+  condition: TaskFilterCondition
+}
+
 export class TaskFilterDto {
-  id?: string;
-  _id?: string;
-  name?: string;
-  displayName?: string;
-  description?: string;
-  project?: string | string[];
-  assignee?: string | string[];
-  taskType?: string | string[];
-  priority?: string | string[];
-  tags?: string | string[];
-  status?: string | string[];
-  sprint?: string | string[];
-  createdBy?: string | string[];
+  term?: string;
+  projectId?: string;
+  queries?: TaskFilterQuery[];
   sort?: string;
-  sortBy?: string;
-  startedAt?: Date;
-  finishedAt?: Date;
+  sortBy: string;
 }
 
 export class BaseTaskRequestModel {
@@ -131,7 +131,6 @@ export class AddCommentModel extends BaseTaskRequestModel {
 export class UpdateCommentModel extends BaseTaskRequestModel {
   comment: TaskComments;
 }
-
 export class DeleteCommentModel extends BaseTaskRequestModel {
   commentId: string;
 }
@@ -139,7 +138,7 @@ export class DeleteCommentModel extends BaseTaskRequestModel {
 export class CommentPinModel extends BaseTaskRequestModel {
   commentId?: string;
   isPinned?: boolean;
-  comment?:string;
+  comment?: string;
 }
 
 export class GetTaskHistoryModel extends MongoosePaginateQuery {

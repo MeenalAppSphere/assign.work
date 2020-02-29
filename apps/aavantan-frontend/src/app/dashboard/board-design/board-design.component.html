@@ -1,0 +1,221 @@
+<nz-card nzBordered="false" nzSize="small" class="board-design">
+
+
+  <div class="m-b-15">
+    <span class="p-r-15 font-size-18 text-black">Board Settings</span>
+
+    <img src="../../../assets/images/icons/info.svg" height="16" class="cursor-pointer" nz-tooltip
+         [nzTitle]="templateTitleText"/>
+    <ng-template #templateTitleText>
+      About Board Settings...
+    </ng-template>
+
+  </div>
+
+
+
+  <nz-spin [nzSpinning]="getActiveBoardInProcess" [nzTip]="'Getting Active Board...'" style="min-height: 200px;">
+    <div class="row">
+
+      <div class="col-md-3" [hidden]="!activeBoard" [@inOutAnimation] *ngIf="isOpenStatusSidebar">
+
+        <nz-card nzSize="small" class="status-box">
+
+          <button (click)="toggleStatusSidebar()" nz-button nzSize="default" class="btn-double-arrow">
+            <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Collapse status'">
+          </button>
+
+          <div class="row m-b-20">
+            <div class="col-sm-4 text-black-dark">Status</div>
+            <div class="col-sm-8">
+              <a class="text-primary m-r-30 btn-block" (click)="toggleAddStatusShow()">+ Add New Status</a>
+            </div>
+          </div>
+          <aside class="status-list status-box-scrollable">
+
+            <nz-spin [nzTip]="'Loading Statuses...'" [nzSpinning]="getActiveBoardInProcess" nzSize="large"
+                     style="min-height:120px;">
+
+              <div class="item text-black" *ngFor="let item of activeBoard?.unMappedStatuses" [dndDraggable]="item"
+                   [dndEffectAllowed]="'move'">
+                {{item.name}}
+                <span class="float-right" dndHandle>
+                  <img src="../../../assets/images/icons/ellipsis-move.svg"/>
+                </span>
+              </div>
+
+
+              <div *ngIf="activeBoard?.unMappedStatuses && activeBoard?.unMappedStatuses.length===0">
+                <nz-empty
+                  [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+                  [nzNotFoundContent]="contentTpl">
+                  <ng-template #contentTpl>
+                    <span>All Status in used</span>
+                  </ng-template>
+                </nz-empty>
+              </div>
+
+            </nz-spin>
+
+
+          </aside>
+        </nz-card>
+
+      </div>
+
+      <div class="col-md-9" [ngClass]="!isOpenStatusSidebar ? 'col-md-12 p-l-45' : 'col-md-9'">
+
+        <button (click)="toggleStatusSidebar()" *ngIf="!isOpenStatusSidebar && activeBoard" nz-button nzSize="default"
+                class="btn-double-arrow-close">
+          <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Show status'">
+        </button>
+
+        <div class="row">
+          <div class="col-md-4">
+            <form nz-form [formGroup]="boardDesignForm">
+              <nz-form-item class="m-b-10">
+                <nz-form-control>
+                  <nz-input-group>
+                    <input formControlName="name" nzSize="small" maxlength="50" nz-input type="text"
+                           placeholder="Board Setting Name"/>
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+            </form>
+          </div>
+
+          <div class="col-md-8" [ngClass]="activeBoard ? 'text-right' : 'text-left'">
+            <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid"
+                    (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
+            </button>
+            <button class="m-l-5" nz-button nzType="primary" (click)="saveAndPublish()"
+                    [disabled]="!boardDesignForm.valid">Save &amp; Publish</button>
+            <!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
+            <!--                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip-->
+            <!--                                                         [nzTitle]="'Hide status'"></i>Hidden Status-->
+            <!--          </button>-->
+
+          </div>
+        </div>
+
+        <nz-card nzSize="small" *ngIf="activeBoard">
+
+          <h5 class="m-t-0 m-b-15">Board Flow</h5>
+
+          <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Processing Board...'"
+                   [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+                   || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
+                   nzSize="large">
+
+            <section class="sprintboard-container p-l-10">
+
+              <div class="row flex-row flex-nowrap sprintboard-column-container" *ngIf="!getActiveBoardInProcess"
+                   dndDropzone dndEffectAllowed="copyMove" dndHorizontal="true" (dndDrop)="onColumnDropped($event)">
+
+                <div dndPlaceholderRef class="dndColumnPlaceholder">
+                  Drop a column here...
+                </div>
+
+                <div class="column" *ngFor="let column of activeBoard?.columns; let last" [dndDraggable]="column"
+                     [dndEffectAllowed]="'move'">
+
+                  <div class="card card-block cursor-move">
+
+                    <div class="card-header d-flex justify-content-between">{{column.headerStatus?.name}}
+
+                      <div class="pull-left">
+                        <i nz-icon nzType="close" nzTheme="outline" nz-tooltip
+                           *ngIf="!column.headerStatus?.isDefault" (click)="hideColumn(column.headerStatusId)"
+                           [nzTitle]="'Hide Column'"></i>
+                      </div>
+
+                    </div>
+
+                    <div class="card-body status-list status-box-scrollable" dndDropzone dndEffectAllowed="copyMove"
+                         dndHorizontal="true" (dndDrop)="mergeRequest($event, column.headerStatusId)">
+
+                      <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses"
+                           [dndDraggable]="includedStatus.status"
+                           [dndEffectAllowed]="'move'">
+                        <div class="flex-row">
+                          <span class="text-black">
+                            {{ includedStatus?.status?.name }}
+                          </span>
+                          <span class="pull-right cursor-pointer">
+
+                            <nz-avatar nzIcon="user"
+                                       (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)"
+                                       *ngIf="!includedStatus?.defaultAssignee?.profilePic" nz-tooltip
+                                       [nzTitle]="'Default Assignee'"></nz-avatar>
+
+                            <nz-avatar nzType="user" nzIcon="user"
+                                       (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId, includedStatus?.defaultAssignee)"
+                                       *ngIf="includedStatus?.defaultAssignee?.profilePic"
+                                       [nzSrc]="includedStatus?.defaultAssignee?.profilePic" nz-tooltip
+                                       [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>
+
+                            <!--                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip-->
+                            <!--                             *ngIf="includedStatus.statusId !== column.headerStatusId"-->
+                            <!--                             [nzTitle]="'Hide status'"-->
+                            <!--                             (click)="hideStatus(column.headerStatusId, includedStatus.statusId)"></i>-->
+
+                          </span>
+                        </div>
+                      </div>
+
+                      <div dndPlaceholderRef class="dndPlaceholder">
+                        Drop Here...
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+            </section>
+
+          </nz-spin>
+
+        </nz-card>
+
+      </div>
+    </div>
+  </nz-spin>
+
+
+  <!-- region add/edit status -->
+  <ng-container *ngIf="addStatusModalIsVisible">
+    <aavantan-add-status
+      [addStatusModalIsVisible]="addStatusModalIsVisible"
+      (toggleAddStatusShow)="toggleAddStatusShow($event)">
+    </aavantan-add-status>
+  </ng-container>
+  <!-- endregion -->
+
+  <!-- region add/edit status -->
+  <ng-container *ngIf="assignUserModalIsVisible">
+    <aavantan-assign-user
+      [userDetails]="assignUserDetails"
+      [assignUserModalIsVisible]="assignUserModalIsVisible"
+      (assignUserEvent)="assignDefaultUser($event)"
+      (toggleAssignUserModalShow)="hideDefaultAssigneeModal()">
+    </aavantan-assign-user>
+  </ng-container>
+  <!-- endregion -->
+
+  <!-- region hidden status -->
+  <ng-container *ngIf="showHiddenStatusModalIsVisible">
+    <aavantan-hidden-status
+      [showHiddenStatusModalIsVisible]="showHiddenStatusModalIsVisible"
+      [getHiddenStatusInProcess]="getHiddenStatusesInProcess"
+      [statusList]="hiddenStatuses"
+      (showColumnStatusEvent)="showColumnStatus($event)"
+      (toggleHiddenStatusModalShow)="toggleHiddenStatusModalShow()">
+    </aavantan-hidden-status>
+  </ng-container>
+  <!-- endregion -->
+
+
+</nz-card>

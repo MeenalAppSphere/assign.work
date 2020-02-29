@@ -2,13 +2,15 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import {
+  AddTaskToSprintModel,
   AssignTasksToSprintModel,
   CloseSprintModel,
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
-  MoveTaskToStage,
+  MoveTaskToColumnModel,
   PublishSprintModel,
+  RemoveTaskFromSprintModel,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
@@ -30,19 +32,24 @@ export class SprintController {
     return await this._sprintService.updateSprint(model);
   }
 
-  @Post('assign-tasks')
-  async assignTasks(@Body() model: AssignTasksToSprintModel) {
-    return await this._sprintService.assignTasksToSprint(model);
+  @Post('add-task')
+  async addTask(@Body() model: AddTaskToSprintModel) {
+    return await this._sprintService.addTaskToSprint(model);
   }
 
-  // @Post('remove-tasks')
-  // async removeTasks(@Body() model: RemoveTaskFromSprintModel) {
-  //   return await this._sprintService.removeTaskFromSprint(model);
+  // @Post('assign-tasks')
+  // async assignTasks(@Body() model: AssignTasksToSprintModel) {
+  //   return await this._sprintService.assignTasksToSprint(model);
   // }
 
+  @Post('remove-task')
+  async removeTasks(@Body() model: RemoveTaskFromSprintModel) {
+    return await this._sprintService.removeTaskFromSprint(model);
+  }
+
   @Post('move-task')
-  async moveTask(@Body() model: MoveTaskToStage) {
-    return await this._sprintService.moveTaskToStage(model);
+  async moveTask(@Body() model: MoveTaskToColumnModel) {
+    return await this._sprintService.moveTaskToColumn(model);
   }
 
   @Post('all')

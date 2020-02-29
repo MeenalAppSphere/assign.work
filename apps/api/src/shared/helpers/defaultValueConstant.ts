@@ -5,6 +5,9 @@ export const DEFAULT_QUERY_FILTER = {
   isDeleted: false
 };
 
+// default date format
+export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY';
+
 // default project template type
 export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.softwareDevelopment;
 
@@ -55,3 +58,5 @@ export const DEFAULT_RESET_PASSWORD_CODE_EXPIRY = 10800;
 // max transaction retry timeout in seconds
 export const MAX_TRANSACTION_RETRY_TIMEOUT = 120000;
 
+// default board name that will be created when you create a project
+export const DEFAULT_BOARD_NAME = 'BOARD - 1';

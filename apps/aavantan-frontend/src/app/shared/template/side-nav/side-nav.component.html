@@ -28,6 +28,8 @@
                 <p class="font-size-14 d-inline-block m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
                     <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
                     <span class="text-gray-light">{{ item.name }}</span>
+
+                    <i *ngIf="item.id===currentOrganization?.id" class="fas fa-check text-success float-right selected-org-check"></i>
                 </p>
             </li>
 
@@ -134,10 +136,38 @@
 
 
 <div class="btn-floating-container">
-  <a href="javascript:void(0);"
+  <a *ngIf="isFolded" href="javascript:void(0);"
        [ngStyle]="{'background':isFolded ? '#ffffff20' : 'none' }"
        (click)="createNewTask()" class="btn-floating" nz-button nzType="primary" nzSize="small" nzShape="round" nzTitle="Create Task" nzPlacement="right" nz-tooltip>
     +
   </a>
-  <span class="p-l-15 font-size-15 text-white d-inline-block" *ngIf="!isFolded">Create Task</span>
+
+
+  <div *ngIf="!isFolded" class="d-inline-flex" (click)="createNewTask()">
+
+    <button nz-button nzType="link" nzGhost style="
+    min-width: 40px;
+    padding: 9px!important;
+    border: 0px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2)!important;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;">
+      <i nz-icon nzType="plus" style="font-weight: bolder;font-size:26px;"></i>
+      </button>
+
+    <button nz-button nzType="link" nzGhost style="
+    border: 0px;
+    color: #fff;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    background: rgba(255, 255, 255, 0.2)!important;
+    width: 136px;
+    padding: 10px!important;
+    line-height: 22px;
+    text-align: left;" >
+      Create Task</button>
+  </div>
+
+
 </div>

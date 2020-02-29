@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from '../../shared/schema/base.schema';
+import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 const uniqueValidator = require('mongoose-unique-validator');

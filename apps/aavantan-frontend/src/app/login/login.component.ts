@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   public responseMessage: Notice = {};
   public isSubmitted: boolean;
   public featuresList: any;
+  public isLoginWithGoogle:boolean;
 
   constructor(private _authService: AuthService,
               private _authQuery: AuthQuery,
@@ -33,7 +34,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
 
     this._authQuery.isLoginInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
-      this.loginInProcess = res;
+      if(!this.isLoginWithGoogle) {
+        this.loginInProcess = res;
+      }
     });
 
     // this._authQuery.isLoginSuccess$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -69,6 +72,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   loginWithGoogle() {
+    this.isLoginWithGoogle =true;
     this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID).then(result => {
     }).catch(err => {
       console.log(err);

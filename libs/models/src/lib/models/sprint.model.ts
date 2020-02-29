@@ -1,11 +1,12 @@
 import { Task } from './task.model';
 import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
-import { Project, ProjectStages, ProjectWorkingDays } from './project.model';
+import { Project, ProjectWorkingDays } from './project.model';
 import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Sprint {
   id?: string;
+  _id?: string;
   name: string;
   projectId: string;
   project?: Project;
@@ -16,9 +17,10 @@ export class Sprint {
   goal: string;
   startedAt: Date;
   endAt: Date;
+  sprintDaysLeft?: number;
   autoUpdate?: SprintAutoUpdate;
   sprintStatus: SprintStatus;
-  stages?: SprintStage[];
+  columns?: SprintColumn[];
   membersCapacity?: SprintMembersCapacity[];
   totalCapacity?: number;
   totalCapacityReadable?: string;
@@ -36,24 +38,33 @@ export class Sprint {
   overProgress?: number;
 }
 
-export class SprintStage {
+export class SprintColumn {
   id: string;
-  stage?: ProjectStages;
-  status: string[];
-  tasks: SprintStageTask[];
+  statusId: string;
+  name?: string;
+  tasks: SprintColumnTask[];
   totalEstimation: number;
   totalEstimationReadable?: string;
+  isHidden: boolean;
 }
 
-export class SprintStageTask {
+export class SprintColumnTask {
   taskId: string;
+  totalLoggedTime: number;
+  totalLoggedTimeReadable?: string;
   task?: Task;
   description?: string;
   sequenceNumber?: string;
-  addedAt: Date;
+  addedAt?: Date;
   updatedAt?: Date;
-  addedById: string;
+  addedById?: string;
   addedBy?: User;
+  movedAt?: Date;
+  movedById?: string;
+  movedBy?: User;
+  removedAt?: Date;
+  removedById?: string;
+  removedBy?: User;
 }
 
 export class SprintAutoUpdate {
@@ -64,6 +75,8 @@ export class SprintAutoUpdate {
 export class SprintStatus {
   status: SprintStatusEnum;
   updatedAt: Date;
+  updatedById?: string;
+  updatedBy?: User;
 }
 
 export class SprintMembersCapacity {
@@ -77,8 +90,8 @@ export class SprintMembersCapacity {
 }
 
 export class SprintErrorResponse {
-  tasksErrors: SprintErrorResponseItem[];
-  membersErrors: SprintErrorResponseItem[];
+  tasksError: SprintErrorResponseItem;
+  membersError: SprintErrorResponseItem;
 }
 
 export class SprintErrorResponseItem {
@@ -110,6 +123,12 @@ export class CreateSprintModel {
   sprint: Sprint;
 }
 
+export class CreateSprintCloseSprintCommonModel {
+  sprint: Sprint;
+  doPublishSprint?: boolean;
+  unFinishedTasks?: Task[];
+}
+
 export class UpdateSprintModel extends CreateSprintModel {
 }
 
@@ -118,27 +137,31 @@ export class SprintBaseRequest {
   sprintId: string;
 }
 
+export class AddTaskToSprintModel extends SprintBaseRequest {
+  taskId: string;
+  adjustHoursAllowed?: boolean;
+}
+
+export class RemoveTaskFromSprintModel extends SprintBaseRequest {
+  taskId: string;
+}
+
 export class AssignTasksToSprintModel extends SprintBaseRequest {
   tasks: string[];
   adjustHoursAllowed?: boolean;
 }
 
-export class RemoveTaskFromSprintModel extends SprintBaseRequest {
-  tasks: string[];
-}
-
-export class AddTaskRemoveTaskToSprintResponseModel {
+export class SprintDurationsModel {
   totalCapacity: number;
   totalCapacityReadable: string;
   totalRemainingCapacity: number;
   totalRemainingCapacityReadable: string;
   totalEstimation: number;
   totalEstimationReadable: string;
-  tasks: string[];
 }
 
-export class MoveTaskToStage extends SprintBaseRequest {
-  stageId: string;
+export class MoveTaskToColumnModel extends SprintBaseRequest {
+  columnId: string;
   taskId: string;
 }
 
@@ -165,8 +188,8 @@ export class PublishSprintModel extends SprintBaseRequest {
 
 export class CloseSprintModel extends SprintBaseRequest {
   createNewSprint: boolean;
+  createAndPublishNewSprint: boolean;
   sprint?: Sprint;
-  finalStatusOfTasks?: string;
 }
 
 export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {

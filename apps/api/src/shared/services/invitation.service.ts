@@ -4,7 +4,7 @@ import { DbCollection, Invitation, MongooseQueryModel, Organization, Project, Us
 import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, OnModuleInit } from '@nestjs/common';
 import { isInvitationExpired } from '../helpers/helpers';
-import { ProjectService } from './project.service';
+import { ProjectService } from './project/project.service';
 import { ModuleRef } from '@nestjs/core';
 import { OrganizationService } from './organization.service';
 import { UsersService } from './users.service';
@@ -232,7 +232,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
         let: { 'projectId': '$projectId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$projectId'] } } },
-          { $project: { members: 1, organization: 1 } },
+          { $project: { members: 1, organizationId: 1 } },
           { $project: { 'members.workingCapacity': 0, 'members.workingCapacityPerDay': 0, 'members.workingDays': 0 } }
         ],
         as: 'project'
@@ -241,7 +241,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
       {
         $lookup: {
           from: DbCollection.organizations,
-          let: { 'organizationId': '$project.organization' },
+          let: { 'organizationId': '$project.organizationId' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$organizationId'] } } },
             { $project: { members: 1 } }

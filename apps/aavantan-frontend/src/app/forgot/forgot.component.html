@@ -1,23 +1,27 @@
-<div class="container-fluid h-100">
-  <div class="d-flex h-100 p-v-15 flex-column justify-content-between">
-    <div class="d-none d-md-flex p-h-40">
-      <img src="assets/images/logo/logo.svg" alt="Assign.Work" height="50"/>
+<div class="container-fluid h-100" style="border-bottom: #024880 5px solid;">
+  <div class="d-flex h-100 flex-column">
+
+    <div class="row">
+      <div class="col-md-4 p-t-40 p-h-90 bg-white logo-col">
+        <img src="assets/images/logo/logo.svg" alt="Assign.Work"/>
+      </div>
+      <div class="col-md-8 p-t-30 p-h-40 text-right menu-header">
+        <div>
+          <a href="">About Us</a>
+          <a href="">Pricing</a>
+          <a href="">Supports</a>
+        </div>
+      </div>
     </div>
 
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-md-6 d-none d-md-block">
-          <img
-            class="img-fluid"
-            src="assets/images/others/sign-up-2.png"
-            alt=""
-          />
-        </div>
 
-        <div class="m-l-auto col-md-5">
-          <nz-card>
-            <h2 class="m-t-20">Forgot?</h2>
-            <p class="m-b-30">
+    <div class="row" style="height:calc(100vh - 90px);">
+
+
+        <div class="col-md-4 bg-white relative" [ngClass]="!(isForgotPasswordSuccess | async) ? 'p-t-90' : 'p-t-30'">
+          <nz-card class="p-h-60" nzBordered="false">
+            <h2 class="m-t-20">Forgot Password?</h2>
+            <p class="m-b-30 text-black-dark font-size-13">
               Enter your registered email to get reset password
             </p>
 
@@ -185,7 +189,21 @@
 
           </nz-card>
         </div>
-      </div>
+
+        <div class="col-md-8 p-h-40 p-t-20">
+          <img
+            *ngIf="!(isForgotPasswordSuccess | async)"
+            class="img-fluid"
+            src="assets/images/others/forgot_wall.svg"
+            alt="" />
+          <img
+            *ngIf="(isForgotPasswordSuccess | async) && !(isResetPasswordSuccess | async)"
+            class="img-fluid"
+            src="assets/images/others/otp_wall.svg"
+            alt="" />
+        </div>
+
+
     </div>
 
     <div class="d-none d-md-flex  p-h-40 justify-content-between">

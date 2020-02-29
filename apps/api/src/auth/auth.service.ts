@@ -16,7 +16,7 @@ import { ClientSession, Document, Model } from 'mongoose';
 import { get, Response } from 'request';
 import { UsersService } from '../shared/services/users.service';
 import { ModuleRef } from '@nestjs/core';
-import { ProjectService } from '../shared/services/project.service';
+import { ProjectService } from '../shared/services/project/project.service';
 import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';
@@ -659,7 +659,7 @@ export class AuthService implements OnModuleInit {
   private async handlePendingInvitations(pendingInvitations: any[], userDetails: User & Document, session: ClientSession, updateUserDoc: any) {
     for (let i = 0; i < pendingInvitations.length; i++) {
 
-      const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
+      const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id.toString());
 
       // check basic validations for invitation link
       this._invitationService.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
