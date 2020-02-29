@@ -1,6 +1,10 @@
 import { ClientSession, Document, DocumentQuery, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
-import { DEFAULT_QUERY_FILTER, MAX_TRANSACTION_RETRY_TIMEOUT } from '../helpers/defaultValueConstant';
+import {
+  DEFAULT_PAGINATED_ITEMS_COUNT,
+  DEFAULT_QUERY_FILTER,
+  MAX_TRANSACTION_RETRY_TIMEOUT
+} from '../helpers/defaultValueConstant';
 
 export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
@@ -58,7 +62,7 @@ export class BaseService<T extends Document> {
   }
 
   public async getAllPaginatedData(filter: any = {}, options: Partial<MongoosePaginateQuery> | any): Promise<BasePaginatedResponse<any>> {
-    options.count = options.count || 20;
+    options.count = options.count || DEFAULT_PAGINATED_ITEMS_COUNT;
     options.page = options.page || 1;
 
     const query = this.model

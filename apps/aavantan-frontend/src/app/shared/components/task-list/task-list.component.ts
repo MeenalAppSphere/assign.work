@@ -5,7 +5,7 @@ import {
   GetAllTaskRequestModel,
   RemoveTaskFromSprintModel,
   Task,
-  TaskFilterDto,
+  TaskFilterModel,
   TaskTimeLogResponse
 } from '@aavantan-app/models';
 import { Router } from '@angular/router';
@@ -36,9 +36,7 @@ export class TaskListComponent implements OnInit, OnChanges {
 
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;
-  public sortingRequest: TaskFilterDto = {
-    sort: '', sortBy: ''
-  };
+  public sortingRequest: TaskFilterModel = new TaskFilterModel('');
 
   public addTaskToSprintInProgress: boolean;
   public removeTaskFromSprintInProgress: boolean;

@@ -271,7 +271,14 @@
           <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                    [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
 
-            <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable [nzData]="backLogTasksList" nzSize="small">
+            <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
+                      [nzData]="backLogTasksList"
+                      [nzFrontPagination]="false"
+                      [nzTotal]="backLogTaskRequest.totalItems"
+                      [nzPageIndex]="backLogTaskRequest.page"
+                      [nzPageSize]="backLogTaskRequest.count"
+                      [nzShowPagination]="true"
+                      nzSize="small">
               <thead>
               <tr>
 
