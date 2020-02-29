@@ -348,7 +348,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
 
     if (!displayName) {
-      this.notification.error('Info', 'Please create Stages, Task Types, Status, Priority from settings');
+      this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
       setTimeout(() => {
         this.router.navigateByUrl('dashboard/settings');
       }, 1000);
