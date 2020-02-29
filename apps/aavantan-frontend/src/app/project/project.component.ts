@@ -107,7 +107,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   getMyTasks() {
     this.getMyTaskInProcess = true;
 
-    this._taskService.getTaskWithFilter(this.myTaskFilterRequest).subscribe(result => {
+    this._taskService.getTaskWithFilter(this.myTaskFilterRequest, true).subscribe(result => {
       this.getMyTaskInProcess = false;
 
       if (result) {

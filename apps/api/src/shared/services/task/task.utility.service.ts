@@ -11,6 +11,7 @@ import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { environment } from '../../../environments/environment';
 import { ProjectUtilityService } from '../project/project.utility.service';
+import { toObjectId } from '../../helpers/helpers';
 
 export class TaskUtilityService {
   private _boardUtilityService: BoardUtilityService;
@@ -162,7 +163,7 @@ export class TaskUtilityService {
     // name, displayName, description and tags
     const filter: any = {
       $and: [{
-        projectId: model.projectId
+        projectId: toObjectId(model.projectId)
       }, {
         $or: [{
           name: { $regex: new RegExp(model.query.toString()), $options: 'i' }

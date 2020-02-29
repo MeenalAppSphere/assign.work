@@ -18,7 +18,7 @@ import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
-import { BadRequest, secondsToString, stringToSeconds } from '../../helpers/helpers';
+import { BadRequest, secondsToString, stringToSeconds, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
@@ -28,6 +28,7 @@ import { TaskStatusService } from '../task-status/task-status.service';
 import { ProjectService } from '../project/project.service';
 import { TaskUtilityService } from './task.utility.service';
 import { ProjectUtilityService } from '../project/project.utility.service';
+import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
 
 /**
  * common task population object
@@ -45,23 +46,6 @@ const taskBasicPopulation: any[] = [{
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
 }, {
-  path: 'watchersDetails',
-  select: 'emailId userName firstName lastName profilePic _id'
-}, {
-  path: 'dependentItem',
-  select: 'name displayName description url',
-  justOne: true
-}, {
-  path: 'relatedItem',
-  select: 'name displayName description url',
-  justOne: true
-}, {
-  path: 'attachmentsDetails'
-}, {
-  path: 'sprint',
-  select: 'name goal',
-  justOne: true
-}, {
   path: 'status',
   select: 'name',
   justOne: true
@@ -74,6 +58,28 @@ const taskBasicPopulation: any[] = [{
   select: 'name color',
   justOne: true
 }];
+
+const taskFullPopulation: any[] = [
+  ...taskBasicPopulation,
+  {
+    path: 'watchersDetails',
+    select: 'emailId userName firstName lastName profilePic _id'
+  }, {
+    path: 'dependentItem',
+    select: 'name displayName description url',
+    justOne: true
+  }, {
+    path: 'relatedItem',
+    select: 'name displayName description url',
+    justOne: true
+  }, {
+    path: 'attachmentsDetails'
+  }, {
+    path: 'sprint',
+    select: 'name goal',
+    justOne: true
+  }
+];
 
 @Injectable()
 export class TaskService extends BaseService<Task & Document> implements OnModuleInit {
@@ -454,7 +460,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
     queryObj['projectId'] = this.toObjectId(model.projectId);
 
-    const task: Task = await this._taskModel.findOne(queryObj).populate(taskBasicPopulation).select('-comments').lean().exec();
+    const task: Task = await this._taskModel.findOne(queryObj).populate(taskFullPopulation).select('-comments').lean().exec();
     if (!task) {
       throw new BadRequestException('task not found');
     }
@@ -466,14 +472,96 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model
    */
   async getTasks(model: TaskFilterModel) {
+    model.count = 2;
     await this._projectService.getProjectDetails(model.projectId);
 
     const queryFilter = this._utilityService.prepareFilterQuery(model);
-    model.populate = taskBasicPopulation;
 
-    // get all tasks and return it
-    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(queryFilter, model);
-    return result;
+    const agg = await this.dbModel
+      .aggregate()
+      .match(queryFilter)
+      .lookup({
+        from: DbCollection.users,
+        let: { createdById: '$createdById' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$createdById'] } } },
+          { $project: basicUserDetailsForAggregateQuery }
+        ],
+        as: 'createdBy'
+      })
+      .unwind({ path: '$createdBy', preserveNullAndEmptyArrays: true })
+      .lookup({
+        from: DbCollection.users,
+        let: { updatedById: '$updatedById' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$updatedById'] } } },
+          { $project: basicUserDetailsForAggregateQuery }
+        ],
+        as: 'updatedBy'
+      })
+      .unwind({ path: '$updatedBy', preserveNullAndEmptyArrays: true })
+      .lookup({
+        from: DbCollection.users,
+        let: { assigneeId: '$assigneeId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
+          { $project: basicUserDetailsForAggregateQuery }
+        ],
+        as: 'assignee'
+      })
+      .unwind('assignee')
+      .lookup({
+        from: DbCollection.taskStatus,
+        let: { statusId: '$statusId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
+          { $project: { name: 1 } }
+        ],
+        as: 'status'
+      })
+      .unwind('status')
+      .lookup({
+        from: DbCollection.taskPriority,
+        let: { priorityId: '$priorityId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$priorityId'] } } },
+          { $project: { name: 1 } }
+        ],
+        as: 'priority'
+      })
+      .unwind('priority')
+      .lookup({
+        from: DbCollection.taskType,
+        let: { taskTypeId: '$taskTypeId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } },
+          { $project: { name: 1 } }
+        ],
+        as: 'taskType'
+      })
+      .unwind('taskType')
+      .skip((model.count * model.page) - model.count)
+      .limit(model.count);
+
+    const countQuery = await this.dbModel.aggregate().match(queryFilter).count('totalRecords');
+    let totalRecordsCount = 0;
+    if (countQuery && countQuery[0]) {
+      totalRecordsCount = countQuery[0].totalRecords;
+    }
+
+    return {
+      page: model.page,
+      totalItems: totalRecordsCount,
+      totalPages: Math.ceil(totalRecordsCount / model.count),
+      count: model.count,
+      items: agg
+    };
+
+    // model.populate = taskBasicPopulation;
+    //
+    // // get all tasks and return it
+    // const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(queryFilter, model);
+    // return result;
   }
 
   /**
@@ -485,7 +573,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       BadRequest('Project Not Found');
     }
 
-    model = { ...model, ...new TaskFilterModel(model.projectId) };
+    model = { ...new TaskFilterModel(model.projectId), ...model };
 
     model.queries.push({
       key: 'sprintId', value: [undefined, null], condition: TaskFilterCondition.and
@@ -506,9 +594,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     // set query for my tasks only
     model.queries = [...model.queries, ...[{
-      key: 'createdById', value: [this._generalService.userId], condition: TaskFilterCondition.or
+      key: 'createdById', value: [toObjectId(this._generalService.userId)], condition: TaskFilterCondition.or
     }, {
-      key: 'assigneeId', value: [this._generalService.userId], condition: TaskFilterCondition.or
+      key: 'assigneeId', value: [toObjectId(this._generalService.userId)], condition: TaskFilterCondition.or
     }]];
 
     return this.getTasks(model);
@@ -527,7 +615,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     const taskDetails: Task = await this.findOne({
       filter: { _id: taskId, projectId },
       lean: true,
-      populate: getFullDetails ? taskBasicPopulation : []
+      populate: getFullDetails ? taskFullPopulation : []
     });
 
     if (!taskDetails) {

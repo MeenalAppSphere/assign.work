@@ -88,7 +88,7 @@ export class TaskHistory {
 
 export class TaskFilterQuery {
   key: string;
-  value: string[];
+  value: any[];
   condition: TaskFilterCondition;
 }
 

@@ -85,8 +85,8 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getTaskWithFilter(filter: TaskFilterModel) {
-    return this._http.post(TaskUrls.getAllTaskWithFilter, filter).pipe(
+  getTaskWithFilter(filter: TaskFilterModel, onlyMyTasks : boolean = false) {
+    return this._http.post(!onlyMyTasks ? TaskUrls.getAllTaskWithFilter : TaskUrls.getAllMyTasks, filter).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
         return res;
       }),
