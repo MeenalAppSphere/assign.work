@@ -20,11 +20,20 @@ import { TaskPriorityModule } from '../task-priority/task-priority.module';
 import { TaskTypeModule } from '../task-type/task-type.module';
 import { BoardModule } from '../board/board.module';
 import { TaskCommentModule } from '../task-comment/task-comment.module';
+import { environment } from '../environments/environment';
+
+// set db connection string on basis of environment
+const dbConnectionString = environment.production ? process.env.DB_CONNECTION_STRING_PROD : process.env.DB_CONNECTION_STRING_DEV;
+
+console.log(dbConnectionString);
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://appsphere:use588mead@cluster0-fdpyz.mongodb.net/test?retryWrites=true&w=majority',
-      { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true }),
+    MongooseModule.forRoot(dbConnectionString, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true
+    }),
     SharedModule,
     AuthModule,
     UsersModule,

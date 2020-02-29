@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  APP_URL: 'https://assign.work/'
+  APP_URL: 'https://assign.work/',
 };
