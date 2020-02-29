@@ -15,7 +15,7 @@ import {
   GetTaskByIdOrDisplayNameModel,
   GetTaskHistoryModel,
   Task,
-  TaskComments, TaskFilterDto,
+  TaskComments, TaskFilterModel,
   TaskHistory,
   TaskTimeLog,
   TaskTimeLogHistoryModel,
@@ -61,9 +61,9 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getAllBacklogTasks(json: GetAllTaskRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
+  getAllBacklogTasks(filterModel: TaskFilterModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
 
-    return this._http.post(TaskUrls.getAllBacklogTasks, json).pipe(
+    return this._http.post(TaskUrls.getAllBacklogTasks, filterModel).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
 
         return res;
@@ -85,9 +85,9 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getTaskWithFilter(filter: TaskFilterDto) {
+  getTaskWithFilter(filter: TaskFilterModel) {
     return this._http.post(TaskUrls.getAllTaskWithFilter, filter).pipe(
-      map((res: BaseResponseModel<Task[]>) => {
+      map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
         return res;
       }),
       catchError(err => {

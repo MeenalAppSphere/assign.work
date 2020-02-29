@@ -11,7 +11,7 @@ import {
   SprintErrorEnum,
   SprintErrorResponse,
   Task,
-  TaskFilterDto,
+  TaskFilterModel,
   TaskTypeModel,
   User
 } from '@aavantan-app/models';
@@ -72,9 +72,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public addTaskToSprintInProgress: boolean;
   public removeTaskFromSprintInProgress: boolean;
   public selectedTimeLogTask: Task;
-  public sortingRequest: TaskFilterDto = {
-    sort: '', sortBy: ''
-  };
+  public sortingRequest: TaskFilterModel = new TaskFilterModel('');
+  public backLogTaskRequest: TaskFilterModel;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   public timelogModalIsVisible: boolean;
@@ -99,6 +98,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this._generalService.currentProject && this._generalService.currentProject.id) {
+
+      this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
+      this.backLogTaskRequest.count = 2;
+
       // get all back log tasks
       this.getAllBacklogTask();
 
@@ -143,18 +146,18 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public async getAllBacklogTask() {
-    const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
-      sort: 'createdAt',
-      sortBy: 'desc',
-      onlyBackLog: true
-    };
 
     this.getTaskInProcess = true;
-    const data = await this._taskService.getAllBacklogTasks(json).toPromise();
-    if (data.data && data.data.items.length > 0) {
-      this.backLogTasksList = cloneDeep(data.data.items);
-      this.backLogTasksListBackup = cloneDeep(data.data.items);
+    const result = await this._taskService.getAllBacklogTasks(this.backLogTaskRequest).toPromise();
+
+    if (result.data) {
+      this.backLogTaskRequest.page = result.data.page;
+      this.backLogTaskRequest.count = result.data.count;
+      this.backLogTaskRequest.totalPages = result.data.totalPages;
+      this.backLogTaskRequest.totalItems = result.data.totalItems;
+
+      this.backLogTasksList = cloneDeep(result.data.items);
+      this.backLogTasksListBackup = cloneDeep(result.data.items);
     }
 
     this.getTaskInProcess = false;
@@ -395,7 +398,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
             // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
             if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
 
-            // uncheck item code here
+              // uncheck item code here
 
               this.addTaskToSprintInProgress = false;
               await this.addTaskConfirmAfterError(task);
@@ -444,7 +447,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addTaskConfirmAfterError(task:Task) {
+  async addTaskConfirmAfterError(task: Task) {
     return this.modal.confirm({
       nzTitle: 'Still Want to add task?',
       nzContent: 'May be this will effect your current Sprint',

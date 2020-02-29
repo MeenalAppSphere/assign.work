@@ -10,11 +10,11 @@ import {
   SprintStatusEnum,
   Task,
   TaskFilterCondition,
-  TaskFilterDto,
+  TaskFilterModel,
   TaskHistory,
   TaskHistoryActionEnum
 } from '@aavantan-app/models';
-import { ClientSession, Document, Model, Query, Types } from 'mongoose';
+import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
@@ -165,14 +165,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     });
 
     return result;
-  }
-
-  /**
-   * get my tasks
-   * @param model
-   */
-  async getMyTask(model: GetMyTaskRequestModel): Promise<Partial<BasePaginatedResponse<Task>>> {
-    return this.getAllTasks(model, true);
   }
 
   /**
@@ -473,10 +465,53 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * get tasks
    * @param model
    */
-  async getTasks(model: TaskFilterDto) {
-    const query = this.prepareFilterQuery(model);
-    query.populate(taskBasicPopulation);
-    return this._taskModel.find(query);
+  async getTasks(model: TaskFilterModel) {
+    await this._projectService.getProjectDetails(model.projectId);
+
+    const queryFilter = this._utilityService.prepareFilterQuery(model);
+    model.populate = taskBasicPopulation;
+
+    // get all tasks and return it
+    const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(queryFilter, model);
+    return result;
+  }
+
+  /**
+   * get all back log tasks
+   * @param model
+   */
+  async getAllBacklogs(model: TaskFilterModel) {
+    if (!model || !model.projectId) {
+      BadRequest('Project Not Found');
+    }
+
+    model = { ...model, ...new TaskFilterModel(model.projectId) };
+
+    model.queries.push({
+      key: 'sprintId', value: [undefined, null], condition: TaskFilterCondition.and
+    });
+
+    return this.getTasks(model);
+  }
+
+  /**
+   * get my tasks ( createdBy me or assigned to me )
+   * @param model
+   */
+  async getMyTask(model: TaskFilterModel): Promise<BasePaginatedResponse<Task>> {
+    if (!model || !model.projectId) {
+      BadRequest('Project Not Found');
+    }
+    model = { ...new TaskFilterModel(model.projectId), ...model };
+
+    // set query for my tasks only
+    model.queries = [...model.queries, ...[{
+      key: 'createdById', value: [this._generalService.userId], condition: TaskFilterCondition.or
+    }, {
+      key: 'assigneeId', value: [this._generalService.userId], condition: TaskFilterCondition.or
+    }]];
+
+    return this.getTasks(model);
   }
 
   /**
@@ -546,79 +581,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     return {
       action, createdById: this._generalService.userId, taskId, task
     } as TaskHistory;
-  }
-
-  /**
-   * prepare filter query for task filtering
-   * @param model : TaskFilterDto
-   */
-  private prepareFilterQuery(model: TaskFilterDto) {
-    const filterQuery = new Query();
-
-    const filter: any = {
-      $and: [{
-        projectId: model.projectId
-      }, {
-        $or: [{
-          name: { $regex: new RegExp(model.term.toString()), $options: 'i' }
-        },
-          {
-            displayName: { $regex: new RegExp(model.term.toString()), $options: 'i' }
-          },
-          {
-            description: { $regex: new RegExp(model.term.toString()), $options: 'gi' }
-          },
-          {
-            tags: { $regex: new RegExp(model.term.toString()), $options: 'i' }
-          }]
-      }]
-    };
-
-    if (model.queries && model.queries.length) {
-      model.queries.forEach(query => {
-        if (query.condition === TaskFilterCondition.and) {
-          filter.$and.push(
-            { [query.key]: { $in: query.value } }
-          );
-        } else {
-          filter.$and.push({
-            $or: [{ [query.key]: { $in: query.value } }]
-          });
-        }
-      });
-    }
-    // const keys = Object.keys(model);
-    //
-    // keys.filter(key => {
-    //   // and should be used for all the referenced columns
-    //   if (objectIds.includes(key)) {
-    //     if (Array.isArray(model[key])) {
-    //       filter.$and.push({ [key]: { $in: model[key] } });
-    //     } else {
-    //       filter.$and.push({ [key]: model[key] });
-    //     }
-    //   } else {
-    //     // or for or text related searches
-    //     if (Array.isArray(model[key])) {
-    //       filter.$or.push({ [key]: { $regex: new RegExp(model[key].join(' ')), $options: 'i' } });
-    //     } else {
-    //       filter.$or.push({ [key]: { $regex: new RegExp(model[key].toString()), $options: 'i' } });
-    //     }
-    //   }
-    // });
-    //
-    // if (!filter.$or.length) {
-    //   delete filter.$or;
-    // }
-
-    console.log(filter);
-
-    filterQuery.setQuery(filter);
-    // if (model.sort) {
-    //   query.sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 });
-    // }
-
-    return filterQuery.lean();
   }
 
   /**

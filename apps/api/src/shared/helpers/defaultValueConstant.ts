@@ -1,9 +1,13 @@
-import { ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
+import { ProjectTemplateEnum } from 'libs/models/src/lib/enums';
+import { ProjectWorkingDays } from 'libs/models/src/lib/models';
 
 // default query filter
 export const DEFAULT_QUERY_FILTER = {
   isDeleted: false
 };
+
+// default paginated items count
+export const DEFAULT_PAGINATED_ITEMS_COUNT = 10;
 
 // default date format
 export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY';

@@ -6,6 +6,7 @@ import { MongoosePaginateQuery } from '../queryOptions';
 import { Sprint } from './sprint.model';
 import { TaskStatusModel } from './task-status.model';
 import { TaskPriorityModel } from './task-priority.model';
+import { BaseRequestModel } from '../baseRequest.model';
 
 export class Task {
   id?: string;
@@ -87,16 +88,17 @@ export class TaskHistory {
 
 export class TaskFilterQuery {
   key: string;
-  value: [];
-  condition: TaskFilterCondition
+  value: string[];
+  condition: TaskFilterCondition;
 }
 
-export class TaskFilterDto {
-  term?: string;
-  projectId?: string;
-  queries?: TaskFilterQuery[];
-  sort?: string;
-  sortBy: string;
+export class TaskFilterModel extends MongoosePaginateQuery{
+  queries: TaskFilterQuery[];
+
+  constructor(public projectId: string) {
+    super();
+    this.queries = [];
+  }
 }
 
 export class BaseTaskRequestModel {
@@ -131,6 +133,7 @@ export class AddCommentModel extends BaseTaskRequestModel {
 export class UpdateCommentModel extends BaseTaskRequestModel {
   comment: TaskComments;
 }
+
 export class DeleteCommentModel extends BaseTaskRequestModel {
   commentId: string;
 }

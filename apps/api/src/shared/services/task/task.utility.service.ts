@@ -1,15 +1,15 @@
 import {
-  DbCollection,
   EmailSubjectEnum,
   EmailTemplatePathEnum,
   Project,
   SendEmailModel,
-  Task
+  Task,
+  TaskFilterCondition,
+  TaskFilterModel
 } from '@aavantan-app/models';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { environment } from '../../../environments/environment';
-import { toObjectId } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
 
 export class TaskUtilityService {
@@ -42,7 +42,7 @@ export class TaskUtilityService {
     // if no status found than assign project's active board first column's status as default status
     taskModel.statusId = model.statusId || project.activeBoard.columns[0].headerStatusId;
 
-    taskModel.sprint = null;
+    taskModel.sprintId = null;
 
     taskModel.dependentItemId = model.dependentItemId;
     taskModel.relatedItemId = model.relatedItemId || [];
@@ -150,6 +150,53 @@ export class TaskUtilityService {
     sendEmailArrays.forEach(email => {
       this._emailService.sendMail(email.to, email.subject, email.message);
     });
+  }
+
+  /**
+   * prepare filter query for task filtering
+   * @param model : TaskFilterModel
+   */
+  public prepareFilterQuery(model: TaskFilterModel) {
+
+    // set search filed in query
+    // name, displayName, description and tags
+    const filter: any = {
+      $and: [{
+        projectId: model.projectId
+      }, {
+        $or: [{
+          name: { $regex: new RegExp(model.query.toString()), $options: 'i' }
+        },
+          {
+            displayName: { $regex: new RegExp(model.query.toString()), $options: 'i' }
+          },
+          {
+            description: { $regex: new RegExp(model.query.toString()), $options: 'gi' }
+          },
+          {
+            tags: { $regex: new RegExp(model.query.toString()), $options: 'i' }
+          }]
+      }]
+    };
+
+    // check if advance queries are applied
+    if (model.queries && model.queries.length) {
+      model.queries.forEach(query => {
+        // and condition
+        if (query.condition === TaskFilterCondition.and) {
+          filter.$and.push(
+            { [query.key]: { $in: query.value } }
+          );
+        } else {
+          // or condition
+          filter.$and.push({
+            $or: [{ [query.key]: { $in: query.value } }]
+          });
+        }
+      });
+    }
+
+    return filter;
   }
 }
 

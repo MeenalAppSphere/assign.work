@@ -11,7 +11,7 @@ import {
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   Task,
-  TaskFilterDto,
+  TaskFilterModel,
   UpdateCommentModel
 } from '@aavantan-app/models';
 
@@ -28,8 +28,13 @@ export class TaskController {
   }
 
   @Post('my-tasks')
-  async getMyTasks(@Body() model: GetMyTaskRequestModel) {
-    return await this._taskService.getMyTask(model);
+  async getMyTasks(@Body() filterModel: TaskFilterModel) {
+    return await this._taskService.getMyTask(filterModel);
+  }
+
+  @Post('get-all-backlogs')
+  async getAllBacklogTasks(@Body() filterModel: TaskFilterModel) {
+    return await this._taskService.getMyTask(filterModel);
   }
 
   @Post('add')
@@ -53,7 +58,7 @@ export class TaskController {
   }
 
   @Post('filter')
-  async getTask(@Body() filterModel: TaskFilterDto) {
+  async getTask(@Body() filterModel: TaskFilterModel) {
     return await this._taskService.getTasks(filterModel);
   }
 }
