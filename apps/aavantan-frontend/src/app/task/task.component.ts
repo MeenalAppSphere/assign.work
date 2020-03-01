@@ -516,6 +516,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.selectedPriority = null;
     this.attachementIds = [];
     this.uploadedImages = [];
+    this.listOfSelectedTags = [];
+    this.listOfSelectedWatchers = [];
 
     if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
       this.selectedTaskType = this.taskTypeDataSource[0];
@@ -802,7 +804,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         task.tags.push(ele.name);
       })
     }
-    
+
     this.createTaskInProcess = true;
     try {
 
