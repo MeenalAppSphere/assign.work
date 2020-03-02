@@ -472,7 +472,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model
    */
   async getTasks(model: TaskFilterModel) {
-    model.count = 2;
     await this._projectService.getProjectDetails(model.projectId);
 
     const queryFilter = this._utilityService.prepareFilterQuery(model);
@@ -556,12 +555,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       count: model.count,
       items: agg
     };
-
-    // model.populate = taskBasicPopulation;
-    //
-    // // get all tasks and return it
-    // const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(queryFilter, model);
-    // return result;
   }
 
   /**

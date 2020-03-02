@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   organizationModalShow(): void {
-    if (!this._generalService.user.organizations.length) {
+    if (!this._generalService.user.organizations.length || !this._generalService.user.currentOrganization) {
       // show logout popup
       this.showLogoutWarning('Organization');
     } else {
@@ -249,12 +249,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // get all task priorities
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
-
-    // get active board data
-    // this._boardService.getActiveBoard({
-    //   projectId: this._generalService.currentProject.id,
-    //   boardId: this._generalService.currentProject.activeBoardId
-    // }).subscribe();
   }
 
   ngOnDestroy(): void {
