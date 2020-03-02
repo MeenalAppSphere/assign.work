@@ -4,116 +4,122 @@
   <!-- accept project -->
   <ng-container *ngIf="havePendingInvitations">
 
-    <div class="search-list"  style="margin-top: -10px; margin-bottom: -5px; min-height: 200px;">
-      <nz-list [nzDataSource]="pendingProjectList" [nzRenderItem]="item1" [nzItemLayout]="'horizontal'">
-        <ng-template #item1 let-item>
+    <nz-spin [nzTip]="'Selecting Default Project...'" [nzSpinning]="switchingProjectInProcess">
+      <div class="search-list" style="margin-top: -10px; margin-bottom: -5px; min-height: 200px;">
 
-          <nz-list-item class="p-0">
+        <nz-list [nzDataSource]="pendingProjectList" [nzRenderItem]="item1" [nzItemLayout]="'horizontal'">
+          <ng-template #item1 let-item>
 
-            <nz-list-item-meta [nzTitle]="nzTitle">
-              <ng-template #nzTitle>
-                <div class="project-header-title p-10">
-                  <nz-avatar class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
-                  <span>{{item.name}}</span>
-                  <div class="font-size-12 float-right m-t-5" style="display: inline-block;">
-                    <button nz-button nzType="link" (click)="switchProject(item)">Select Default</button>
+            <nz-list-item class="p-0">
+
+              <nz-list-item-meta [nzTitle]="nzTitle">
+                <ng-template #nzTitle>
+                  <div class="project-header-title p-10">
+                    <nz-avatar class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
+                    <span>{{item.name}}</span>
+                    <div class="font-size-12 float-right m-t-5" style="display: inline-block;">
+                      <button nz-button nzType="link"
+                              (click)="switchProject(item)">Select Default
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </ng-template>
-            </nz-list-item-meta>
+                </ng-template>
+              </nz-list-item-meta>
 
-          </nz-list-item>
+            </nz-list-item>
 
-        </ng-template>
-      </nz-list>
-    </div>
+          </ng-template>
+        </nz-list>
+
+      </div>
+
+    </nz-spin>
+
     <p class="m-t-15 m-b-0 font-12 text-gray-light">Select at-least one project to jump to Dashboard</p>
   </ng-container>
 
 
+  <ng-container *ngIf="!havePendingInvitations">
+    <div *ngIf="!showCreateOrg && organizations && organizations.length>0" style="height:350px;overflow: auto;">
 
-
-<ng-container *ngIf="!havePendingInvitations">
-  <div *ngIf="!showCreateOrg && organizations && organizations.length>0" style="height:350px;overflow: auto;">
-
-    <h5>Switch Organisation</h5>
-    <hr class="m-t-10 m-b-10">
-    <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-      <ng-template #item let-item>
-        <a class="font-size-15" href="javascript:void(0);" (click)="selectOrg(item)">
-          <nz-list-item>
-            <nz-list-item-meta
-              [nzTitle]="nzTitle">
-              <ng-template #nzTitle>
-                <nz-avatar class="m-r-10" nzText="AW"></nz-avatar>
-                {{item.name}}
-              </ng-template>
-            </nz-list-item-meta>
-          </nz-list-item>
-        </a>
-      </ng-template>
-    </nz-list>
-
-  </div>
-
-  <form nz-form class="register-form" [formGroup]="orgForm" *ngIf="showCreateOrg">
-
-    <ng-container *ngIf="organizations?.length>0">
-
+      <h5>Switch Organisation</h5>
+      <hr class="m-t-10 m-b-10">
       <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-
         <ng-template #item let-item>
-          <a class="font-size-15" (click)="selectOrg(item)">
-            <nz-list-item class="p-l-20">
+          <a class="font-size-15" href="javascript:void(0);" (click)="selectOrg(item)">
+            <nz-list-item>
               <nz-list-item-meta
-                [nzTitle]="nzTitle"
-                nzAvatar="assets/images/others/thumb-2.jpg"
-                nzDescription="{{item.owner}}">
+                [nzTitle]="nzTitle">
                 <ng-template #nzTitle>
-                  <span class="font-size-15">{{item.name}}</span>
+                  <nz-avatar class="m-r-10" nzText="AW"></nz-avatar>
+                  {{item.name}}
                 </ng-template>
               </nz-list-item-meta>
             </nz-list-item>
           </a>
         </ng-template>
-
       </nz-list>
 
-    </ng-container>
+    </div>
 
-    <ng-container *ngIf="organizations?.length===0">
+    <form nz-form class="register-form" [formGroup]="orgForm" *ngIf="showCreateOrg">
 
-      <form nz-form class="register-form" [formGroup]="orgForm">
+      <ng-container *ngIf="organizations?.length>0">
 
-        <nz-form-item>
-          <nz-form-label nzRequired nzFor="name">Organization Name<span class="text-danger">*</span></nz-form-label>
-          <nz-form-control [nzValidatingTip]="errorTpl">
-            <input nz-input formControlName="name" placeholder="Enter an Organization Name, eg: Facebook" maxlength="100"
-                   autocomplete="Off" nzSize="small" id="name">
-            <ng-template #errorTpl let-control>
-              <ng-container *ngIf="orgForm.hasError('required')">
-                Please Enter Organization Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
-              </ng-container>
-            </ng-template>
-          </nz-form-control>
-        </nz-form-item>
+        <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
 
-        <nz-form-item>
-          <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
-          <nz-form-control>
+          <ng-template #item let-item>
+            <a class="font-size-15" (click)="selectOrg(item)">
+              <nz-list-item class="p-l-20">
+                <nz-list-item-meta
+                  [nzTitle]="nzTitle"
+                  nzAvatar="assets/images/others/thumb-2.jpg"
+                  nzDescription="{{item.owner}}">
+                  <ng-template #nzTitle>
+                    <span class="font-size-15">{{item.name}}</span>
+                  </ng-template>
+                </nz-list-item-meta>
+              </nz-list-item>
+            </a>
+          </ng-template>
+
+        </nz-list>
+
+      </ng-container>
+
+      <ng-container *ngIf="organizations?.length===0">
+
+        <form nz-form class="register-form" [formGroup]="orgForm">
+
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="name">Organization Name<span class="text-danger">*</span></nz-form-label>
+            <nz-form-control [nzValidatingTip]="errorTpl">
+              <input nz-input formControlName="name" placeholder="Enter an Organization Name, eg: Facebook"
+                     maxlength="100"
+                     autocomplete="Off" nzSize="small" id="name">
+              <ng-template #errorTpl let-control>
+                <ng-container *ngIf="orgForm.hasError('required')">
+                  Please Enter Organization Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
+                </ng-container>
+              </ng-template>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
+            <nz-form-control>
             <textarea nz-input rows="3" placeholder="Write something about your Organization..."
                       formControlName="description" maxlength="500" autocomplete="Off" nzSize="small"
                       id="description"></textarea>
-          </nz-form-control>
-        </nz-form-item>
+            </nz-form-control>
+          </nz-form-item>
 
-      </form>
-    </ng-container>
+        </form>
+      </ng-container>
 
-  </form>
+    </form>
 
-</ng-container>
-
+  </ng-container>
 
 
   <div *nzExtra>
@@ -132,7 +138,8 @@
           </button>
         </div>
         <div class="col text-right">
-          <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="addNewOrg()"><span>+ Add Organization</span></button>
+          <button nz-button nzType="primary" nzSize="small" class="m-r-5" (click)="addNewOrg()">
+            <span>+ Add Organization</span></button>
         </div>
 
       </div>
@@ -147,11 +154,14 @@
         </div>
 
         <div class="col">
-          <button *ngIf="showCreateOrg" [disabled]="orgForm.invalid" nz-button nzType="primary" nzSize="small" [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
+          <button *ngIf="showCreateOrg" [disabled]="orgForm.invalid" nz-button nzType="primary" nzSize="small"
+                  [nzLoading]="organizationCreationInProcess" (click)="saveForm()">
             <span>Save</span>
           </button>
 
-          <button *ngIf="!showCreateOrg"  nz-button nzType="primary" class="float-right" nzSize="small" (click)="addNewOrg()">+ Add New Organisation</button>
+          <button *ngIf="!showCreateOrg" nz-button nzType="primary" class="float-right" nzSize="small"
+                  (click)="addNewOrg()">+ Add New Organisation
+          </button>
 
         </div>
 

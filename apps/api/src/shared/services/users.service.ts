@@ -164,7 +164,7 @@ export class UsersService extends BaseService<User & Document> {
             .filter(f => f._id.toString() !== userDetails.currentProject.id),
           0, 1
         ).map((pro: any) => {
-          pro.id = pro._id;
+          pro.id = pro._id.toString();
           return pro;
         });
 
@@ -183,7 +183,7 @@ export class UsersService extends BaseService<User & Document> {
         userDetails.organizations
           .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString())
           .map((org: any) => {
-            org.id = org._id;
+            org.id = org._id.toString();
             return org;
           });
 
@@ -192,6 +192,27 @@ export class UsersService extends BaseService<User & Document> {
         userOrganizations.splice(0, 0, userDetails.currentOrganization);
       }
       userDetails.organizations = userOrganizations;
+    } else {
+      /*
+      * check if user have projects and organizations
+      * this will be only possible when user have pending invitations
+      */
+
+      // projects
+      if (userDetails.projects && userDetails.projects.length) {
+        userDetails.projects = userDetails.projects.map(project => {
+          project.id = project._id.toString();
+          return project;
+        });
+      }
+
+      // organizations
+      if (userDetails.organizations && userDetails.organizations) {
+        userDetails.organizations = userDetails.organizations.map(organization => {
+          organization.id = organization._id.toString();
+          return organization;
+        });
+      }
     }
     return userDetails;
   }
