@@ -556,8 +556,8 @@ $color-green : #42E3A3;
 .has-missing-data{
   background: #FFF3F3;
   td{
-    border-top:1px solid $color-red!important;
-    border-bottom:1px solid $color-red!important;
+    //border-top:1px solid $color-red!important;
+    //border-bottom:1px solid $color-red!important;
     border-radius: 0px!important;
   }
 }
