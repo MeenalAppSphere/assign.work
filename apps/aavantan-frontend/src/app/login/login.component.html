@@ -60,7 +60,7 @@
                 </nz-input-group>
               </nz-form-control>
               <a class="float-right font-size-12 m-t-5 text-primary"
-                 [routerLink]="['/forgot']">Forget Password?</a>
+                 [routerLink]="['/forgot']">Forgot Password?</a>
             </nz-form-item>
             <nz-form-item *ngIf="responseMessage && responseMessage.message" >
               <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
