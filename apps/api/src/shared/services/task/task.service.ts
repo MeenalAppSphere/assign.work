@@ -484,7 +484,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { createdById: '$createdById' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$createdById'] } } },
-          { $project: basicUserDetailsForAggregateQuery }
+          { $project: basicUserDetailsForAggregateQuery },
+          { $addFields: { id: '$_id' } }
         ],
         as: 'createdBy'
       })
@@ -494,7 +495,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { updatedById: '$updatedById' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$updatedById'] } } },
-          { $project: basicUserDetailsForAggregateQuery }
+          { $project: basicUserDetailsForAggregateQuery },
         ],
         as: 'updatedBy'
       })
@@ -504,7 +505,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { assigneeId: '$assigneeId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
-          { $project: basicUserDetailsForAggregateQuery }
+          { $project: basicUserDetailsForAggregateQuery },
         ],
         as: 'assignee'
       })
@@ -514,7 +515,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { statusId: '$statusId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-          { $project: { name: 1 } }
+          { $project: { name: 1 } },
         ],
         as: 'status'
       })
@@ -524,7 +525,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { priorityId: '$priorityId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$priorityId'] } } },
-          { $project: { name: 1 } }
+          { $project: { name: 1 } },
         ],
         as: 'priority'
       })
@@ -534,11 +535,21 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { taskTypeId: '$taskTypeId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } },
-          { $project: { name: 1 } }
+          { $project: { name: 1 } },
         ],
         as: 'taskType'
       })
       .unwind('taskType')
+      .addFields({ id: '$_id' })
+      .project({
+        watchers: 0,
+        attachments: 0,
+        comments: 0,
+        isDeleted: 0,
+        relatedItemId: 0,
+        dependentItemId: 0,
+        '__v': 0
+      })
       .skip((model.count * model.page) - model.count)
       .limit(model.count);
 
