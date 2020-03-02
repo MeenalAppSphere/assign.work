@@ -34,7 +34,7 @@ export class TaskController {
 
   @Post('get-all-backlogs')
   async getAllBacklogTasks(@Body() filterModel: TaskFilterModel) {
-    return await this._taskService.getMyTask(filterModel);
+    return await this._taskService.getAllBacklogs(filterModel);
   }
 
   @Post('add')

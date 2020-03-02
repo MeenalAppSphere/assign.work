@@ -25,8 +25,6 @@ import { environment } from '../environments/environment';
 // set db connection string on basis of environment
 const dbConnectionString = environment.production ? process.env.DB_CONNECTION_STRING_PROD : process.env.DB_CONNECTION_STRING_DEV;
 
-console.log(dbConnectionString);
-
 @Module({
   imports: [
     MongooseModule.forRoot(dbConnectionString, {

@@ -241,8 +241,9 @@
         <div class="col text-right" style="max-width: 320px;" *ngIf="backLogTasksList && backLogTasksList.length > 0">
 
           <nz-input-group [nzSuffix]="suffixIcon">
-            <input placeholder="Search Backlogs" nzSize="small" nz-input [(ngModel)]="searchValue"
-                   (ngModelChange)="onChangeSearch($event)" style="height:32px;"/>
+            <input placeholder="Search Backlogs" nzSize="small" nz-input
+                   [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"
+                   style="height:32px;"/>
           </nz-input-group>
           <ng-template #suffixIcon>
             <i nz-icon nzType="search" *ngIf="!searchTaskListInProgress"></i>

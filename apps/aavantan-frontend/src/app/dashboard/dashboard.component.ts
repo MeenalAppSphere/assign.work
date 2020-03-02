@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
-import { delay } from 'rxjs/operators';
+import { delay, distinctUntilChanged } from 'rxjs/operators';
 import { JoyrideService } from 'ngx-joyride';
 import { GeneralService } from '../shared/services/general.service';
 import { OrganizationQuery } from '../queries/organization/organization.query';
@@ -45,7 +45,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     // listen for user from store
-    this._userQuery.user$.subscribe(res => {
+    this._userQuery.user$.pipe(
+      distinctUntilChanged((a, b) => {
+        if (a && b) {
+          return a.currentProject !== b.currentProject;
+        } else {
+          return true;
+        }
+      })
+    ).subscribe(res => {
       this._generalService.user = cloneDeep(res);
       this.initialCheck();
     });
@@ -76,13 +84,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   organizationModalShow(): void {
-    if (!this._generalService.user.organizations.length) {
+    if (!this._generalService.user.organizations.length || !this._generalService.user.currentOrganization) {
       // show logout popup
       this.showLogoutWarning('Organization');
     } else {
       this.organizationModalIsVisible = !this.organizationModalIsVisible;
 
-      if (this._generalService.user.organizations.length === 1) {
+      if (this._generalService.user.organizations.length === 1 && !this._generalService.user.currentProject) {
         this.projectModalIsVisible = true;
       } else {
         return;
@@ -249,12 +257,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // get all task priorities
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
-
-    // get active board data
-    // this._boardService.getActiveBoard({
-    //   projectId: this._generalService.currentProject.id,
-    //   boardId: this._generalService.currentProject.activeBoardId
-    // }).subscribe();
   }
 
   ngOnDestroy(): void {

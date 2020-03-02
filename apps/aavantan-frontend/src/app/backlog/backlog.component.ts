@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import {
   SprintDurationsModel,
   AddTaskToSprintModel,
@@ -25,6 +25,8 @@ import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
+import { fromEvent, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -57,17 +59,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public taskTypeDataSource: TaskTypeModel[] = [];
 
   public searchValue: string;
+  public searchValueSubject$: Subject<string> = new Subject<string>();
   public searchTaskListInProgress: boolean;
 
   public sprintId: string;
   public sprintDurations: SprintDurationsModel;
-
-  public tasksSelected: DraftSprint = {
-    sprintId: null,
-    ids: [],
-    tasks: [],
-    duration: 0
-  };
 
   public addTaskToSprintInProgress: boolean;
   public removeTaskFromSprintInProgress: boolean;
@@ -76,6 +72,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public backLogTaskRequest: TaskFilterModel;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
+
   public timelogModalIsVisible: boolean;
 
 
@@ -97,10 +94,20 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
+    this.searchValueSubject$.pipe(
+      debounceTime(700),
+      distinctUntilChanged(),
+    ).subscribe(val => {
+      this.backLogTaskRequest.query = val;
+      this.backLogTaskRequest.page = 1;
+
+      this.getAllBacklogTask();
+    });
+
     if (this._generalService.currentProject && this._generalService.currentProject.id) {
 
       this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
-      this.backLogTaskRequest.count = 2;
 
       // get all back log tasks
       this.getAllBacklogTask();
@@ -236,26 +243,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public onChangeSearch(value: any): void {
     this.searchTaskListInProgress = true;
-    this.backLogTasksList = this.backLogTasksListBackup;
-    if (value) {
-      this.backLogTasksList = this.backLogTasksList.filter((ele) => {
-        let taskTypeName = '';
-        let profileName = '';
-        if (ele.taskType && ele.taskType.name) {
-          taskTypeName = ele.taskType.name.toLowerCase();
-        }
-        if (ele.assignee && ele.assignee.firstName || ele.assignee && ele.assignee.lastName) {
-          profileName = (ele.assignee.firstName + ' ' + ele.assignee.lastName).toLowerCase();
-        }
-        if (ele.name.toLowerCase().includes(value) || taskTypeName.includes(value) || profileName.includes(value)) {
-          return ele;
-        }
-      });
-    } else {
-      this.backLogTasksList = this.backLogTasksListBackup;
-    }
-    this.searchTaskListInProgress = false;
 
+    this.searchTaskListInProgress = false;
   }
 
   public countTotalDuration() {
