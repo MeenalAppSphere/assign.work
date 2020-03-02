@@ -23,7 +23,6 @@
         class="text-gray-light-2">is running</span></span>
     </ng-template>
 
-
     <section class="m-b-10">
       <nz-spin nzTip="Checking Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
 
@@ -222,7 +221,6 @@
 
     </section>
 
-
     <section ngClass="{{unPublishedSprintData && unPublishedSprintData.id ? 'm-t-30' : 'm-t-10'}}">
 
       <div class="row m-b-10">
@@ -238,7 +236,7 @@
           </label>
         </div>
 
-        <div class="col text-right" style="max-width: 320px;" *ngIf="backLogTasksList && backLogTasksList.length > 0">
+        <div class="col text-right" style="max-width: 320px;">
 
           <nz-input-group [nzSuffix]="suffixIcon">
             <input placeholder="Search Backlogs" nzSize="small" nz-input
@@ -259,7 +257,6 @@
                   (click)="toggleAddSprint()">Create Sprint
           </button>
         </div>
-
 
       </div>
 
@@ -406,7 +403,6 @@
 
       </ng-container>
 
-
       <div ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
         <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13"
            (click)="addTaskNavigate()">+ Create Backlog</a>
@@ -427,10 +423,8 @@
 
     </section>
 
-
   </nz-card>
 </nz-spin>
-
 
 <!-- sorting icon template -->
 <ng-template #sortTemplate let-column="column">
@@ -449,7 +443,6 @@
 
 </ng-template>
 <!-- sorting -->
-
 
 <aavantan-team-capacity
   *ngIf="teamCapacityModalIsVisible"
