@@ -255,7 +255,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     try {
       const task: Task = await this._taskModel.findOne({
         _id: newTask.id, projectId: newTask.projectId
-      }).populate(taskBasicPopulation).select('-comments').lean().exec();
+      }).populate(taskFullPopulation).select('-comments').lean().exec();
 
       if (!task) {
         BadRequest('task not found');
@@ -389,7 +389,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     // get updated task details and return it
     try {
-      const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskBasicPopulation).select('-comments').lean().exec();
+      const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskFullPopulation).select('-comments').lean().exec();
 
       // check if assignee changed than send mail to new assignee
       if (isAssigneeChanged) {
