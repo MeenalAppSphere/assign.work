@@ -53,14 +53,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
     });
 
     if (this._generalService.currentProject) {
-
-      // get my tasks only
-      this.myTaskFilterRequest.queries = [{
-        key: 'createdById', value: [this._generalService.user._id], condition: TaskFilterCondition.or
-      }, {
-        key: 'assigneeId', value: [this._generalService.user._id], condition: TaskFilterCondition.or
-      }];
-
       this.getAllTasks();
       this.getMyTasks();
     }

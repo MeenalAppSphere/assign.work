@@ -155,6 +155,9 @@ export class TaskUtilityService {
 
   /**
    * prepare filter query for task filtering
+   * 1. main stage like matching projectId
+   * 2. search stage for searching on specific fields
+   * 3. additional or queries
    * @param model : TaskFilterModel
    */
   public prepareFilterQuery(model: TaskFilterModel) {
@@ -180,18 +183,30 @@ export class TaskUtilityService {
       }]
     };
 
+    // check if we have any query with or condition
+    const isAnyOrConditionQuery = model.queries.some(query => query.condition === TaskFilterCondition.or);
+    if (isAnyOrConditionQuery) {
+      // push a $or stage in $and so all the advance query will be executed in last stage of filter
+      filter.$and.push({
+        $or: []
+      });
+    }
+
     // check if advance queries are applied
     if (model.queries && model.queries.length) {
       model.queries.forEach(query => {
         // and condition
+        // add directly to the filter.$add
         if (query.condition === TaskFilterCondition.and) {
           filter.$and.push(
             { [query.key]: { $in: query.value } }
           );
         } else {
           // or condition
-          filter.$and.push({
-            $or: [{ [query.key]: { $in: query.value } }]
+          // find last $or stage in filter and add query to last $or stage
+          // because this is advance query and it will be executed at last
+          filter.$and[filter.$and.length - 1].$or.push({
+            [query.key]: { $in: query.value }
           });
         }
       });

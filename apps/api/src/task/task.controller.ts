@@ -27,7 +27,7 @@ export class TaskController {
     return await this._taskService.getAllTasks(model);
   }
 
-  @Post('my-tasks')
+  @Post('get-all-my-tasks')
   async getMyTasks(@Body() filterModel: TaskFilterModel) {
     return await this._taskService.getMyTask(filterModel);
   }
