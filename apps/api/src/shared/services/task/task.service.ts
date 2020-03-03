@@ -533,7 +533,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { priorityId: '$priorityId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$priorityId'] } } },
-          { $project: { name: 1 } }
+          { $project: { name: 1, color: 1 } }
         ],
         as: 'priority'
       })
@@ -543,7 +543,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { taskTypeId: '$taskTypeId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } },
-          { $project: { name: 1 } }
+          { $project: { name: 1, color: 1 } }
         ],
         as: 'taskType'
       })
