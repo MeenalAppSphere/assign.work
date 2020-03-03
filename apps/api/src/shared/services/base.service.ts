@@ -182,10 +182,6 @@ export class BaseService<T extends Document> {
     }
   }
 
-  async attemptTransactionCommit(session: ClientSession) {
-
-  }
-
   /**
    * check whether max transaction timed out or not
    * @param startTime

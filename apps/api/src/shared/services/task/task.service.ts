@@ -14,7 +14,7 @@ import {
   TaskHistory,
   TaskHistoryActionEnum
 } from '@aavantan-app/models';
-import { ClientSession, Document, Model, Types } from 'mongoose';
+import { Aggregate, ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
@@ -476,7 +476,15 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     const queryFilter = this._utilityService.prepareFilterQuery(model);
 
-    const agg = await this.dbModel
+    // check is valid key for sorting...
+    if (model.sort) {
+      model.sort = this._utilityService.validTaskSortingKey(model.sort);
+    } else {
+      model.sort = 'name';
+      model.sortBy = 'asc';
+    }
+
+    const result = await this.dbModel
       .aggregate()
       .match(queryFilter)
       .lookup({
@@ -495,7 +503,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { updatedById: '$updatedById' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$updatedById'] } } },
-          { $project: basicUserDetailsForAggregateQuery },
+          { $project: basicUserDetailsForAggregateQuery }
         ],
         as: 'updatedBy'
       })
@@ -505,7 +513,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { assigneeId: '$assigneeId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
-          { $project: basicUserDetailsForAggregateQuery },
+          { $project: basicUserDetailsForAggregateQuery }
         ],
         as: 'assignee'
       })
@@ -515,7 +523,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { statusId: '$statusId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-          { $project: { name: 1 } },
+          { $project: { name: 1 } }
         ],
         as: 'status'
       })
@@ -525,7 +533,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { priorityId: '$priorityId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$priorityId'] } } },
-          { $project: { name: 1 } },
+          { $project: { name: 1 } }
         ],
         as: 'priority'
       })
@@ -535,7 +543,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         let: { taskTypeId: '$taskTypeId' },
         pipeline: [
           { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } },
-          { $project: { name: 1 } },
+          { $project: { name: 1 } }
         ],
         as: 'taskType'
       })
@@ -550,6 +558,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         dependentItemId: 0,
         '__v': 0
       })
+      .sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 })
       .skip((model.count * model.page) - model.count)
       .limit(model.count);
 
@@ -564,7 +573,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       totalItems: totalRecordsCount,
       totalPages: Math.ceil(totalRecordsCount / model.count),
       count: model.count,
-      items: agg
+      items: result
     };
   }
 

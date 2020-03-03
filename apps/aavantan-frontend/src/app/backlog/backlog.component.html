@@ -84,7 +84,8 @@
 
         <div class="draft-sprint-box"
              *ngIf="unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0">
-          <nz-spin *ngIf="draftTaskList?.length==0" [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+          <nz-spin *ngIf="draftTaskList?.length==0"
+                   [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                    [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
             <nz-empty
               [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
@@ -102,9 +103,10 @@
 
           <div *ngIf="activeSprintData?.id || unPublishedSprintData?.id">
 
-            <nz-spin *ngIf="draftTaskList?.length>0" [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+            <nz-spin *ngIf="draftTaskList?.length>0"
+                     [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                      [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
-              <nz-table  #listViewTable [nzData]="draftTaskList" nzSize="small"
+              <nz-table #listViewTable [nzData]="draftTaskList" nzSize="small"
                         class="draft-table">
                 <thead>
                 <tr>
@@ -115,7 +117,7 @@
                   <th class="text-left" style="min-width:115px;">
                     <span>Priority</span>
                     <span class="p-l-10">
-                  <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
+                  <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority' }"></ng-container>
                 </span>
                   </th>
 
@@ -262,10 +264,9 @@
 
       <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
 
-
         <div>
 
-
+          <!-- backlogs -->
           <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                    [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
 
@@ -280,20 +281,21 @@
               <thead>
               <tr>
 
-
                 <th class="text-center" width="50" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
 
                 <th class="text-left" style="min-width:115px;">
                   <span>Priority</span>
                   <span class="p-l-10">
-                  <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
+                  <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                  column: 'priority', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
                 </span>
                 </th>
 
                 <th class="text-left" width="155">
                   <span>Type</span>
                   <span class="p-l-10">
-                      <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'taskType'}"></ng-container>
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'taskType', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
                     </span>
                 </th>
 
@@ -310,7 +312,8 @@
                 <th class="text-right" width="125">
                   <span>Estimates</span>
                   <span class="p-l-10">
-                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'estimatedTime'}"></ng-container>
+                    <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                    column: 'estimatedTime', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
                   </span>
                 </th>
 
@@ -397,6 +400,7 @@
               </tbody>
             </nz-table>
           </nz-spin>
+          <!-- backlogs -->
 
         </div>
 
@@ -427,19 +431,19 @@
 </nz-spin>
 
 <!-- sorting icon template -->
-<ng-template #sortTemplate let-column="column">
+<ng-template #sortTemplate let-column="column" let-sortingRequest="sortingRequest" let-requestType="requestType">
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest.sortBy !== column"
-     (click)="sortButtonClicked('asc', column)"
-     [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'asc'}"></i>
+  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest?.sort !== column"
+     (click)="sortButtonClicked('asc', column, requestType)"
+     [ngClass]="{'text-info': sortingRequest?.sort === column && sortingRequest?.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest.sortBy === column && sortingRequest.sort === 'asc'"
-     (click)="sortButtonClicked('desc', column)"
-     [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'asc'}"></i>
+  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest?.sort === column && sortingRequest?.sortBy === 'asc'"
+     (click)="sortButtonClicked('desc', column, requestType)"
+     [ngClass]="{'text-info': sortingRequest?.sort === column && sortingRequest?.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-down" *ngIf="sortingRequest.sortBy === column && sortingRequest.sort === 'desc'"
-     (click)="sortButtonClicked('asc', column)"
-     [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'desc'}"></i>
+  <i class="fas fa-long-arrow-alt-down" *ngIf="sortingRequest?.sort === column && sortingRequest?.sortBy === 'desc'"
+     (click)="sortButtonClicked('asc', column, requestType)"
+     [ngClass]="{'text-info': sortingRequest?.sort === column && sortingRequest?.sortBy === 'desc'}"></i>
 
 </ng-template>
 <!-- sorting -->

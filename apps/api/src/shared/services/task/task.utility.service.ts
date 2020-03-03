@@ -11,7 +11,38 @@ import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { environment } from '../../../environments/environment';
 import { ProjectUtilityService } from '../project/project.utility.service';
-import { toObjectId } from '../../helpers/helpers';
+import { BadRequest, toObjectId } from '../../helpers/helpers';
+
+const taskSchemaKeysMapper = new Map<string, string>([
+  ['sprintId', 'sprintId'],
+  ['createdBy', 'createdById'],
+  ['createdById', 'createdById'],
+  ['assignee', 'assigneeId'],
+  ['assigneeId', 'assigneeId'],
+  ['taskType', 'taskTypeId'],
+  ['taskTypeId', 'taskTypeId'],
+  ['priority', 'priorityId'],
+  ['priorityId', 'priorityId'],
+  ['status', 'statusId'],
+  ['statusId', 'statusId']
+]);
+
+const taskSortingKeysMapper = new Map<string, string>([
+  ['createdBy', 'createdBy.name'],
+  ['createdById', 'createdBy.name'],
+  ['taskType', 'taskType.name'],
+  ['taskTypeId', 'taskType.name'],
+  ['priority', 'priority.name'],
+  ['priorityId', 'priority.name'],
+  ['status', 'status.name'],
+  ['statusId', 'status.name'],
+  ['createdAt', 'createdAt'],
+  ['updateAt', 'updateAt'],
+  ['estimatedTime', 'estimatedTime'],
+  ['totalLoggedTime', 'totalLoggedTime'],
+  ['progress', 'progress'],
+  ['overProgress', 'overProgress']
+]);
 
 export class TaskUtilityService {
   private _boardUtilityService: BoardUtilityService;
@@ -195,6 +226,9 @@ export class TaskUtilityService {
     // check if advance queries are applied
     if (model.queries && model.queries.length) {
       model.queries.forEach(query => {
+
+        query.key = this.validTaskQueryKey(query.key);
+
         // and condition
         // add directly to the filter.$add
         if (query.condition === TaskFilterCondition.and) {
@@ -213,6 +247,22 @@ export class TaskUtilityService {
     }
 
     return filter;
+  }
+
+  public validTaskQueryKey(key) {
+    if (taskSchemaKeysMapper.has(key)) {
+      return taskSchemaKeysMapper.get(key);
+    } else {
+      BadRequest('Invalid query request');
+    }
+  }
+
+  public validTaskSortingKey(key) {
+    if (taskSortingKeysMapper.has(key)) {
+      return taskSortingKeysMapper.get(key);
+    } else {
+      BadRequest('Invalid sort by request');
+    }
   }
 }
 

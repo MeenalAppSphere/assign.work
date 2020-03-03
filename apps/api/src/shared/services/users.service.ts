@@ -91,10 +91,13 @@ export class UsersService extends BaseService<User & Document> {
       .populate([{
         path: 'projects',
         select: 'name description organizationId createdAt createdById updatedAt',
-        populate: {
+        populate: [{
           path: 'createdBy',
           select: 'firstName lastName'
-        },
+        }, {
+          path: 'organization',
+          select: 'name description displayName logoUrl'
+        }],
         options: {
           sort: { 'updatedAt': -1 }
         }
@@ -108,7 +111,7 @@ export class UsersService extends BaseService<User & Document> {
         },
         {
           path: 'currentProject',
-          select: 'name description members settings template createdById updatedBy sprintId activeBoardId',
+          select: 'name description organizationId members settings template createdById updatedBy sprintId activeBoardId',
           justOne: true,
           populate: [{
             path: 'members.userDetails',
@@ -119,6 +122,9 @@ export class UsersService extends BaseService<User & Document> {
           }, {
             path: 'createdBy',
             select: 'firstName lastName'
+          }, {
+            path: 'organization',
+            select: 'name description displayName logoUrl'
           }]
         }, {
           path: 'currentOrganization',

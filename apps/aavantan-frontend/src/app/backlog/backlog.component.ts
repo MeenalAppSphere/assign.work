@@ -68,7 +68,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public addTaskToSprintInProgress: boolean;
   public removeTaskFromSprintInProgress: boolean;
   public selectedTimeLogTask: Task;
-  public sortingRequest: TaskFilterModel = new TaskFilterModel('');
+  // public sortingRequest: TaskFilterModel = new TaskFilterModel('');
   public backLogTaskRequest: TaskFilterModel;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
@@ -97,10 +97,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     this.searchValueSubject$.pipe(
       debounceTime(700),
-      distinctUntilChanged(),
+      distinctUntilChanged()
     ).subscribe(val => {
       this.backLogTaskRequest.query = val;
       this.backLogTaskRequest.page = 1;
+      this.backLogTaskRequest.sort = 'name';
+      this.backLogTaskRequest.sortBy = 'asc';
 
       this.getAllBacklogTask();
     });
@@ -450,16 +452,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
-  public sortButtonClicked(type: 'asc' | 'desc', columnName: string) {
-    this.sortingRequest.sort = type;
-    this.sortingRequest.sortBy = columnName;
-    const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
-      sort: columnName,
-      sortBy: type
-    };
-    this._taskService.getAllTask(json).subscribe();
-    console.log('Sorting Request: ', this.sortingRequest);
+  public sortButtonClicked(type: string, columnName: string, requestType: string) {
+    if (requestType === 'backlog') {
+      this.backLogTaskRequest.sort = columnName;
+      this.backLogTaskRequest.sortBy = type;
+
+      this.getAllBacklogTask();
+    } else if (requestType === 'un-published-sprint') {
+
+    } else {
+
+    }
   }
 
   public viewTask(task: Task) {
