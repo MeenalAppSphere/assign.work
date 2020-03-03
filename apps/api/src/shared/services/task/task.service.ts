@@ -5,7 +5,6 @@ import {
   DbCollection,
   DeleteTaskModel,
   GetAllTaskRequestModel,
-  GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   SprintStatusEnum,
   Task,
@@ -14,7 +13,7 @@ import {
   TaskHistory,
   TaskHistoryActionEnum
 } from '@aavantan-app/models';
-import { Aggregate, ClientSession, Document, Model, Types } from 'mongoose';
+import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
@@ -378,7 +377,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // create task history object
-      const taskHistory = this.taskHistoryObjectHelper(TaskHistoryActionEnum.taskUpdated, model.id, model);
+      // on the basis of task updated model
+      const taskHistory = this.taskHistoryObjectHelper(isAssigneeChanged ? TaskHistoryActionEnum.assigneeChanged : TaskHistoryActionEnum.taskUpdated,
+        model.id, model);
 
       // update task by id
       await this.updateById(model.id, model, session);
