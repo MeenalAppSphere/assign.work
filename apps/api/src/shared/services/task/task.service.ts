@@ -527,7 +527,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         ],
         as: 'status'
       })
-      .unwind('status')
+      .unwind({ path: '$status', preserveNullAndEmptyArrays: true })
       .lookup({
         from: DbCollection.taskPriority,
         let: { priorityId: '$priorityId' },
@@ -537,7 +537,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         ],
         as: 'priority'
       })
-      .unwind('priority')
+      .unwind({ path: '$priority', preserveNullAndEmptyArrays: true })
       .lookup({
         from: DbCollection.taskType,
         let: { taskTypeId: '$taskTypeId' },
