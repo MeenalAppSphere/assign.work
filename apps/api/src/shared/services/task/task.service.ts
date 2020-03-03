@@ -607,9 +607,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     // set query for my tasks only
     model.queries = [...model.queries, ...[{
-      key: 'createdById', value: [toObjectId(this._generalService.userId)], condition: TaskFilterCondition.or
-    }, {
-      key: 'assigneeId', value: [toObjectId(this._generalService.userId)], condition: TaskFilterCondition.or
+      key: 'assigneeId', value: [toObjectId(this._generalService.userId)], condition: TaskFilterCondition.and
     }]];
 
     return this.getTasks(model);
