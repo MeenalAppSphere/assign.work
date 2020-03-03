@@ -42,31 +42,35 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   createProject(model: Project): Observable<BaseResponseModel<Project>> {
+    this.updateState({ createProjectInProcess: true, createProjectSuccess: false });
     return this._http.post(ProjectUrls.base, model).pipe(
       map((res: BaseResponseModel<Project>) => {
 
-        if (!this._generalService.user.projects.length) {
-          this.userStore.update((state => {
-            return {
-              ...state,
-              currentProject: res.data,
-              user: Object.assign({}, state.user, {
-                projects: [...state.user.projects, res.data]
-              })
-            };
-          }));
-        }
+        this.userStore.update((state => {
+          return {
+            ...state,
+            currentProject: res.data,
+            user: Object.assign({}, state.user, {
+              projects: [...state.user.projects, res.data]
+            })
+          };
+        }));
 
+        this._generalService.user.currentProject = res.data;
+
+        this.updateState({ createProjectInProcess: false, createProjectSuccess: true });
         this.notification.success('Success', 'Project Created Successfully');
         return res;
       }),
       catchError(err => {
+        this.updateState({ createProjectInProcess: false, createProjectSuccess: false });
         return this.handleError(err);
       })
     );
   }
 
   switchProject(project: SwitchProjectRequest): Observable<BaseResponseModel<User>> {
+    this.updateState({ projectSwitchInProcess: true, projectSwitchedSuccessfully: false });
     return this._http.post(ProjectUrls.switchProject, project).pipe(
       map((res: BaseResponseModel<User>) => {
 
@@ -79,10 +83,14 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         }));
 
         this._generalService.user = cloneDeep(res.data);
+
+        this.updateState({ projectSwitchInProcess: false, projectSwitchedSuccessfully: true });
         this.notification.success('Success', 'Current Project Changed Successfully');
+        this.router.navigate(['dashboard']);
         return res;
       }),
       catchError(err => {
+        this.updateState({ projectSwitchInProcess: false, projectSwitchedSuccessfully: false });
         return this.handleError(err);
       })
     );
@@ -134,6 +142,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       map(res => {
         this.updateCurrentProjectState(res.data);
         this.notification.success('Project Updated', 'Project Template Updated');
+        this.router.navigate(['dashboard']);
         return res;
       }),
       catchError(err => {
@@ -165,7 +174,6 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       })
     );
   }
-
 
   removeCollaborators(json: any): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.removeCollaborators, json).pipe(
@@ -342,5 +350,12 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         currentProject: result
       };
     }));
+  }
+
+  unsetStoreFlags() {
+    this.updateState({
+      createProjectSuccess: false,
+      projectSwitchedSuccessfully: false
+    });
   }
 }

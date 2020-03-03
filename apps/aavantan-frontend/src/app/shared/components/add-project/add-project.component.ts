@@ -19,6 +19,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TaskService } from '../../services/task/task.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -69,7 +70,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery: UserQuery,
               private _userService: UserService, private _projectService: ProjectService,
-              protected notification: NzNotificationService, private _taskService: TaskService) {
+              protected notification: NzNotificationService, private _taskService: TaskService,
+              private router: Router) {
     // this.getAllUsers();
   }
 
@@ -226,6 +228,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   basicModalHandleCancel() {
     this.toggleShow.emit();
+    this.router.navigate(['dashboard']);
   }
 
   async saveProject() {

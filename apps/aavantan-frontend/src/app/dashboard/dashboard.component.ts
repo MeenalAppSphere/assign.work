@@ -18,6 +18,8 @@ import { TaskPriorityService } from '../shared/services/task-priority/task-prior
 import { TaskStatusService } from '../shared/services/task-status/task-status.service';
 import { TaskTypeService } from '../shared/services/task-type/task-type.service';
 import { BoardService } from '../shared/services/board/board.service';
+import { ProjectQuery } from '../queries/project/project.query';
+import { ProjectService } from '../shared/services/project/project.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -37,8 +39,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
               private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
-              private _invitationService: InvitationService, private _notificationService: NzNotificationService,
-              private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService,
+              private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
+              private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
               private _taskTypeService: TaskTypeService, private _boardService: BoardService) {
   }
 
@@ -46,6 +48,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // listen for user from store
     this._userQuery.user$.pipe(
+      untilDestroyed(this),
       distinctUntilChanged((a, b) => {
         if (a && b) {
           return a.currentProject !== b.currentProject;
@@ -61,6 +64,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // listen for current project
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
       this._generalService.currentProject = cloneDeep(res);
+    });
+
+    // listen for new project created successfully
+    this._projectQuery.createProjectSuccess$.pipe(untilDestroyed(this)).subscribe(projectCreated => {
+      if (projectCreated) {
+        // get initial data when new project created
+        this.getInitialData();
+      }
+    });
+
+    // listen for project switched successfully
+    this._projectQuery.projectSwitchedSuccessfully$.pipe(untilDestroyed(this)).subscribe(projectSwitched => {
+      if (projectSwitched) {
+        // get initial data when project switched
+        this.getInitialData();
+      }
     });
 
     // listen for current organization
@@ -260,5 +279,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this._projectService.unsetStoreFlags();
   }
 }
