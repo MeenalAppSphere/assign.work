@@ -18,9 +18,30 @@
 
     </ng-template>
     <ng-template #createSprintBtnTemplate>
-      <span *ngIf="activeSprintData && activeSprintData.name"
-            class="text-gray-light font-size-16">{{activeSprintData.name}} <span
-        class="text-gray-light-2">is running</span></span>
+
+
+
+      <span class="sprint-date">
+            <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
+
+              <span *ngIf="activeSprintData && activeSprintData.name" class="text-gray-light font-size-16">{{activeSprintData.name}}</span>
+              <span class="text-gray-light-2 font-weight-light font-size-14">&nbsp;is running, </span>
+
+              <span class="font-size-14">
+                <span class="font-weight-bold" [ngClass]="activeSprintData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{activeSprintData.sprintDaysLeft}} days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
+              </span>
+
+              <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top" class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
+
+            </span>
+          <ng-template #titleTemplate>
+              <div><span class="d-inline-block w-45px">Goal</span>: {{activeSprintData?.goal}}</div>
+              <div><span class="d-inline-block w-45px">Starts</span>: {{activeSprintData?.startedAt | date : 'MMM d yyyy'}}</div>
+              <div><span class="d-inline-block w-45px">End</span>: {{activeSprintData?.endAt | date : 'MMM d yyyy'}}</div>
+          </ng-template>
+          </span>
+
+
     </ng-template>
 
     <section class="m-b-10">
