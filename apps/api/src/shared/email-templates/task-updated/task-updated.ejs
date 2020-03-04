@@ -19,12 +19,9 @@
       <tr>
         <td colspan="2" style="color:#6E829C; font-size:15px; padding:20px 20px 20px 20px;">
           <p style="line-height:1.5;">
-            Dear <%= user.firstName %> <%= user.lastName %>,<br>
-            A task named :- <%= task.displayName %> has been Updated by :-
-            <b><%= task.updatedBy.firstName %> <%= task.updatedBy.lastName %></b>
-
-            in Project <b><%= project.name %></b>
-
+            Dear <%= task.assignee.firstName %> <%= task.assignee.lastName %>,<br>
+            A task named :- <b><a href="<%= appUrl %>dashboard/task/<%= task.displayName %>"><%= task.displayName %></a></b> has been updated
+            <br>by :- <b><%= task.createdBy.firstName %> <%= task.createdBy.lastName %></b> in Project <b><%= project.name %></b>.
           </p>
           <br>
           <p style="line-height:1.5;">
