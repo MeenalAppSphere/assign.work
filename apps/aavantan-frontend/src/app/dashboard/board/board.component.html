@@ -3,7 +3,7 @@
   <section class="collaborators-avatar p-r-15">
     <div class="row board-header-section">
 
-        <div class="col-md-6">
+        <div class="col-md-5 user-filter-section">
 
           <span class="p-l-10 sprint-name-button" >{{boardData && boardData.name ? boardData.name : 'Sprint'}}</span>
 
@@ -26,38 +26,52 @@
 
         </div>
 
-        <div class="col-md-6 text-right user-filter-section">
+        <div class="col-md-7">
 
-            <span *ngIf="boardData?.endAt" class="sprint-date">
-              <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
 
-                <span>
+          <div class="row d-inline-flex text-right float-right">
+            <div style="margin-top: -6px;">
+              <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
+
+              <span *ngIf="boardData?.endAt" class="sprint-date float-right">
+                <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
+
+                  <span>
                   <span class="font-weight-bold" [ngClass]="boardData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{boardData.sprintDaysLeft}} days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
+                  <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top" class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
+                  </span>
+
+
+
                 </span>
-
-                <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top" class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
-
+                <ng-template #titleTemplate>
+                    <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
+                    <div><span class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
+                    <div><span class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
+                </ng-template>
               </span>
-            <ng-template #titleTemplate>
-                <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
-                <div><span class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
-                <div><span class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
-            </ng-template>
-            </span>
+
+              <div class="text-right sprint-progress">
+                <nz-progress [nzPercent]="boardData?.progress" [nzStrokeColor]="boardData?.progress <=100 ? '#42E3A3' : '#F82222'" nzStatus="active"></nz-progress>
+              </div>
+
+            </div>
 
 
-            <span class="header-btn-group">
+            <div class="header-btn-group">
 
               <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="btn-add-task m-r-5 m-l-25" (click)="toggleCloseSprintShow()">Close Sprint </button>
 
               <button nzType="primary" nzSize="small" nz-button class="btn-add-task " (click)="addTaskNavigate()">+ Add Task</button>
 
-            </span>
+            </div>
+          </div>
 
         </div>
 
     </div>
-</section>
+
+  </section>
 
   <nz-spin nzTip="Preparing board data..." [nzSpinning]="getStageInProcess">
     <div class="sprintboard-container">

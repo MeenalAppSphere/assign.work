@@ -60,7 +60,7 @@
                     <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"
                                [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
                     <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
-                    <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
+                    <span *ngIf="option && option.lastName">&nbsp;{{ option && option.lastName }}</span>
                     <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small
                       class="text-muted">{{ option.emailId }}</small></div>
                   </nz-auto-option>

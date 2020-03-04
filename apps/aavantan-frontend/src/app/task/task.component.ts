@@ -29,7 +29,7 @@ import {
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { NzNotificationService } from 'ng-zorro-antd';
@@ -148,9 +148,25 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
               private _taskTypeQuery: TaskTypeQuery,
               private validationRegexService: ValidationRegexService) {
+
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
+
+    // if task page is visible and user clicked on Create Task button from side bar
+    router.events.subscribe((val) => {
+      if ((val instanceof RouterEvent) && (val instanceof NavigationEnd)) {
+        if(!val.url.includes('/dashboard/task/')){
+          return;
+        }
+        const splitedUrl = val.url.split('/dashboard/task/')[1];
+        if(splitedUrl.indexOf('-')<=0){
+          this.cancelTaskForm();
+        }
+      }
+    });
+
+
   }
 
   ngOnInit() {
