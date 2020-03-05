@@ -21,7 +21,7 @@ import {
   SprintBaseRequest,
   SprintErrorResponse,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel
+  UpdateSprintModel, SprintFilterTasksModel
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
@@ -66,6 +66,17 @@ export class SprintService extends BaseService<TaskStore, TaskState> {
     return this._http.post(SprintUrls.getSprint, sprintData).pipe(
       map((res: BaseResponseModel<Sprint>) => {
         // this.notification.success('Success', 'Found Successfully');
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
+  filterSprintTasks(model: SprintFilterTasksModel): Observable<BaseResponseModel<Sprint>> {
+    return this._http.post(SprintUrls.filterTasksInSprint, model).pipe(
+      map((res: BaseResponseModel<Sprint>) => {
         return res;
       }),
       catchError(err => {

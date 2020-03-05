@@ -197,6 +197,7 @@ export class SprintUtilityService {
     // loop over sprint members and convert working capacity to readable format
     if (sprint.membersCapacity) {
       sprint.membersCapacity.forEach(member => {
+        member.user.id = member.user._id.toString();
         // convert capacity to hours again
         member.workingCapacity = secondsToHours(member.workingCapacity);
         member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);

@@ -13,6 +13,8 @@ import { GeneralService } from '../../services/general.service';
 import { TaskService } from '../../services/task/task.service';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../../services/sprint/sprint.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -20,8 +22,12 @@ import { SprintService } from '../../services/sprint/sprint.service';
   styleUrls: ['./task-list.component.scss']
 })
 export class TaskListComponent implements OnInit, OnChanges {
+  public searchValue: string;
+  public searchValueSubject$: Subject<string> = new Subject<string>();
+
   @Input() public taskByUser: string;
   @Input() public taskList: Task[];
+  @Input() public requestModel: TaskFilterModel;
   @Input() public view: string;
   @Input() public showLogOption: boolean = true;
   @Input() public showCheckboxOption: boolean = false;
@@ -33,6 +39,9 @@ export class TaskListComponent implements OnInit, OnChanges {
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
+  @Output() pageChangedEvent: EventEmitter<number> = new EventEmitter<number>();
+  @Output() sortingChangedEvent: EventEmitter<{ type: string, columnName: string }> = new EventEmitter();
+  @Output() searchEvent: EventEmitter<string> = new EventEmitter();
 
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;
@@ -57,6 +66,15 @@ export class TaskListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+
+    // search event
+    this.searchValueSubject$.pipe(
+      debounceTime(700),
+      distinctUntilChanged()
+    ).subscribe(val => {
+      this.searchEvent.emit(val);
+    });
+
     if (this.isDraftTable) {
       this.taskList.forEach((ele) => {
         if (ele.isSelected) {

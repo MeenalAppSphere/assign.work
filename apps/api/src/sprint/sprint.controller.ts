@@ -3,14 +3,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import {
   AddTaskToSprintModel,
-  AssignTasksToSprintModel,
   CloseSprintModel,
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
   MoveTaskToColumnModel,
   PublishSprintModel,
-  RemoveTaskFromSprintModel,
+  RemoveTaskFromSprintModel, SprintFilterTasksModel,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
@@ -37,11 +36,6 @@ export class SprintController {
     return await this._sprintService.addTaskToSprint(model);
   }
 
-  // @Post('assign-tasks')
-  // async assignTasks(@Body() model: AssignTasksToSprintModel) {
-  //   return await this._sprintService.assignTasksToSprint(model);
-  // }
-
   @Post('remove-task')
   async removeTasks(@Body() model: RemoveTaskFromSprintModel) {
     return await this._sprintService.removeTaskFromSprint(model);
@@ -60,6 +54,11 @@ export class SprintController {
   @Post('get-sprint')
   async getSprint(@Body() model: GetSprintByIdRequestModel) {
     return await this._sprintService.getSprintById(model);
+  }
+
+  @Post('filter-sprint-tasks')
+  async filterSprintTasks(@Body() model: SprintFilterTasksModel) {
+    return await this._sprintService.filterSprintTasks(model);
   }
 
   @Post('get-published-sprint')

@@ -92,7 +92,7 @@ export class TaskFilterQuery {
   condition: TaskFilterCondition;
 }
 
-export class TaskFilterModel extends MongoosePaginateQuery{
+export class TaskFilterModel extends MongoosePaginateQuery {
   queries: TaskFilterQuery[];
 
   constructor(public projectId: string) {

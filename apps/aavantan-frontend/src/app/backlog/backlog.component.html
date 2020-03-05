@@ -1,4 +1,4 @@
-<nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
+<nz-spin nzTip="Loading..." [nzSpinning]="getBacklogTasksInProcess">
   <nz-card
     nzSize="small"
     [nzBordered]="false"
@@ -21,23 +21,29 @@
 
 
 
-      <span class="sprint-date">
+      <span class="sprint-date" *ngIf="activeSprintData">
             <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
 
-              <span *ngIf="activeSprintData && activeSprintData.name" class="text-gray-light font-size-16">{{activeSprintData.name}}</span>
+              <span *ngIf="activeSprintData && activeSprintData.name"
+                    class="text-gray-light font-size-16">{{activeSprintData.name}}</span>
               <span class="text-gray-light-2 font-weight-light font-size-14">&nbsp;is running, </span>
 
               <span class="font-size-14">
-                <span class="font-weight-bold" [ngClass]="activeSprintData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{activeSprintData.sprintDaysLeft}} days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
+                <span class="font-weight-bold"
+                      [ngClass]="activeSprintData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{activeSprintData.sprintDaysLeft}}
+                  days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
               </span>
 
-              <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top" class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
+              <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
+                   class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
 
             </span>
           <ng-template #titleTemplate>
               <div><span class="d-inline-block w-45px">Goal</span>: {{activeSprintData?.goal}}</div>
-              <div><span class="d-inline-block w-45px">Starts</span>: {{activeSprintData?.startedAt | date : 'MMM d yyyy'}}</div>
-              <div><span class="d-inline-block w-45px">End</span>: {{activeSprintData?.endAt | date : 'MMM d yyyy'}}</div>
+              <div><span
+                class="d-inline-block w-45px">Starts</span>: {{activeSprintData?.startedAt | date : 'MMM d yyyy'}}</div>
+              <div><span
+                class="d-inline-block w-45px">End</span>: {{activeSprintData?.endAt | date : 'MMM d yyyy'}}</div>
           </ng-template>
           </span>
 
@@ -267,8 +273,8 @@
                    style="height:32px;"/>
           </nz-input-group>
           <ng-template #suffixIcon>
-            <i nz-icon nzType="search" *ngIf="!searchTaskListInProgress"></i>
-            <i class="fas fa-spin fa-spinner" *ngIf="searchTaskListInProgress"></i>
+            <i nz-icon nzType="search"></i>
+            <!--            <i class="fas fa-spin fa-spinner"></i>-->
           </ng-template>
 
         </div>
@@ -288,8 +294,9 @@
         <div>
 
           <!-- backlogs -->
-          <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
-                   [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
+          <nz-spin
+            [nzSpinning]="getBacklogTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+            [nzTip]="backLogTableLoadingTip">
 
             <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
                       [nzData]="backLogTasksList"
@@ -297,7 +304,7 @@
                       [nzTotal]="backLogTaskRequest.totalItems"
                       [nzPageIndex]="backLogTaskRequest.page"
                       [nzPageSize]="backLogTaskRequest.count"
-                      [nzShowPagination]="true"
+                      [nzShowPagination]="true" (nzPageIndexChange)="pageChanged($event, 'backlog')"
                       nzSize="small">
               <thead>
               <tr>

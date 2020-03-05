@@ -218,4 +218,12 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
+  createNewTaskAction() {
+    this.updateState({ createNewTaskAction: true });
+  }
+
+  resetStoreFlags() {
+    this.updateState({ createNewTaskAction: false });
+  }
+
 }

@@ -19,7 +19,7 @@ const initialState: TaskTypeState = {
   addNewInProcess: false,
   addNewSuccess: false,
   updateInProcess: false,
-  updateSuccess: false
+  updateSuccess: false,
 };
 
 @Injectable({ providedIn: 'root' })

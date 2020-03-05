@@ -28,6 +28,7 @@ const taskSchemaKeysMapper = new Map<string, string>([
 ]);
 
 const taskSortingKeysMapper = new Map<string, string>([
+  ['name', 'name'],
   ['createdBy', 'createdBy.name'],
   ['createdById', 'createdBy.name'],
   ['taskType', 'taskType.name'],
@@ -65,7 +66,7 @@ export class TaskUtilityService {
     taskModel.name = model.name;
     taskModel.projectId = model.projectId;
     taskModel.watchers = model.watchers || [];
-    taskModel.description = model.description;
+    taskModel.description = model.description || '';
     taskModel.tags = model.tags;
 
     taskModel.taskTypeId = model.taskTypeId;
@@ -78,6 +79,7 @@ export class TaskUtilityService {
 
     taskModel.dependentItemId = model.dependentItemId;
     taskModel.relatedItemId = model.relatedItemId || [];
+    taskModel.assigneeId = model.assigneeId;
 
     taskModel.estimatedTime = 0;
     taskModel.remainingTime = 0;
