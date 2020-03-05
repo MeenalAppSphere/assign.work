@@ -3,13 +3,55 @@
   <section class="collaborators-avatar p-r-15">
     <div class="row board-header-section">
 
-      <div class="col-md-3 user-filter-section">
+      <div class="col-md-6 user-filter-section">
 
         <span class="p-l-10 sprint-name-button">{{boardData && boardData.name ? boardData.name : 'Sprint'}}</span>
 
-        <span *ngIf="boardData && boardData.membersCapacity?.length>0" class="p-l-30">
 
-              <span *ngFor="let item of boardData.membersCapacity | slice:0:3;">
+      </div>
+      <!--col 1 -->
+
+      <div class="col-md-6">
+
+        <div class="row d-inline-flex text-right float-right">
+
+          <div class="board-search-box text-right p-r-10" *ngIf="boardData">
+
+            <nz-input-group [nzSuffix]="suffixIcon">
+              <input placeholder="Search..." nzSize="small" nz-input
+                     style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
+            </nz-input-group>
+
+            <ng-template #suffixIcon>
+              <i nz-icon nzType="search"></i>
+            </ng-template>
+
+          </div>
+
+
+          <div class="header-btn-group">
+
+            <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="btn-add-task m-r-5 m-l-10"
+                    (click)="toggleCloseSprintShow()">Close Sprint
+            </button>
+
+            <button nzType="primary" nzSize="small" nz-button class="btn-add-task " (click)="addTaskNavigate()">+ Add
+              Task
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!--col 2 -->
+
+
+      <div class="col-md-8 user-filter-section p-t-5">
+
+        <span *ngIf="boardData && boardData.membersCapacity?.length>0">
+
+              <span *ngFor="let item of boardData.membersCapacity | slice:0:10;">
 
                 <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
                            nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
@@ -24,13 +66,13 @@
 
               </span>
 
-            <nz-avatar *ngIf="boardData.membersCapacity?.length>3"
+            <nz-avatar *ngIf="boardData.membersCapacity?.length>10"
                        nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
-                       nzText="{{boardData.membersCapacity?.length - 3}}+" class="bg-info"></nz-avatar>
+                       nzText="{{boardData.membersCapacity?.length - 10}}+" class="bg-info"></nz-avatar>
 
               <nz-dropdown-menu #menu="nzDropdownMenu">
               <ul nz-menu>
-                <li nz-menu-item *ngFor="let item of boardData.membersCapacity | slice:4:boardData.membersCapacity.length;" class="collaborators-avatar p-l-10 p-b-5">
+                <li nz-menu-item *ngFor="let item of boardData.membersCapacity | slice:11:boardData.membersCapacity.length;" class="collaborators-avatar p-l-10 p-b-5">
 
                   <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
                              nzSize="30px"
@@ -49,27 +91,11 @@
           </span>
 
       </div>
+      <!--col 3 -->
 
+      <div class="col-md-4 p-r-0">
 
-
-      <div class="col-md-9">
-
-        <div class="row d-inline-flex text-right float-right">
-
-          <div class="board-search-box text-right p-r-10" *ngIf="boardData">
-
-            <nz-input-group [nzSuffix]="suffixIcon">
-              <input placeholder="Search..." nzSize="small" nz-input
-                     style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
-            </nz-input-group>
-
-            <ng-template #suffixIcon>
-              <i nz-icon nzType="search"></i>
-            </ng-template>
-
-          </div>
-
-          <div style="margin-top: -6px;" class="sprint-progress-section">
+          <div class="sprint-progress-section">
             <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
 
             <span *ngIf="boardData?.endAt" class="sprint-date float-right">
@@ -82,7 +108,6 @@
                   <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
                        class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
                   </span>
-
 
 
                 </span>
@@ -103,21 +128,9 @@
 
           </div>
 
-
-          <div class="header-btn-group">
-
-            <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="btn-add-task m-r-5 m-l-25"
-                    (click)="toggleCloseSprintShow()">Close Sprint
-            </button>
-
-            <button nzType="primary" nzSize="small" nz-button class="btn-add-task " (click)="addTaskNavigate()">+ Add
-              Task
-            </button>
-
-          </div>
-        </div>
-
       </div>
+
+      <!--col 4 -->
 
     </div>
 
