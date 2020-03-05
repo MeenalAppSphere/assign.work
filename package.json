@@ -1,6 +1,6 @@
 {
   "name": "assign.work",
-  "version": "1.7.2",
+  "version": "1.6.3",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
