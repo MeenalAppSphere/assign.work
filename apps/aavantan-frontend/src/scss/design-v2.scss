@@ -891,18 +891,29 @@ $color-green : #42E3A3;
       width: 100%;
       margin-top: 5px;
     }
-    .btn-add-task{
-      width: 47%;
-      margin: 0px 5px!important;
+    .user-filter-section {
+      margin: 5px auto!important;
     }
-
+    .btn-add-task{
+      width: 46%;
+      margin: 5px auto!important;
+    }
+    .board-search-box {
+      margin: 5px auto;
+    }
+    .sprint-progress-section {
+      padding-top: 10px;
+      margin: auto;
+    }
     .sprint-name-button {
-      height:20px!important;
+      height: 30px !important;
       max-width: 320px;
       padding-left: 10px;
       overflow-x: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-size: 22px!important;
+      margin-bottom: 5px;
     }
   }
 

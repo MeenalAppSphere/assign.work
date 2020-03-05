@@ -3,13 +3,13 @@
   <section class="collaborators-avatar p-r-15">
     <div class="row board-header-section">
 
-      <div class="col-md-4 user-filter-section">
+      <div class="col-md-3 user-filter-section">
 
         <span class="p-l-10 sprint-name-button">{{boardData && boardData.name ? boardData.name : 'Sprint'}}</span>
 
         <span *ngIf="boardData && boardData.membersCapacity?.length>0" class="p-l-30">
 
-              <span *ngFor="let item of boardData.membersCapacity">
+              <span *ngFor="let item of boardData.membersCapacity | slice:0:3;">
 
                 <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
                            nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
@@ -21,31 +21,55 @@
                            ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
                            nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
                            nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
+
               </span>
+
+            <nz-avatar *ngIf="boardData.membersCapacity?.length>3"
+                       nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
+                       nzText="{{boardData.membersCapacity?.length - 3}}+" class="bg-info"></nz-avatar>
+
+              <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item *ngFor="let item of boardData.membersCapacity | slice:4:boardData.membersCapacity.length;" class="collaborators-avatar p-l-10 p-b-5">
+
+                  <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
+                             nzSize="30px"
+                             class="text-uppercase"
+                             nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
+                             ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"></nz-avatar>
+
+                  <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" class="text-uppercase" nzSize="30px"
+                             ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
+                             nzSrc="{{item.user.profilePic}}"></nz-avatar>
+                  <span class="p-l-5">{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}</span>
+                </li>
+              </ul>
+            </nz-dropdown-menu>
 
           </span>
 
-
       </div>
 
-      <div class="col-md-2 text-right" style="max-width: 320px;" *ngIf="boardData">
 
-        <nz-input-group [nzSuffix]="suffixIcon">
-          <input placeholder="Search..." nzSize="small" nz-input
-                 style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
-        </nz-input-group>
 
-        <ng-template #suffixIcon>
-          <i nz-icon nzType="search"></i>
-        </ng-template>
-
-      </div>
-
-      <div class="col-md-6">
-
+      <div class="col-md-9">
 
         <div class="row d-inline-flex text-right float-right">
-          <div style="margin-top: -6px;">
+
+          <div class="board-search-box text-right p-r-10" *ngIf="boardData">
+
+            <nz-input-group [nzSuffix]="suffixIcon">
+              <input placeholder="Search..." nzSize="small" nz-input
+                     style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
+            </nz-input-group>
+
+            <ng-template #suffixIcon>
+              <i nz-icon nzType="search"></i>
+            </ng-template>
+
+          </div>
+
+          <div style="margin-top: -6px;" class="sprint-progress-section">
             <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
 
             <span *ngIf="boardData?.endAt" class="sprint-date float-right">
