@@ -22,6 +22,7 @@ import { SprintService } from '../../services/sprint/sprint.service';
 export class TaskListComponent implements OnInit, OnChanges {
   @Input() public taskByUser: string;
   @Input() public taskList: Task[];
+  @Input() public requestModel: TaskFilterModel;
   @Input() public view: string;
   @Input() public showLogOption: boolean = true;
   @Input() public showCheckboxOption: boolean = false;
@@ -33,6 +34,8 @@ export class TaskListComponent implements OnInit, OnChanges {
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
+  @Output() pageChangedEvent: EventEmitter<number> = new EventEmitter<number>();
+  @Output() sortingChangedEvent: EventEmitter<{ type: string, columnName: string }> = new EventEmitter();
 
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;

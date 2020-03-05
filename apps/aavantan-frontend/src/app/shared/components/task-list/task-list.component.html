@@ -74,8 +74,12 @@
   <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
            [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
 
-    <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'" nzSize="small"
-              [ngClass]="{'draft-table':isDraftTable}">
+    <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'"
+              nzSize="small" [ngClass]="{'draft-table':isDraftTable}"
+              [nzFrontPagination]="false" [nzTotal]="requestModel.totalItems"
+              [nzPageIndex]="requestModel.page" [nzPageSize]="requestModel.count"
+              [nzShowPagination]="true"
+              (nzPageIndexChange)="pageChangedEvent.emit($event)">
       <thead>
       <tr>
 
@@ -123,7 +127,7 @@
 
       <tbody>
       <tr *ngFor="let item of listViewTable.data"
-          [ngClass]="{'has-missing-data':(tasksSelected && tasksSelected.sprintId) && (!item.assignee || !item.estimatedTime) }">
+          [ngClass]="{'has-missing-data':(tasksSelected && tasksSelected.sprintId) && (!item.assigneeId || !item.estimatedTime) }">
 
         <td data-label="#" *ngIf="isDraftTable" class="text-center">
           <i *ngIf="isDraftTable" (click)="deselectTaskFromSprint(item)" nz-icon nzType="close-circle"
@@ -133,10 +137,10 @@
         <td data-label="#" *ngIf="showCheckboxOption &&
                 (activeSprintId || tasksSelected?.sprintId || sprintId)" class="text-center">
 
-          <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox [(ngModel)]="item.isSelected"
+          <label *ngIf="item.assigneeId && item.estimatedTime" nz-checkbox [(ngModel)]="item.isSelected"
                  (nzCheckedChange)="selectTaskForSprint(item, $event)"></label>
 
-          <i *ngIf="(tasksSelected && tasksSelected.sprintId) && (!item.assignee || !item.estimatedTime)"
+          <i *ngIf="(tasksSelected && tasksSelected.sprintId) && (!item.assigneeId || !item.estimatedTime)"
              class="text-red"
              nz-icon nz-tooltip nzTitle="Assignee or Estimated time is missing" nzType="exclamation-circle"
              style="margin-left: -8px;" theme="fill"></i>
@@ -213,17 +217,17 @@
 <!-- sorting icon template -->
 <ng-template #sortTemplate let-column="column">
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest.sortBy !== column"
-     (click)="sortButtonClicked('asc', column)"
-     [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'asc'}"></i>
+  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel.sort !== column"
+     (click)="sortingChangedEvent.emit({type: 'asc', columnName: column})"
+     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="sortingRequest.sortBy === column && sortingRequest.sort === 'asc'"
-     (click)="sortButtonClicked('desc', column)"
-     [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'asc'}"></i>
+  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel.sort === column && requestModel.sortBy === 'asc'"
+     (click)="sortingChangedEvent.emit({type: 'desc', columnName: column})"
+     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-down" *ngIf="sortingRequest.sortBy === column && sortingRequest.sort === 'desc'"
-     (click)="sortButtonClicked('asc', column)"
-     [ngClass]="{'text-info': sortingRequest.sortBy === column && sortingRequest.sort === 'desc'}"></i>
+  <i class="fas fa-long-arrow-alt-down" *ngIf="requestModel.sort === column && requestModel.sortBy === 'desc'"
+     (click)="sortingChangedEvent.emit({type: 'asc', columnName: column})"
+     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'desc'}"></i>
 
 </ng-template>
 <!-- sorting -->

@@ -56,16 +56,20 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.getAllTasks();
       this.getMyTasks();
     }
-
-    // console.log('My Task', this.myTaskList.length);
-    // console.log('All Task', this.allTaskList.length);
   }
 
   getAllTasks() {
     this.getTaskInProcess = true;
     this._taskService.getTaskWithFilter(this.allTaskFilterRequest).subscribe(result => {
       this.getTaskInProcess = false;
+
       if (result) {
+
+        this.allTaskFilterRequest.page = result.data.page;
+        this.allTaskFilterRequest.count = result.data.count;
+        this.allTaskFilterRequest.totalItems = result.data.totalItems;
+        this.allTaskFilterRequest.totalPages = result.data.totalPages;
+
         this.allTaskList = result.data.items;
       } else {
         this.allTaskList = [];
@@ -74,26 +78,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.getTaskInProcess = false;
       this.allTaskList = [];
     });
-    // const json: GetAllTaskRequestModel = {
-    //   projectId: this._generalService.currentProject.id,
-    //   sort: 'createdAt',
-    //   sortBy: 'desc'
-    // };
-    // this.getTaskInProcess = true;
-    // this._taskService.getAllTask(json).subscribe();
-    // this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
-    //   if (res) {
-    //     this.getTaskInProcess = false;
-    //
-    //     this.allTaskList = res;
-    //
-    //     this.myTaskList = this.allTaskList.filter((ele: Task) => {
-    //       return (ele.createdBy as User).emailId === this._generalService.user.emailId;
-    //     });
-    //
-    //   }
-    //
-    // });
   }
 
   getMyTasks() {
@@ -140,7 +124,31 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
-  public ngOnDestroy() {
+  public myTaskPageChanged(index: number) {
+    this.myTaskFilterRequest.page = index;
+    this.getMyTasks();
   }
 
+  public myTaskSortingChanged(request: { type: string, columnName: string }) {
+    this.myTaskFilterRequest.sort = request.columnName;
+    this.myTaskFilterRequest.sortBy = request.type;
+
+    this.getMyTasks();
+  }
+
+  public allTaskPageChanged(index: number) {
+    this.allTaskFilterRequest.page = index;
+
+    this.getAllTasks();
+  }
+
+  public allTaskSortingChanged(request: { type: string, columnName: string }) {
+    this.allTaskFilterRequest.sort = request.columnName;
+    this.allTaskFilterRequest.sortBy = request.type;
+
+    this.getAllTasks();
+  }
+
+  public ngOnDestroy() {
+  }
 }

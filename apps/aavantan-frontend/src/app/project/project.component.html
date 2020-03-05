@@ -1,30 +1,30 @@
 <!-- section 1 -->
 <section id="project-page">
-<!--  <nz-card-->
-<!--    nzSize="small"-->
-<!--    [nzBordered]="false"-->
-<!--    nzTitle="Create Backlog Item/Task"-->
-<!--    [nzExtra]="createTaskBtnTemplate">-->
-<!--  <ng-template #createTaskBtnTemplate>-->
-<!--    <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">-->
-<!--      <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>-->
-<!--      <button nzType="primary" nzSize="small" nz-button>-->
-<!--        <i nz-icon nzType="down"></i>-->
-<!--      </button>-->
-<!--    </nz-button-group>-->
-<!--    <nz-dropdown-menu #createTaskType="nzDropdownMenu">-->
-<!--      <ul nz-menu>-->
-<!--        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>-->
-<!--      </ul>-->
-<!--    </nz-dropdown-menu>-->
-<!--  </ng-template>-->
+  <!--  <nz-card-->
+  <!--    nzSize="small"-->
+  <!--    [nzBordered]="false"-->
+  <!--    nzTitle="Create Backlog Item/Task"-->
+  <!--    [nzExtra]="createTaskBtnTemplate">-->
+  <!--  <ng-template #createTaskBtnTemplate>-->
+  <!--    <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">-->
+  <!--      <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>-->
+  <!--      <button nzType="primary" nzSize="small" nz-button>-->
+  <!--        <i nz-icon nzType="down"></i>-->
+  <!--      </button>-->
+  <!--    </nz-button-group>-->
+  <!--    <nz-dropdown-menu #createTaskType="nzDropdownMenu">-->
+  <!--      <ul nz-menu>-->
+  <!--        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>-->
+  <!--      </ul>-->
+  <!--    </nz-dropdown-menu>-->
+  <!--  </ng-template>-->
 
 
-    <nz-tabset [nzTabBarExtraContent]="tabSwitchTemplate" nzSize="small">
-      <nz-tab nzTitle="My Task">
-        <ng-template nz-tab>
+  <nz-tabset [nzTabBarExtraContent]="tabSwitchTemplate" nzSize="small">
+    <nz-tab nzTitle="My Task">
+      <ng-template nz-tab>
 
-          <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
+        <nz-spin nzTip="Loading..." [nzSpinning]="getMyTaskInProcess">
 
           <ng-container *ngIf="myTaskList && myTaskList.length === 0">
             <nz-empty
@@ -51,80 +51,86 @@
               [taskList]="myTaskList"
               [view]="view"
               [showSorting]="true"
+              [requestModel]="myTaskFilterRequest"
+              (pageChangedEvent)="myTaskPageChanged($event)"
+              (sortingChangedEvent)="myTaskSortingChanged($event)"
             ></aavantan-task-list>
           </ng-container>
-          </nz-spin>
+        </nz-spin>
 
-        </ng-template>
+      </ng-template>
 
-      </nz-tab>
+    </nz-tab>
 
-      <nz-tab nzTitle="All">
-        <ng-template nz-tab>
+    <nz-tab nzTitle="All">
+      <ng-template nz-tab>
 
-          <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
-            <ng-container *ngIf="allTaskList && allTaskList.length === 0">
-              <nz-empty
-                [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
-                [nzNotFoundFooter]="footerTpl"
-                [nzNotFoundContent]="contentTpl">
-                <ng-template #contentTpl>
-                  <span> No Item Created</span>
-                </ng-template>
-                <ng-template #footerTpl>
-                  <button
-                    nz-button
-                    nzType="primary"
-                    (click)="createTask()">
-                    Create New
-                  </button>
-                </ng-template>
-              </nz-empty>
-            </ng-container>
-            <ng-container *ngIf="allTaskList && allTaskList.length > 0">
-              <aavantan-task-list
-                [taskByUser]="'all'"
-                [taskList]="allTaskList"
-                [view]="view"
-                [showSorting]="true"
-              ></aavantan-task-list>
-            </ng-container>
-          </nz-spin>
+        <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
+          <ng-container *ngIf="allTaskList && allTaskList.length === 0">
+            <nz-empty
+              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+              [nzNotFoundFooter]="footerTpl"
+              [nzNotFoundContent]="contentTpl">
+              <ng-template #contentTpl>
+                <span> No Item Created</span>
+              </ng-template>
+              <ng-template #footerTpl>
+                <button
+                  nz-button
+                  nzType="primary"
+                  (click)="createTask()">
+                  Create New
+                </button>
+              </ng-template>
+            </nz-empty>
+          </ng-container>
+          <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+            <aavantan-task-list
+              [taskByUser]="'all'"
+              [taskList]="allTaskList"
+              [view]="view"
+              [showSorting]="true"
+              [requestModel]="allTaskFilterRequest"
+              (pageChangedEvent)="allTaskPageChanged($event)"
+              (sortingChangedEvent)="allTaskSortingChanged($event)"
+            ></aavantan-task-list>
+          </ng-container>
+        </nz-spin>
 
-        </ng-template>
-      </nz-tab>
-    </nz-tabset>
+      </ng-template>
+    </nz-tab>
+  </nz-tabset>
 
-    <ng-template #tabSwitchTemplate>
-       
-      <nz-radio-group [(ngModel)]="view">
-        <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
-          <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>
-        </label>
-        <label nz-radio-button nzValue="cardView" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>
-          <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>
-        </label>
-      </nz-radio-group>
+  <ng-template #tabSwitchTemplate>
 
-      <nz-button-group
-          *ngIf="taskTypeDataSource && taskTypeDataSource.length"
-          class="issue-type-btn-grp m-l-35"
-          nz-dropdown
-          [nzDropdownMenu]="createTaskType"
-          nzPlacement="bottomRight">
-          <button nzType="primary" nzSize="small" nz-button>
-            Create New <i nz-icon nzType="caret-down" theme="outline"></i>
-          </button>
-        </nz-button-group>
-        <nz-dropdown-menu #createTaskType="nzDropdownMenu">
-          <ul nz-menu>
-            <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="createTask(item)">
-              <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
-              {{ item.displayName }}
-            </li>
-          </ul>
-        </nz-dropdown-menu>
-    </ng-template>
-<!--  </nz-card>-->
+    <nz-radio-group [(ngModel)]="view">
+      <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
+        <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>
+      </label>
+      <label nz-radio-button nzValue="cardView" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>
+        <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>
+      </label>
+    </nz-radio-group>
+
+    <nz-button-group
+      *ngIf="taskTypeDataSource && taskTypeDataSource.length"
+      class="issue-type-btn-grp m-l-35"
+      nz-dropdown
+      [nzDropdownMenu]="createTaskType"
+      nzPlacement="bottomRight">
+      <button nzType="primary" nzSize="small" nz-button>
+        Create New <i nz-icon nzType="caret-down" theme="outline"></i>
+      </button>
+    </nz-button-group>
+    <nz-dropdown-menu #createTaskType="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item *ngFor="let item of taskTypeDataSource" (click)="createTask(item)">
+          <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>
+          {{ item.displayName }}
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+  </ng-template>
+  <!--  </nz-card>-->
 </section>
 

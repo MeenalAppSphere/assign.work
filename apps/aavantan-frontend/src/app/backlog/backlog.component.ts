@@ -452,6 +452,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   }
 
+  public pageChanged(index: number, requestType: string) {
+    if (requestType === 'backlog') {
+      this.backLogTaskRequest.page = index;
+      this.getAllBacklogTask();
+    }
+  }
+
   public sortButtonClicked(type: string, columnName: string, requestType: string) {
     if (requestType === 'backlog') {
       this.backLogTaskRequest.sort = columnName;

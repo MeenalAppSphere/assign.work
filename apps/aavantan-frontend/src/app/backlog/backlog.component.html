@@ -303,7 +303,7 @@
                       [nzTotal]="backLogTaskRequest.totalItems"
                       [nzPageIndex]="backLogTaskRequest.page"
                       [nzPageSize]="backLogTaskRequest.count"
-                      [nzShowPagination]="true"
+                      [nzShowPagination]="true" (nzPageIndexChange)="pageChanged($event, 'backlog')"
                       nzSize="small">
               <thead>
               <tr>
