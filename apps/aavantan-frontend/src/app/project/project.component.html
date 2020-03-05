@@ -7,25 +7,6 @@
 
         <nz-spin nzTip="Loading..." [nzSpinning]="getMyTaskInProcess">
 
-          <ng-container *ngIf="myTaskList && myTaskList.length === 0">
-            <nz-empty
-              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
-              [nzNotFoundFooter]="footerTpl"
-              [nzNotFoundContent]="contentTpl">
-              <ng-template #contentTpl>
-                <span> No Item Assigned</span>
-              </ng-template>
-              <ng-template #footerTpl>
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="createTask()">
-                  Create New
-                </button>
-              </ng-template>
-            </nz-empty>
-          </ng-container>
-
           <ng-container>
             <aavantan-task-list
               [taskByUser]="'my'"
@@ -48,24 +29,7 @@
       <ng-template nz-tab>
 
         <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
-          <ng-container *ngIf="allTaskList && allTaskList.length === 0">
-            <nz-empty
-              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
-              [nzNotFoundFooter]="footerTpl"
-              [nzNotFoundContent]="contentTpl">
-              <ng-template #contentTpl>
-                <span> No Item Created</span>
-              </ng-template>
-              <ng-template #footerTpl>
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="createTask()">
-                  Create New
-                </button>
-              </ng-template>
-            </nz-empty>
-          </ng-container>
+
 
           <ng-container>
             <aavantan-task-list

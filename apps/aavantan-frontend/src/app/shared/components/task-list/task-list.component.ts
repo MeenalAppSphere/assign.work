@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import {
   AddTaskToSprintModel,
   DraftSprint,
@@ -6,7 +6,7 @@ import {
   RemoveTaskFromSprintModel,
   Task,
   TaskFilterModel,
-  TaskTimeLogResponse
+  TaskTimeLogResponse, TaskTypeModel
 } from '@aavantan-app/models';
 import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
@@ -15,15 +15,19 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../../services/sprint/sprint.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
 
 @Component({
   selector: 'aavantan-task-list',
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.scss']
 })
-export class TaskListComponent implements OnInit, OnChanges {
+export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   public searchValue: string;
   public searchValueSubject$: Subject<string> = new Subject<string>();
+
+  public taskTypeDataSource: TaskTypeModel[] = [];
 
   @Input() public taskByUser: string;
   @Input() public taskList: Task[];
@@ -62,10 +66,17 @@ export class TaskListComponent implements OnInit, OnChanges {
               private router: Router,
               private _generalService: GeneralService,
               private _sprintService: SprintService,
-              private _taskService: TaskService) {
+              private _taskService: TaskService,
+              private _taskTypeQuery: TaskTypeQuery) {
   }
 
   ngOnInit() {
+
+    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.taskTypeDataSource = res;
+      }
+    });
 
     // search event
     this.searchValueSubject$.pipe(
@@ -189,4 +200,31 @@ export class TaskListComponent implements OnInit, OnChanges {
     this._taskService.getAllTask(json).subscribe();
     console.log('Sorting Request: ', this.sortingRequest);
   }
+
+
+  public createTask(item?: TaskTypeModel) {
+    let displayName: string = null;
+
+    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
+      displayName = this.taskTypeDataSource[0].displayName;
+    }
+
+    if (item && item.displayName) {
+      displayName = item.displayName;
+    }
+
+    if (!displayName) {
+      this.notification.error('Info', 'Please create task types from settings');
+      setTimeout(() => {
+        this.router.navigateByUrl('dashboard/settings');
+      }, 1000);
+      return;
+    }
+
+    this.router.navigateByUrl('dashboard/task/' + displayName);
+  }
+
+  public ngOnDestroy() {
+  }
+
 }

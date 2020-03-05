@@ -32,6 +32,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public allTaskFilterRequest: TaskFilterModel;
   public myTaskFilterRequest: TaskFilterModel;
 
+  public isFilterApplied: boolean;
+
   constructor(protected notification: NzNotificationService,
               private _generalService: GeneralService,
               private _userQuery: UserQuery,
@@ -130,6 +132,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.myTaskFilterRequest.sort = 'name';
     this.myTaskFilterRequest.sortBy = 'asc';
 
+    if(term){
+      this.isFilterApplied = true;
+    }
+
     this.getMyTasks();
   }
 
@@ -150,6 +156,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.allTaskFilterRequest.page = 1;
     this.allTaskFilterRequest.sort = 'name';
     this.allTaskFilterRequest.sortBy = 'asc';
+
+    if(term){
+      this.isFilterApplied = true;
+    }
 
     this.getAllTasks();
   }

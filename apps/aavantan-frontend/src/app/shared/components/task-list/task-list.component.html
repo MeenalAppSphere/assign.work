@@ -1,5 +1,49 @@
 <div class="container-fluid p-0">
+
+
+  <div class="row m-b-10 justify-content-end">
+
+    <div class="col text-right" style="max-width: 320px;">
+
+      <nz-input-group [nzSuffix]="suffixIcon">
+        <input placeholder="Search..." nzSize="small" nz-input
+               style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
+      </nz-input-group>
+
+      <ng-template #suffixIcon>
+        <i nz-icon nzType="search"></i>
+      </ng-template>
+
+    </div>
+
+  </div>
+
+
+
   <div class="row" *ngIf="view == 'cardView'">
+
+    <div style="height:280px; width:300px; margin: auto;" *ngIf="!taskList || (taskList && taskList?.length===0)" >
+
+      <div style="height:180px;">
+        <nz-empty
+          [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+          [nzNotFoundContent]="contentTpl">
+          <ng-template #contentTpl>
+
+            <div class="m-b-10"><span>Task Not Found</span></div>
+
+            <button
+              nz-button
+              nzType="primary"
+              (click)="createTask()">
+              Create New Task
+            </button>
+
+          </ng-template>
+        </nz-empty>
+      </div>
+
+    </div>
 
     <div class="col-md-3" *ngFor="let item of taskList">
 
@@ -71,29 +115,37 @@
     </div>
   </div>
 
-    <div class="row m-b-10 justify-content-end">
-      <div class="col text-right" style="max-width: 320px;">
-
-        <nz-input-group [nzSuffix]="suffixIcon">
-          <input placeholder="Search..." nzSize="small" nz-input
-                 style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
-        </nz-input-group>
-
-        <ng-template #suffixIcon>
-          <i nz-icon nzType="search"></i>
-        </ng-template>
-
-      </div>
-    </div>
 
   <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
            [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
+
+
+      <ng-template #noResult>
+        <nz-empty
+          [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+          [nzNotFoundContent]="contentTpl">
+          <ng-template #contentTpl>
+
+            <div class="m-b-10"><span>Task Not Found</span></div>
+
+            <button
+              nz-button
+              nzType="primary"
+              (click)="createTask()">
+              Create New Task
+            </button>
+
+          </ng-template>
+        </nz-empty>
+      </ng-template>
+
 
     <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'"
               nzSize="small" [ngClass]="{'draft-table':isDraftTable}"
               [nzFrontPagination]="false" [nzTotal]="requestModel.totalItems"
               [nzPageIndex]="requestModel.page" [nzPageSize]="requestModel.count"
               [nzShowPagination]="true"
+              [nzNoResult]="noResult"
               (nzPageIndexChange)="pageChangedEvent.emit($event)">
       <thead>
       <tr>
