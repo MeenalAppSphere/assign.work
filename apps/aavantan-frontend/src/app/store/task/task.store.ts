@@ -6,12 +6,14 @@ export interface TaskState {
   tasks: Task[];
   getTaskInProcess: boolean;
   getTaskSuccess: boolean;
+  createNewTaskAction: boolean;
 }
 
 const initialState: TaskState = {
   tasks: null,
   getTaskInProcess: false,
-  getTaskSuccess: false
+  getTaskSuccess: false,
+  createNewTaskAction: false
 };
 
 @Injectable({ providedIn: 'root' })

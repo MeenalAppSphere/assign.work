@@ -78,6 +78,7 @@ export class TaskUtilityService {
 
     taskModel.dependentItemId = model.dependentItemId;
     taskModel.relatedItemId = model.relatedItemId || [];
+    taskModel.assigneeId = model.assigneeId;
 
     taskModel.estimatedTime = 0;
     taskModel.remainingTime = 0;

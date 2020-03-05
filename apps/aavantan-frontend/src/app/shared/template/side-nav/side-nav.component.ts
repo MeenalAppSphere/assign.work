@@ -9,92 +9,93 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationService } from '../../services/organization/organization.service';
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
+import { TaskService } from '../../services/task/task.service';
 
 @Component({
-    selector: 'app-sidenav',
-    templateUrl: './side-nav.component.html',
-    styleUrls:['./side-nav.component.scss']
+  selector: 'app-sidenav',
+  templateUrl: './side-nav.component.html',
+  styleUrls: ['./side-nav.component.scss']
 })
 
-export class SideNavComponent implements OnInit, OnDestroy{
+export class SideNavComponent implements OnInit, OnDestroy {
 
-    public menuItems: any[]
-    public adminMenuItems: any[]
-    isFolded : boolean;
-    isSideNavDark : boolean;
-    public taskTypeDataSource: TaskTypeModel[] = [];
-    public currentOrganization: Organization;
-    public organizations:string[] | Organization[]=[];
-    public switchOrganizationInProcess:boolean;
+  public menuItems: any[];
+  public adminMenuItems: any[];
+  isFolded: boolean;
+  isSideNavDark: boolean;
+  public taskTypeDataSource: TaskTypeModel[] = [];
+  public currentOrganization: Organization;
+  public organizations: string[] | Organization[] = [];
+  public switchOrganizationInProcess: boolean;
 
-    constructor(private themeService: ThemeConstantService,
-                 protected notification: NzNotificationService,
-                 private _userQuery: UserQuery,
-                 private _organizationService: OrganizationService,
-                 private _generalService: GeneralService,
-                 private router:Router, private _taskTypeQuery: TaskTypeQuery) {
+  constructor(private themeService: ThemeConstantService,
+              protected notification: NzNotificationService,
+              private _userQuery: UserQuery,
+              private _organizationService: OrganizationService,
+              private _generalService: GeneralService, private _taskService: TaskService,
+              private router: Router, private _taskTypeQuery: TaskTypeQuery) {
 
 
+    this.organizations = this._generalService.user.organizations;
 
-        this.organizations = this._generalService.user.organizations;
+    // get all task types from store
+    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
+      this.taskTypeDataSource = types;
+    });
 
-      // get all task types from store
-      this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
-        this.taskTypeDataSource = types;
-      });
-
-      this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
-        if (res) {
-          this.currentOrganization = res;
-        }
-      });
-
-    }
-
-    ngOnInit(): void {
-        this.menuItems = ROUTES.filter(menuItem => menuItem.type!=='admin');
-        this.adminMenuItems = ROUTES.filter(menuItem => menuItem.type==='admin');
-        this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
-        this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
-    }
-
-     public createNewTask(item?:TaskTypeModel){
-        let displayName: string= null;
-        if(this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName){
-            displayName=this.taskTypeDataSource[0].displayName;
-        }
-
-        if(!displayName){
-        this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
-        setTimeout(()=>{
-            this.router.navigateByUrl("dashboard/settings");
-        },1000);
-        return
-        }
-        this.router.navigateByUrl("dashboard/task/"+displayName);
-     }
-
-    public switchOrganization(organizationId:string){
-      try{
-
-        if(this._generalService.currentOrganization.id===organizationId){
-          return;
-        }
-
-        this.switchOrganizationInProcess = true;
-
-        this._organizationService.switchOrganization(organizationId).subscribe((res => {
-            this.switchOrganizationInProcess = false;
-          }), (error => {
-            this.switchOrganizationInProcess = false;
-          }));
-
-      } catch (e) {
-        this.switchOrganizationInProcess = false;
+    this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentOrganization = res;
       }
+    });
+
+  }
+
+  ngOnInit(): void {
+    this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin');
+    this.adminMenuItems = ROUTES.filter(menuItem => menuItem.type === 'admin');
+    this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
+    this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
+  }
+
+  public createNewTask(item?: TaskTypeModel) {
+    let displayName: string = null;
+    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
+      displayName = this.taskTypeDataSource[0].displayName;
     }
 
-
-     public ngOnDestroy(){
+    if (!displayName) {
+      this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
+      setTimeout(() => {
+        this.router.navigateByUrl('dashboard/settings');
+      }, 1000);
+      return;
     }
+    this._taskService.createNewTaskAction();
+    this.router.navigateByUrl('dashboard/task/' + displayName);
+  }
+
+  public switchOrganization(organizationId: string) {
+    try {
+
+      if (this._generalService.currentOrganization.id === organizationId) {
+        return;
+      }
+
+      this.switchOrganizationInProcess = true;
+
+      this._organizationService.switchOrganization(organizationId).subscribe((res => {
+        this.switchOrganizationInProcess = false;
+      }), (error => {
+        this.switchOrganizationInProcess = false;
+      }));
+
+    } catch (e) {
+      this.switchOrganizationInProcess = false;
+    }
+  }
+
+
+  public ngOnDestroy() {
+  }
 }

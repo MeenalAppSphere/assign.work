@@ -146,27 +146,24 @@ export class TaskComponent implements OnInit, OnDestroy {
               private router: Router,
               private cdr: ChangeDetectorRef,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
-              private _taskTypeQuery: TaskTypeQuery,
-              private validationRegexService: ValidationRegexService) {
+              private _taskTypeQuery: TaskTypeQuery) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
 
     // if task page is visible and user clicked on Create Task button from side bar
-    router.events.subscribe((val) => {
-      if ((val instanceof RouterEvent) && (val instanceof NavigationEnd)) {
-        if(!val.url.includes('/dashboard/task/')){
-          return;
-        }
-        const splitedUrl = val.url.split('/dashboard/task/')[1];
-        if(splitedUrl.indexOf('-')<=0){
-          this.cancelTaskForm();
-        }
-      }
-    });
-
-
+    // router.events.subscribe((val) => {
+    //   if ((val instanceof RouterEvent) && (val instanceof NavigationEnd)) {
+    //     if (!val.url.includes('/dashboard/task/')) {
+    //       return;
+    //     }
+    //     const splitedUrl = val.url.split('/dashboard/task/')[1];
+    //     if (splitedUrl.indexOf('-') <= 0) {
+    //       this.cancelTaskForm();
+    //     }
+    //   }
+    // });
   }
 
   ngOnInit() {
@@ -214,6 +211,13 @@ export class TaskComponent implements OnInit, OnDestroy {
           sortBy: 'desc'
         };
         this._taskService.getAllTask(json).subscribe();
+      }
+    });
+
+    this._taskQuery.createNewTaskAction$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.resetTaskForm();
+        this._taskService.resetStoreFlags();
       }
     });
 
@@ -298,7 +302,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         const queryText = this.taskForm.get('watchers').value;
 
-        if (!queryText || (queryText && typeof(queryText)==='object')) {
+        if (!queryText || (queryText && typeof (queryText) === 'object')) {
           return;
         }
         this.isSearchingWatchers = true;
@@ -311,7 +315,7 @@ export class TaskComponent implements OnInit, OnDestroy {
             this.isSearchingWatchers = false;
             this.assigneeDataSource = data.data;
           });
-        }catch (e) {
+        } catch (e) {
           this.isSearchingWatchers = false;
         }
 
@@ -324,7 +328,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         debounceTime(500))
       .subscribe(() => {
         const queryText = this.taskForm.get('tags').value;
-        if (!queryText || (queryText && typeof(queryText)==='object')) {
+        if (!queryText || (queryText && typeof (queryText) === 'object')) {
           return;
         }
         this.isSearchingTags = true;
@@ -333,7 +337,7 @@ export class TaskComponent implements OnInit, OnDestroy {
             this.isSearchingTags = false;
             this.tagsDataSource = data.data;
           });
-        }catch (e) {
+        } catch (e) {
           this.isSearchingTags = false;
         }
       });
@@ -446,7 +450,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public searchWatchers(user?: User) {
     if (user && user.emailId) {
-      if(this.listOfSelectedWatchers.findIndex(item => item.emailId === user.emailId)<0){
+      if (this.listOfSelectedWatchers.findIndex(item => item.emailId === user.emailId) < 0) {
         this.listOfSelectedWatchers.push(user);
         this.taskForm.get('watchers').patchValue('');
       }
@@ -464,7 +468,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public searchTags(tag?: ProjectTags) {
     if (tag && tag.name) {
       console.log(this.listOfSelectedTags.findIndex(item => item.name === tag.name));
-      if(this.listOfSelectedTags.findIndex(item => item.name === tag.name)<0){
+      if (this.listOfSelectedTags.findIndex(item => item.name === tag.name) < 0) {
         this.listOfSelectedTags.push(tag);
         this.taskForm.get('tags').patchValue('');
       }
@@ -479,13 +483,13 @@ export class TaskComponent implements OnInit, OnDestroy {
   public onKeydown(event) {
     if (event.key === 'Enter') {
       const tg = this.taskForm.get('tags').value;
-      let tag: ProjectTags = {name : tg, id:null};
-      if(typeof(tg)==='object'){
+      let tag: ProjectTags = { name: tg, id: null };
+      if (typeof (tg) === 'object') {
         tag = tg;
       }
 
-      if(this.listOfSelectedTags.findIndex(item => item.name === tag.name)<0){
-          this.listOfSelectedTags.push(tag);
+      if (this.listOfSelectedTags.findIndex(item => item.name === tag.name) < 0) {
+        this.listOfSelectedTags.push(tag);
       }
       this.taskForm.get('tags').patchValue('');
     }
@@ -524,14 +528,18 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
-  public cancelTaskForm() {
+  public resetTaskForm() {
     this.taskId = null;
-    this.taskForm.reset();
     this.currentTask = null;
     this.selectedStatus = null;
     this.selectedPriority = null;
     this.attachementIds = [];
     this.uploadedImages = [];
+
+    // reset task form if task form is already initialised
+    if (this.taskForm) {
+      this.taskForm.reset();
+    }
 
     if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
       this.selectedTaskType = this.taskTypeDataSource[0];
@@ -542,7 +550,11 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.historyList = null;
     this.progressData = null;
 
-    this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
+    if (this.selectedTaskType) {
+      this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
+    } else {
+      this.router.navigateByUrl('dashboard/task/');
+    }
 
   }
 
@@ -669,10 +681,10 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.listOfSelectedWatchers = this.taskData.data.watchersDetails;
 
-      if(this.taskData.data.tags && this.taskData.data.tags.length>0) {
+      if (this.taskData.data.tags && this.taskData.data.tags.length > 0) {
         this.taskData.data.tags.forEach(name => {
-          this.listOfSelectedTags.push({name:name, id:null});
-        })
+          this.listOfSelectedTags.push({ name: name, id: null });
+        });
       }
 
       this.attachementIds = this.taskData.data.attachments;
@@ -806,19 +818,19 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
 
     task.watchers = [];
-    if(this.listOfSelectedWatchers && this.listOfSelectedWatchers.length>0) {
+    if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
       this.listOfSelectedWatchers.forEach(ele => {
         task.watchers.push(ele.id || ele._id);
-      })
+      });
     }
 
     task.tags = [];
-    if(this.listOfSelectedTags && this.listOfSelectedTags.length>0) {
+    if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
       this.listOfSelectedTags.forEach(ele => {
         task.tags.push(ele.name);
-      })
+      });
     }
-    
+
     this.createTaskInProcess = true;
     try {
 
@@ -842,7 +854,6 @@ export class TaskComponent implements OnInit, OnDestroy {
             overProgress: data.data.overProgress
           };
         }
-
 
 
       } else {
