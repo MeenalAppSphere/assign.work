@@ -385,10 +385,10 @@ $color-green : #42E3A3;
 .sprintboard-container {
   padding: 0px;
   background: none;
-  overflow: auto;
-  height: calc(100vh - 150px);
+  overflow-y: auto;
+
   .shadow-div-right {
-    height: calc(100vh - 150px);
+    height: calc(100vh - 250px);
     position: absolute;
     right:-10px;
     top:0px;
@@ -434,7 +434,7 @@ $color-green : #42E3A3;
       }
     }
     .card-body {
-      max-height: calc(100vh - 240px);
+      max-height: calc(100vh - 300px);
       overflow: auto;
       background: $board-card-body;
       padding: 3px 7px 7px 7px;
