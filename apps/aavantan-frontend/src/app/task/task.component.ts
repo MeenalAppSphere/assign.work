@@ -894,6 +894,10 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.modelChanged.next();
   }
 
+  public clearAssigeeSearchText(){
+    this.taskForm.get('assigneeId').patchValue('');
+  }
+
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
   }
