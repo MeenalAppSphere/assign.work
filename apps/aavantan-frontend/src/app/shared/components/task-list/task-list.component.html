@@ -71,9 +71,7 @@
     </div>
   </div>
 
-  <div class="m-b-10">
-
-    <div class="row">
+    <div class="row m-b-10 justify-content-end">
       <div class="col text-right" style="max-width: 320px;">
 
         <nz-input-group [nzSuffix]="suffixIcon">
@@ -87,8 +85,6 @@
 
       </div>
     </div>
-
-  </div>
 
   <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
            [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
