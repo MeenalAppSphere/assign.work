@@ -10,7 +10,7 @@ import {
   Task,
   TaskTypeModel,
   User,
-  TaskTimeLogResponse
+  TaskTimeLogResponse, SprintFilterTasksModel
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -21,6 +21,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { cloneDeep } from 'lodash';
 import { TaskTypeQuery } from '../../queries/task-type/task-type.query';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -31,6 +33,9 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public boardData: Sprint;
   public boardDataClone: Sprint;
+
+  public searchValue: string;
+  public searchValueSubject$: Subject<string> = new Subject<string>();
 
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
@@ -49,6 +54,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   public closeSprintModeSelection = 'createNewSprint';
   public dateFormat = 'MM/dd/yyyy';
   public closeSprintNewSprintForm: FormGroup;
+  public filterSprintTasksRequest: SprintFilterTasksModel;
 
   public moveFromStage: SprintColumn;
 
@@ -69,8 +75,19 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
+    // search sprint tasks event
+    this.searchValueSubject$.pipe(
+      debounceTime(700),
+      distinctUntilChanged()
+    ).subscribe(val => {
+      this.filterSprintTasksRequest.query = val;
+      this.getBoardData();
+    });
 
     if (this._generalService.currentProject.sprintId && this._generalService.currentProject.id) {
+
+      this.filterSprintTasksRequest = new SprintFilterTasksModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
+
       this.getBoardData();
     } else {
       this.notification.info('Info', 'Sprint not found');
@@ -94,40 +111,23 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   }
 
-
   public filterTask(user: User) {
-    user.isSelected = !user.isSelected;
-    this.boardData = this.boardDataClone;
-
-    if (this.boardData && this.boardData.columns && this.boardData.columns.length) {
-
-      this.boardData.columns.forEach((column) => {
-
-        if (column.tasks && column.tasks.length) {
-          let tasks: SprintColumnTask[];
-
-          tasks = column.tasks.filter((task) => {
-            // console.log(task.task.assignee.emailId +'---'+ user.emailId)
-            if (task.task.assigneeId && task.task.assignee.emailId === user.emailId) {
-              return task;
-            }
-          });
-          column.tasks = tasks;
-        }
+    const inFilter = this.filterSprintTasksRequest.assigneeIds.includes(user.id);
+    if (!inFilter) {
+      this.filterSprintTasksRequest.assigneeIds.push(user.id);
+    } else {
+      this.filterSprintTasksRequest.assigneeIds = this.filterSprintTasksRequest.assigneeIds.filter(assignee => {
+        return assignee !== user.id;
       });
     }
+
+    this.getBoardData();
   }
 
   async getBoardData() {
     try {
-
-      const json: GetAllTaskRequestModel = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this._generalService.currentProject.sprintId
-      };
-
       this.getStageInProcess = true;
-      const data = await this._sprintService.getBoardData(json).toPromise();
+      const data = await this._sprintService.filterSprintTasks(this.filterSprintTasksRequest).toPromise();
       this.prepareBoardData(data);
       this.getStageInProcess = false;
     } catch (e) {
@@ -138,6 +138,9 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   private prepareBoardData(data: BaseResponseModel<Sprint>) {
     if (data.data) {
+      data.data.membersCapacity.forEach(member => {
+        member.user.isSelected = this.filterSprintTasksRequest.assigneeIds.includes(member.userId);
+      });
       data.data.columns.forEach((stage) => {
         stage.tasks.forEach((task) => {
           if (!task.task.priority) {

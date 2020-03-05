@@ -10,11 +10,13 @@
           <span *ngIf="boardData && boardData.membersCapacity?.length>0" class="p-l-30">
 
               <span *ngFor="let item of boardData.membersCapacity">
+
                 <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
                            nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
                            ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
                            nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip
                            class="bg-info"></nz-avatar>
+
                 <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" nzSize=""
                            ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
                            nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
@@ -71,6 +73,20 @@
 
     </div>
 
+    <div class="row m-b-10 justify-content-end">
+      <div class="col text-right" style="max-width: 320px;">
+
+        <nz-input-group [nzSuffix]="suffixIcon">
+          <input placeholder="Search..." nzSize="small" nz-input
+                 style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
+        </nz-input-group>
+
+        <ng-template #suffixIcon>
+          <i nz-icon nzType="search"></i>
+        </ng-template>
+
+      </div>
+    </div>
   </section>
 
   <nz-spin nzTip="Preparing board data..." [nzSpinning]="getStageInProcess">

@@ -3,6 +3,7 @@ import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
 import { Project, ProjectWorkingDays } from './project.model';
 import { MongoosePaginateQuery } from '../queryOptions';
+import { TaskFilterCondition } from '../enums';
 
 export class Sprint {
   id?: string;
@@ -148,7 +149,6 @@ export class RemoveTaskFromSprintModel extends SprintBaseRequest {
 
 export class AssignTasksToSprintModel extends SprintBaseRequest {
   tasks: string[];
-  adjustHoursAllowed?: boolean;
 }
 
 export class SprintDurationsModel {
@@ -163,13 +163,6 @@ export class SprintDurationsModel {
 export class MoveTaskToColumnModel extends SprintBaseRequest {
   columnId: string;
   taskId: string;
-}
-
-export class TaskAssigneeMap {
-  memberId: string;
-  totalEstimation: number;
-  workingCapacity: number;
-  alreadyLoggedTime: number;
 }
 
 export class GetAllSprintRequestModel extends MongoosePaginateQuery {
@@ -196,8 +189,22 @@ export class UpdateSprintMemberWorkingCapacity extends SprintBaseRequest {
   capacity: Array<{
     memberId: string;
     workingCapacityPerDayReadable?: string;
-    workingCapacity: number,
-    workingCapacityPerDay?: number,
+    workingCapacity: number;
+    workingCapacityPerDay?: number;
     workingDays?: ProjectWorkingDays[];
   }>;
+}
+
+export class SprintFilterTasksModel extends SprintBaseRequest {
+  assigneeIds: string[];
+  query?: string;
+
+  constructor(projectId: string, sprintId: string) {
+    super();
+    this.projectId = projectId;
+    this.sprintId = sprintId;
+
+    this.assigneeIds = [];
+    this.query = '';
+  }
 }

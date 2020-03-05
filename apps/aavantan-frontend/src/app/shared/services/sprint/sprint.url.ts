@@ -14,6 +14,7 @@ export const SprintUrls = {
 
   assignTaskToSprint: createUrl('sprint/assign-tasks'),
   removeTaskToSprint: createUrl('sprint/remove-tasks'),
+  filterTasksInSprint: createUrl('sprint/filter-sprint-tasks'),
 
   moveTaskToStage: createUrl('sprint/move-task'),
   updateWorkingCapacity: createUrl('sprint/update-working-capacity'),
@@ -23,5 +24,5 @@ export const SprintUrls = {
   closeSprint: createUrl('sprint/close-sprint'),
 
   addSingleTask: createUrl('sprint/add-task'),
-  removeSingleTask: createUrl('sprint/remove-task'),
+  removeSingleTask: createUrl('sprint/remove-task')
 };

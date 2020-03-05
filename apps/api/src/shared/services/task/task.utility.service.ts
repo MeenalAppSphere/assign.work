@@ -66,7 +66,7 @@ export class TaskUtilityService {
     taskModel.name = model.name;
     taskModel.projectId = model.projectId;
     taskModel.watchers = model.watchers || [];
-    taskModel.description = model.description;
+    taskModel.description = model.description || '';
     taskModel.tags = model.tags;
 
     taskModel.taskTypeId = model.taskTypeId;
