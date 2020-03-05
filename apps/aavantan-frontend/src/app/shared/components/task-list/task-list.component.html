@@ -71,6 +71,25 @@
     </div>
   </div>
 
+  <div class="m-b-10">
+
+    <div class="row">
+      <div class="col text-right" style="max-width: 320px;">
+
+        <nz-input-group [nzSuffix]="suffixIcon">
+          <input placeholder="Search..." nzSize="small" nz-input
+                 style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
+        </nz-input-group>
+
+        <ng-template #suffixIcon>
+          <i nz-icon nzType="search"></i>
+        </ng-template>
+
+      </div>
+    </div>
+
+  </div>
+
   <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
            [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
 

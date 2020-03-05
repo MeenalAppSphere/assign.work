@@ -1,4 +1,4 @@
-<nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
+<nz-spin nzTip="Loading..." [nzSpinning]="getBacklogTasksInProcess">
   <nz-card
     nzSize="small"
     [nzBordered]="false"
@@ -273,8 +273,8 @@
                    style="height:32px;"/>
           </nz-input-group>
           <ng-template #suffixIcon>
-            <i nz-icon nzType="search" *ngIf="!searchTaskListInProgress"></i>
-            <i class="fas fa-spin fa-spinner" *ngIf="searchTaskListInProgress"></i>
+            <i nz-icon nzType="search"></i>
+            <!--            <i class="fas fa-spin fa-spinner"></i>-->
           </ng-template>
 
         </div>
@@ -294,8 +294,9 @@
         <div>
 
           <!-- backlogs -->
-          <nz-spin [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
-                   [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
+          <nz-spin
+            [nzSpinning]="getBacklogTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+            [nzTip]="backLogTableLoadingTip">
 
             <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
                       [nzData]="backLogTasksList"

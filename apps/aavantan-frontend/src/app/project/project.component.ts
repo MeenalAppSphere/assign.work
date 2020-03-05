@@ -124,6 +124,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
+  public searchMyTasks(term: string) {
+    this.myTaskFilterRequest.query = term;
+    this.myTaskFilterRequest.page = 1;
+    this.myTaskFilterRequest.sort = 'name';
+    this.myTaskFilterRequest.sortBy = 'asc';
+
+    this.getMyTasks();
+  }
+
   public myTaskPageChanged(index: number) {
     this.myTaskFilterRequest.page = index;
     this.getMyTasks();
@@ -134,6 +143,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.myTaskFilterRequest.sortBy = request.type;
 
     this.getMyTasks();
+  }
+
+  public searchAllTasks(term: string) {
+    this.allTaskFilterRequest.query = term;
+    this.allTaskFilterRequest.page = 1;
+    this.allTaskFilterRequest.sort = 'name';
+    this.allTaskFilterRequest.sortBy = 'asc';
+
+    this.getAllTasks();
   }
 
   public allTaskPageChanged(index: number) {

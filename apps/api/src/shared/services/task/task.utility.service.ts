@@ -28,6 +28,7 @@ const taskSchemaKeysMapper = new Map<string, string>([
 ]);
 
 const taskSortingKeysMapper = new Map<string, string>([
+  ['name', 'name'],
   ['createdBy', 'createdBy.name'],
   ['createdById', 'createdBy.name'],
   ['taskType', 'taskType.name'],

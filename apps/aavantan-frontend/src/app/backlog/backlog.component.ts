@@ -47,8 +47,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public unPublishedSprintData: Sprint;
   public teamCapacityModalIsVisible: boolean;
 
-  public getTaskInProcess: boolean;
+  public getBacklogTasksInProcess: boolean;
   public getAllActiveSprintTasksInProcess: boolean;
+  public addTaskToSprintInProgress: boolean;
+  public removeTaskFromSprintInProgress: boolean;
+
+  public backLogTableLoadingTip: string = 'Loading';
 
   public gettingUnpublishedInProcess: boolean;
   public createdSprintId: string = null;
@@ -65,10 +69,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public sprintId: string;
   public sprintDurations: SprintDurationsModel;
 
-  public addTaskToSprintInProgress: boolean;
-  public removeTaskFromSprintInProgress: boolean;
   public selectedTimeLogTask: Task;
-  // public sortingRequest: TaskFilterModel = new TaskFilterModel('');
+
   public backLogTaskRequest: TaskFilterModel;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
@@ -155,21 +157,25 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public async getAllBacklogTask() {
+    this.backLogTableLoadingTip = 'Getting Backlog Tasks...';
+    this.getBacklogTasksInProcess = true;
+    try {
+      const result = await this._taskService.getAllBacklogTasks(this.backLogTaskRequest).toPromise();
 
-    this.getTaskInProcess = true;
-    const result = await this._taskService.getAllBacklogTasks(this.backLogTaskRequest).toPromise();
+      if (result.data) {
+        this.backLogTaskRequest.page = result.data.page;
+        this.backLogTaskRequest.count = result.data.count;
+        this.backLogTaskRequest.totalPages = result.data.totalPages;
+        this.backLogTaskRequest.totalItems = result.data.totalItems;
 
-    if (result.data) {
-      this.backLogTaskRequest.page = result.data.page;
-      this.backLogTaskRequest.count = result.data.count;
-      this.backLogTaskRequest.totalPages = result.data.totalPages;
-      this.backLogTaskRequest.totalItems = result.data.totalItems;
+        this.backLogTasksList = cloneDeep(result.data.items);
+        this.backLogTasksListBackup = cloneDeep(result.data.items);
+      }
 
-      this.backLogTasksList = cloneDeep(result.data.items);
-      this.backLogTasksListBackup = cloneDeep(result.data.items);
+      this.getBacklogTasksInProcess = false;
+    } catch (e) {
+      this.getBacklogTasksInProcess = false;
     }
-
-    this.getTaskInProcess = false;
   }
 
   public async getAllSprintTasks() {
@@ -241,12 +247,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.gettingUnpublishedInProcess = false;
     }
 
-  }
-
-  public onChangeSearch(value: any): void {
-    this.searchTaskListInProgress = true;
-
-    this.searchTaskListInProgress = false;
   }
 
   public countTotalDuration() {
@@ -361,6 +361,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
         adjustHoursAllowed: adjustHoursAllowed
       };
 
+      this.backLogTableLoadingTip = 'Adding Task to Sprint...';
       this.addTaskToSprintInProgress = true;
 
       const data = await this._sprintService.addTaskToSprint(json).toPromise();
@@ -422,6 +423,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
         sprintId: this.sprintId,
         taskId: task.id
       };
+
+      this.backLogTableLoadingTip = 'Removing Task from Sprint...';
       this.removeTaskFromSprintInProgress = true;
       const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
 

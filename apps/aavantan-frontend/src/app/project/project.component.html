@@ -1,24 +1,5 @@
 <!-- section 1 -->
 <section id="project-page">
-  <!--  <nz-card-->
-  <!--    nzSize="small"-->
-  <!--    [nzBordered]="false"-->
-  <!--    nzTitle="Create Backlog Item/Task"-->
-  <!--    [nzExtra]="createTaskBtnTemplate">-->
-  <!--  <ng-template #createTaskBtnTemplate>-->
-  <!--    <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomRight">-->
-  <!--      <button nzType="primary" nzSize="small" nz-button (click)="createTask()">Create New</button>-->
-  <!--      <button nzType="primary" nzSize="small" nz-button>-->
-  <!--        <i nz-icon nzType="down"></i>-->
-  <!--      </button>-->
-  <!--    </nz-button-group>-->
-  <!--    <nz-dropdown-menu #createTaskType="nzDropdownMenu">-->
-  <!--      <ul nz-menu>-->
-  <!--        <li nz-menu-item *ngFor="let item of issueTypes">{{item.label}}</li>-->
-  <!--      </ul>-->
-  <!--    </nz-dropdown-menu>-->
-  <!--  </ng-template>-->
-
 
   <nz-tabset [nzTabBarExtraContent]="tabSwitchTemplate" nzSize="small">
     <nz-tab nzTitle="My Task">
@@ -45,7 +26,7 @@
             </nz-empty>
           </ng-container>
 
-          <ng-container *ngIf="myTaskList && myTaskList.length > 0">
+          <ng-container>
             <aavantan-task-list
               [taskByUser]="'my'"
               [taskList]="myTaskList"
@@ -54,6 +35,7 @@
               [requestModel]="myTaskFilterRequest"
               (pageChangedEvent)="myTaskPageChanged($event)"
               (sortingChangedEvent)="myTaskSortingChanged($event)"
+              (searchEvent)="searchMyTasks($event)"
             ></aavantan-task-list>
           </ng-container>
         </nz-spin>
@@ -84,7 +66,8 @@
               </ng-template>
             </nz-empty>
           </ng-container>
-          <ng-container *ngIf="allTaskList && allTaskList.length > 0">
+
+          <ng-container>
             <aavantan-task-list
               [taskByUser]="'all'"
               [taskList]="allTaskList"
@@ -93,8 +76,10 @@
               [requestModel]="allTaskFilterRequest"
               (pageChangedEvent)="allTaskPageChanged($event)"
               (sortingChangedEvent)="allTaskSortingChanged($event)"
+              (searchEvent)="searchAllTasks($event)"
             ></aavantan-task-list>
           </ng-container>
+
         </nz-spin>
 
       </ng-template>
