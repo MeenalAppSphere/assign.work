@@ -30,7 +30,7 @@
           [nzNotFoundContent]="contentTpl">
           <ng-template #contentTpl>
 
-            <div class="m-b-10"><span>Task Not Found</span></div>
+            <div class="m-b-20"><span>Task Not Found</span></div>
 
             <button
               nz-button
@@ -51,10 +51,9 @@
 
         <div class="clearfix m-b-10 font-size-12">
 
-          <span class="d-inline-block p-t-5"
-                [ngStyle]="{'color': item.taskType && item.taskType.color ? item.taskType.color : '#0667FB'}"
+          <span class="d-inline-block p-t-5 text-primary"
                 [nzTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''"
-                nz-tooltip>#{{item.displayName}}</span>
+                nz-tooltip>{{item.displayName}}</span>
 
           <span class="float-right">
                   <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'" style="text-transform: initial;"
@@ -126,7 +125,7 @@
           [nzNotFoundContent]="contentTpl">
           <ng-template #contentTpl>
 
-            <div class="m-b-10"><span>Task Not Found</span></div>
+            <div class="m-b-20"><span>Task Not Found</span></div>
 
             <button
               nz-button
@@ -223,8 +222,7 @@
 
         <td data-label="Type" class="text-left">
           <span *ngIf="!item.taskType">-</span>
-          <a href="javascript:void(0);" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name"
-             [ngStyle]="{'color': item.taskType.color}">#{{item.displayName}}</a>
+          <a href="javascript:void(0);" class="text-primary" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
         </td>
 
         <td data-label="Title">

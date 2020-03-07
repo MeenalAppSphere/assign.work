@@ -3,7 +3,8 @@ $border: #dddddd;
 $orange-dark: #FF5757;
 $orange-light:#FF941A;
 $theme-blue:#0667FB;
-$theme-blue-hover: #0857fb;
+$theme-blue-hover: #0053D1;
+$theme-blue-selected: #0044AC;
 $side-nav-bg :#EEF4FC;
 $board-card-header: #f7f7f7;
 $board-card-body: #f7f7f7;
@@ -15,6 +16,7 @@ $menu-color:#Cbe3ff;
 $very-light-gray:#F7F7F7;
 $dark-blue-black:#0B1B31;
 $color-gray-light-2:#7A869A;
+$color-gray-light-3:#6E829C;
 $color-green : #42E3A3;
 
 
@@ -47,22 +49,22 @@ $color-green : #42E3A3;
 .ant-radio-button-wrapper-checked {
   color: #ffffff!important;
   box-shadow: none!important;
-  background: #6E829C 0% 0% no-repeat padding-box;
-  border: 1px solid $color-gray-light;
+  background: $color-gray-light-3 0% 0% no-repeat padding-box;
+  border: 1px solid $color-gray-light-3;
 }
 .ant-radio-button-wrapper-checked:first-child {
-  border-color: $color-gray-light;
+  border-color: $color-gray-light-3;
 }
 .ant-radio-button-wrapper:first-child {
-  border-left: 1px solid $color-gray-light;
+  border-left: 1px solid $color-gray-light-3;
 }
 .ant-radio-button-wrapper {
-  border-color: $color-gray-light;
-  color: $color-gray-light;
+  border-color: $color-gray-light-3;
+  color: $color-gray-light-3;
 }
 .ant-radio-button-wrapper:hover {
-  border-color: $color-gray-light;
-  color: $color-gray-light;
+  border-color: $color-gray-light-3;
+  color: $color-gray-light-3;
 }
 
 .ant-pagination-item-active {
@@ -118,13 +120,14 @@ $color-green : #42E3A3;
 }
 
 .is-folded .side-nav {
-  width: 70px;
+  width: 64px;
 }
 .ant-menu{
   background: transparent;
   .ant-menu-item>a{
     color:$menu-color;
     font-weight: 400;
+    font-size: 0.8125rem;
   }
   .ant-menu-item>a:hover{
     color:#fff;
@@ -162,24 +165,24 @@ $color-green : #42E3A3;
 
 .is-folded .header .logo > a {
   padding-bottom: 4px;
-  max-width: 70px;
+  max-width: 64px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 
 @media only screen and (min-width: 992px) {
   .is-folded .header .logo {
-    width: 70px;
+    width: 64px;
   }
   .common-layout.is-folded .page-container {
-    padding-left: 70px;
+    padding-left: 64px;
   }
 }
 
 .ant-menu-root.ant-menu-inline{ // full width
   padding-top: 15px;
-  padding-left: 14px;
-  padding-right: 14px;
+  padding-left: 13px;
+  padding-right: 13px;
 }
 .ant-menu-inline-collapsed>.ant-menu-submenu>.ant-menu-submenu-title {
   padding: 0px!important;
@@ -209,16 +212,17 @@ $color-green : #42E3A3;
 
 
 .ant-menu-inline-collapsed { // collapsed width
-  width: 70px;
+  width: 64px;
   padding-top: 30px;
 }
+
 
 .is-folded {
   .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
     background: rgba(255,255,255, 0.2);
     border-radius: 8px;
-    width: 45px!important;
-    height: 45px;
+    width: 38px !important;
+    height: 38px!important;
     margin: auto;
     margin-bottom: 8px;
   }
@@ -228,6 +232,12 @@ $color-green : #42E3A3;
   border-radius: 8px;
   margin: auto;
 }
+
+.ant-menu-inline > .ant-menu-item {
+  line-height: 38px!important;
+  height: 38px!important;
+}
+
 .ant-menu-inline .ant-menu-item:after {
   border-right: 0px;
 }
@@ -266,8 +276,7 @@ $color-green : #42E3A3;
 }
 
 .ant-btn-primary.disabled, .ant-btn-primary[disabled] {
-  color: rgba(255, 255, 255, 0.75);
-  opacity: 0.7;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .ant-btn>.anticon {
@@ -755,9 +764,9 @@ $color-green : #42E3A3;
 
 .ant-empty-description {
   margin: 0;
-  color: #6E829C;
-  font-size: 20px;
-  font-weight: 300;
+  color: $color-gray-light-3;
+  font-size: 18px;
+  font-weight: 500;
   margin-top: 15px;
 }
 
@@ -922,5 +931,11 @@ $color-green : #42E3A3;
     width: 100%!important;
   }
 
+}
+
+
+:root .ant-dropdown.nz-dropdown {
+  position: absolute!important;
+  max-width: 320px!important;
 }
 

@@ -47,7 +47,7 @@
       <!--col 2 -->
 
 
-      <div class="col-md-8 user-filter-section p-t-5">
+      <div class="col-md-8 user-filter-section p-t-15">
 
         <span *ngIf="boardData && boardData.membersCapacity?.length>0">
 
@@ -93,7 +93,7 @@
       </div>
       <!--col 3 -->
 
-      <div class="col-md-4 p-r-0">
+      <div class="col-md-4 p-r-0 m-t-10">
 
           <div class="sprint-progress-section">
             <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
@@ -167,7 +167,7 @@
                        [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}" [dndDraggable]="task"
                        (dndStart)="onDragStart(item)" [dndEffectAllowed]="'move'">
                     <h6 [ngStyle]="{'color': task.task.taskType.color}">
-                      <span class="cursor-pointer" (click)="viewTask(task.task)">#{{task.task.displayName}}</span>
+                      <span class="cursor-pointer text-primary" (click)="viewTask(task.task)">{{task.task.displayName}}</span>
                       <span class="float-right duration">
                                         <span nz-tooltip [nzTitle]="'Logged time'"
                                               class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>

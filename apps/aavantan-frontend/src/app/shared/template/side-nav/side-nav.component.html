@@ -25,11 +25,11 @@
         <ul nz-menu class="org-menu-items" *ngIf="organizations && organizations.length>0">
 
             <li *ngFor="let item of organizations;" [nzDisabled]="item.id===currentOrganization?.id" nz-menu-item  (click)="switchOrganization(item.id);" class="relative">
-                <p class="font-size-14 d-inline-block text-gray-light m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 130px;" nz-tooltip nzPlacement="right" [nzTitle]="item.name">
+                <p class="font-size-14 d-inline-block text-gray-light m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 95%;">
                     <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
                     {{ item.name }}
                 </p>
-                <i *ngIf="item.id===currentOrganization?.id" class="fas fa-check text-success float-right selected-org-check"></i>
+                <i *ngIf="item.id===currentOrganization?.id" class="fas fa-check text-success float-right selected-org-check p-l-5"></i>
             </li>
 
         </ul>
@@ -38,6 +38,7 @@
 
     <div class="menu-mask">
         <ul class="ant-menu ant-menu-root ant-menu-inline side-nav-menu" [ngClass]="{
+            'ant-menu-inline-collapsed': isFolded,
             'ant-menu-inline-collapsed': isFolded,
             'ant-menu-dark' : isSideNavDark
         }">
@@ -146,13 +147,13 @@
 
     <button nz-button nzType="link" nzGhost style="
     min-width: 40px;
-    padding: 9px!important;
+    padding: 6px 9px!important;
     border: 0px;
     color: #fff;
     background: rgba(255, 255, 255, 0.2)!important;
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;">
-      <i nz-icon nzType="plus" style="font-weight: bolder;font-size:26px;"></i>
+      <i nz-icon nzType="plus" style="font-weight: bolder;font-size:22px;"></i>
       </button>
 
     <button nz-button nzType="link" nzGhost style="
@@ -162,7 +163,7 @@
     border-bottom-right-radius: 8px;
     background: rgba(255, 255, 255, 0.2)!important;
     width: 136px;
-    padding: 10px!important;
+    padding: 8px!important;
     line-height: 22px;
     text-align: left;" >
       Create Task</button>

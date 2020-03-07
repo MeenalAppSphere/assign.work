@@ -193,8 +193,7 @@
 
                   <td data-label="Type" class="text-left">
                     <span *ngIf="!item.taskType">-</span>
-                    <a href="javascript:void(0);" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name"
-                       [ngStyle]="{'color': item.taskType.color}">#{{item.displayName}}</a>
+                    <a href="javascript:void(0);" class="text-primary" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                   </td>
 
                   <td data-label="Title">
@@ -377,8 +376,7 @@
 
                 <td data-label="Type" class="text-left">
                   <span *ngIf="!item.taskType">-</span>
-                  <a href="javascript:void(0);" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name"
-                     [ngStyle]="{'color': item.taskType.color}">#{{item.displayName}}</a>
+                  <a href="javascript:void(0);" class="text-primary" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                 </td>
 
                 <td data-label="Title">
