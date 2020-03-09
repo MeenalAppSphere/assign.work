@@ -24,10 +24,9 @@
 
         <ul nz-menu class="org-menu-items" *ngIf="organizations && organizations.length>0">
 
-            <li *ngFor="let item of organizations;" [nzDisabled]="item.id===currentOrganization?.id" nz-menu-item  (click)="switchOrganization(item.id);" class="relative">
-                <p class="font-size-14 d-inline-block text-gray-light m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 95%;">
-                    <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
-                    {{ item.name }}
+            <li *ngFor="let item of organizations;" [nzDisabled]="item.id===currentOrganization?.id" nz-menu-item  (click)="switchOrganization(item.id);" class="d-inline-flex">
+                <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
+                <p class="font-size-14 d-inline-block text-gray-light m-b-0 p-t-5" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="white-space: normal;width: 80%;">{{ item.name }}
                 </p>
                 <i *ngIf="item.id===currentOrganization?.id" class="fas fa-check text-success float-right selected-org-check p-l-5"></i>
             </li>

@@ -61,7 +61,14 @@
 
 .selected-org-check {
   margin-top: 9px;
-  position: absolute;
+}
+
+.org-menu-items {
+  min-width: 260px;
+  max-width: 300px;
+  li {
+    width: 100%;
+  }
 }
 .org-name{
   position: relative;
