@@ -166,7 +166,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
 
     result.items = result.items.map(task => {
-      return this.parseTaskObjectForUi(task);
+      return this.prepareTaskVm(task);
     });
 
     return result;
@@ -263,7 +263,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       // task is created now send all the mails
       this._utilityService.sendMailForTaskCreated(task, projectDetails);
 
-      return this.parseTaskObjectForUi(task);
+      return this.prepareTaskVm(task);
     } catch (e) {
       throw e;
     }
@@ -399,7 +399,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // send mail for task updated to all the task watchers
       this._utilityService.sendMailForTaskUpdated(task, projectDetails);
-      return this.parseTaskObjectForUi(task);
+      return this.prepareTaskVm(task);
     } catch (e) {
       throw e;
     }
@@ -465,7 +465,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     if (!task) {
       throw new BadRequestException('task not found');
     }
-    return this.parseTaskObjectForUi(task);
+    return this.prepareTaskVm(task);
   }
 
   /**
@@ -473,109 +473,122 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model
    */
   async getTasks(model: TaskFilterModel) {
-    await this._projectService.getProjectDetails(model.projectId);
+    try {
+      await this._projectService.getProjectDetails(model.projectId);
 
-    const queryFilter = this._utilityService.prepareFilterQuery(model);
+      // preapre filter from given model
+      const queryFilter = this._utilityService.prepareFilterQuery(model);
 
-    // check is valid key for sorting...
-    if (model.sort) {
-      model.sort = this._utilityService.validTaskSortingKey(model.sort);
-    } else {
-      model.sort = 'name';
-      model.sortBy = 'asc';
+      // check is valid key for sorting...
+      if (model.sort) {
+        model.sort = this._utilityService.validTaskSortingKey(model.sort);
+      } else {
+        model.sort = 'name';
+        model.sortBy = 'asc';
+      }
+
+      // aggregate query for get all tasks
+      const tasks = await this.dbModel
+        .aggregate()
+        .match(queryFilter)
+        .lookup({
+          from: DbCollection.users,
+          let: { createdById: '$createdById' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$createdById'] } } },
+            { $project: basicUserDetailsForAggregateQuery },
+            { $addFields: { id: '$_id' } }
+          ],
+          as: 'createdBy'
+        })
+        .unwind({ path: '$createdBy', preserveNullAndEmptyArrays: true })
+        .lookup({
+          from: DbCollection.users,
+          let: { updatedById: '$updatedById' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$updatedById'] } } },
+            { $project: basicUserDetailsForAggregateQuery }
+          ],
+          as: 'updatedBy'
+        })
+        .unwind({ path: '$updatedBy', preserveNullAndEmptyArrays: true })
+        .lookup({
+          from: DbCollection.users,
+          let: { assigneeId: '$assigneeId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
+            { $project: basicUserDetailsForAggregateQuery }
+          ],
+          as: 'assignee'
+        })
+        .unwind('assignee')
+        .lookup({
+          from: DbCollection.taskStatus,
+          let: { statusId: '$statusId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
+            { $project: { name: 1 } }
+          ],
+          as: 'status'
+        })
+        .unwind({ path: '$status', preserveNullAndEmptyArrays: true })
+        .lookup({
+          from: DbCollection.taskPriority,
+          let: { priorityId: '$priorityId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$priorityId'] } } },
+            { $project: { name: 1, color: 1 } }
+          ],
+          as: 'priority'
+        })
+        .unwind({ path: '$priority', preserveNullAndEmptyArrays: true })
+        .lookup({
+          from: DbCollection.taskType,
+          let: { taskTypeId: '$taskTypeId' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } },
+            { $project: { name: 1, color: 1 } }
+          ],
+          as: 'taskType'
+        })
+        .unwind('taskType')
+        .addFields({ id: '$_id' })
+        .project({
+          watchers: 0,
+          attachments: 0,
+          comments: 0,
+          isDeleted: 0,
+          relatedItemId: 0,
+          dependentItemId: 0,
+          '__v': 0
+        })
+        .sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 })
+        .skip((model.count * model.page) - model.count)
+        .limit(model.count);
+
+      // query for all counting all matched tasks
+      const countQuery = await this.dbModel.aggregate().match(queryFilter).count('totalRecords');
+      let totalRecordsCount = 0;
+      if (countQuery && countQuery[0]) {
+        totalRecordsCount = countQuery[0].totalRecords;
+      }
+
+      // parse tasks to vm
+      const parsedTasks = tasks.map(task => {
+        return this.prepareTaskVm(task);
+      });
+
+      // return paginated response
+      return {
+        page: model.page,
+        totalItems: totalRecordsCount,
+        totalPages: Math.ceil(totalRecordsCount / model.count),
+        count: model.count,
+        items: parsedTasks
+      };
+    } catch (e) {
+      throw e;
     }
-
-    const result = await this.dbModel
-      .aggregate()
-      .match(queryFilter)
-      .lookup({
-        from: DbCollection.users,
-        let: { createdById: '$createdById' },
-        pipeline: [
-          { $match: { $expr: { $eq: ['$_id', '$$createdById'] } } },
-          { $project: basicUserDetailsForAggregateQuery },
-          { $addFields: { id: '$_id' } }
-        ],
-        as: 'createdBy'
-      })
-      .unwind({ path: '$createdBy', preserveNullAndEmptyArrays: true })
-      .lookup({
-        from: DbCollection.users,
-        let: { updatedById: '$updatedById' },
-        pipeline: [
-          { $match: { $expr: { $eq: ['$_id', '$$updatedById'] } } },
-          { $project: basicUserDetailsForAggregateQuery }
-        ],
-        as: 'updatedBy'
-      })
-      .unwind({ path: '$updatedBy', preserveNullAndEmptyArrays: true })
-      .lookup({
-        from: DbCollection.users,
-        let: { assigneeId: '$assigneeId' },
-        pipeline: [
-          { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
-          { $project: basicUserDetailsForAggregateQuery }
-        ],
-        as: 'assignee'
-      })
-      .unwind('assignee')
-      .lookup({
-        from: DbCollection.taskStatus,
-        let: { statusId: '$statusId' },
-        pipeline: [
-          { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-          { $project: { name: 1 } }
-        ],
-        as: 'status'
-      })
-      .unwind({ path: '$status', preserveNullAndEmptyArrays: true })
-      .lookup({
-        from: DbCollection.taskPriority,
-        let: { priorityId: '$priorityId' },
-        pipeline: [
-          { $match: { $expr: { $eq: ['$_id', '$$priorityId'] } } },
-          { $project: { name: 1, color: 1 } }
-        ],
-        as: 'priority'
-      })
-      .unwind({ path: '$priority', preserveNullAndEmptyArrays: true })
-      .lookup({
-        from: DbCollection.taskType,
-        let: { taskTypeId: '$taskTypeId' },
-        pipeline: [
-          { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } },
-          { $project: { name: 1, color: 1 } }
-        ],
-        as: 'taskType'
-      })
-      .unwind('taskType')
-      .addFields({ id: '$_id' })
-      .project({
-        watchers: 0,
-        attachments: 0,
-        comments: 0,
-        isDeleted: 0,
-        relatedItemId: 0,
-        dependentItemId: 0,
-        '__v': 0
-      })
-      .sort({ [model.sort]: model.sortBy === 'asc' ? 1 : -1 })
-      .skip((model.count * model.page) - model.count)
-      .limit(model.count);
-
-    const countQuery = await this.dbModel.aggregate().match(queryFilter).count('totalRecords');
-    let totalRecordsCount = 0;
-    if (countQuery && countQuery[0]) {
-      totalRecordsCount = countQuery[0].totalRecords;
-    }
-
-    return {
-      page: model.page,
-      totalItems: totalRecordsCount,
-      totalPages: Math.ceil(totalRecordsCount / model.count),
-      count: model.count,
-      items: result
-    };
   }
 
   /**
@@ -687,8 +700,20 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * parse task object, convert seconds to readable string, fill task type, priority, status etc..
    * @param task : Task
    */
-  private parseTaskObjectForUi(task: Task) {
+  private prepareTaskVm(task: Task) {
     task.id = task['_id'];
+
+    if (task.assignee) {
+      task.assignee.id = task.assignee._id;
+    }
+
+    if (task.createdBy) {
+      task.createdBy.id = task.createdBy._id;
+    }
+
+    if (task.updatedBy) {
+      task.updatedBy.id = task.updatedBy._id;
+    }
 
     if (task.taskType) {
       task.taskType.id = task.taskType._id;
