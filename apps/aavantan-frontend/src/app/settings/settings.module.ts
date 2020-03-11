@@ -3,7 +3,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './settings.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
-import { TypeaheadModule } from 'ngx-bootstrap';
+import { SortableModule, TypeaheadModule } from 'ngx-bootstrap';
+import { AddPriorityComponent } from './add-priority/add-priority.component';
+import { AddStatusComponent } from './add-status/add-status.component';
 
 const routes: Routes = [
   { path: '', component: SettingsComponent }
@@ -14,11 +16,16 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     CommonModule,
     SharedModule,
-    TypeaheadModule
+    TypeaheadModule,
+    SortableModule
   ],
-  exports: [],
+  exports: [
+    AddStatusComponent
+  ],
   declarations: [
-    SettingsComponent
+    SettingsComponent,
+    AddStatusComponent,
+    AddPriorityComponent
   ]
 })
 export class SettingsModule {

@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { TaskService } from '../shared/services/task.service';
+import { TaskService } from '../shared/services/task/task.service';
 import {
   AddCommentModel,
   CommentPinModel,
@@ -11,7 +11,7 @@ import {
   GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   Task,
-  TaskFilterDto,
+  TaskFilterModel,
   UpdateCommentModel
 } from '@aavantan-app/models';
 
@@ -27,9 +27,14 @@ export class TaskController {
     return await this._taskService.getAllTasks(model);
   }
 
-  @Post('my-tasks')
-  async getMyTasks(@Body() model: GetMyTaskRequestModel) {
-    return await this._taskService.getMyTask(model);
+  @Post('get-all-my-tasks')
+  async getMyTasks(@Body() filterModel: TaskFilterModel) {
+    return await this._taskService.getMyTask(filterModel);
+  }
+
+  @Post('get-all-backlogs')
+  async getAllBacklogTasks(@Body() filterModel: TaskFilterModel) {
+    return await this._taskService.getAllBacklogs(filterModel);
   }
 
   @Post('add')
@@ -47,38 +52,13 @@ export class TaskController {
     return await this._taskService.deleteTask(model);
   }
 
-  @Post('get-comments')
-  async getComments(@Body() model: GetCommentsModel) {
-    return await this._taskService.getComments(model);
-  }
-
-  @Post('add-comment')
-  async addComment(@Body() model: AddCommentModel) {
-    return await this._taskService.addComment(model);
-  }
-
-  @Post('update-comment')
-  async updateComment(@Body() model: UpdateCommentModel) {
-    return await this._taskService.updateComment(model);
-  }
-
-  @Post('pin-comment')
-  async pinComment(@Body() model: CommentPinModel) {
-    return await this._taskService.pinComment(model);
-  }
-
-  @Post('delete-comment')
-  async deleteComment(@Body() model: DeleteCommentModel) {
-    return await this._taskService.deleteComment(model);
-  }
-
   @Post('get-task')
   async getByIdOrDisplayName(@Body() model: GetTaskByIdOrDisplayNameModel) {
     return this._taskService.getTaskByIdOrDisplayName(model);
   }
 
   @Post('filter')
-  async getTask(@Body() filterModel: TaskFilterDto) {
+  async getTask(@Body() filterModel: TaskFilterModel) {
     return await this._taskService.getTasks(filterModel);
   }
 }

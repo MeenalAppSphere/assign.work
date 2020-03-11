@@ -1,17 +1,21 @@
-import { Organization, Project, User } from '@aavantan-app/models';
+import { Organization } from '@aavantan-app/models';
 import { Injectable } from '@angular/core';
 import { Store, StoreConfig } from '@datorama/akita';
 
 export interface OrganizationState {
   createOrganizationInProcess: boolean;
   createOrganizationSuccess: boolean;
+  switchOrganizationInProcess: boolean;
+  switchOrganizationSuccess: boolean;
   activeOrganization: Organization;
 }
 
 const initialState: OrganizationState = {
   createOrganizationInProcess: false,
   createOrganizationSuccess: false,
-  activeOrganization: null
+  activeOrganization: null,
+  switchOrganizationInProcess: false,
+  switchOrganizationSuccess: false
 };
 
 @Injectable({ providedIn: 'root' })

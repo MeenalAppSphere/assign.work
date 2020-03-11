@@ -4,6 +4,7 @@
 }
 
 #content {
+  border-radius: 8px;
   .ant-btn {
     min-width: 80px;
   }
@@ -12,8 +13,9 @@
   }
   .task-sections{
     border: #d6dada 0px solid;
-    background: #fff;
-    box-shadow: 0px 0px 4px 0px #cecaca;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    box-shadow: 0px 0px 7px 0px #29292924;
+    border-radius: 8px;
     border-radius: 4px;
     margin-bottom: 15px;
   }
@@ -60,7 +62,7 @@
     background: #ffffff;
     padding: 0px;
     border-radius: 4px;
-    box-shadow: 2px 8px 3px -6px #dce0e6;
+    //box-shadow: 2px 8px 3px -6px #dce0e6;
   }
 
 }
@@ -89,7 +91,8 @@
   /* for the animation */
   height: calc(100vh - 80px);
   transition: margin 0.3s ease;
-  box-shadow: -2px 0px 4px -3px #b3b3b3;
+  background: #FFFFFF 0% 0% no-repeat padding-box;
+  box-shadow: 0px 4px 10px #0000001A;
 }
 
 .btn-double-arrow{
@@ -192,7 +195,7 @@
   position: absolute;
   z-index: 1;
   left: 6px;
-  top: 0px;
+  top: -2px;
 }
 
 .assigned-user-input {
@@ -203,3 +206,6 @@
   height: 29px;
 }
 
+.collaborators-badge .ant-avatar {
+  margin-top: -2px;
+}

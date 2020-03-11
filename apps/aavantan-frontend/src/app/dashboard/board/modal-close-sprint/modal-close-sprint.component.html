@@ -1,0 +1,115 @@
+<nz-modal
+  [(nzVisible)]="closeSprintModalIsVisible"
+  [nzTitle]="titleTemp"
+  nzClassName="close-sprint-modal"
+  nzFooter="nzModalFooter"
+  nzWidth="900"
+  [nzStyle]="{ top: '30px' }"
+  nzClosable="false">
+  <div>
+    <div class="row">
+      <div class="col-md-4">
+        <nz-form-item>
+          <nz-form-label nzFor="taskType">Select Stage to move all
+            <img src="../../../assets/images/icons/info.svg" height="12" nz-icon nz-tooltip [nzTitle]="templateTitleText" class="p-l-10"/>
+            <ng-template #templateTitleText>
+              Move all not completed tasks to other Stage
+            </ng-template>
+          </nz-form-label>
+          <nz-form-control class="issue-type-btn-grp">
+            <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight" style="width:100%!important;">
+              <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width:100%!important;">
+                {{selectedStage && selectedStage.name ? selectedStage.name : 'Select Stage'}} <i nz-icon nzType="caret-down" theme="outline"></i>
+              </button>
+            </nz-button-group>
+            <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item *ngFor="let item of stagesDataSource" (click)="selectStage(item)">
+                  {{ item.name }}
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div class="col-md-9">
+
+      </div>
+    </div>
+    <nz-collapse>
+      <nz-collapse-panel
+        *ngFor="let item of boardData.stages;"
+        [nzHeader]="item.stage.name"
+        [nzActive]="true"
+        [nzDisabled]="false"
+        [nzShowArrow]="false">
+        <div *ngIf="item.tasks && item.tasks.length > 0">
+          <nz-table #basicTable [nzData]="item.tasks" [nzShowPagination]="false" [nzScroll]="true ? { y: '200px' } : null">
+            <thead>
+              <tr>
+                <th class="text-center" width="35">#</th>
+                <th class="text-left" style="min-width:115px;">
+                  <span>Priority</span>
+                </th>
+                <th class="text-left" width="155">
+                  <span>Type</span>
+                </th>
+                <th style="min-width: 400px; max-width: 40%;">
+                  <span>Title</span>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let item of basicTable.data; let idx = index">
+                <td data-label="#" width="35" class="text-center">{{ idx + 1 }}.</td>
+                <td data-label="Priority" class="text-left" style="min-width:115px;">
+                  <span *ngIf="item.task && item.task.priority">
+                    <i [ngStyle]="{'border-left': 'solid 3px ' + item.task.priority.color + '', height: '15px'}"></i>
+                  </span>
+                  <i *ngIf="!item.task.priority" [ngStyle]="{'border-left': 'solid 3px #ffffff', height: '15px'}"></i>
+                  <span class="p-l-5">{{item.priority && item.task.priority.name ? item.task.priority.name : '-'}}</span>
+                </td>
+                <td data-label="Type" class="text-left" width="155">
+                  <span *ngIf="!item.task.taskType">-</span>
+                  <span *ngIf="item.task.taskType && item.task.taskType.name" [ngStyle]="{ color: item.task.taskType.color }" >#{{ item.task.displayName }}</span>
+                </td>
+                <td data-label="Title" style="min-width: 400px; max-width: 40%;">
+                  <div class="media align-items-center">
+                    <div class="">
+                      <h6 class="m-b-0">
+                        <p
+                          class="m-0" style="max-width: 400px;" nz-paragraph
+                          nzEllipsis [nzEllipsisRows]="1">
+                          <span class="text-black">{{ item.task.name }}</span>
+                        </p>
+                      </h6>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </nz-collapse-panel>
+    </nz-collapse>
+  </div>
+
+  <div *nzModalFooter>
+    <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">
+      Cancel
+    </button>
+    <button
+      nz-button
+      nzSize="small"
+      nzType="primary"
+      (click)="closeSprint()"
+      [nzLoading]="sprintCloseInProcess"
+    >
+      Close Sprint
+    </button>
+  </div>
+  <ng-template #titleTemp>
+    <span>{{ activeSprintData?.name }}</span>
+  </ng-template>
+</nz-modal>

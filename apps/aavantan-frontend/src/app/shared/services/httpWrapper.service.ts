@@ -87,8 +87,12 @@ export class HttpWrapperService {
       options.headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // options.withCredentials = true;
-    options.headers['Accept-Language'] = this._generalService.userLocale || 'en-Us';
+    // locale header
+    options.headers['Accept-Language'] = navigator.language;
+
+    // time zone offset
+    options.headers['X-Timezone-Offset'] = new Date().getTimezoneOffset().toString();
+
     options.headers['cache-control'] = 'no-cache';
     if (!options.headers['Content-Type']) {
       options.headers['Content-Type'] = 'application/json';

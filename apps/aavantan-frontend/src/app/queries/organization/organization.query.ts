@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Query } from '@datorama/akita';
-import { AuthStore } from '../../store/auth/auth.store';
 import { OrganizationState, OrganizationStore } from '../../store/organization/organization.store';
 
 

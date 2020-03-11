@@ -1,8 +1,15 @@
-import { ProjectWorkingDays } from '@aavantan-app/models';
+import { EmailSubjectEnum, ProjectWorkingDays } from '@aavantan-app/models';
 import * as path from 'path';
 import * as moment from 'moment';
 
-import { DEFAULT_DECIMAL_PLACES, DEFAULT_INVITATION_EXPIRY } from './defaultValueConstant';
+import {
+  DEFAULT_DECIMAL_PLACES,
+  DEFAULT_INVITATION_EXPIRY,
+  DEFAULT_RESET_PASSWORD_CODE_EXPIRY
+} from './defaultValueConstant';
+import { BadRequestException } from '@nestjs/common';
+import { emailSubjectTemplateMapper } from '@aavantan-app/models';
+import { Types } from 'mongoose';
 
 /**
  * converts given string to seconds
@@ -122,9 +129,99 @@ export const emailAddressValidator = (emailId): boolean => {
 /**
  * invitation link expire date checker
  * return true if invitation expired
- * @param timestamp
+ * @param date
  */
-export const isInvitationExpired = (timestamp: number): boolean => {
-  // check if given timestamp is lesser than expiry time
-  return moment.utc(timestamp).isAfter(moment.utc(timestamp).add(DEFAULT_INVITATION_EXPIRY));
+export const isInvitationExpired = (date: Date): boolean => {
+  // check if given date is lesser than expiry time
+  return moment.utc(date).add(DEFAULT_INVITATION_EXPIRY, 's').isBefore(moment.utc());
+};
+
+/**
+ * check whether reset password code expired or not
+ * @param date
+ */
+export const isResetPasswordCodeExpired = (date: Date): boolean => {
+  return moment.utc(date).add(DEFAULT_RESET_PASSWORD_CODE_EXPIRY, 's').isBefore(moment.utc());
+};
+
+/**
+ * return's new utc date
+ */
+export const generateUtcDate = (): Date => {
+  return moment.utc().toDate();
+};
+
+/**
+ * generate random alphanumeric code up to given digit
+ * @param digit
+ */
+export const generateRandomCode = (digit: number = 6) => {
+  return Math.random().toString(36).substring(2, digit + 2);
+};
+
+/**
+ * generate's an unique uuid based on utc time stamp
+ */
+export const generateUUId = () => {
+  return moment.utc().valueOf();
+};
+
+/**
+ * throw new bad request exception
+ * @param msg
+ * @constructor
+ */
+export const BadRequest = (msg: string) => {
+  throw new BadRequestException(msg);
+};
+
+/**
+ * check is valid string or not
+ * @param term
+ * @param whiteSpaceAllowed
+ */
+export const isValidString = (term: string, whiteSpaceAllowed: boolean = false) => {
+  if (whiteSpaceAllowed) {
+    return /^[A-Za-z\s*]+$/.test(term);
+  } else {
+    return /^[A-Za-z]+$/.test(term);
+  }
+};
+
+/**
+ * helper function to convert _id to id in aggregate query
+ */
+export const aggregateConvert_idToId = { $addFields: { id: '$_id' } };
+
+/**
+ * get user mentioned id's from strin
+ * @param str
+ */
+export const getMentionedUsersFromString = (str: string = ''): string[] => {
+  const parsedMentions = str.match(/data-id="\w*"/g);
+  if (parsedMentions) {
+    return parsedMentions.map(mention => {
+      mention = mention.replace('data-id="', '').replace('"', '');
+      return mention;
+    });
+  } else {
+    return [];
+  }
+};
+
+/**
+ * get email template path using email subject
+ * @param subject
+ */
+export const getEmailTemplateFromEmailSubject = (subject: EmailSubjectEnum) => {
+  const mapper = emailSubjectTemplateMapper();
+  return mapper.get(subject);
+};
+
+/**
+ * converts a normal id to objectId
+ * @param id
+ */
+export const toObjectId = (id: string | number): Types.ObjectId => {
+  return new Types.ObjectId(id);
 };

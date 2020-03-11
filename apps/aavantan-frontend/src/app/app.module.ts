@@ -16,6 +16,7 @@ import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
 import { ServiceModule } from './shared/services/service.module';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
+import { DndModule } from 'ngx-drag-drop';
 
 
 registerLocaleData(en);
@@ -45,8 +46,8 @@ export function provideConfig() {
     ServiceModule.forRoot(),
     environment.production ? [] : AkitaNgDevtools.forRoot(),
     EditorModule,
-    SocialLoginModule
-
+    SocialLoginModule,
+    DndModule
   ],
   providers: [
     {

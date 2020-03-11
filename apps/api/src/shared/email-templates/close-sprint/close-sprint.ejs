@@ -1,0 +1,56 @@
+<div style="padding:50px; background:#f5f5f5; width:100%;">
+
+  <div style="width:400px; background:#fdfdfd; margin:auto; border:1px solid #ebebeb;border-radius:5px;">
+
+    <table style="width:100%; border:0px;border-collapse: collapse;font-family: 'Lato','Helvetica Neue',Helvetica,Arial,sans-serif; ">
+
+      <tr style="color:#ffffff">
+        <td colspan="2" style="text-align:center; padding:20px;">
+          <img alt="Assign.Work" height="40" src="http://assign.work/assets/images/logo/logo.png">
+        </td>
+      </tr>
+
+      <tr>
+        <td colspan="2" style="background:#0857fb; text-align:center; padding:20px;">
+          <span style="color:white; font-size:20px;">CLOSE SPRINT</span>
+        </td>
+      </tr>
+
+      <tr>
+        <td colspan="2" style="color:#6E829C; font-size:15px; padding:20px 20px 20px 20px;">
+          <p style="line-height:1.5;">
+
+            Dear <%= user.firstName %> <%= user.lastName %>,<br>
+            Sprint Named :- <b> <%= sprint.name %> With Goal :- <%= sprint.goal %></b> has been closed!<br>
+
+            Please find sprint details as follows
+            <br>
+            <span> Total Estimation  :- <%= sprint.totalEstimationReadable %> </span>
+
+            <br>
+            <span> Total Logged time :- <%= sprint.totalLoggedTimeReadable %> </span>
+
+            <br>
+            <span> Total Remaining time :- <%= sprint.totalRemainingTimeReadable %> </span>
+
+            <br>
+            <span> Total Over Logged time :- <%= sprint.totalOverLoggedTimeReadable %> </span>
+
+            <br>
+            <span> Progress :- <%= sprint.progress %> %</span>
+            <br>
+
+            <span> OverProgress :- <%= sprint.overProgress %> %</span>
+            <br>
+
+          </p>
+          <br>
+          <p style="line-height:1.5;">
+            Thanks!<br>
+            The Assign.Work Team
+          </p>
+        </td>
+
+    </table>
+  </div>
+</div>

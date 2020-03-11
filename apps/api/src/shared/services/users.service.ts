@@ -3,24 +3,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DbCollection, MongoosePaginateQuery, Project, SearchUserModel, User } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, QueryFindOneAndUpdateOptions, Types } from 'mongoose';
 import { BaseService } from './base.service';
-import { ProjectService } from './project.service';
+import { ProjectService } from './project/project.service';
 import { slice } from 'lodash';
 import { GeneralService } from './general.service';
 import { secondsToHours } from '../helpers/helpers';
+import { SprintUtilityService } from './sprint/sprint.utility.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> {
+  private _sprintUtilityService: SprintUtilityService;
+
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
               @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService,
               private _generalService: GeneralService) {
     super(_userModel);
-  }
 
-  async getAllWithPagination() {
-    const query = new Query();
-    const paginationRequest = new MongoosePaginateQuery();
-    paginationRequest.populate = 'projects';
-    return await this.getAllPaginatedData({}, paginationRequest);
+    this._sprintUtilityService = new SprintUtilityService();
   }
 
   /**
@@ -49,19 +47,30 @@ export class UsersService extends BaseService<User & Document> {
     });
   }
 
-  async createUser(user: Partial<User> | Array<Partial<User>>, session: ClientSession) {
+  /**
+   * create new user
+   * @param user
+   * @param session
+   */
+  async createUser(user: Partial<User & Document> | Array<Partial<User & Document>>, session: ClientSession) {
     return await this.create(user, session);
   }
 
+  /**
+   * update user
+   * @param id
+   * @param user
+   * @param session
+   */
   async updateUser(id: string, user: any, session?: ClientSession) {
     if (session) {
-      return await this.update(id, user, session);
+      return await this.updateById(id, user, session);
     } else {
       session = await this._userModel.db.startSession();
       session.startTransaction();
 
       try {
-        const result = await this.update(id, user, session);
+        const result = await this.updateById(id, user, session);
         await session.commitTransaction();
         session.endSession();
         return result;
@@ -73,15 +82,22 @@ export class UsersService extends BaseService<User & Document> {
     }
   }
 
+  /**
+   * get user profile
+   * @param id
+   */
   async getUserProfile(id: string) {
     const userDetails = await this._userModel.findById(new Types.ObjectId(id))
       .populate([{
         path: 'projects',
-        select: 'name description organization createdAt createdBy updatedAt',
-        populate: {
+        select: 'name description organizationId createdAt createdById updatedAt',
+        populate: [{
           path: 'createdBy',
           select: 'firstName lastName'
-        },
+        }, {
+          path: 'organization',
+          select: 'name description displayName logoUrl'
+        }],
         options: {
           sort: { 'updatedAt': -1 }
         }
@@ -95,17 +111,20 @@ export class UsersService extends BaseService<User & Document> {
         },
         {
           path: 'currentProject',
-          select: 'name description members settings template createdBy updatedBy sprintId',
+          select: 'name description organizationId members settings template createdById updatedBy sprintId activeBoardId',
           justOne: true,
           populate: [{
             path: 'members.userDetails',
             select: 'firstName lastName emailId userName profilePic sprintId'
           }, {
             path: 'sprint',
-            select: 'name goal'
+            select: 'name goal totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime'
           }, {
             path: 'createdBy',
             select: 'firstName lastName'
+          }, {
+            path: 'organization',
+            select: 'name description displayName logoUrl'
           }]
         }, {
           path: 'currentOrganization',
@@ -122,13 +141,14 @@ export class UsersService extends BaseService<User & Document> {
     if (userDetails.currentProject) {
       userDetails.currentProject.id = userDetails.currentProject._id.toString();
       userDetails.currentProject = this.parseProjectToVm(userDetails.currentProject);
+
+      if (userDetails.currentProject.sprint) {
+        userDetails.currentProject.sprint.id = userDetails.currentProject.sprint._id;
+        this._sprintUtilityService.calculateSprintEstimates(userDetails.currentProject.sprint);
+      }
     }
 
     if (userDetails.currentOrganization) {
-      userDetails.currentOrganization.id = userDetails.currentOrganization._id.toString();
-      userDetails.currentOrganizationId = userDetails.currentOrganization.id;
-    } else if (userDetails.organizations.length) {
-      userDetails.currentOrganization = userDetails.organizations[0];
       userDetails.currentOrganization.id = userDetails.currentOrganization._id.toString();
       userDetails.currentOrganizationId = userDetails.currentOrganization.id;
     }
@@ -146,11 +166,11 @@ export class UsersService extends BaseService<User & Document> {
       const userProjects =
         slice(
           userDetails.projects
-            .filter(f => f.organization.toString() === userDetails.currentOrganizationId)
+            .filter(f => f.organizationId.toString() === userDetails.currentOrganizationId)
             .filter(f => f._id.toString() !== userDetails.currentProject.id),
           0, 1
         ).map((pro: any) => {
-          pro.id = pro._id;
+          pro.id = pro._id.toString();
           return pro;
         });
 
@@ -165,14 +185,40 @@ export class UsersService extends BaseService<User & Document> {
       // sort by updated at
       // limit only recent two organization
 
-      userDetails.organizations =
-        slice(
-          userDetails.organizations
-            .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString()), 0, 2
-        ).map((org: any) => {
-          org.id = org._id;
-          return org;
+      const userOrganizations =
+        userDetails.organizations
+          .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString())
+          .map((org: any) => {
+            org.id = org._id.toString();
+            return org;
+          });
+
+      // add current organization at first index of recent project list
+      if (userDetails.currentOrganization) {
+        userOrganizations.splice(0, 0, userDetails.currentOrganization);
+      }
+      userDetails.organizations = userOrganizations;
+    } else {
+      /*
+      * check if user have projects and organizations
+      * this will be only possible when user have pending invitations
+      */
+
+      // projects
+      if (userDetails.projects && userDetails.projects.length) {
+        userDetails.projects = userDetails.projects.map(project => {
+          project.id = project._id.toString();
+          return project;
         });
+      }
+
+      // organizations
+      if (userDetails.organizations && userDetails.organizations) {
+        userDetails.organizations = userDetails.organizations.map(organization => {
+          organization.id = organization._id.toString();
+          return organization;
+        });
+      }
     }
     return userDetails;
   }
@@ -190,10 +236,6 @@ export class UsersService extends BaseService<User & Document> {
     delete model.organizations;
     delete model.projects;
     delete model.lastLoginProvider;
-  }
-
-  async findOrUpdateUser(filter: any, user: Partial<User>, options: QueryFindOneAndUpdateOptions) {
-    return this._userModel.findOneAndUpdate(filter, user, options);
   }
 
   /**

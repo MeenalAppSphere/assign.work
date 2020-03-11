@@ -6,8 +6,6 @@
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app/app.module';
-import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
-import { GenericExceptionFilter } from './shared/exceptionFilters/generic.exceptionFilter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -15,9 +13,6 @@ async function bootstrap() {
   app.enableCors();
   const globalPrefix = 'api';
 
-  // app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
-  app.useGlobalInterceptors(new ResponseInterceptor());
-  app.useGlobalFilters(new GenericExceptionFilter());
   app.setGlobalPrefix(globalPrefix);
 
   const swaggerOptions  = new DocumentBuilder()

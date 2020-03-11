@@ -1,32 +1,37 @@
-<div class="container-fluid h-100">
-  <div class="d-flex h-100 p-v-15 flex-column justify-content-between">
-    <div class="d-none d-md-flex p-h-40">
-      <img src="assets/images/logo/logo.svg" alt="Assign.Work" height="50"/>
+<div class="container-fluid h-100" style="border-bottom: #024880 5px solid;">
+  <div class="d-flex h-100 flex-column">
+
+    <div class="row">
+      <div class="col-md-4 p-t-40 p-h-90 bg-white logo-col">
+        <img src="assets/images/logo/logo.svg" alt="Assign.Work"/>
+      </div>
+      <div class="col-md-8 p-t-30 p-h-40 text-right menu-header">
+        <div>
+          <a href="">About Us</a>
+          <a href="">Pricing</a>
+          <a href="">Supports</a>
+        </div>
+      </div>
     </div>
 
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-md-6 d-none d-md-block">
-          <img
-            class="img-fluid"
-            src="assets/images/others/sign-up-2.png"
-            alt=""
-          />
-        </div>
 
-        <div class="m-l-auto col-md-5">
-          <nz-card>
-            <h2 class="m-t-20">Forgot?</h2>
-            <p class="m-b-30">
+    <div class="row" style="height:calc(100vh - 90px);">
+
+
+        <div class="col-md-4 bg-white relative" [ngClass]="!(isForgotPasswordSuccess | async) ? 'p-t-90' : 'p-t-30'">
+          <nz-card class="p-h-60" nzBordered="false">
+            <h2 class="m-t-20">Forgot Password?</h2>
+            <p class="m-b-30 text-black-dark font-size-13">
               Enter your registered email to get reset password
             </p>
 
-            <form
-              autocomplete="off"
-              nz-form
-              [formGroup]="forgotForm"
-              class="login-form"
-              (ngSubmit)="submitForm()">
+            <form *ngIf="!(isForgotPasswordSuccess | async)"
+                  autocomplete="off"
+                  nz-form
+                  [formGroup]="forgotPasswordForm"
+                  class="login-form"
+                  (ngSubmit)="forgotPassword()">
+
               <nz-form-item>
                 <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
                 <nz-form-control>
@@ -44,9 +49,10 @@
 
                   <nz-form-explain
                     *ngIf="
-                      forgotForm.get('emailId').dirty &&
-                      forgotForm.get('emailId').errors
-                    ">Please input your email!</nz-form-explain>
+                      forgotPasswordForm.get('emailId').dirty &&
+                      forgotPasswordForm.get('emailId').errors
+                    ">Please input your email!
+                  </nz-form-explain>
                 </nz-form-control>
               </nz-form-item>
 
@@ -55,12 +61,12 @@
                   <div
                     class="d-flex align-items-center justify-content-between">
                     <span class="font-size-13 text-muted"
-                      >Have an account?
+                    >Have an account?
                       <a class="small" [routerLink]="['/login']">
                         Signin</a></span>
                     <button
-                      [disabled]="forgotForm.invalid"
-                      [nzLoading]="loading"
+                      [disabled]="forgotPasswordForm.invalid || (isForgotPasswordInProcess | async)"
+                      [nzLoading]="isForgotPasswordInProcess | async"
                       nz-button
                       class="login-form-button"
                       [nzType]="'primary'">
@@ -69,14 +75,135 @@
                   </div>
                 </nz-form-control>
               </nz-form-item>
-              <nz-form-item *ngIf="responseMessage && responseMessage.message" >
+
+              <nz-form-item *ngIf="responseMessage && responseMessage.message">
                 <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
               </nz-form-item>
+
+            </form>
+
+            <form *ngIf="(isForgotPasswordSuccess | async) && !(isResetPasswordSuccess | async)"
+                  autocomplete="off"
+                  nz-form
+                  [formGroup]="resetPasswordForm"
+                  class="login-form"
+                  (ngSubmit)="resetPassword()">
+
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="resetCode">Code</nz-form-label>
+                <nz-form-control>
+                  <input
+                    type="text"
+                    nz-input
+                    formControlName="code"
+                    placeholder="Code"
+                    autocomplete="none"
+                    nzSize="small"
+                    id="resetCode"
+                    maxlength="100"
+                    required
+                  />
+
+                  <nz-form-explain
+                    *ngIf="
+                      resetPasswordForm.get('code').dirty &&
+                      resetPasswordForm.get('code').errors
+                    ">Please input your code!
+                  </nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="resetEmailId">Email</nz-form-label>
+                <nz-form-control>
+                  <input
+                    type="email"
+                    nz-input
+                    formControlName="emailId"
+                    placeholder="Email"
+                    autocomplete="none"
+                    nzSize="small"
+                    id="resetEmailId"
+                    maxlength="100"
+                    required
+                  />
+
+                  <nz-form-explain
+                    *ngIf="
+                      resetPasswordForm.get('emailId').dirty &&
+                      resetPasswordForm.get('emailId').errors
+                    ">Please input your email!
+                  </nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-label nzRequired nzFor="resetPassword">Password</nz-form-label>
+                <nz-form-control>
+                  <input
+                    type="password"
+                    nz-input
+                    formControlName="password"
+                    placeholder="Password"
+                    autocomplete="none"
+                    nzSize="small"
+                    id="resetPassword"
+                    maxlength="100"
+                    required
+                  />
+
+                  <nz-form-explain
+                    *ngIf="
+                      resetPasswordForm.get('password').dirty &&
+                      resetPasswordForm.get('password').errors
+                    ">Please input your password!
+                  </nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item>
+                <nz-form-control>
+                  <div
+                    class="d-flex align-items-center justify-content-between">
+                    <span class="font-size-13 text-muted"
+                    >Have an account?
+                      <a class="small" [routerLink]="['/login']">
+                        Signin</a></span>
+                    <button
+                      [disabled]="resetPasswordForm.invalid || (isResetPasswordInProcess | async)"
+                      [nzLoading]="isResetPasswordInProcess | async"
+                      nz-button
+                      class="login-form-button"
+                      [nzType]="'primary'">
+                      Submit
+                    </button>
+                  </div>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item *ngIf="responseMessage && responseMessage.message">
+                <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
+              </nz-form-item>
+
             </form>
 
           </nz-card>
         </div>
-      </div>
+
+        <div class="col-md-8 p-h-40 p-t-20">
+          <img
+            *ngIf="!(isForgotPasswordSuccess | async)"
+            class="img-fluid"
+            src="assets/images/others/forgot_wall.svg"
+            alt="" />
+          <img
+            *ngIf="(isForgotPasswordSuccess | async) && !(isResetPasswordSuccess | async)"
+            class="img-fluid"
+            src="assets/images/others/otp_wall.svg"
+            alt="" />
+        </div>
+
+
     </div>
 
     <div class="d-none d-md-flex  p-h-40 justify-content-between">

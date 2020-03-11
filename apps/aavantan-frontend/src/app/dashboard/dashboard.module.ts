@@ -14,6 +14,13 @@ import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 import { JoyrideModule } from 'ngx-joyride';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-sprint.component';
+import { DndModule } from 'ngx-drag-drop';
+import { BoardDesignComponent } from './board-design/board-design.component';
+import { SettingsModule } from '../settings/settings.module';
+import { AssignUserComponent } from './board-design/assign-user/assign-user.component';
+import { HiddenStatusComponent } from './board-design/hidden-status/hidden-status.component';
+import { HighchartsChartModule } from 'highcharts-angular';
 
 @NgModule({
   imports: [
@@ -25,7 +32,10 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
     SortableModule.forRoot(),
     PopoverModule.forRoot(),
     JoyrideModule.forRoot(),
-    NzToolTipModule
+    NzToolTipModule,
+    DndModule,
+    SettingsModule,
+    HighchartsChartModule
   ],
   exports: [
   ],
@@ -35,7 +45,11 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
     BoardComponent,
     ActivesprintComponent,
     PermissionsComponent,
-    CollaboratorsComponent
+    CollaboratorsComponent,
+    CloseSprintComponent,
+    BoardDesignComponent,
+    AssignUserComponent,
+    HiddenStatusComponent
   ],
   providers: [
     ThemeConstantService,

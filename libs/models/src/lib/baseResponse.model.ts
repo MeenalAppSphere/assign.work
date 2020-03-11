@@ -4,6 +4,7 @@ export class BaseResponseModel<T> {
   public data: T;
   public errors: BaseErrorMessageClass[];
   public message: string;
+  public logLink?: string;
 }
 
 export class BasePaginatedResponse<P> {

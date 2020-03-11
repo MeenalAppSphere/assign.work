@@ -1,15 +1,10 @@
 import { ClientSession, Document, DocumentQuery, Model, Types } from 'mongoose';
 import { BasePaginatedResponse, MongoosePaginateQuery, MongooseQueryModel } from '@aavantan-app/models';
-import { DEFAULT_QUERY_FILTER } from '../helpers/defaultValueConstant';
-
-const myPaginationLabels = {
-  docs: 'items',
-  limit: 'count',
-  page: 'page',
-  totalDocs: 'totalItems',
-  totalPages: 'totalPages'
-};
-
+import {
+  DEFAULT_PAGINATED_ITEMS_COUNT,
+  DEFAULT_QUERY_FILTER,
+  MAX_TRANSACTION_RETRY_TIMEOUT
+} from '../helpers/defaultValueConstant';
 
 export class BaseService<T extends Document> {
   constructor(private model: Model<T>) {
@@ -51,9 +46,14 @@ export class BaseService<T extends Document> {
     return await this.model.create(doc, { session });
   }
 
-  public async update(id: string, updatedDoc: any, session: ClientSession): Promise<T> {
+  public async updateById(id: string, updatedDoc: any, session: ClientSession): Promise<T> {
     return await this.model
       .updateOne({ _id: id }, updatedDoc, { session }).exec();
+  }
+
+  public async update(condition: any, updatedDoc: any, session: ClientSession): Promise<T> {
+    return await this.model
+      .updateOne(condition, updatedDoc, { session }).exec();
   }
 
   public async bulkUpdate(filter: any, updatedDoc: any, session: ClientSession) {
@@ -62,7 +62,7 @@ export class BaseService<T extends Document> {
   }
 
   public async getAllPaginatedData(filter: any = {}, options: Partial<MongoosePaginateQuery> | any): Promise<BasePaginatedResponse<any>> {
-    options.count = options.count || 20;
+    options.count = options.count || DEFAULT_PAGINATED_ITEMS_COUNT;
     options.page = options.page || 1;
 
     const query = this.model
@@ -148,6 +148,52 @@ export class BaseService<T extends Document> {
   public async abortTransaction(session: ClientSession) {
     await session.abortTransaction();
     session.endSession();
+  }
+
+  /**
+   * retry failed session implementation
+   * accepts a function which get's called inside a while loop
+   * if an error occurs regarding transaction error then it will try to rerun the session
+   * and if there any errors which are not type of transaction error then it will throw and log error
+   * @param txnFn
+   */
+  async withRetrySession(txnFn: Function) {
+    const startTime = Date.now();
+    while (true) {
+      // create a session
+      const session = await this.startSession();
+      try {
+        // execute requested function
+        const result = await txnFn(session);
+        // if all seems good commit transaction
+        await this.commitTransaction(session);
+        // return result
+        return result;
+      } catch (e) {
+        // if error type is TransientTransactionError then try to re commit the session
+        const isTransientError = e.errorLabels && e.errorLabels.includes('TransientTransactionError') && this.hasNotTimedOut(startTime, MAX_TRANSACTION_RETRY_TIMEOUT);
+        const isCommitError = e.errorLabels && e.errorLabels.includes('UnknownTransactionCommitResult') && this.hasNotTimedOut(startTime, MAX_TRANSACTION_RETRY_TIMEOUT);
+
+        if (!isTransientError || !isCommitError) {
+          // if not transaction error then throw it away
+          await this.handleError(session, e);
+        }
+      }
+    }
+  }
+
+  /**
+   * check whether max transaction timed out or not
+   * @param startTime
+   * @param max
+   */
+  private hasNotTimedOut(startTime, max) {
+    return Date.now() - startTime < max;
+  }
+
+  protected async handleError(session, err) {
+    await this.abortTransaction(session);
+    throw err;
   }
 
   private queryBuilder(model: MongooseQueryModel, query: DocumentQuery<any, any>) {

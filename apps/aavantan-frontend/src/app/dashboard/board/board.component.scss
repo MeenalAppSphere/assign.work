@@ -1,10 +1,14 @@
-.sprint-button {
+.sprint-name-button {
   background: none!important;
+  height: 40px;
   font-size: 24px!important;
   color: #111111;
   padding: 0px!important;
   box-shadow: none;
-  margin-top: 7px;
+  margin-top: 0px;
+  white-space: nowrap;
+  float: left;
+  margin-top: -2px;
   &:hover{
     background: none!important;
   }
@@ -12,10 +16,47 @@
     font-size: 15px!important;
   }
 }
-.btn-add-task{
-  //padding: 13px 25px 13px 24px!important;
-  //font-size: 14px!important;
+.w-45px{
+  width: 45px;
 }
+
+.status-tag {
+  border-radius: 4px;
+  font-size: 12px;
+  height: 1.25rem;
+  line-height: 1.25rem;
+}
+
+.dndList {
+
+  transition: all 300ms ease;
+
+  &.dndDragover {
+
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+.dndDragging {
+
+  border: 1px solid green;
+}
+
+.dndDraggingSource {
+  display: none;
+}
+
+.dndPlaceholder {
+  border: 2px dashed #c3c3c3;
+  line-height: 95px;
+  color: #c3c3c3;
+  text-align: center;
+  min-height: 105px;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
 /* old design
 .collaborators-avatar{
   padding: 8px;

@@ -12,10 +12,26 @@ import { TaskHistoryModule } from '../task-history/task-history.module';
 import { TaskTimeLogModule } from '../task-time-log/task-time-log.module';
 import { SprintModule } from '../sprint/sprint.module';
 import * as aws from 'aws-sdk';
+import { InvitationsModule } from '../invitations/invitations.module';
+import { PublicModule } from '../public/public.module';
+import { TaskStatusModule } from '../task-status/task-status.module';
+import { WorkflowModule } from '../workflow/workflow.module';
+import { TaskPriorityModule } from '../task-priority/task-priority.module';
+import { TaskTypeModule } from '../task-type/task-type.module';
+import { BoardModule } from '../board/board.module';
+import { TaskCommentModule } from '../task-comment/task-comment.module';
+import { environment } from '../environments/environment';
+
+// set db connection string on basis of environment
+const dbConnectionString = environment.production ? process.env.DB_CONNECTION_STRING_PROD : process.env.DB_CONNECTION_STRING_DEV;
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://appsphere:use588mead@cluster0-shard-00-00-fdpyz.mongodb.net:27017,cluster0-shard-00-01-fdpyz.mongodb.net:27017,cluster0-shard-00-02-fdpyz.mongodb.net:27017/AavantanCADB?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority'),
+    MongooseModule.forRoot(dbConnectionString, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true
+    }),
     SharedModule,
     AuthModule,
     UsersModule,
@@ -25,10 +41,17 @@ import * as aws from 'aws-sdk';
     TaskHistoryModule,
     AttachmentModule,
     TaskTimeLogModule,
-    SprintModule
+    SprintModule,
+    InvitationsModule,
+    PublicModule,
+    TaskStatusModule,
+    TaskPriorityModule,
+    TaskTypeModule,
+    WorkflowModule,
+    BoardModule,
+    TaskCommentModule
   ],
-  controllers: [],
-  providers: []
+  controllers: []
 })
 export class AppModule {
 

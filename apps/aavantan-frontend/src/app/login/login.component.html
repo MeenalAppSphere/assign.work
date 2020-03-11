@@ -5,7 +5,7 @@
       <div class="col-md-4 p-t-40 p-h-90 bg-white logo-col">
         <img src="assets/images/logo/logo.svg" alt="Assign.Work"/>
       </div>
-      <div class="col-md-8 p-t-30 p-h-40 bg-light text-right menu-header">
+      <div class="col-md-8 p-t-30 p-h-40  text-right menu-header">
         <div>
           <a href="">About Us</a>
           <a href="">Pricing</a>
@@ -14,12 +14,14 @@
       </div>
     </div>
 
+    <div class="border-sep"></div>
+
 
     <div class="row" style="height:calc(100vh - 90px);">
       <div class="col-md-4 p-t-30 bg-white relative">
         <nz-card class="p-h-60" nzBordered="false">
 
-          <p class="m-b-0">Welcome to</p>
+          <p class="m-b-0 text-black">Welcome to</p>
           <h2 class="m-b-25 font-weight-bold">Assign.Work</h2>
 
           <form
@@ -60,7 +62,7 @@
                 </nz-input-group>
               </nz-form-control>
               <a class="float-right font-size-12 m-t-5 text-primary"
-                 [routerLink]="['/forgot']">Forget Password?</a>
+                 [routerLink]="['/forgot']">Forgot Password?</a>
             </nz-form-item>
             <nz-form-item *ngIf="responseMessage && responseMessage.message" >
               <span [ngClass]="'text-'+responseMessage.type">{{responseMessage.message}}</span>
@@ -93,38 +95,43 @@
               <img class="btn-google" src="../../assets/images/icons/btn-google.svg" width="100%" (click) = 'loginWithGoogle()'>
             </div>
           </div>
-          <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>
-          <ng-template #prefixLock><i nz-icon nzType="lock"></i></ng-template>
+          <ng-template #prefixUser><i nz-icon nzType="mail" class="text-black"></i></ng-template>
+          <ng-template #prefixLock><i nz-icon nzType="lock" class="text-black"></i></ng-template>
         </nz-card>
 
         <div class="p-h-90 signup-link" style="position: absolute; bottom:20px; width: 100%;">Don't have an account? <a class="small font-weight-bold" [routerLink]="['/register']">Signup</a></div>
 
       </div>
-      <div class="col-md-8 p-h-40 p-t-20 bg-light login-wall">
-        <h2 class="text-black m-b-30">Advance Feature</h2>
-        <ul class="list-unstyled login-features-list">
-          <li class="media">
-            <img src="../../assets/images/icons/feature_1.svg" class="mr-3" alt="Feature 1">
-            <div class="media-body">
-              <h5 class="mt-0 mb-0">List-based media object</h5>
-              Lorem ipsum is placeholder text commonly used in the graphic
-            </div>
-          </li>
-          <li class="media my-4">
-            <img src="../../assets/images/icons/feature_2.svg" class="mr-3" alt="Feature 2">
-            <div class="media-body">
-              <h5 class="mt-0 mb-0">List-based media object</h5>
-              Lorem ipsum is placeholder text commonly used in the graphic
-            </div>
-          </li>
-          <li class="media">
-            <img src="../../assets/images/icons/feature_3.svg" class="mr-3" alt="Feature 3">
-            <div class="media-body">
-              <h5 class="mt-0 mb-0">List-based media object</h5>
-              Lorem ipsum is placeholder text commonly used in the graphic
-            </div>
-          </li>
-        </ul>
+      <div class="col-md-8 p-h-40 p-t-10 login-gradient">
+
+        <div class="login-wall">
+          <h1 class="text-black m-b-30 font-weight-semibold">A SIMPLE PRODUCTIVTY & BUDGETING TOOL</h1>
+
+          <ul class="list-unstyled login-features-list">
+            <li class="media m-b-4">
+              <img src="../../assets/images/icons/feature_1.svg" class="mr-3" alt="Feature 1">
+              <div class="media-body">
+                <h5 class="mt-0 mb-0">Have Complete Control on the Tasks</h5>
+                 Simple way to track all your tasks in your own personalized Board
+              </div>
+            </li>
+            <li class="media m-b-4 pt-3">
+              <img src="../../assets/images/icons/feature_2.svg" class="mr-3" alt="Feature 2">
+              <div class="media-body">
+                <h5 class="mt-0 mb-0">Be a Sprinter and Win</h5>
+                Work AGILE and Win, thats the way these days. Assign.Work Helps you to create<br>and maintain Sprint at much ease.
+              </div>
+            </li>
+            <li class="media">
+              <img src="../../assets/images/icons/feature_3.svg" class="mr-3" alt="Feature 3">
+              <div class="media-body">
+                <h5 class="mt-0 mb-0">Multi Domain Templates</h5>
+                Assign.Work can be used for multiple Domains like in Softwares, Accounting,<br>Film Making etc.
+                If you have Tasks, we provide a simple mean to Manage it.
+              </div>
+            </li>
+          </ul>
+        </div>
 
       </div>
     </div>

@@ -3,16 +3,23 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
-import { delay } from 'rxjs/operators';
+import { delay, distinctUntilChanged } from 'rxjs/operators';
 import { JoyrideService } from 'ngx-joyride';
 import { GeneralService } from '../shared/services/general.service';
 import { OrganizationQuery } from '../queries/organization/organization.query';
 import { UserService } from '../shared/services/user/user.service';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { NzModalService } from 'ng-zorro-antd';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { AuthService } from '../shared/services/auth.service';
 import { cloneDeep } from 'lodash';
+import { InvitationService } from '../shared/services/invitation/invitation.service';
+import { TaskPriorityService } from '../shared/services/task-priority/task-priority.service';
+import { TaskStatusService } from '../shared/services/task-status/task-status.service';
+import { TaskTypeService } from '../shared/services/task-type/task-type.service';
+import { BoardService } from '../shared/services/board/board.service';
+import { ProjectQuery } from '../queries/project/project.query';
+import { ProjectService } from '../shared/services/project/project.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -27,16 +34,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedHeaderColor: string;
   projectModalIsVisible: boolean = false;
   organizationModalIsVisible: boolean = false;
+  isAcceptInvitationInProcess: boolean = false;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
-              private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
-              private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService) {
+              private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
+              private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
+              private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
+              private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
+              private _taskTypeService: TaskTypeService, private _boardService: BoardService) {
   }
 
   ngOnInit() {
 
     // listen for user from store
-    this._userQuery.user$.subscribe(res => {
+    this._userQuery.user$.pipe(
+      untilDestroyed(this),
+      distinctUntilChanged((a, b) => {
+        if (a && b) {
+          return a.currentProject !== b.currentProject;
+        } else {
+          return true;
+        }
+      })
+    ).subscribe(res => {
       this._generalService.user = cloneDeep(res);
       this.initialCheck();
     });
@@ -46,15 +66,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this._generalService.currentProject = cloneDeep(res);
     });
 
+    // listen for new project created successfully
+    this._projectQuery.createProjectSuccess$.pipe(untilDestroyed(this)).subscribe(projectCreated => {
+      if (projectCreated) {
+        // get initial data when new project created
+        this.getInitialData();
+      }
+    });
+
+    // listen for project switched successfully
+    this._projectQuery.projectSwitchedSuccessfully$.pipe(untilDestroyed(this)).subscribe(projectSwitched => {
+      if (projectSwitched) {
+        // get initial data when project switched
+        this.getInitialData();
+      }
+    });
+
     // listen for current organization
     this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
       this._generalService.currentOrganization = cloneDeep(res);
     });
 
-    this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
-    this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
-    this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
-    this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+    this.themeService.isMenuFoldedChanges.pipe(untilDestroyed(this)).subscribe(isFolded => this.isFolded = isFolded);
+    this.themeService.isSideNavDarkChanges.pipe(untilDestroyed(this)).subscribe(isDark => this.isSideNavDark = isDark);
+    this.themeService.selectedHeaderColor.pipe(untilDestroyed(this)).subscribe(color => this.selectedHeaderColor = color);
+    this.themeService.isExpandChanges.pipe(untilDestroyed(this)).subscribe(isExpand => this.isExpand = isExpand);
   }
 
   projectModalShow(): void {
@@ -67,13 +103,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   organizationModalShow(): void {
-    if (!this._generalService.user.organizations.length) {
+    if (!this._generalService.user.organizations.length || !this._generalService.user.currentOrganization) {
       // show logout popup
       this.showLogoutWarning('Organization');
     } else {
       this.organizationModalIsVisible = !this.organizationModalIsVisible;
 
-      if (this._generalService.user.organizations.length === 1) {
+      if (this._generalService.user.organizations.length === 1 && !this._generalService.user.currentProject) {
         this.projectModalIsVisible = true;
       } else {
         return;
@@ -166,29 +202,83 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return newBreadcrumbs;
   }
 
-  private initialCheck() {
+  private async initialCheck() {
 
     try {
       if (this._generalService.user) {
-        const TaskUrl = this.router.routerState.snapshot.url;
-        if (TaskUrl.includes('task/')) {
-          this.router.navigateByUrl(TaskUrl);
+        // get query params from url
+        const queryParams = this.activatedRoute.snapshot.queryParams;
+
+        // check url have invitation id
+        if (queryParams.invitationId) {
+          // start accept invitation process
+          this.isAcceptInvitationInProcess = true;
+          try {
+            // call accept invitation api
+            await this._invitationService.acceptInvitation(queryParams.invitationId).toPromise();
+            // navigate to dash board after successfully accepting invitation
+            this.router.navigate(['dashboard'], { replaceUrl: true });
+
+            // get user profile
+            await this._userService.getProfile().toPromise();
+            this.isAcceptInvitationInProcess = false;
+          } catch (e) {
+            // reset flags and update url
+            this.isAcceptInvitationInProcess = false;
+            this.router.navigate(['dashboard'], { replaceUrl: true });
+          }
+
         } else {
-          if (!this._generalService.user.organizations.length && !this._generalService.user.currentOrganization) {
-            this.organizationModalIsVisible = true;
+          const TaskUrl = this.router.routerState.snapshot.url;
+          // check url contains task id
+          if (TaskUrl.includes('task/')) {
+            this.router.navigateByUrl(TaskUrl);
+
+            // wrapped in set timeout because we need to wait till all data processed from store
+            setTimeout(() => {
+              this.getInitialData();
+            }, 500);
+
           } else {
-            if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
-              this.projectModalIsVisible = true;
+
+            // check if user have organization
+            if (!this._generalService.user.currentOrganization) {
+              this.organizationModalIsVisible = true;
+            } else {
+              // check if user have project
+              if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
+                this.projectModalIsVisible = true;
+              } else {
+                // now every thing seems good now get initial data
+                // wrapped in set timeout because we need to wait till all data processed from store
+                setTimeout(() => {
+                  this.getInitialData();
+                }, 500);
+              }
             }
           }
         }
+
       }
+
     } catch (e) {
-
+      this._notificationService.error('Error', 'Invalid user login');
+      this.router.navigate(['login']);
     }
+  }
 
+  private getInitialData() {
+    // get all task statuses
+    this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
+
+    // get all task types
+    this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
+
+    // get all task priorities
+    this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
   }
 
   ngOnDestroy(): void {
+    this._projectService.unsetStoreFlags();
   }
 }

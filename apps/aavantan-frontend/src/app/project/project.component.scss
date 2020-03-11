@@ -1,17 +1,17 @@
 #project-page{
-  background: #fff;
-  padding: 10px;
+  padding: 0px 15px 15px 15px;
+  background: #FFFFFF 0% 0% no-repeat padding-box;
+  //box-shadow: 0px 4px 10px #0000001A;
+  border-radius: 4px;
   .ant-card-body{
     padding: 0px;
   }
   .ant-tabs-nav .ant-tabs-tab-active {
     background: #f9f9f9;
   }
-  .ant-tabs-bar {
-    border-bottom: 0px;
-  }
   .active-view{
     background: #6E829C;
     color: #fff;
   }
+
 }

@@ -1,7 +1,14 @@
 import { Organization } from './organization.model';
-import { Types } from 'mongoose';
 
-import { ProjectTemplateEnum, Sprint, TaskType, User } from '@aavantan-app/models';
+import {
+  BoardModel,
+  ProjectTemplateEnum,
+  Sprint,
+  TaskPriorityModel,
+  TaskStatusModel,
+  TaskTypeModel,
+  User
+} from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
 
 export class Project {
@@ -11,17 +18,22 @@ export class Project {
   access?: string;
   version?: string;
   members: ProjectMembers[];
-  organization: string | Organization | Types.ObjectId;
+  organization: Organization;
+  organizationId?: string;
   description?: string;
   avatar?: string;
   progress?: number;
   template: ProjectTemplateEnum;
-  createdBy?: string | User;
-  updatedBy?: string | User;
+  createdBy?: User;
+  createdById?: string;
+  updatedBy?: User;
+  updatedById?: string;
   updated?: string | User;
   settings?: ProjectSettings;
   sprintId?: string;
   sprint?: Sprint;
+  activeBoardId?: string;
+  activeBoard?: BoardModel;
 }
 
 export class ProjectMembers {
@@ -36,10 +48,10 @@ export class ProjectMembers {
 }
 
 export class ProjectSettings {
-  stages: ProjectStages[];
-  taskTypes: TaskType[];
-  priorities: ProjectPriority[];
-  status?: ProjectStatus[];
+  stages?: ProjectStages[];
+  taskTypes: TaskTypeModel[];
+  priorities: TaskPriorityModel[];
+  statuses?: TaskStatusModel[];
   tags?: ProjectTags[];
 }
 
@@ -108,4 +120,9 @@ export class ProjectStageSequenceChangeRequest {
 export class SearchProjectCollaborators {
   projectId: string;
   query: string;
+}
+
+export class ProjectTemplateUpdateModel {
+  projectId: string;
+  template: ProjectTemplateEnum;
 }

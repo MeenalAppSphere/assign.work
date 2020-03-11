@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { InvitationController } from './invitation.controller';
 
 @Module({
-  controllers: [],
+  controllers: [InvitationController],
   providers: [],
   exports: [],
   imports: []

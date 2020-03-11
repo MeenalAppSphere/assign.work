@@ -2,8 +2,11 @@ import { Module } from '@nestjs/common';
 import { PublicController } from './public.controller';
 
 @Module({
+  imports: [],
+  providers: [],
   controllers: [PublicController],
-  providers: []
+  exports: []
 })
 export class PublicModule {
+
 }

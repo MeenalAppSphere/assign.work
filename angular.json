@@ -15,7 +15,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/apps/UI/aavantan-frontend",
+            "outputPath": "dist/apps/UI/dist",
             "index": "apps/aavantan-frontend/src/index.html",
             "main": "apps/aavantan-frontend/src/main.ts",
             "polyfills": "apps/aavantan-frontend/src/polyfills.ts",
@@ -162,7 +162,7 @@
             "assets": [
               "apps/api/src/assets",
               "apps/api/src/.env",
-              "apps/api/src/shared/emailTemplates"
+              "apps/api/src/shared/email-templates"
             ]
           },
           "configurations": {

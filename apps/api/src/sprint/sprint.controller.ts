@@ -1,14 +1,15 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { SprintService } from '../shared/services/sprint.service';
+import { SprintService } from '../shared/services/sprint/sprint.service';
 import {
   AddTaskToSprintModel,
+  CloseSprintModel,
   CreateSprintModel,
   GetAllSprintRequestModel,
   GetSprintByIdRequestModel,
-  MoveTaskToStage,
+  MoveTaskToColumnModel,
   PublishSprintModel,
-  RemoveTaskFromSprintModel,
+  RemoveTaskFromSprintModel, SprintFilterTasksModel,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
@@ -30,19 +31,19 @@ export class SprintController {
     return await this._sprintService.updateSprint(model);
   }
 
-  @Post('add-tasks')
-  async addTasks(@Body() model: AddTaskToSprintModel) {
+  @Post('add-task')
+  async addTask(@Body() model: AddTaskToSprintModel) {
     return await this._sprintService.addTaskToSprint(model);
   }
 
-  @Post('remove-tasks')
+  @Post('remove-task')
   async removeTasks(@Body() model: RemoveTaskFromSprintModel) {
     return await this._sprintService.removeTaskFromSprint(model);
   }
 
   @Post('move-task')
-  async moveTask(@Body() model: MoveTaskToStage) {
-    return await this._sprintService.moveTaskToStage(model);
+  async moveTask(@Body() model: MoveTaskToColumnModel) {
+    return await this._sprintService.moveTaskToColumn(model);
   }
 
   @Post('all')
@@ -53,6 +54,11 @@ export class SprintController {
   @Post('get-sprint')
   async getSprint(@Body() model: GetSprintByIdRequestModel) {
     return await this._sprintService.getSprintById(model);
+  }
+
+  @Post('filter-sprint-tasks')
+  async filterSprintTasks(@Body() model: SprintFilterTasksModel) {
+    return await this._sprintService.filterSprintTasks(model);
   }
 
   @Post('get-published-sprint')
@@ -73,5 +79,10 @@ export class SprintController {
   @Post('get-unpublished-sprint')
   async getUnPublishedSprint(@Body('projectId') projectId: string) {
     return await this._sprintService.getUnPublishSprint(projectId);
+  }
+
+  @Post('close-sprint')
+  async closeSprint(@Body() model: CloseSprintModel) {
+    return await this._sprintService.closeSprint(model);
   }
 }

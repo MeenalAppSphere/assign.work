@@ -5,12 +5,14 @@ import {
   DbCollection,
   GetTaskHistoryModel,
   Project,
-  TaskHistory,
-  User
+  TaskHistory, TaskHistoryActionEnum,
+  User,
+  Task
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
+import { generateUtcDate } from '../helpers/helpers';
 
 @Injectable()
 export class TaskHistoryService extends BaseService<TaskHistory & Document> {
@@ -22,6 +24,27 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
     super(_taskHistoryModel);
   }
 
+
+  /**
+   * create and return task history object on basis of given input
+   * @param action
+   * @param taskId
+   * @param task
+   * @param sprintId
+   */
+  createHistoryObject(action: TaskHistoryActionEnum, taskId: string, task: Task, sprintId?: string): TaskHistory {
+    const history = new TaskHistory();
+
+    history.action = action;
+    history.taskId = taskId;
+    history.sprintId = sprintId ? sprintId : null;
+    history.desc = action;
+    history.createdAt = generateUtcDate();
+    history.createdById = this._generalService.userId;
+
+    return history;
+  }
+
   /**
    * add history
    * @param model
@@ -29,13 +52,7 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
    * @returns {Promise<(TaskHistory & Document)[] | (TaskHistory & Document)>}
    */
   async addHistory(model: TaskHistory, session: ClientSession) {
-    try {
-      return await this.create([model], session);
-    } catch (e) {
-      await session.abortTransaction();
-      await session.endSession();
-      throw e;
-    }
+    return await this.create([model], session);
   }
 
   /**

@@ -19,6 +19,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TaskService } from '../../services/task/task.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -69,7 +70,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _userQuery: UserQuery,
               private _userService: UserService, private _projectService: ProjectService,
-              protected notification: NzNotificationService, private _taskService: TaskService) {
+              protected notification: NzNotificationService, private _taskService: TaskService,
+              private router: Router) {
     // this.getAllUsers();
   }
 
@@ -84,7 +86,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.createFrom();
 
     if (this.currentOrganization) {
-      this.projectForm.get('organization').patchValue(this.currentOrganization.id);
+      this.projectForm.get('organizationId').patchValue(this.currentOrganization.id);
     }
 
     this.projectSource = [];
@@ -190,7 +192,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.projectForm = this.FB.group({
       name: [null, [Validators.required, Validators.pattern('^[a-zA-Z0-9 ]*$')]],
       description: [null],
-      organization: ['']
+      organizationId: ['']
     });
 
     this.collaboratorForm = this.FB.group({
@@ -200,7 +202,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   }
 
   public selectOrg(item: Organization) {
-    this.projectForm.get('organization').patchValue(item.id);
+    this.projectForm.get('organizationId').patchValue(item.id);
     this.next();
   }
 
@@ -226,6 +228,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   basicModalHandleCancel() {
     this.toggleShow.emit();
+    this.router.navigate(['dashboard']);
   }
 
   async saveProject() {
@@ -236,7 +239,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this.createProjectInProcess = true;
     const project: Project = { ...this.projectForm.getRawValue() };
-    project.createdBy = this._generalService.user.id;
 
     try {
       const createdProject = await this._projectService.createProject(project).toPromise();
@@ -344,9 +346,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   async addTemplate() {
     this.selectTemplateInProcess = true;
     try {
-      await this._projectService.updateProject(this.createdProjectId, {
+      await this._projectService.updateTemplate({
         template: this.selectedTemplate,
-        organization: this.currentOrganization.id
+        projectId: this._generalService.currentProject.id
       }).toPromise();
       this.selectTemplateInProcess = false;
       this.getTasks();

@@ -1,9 +1,280 @@
-<nz-card style="height:300px;padding-top:50px">
-  <nz-empty
-    [nzNotFoundImage]="false"
-    [nzNotFoundContent]="contentTpl">
-    <ng-template #contentTpl>
-      <span>Coming soon...</span>
-    </ng-template>
-  </nz-empty>
+
+<nz-card
+  nzSize="small"
+  [nzBordered]="false"
+  [nzTitle]="titleTemplateRef"
+  [nzExtra]="createSprintBtnTemplate"
+  class="backlog-page">
+
+  <ng-template #titleTemplateRef>
+
+    <span class="p-r-30">
+      <span class="p-r-15 font-size-18 text-black">Sprint Report</span>
+      <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Sprint Report..."/>
+    </span>
+
+  </ng-template>
+
+  <ng-template #createSprintBtnTemplate>
+
+    <div class="text-gray-light-2 font-size-12 p-t-5 font-weight-light inline-block">
+      <span>12-Dec-2019</span>
+      <span class="p-r-5 p-l-5">|</span>
+      <span>11:47 AM IST</span>
+    </div>
+
+
+    <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
+      <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
+        {{selectedSprint?.name ? selectedSprint?.name : 'Sprint 1'}}
+        <i nz-icon nzType="caret-down" theme="outline"></i>
+      </button>
+    </nz-button-group>
+    <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item>Sprint 2</li>
+        <li nz-menu-item>Sprint 3</li>
+        <li nz-menu-item>Sprint 4</li>
+<!--        <li nz-menu-item *ngFor="let item of sprintDataSource" (click)="selectSprint(item)">-->
+<!--           {{ item.name }}-->
+<!--        </li>-->
+      </ul>
+    </nz-dropdown-menu>
+
+  </ng-template>
+
+
+  <section class="m-b-30">
+
+    <label class="text-black-dark font-weight-semibold">Sprint Summary</label>
+
+    <div class="box-summary">
+
+      <div class="row">
+
+        <div class="col-md-5">
+          <label class="text-gray-light font-weight-semibold">Bugs Sprint 1</label>
+          <p class="p-r-40 text-black">This is the goal of the sprint. Lorem ipsum is placeholder text commonly</p>
+        </div>
+
+        <div class="col-md-7">
+
+          <div class="row">
+            <div class="col-md-5">
+              <label class="text-gray-light font-weight-semibold">Duration</label>
+              <p class="text-black">2-Dec-2109 to 13-Dec-2019</p>
+              <p class="text-gray-light-2 m-t-5">2 Week Sprint</p>
+            </div>
+
+            <div class="col-md-4">
+              <label class="text-gray-light font-weight-semibold">Velocity</label>
+              <p class="text-black">28</p>
+            </div>
+
+            <div class="col-md-3">
+              <label class="text-gray-light font-weight-semibold">Status</label>
+              <div>
+                <nz-tag [nzColor]="'#FF1142'">Red</nz-tag>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <section class="m-t-30 m-b-30 sprint-progress">
+
+    <label class="text-gray-light">Sprint Progress</label>
+
+    <div class="row">
+
+      <div class="col-md-6">
+        <span class="text-green">57% Completed</span>
+        <nz-progress [nzPercent]="57" nzStrokeColor="#42E3A3" nzStrokeLinecap="square" nzStrokeWidth="14" [nzShowInfo]="false"></nz-progress>
+        <div class="row font-size-12 m-t-5">
+          <div class="col-md-6">
+            <span><span class="font-weight-bold">28</span> of 49 points gained</span>
+          </div>
+          <div class="col-md-6 text-right">
+            <span><span class="font-weight-bold">8</span> of 15 items done</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+
+
+  <section class="m-t-30 m-b-30 items-summary-section">
+
+    <label class="text-black-dark">Item Summary</label>
+
+    <div class="items-summary">
+
+      <nz-table #itemsSummaryTable [nzFrontPagination]="false" [nzData]="itemsSummary">
+
+        <thead>
+
+        <tr>
+
+          <th>Status</th>
+          <th class="text-right p-l-0">Items</th>
+          <th class="text-right">Points</th>
+          <th class="text-right">Planned</th>
+          <th class="text-right">Burned</th>
+          <th class="text-right">Required</th>
+
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr *ngFor="let data of itemsSummaryTable.data">
+          <td data-label="Status" class="p-l-0"><nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status }}</nz-tag></td>
+          <td data-label="Items" class="text-right">{{ data.items }}</td>
+          <td data-label="Points" class="text-right">{{ data.points }}</td>
+          <td data-label="Planned" class="text-right">{{ data.effortPlanned }}</td>
+          <td data-label="Burned" class="text-right">{{ data.effortBurned }}</td>
+          <td data-label="Required" class="text-right">{{ data.effortRequired }}</td>
+        </tr>
+
+        </tbody>
+
+
+      </nz-table>
+
+      <table class="w-100 items-summary-footer">
+        <thead>
+        <tr>
+          <th>Total</th>
+          <th class="text-right">25</th>
+          <th class="text-right">25</th>
+          <th class="text-right">25</th>
+          <th class="text-right">25</th>
+          <th class="text-right">25</th>
+        </tr>
+        </thead>
+      </table>
+
+
+    </div>
+
+    <div class="m-t-20">
+      <div class="w-btn inline-block"><nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Budget</nz-tag></div>
+      <div class="inline-block text-red">Overrun by approximately : 22.45%</div>
+    </div>
+    <div class="m-t-5">
+      <div class="w-btn inline-block"><nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Schedule</nz-tag></div>
+      <div class="inline-block text-red">Need more : 2.35 days</div>
+    </div>
+
+  </section>
+
+
+
+
+
+  <section class="m-t-30 m-b-30">
+
+    <label class="text-black-dark">Recommended Actions</label>
+
+    <div class="recommended-actions p-l-20 m-b-30 text-black font-weight-normal">
+      <ul>
+        <li>Review items ST1, ST2, ST7. Huge effort deviation should be analysed.</li>
+        <li>13 - Dec is holiday, Increase capacity on 11 - Dec and 12 - Dec to meet the schedule.</li>
+        <li>Moving "Not Started" items in next sprint can be helpful.</li>
+      </ul>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+
+        <div class="chart-box w-100">
+          <div class="text-black font-size-16">Efforts spent in hours per day</div>
+          <div class="text-gray-light-2 font-size-12">Day 10 is in progress</div>
+
+          <div id="line-chart" class="m-t-10">
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="lineChartOptions"
+            ></highcharts-chart>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="col-md-6">
+
+        <div class="chart-box w-100">
+
+          <div id="column-chart">
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="columnChartOptions"
+            ></highcharts-chart>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+
+
+  <section class="m-t-30 m-b-30 items-summary-section">
+
+    <label class="text-black-dark">Sprint Items</label>
+
+    <div class="sprint-items">
+
+      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintItems">
+
+        <thead>
+
+        <tr>
+
+          <th>Item ID</th>
+          <th>Status</th>
+          <th>Item Description</th>
+          <th>Start Date</th>
+          <th>Assignee</th>
+          <th class="text-right">Effort Deviation</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr *ngFor="let data of sprintItemsTable.data">
+          <td data-label="Item ID">{{ data.itemId }}</td>
+          <td data-label="Status"><nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status }}</nz-tag></td>
+          <td data-label="Item Description">{{ data.description }}</td>
+          <td data-label="Start Date">{{ data.startDate }}</td>
+          <td data-label="Assignee">{{ data.assignee }}</td>
+          <td data-label="Effort Deviation" class="text-right" [ngClass]="data.effortDeviation >=50 ? 'text-red' : ''">{{ data.effortDeviation }}</td>
+        </tr>
+
+        </tbody>
+
+
+      </nz-table>
+
+
+    </div>
+
+
+  </section>
+
+
 </nz-card>

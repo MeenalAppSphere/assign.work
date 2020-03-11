@@ -10,7 +10,7 @@
   --red: #dc3545;
 }
 
-$body-bg-color: #F8F8F8;
+$body-bg-color: #ffffff;
 $text-black: #111111;
 
 .btn-float-new-task{
@@ -31,7 +31,7 @@ $orange-dark: #FF5757;
 $orange-light:#FF941A;
 $theme-blue:#2680EB;
 $theme-blue-hover:#358DEB;
-$side-nav-bg :#0B1B31;
+$side-nav-bg :#EEF4FC;
 $board-card-header: #ebebeb;
 $board-card-body: #ebebeb;
 $color-black:#000000;
@@ -40,6 +40,13 @@ $color-gray-light: #6E829C;
 
 body{
   background: $body-bg-color;
+}
+
+.cursor-move{
+  cursor: move;
+}
+.cursor-pointer{
+  cursor: pointer;
 }
 
 .ant-tooltip-placement-top .ant-tooltip-arrow, .ant-tooltip-placement-topLeft .ant-tooltip-arrow, .ant-tooltip-placement-topRight .ant-tooltip-arrow {
@@ -62,6 +69,7 @@ body{
   border-width: 5px 0 5px 5px;
   border-left-color: #404040;
 }
+
 //
 //.ant-tooltip-inner{
 //  background:red;
@@ -153,13 +161,9 @@ nz-modal {
   margin-bottom: 25px;
 }
 
-.ant-pagination-item-active a {
-  color: #fff!important;
-}
-
 .ant-tabs-nav .ant-tabs-tab-active {
   background: #fff;
-  box-shadow: 2px 0px 3px -2px #ddd;
+  //box-shadow: 2px 0px 3px -2px #ddd;
 }
 .ant-tabs-content{
   background: #ffffff;
@@ -216,7 +220,7 @@ p {
 
 /* layout */
 .common-layout .page-container .main-content {
-  padding: calc(70px + 10px) 10px 10px 10px;
+  padding: calc(64px + 10px) 10px 10px 10px;
   min-height: calc(100vh - 65px);
 }
 
@@ -370,6 +374,12 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   .ant-tabs-extra-content {
     line-height: 28px;
   }
+  .ant-tabs-bar {
+    margin-bottom: 10px;
+  }
+  .ant-tabs .ant-tabs-small-bar .ant-tabs-tab {
+    padding: 14px 17px;
+  }
 }
 
 #settings-page {
@@ -486,11 +496,12 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   overflow: hidden;
   text-overflow: ellipsis;
   position: relative;
+  line-height: 13px!important;
   i {
     float: right;
     position: absolute;
     right: 2px;
-    top: 7px;
+    top: 10px!important;
   }
 }
 

@@ -1,28 +1,26 @@
 import { Injectable } from '@angular/core';
 import { BaseService } from '../base.service';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { TaskStore, TaskState } from '../../../store/task/task.store';
+import { TaskState, TaskStore } from '../../../store/task/task.store';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
 import {
-  BaseResponseModel,
-  TimeLog,
-  Task,
-  TaskComments,
-  TaskHistory,
-  CommentPinModel,
-  GetTaskByIdOrDisplayNameModel,
-  GetAllTaskRequestModel,
   AddCommentModel,
-  BasePaginatedResponse,
-  GetTaskHistoryModel,
-  UpdateCommentModel,
-  TaskTimeLog,
   AddTaskTimeModel,
-  SprintStage,
+  BasePaginatedResponse,
+  BaseResponseModel,
+  CommentPinModel,
+  GetAllTaskRequestModel,
+  GetTaskByIdOrDisplayNameModel,
+  GetTaskHistoryModel,
+  Task,
+  TaskComments, TaskFilterModel,
+  TaskHistory,
+  TaskTimeLog,
   TaskTimeLogHistoryModel,
-  TaskTimeLogHistoryResponseModel
+  TaskTimeLogHistoryResponseModel,
+  UpdateCommentModel
 } from '@aavantan-app/models';
 import { TaskUrls } from './task.url';
 import { Observable } from 'rxjs';
@@ -63,10 +61,9 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
+  getAllBacklogTasks(filterModel: TaskFilterModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
 
-  getAllBacklogTasks(json: GetAllTaskRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
-
-    return this._http.post(TaskUrls.getAllBacklogTasks, json).pipe(
+    return this._http.post(TaskUrls.getAllBacklogTasks, filterModel).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
 
         return res;
@@ -88,6 +85,17 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
+  getTaskWithFilter(filter: TaskFilterModel, onlyMyTasks : boolean = false) {
+    return this._http.post(!onlyMyTasks ? TaskUrls.getAllTaskWithFilter : TaskUrls.getAllMyTasks, filter).pipe(
+      map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
   updateTask(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.update, task).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -99,6 +107,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
       })
     );
   }
+
   removeAttachment(id: string): Observable<BaseResponseModel<Task>> {
     return this._http.delete(TaskUrls.removeAttachement.replace(':id', id)).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -111,10 +120,10 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  addComment(comment: AddCommentModel): Observable<BaseResponseModel<string>> {
+  addComment(comment: AddCommentModel): Observable<BaseResponseModel<TaskComments>> {
     return this._http.post(TaskUrls.addComment, comment).pipe(
-      map((res: BaseResponseModel<string>) => {
-        this.notification.success('Success', res.data);
+      map((res: BaseResponseModel<TaskComments>) => {
+        this.notification.success('Success', 'Comment Added Successfully');
         return res;
       }),
       catchError(err => {
@@ -127,7 +136,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
 
     return this._http.post(TaskUrls.updateComment, comment).pipe(
       map((res: BaseResponseModel<string>) => {
-        this.notification.success('Success', res.data);
+        this.notification.success('Success', 'Comment Updated Successfully');
         return res;
       }),
       catchError(err => {
@@ -173,7 +182,6 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-
   addAttachment(task: Task): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.attachement, task).pipe(
       map((res: BaseResponseModel<Task>) => {
@@ -208,6 +216,14 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
         return this.handleError(err);
       })
     );
+  }
+
+  createNewTaskAction() {
+    this.updateState({ createNewTaskAction: true });
+  }
+
+  resetStoreFlags() {
+    this.updateState({ createNewTaskAction: false });
   }
 
 }

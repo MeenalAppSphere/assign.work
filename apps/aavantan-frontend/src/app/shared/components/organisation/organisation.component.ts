@@ -77,7 +77,7 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   async switchProject(project: Project) {
 
     const json: SwitchProjectRequest = {
-      organizationId: this._generalService.currentOrganization.id,
+      organizationId: project.organizationId,
       projectId: project.id
     };
 

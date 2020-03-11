@@ -2,10 +2,10 @@ import { BadRequestException, Injectable, OnModuleInit, UnauthorizedException } 
 import { JwtService } from '@nestjs/jwt';
 import {
   DbCollection,
+  EmailTemplatePathEnum,
   MemberTypes,
   MongooseQueryModel,
-  Organization,
-  Project,
+  ResetPasswordVerifyModel,
   User,
   UserLoginProviderEnum,
   UserLoginWithPasswordRequest,
@@ -16,11 +16,22 @@ import { ClientSession, Document, Model } from 'mongoose';
 import { get, Response } from 'request';
 import { UsersService } from '../shared/services/users.service';
 import { ModuleRef } from '@nestjs/core';
-import { ProjectService } from '../shared/services/project.service';
+import { ProjectService } from '../shared/services/project/project.service';
 import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';
-import { emailAddressValidator, isInvitationExpired } from '../shared/helpers/helpers';
+import {
+  emailAddressValidator,
+  generateRandomCode,
+  generateUtcDate,
+  isInvitationExpired,
+  isResetPasswordCodeExpired
+} from '../shared/helpers/helpers';
+import * as bcrypt from 'bcrypt';
+import { EmailService } from '../shared/services/email.service';
+import { ResetPasswordService } from '../shared/services/reset-password/reset-password.service';
+
+const saltRounds = 10;
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -28,11 +39,12 @@ export class AuthService implements OnModuleInit {
   private _projectService: ProjectService;
   private _organizationService: OrganizationService;
   private _invitationService: InvitationService;
+  private _resetPasswordService: ResetPasswordService;
 
   constructor(
     private readonly jwtService: JwtService,
     @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
-    private _moduleRef: ModuleRef
+    private _emailService: EmailService, private _moduleRef: ModuleRef
   ) {
   }
 
@@ -44,29 +56,166 @@ export class AuthService implements OnModuleInit {
     this._projectService = this._moduleRef.get('ProjectService', { strict: false });
     this._organizationService = this._moduleRef.get('OrganizationService', { strict: false });
     this._invitationService = this._moduleRef.get('InvitationService', { strict: false });
+    this._resetPasswordService = this._moduleRef.get('ResetPasswordService', { strict: false });
   }
 
   /**
    * login with emailId and password
+   * get user by email id and then compare hashed password from db with user request plain password
    * @param req
    */
   async login(req: UserLoginWithPasswordRequest) {
-    // check user
+
+    // get user by email id
     const user = await this._userModel.findOne({
-      emailId: req.emailId,
-      password: req.password
+      emailId: req.emailId
     }).populate(['projects', 'organization', 'currentProject']).exec();
 
+    // check if user is there
     if (user) {
-      // update user last login provider to normal
-      await user.updateOne({ $set: { lastLoginProvider: UserLoginProviderEnum.normal } });
+      // check if user is logged in with user name and password not with any social login helper
+      if (!user.password || user.lastLoginProvider !== UserLoginProviderEnum.normal) {
+        throw new UnauthorizedException('Invalid email or password');
+      } else {
+        // compare hashed password
+        const isPasswordMatched = await bcrypt.compare(req.password, user.password);
 
-      // return jwt token
-      return {
-        access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
-      };
+        if (isPasswordMatched) {
+          // update user last login provider to normal
+          await user.updateOne({ $set: { lastLoginProvider: UserLoginProviderEnum.normal } });
+
+          // return jwt token
+          return {
+            access_token: this.jwtService.sign({ sub: user.emailId, id: user.id })
+          };
+        } else {
+          // throw invalid login error
+          throw new UnauthorizedException('Invalid email or password');
+        }
+      }
     } else {
+      // throw invalid login error
       throw new UnauthorizedException('Invalid email or password');
+    }
+  }
+
+  /**
+   * forgot password
+   * get email id and check if user exists or not
+   * if yes return unique code
+   * @param emailId
+   */
+  async forgotPassword(emailId: string) {
+    const userDetails = await this._userService.findOne({ filter: { emailId: emailId } });
+
+    if (!userDetails) {
+      throw new BadRequestException('User not found');
+    } else {
+      // check if user is registered with google then throw error
+      if (!userDetails.password || userDetails.lastLoginProvider === UserLoginProviderEnum.google) {
+        throw new BadRequestException('Ohh! We found that you used your Google Account to sign in into Assign Work. Use Google Sign In Instead.');
+      }
+
+      const session = await this._userModel.db.startSession();
+      session.startTransaction();
+
+      try {
+        // generate random code
+        const code = generateRandomCode(6);
+        const templateData = { user: { firstName: userDetails.firstName, lastName: userDetails.lastName }, code };
+
+        // send email
+        const messageTemplate = await this._emailService.getTemplate(EmailTemplatePathEnum.resetPassword, templateData);
+        const invitationEmail = {
+          to: [emailId], subject: 'Reset password',
+          message: messageTemplate
+        };
+        this._emailService.sendMail(invitationEmail.to, invitationEmail.subject, invitationEmail.message);
+
+        // create reset password doc
+        const resetPasswordDoc = new this._resetPasswordService.dbModel();
+        resetPasswordDoc.emailId = emailId;
+        resetPasswordDoc.code = code;
+        resetPasswordDoc.resetPasswordAt = generateUtcDate();
+        resetPasswordDoc.isExpired = false;
+
+        // create entry in reset password collection
+        await this._resetPasswordService.create([resetPasswordDoc], session);
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return 'Reset password code sent to your email address successfully';
+      } catch (e) {
+        await session.abortTransaction();
+        session.endSession();
+        throw e;
+      }
+    }
+  }
+
+  /**
+   * reset password
+   * check if all details are available or not
+   * check code expiry
+   * update user password with new one
+   * expire given code and return success message
+   * @param model
+   */
+  async resetPassword(model: ResetPasswordVerifyModel) {
+    // validations
+
+    if (!model.code) {
+      throw new BadRequestException('invalid request, please add verification code');
+    }
+
+    if (!model.emailId) {
+      throw new BadRequestException('invalid request, please add user email id');
+    }
+
+    if (!model.password) {
+      throw new BadRequestException('invalid request, please add password');
+    }
+
+    // start session
+    const session = await this._userModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      const codeDetailsFilter = {
+        emailId: model.emailId,
+        code: model.code,
+        isExpired: false
+      };
+      const codeDetails = await this._resetPasswordService.findOne({
+        filter: codeDetailsFilter
+      });
+
+      if (codeDetails) {
+        // check reset password code expired
+        if (isResetPasswordCodeExpired(codeDetails.resetPasswordAt)) {
+          throw new BadRequestException('code is expired, please click resend button');
+        }
+
+        // update user password
+        const hashedPassword = await bcrypt.hash(model.password, saltRounds);
+        await this._userService.update({ emailId: model.emailId }, { password: hashedPassword }, session);
+
+        // expire all this verification code
+        await this._resetPasswordService.bulkUpdate(codeDetailsFilter, { isExpired: true }, session);
+
+        await session.commitTransaction();
+        session.endSession();
+        return 'Password reset success';
+
+      } else {
+        // no details found throw error
+        throw new BadRequestException('invalid verification code');
+      }
+    } catch (e) {
+      await session.abortTransaction();
+      session.endSession();
+      throw e;
     }
   }
 
@@ -92,21 +241,10 @@ export class AuthService implements OnModuleInit {
     session.startTransaction();
 
     try {
-      const model = new User();
-      model.emailId = user.emailId;
-      model.username = model.emailId;
-      model.password = user.password;
-      model.firstName = user.firstName;
-      model.lastName = user.lastName;
-      model.locale = user.locale;
-      model.status = UserStatus.Active;
-      model.lastLoginProvider = UserLoginProviderEnum.normal;
-      model.memberType = MemberTypes.alien;
-
       const jwtPayload = { sub: '', id: '' };
 
       // get user details by emailId id
-      const userDetails = await this.getUserByEmailId(model.emailId);
+      const userDetails = await this.getUserByEmailId(user.emailId);
 
       // user exist or not
       if (userDetails) {
@@ -120,14 +258,14 @@ export class AuthService implements OnModuleInit {
           const invitationDetails = await this._invitationService.getFullInvitationDetails(user.invitationId);
 
           // check basic validations for invitation link
-          this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+          this._invitationService.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
 
           // now everything seems ok start invitation accepting process
           // accept invitation and update project, organization and invitation
-          await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, user.invitationId);
+          await this._invitationService.acceptInvitationUpdateDbProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, user.invitationId);
 
           // update user with model and set organization
-          await this._userService.update(userDetails._id.toString(), {
+          await this._userService.updateById(userDetails._id.toString(), {
             $set: {
               password: user.password,
               firstName: user.firstName,
@@ -145,6 +283,9 @@ export class AuthService implements OnModuleInit {
             }
           }, session);
 
+          // expire all already sent invitations
+          await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
+
           // assign jwt payload
           jwtPayload.id = userDetails._id.toString();
           jwtPayload.sub = userDetails.emailId;
@@ -154,40 +295,38 @@ export class AuthService implements OnModuleInit {
 
           // loop over pending invitations and accept all invitations
           if (pendingInvitations.length) {
-            for (let i = 0; i < pendingInvitations.length; i++) {
 
-              const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
-
-              // check basic validations for invitation link
-              this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
-
-              // accept invitation process
-              await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
-
-              // update user
-              const updateUserDoc = {
-                $set: {
-                  password: user.password,
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  locale: user.locale,
-                  status: UserStatus.Active,
-                  lastLoginProvider: UserLoginProviderEnum.normal,
-                  memberType: MemberTypes.alien
-                },
-                $push: {
-                  organizations: invitationDetails.organization._id.toString(),
-                  projects: invitationDetails.project._id.toString()
-                }
-              };
-
-              // if pending invitations is only one then set that project as current project
-              if (pendingInvitations.length === 1) {
-                updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
-                updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
+            // prepare update user doc
+            let updateUserDoc: any = {
+              $set: {
+                password: user.password,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                locale: user.locale,
+                status: UserStatus.Active,
+                lastLoginProvider: UserLoginProviderEnum.normal,
+                memberType: MemberTypes.alien
               }
-              await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
-            }
+            };
+
+            userDetails.organizations = userDetails.organizations ? userDetails.organizations : [];
+            userDetails.projects = userDetails.projects ? userDetails.projects : [];
+            // handle pending invitations
+            await this.handlePendingInvitations(pendingInvitations, userDetails, session, updateUserDoc);
+
+            // add project and organization to update update user doc variable which is going to update user profile
+            updateUserDoc = {
+              ...updateUserDoc, $push: {
+                organizations: { $each: userDetails.organizations },
+                projects: { $each: userDetails.projects }
+              }
+            };
+
+            // update user in db
+            await this._userService.updateById(userDetails._id.toString(), updateUserDoc, session);
+
+            // expire all already sent invitations
+            await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
           }
 
           // assign jwt payload
@@ -201,6 +340,19 @@ export class AuthService implements OnModuleInit {
         }
 
         // create new user and assign jwt token
+        const model = new User();
+        model.emailId = user.emailId;
+        model.username = model.emailId;
+        model.firstName = user.firstName;
+        model.lastName = user.lastName;
+        model.locale = user.locale;
+        model.status = UserStatus.Active;
+        model.lastLoginProvider = UserLoginProviderEnum.normal;
+        model.memberType = MemberTypes.alien;
+
+        // hashed password
+        model.password = await bcrypt.hash(user.password, saltRounds);
+
         const newUser = await this._userService.create([model], session);
         jwtPayload.id = newUser[0].id;
         jwtPayload.sub = newUser[0].emailId;
@@ -261,15 +413,15 @@ export class AuthService implements OnModuleInit {
               // get invitation details
               const invitationDetails = await this._invitationService.getFullInvitationDetails(invitationId);
               // check basic validations for invitation link
-              this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+              this._invitationService.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
 
               // now everything seems ok start invitation accepting process
               // accept invitation and update project, organization and invitation
-              await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationId);
+              await this._invitationService.acceptInvitationUpdateDbProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationId);
 
               // if user is already in db then update it's last login type to google
               // add project and organization
-              await this._userService.update(userDetails._id.toString(), {
+              await this._userService.updateById(userDetails._id.toString(), {
                 $set: {
                   firstName: userNameFromGoogle[0] || '',
                   lastName: userNameFromGoogle[1] || '',
@@ -285,54 +437,52 @@ export class AuthService implements OnModuleInit {
                 }
               }, session);
 
+              // expire all already sent invitations
+              await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
+
               // assign jwt payload
               jwtPayload.sub = userDetails.emailId;
               jwtPayload.id = userDetails._id;
             } else {
+
               // check if new user have pending invitations
               const pendingInvitations = await this.getAllPendingInvitations(userDetails.emailId);
 
               // loop over pending invitations and accept all invitations
               if (pendingInvitations.length) {
-                for (let i = 0; i < pendingInvitations.length; i++) {
 
-                  const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id);
-
-                  // check basic validations for invitation link
-                  this.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
-
-                  // accept invitation process
-                  await this.acceptInvitationProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
-
-                  // if user is already in db then update it's last login type to google
-                  // add project and organization
-
-                  const updateUserDoc = {
-                    $set: {
-                      firstName: userNameFromGoogle[0] || '',
-                      lastName: userNameFromGoogle[1] || '',
-                      lastLoginProvider: UserLoginProviderEnum.google,
-                      profilePic: authTokenResult.picture,
-                      status: UserStatus.Active
-                    },
-                    $push: {
-                      organizations: invitationDetails.organization._id,
-                      projects: invitationDetails.project._id.toString()
-                    }
-                  };
-
-                  // if pending invitation length is only one then set that project as current project
-                  if (pendingInvitations.length === 1) {
-                    updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
-                    updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
+                // prepare update user doc
+                let updateUserDoc: any = {
+                  $set: {
+                    firstName: userNameFromGoogle[0] || '',
+                    lastName: userNameFromGoogle[1] || '',
+                    lastLoginProvider: UserLoginProviderEnum.google,
+                    profilePic: authTokenResult.picture,
+                    status: UserStatus.Active
                   }
+                };
 
-                  await this._userService.update(userDetails._id.toString(), updateUserDoc, session);
-                }
+                userDetails.organizations = userDetails.organizations ? userDetails.organizations : [];
+                userDetails.projects = userDetails.projects ? userDetails.projects : [];
+                // handle pending invitations
+                await this.handlePendingInvitations(pendingInvitations, userDetails, session, updateUserDoc);
+
+                // add project and organization to update update user doc variable which is going to update user profile
+                updateUserDoc = {
+                  ...updateUserDoc, $push: {
+                    organizations: { $each: userDetails.organizations },
+                    projects: { $each: userDetails.projects }
+                  }
+                };
+
+                // update user in db
+                await this._userService.updateById(userDetails._id.toString(), updateUserDoc, session);
+
+                // expire all already sent invitations
+                await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
               } else {
-                // normal sing in
-
-                await this._userService.update(userDetails._id.toString(), {
+                // normal sign in
+                await this._userService.updateById(userDetails._id.toString(), {
                   $set: {
                     firstName: userNameFromGoogle[0] || '',
                     lastName: userNameFromGoogle[1] || '',
@@ -496,58 +646,47 @@ export class AuthService implements OnModuleInit {
   }
 
   /**
-   * check invitation link is valid or
-   * check if invitation is expired or not
-   * check if user emailId and invitee user id in invitation are same
-   * @param invitationDetails
-   * @param userEmailId
+   * handle pending invitations
+   * loop over pending invitations
+   * get invitation details, check validations for invitation link
+   * accept invitation one by one
+   * add project and organization in user object
+   * @param pendingInvitations
+   * @param userDetails
+   * @param session
+   * @param updateUserDoc
    */
-  private invitationLinkBasicValidation(invitationDetails, userEmailId: string) {
-    if (!invitationDetails) {
-      throw new BadRequestException('Invalid invitation link');
-    } else {
-      if (isInvitationExpired(invitationDetails.invitedAt)) {
-        throw new BadRequestException('Invitation link has been expired! please request a new one');
+  private async handlePendingInvitations(pendingInvitations: any[], userDetails: User & Document, session: ClientSession, updateUserDoc: any) {
+    for (let i = 0; i < pendingInvitations.length; i++) {
+
+      const invitationDetails = await this._invitationService.getFullInvitationDetails(pendingInvitations[i]._id.toString());
+
+      // check basic validations for invitation link
+      this._invitationService.invitationLinkBasicValidation(invitationDetails, userDetails.emailId);
+
+      // accept invitation process
+      await this._invitationService.acceptInvitationUpdateDbProcess(invitationDetails.project, session, invitationDetails.organization, userDetails, invitationDetails._id);
+
+      // if pending invitation length is only one then set that project as current project
+      if (pendingInvitations.length === 1) {
+        updateUserDoc.$set['currentOrganizationId'] = invitationDetails.organization._id.toString();
+        updateUserDoc.$set['currentProject'] = invitationDetails.project._id.toString();
       }
 
-      // if invitation id present then user is already created so get user details by email id
-      if (invitationDetails.invitationToEmailId !== userEmailId) {
-        throw new BadRequestException('Invalid invitation link! this invitation link is not for this email id');
+      /* push organization and project to updated user doc */
+      // push project
+      userDetails.projects.push(invitationDetails.project._id.toString());
+
+      // push organization
+      // check if organization is not already pushed
+      const organizationAlreadyPushed = userDetails.organizations && userDetails.organizations.some(organization => {
+        return organization === invitationDetails.organization._id.toString();
+      });
+
+      if (!organizationAlreadyPushed) {
+        userDetails.organizations.push(invitationDetails.organization._id.toString());
       }
     }
-  }
-
-  /**
-   * accept invitation process
-   * update project, update organization
-   * accept invitation, expire all already sent invitations
-   * @param projectDetails
-   * @param session
-   * @param organizationDetails
-   * @param userDetails
-   * @param invitationId
-   */
-  private async acceptInvitationProcess(projectDetails: Project, session: ClientSession,
-                                        organizationDetails: Organization, userDetails: User, invitationId: string) {
-
-    // check if user is added as collaborator in project and we are here only to update his basic details
-    const userIndexInProjectCollaboratorIndex = projectDetails.members.findIndex(member => member.emailId === userDetails.emailId);
-
-    // update project mark collaborator as invite accepted true
-    await this._projectService.update(projectDetails._id.toString(), {
-      $set: { [`members.${userIndexInProjectCollaboratorIndex}.isInviteAccepted`]: true }
-    }, session);
-
-    // update organization, add user as organization member
-    await this._organizationService.update(organizationDetails._id.toString(), {
-      $push: { members: userDetails._id }, $inc: { activeMembersCount: 1, billableMemberCount: 1 }
-    }, session);
-
-    // update current invitation and set invite accepted true
-    await this._invitationService.acceptInvitation(invitationId, session);
-
-    // expire all already sent invitations
-    await this._invitationService.expireAllPreviousInvitation(userDetails.emailId, session);
   }
 
   /**
@@ -560,7 +699,6 @@ export class AuthService implements OnModuleInit {
     if (pendingInvitations && pendingInvitations.length) {
       // loop over all pending invitations and filter out expired invitations
       pendingInvitations = pendingInvitations.filter(invitation => {
-        // if link is expired add it to expired invitation
         return !isInvitationExpired(invitation.invitedAt);
       });
       return pendingInvitations;

@@ -1,11 +1,21 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, UnauthorizedException } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  Inject,
+  Injectable,
+  UnauthorizedException
+} from '@nestjs/common';
 import { MongoError } from 'mongodb';
 import { BaseResponseModel } from '@aavantan-app/models';
 import { Error } from 'mongoose';
+import { Logger } from 'winston';
 
 @Catch()
+@Injectable()
 export class GenericExceptionFilter implements ExceptionFilter {
-  constructor() {
+  constructor(@Inject('winston') protected readonly logger: Logger) {
 
   }
 
@@ -15,6 +25,7 @@ export class GenericExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest();
 
     const resp = new BaseResponseModel();
+    this.logger.error(exception, [{ stack: exception }]);
 
     if (exception instanceof MongoError) {
       // normal mongo errors
@@ -32,11 +43,18 @@ export class GenericExceptionFilter implements ExceptionFilter {
       resp.status = 500;
     } else if (exception instanceof Error.ValidationError) {
       // mongoose validation errors
-      resp.errors = [
-        ...(exception as any).message.map(m => {
-          return { type: 'error', message: m };
-        })
-      ];
+      if (Array.isArray(exception.message)) {
+        resp.errors = [
+          ...(exception as any).message.map(m => {
+            return { type: 'error', message: m };
+          })
+        ];
+      } else {
+        resp.errors = [{
+          message: exception.message,
+          type: 'error'
+        }];
+      }
       resp.status = 400;
     } else if (exception instanceof Error.CastError) {
       // mongoose cast errors

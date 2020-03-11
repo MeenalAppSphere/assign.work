@@ -1,9 +1,16 @@
-import { ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
+import { ProjectTemplateEnum } from 'libs/models/src/lib/enums';
+import { ProjectWorkingDays } from 'libs/models/src/lib/models';
 
 // default query filter
 export const DEFAULT_QUERY_FILTER = {
   isDeleted: false
 };
+
+// default paginated items count
+export const DEFAULT_PAGINATED_ITEMS_COUNT = 10;
+
+// default date format
+export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY';
 
 // default project template type
 export const DEFAULT_PROJECT_TEMPLATE_TYPE = ProjectTemplateEnum.softwareDevelopment;
@@ -41,10 +48,19 @@ export const MAX_FILE_UPLOAD_SIZE = 5;
 export const MAX_PROFILE_PIC_UPLOAD_SIZE = 2;
 
 // default email address for sending email
-export const DEFAULT_EMAIL_ADDRESS = 'aashish.patil@appsphere.in';
+export const DEFAULT_EMAIL_ADDRESS = 'support@assign.work';
 
 // default path for storing email templates
-export const DEFAULT_EMAIL_TEMPLATE_PATH = 'shared/emailTemplates/';
+export const DEFAULT_EMAIL_TEMPLATE_PATH = 'shared/email-templates/';
 
 // default invitation link expiry in seconds
 export const DEFAULT_INVITATION_EXPIRY = 259200;
+
+// default reset password code expiry in seconds
+export const DEFAULT_RESET_PASSWORD_CODE_EXPIRY = 10800;
+
+// max transaction retry timeout in seconds
+export const MAX_TRANSACTION_RETRY_TIMEOUT = 120000;
+
+// default board name that will be created when you create a project
+export const DEFAULT_BOARD_NAME = 'BOARD - 1';

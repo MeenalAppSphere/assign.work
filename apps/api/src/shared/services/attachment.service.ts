@@ -28,7 +28,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
 
   constructor(
     @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
-    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef
+    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef,
   ) {
     super(_attachmentModel);
     aws.config.update({
@@ -123,7 +123,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     }
 
     // file size validation
-    this.fileSizeValidator(file);
+    this.fileSizeValidator(file, true);
 
     // create user query where user status is active and his/her last login provider is not any third party client
     const userQuery = new MongooseQueryModel();
@@ -183,9 +183,9 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     }
   }
 
-  private fileSizeValidator(file, isPofilePic: boolean = false) {
+  private fileSizeValidator(file, isProfilePic: boolean = false) {
     // validations
-    if (Number((file.size / (1024 * 1024)).toFixed(DEFAULT_DECIMAL_PLACES)) > (isPofilePic ? MAX_PROFILE_PIC_UPLOAD_SIZE : MAX_FILE_UPLOAD_SIZE)) {
+    if (Number((file.size / (1024 * 1024)).toFixed(DEFAULT_DECIMAL_PLACES)) > (isProfilePic ? MAX_PROFILE_PIC_UPLOAD_SIZE : MAX_FILE_UPLOAD_SIZE)) {
       throw new PayloadTooLargeException('File size limit exceeded');
     }
   }

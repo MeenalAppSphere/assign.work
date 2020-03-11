@@ -1,10 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import {
+  SprintDurationsModel,
   AddTaskToSprintModel,
-  DraftSprint, GetAllSprintRequestModel,
-  GetAllTaskRequestModel, GetUnpublishedRequestModel,
-  Sprint, SprintBaseRequest, SprintErrorResponse,
+  DraftSprint,
+  GetAllTaskRequestModel,
+  GetUnpublishedRequestModel,
+  RemoveTaskFromSprintModel,
+  Sprint,
+  SprintBaseRequest,
+  SprintErrorEnum,
+  SprintErrorResponse,
   Task,
+  TaskFilterModel,
+  TaskTypeModel,
   User
 } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -12,9 +20,13 @@ import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
-import { cloneDeep } from 'lodash';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { cloneDeep, uniqBy } from 'lodash';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
+import { Router } from '@angular/router';
+import { TaskTypeQuery } from '../queries/task-type/task-type.query';
+import { fromEvent, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -22,53 +34,103 @@ import { SprintService } from '../shared/services/sprint/sprint.service';
   styleUrls: ['./backlog.component.scss']
 })
 export class BacklogComponent implements OnInit, OnDestroy {
-  public allTaskList: Task[] = [];
-  public allTaskListBackup: Task[] = [];
-  public draftTaskList: Task[] = [];
-  public taskObj: Task;
-  public memberObj: User;
+  public backLogTasksList: Task[] = [];
+  public backLogTasksListBackup: Task[] = [];
   public view: String = 'listView';
   public totalDuration: Number = 0;
-  public durationData:any;
+  public durationData: any;
   public isDisabledCreateBtn: boolean = true;
   public draftSprint: DraftSprint;
-  public draftData: Task[] = [];
+  public draftTaskList: Task[] = [];
   public sprintModalIsVisible: boolean;
   public projectTeams: User[] = [];
-  public sprintData: Sprint;
-  public sprintList: Sprint[];
+  public unPublishedSprintData: Sprint;
   public teamCapacityModalIsVisible: boolean;
-  public getTaskInProcess: boolean;
+
+  public getBacklogTasksInProcess: boolean;
+  public getAllActiveSprintTasksInProcess: boolean;
+  public addTaskToSprintInProgress: boolean;
+  public removeTaskFromSprintInProgress: boolean;
+
+  public backLogTableLoadingTip: string = 'Loading';
+
   public gettingUnpublishedInProcess: boolean;
-  public gettingAllSprintInProcess: boolean;
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
   public saveSprintInProcess: boolean;
-  public activeSprintData : Sprint;
-  public activeSprintId : string;
-  public haveUnpublishedTasks:boolean;
+  public activeSprintData: Sprint;
+  public haveUnpublishedTasks: boolean;
+  public taskTypeDataSource: TaskTypeModel[] = [];
 
   public searchValue: string;
+  public searchValueSubject$: Subject<string> = new Subject<string>();
   public searchTaskListInProgress: boolean;
+
+  public sprintId: string;
+  public sprintDurations: SprintDurationsModel;
+
+  public selectedTimeLogTask: Task;
+
+  public backLogTaskRequest: TaskFilterModel;
+
+  @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
+
+  public timelogModalIsVisible: boolean;
 
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
+              private _taskTypeQuery: TaskTypeQuery,
               private _userQuery: UserQuery,
               private _sprintService: SprintService,
-              protected notification: NzNotificationService) {
+              protected notification: NzNotificationService,
+              private modal: NzModalService,
+              private router: Router) {
+
+    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.taskTypeDataSource = res;
+      }
+    });
   }
 
   ngOnInit() {
 
-    this.activeSprintData = this._generalService.currentProject.sprint;
-    this.activeSprintId = this._generalService.currentProject.sprintId;
+    this.searchValueSubject$.pipe(
+      debounceTime(700),
+      distinctUntilChanged()
+    ).subscribe(val => {
+      this.backLogTaskRequest.query = val;
+      this.backLogTaskRequest.page = 1;
+      this.backLogTaskRequest.sort = 'name';
+      this.backLogTaskRequest.sortBy = 'asc';
 
-    if(this._generalService.currentProject && this._generalService.currentProject.id) {
-      // this.getAllSprint();
       this.getAllBacklogTask();
-      this.getUnpublishedSprint();
+    });
+
+    if (this._generalService.currentProject && this._generalService.currentProject.id) {
+
+      this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
+
+      // get all back log tasks
+      this.getAllBacklogTask();
+
+      // if project has active sprint than get all tasks of that sprint
+      // if not get un-published sprint tasks
+
+      if (this._generalService.currentProject.sprintId) {
+        // get active sprint tasks
+        this.activeSprintData = this._generalService.currentProject.sprint;
+        this.sprintId = this.activeSprintData.id;
+
+        this.setSprintDurations(this.activeSprintData);
+
+        this.getAllSprintTasks();
+      } else {
+        // get unpublished sprint tasks
+        this.getUnpublishedSprint();
+      }
     }
 
     // get current project from store
@@ -78,46 +140,68 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
     });
 
-    if (this.allTaskList && this.allTaskList.length > 0) {
+    if (this.backLogTasksList && this.backLogTasksList.length > 0) {
       this.countTotalDuration();
     }
 
     // Sprint wizard data
-    this.sprintData = {
+    this.unPublishedSprintData = {
       name: null,
       projectId: this._generalService.currentProject.id,
       createdById: this._generalService.user.id,
       goal: null,
       startedAt: null,
       endAt: null,
-      sprintStatus:null
+      sprintStatus: null
     };
-
   }
 
-  async getAllSprint(){
+  public async getAllBacklogTask() {
+    this.backLogTableLoadingTip = 'Getting Backlog Tasks...';
+    this.getBacklogTasksInProcess = true;
     try {
+      const result = await this._taskService.getAllBacklogTasks(this.backLogTaskRequest).toPromise();
 
-      this.gettingAllSprintInProcess = true;
-      const json: GetAllSprintRequestModel = {
-        projectId: this._generalService.currentProject.id
-      };
+      if (result.data) {
+        this.backLogTaskRequest.page = result.data.page;
+        this.backLogTaskRequest.count = result.data.count;
+        this.backLogTaskRequest.totalPages = result.data.totalPages;
+        this.backLogTaskRequest.totalItems = result.data.totalItems;
 
-        this._sprintService.getAllSprint(json).subscribe(data=>{
-          this.sprintList = data.data.items
-          if(this.sprintList && this.sprintList.length>0){
-             // this.sprintData = this.sprintList[this.sprintList.length-1]; // uncomment when last sprint not published
-          }
-        });
-
-      }catch (e) {
-        this.gettingAllSprintInProcess = false;
+        this.backLogTasksList = cloneDeep(result.data.items);
+        this.backLogTasksListBackup = cloneDeep(result.data.items);
       }
 
+      this.getBacklogTasksInProcess = false;
+    } catch (e) {
+      this.getBacklogTasksInProcess = false;
+    }
   }
 
-  async getUnpublishedSprint(){
-    this.gettingUnpublishedInProcess=true;
+  public async getAllSprintTasks() {
+    const json: GetAllTaskRequestModel = {
+      projectId: this._generalService.currentProject.id,
+      sort: 'createdAt',
+      sortBy: 'desc',
+      onlyBackLog: false,
+      sprintId: this.activeSprintData.id
+    };
+
+    this.getAllActiveSprintTasksInProcess = true;
+
+    const data = await this._taskService.getAllTask(json).toPromise();
+    if (data.data && data.data.items.length > 0) {
+      this.draftTaskList = data.data.items;
+    }
+
+    this.getAllActiveSprintTasksInProcess = false;
+  }
+
+  public async getUnpublishedSprint(hideLoader?: boolean) {
+    if (hideLoader) {
+      this.gettingUnpublishedInProcess = true;
+    }
+
     try {
       const json: GetUnpublishedRequestModel = {
         projectId: this._generalService.currentProject.id
@@ -126,224 +210,294 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this._sprintService.getUnpublishedSprint(json).subscribe(data => {
         this.gettingUnpublishedInProcess = false;
 
-        if((typeof data.data) === "string"){
+        if ((typeof data.data) === 'string') {
+          // no un-published sprint found
+        } else {
+          this.unPublishedSprintData = data.data;
+          this.sprintId = this.unPublishedSprintData.id;
 
-        }else{
-          this.sprintData = data.data;
+          const taskArray: Task[] = [];
+          const ids: string[] = [];
 
-          const taskArray : Task[] = [];
-          const ids : string[] = [];
-          this.sprintData.stages[0].tasks.forEach((ele)=>{
-            taskArray.push(ele.task);
-            ids.push(ele.task.id);
+          this.unPublishedSprintData.columns.forEach(column => {
+            column.tasks.forEach((ele) => {
+              ele.task.isSelected = true;
+              taskArray.push(ele.task);
+              ids.push(ele.task.id);
+            });
           });
 
           this.draftSprint = {
             tasks: taskArray,
             ids: ids
-          }
-          this.draftData = taskArray;
-          if(this.draftData.length>0){
+          };
+          this.draftTaskList = taskArray;
+          if (this.draftTaskList.length > 0) {
             this.haveUnpublishedTasks = true;
             this.isDisabledCreateBtn = false;
-          }else{
+          } else {
             this.haveUnpublishedTasks = false;
           }
+
+          this.setSprintDurations(this.unPublishedSprintData);
         }
 
       });
-    }catch (e) {
+    } catch (e) {
       this.gettingUnpublishedInProcess = false;
     }
 
   }
 
-
-  public onChangeSearch(value: any): void {
-    this.searchTaskListInProgress = true;
-    this.allTaskList = this.allTaskListBackup;
-    if(value){
-      this.allTaskList = this.allTaskList.filter((ele)=>{
-        let taskTypeName = '';
-        let profileName = '';
-        if(ele.taskType && ele.taskType.name){
-          taskTypeName = ele.taskType.name.toLowerCase();
-        }
-        if(ele.assignee && ele.assignee.firstName || ele.assignee && ele.assignee.lastName){
-          profileName = (ele.assignee.firstName + ' ' +ele.assignee.lastName).toLowerCase();
-        }
-        if(ele.name.toLowerCase().includes(value) || taskTypeName.includes(value) || profileName.includes(value)) {
-          return ele;
-        }
-      });
-    }else{
-      this.allTaskList = this.allTaskListBackup;
-    }
-    this.searchTaskListInProgress = false;
-
-  }
-
-  async getAllBacklogTask(){
-
-    const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
-      sort: 'createdAt',
-      sortBy: 'desc',
-      onlyBackLog: true
-    };
-
-    this.getTaskInProcess=true;
-    const data = await this._taskService.getAllBacklogTasks(json).toPromise();
-    if(data.data && data.data.items.length>0){
-      this.allTaskList = cloneDeep(data.data.items);
-      this.allTaskListBackup = cloneDeep(data.data.items);
-    }
-
-    this.getTaskInProcess = false
-    // this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
-    //   if (res) {
-    //     this.getTaskInProcess=false;
-    //
-    //     this.allTaskList = cloneDeep(res);
-    //     this.allTaskListBackup = cloneDeep(res);
-    //
-    //   }
-    // });
-  }
-
   public countTotalDuration() {
-    this.allTaskList.forEach((ele) => {
+    this.backLogTasksList.forEach((ele) => {
       const duration = ele.estimatedTime ? ele.estimatedTime : 0;
       // @ts-ignore
       this.totalDuration += Number(duration);
-
       this.durationData = this._generalService.secondsToReadable(Number(this.totalDuration));
-
     });
   }
 
   public getTasksSelectedForSprint(ev: DraftSprint) {
-
-    if(this.haveUnpublishedTasks){
-      this.draftSprint.tasks = this.getUnique( this.draftSprint.tasks.concat(ev.tasks), 'id');
-    }else{
-      this.draftSprint = ev;
-    }
-
-
-    if (this.draftSprint && this.draftSprint.tasks.length > 0) {
-      this.isDisabledCreateBtn = false;
+    if (this.haveUnpublishedTasks) {
+      let tasks = this.draftSprint.tasks.concat(ev.tasks);
+      tasks = tasks.filter(task => task.isSelected);
+      tasks = uniqBy(tasks, 'id');
+      this.draftSprint.tasks = tasks;
     } else {
-      this.isDisabledCreateBtn = true;
+      if (!this.draftSprint) {
+        this.draftSprint = {
+          ids: [],
+          tasks: []
+        };
+      }
+      this.draftSprint.tasks = ev.tasks.filter(task => task.isSelected);
     }
+
+    this.draftSprint.ids = this.draftSprint.tasks.map(task => task.id);
+    this.isDisabledCreateBtn = !(this.draftSprint && this.draftSprint.tasks.length > 0);
 
     this.prepareDraftSprint();
-
+    this.calculatedraftTaskListDuration();
   }
 
   public prepareDraftSprint() {
-    this.draftData = this.draftSprint.tasks.filter((item) => {
-      if(item.isSelected){
-        return item;
-      }
-    });
-    console.log('draftData: ',this.draftData.length);
-    this.calculateDraftDataDuration();
+    this.draftTaskList = [...this.draftSprint.tasks];
   }
 
-  public calculateDraftDataDuration(){
+  public calculatedraftTaskListDuration() {
     let estimatedTime = 0;
-    this.draftData.forEach((ele)=> {
+    this.draftTaskList.forEach((ele) => {
       estimatedTime = estimatedTime + Number(ele.estimatedTime);
-    })
+    });
 
-    this.sprintData.totalEstimation = estimatedTime;
-    this.sprintData.totalEstimationReadable = this._generalService.secondsToReadable(this.sprintData.totalEstimation).readable;
-    this.sprintData.totalRemainingCapacity = (this.sprintData.totalCapacity*3600)-estimatedTime;
-    this.sprintData.totalRemainingCapacityReadable = this._generalService.secondsToReadable(this.sprintData.totalRemainingCapacity).readable;
+    this.unPublishedSprintData.totalEstimation = estimatedTime;
+    this.unPublishedSprintData.totalEstimationReadable = this._generalService.secondsToReadable(this.unPublishedSprintData.totalEstimation).readable;
+    this.unPublishedSprintData.totalRemainingCapacity = (this.unPublishedSprintData.totalCapacity * 3600) - estimatedTime;
+    this.unPublishedSprintData.totalRemainingCapacityReadable = this._generalService.secondsToReadable(this.unPublishedSprintData.totalRemainingCapacity).readable;
   }
-  public toggleAddSprint(data?:Sprint) {
-    if(data){
-      this.sprintData = data;
+
+  public toggleAddSprint(data?: Sprint) {
+    if (data) {
+      this.unPublishedSprintData = data;
+      this.sprintId = data.id;
     }
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
 
-  async saveSprint(){
+  public async publishSprint() {
     try {
-
-      const sprintData : AddTaskToSprintModel = {
+      const sprintData: SprintBaseRequest = {
         projectId: this._generalService.currentProject.id,
-        sprintId: this.sprintData.id,
-        tasks : this.draftSprint.ids
-      }
-
-      this.saveSprintInProcess = true;
-      const  data = await this._sprintService.addTaskToSprint(sprintData).toPromise();
-
-      if (!(data.data instanceof SprintErrorResponse)) {
-        this.draftSprint.totalCapacity = data.data.totalCapacity;
-        this.draftSprint.totalCapacityReadable = data.data.totalCapacityReadable;
-        this.draftSprint.totalEstimation = data.data.totalEstimation;
-        this.draftSprint.totalEstimationReadable = data.data.totalEstimationReadable;
-        this.draftSprint.totalRemainingCapacity = data.data.totalRemainingCapacity;
-        this.draftSprint.totalRemainingCapacityReadable = data.data.totalRemainingCapacityReadable;
-      }
-
-      this.saveSprintInProcess = false;
-
-    } catch (e) {
-      this.createdSprintId = null;
-      this.saveSprintInProcess = false;
-    }
-  }
-
-  async publishSprint() {
-
-    try {
-
-      const sprintData : SprintBaseRequest = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this.sprintData.id
-      }
+        sprintId: this.unPublishedSprintData.id
+      };
 
       this.publishSprintInProcess = true;
       const data = await this._sprintService.publishSprint(sprintData).toPromise();
-      if(data){
+      if (data) {
         this.isDisabledCreateBtn = true;
+        this.router.navigate(['dashboard', 'board']);
       }
       this.publishSprintInProcess = false;
-
     } catch (e) {
       this.createdSprintId = null;
       this.publishSprintInProcess = false;
     }
-
   }
 
-  public toggleTeamCapacity(data?:Sprint) {
-    if(data){
-      this.sprintData = data;
+  public toggleTeamCapacity(data?: SprintDurationsModel) {
+    if (data) {
+      this.sprintDurations = data;
     }
     this.teamCapacityModalIsVisible = !this.teamCapacityModalIsVisible;
   }
 
-  public ngOnDestroy(){
+  public addTaskNavigate() {
+    let displayName: string = null;
+    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
+      displayName = this.taskTypeDataSource[0].displayName;
+    }
+
+    if (!displayName) {
+      this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
+      setTimeout(() => {
+        this.router.navigateByUrl('dashboard/settings');
+      }, 1000);
+      return;
+    }
+    this.router.navigateByUrl('dashboard/task/' + displayName);
+  }
+
+  public async addTaskToSprint(task: Task, isAdd: boolean, adjustHoursAllowed?: boolean) {
+    try {
+      if (!isAdd) {
+        return;
+      }
+
+      const json: AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintId,
+        taskId: task.id,
+        adjustHoursAllowed: adjustHoursAllowed
+      };
+
+      this.backLogTableLoadingTip = 'Adding Task to Sprint...';
+      this.addTaskToSprintInProgress = true;
+
+      const data = await this._sprintService.addTaskToSprint(json).toPromise();
+
+      if (data.data) {
+        // check if we found error while adding task
+
+        if (data.data.hasOwnProperty('tasksError') || data.data.hasOwnProperty('membersError')) {
+          const errorResponse = data.data as SprintErrorResponse;
+
+          // check if error is related to tasks error or members error
+          if (errorResponse.tasksError) {
+            // if sprint capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
+
+              // uncheck item code here
+
+              this.addTaskToSprintInProgress = false;
+              await this.addTaskConfirmAfterError(task);
+              return;
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          } else {
+            // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
+
+              // uncheck item code here
+
+              this.addTaskToSprintInProgress = false;
+              await this.addTaskConfirmAfterError(task);
+              return;
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          }
+        } else {
+          this.sprintDurations = data.data as SprintDurationsModel;
+          this.notification.success('Success', 'Task successfully added to this Sprint');
+        }
+      }
+
+      this.draftTaskList = [...this.draftTaskList, task];
+      this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
+
+      this.addTaskToSprintInProgress = false;
+    } catch (e) {
+      console.log(e);
+      this.addTaskToSprintInProgress = false;
+    }
+  }
+
+  public async removeTaskFromSprint(task: Task) {
+    try {
+      const json: RemoveTaskFromSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintId,
+        taskId: task.id
+      };
+
+      this.backLogTableLoadingTip = 'Removing Task from Sprint...';
+      this.removeTaskFromSprintInProgress = true;
+      const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
+
+      if (result && result.data) {
+        this.draftTaskList = this.draftTaskList.filter(draftTask => draftTask.id !== task.id);
+        this.backLogTasksList = [...this.backLogTasksList, task];
+        this.sprintDurations = result.data;
+      }
+
+      this.removeTaskFromSprintInProgress = false;
+    } catch (e) {
+      console.log(e);
+      this.removeTaskFromSprintInProgress = false;
+    }
+  }
+
+  async addTaskConfirmAfterError(task: Task) {
+    return this.modal.confirm({
+      nzTitle: 'Still Want to add task?',
+      nzContent: 'May be this will effect your current Sprint',
+      nzOnOk: () =>
+        new Promise((resolve, reject) => {
+          this.addTaskToSprint(task, true, true);
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+          return true;
+        }).catch(() => console.log('Oops errors!'))
+    });
 
   }
 
-  public getUnique(arr, comp) {
+  public pageChanged(index: number, requestType: string) {
+    if (requestType === 'backlog') {
+      this.backLogTaskRequest.page = index;
+      this.getAllBacklogTask();
+    }
+  }
 
-    const unique = arr
-      .map(e => e[comp])
+  public sortButtonClicked(type: string, columnName: string, requestType: string) {
+    if (requestType === 'backlog') {
+      this.backLogTaskRequest.sort = columnName;
+      this.backLogTaskRequest.sortBy = type;
 
-      // store the keys of the unique objects
-      .map((e, i, final) => final.indexOf(e) === i && i)
+      this.getAllBacklogTask();
+    } else if (requestType === 'un-published-sprint') {
 
-      // eliminate the dead keys & store unique objects
-      .filter(e => arr[e]).map(e => arr[e]);
+    } else {
 
-    return unique;
+    }
+  }
+
+  public viewTask(task: Task) {
+    this.router.navigateByUrl('dashboard/task/' + task.displayName);
+  }
+
+  /** time log **/
+  public timeLog(item: Task) {
+    this.timelogModalIsVisible = !this.timelogModalIsVisible;
+    this.selectedTimeLogTask = item;
+  }
+
+  private setSprintDurations(sprint: Sprint) {
+    this.sprintDurations = {
+      totalCapacity: sprint.totalCapacity,
+      totalCapacityReadable: sprint.totalCapacityReadable,
+      totalRemainingCapacity: sprint.totalRemainingCapacity,
+      totalRemainingCapacityReadable: sprint.totalRemainingCapacityReadable,
+      totalEstimation: sprint.totalEstimation,
+      totalEstimationReadable: sprint.totalEstimationReadable
+    };
+  }
+
+  public ngOnDestroy() {
+
   }
 
 }

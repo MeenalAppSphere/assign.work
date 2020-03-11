@@ -5,7 +5,13 @@
 .login-wall {
   background: url('../../assets/images/others/login_wall.svg')no-repeat bottom center;
   background-size: contain;
+  height: inherit;
 }
+.border-sep {
+  height:1px;
+  background: #DEDFE2;
+}
+
 .or-line{
   div{
     background: #D9D9D9;
@@ -33,14 +39,21 @@
       width: 40px;
     }
     .media-body {
-      font-size: 14px;
-      color: #000000;
+      font-size: 0.8125rem;
+      color: #333333;
     }
     h5{
-      font-size: 17px;
+      font-size: 1rem;
       font-weight: 500;
-      color: #2680EB;
-      line-height: 17px;
+      color: #333333;
+      line-height: 1rem;
+      padding-bottom: 4px;
     }
   }
+}
+
+.login-gradient {
+  height:100%;
+  width:100%;
+  background: transparent linear-gradient(180deg, #ffffff 0%, #F5F5F5 100%) 0% 0% no-repeat padding-box;
 }

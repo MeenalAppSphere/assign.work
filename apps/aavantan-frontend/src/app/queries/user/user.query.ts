@@ -8,6 +8,7 @@ export class UserQuery extends Query<UserState> {
   currentProject$ = this.select(s => s.currentProject);
   currentOrganization$ = this.select(s => s.currentOrganization);
   user$ = this.select(s => s.user);
+  getUserProfileInProcess$ = this.select(s => s.getUserProfileInProcess);
 
   constructor(protected store: UserStore) {
     super(store);

@@ -1,118 +1,320 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { GetAllTaskRequestModel, Sprint, SprintStage, SprintStatusEnum, Task } from '@aavantan-app/models';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  BaseResponseModel, CloseSprintModel,
+  GetAllTaskRequestModel,
+  MoveTaskToColumnModel,
+  ProjectStatus,
+  Sprint,
+  SprintColumn,
+  SprintColumnTask,
+  Task,
+  TaskTypeModel,
+  User,
+  TaskTimeLogResponse, SprintFilterTasksModel
+} from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserQuery } from '../../queries/user/user.query';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { cloneDeep } from 'lodash';
+import { TaskTypeQuery } from '../../queries/task-type/task-type.query';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'aavantan-app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss']
 })
-export class BoardComponent implements OnInit {
+export class BoardComponent implements OnInit, OnDestroy {
 
   public boardData: Sprint;
+  public boardDataClone: Sprint;
+
+  public searchValue: string;
+  public searchValueSubject$: Subject<string> = new Subject<string>();
+
   public timelogModalIsVisible: boolean;
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
-  public selectedTaskItem:Task;
+  public selectedTask = {
+    columnIndex: null, taskIndex: null, taskItem: null
+  };
   public getStageInProcess: boolean;
-  public activeSprintData:Sprint;
-  public sprintDataSource:Sprint[] = [
-    {
-      id: '1',
-      name: 'Sprint 1',
-      projectId: '',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '2',
-      name: 'Sprint 2',
-      projectId: '',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    },
-    {
-      id: '3',
-      name: 'Sprint 3',
-      projectId: '',
-      createdById: '',
-      goal: '',
-      startedAt: new Date(),
-      endAt: new Date(),
-      sprintStatus: {
-        status: SprintStatusEnum.inProgress,
-        updatedAt: new Date()
-      }
-    }
-  ];
+  public closeSprintInProcess: boolean = false;
+
+  public taskTypeDataSource: TaskTypeModel[] = [];
+  // close sprint modal
+  public selectedSprintStatus: ProjectStatus;
+  public statusSprintDataSource: ProjectStatus[] = [];
+  public closeSprintModalIsVisible: boolean;
+  public isVisibleCloseSprint: boolean;
+  public closeSprintModeSelection = 'createNewSprint';
+  public dateFormat = 'MM/dd/yyyy';
+  public closeSprintNewSprintForm: FormGroup;
+  public filterSprintTasksRequest: SprintFilterTasksModel;
+
+  public moveFromStage: SprintColumn;
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
-              protected notification: NzNotificationService) { }
+              private _taskTypeQuery: TaskTypeQuery,
+              protected notification: NzNotificationService,
+              private modalService: NzModalService,
+              private _userQuery: UserQuery, private router: Router) {
+
+    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.taskTypeDataSource = res;
+      }
+    });
+
+  }
 
   ngOnInit() {
 
-    this.activeSprintData = this._generalService.currentProject.sprint;
-
-    if(this._generalService.currentProject.sprintId && this._generalService.currentProject.id){
+    // search sprint tasks event
+    this.searchValueSubject$.pipe(
+      debounceTime(700),
+      distinctUntilChanged()
+    ).subscribe(val => {
+      this.filterSprintTasksRequest.query = val;
       this.getBoardData();
-    }else{
+    });
+
+    if (this._generalService.currentProject.sprintId && this._generalService.currentProject.id) {
+
+      this.filterSprintTasksRequest = new SprintFilterTasksModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
+
+      this.getBoardData();
+    } else {
       this.notification.info('Info', 'Sprint not found');
     }
+
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.statusSprintDataSource = res.settings.statuses;
+      }
+    });
+
+    this.closeSprintNewSprintForm = new FormGroup({
+      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
+      name: new FormControl(null, [Validators.required]),
+      goal: new FormControl(null, [Validators.required]),
+      duration: new FormControl(null, [Validators.required]),
+      startedAt: new FormControl(null, []),
+      endAt: new FormControl(null, []),
+      createAndPublishNewSprint: new FormControl(false)
+    });
+
   }
 
-  async getBoardData(){
-    try{
+  public filterTask(user: User) {
+    const inFilter = this.filterSprintTasksRequest.assigneeIds.includes(user.id);
+    if (!inFilter) {
+      this.filterSprintTasksRequest.assigneeIds.push(user.id);
+    } else {
+      this.filterSprintTasksRequest.assigneeIds = this.filterSprintTasksRequest.assigneeIds.filter(assignee => {
+        return assignee !== user.id;
+      });
+    }
 
-      const json: GetAllTaskRequestModel = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this._generalService.currentProject.sprintId
-      };
+    this.getBoardData();
+  }
 
+  async getBoardData() {
+    try {
       this.getStageInProcess = true;
-      const data = await this._sprintService.getBoardData(json).toPromise();
-      if(data.data){
-
-        data.data.stages.forEach((stage)=>{
-          stage.tasks.forEach((task)=>{
-            if(!task.task.priority){
-              task.task.priority = {
-                name :null,
-                color:'#6E829C'
-              }
-            }
-            if(!task.task.taskType){
-              task.task.taskType = {
-                name :null,
-                color:'#6E829C'
-              }
-            }
-          })
-        })
-        this.boardData = data.data;
-      }
+      const data = await this._sprintService.filterSprintTasks(this.filterSprintTasksRequest).toPromise();
+      this.prepareBoardData(data);
       this.getStageInProcess = false;
-    }catch (e) {
+    } catch (e) {
       this.getStageInProcess = false;
     }
 
   }
-  public timeLog(item:Task) {
+
+  private prepareBoardData(data: BaseResponseModel<Sprint>) {
+    if (data.data) {
+      data.data.membersCapacity.forEach(member => {
+        member.user.isSelected = this.filterSprintTasksRequest.assigneeIds.includes(member.userId);
+      });
+      data.data.columns.forEach((stage) => {
+        stage.tasks.forEach((task) => {
+          if (!task.task.priority) {
+            task.task.priority = {
+              name: null,
+              color: '#6E829C'
+            };
+          }
+          if (!task.task.taskType) {
+            task.task.taskType = {
+              name: null,
+              color: '#6E829C'
+            };
+          }
+        });
+      });
+      this.boardData = data.data;
+      this.boardDataClone = cloneDeep(data.data);
+    }
+  }
+
+  public async moveTask(task: SprintColumnTask, column: SprintColumn) {
+    //push to target stage for ui
+    column.tasks.push(task);
+
+    //pop from source stage
+    if (this.moveFromStage) {
+      this.moveFromStage.tasks = this.moveFromStage.tasks.filter((ele) => {
+        if (ele.taskId !== task.taskId) {
+          return ele;
+        }
+      });
+    }
+
+    try {
+
+      const json: MoveTaskToColumnModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.boardData.id,
+        columnId: column.id,
+        taskId: task.taskId
+      };
+
+      // console.log('json :', json);
+
+      this.getStageInProcess = true;
+      const result = await this._sprintService.moveTaskToStage(json).toPromise();
+      this.prepareBoardData(result);
+      this.moveFromStage = null;
+      this.getStageInProcess = false;
+    } catch (e) {
+
+      // revert ui changes
+      if (this.moveFromStage) {
+        this.moveFromStage.tasks.push(task);
+      }
+
+      //pop from source stage
+      column.tasks = column.tasks.filter((ele) => {
+        if (ele.taskId !== task.taskId) {
+          return ele;
+        }
+      });
+
+      this.getStageInProcess = false;
+    }
+  }
+
+  onDragStart(item: SprintColumn) {
+    this.moveFromStage = item;
+  }
+
+  async onDragEnd($event, item: SprintColumn) {
+    this.moveTask($event.data, item);
+  }
+
+  //============ close sprint =============//
+  // public toggleCloseSprintShow(item?:Sprint){
+  //   this.closeSprintModalIsVisible = !this.closeSprintModalIsVisible;
+  //   if(item){
+  //     this.activeSprintData=item;
+  //   }
+  // }
+
+  public selectStatus(item: ProjectStatus) {
+    this.selectedSprintStatus = item;
+  }
+
+  toggleCloseSprintShow(): void {
+    this.isVisibleCloseSprint = true;
+  }
+
+  async closeSprint() {
+    this.closeSprintInProcess = true;
+
+    const closeSprintRequest = new CloseSprintModel();
+    closeSprintRequest.projectId = this._generalService.currentProject.id;
+    closeSprintRequest.sprintId = this.boardData.id;
+
+    if (this.closeSprintModeSelection === 'createNewSprint') {
+      closeSprintRequest.createNewSprint = true;
+
+      const sprintForm = this.closeSprintNewSprintForm.getRawValue();
+      if (sprintForm.duration) {
+        sprintForm.startedAt = sprintForm.duration[0];
+        sprintForm.endAt = sprintForm.duration[1];
+        delete sprintForm.duration;
+      }
+
+      closeSprintRequest.sprint = sprintForm;
+      closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
+    } else {
+      closeSprintRequest.createNewSprint = false;
+    }
+
+    try {
+      await this._sprintService.closeSprint(closeSprintRequest).toPromise();
+      this.closeSprintInProcess = false;
+
+      this.isVisibleCloseSprint = false;
+      this.router.navigate(['dashboard']);
+    } catch (e) {
+      this.closeSprintInProcess = false;
+      console.log(e);
+    }
+  }
+
+  cancelCloseSprintDialog(): void {
+    this.isVisibleCloseSprint = false;
+  }
+
+  //---------------------------------------//
+
+  public viewTask(task: Task) {
+    this.router.navigateByUrl('dashboard/task/' + task.displayName);
+  }
+
+  public addTaskNavigate() {
+    let displayName: string = null;
+    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
+      displayName = this.taskTypeDataSource[0].displayName;
+    }
+
+    if (!displayName) {
+      this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
+      setTimeout(() => {
+        this.router.navigateByUrl('dashboard/settings');
+      }, 1000);
+      return;
+    }
+    this.router.navigateByUrl('dashboard/task/' + displayName);
+  }
+
+  public showTimeLogModal(columnIndex: number, taskIndex: number, taskItem: Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
-    this.selectedTaskItem=item;
+    this.selectedTask = {
+      columnIndex, taskIndex, taskItem
+    };
+  }
+
+  public hideTimeLogModal(resp?: TaskTimeLogResponse) {
+    if (resp) {
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.totalLoggedTime;
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.totalLoggedTimeReadable;
+
+    }
+    this.timelogModalIsVisible = false;
+    this.selectedTask = {
+      columnIndex: null, taskIndex: null, taskItem: null
+    };
+  }
+
+  ngOnDestroy() {
+
   }
 
 }
