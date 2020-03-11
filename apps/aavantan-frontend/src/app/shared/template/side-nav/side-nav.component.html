@@ -38,7 +38,6 @@
     <div class="menu-mask">
         <ul class="ant-menu ant-menu-root ant-menu-inline side-nav-menu" [ngClass]="{
             'ant-menu-inline-collapsed': isFolded,
-            'ant-menu-inline-collapsed': isFolded,
             'ant-menu-dark' : isSideNavDark
         }">
             <li [ngClass]="item.submenu.length > 0?'ant-menu-submenu ant-menu-submenu-inline':'ant-menu-item'" *ngFor="let item of menuItems" [routerLinkActive]="item.submenu.length > 0 ? 'ant-menu-submenu-open' : 'ant-menu-item-selected'" [routerLinkActiveOptions]="{exact: true}">
