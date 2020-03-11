@@ -407,7 +407,9 @@
     <!-- row 9-->
 
     <div class="task-sections" *ngIf="taskId">
-      <div class="p-15">
+
+
+      <div class="p-15" *ngIf="commentsList && commentsList.length>0">
         <nz-form-label>Comments</nz-form-label>
         <div class="frozen-div m-t-5">
 
@@ -420,7 +422,7 @@
             <div *ngIf="commentsList && commentsList.length===0">
               <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
               <ng-template #contentActivity>
-                <span> No Pinned Comments</span>
+                <span> No Comments</span>
               </ng-template>
             </div>
           </nz-spin>

@@ -95,7 +95,7 @@
 
       <div class="col-md-4 p-r-0 m-t-10">
 
-          <div class="sprint-progress-section">
+          <div class="sprint-progress-section" *ngIf="boardData">
             <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
 
             <span *ngIf="boardData?.endAt" class="sprint-date float-right">
