@@ -264,37 +264,58 @@
               <p>Note: If user not available into list then you type email id and then invite them directly.</p>
             </form>
           </aside>
-          <aside class="col-md-6">
 
-            <nz-spin [nzSpinning]="resendInviteInProcess || removeCollaboratorInProcess">
+
+
+          <aside class="col-md-9">
+
+            <nz-form-label>Collaborators</nz-form-label>
+
+            <nz-spin [nzSpinning]="resendInviteInProcess">
               <div *ngIf="projectMembersList?.length>0">
-                <nz-form-label>Collaborators</nz-form-label>
-                <ul class="stages-list">
-                  <li *ngFor="let item of projectMembersList">
-                    <a href="mailto:{{item.emailId}}">
-                      <nz-avatar class="m-r-10"
-                                 [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''"
-                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
-                      <span>{{item.emailId}}</span>
-                      <div class="m-l-35 text-muted small user-name-on-collaborator"
-                           *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
-                    </a>
-                    <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
-                      <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
-                      <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-info p-r-10"><i
-                        nz-icon nzType="mail" theme="outline"></i> Resend</span>
-                      <span class="text-success m-r-5" *ngIf="item.isInviteAccepted"><i nz-icon nzType="check-circle"
-                                                                                        class="m-r-5 text-success font-size-16"
-                                                                                        nzTheme="outline"></i>Accepted</span>
-                      <!--                      <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-15 float-right"></i>-->
-                    </span>
-                  </li>
-                </ul>
+                <nz-table #basicTable [nzData]="projectMembersList">
+                  <thead>
+                  <tr>
+                    <th>Name/Email</th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let item of basicTable.data" class="stages-list">
+
+                    <td>
+                      <a href="mailto:{{item.emailId}}">
+                        <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                        <span>{{item.emailId}}</span>
+                        <div class="p-l-35 text-muted small" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
+                      </a>
+                    </td>
+
+                    <td>
+                      <span>
+                        <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
+                        <span (click)="resendInvitation(item)" class="text-info p-r-10"><i nz-icon nzType="mail" theme="outline"></i> Resend</span>
+                        <span class="text-success" *ngIf="!item.isEmailSent && item.isInviteAccepted">Accepted</span>
+                        <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-50 float-right"></i>
+                      </span>
+                    </td>
+
+                    <td>
+
+                    </td>
+
+                  </tr>
+                  </tbody>
+                </nz-table>
               </div>
             </nz-spin>
 
 
+
           </aside>
+
+
         </section>
       </ng-container>
       <!-- collaborators tab -->
