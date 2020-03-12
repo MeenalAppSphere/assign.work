@@ -367,7 +367,7 @@ export class TaskComponent implements OnInit, OnDestroy {
           [{ 'list': 'ordered' }, { 'list': 'bullet' }],
           [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
           [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          //[{ 'font': [] }],
+          [{ 'color': ['#333333', '#000000', 'red','green'] }],
           ['clean'],                                         // remove formatting button
           ['link', 'image', 'video']
             ['emoji']

@@ -110,7 +110,8 @@
 
 
         <div class="draft-sprint-box"
-             *ngIf="unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0">
+             *ngIf="(activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
+
           <nz-spin *ngIf="draftTaskList?.length==0"
                    [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                    [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
@@ -123,6 +124,7 @@
 
             </nz-empty>
           </nz-spin>
+
         </div>
 
 

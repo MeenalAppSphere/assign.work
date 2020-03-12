@@ -393,7 +393,7 @@
                           <div class="task-body">
                             <div>
                               <a href="" class="task-title">
-                                Task name
+                                Task Name
                               </a>
                             </div>
                           </div>
@@ -453,7 +453,7 @@
 
             <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
 
-              <nz-form-label>Default Status</nz-form-label>
+              <nz-form-label>All Status</nz-form-label>
 
               <ul class="stages-list">
                 <li *ngFor="let item of statusList"><span>{{item.name}}</span>
@@ -477,7 +477,7 @@
               [nzNotFoundContent]="contentTpl"
               [nzNotFoundFooter]="footerTpl">
               <ng-template #contentTpl>
-                <span>No Status found</span>
+                <span>No Status Found</span>
               </ng-template>
               <ng-template #footerTpl>
                 <!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>-->
@@ -559,7 +559,7 @@
               [nzNotFoundContent]="contentTpl"
               [nzNotFoundFooter]="footerTpl">
               <ng-template #contentTpl>
-                <span>No Priority found</span>
+                <span>No Priority Found</span>
               </ng-template>
               <ng-template #footerTpl>
                 <!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>-->
@@ -582,7 +582,7 @@
             <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
 
               <nz-form-item>
-                <nz-form-label class="display-name-label">Display name<span class="text-danger">*</span> <small
+                <nz-form-label class="display-name-label">Task prefix<span class="text-danger">*</span> <small
                   style="display:block;letter-spacing: 0;">(as prefix with id eg : <b
                   class="text-info">BUG-1001</b>)</small></nz-form-label>
                 <nz-form-control>
@@ -591,7 +591,7 @@
                 </nz-form-control>
               </nz-form-item>
               <nz-form-item>
-                <nz-form-label>Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
+                <nz-form-label>Task name<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
                   title)</small></nz-form-label>
 
                 <nz-form-control>
@@ -630,7 +630,7 @@
 
           <aside class="col-md-3" *ngIf="typesList && typesList.length>0">
 
-            <nz-form-label>Default Types</nz-form-label>
+            <nz-form-label>All Types</nz-form-label>
 
             <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
 

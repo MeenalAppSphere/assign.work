@@ -46,7 +46,7 @@ export class AddStatusComponent implements OnInit, OnDestroy {
 
   public addStatus() {
     if (this.statusForm.invalid) {
-      this.notification.error('Error', 'Please check Status title');
+      this.notification.error('Error', 'Please check Status Title');
       return;
     }
     const statusData: TaskStatusModel = this.statusForm.value;
