@@ -85,11 +85,13 @@
           </div>
 
           <div class="col-md-8" [ngClass]="activeBoard ? 'text-right' : 'text-left'">
-            <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid"
+            <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+                   || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
                     (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
             </button>
             <button class="m-l-5" nz-button nzType="primary" (click)="saveAndPublish()"
-                    [disabled]="!boardDesignForm.valid">Save &amp; Publish</button>
+                    [disabled]="!boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+                   || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess">Save &amp; Publish</button>
             <!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
             <!--                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip-->
             <!--                                                         [nzTitle]="'Hide status'"></i>Hidden Status-->
@@ -102,7 +104,7 @@
 
           <h5 class="m-t-0 m-b-15">Board Flow</h5>
 
-          <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Processing Board...'"
+          <nz-spin [nzTip]="getActiveBoardInProcess ? 'Getting Active Board...' : 'Updating Board...'"
                    [nzSpinning]="getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
                    || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
                    nzSize="large">
@@ -126,7 +128,7 @@
                       <div class="pull-left">
                         <i nz-icon nzType="close" nzTheme="outline" nz-tooltip
                            *ngIf="!column.headerStatus?.isDefault" (click)="hideColumn(column.headerStatusId)"
-                           [nzTitle]="'Hide Column'"></i>
+                           [nzTitle]="'Remove Column'"></i>
                       </div>
 
                     </div>
@@ -141,25 +143,27 @@
                           <span class="text-black">
                             {{ includedStatus?.status?.name }}
                           </span>
-                          <span class="pull-right cursor-pointer">
 
-                            <nz-avatar nzIcon="user"
-                                       (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)"
-                                       *ngIf="!includedStatus?.defaultAssignee?.profilePic" nz-tooltip
-                                       [nzTitle]="'Default Assignee'"></nz-avatar>
+<!--                          <span class="pull-right cursor-pointer">-->
 
-                            <nz-avatar nzType="user" nzIcon="user"
-                                       (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId, includedStatus?.defaultAssignee)"
-                                       *ngIf="includedStatus?.defaultAssignee?.profilePic"
-                                       [nzSrc]="includedStatus?.defaultAssignee?.profilePic" nz-tooltip
-                                       [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>
+<!--                            <nz-avatar nzIcon="user"-->
+<!--                                       (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId)"-->
+<!--                                       *ngIf="!includedStatus?.defaultAssignee?.profilePic" nz-tooltip-->
+<!--                                       [nzTitle]="'Default Assignee'"></nz-avatar>-->
+
+<!--                            <nz-avatar nzType="user" nzIcon="user"-->
+<!--                                       (click)="showDefaultAssigneeModal(column.headerStatusId, includedStatus.statusId, includedStatus?.defaultAssignee)"-->
+<!--                                       *ngIf="includedStatus?.defaultAssignee?.profilePic"-->
+<!--                                       [nzSrc]="includedStatus?.defaultAssignee?.profilePic" nz-tooltip-->
+<!--                                       [nzTitle]="includedStatus?.defaultAssignee.firstName +' '+ includedStatus?.defaultAssignee.lastName"></nz-avatar>-->
 
                             <!--                          <i class="m-l-10" nz-icon nzType="eye-invisible" nzTheme="outline" nz-tooltip-->
                             <!--                             *ngIf="includedStatus.statusId !== column.headerStatusId"-->
                             <!--                             [nzTitle]="'Hide status'"-->
                             <!--                             (click)="hideStatus(column.headerStatusId, includedStatus.statusId)"></i>-->
 
-                          </span>
+<!--                          </span>-->
+
                         </div>
                       </div>
 

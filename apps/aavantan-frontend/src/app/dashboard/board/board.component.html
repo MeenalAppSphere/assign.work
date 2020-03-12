@@ -167,7 +167,7 @@
                        [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}" [dndDraggable]="task"
                        (dndStart)="onDragStart(item)" [dndEffectAllowed]="'move'">
                     <h6 [ngStyle]="{'color': task.task.taskType.color}">
-                      <span class="cursor-pointer text-primary" (click)="viewTask(task.task)">{{task.task.displayName}}</span>
+                      <a class="cursor-pointer text-primary" routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
                       <span class="float-right duration">
                                         <span nz-tooltip [nzTitle]="'Logged time'"
                                               class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
@@ -177,7 +177,7 @@
                     </h6>
                     <div class="task-body">
                       <div>
-                        <a href="javascript:void(0)" (click)="viewTask(task.task)"
+                        <a routerLink="../task/{{task.task.displayName}}"
                            class="task-title">{{task.task.name}} </a>
                       </div>
                     </div>
