@@ -193,7 +193,7 @@
 
                   <td data-label="Type" class="text-left">
                     <span *ngIf="!item.taskType">-</span>
-                    <a href="javascript:void(0);" class="text-primary" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
+                    <a routerLink="../../task/{{item.displayName}}" class="text-primary" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                   </td>
 
                   <td data-label="Title">
@@ -203,7 +203,7 @@
 
                         <h6 class="m-b-0">
                           <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                            <a href="javascript:void(0)" (click)="viewTask(item)"
+                            <a routerLink="../../task/{{item.displayName}}"
                                class="text-black font-weight-semibold">
                               {{item.name}}
                             </a>
@@ -376,7 +376,7 @@
 
                 <td data-label="Type" class="text-left">
                   <span *ngIf="!item.taskType">-</span>
-                  <a href="javascript:void(0);" class="text-primary" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
+                  <a routerLink="../../task/{{item.displayName}}"  class="text-primary" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                 </td>
 
                 <td data-label="Title">
@@ -386,7 +386,7 @@
 
                       <h6 class="m-b-0">
                         <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                          <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black font-weight-semibold">
+                          <a routerLink="../../task/{{item.displayName}}" class="text-black font-weight-semibold">
                             {{item.name}}
                           </a>
                         </p>

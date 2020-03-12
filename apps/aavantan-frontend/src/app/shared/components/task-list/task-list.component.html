@@ -51,12 +51,12 @@
 
         <div class="clearfix m-b-10 font-size-12">
 
-          <span class="d-inline-block p-t-5 text-primary"
+          <a class="d-inline-block p-t-5 text-primary cursor-pointer" routerLink="../../task/{{item.displayName}}"
                 [nzTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''"
-                nz-tooltip>{{item.displayName}}</span>
+                nz-tooltip>{{item.displayName}}</a>
 
           <span class="float-right">
-                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'" style="text-transform: initial;"
+                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'" style=" text-transform: initial;"
                           class="text-black">{{item.status.name}}</nz-tag>
                   <nz-tag *ngIf="!item.status" [nzColor]="'#F1F2F4'" class="text-black">-</nz-tag>
                 </span>
@@ -66,7 +66,7 @@
         <div class="d-flex justify-content-between m-b-10">
           <div class="media" style="height: 40px">
 
-            <a href="javascript:void(0)" (click)="viewTask(item)">
+            <a routerLink="../../task/{{item.displayName}}">
               <p nz-paragraph nzEllipsis [nzEllipsisRows]="2" class="text-black m-0">{{item.displayName}}
                 : {{item.name}}</p>
             </a>
@@ -222,7 +222,7 @@
 
         <td data-label="Type" class="text-left">
           <span *ngIf="!item.taskType">-</span>
-          <a href="javascript:void(0);" class="text-primary" (click)="viewTask(item)" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
+          <a routerLink="../../task/{{item.displayName}}" class="text-primary" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
         </td>
 
         <td data-label="Title">
@@ -232,7 +232,7 @@
 
               <h6 class="m-b-0">
                 <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                  <a href="javascript:void(0)" (click)="viewTask(item)" class="text-black">
+                  <a routerLink="../../task/{{item.displayName}}" class="text-black">
                     {{item.name}}
                   </a>
                 </p>
