@@ -118,7 +118,7 @@ export class UsersService extends BaseService<User & Document> {
             select: 'firstName lastName emailId userName profilePic sprintId'
           }, {
             path: 'sprint',
-            select: 'name goal totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime'
+            select: 'name goal startedAt endAt totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime'
           }, {
             path: 'createdBy',
             select: 'firstName lastName'
