@@ -3,8 +3,8 @@ import {
   EmailSubjectEnum,
   EmailTemplatePathEnum,
   Project,
-  Sprint,
-  SprintColumn,
+  Sprint, SprintActionEnum,
+  SprintColumn, SprintColumnTask,
   SprintErrorEnum,
   Task,
   UpdateSprintMemberWorkingCapacity,
@@ -25,7 +25,7 @@ import { BoardUtilityService } from '../board/board.utility.service';
 
 export class SprintUtilityService {
   private _boardUtilityService: BoardUtilityService;
-  protected _emailService: EmailService;
+  private _emailService: EmailService;
 
   constructor() {
     this._boardUtilityService = new BoardUtilityService();
@@ -401,6 +401,41 @@ export class SprintUtilityService {
       column.totalEstimation = column.tasks.reduce((previousValue, currentValue) => {
         return previousValue + (currentValue.task ? currentValue.task.estimatedTime : 0);
       }, 0);
+    });
+  }
+
+  /**
+   * move task to new column
+   * moves a task from current column to new column
+   * @param sprintDetails
+   * @param taskDetail
+   * @param oldSprintTask
+   * @param addedById
+   * @param currentColumnIndex
+   * @param newColumnIndex
+   */
+  moveTaskToNewColumn(sprintDetails: Sprint, taskDetail: Task, oldSprintTask: SprintColumnTask,
+                     addedById: string, currentColumnIndex: number, newColumnIndex: number): SprintColumn[] {
+    return sprintDetails.columns.map((column, index) => {
+      // remove from current column and minus estimation time from total column estimation time
+      if (index === currentColumnIndex) {
+        column.totalEstimation -= taskDetail.estimatedTime;
+        column.tasks = column.tasks.filter(task => task.taskId.toString() !== taskDetail.id.toString());
+      }
+
+      // add task to new column and also add task estimation to column total estimation
+      if (index === newColumnIndex) {
+        column.totalEstimation += taskDetail.estimatedTime;
+        column.tasks.push({
+          taskId: taskDetail.id,
+          addedAt: generateUtcDate(),
+          addedById: addedById,
+          description: SprintActionEnum.taskMovedToColumn,
+          totalLoggedTime: oldSprintTask.totalLoggedTime
+        });
+      }
+
+      return column;
     });
   }
 

@@ -156,10 +156,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
   /**
    * update project by id
-   * @param id
    * @param model
    */
-  async updateProject(id: string, model: Project) {
+  async updateProject(model: Project) {
     // validations
     if (!model.id) {
       throw new BadRequestException('Invalid request');
@@ -169,30 +168,24 @@ export class ProjectService extends BaseService<Project & Document> implements O
       throw new BadRequestException('Please Enter Project Name');
     }
 
-    // get organization details
-    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
-    const projectDetails = await this.getProjectDetails(model.id);
+    // update project process
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get organization details
+      await this.getOrganizationDetails(model.organizationId);
+      await this.getProjectDetails(model.id);
 
-    // get user details
-    const userDetails = await this._userService.findById(model.createdBy as string);
-    if (!userDetails) {
-      throw new BadRequestException('User not found');
-    }
+      const updatedProject = new Project();
+      updatedProject.name = model.name;
+      updatedProject.updatedById = this._generalService.userId;
+      updatedProject.description = model.description;
 
-    const session = await this.startSession();
-
-    const updatedProject = new Project();
-    updatedProject.name = model.name;
-    updatedProject.updatedById = this._generalService.userId;
-    updatedProject.description = model.description;
+      await this.updateById(model.id, updatedProject, session);
+    });
 
     try {
-      await this.updateById(id, updatedProject, session);
-      await this.commitTransaction(session);
-      const result = await this.findById(id, projectBasicPopulation);
+      const result = await this.findById(model.id, projectBasicPopulation);
       return this.parseProjectToVm(result);
     } catch (e) {
-      await this.abortTransaction(session);
       throw e;
     }
   }
@@ -704,7 +697,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
           return {
             id: tag._id.toString(),
             name: tag.name
-          }
+          };
         });
     } else {
       return [];

@@ -294,8 +294,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public createProjectForm() {
     this.projectForm = this.FB.group({
+      id: new FormControl(this.currentProject ? this.currentProject.id : null),
       name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required]),
-      org: new FormControl(null)
+      organizationId: new FormControl(this._generalService.currentOrganization.id)
     });
   }
 
@@ -661,7 +662,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   //================== project tab ==================//
   public updateProjectDetails(project: Partial<Project>) {
     this.updateRequestInProcess = true;
-    this._projectService.updateProject(this.currentProject.id, project).subscribe((res => {
+    this._projectService.updateProject(project).subscribe((res => {
       this.updateRequestInProcess = false;
     }), (error => {
       this.updateRequestInProcess = false;

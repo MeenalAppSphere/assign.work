@@ -161,6 +161,10 @@
 
                   <th class="text-center" width="110">
                     <span>Status</span>
+                    <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'status'}"></ng-container>
+                    </span>
                   </th>
 
                   <th class="text-left" width="160">Member</th>
@@ -332,6 +336,10 @@
 
                 <th class="text-center" width="110">
                   <span>Status</span>
+                  <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'status', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
+                    </span>
                 </th>
 
                 <th class="text-left" width="160">Member</th>

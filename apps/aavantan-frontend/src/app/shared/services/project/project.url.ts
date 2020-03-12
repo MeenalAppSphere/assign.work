@@ -4,7 +4,7 @@ export const ProjectUrls = {
   base: `${createUrl('project')}`,
   getAllProject: `${createUrl('project/get-all')}`,
   switchProject: `${createUrl('project/switch-project')}`,
-  updateProject: `${createUrl('project/:projectId')}`,
+  updateProject: `${createUrl('project/update')}`,
   updateTemplate: `${createUrl('project/update-template')}`,
   searchProject: `${createUrl('project/search')}`,
 
