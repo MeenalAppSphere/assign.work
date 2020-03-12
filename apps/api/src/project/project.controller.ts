@@ -40,9 +40,9 @@ export class ProjectController {
     return await this._projectService.delete(id);
   }
 
-  @Put(':id')
-  async updateProject(@Param('id') id: string, @Body() project: Project) {
-    return await this._projectService.updateProject(id, project);
+  @Post('update')
+  async updateProject(@Body() project: Project) {
+    return await this._projectService.updateProject(project);
   }
 
   @Post(':id/add-collaborators')

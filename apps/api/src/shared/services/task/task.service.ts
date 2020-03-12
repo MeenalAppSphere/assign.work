@@ -5,7 +5,7 @@ import {
   DbCollection,
   DeleteTaskModel,
   GetAllTaskRequestModel,
-  GetTaskByIdOrDisplayNameModel,
+  GetTaskByIdOrDisplayNameModel, Project,
   SprintStatusEnum,
   Task,
   TaskFilterCondition,
@@ -28,6 +28,8 @@ import { ProjectService } from '../project/project.service';
 import { TaskUtilityService } from './task.utility.service';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
+import { SprintUtilityService } from '../sprint/sprint.utility.service';
+import { BoardUtilityService } from '../board/board.utility.service';
 
 /**
  * common task population object
@@ -91,6 +93,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
   private _utilityService: TaskUtilityService;
   private _projectUtilityService: ProjectUtilityService;
+  private _sprintUtilityService: SprintUtilityService;
+  private _boardUtilityService: BoardUtilityService;
 
   constructor(
     @InjectModel(DbCollection.tasks) protected readonly _taskModel: Model<Task & Document>,
@@ -109,6 +113,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     this._utilityService = new TaskUtilityService();
     this._projectUtilityService = new ProjectUtilityService();
+    this._sprintUtilityService = new SprintUtilityService();
+    this._boardUtilityService = new BoardUtilityService();
   }
 
   /**
@@ -276,7 +282,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async updateTask(model: Task): Promise<Task> {
-    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
     let isAssigneeChanged = false;
 
     // update task process
@@ -332,7 +338,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // model task-type and model display-name changed then re assign display-name with new task-type
-      if (model.taskType && model.displayName) {
+      if (model.taskTypeId !== taskDetails.taskTypeId) {
         const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
 
         // check if task type changed than update task display name
@@ -376,13 +382,21 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         }
       }
 
+      // check if task is in sprint
+      if (taskDetails.sprintId) {
+        if (model.statusId !== taskDetails.statusId) {
+          // update task position in sprint columns
+          await this.updateTaskStatusInSprint(taskDetails, model.statusId, projectDetails, session);
+        }
+      }
+
+      // update task by id
+      await this.updateById(model.id, model, session);
+
       // create task history object
       // on the basis of task updated model
       const taskHistory = this.taskHistoryObjectHelper(isAssigneeChanged ? TaskHistoryActionEnum.assigneeChanged : TaskHistoryActionEnum.taskUpdated,
         model.id, model);
-
-      // update task by id
-      await this.updateById(model.id, model, session);
 
       // add comment updated history
       await this._taskHistoryService.addHistory(taskHistory, session);
@@ -651,37 +665,42 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   }
 
   /**
-   * common update method for updating task
-   * @param id: task id
-   * @param task: task model
-   * @param history: history object
-   * @param sessionObj: session for transaction
+   * update task status in sprint
+   * update's task column in sprint columns using task status id
+   * @param task
+   * @param newStatusId
+   * @param project
+   * @param session
    */
-  private async updateHelper(id: string, task: any, history: TaskHistory, sessionObj?: ClientSession): Promise<string> {
+  private async updateTaskStatusInSprint(task: Task, newStatusId: string, project: Project, session: ClientSession) {
+    const sprintDetails = await this._sprintService.getSprintDetails(task.sprintId, task.projectId, []);
 
-    if (!id) {
-      throw new BadRequestException('invalid request');
+    const currentColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
+    // check if column exits in sprint
+    if (currentColumnIndex === -1) {
+      BadRequest('Task not found in sprint');
     }
 
-    let session;
-    if (sessionObj) {
-      session = sessionObj;
-    } else {
-      session = await this._taskModel.db.startSession();
-      session.startTransaction();
+    // get new column index where task is dropped
+    const newColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, newStatusId);
+    // check if new column exits in sprint
+    if (newColumnIndex === -1) {
+      BadRequest('Column not found where to move the task');
     }
 
-    try {
-      await this.updateById(id, task, session);
-      await this._taskHistoryService.addHistory(history, session);
-      await session.commitTransaction();
-      session.endSession();
-      return task.id;
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
+    // get task from sprint column that's going to move to new column
+    const oldSprintTask = sprintDetails.columns[currentColumnIndex].tasks.find(
+      sprintTask => sprintTask.taskId.toString() === task.id);
+
+    // move task to new column and remove from old column
+    sprintDetails.columns = this._sprintUtilityService.moveTaskToNewColumn(sprintDetails, task, oldSprintTask,
+      this._generalService.userId, currentColumnIndex, newColumnIndex);
+
+    // update sprint columns
+    await this._sprintService.updateById(sprintDetails.id, {
+      $set: { 'columns': sprintDetails.columns }
+    }, session);
+
   }
 
   /**

@@ -124,8 +124,8 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  updateProject(id: string, model: Partial<Project>): Observable<BaseResponseModel<Project>> {
-    return this._http.put(ProjectUrls.updateProject.replace(':projectId', id), model).pipe(
+  updateProject(model: Partial<Project>): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.updateProject, model).pipe(
       map(res => {
         this.updateCurrentProjectState(res.data);
         this.notification.success('Project Updated', 'Project Settings Updated');

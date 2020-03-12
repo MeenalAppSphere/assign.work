@@ -17,7 +17,7 @@ import {
   RemoveTaskFromSprintModel,
   Sprint,
   SprintActionEnum,
-  SprintColumn,
+  SprintColumn, SprintColumnTask,
   SprintDurationsModel,
   SprintErrorEnum,
   SprintErrorResponse,
@@ -454,6 +454,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
             task.task.name.toLowerCase().indexOf(model.query) > -1 ||
             task.task.displayName.toLowerCase().indexOf(model.query) > -1 ||
             (task.task.description ? task.task.description.toLowerCase().indexOf(model.query) > -1 : '') ||
+            (task.task.assignee ? task.task.assignee.firstName.toLowerCase().indexOf(model.query) > -1 : '') ||
+            (task.task.assignee ? task.task.assignee.lastName.toLowerCase().indexOf(model.query) > -1 : '') ||
+            (task.task.assignee ? task.task.assignee.emailId.toLowerCase().indexOf(model.query) > -1 : '') ||
             task.task.tags.includes(model.query)
           );
         });
@@ -571,6 +574,14 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._projectService.getProjectDetails(model.projectId);
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
+      // get task details
+      const taskDetail: Task = await this._taskService.getTaskDetails(model.taskId, model.projectId);
+
+      // check task is in given sprint
+      if (taskDetail.sprintId.toString() !== model.sprintId) {
+        BadRequest('Task is not part of this sprint');
+      }
+
       // gte column index where task is currently placed
       const currentColumnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, model.taskId);
       // check if column exits in sprint
@@ -590,24 +601,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         BadRequest('Task Sorting not allowed');
       }
 
-      // get task details
-      const taskDetail: Task = await this._taskService.findOne({
-        filter: {
-          projectId: this.toObjectId(model.projectId),
-          _id: model.taskId
-        },
-        lean: true
-      });
-
-      if (!taskDetail) {
-        BadRequest('Task not found');
-      }
-
-      // check task is in given sprint
-      if (taskDetail.sprintId.toString() !== model.sprintId) {
-        throw new BadRequestException('Task is not added in sprint');
-      }
-
       taskDetail.id = taskDetail._id.toString();
 
       // check task validity for moving in sprint
@@ -616,29 +609,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // loop over columns
       // remove task from current column and add it to new column
 
-      // get task that's going to move to new column
-      const oldTask = sprintDetails.columns[currentColumnIndex].tasks.find(task => task.taskId.toString() === model.taskId);
-      sprintDetails.columns = sprintDetails.columns.map((column, index) => {
-        // remove from current column and minus estimation time from total column estimation time
-        if (index === currentColumnIndex) {
-          column.totalEstimation -= taskDetail.estimatedTime;
-          column.tasks = column.tasks.filter(task => task.taskId.toString() !== model.taskId.toString());
-        }
+      // get task from sprint column that's going to move to new column
+      const oldSprintTask = sprintDetails.columns[currentColumnIndex].tasks.find(task => task.taskId.toString() === model.taskId);
 
-        // add task to new column and also add task estimation to column total estimation
-        if (index === newColumnIndex) {
-          column.totalEstimation += taskDetail.estimatedTime;
-          column.tasks.push({
-            taskId: oldTask.taskId,
-            addedAt: generateUtcDate(),
-            addedById: this._generalService.userId,
-            description: SprintActionEnum.taskMovedToColumn,
-            totalLoggedTime: oldTask.totalLoggedTime
-          });
-        }
-
-        return column;
-      });
+      // move task to new column and remove from old column
+      sprintDetails.columns = this._sprintUtilityService.moveTaskToNewColumn(sprintDetails, taskDetail, oldSprintTask,
+        this._generalService.userId, currentColumnIndex, newColumnIndex);
 
       // update sprint columns
       await this.updateById(model.sprintId, {

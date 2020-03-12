@@ -208,6 +208,15 @@ export class TaskUtilityService {
             displayName: { $regex: new RegExp(model.query.toString()), $options: 'i' }
           },
           {
+            'assignee.firstName': { $regex: new RegExp(model.query.toString()), $options: 'i' }
+          },
+          {
+            'assignee.lastName': { $regex: new RegExp(model.query.toString()), $options: 'i' }
+          },
+          {
+            'assignee.emailId': { $regex: new RegExp(model.query.toString()), $options: 'i' }
+          },
+          {
             description: { $regex: new RegExp(model.query.toString()), $options: 'gi' }
           },
           {
