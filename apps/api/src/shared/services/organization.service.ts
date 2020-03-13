@@ -135,7 +135,7 @@ export class OrganizationService extends BaseService<Organization & Document> im
       // get project of given organization sort by update at in descending order
       const projectsOfThisOrganization = await this._projectService.find({
         filter: {
-          organization: organizationId,
+          organizationId: organizationId,
           members: {
             $elemMatch: { userId: this._generalService.userId }
           }
