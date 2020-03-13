@@ -46,7 +46,7 @@ import { environment } from '../../../environments/environment';
 import { InvitationService } from '../invitation.service';
 import { ModuleRef } from '@nestjs/core';
 import { EmailService } from '../email.service';
-import { OrganizationService } from '../organization.service';
+import { OrganizationService } from '../organization/organization.service';
 import { ProjectUtilityService } from './project.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { BoardService } from '../board/board.service';

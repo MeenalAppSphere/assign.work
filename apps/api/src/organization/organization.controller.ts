@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { OrganizationService } from '../shared/services/organization.service';
+import { OrganizationService } from '../shared/services/organization/organization.service';
 import { Organization } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 

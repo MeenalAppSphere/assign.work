@@ -176,13 +176,22 @@ export const BadRequest = (msg: string) => {
 };
 
 /**
+ * check organization and project name is valid or not
+ * allows A-Z a-z 0-9 () - _
+ * @param term
+ */
+export const validOrganizationOrProjectName = (term: string = '') => {
+  return /^[A-Za-z0-9()_\-\s*]+$/;
+};
+
+/**
  * check is valid string or not
  * @param term
  * @param whiteSpaceAllowed
  */
 export const isValidString = (term: string, whiteSpaceAllowed: boolean = false) => {
   if (whiteSpaceAllowed) {
-    return /^[A-Za-z\s*]+$/.test(term);
+    return /^[A-Za-z0-9\s*]+$/.test(term);
   } else {
     return /^[A-Za-z]+$/.test(term);
   }
@@ -224,4 +233,8 @@ export const getEmailTemplateFromEmailSubject = (subject: EmailSubjectEnum) => {
  */
 export const toObjectId = (id: string | number): Types.ObjectId => {
   return new Types.ObjectId(id);
+};
+
+export const maxLengthValidator = (property: string = '', maxLength: number) => {
+  return property.length > maxLength;
 };

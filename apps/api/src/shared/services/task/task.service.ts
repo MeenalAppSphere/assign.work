@@ -490,7 +490,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     try {
       await this._projectService.getProjectDetails(model.projectId);
 
-      // preapre filter from given model
+      // prepare filter from given model
       const queryFilter = this._utilityService.prepareFilterQuery(model);
 
       // check is valid key for sorting...

@@ -1,18 +1,21 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { BaseService } from './base.service';
+import { BaseService } from '../base.service';
 import { DbCollection, Organization, User } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Document, Model } from 'mongoose';
-import { UsersService } from './users.service';
+import { UsersService } from '../users.service';
 import { ModuleRef } from '@nestjs/core';
-import { GeneralService } from './general.service';
-import { ProjectService } from './project/project.service';
-import { BadRequest } from '../helpers/helpers';
+import { GeneralService } from '../general.service';
+import { ProjectService } from '../project/project.service';
+import { BadRequest, validOrganizationOrProjectName } from '../../helpers/helpers';
+import { OrganizationUtilityService } from './organization.utility.service';
 
 @Injectable()
 export class OrganizationService extends BaseService<Organization & Document> implements OnModuleInit {
   private _userService: UsersService;
   private _projectService: ProjectService;
+
+  private _utilityService: OrganizationUtilityService;
 
   constructor(
     @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
@@ -25,6 +28,8 @@ export class OrganizationService extends BaseService<Organization & Document> im
   onModuleInit(): any {
     this._userService = this._moduleRef.get('UsersService');
     this._projectService = this._moduleRef.get('ProjectService');
+
+    this._utilityService = new OrganizationUtilityService();
   }
 
   /**
@@ -33,12 +38,11 @@ export class OrganizationService extends BaseService<Organization & Document> im
    * @param organization
    */
   async createOrganization(organization: Organization) {
-    if (!organization) {
-      BadRequest('invalid request, organization name is required');
-    }
+    this._utilityService.createOrganizationValidation(organization);
 
-    if (!organization.name) {
-      BadRequest('invalid request, organization name is required');
+    // duplicate organization name
+    if (await this.isDuplicate(organization)) {
+      BadRequest('Duplicate organization name not allowed');
     }
 
     return await this.withRetrySession(async (session: ClientSession) => {
@@ -162,5 +166,26 @@ export class OrganizationService extends BaseService<Organization & Document> im
       await this.abortTransaction(session);
       throw e;
     }
+  }
+
+  /**
+   * is duplicate organization name
+   * @param model
+   * @param exceptThis
+   */
+  private async isDuplicate(model: Organization, exceptThis?: string): Promise<boolean> {
+    const queryFilter = {
+      name: { $regex: `^${model.name.trim()}$`, $options: 'i' }
+    };
+
+    if (exceptThis) {
+      queryFilter['_id'] = { $ne: exceptThis };
+    }
+
+    const queryResult = await this.find({
+      filter: queryFilter
+    });
+
+    return !!(queryResult && queryResult.length);
   }
 }

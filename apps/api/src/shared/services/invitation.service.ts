@@ -6,7 +6,7 @@ import { BadRequestException, OnModuleInit } from '@nestjs/common';
 import { isInvitationExpired } from '../helpers/helpers';
 import { ProjectService } from './project/project.service';
 import { ModuleRef } from '@nestjs/core';
-import { OrganizationService } from './organization.service';
+import { OrganizationService } from './organization/organization.service';
 import { UsersService } from './users.service';
 import { GeneralService } from './general.service';
 

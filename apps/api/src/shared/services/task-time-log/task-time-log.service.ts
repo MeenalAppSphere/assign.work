@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
 import {
   AddTaskTimeModel,
   DbCollection,
-  Project,
-  Sprint, SprintColumnTask,
+  Sprint,
+  SprintColumnTask,
   SprintStatusEnum,
   Task,
   TaskHistory,
@@ -12,13 +12,11 @@ import {
   TaskTimeLog,
   TaskTimeLogHistoryModel,
   TaskTimeLogHistoryResponseModel,
-  TaskTimeLogResponse,
-  User
+  TaskTimeLogResponse
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from '../general.service';
-import * as moment from 'moment';
 import { BadRequest, secondsToString, stringToSeconds } from '../../helpers/helpers';
 import { TaskHistoryService } from '../task-history.service';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
