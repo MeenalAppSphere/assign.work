@@ -1,5 +1,5 @@
 import { Project, ProjectMembers, User } from '@aavantan-app/models';
-import { BadRequest } from '../../helpers/helpers';
+import { BadRequest, maxLengthValidator, validOrganizationOrProjectName } from '../../helpers/helpers';
 import {
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
@@ -12,12 +12,35 @@ export class ProjectUtilityService {
   constructor() {
   }
 
-  checkAddProjectValidations(project: Project) {
+  /**
+   * check add project validations
+   * @param project
+   */
+  checkAddUpdateProjectValidations(project: Project) {
+    if (!project) {
+      BadRequest('Project name is required');
+    }
+
+    // name validation
     if (!project.name || !project.name.trim()) {
       BadRequest('Project name is required');
     }
+
+    // name valid string
+    if (!validOrganizationOrProjectName(project.name)) {
+      BadRequest('Invalid project name');
+    }
+
+    // max length validation
+    if (!maxLengthValidator(project.name, 250)) {
+      BadRequest('Project name should not be grater than 250 characters');
+    }
   }
 
+  /**
+   * prepare project model from request
+   * @param requestModel
+   */
   prepareProjectModelFromRequest(requestModel: Project): Project {
     const project = new Project();
 
@@ -35,6 +58,10 @@ export class ProjectUtilityService {
     return project;
   }
 
+  /**
+   * prepare project member model
+   * @param user
+   */
   prepareProjectMemberModel(user: User): ProjectMembers {
     return {
       userId: user.id,

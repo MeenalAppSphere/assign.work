@@ -181,7 +181,7 @@ export const BadRequest = (msg: string) => {
  * @param term
  */
 export const validOrganizationOrProjectName = (term: string = '') => {
-  return /^[A-Za-z0-9()_\-\s*]+$/;
+  return /^[A-Za-z0-9()_\-\s*]+$/.test(term);
 };
 
 /**
@@ -236,5 +236,5 @@ export const toObjectId = (id: string | number): Types.ObjectId => {
 };
 
 export const maxLengthValidator = (property: string = '', maxLength: number) => {
-  return property.length > maxLength;
+  return !(property.length > maxLength);
 };

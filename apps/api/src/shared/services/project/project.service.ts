@@ -96,21 +96,22 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * return {Project}
    */
   async createProject(model: Project) {
+    // check validations
+    this._utilityService.checkAddUpdateProjectValidations(model);
+
+    // duplicate project name checker
+    if (await this.isDuplicate(model)) {
+      BadRequest('Duplicate Project Name not allowed');
+    }
+
     const newProject = await this.withRetrySession(async (session: ClientSession) => {
       // get organization details
       await this.getOrganizationDetails(model.organizationId);
-
-      // check validations
-      this._utilityService.checkAddProjectValidations(model);
 
       // get user details
       const userDetails = await this._userService.findById(this._generalService.userId);
       if (!userDetails) {
         BadRequest('User not found');
-      }
-
-      if (await this.isDuplicate(model)) {
-        BadRequest('Duplicate Project Name not allowed');
       }
 
       const projectModel = this._utilityService.prepareProjectModelFromRequest(model);
@@ -159,13 +160,17 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param model
    */
   async updateProject(model: Project) {
+    // check validations
+    this._utilityService.checkAddUpdateProjectValidations(model);
+
     // validations
     if (!model.id) {
       throw new BadRequestException('Invalid request');
     }
 
-    if (model.name && !model.name.trim()) {
-      throw new BadRequestException('Please Enter Project Name');
+    // duplicate project name checker
+    if (await this.isDuplicate(model, model.id)) {
+      BadRequest('Duplicate Project Name not allowed');
     }
 
     // update project process
