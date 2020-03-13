@@ -2,11 +2,12 @@ import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from
 import { BaseService } from './base.service';
 import { DbCollection, Organization, User } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
-import { Document, Model } from 'mongoose';
+import { ClientSession, Document, Model } from 'mongoose';
 import { UsersService } from './users.service';
 import { ModuleRef } from '@nestjs/core';
 import { GeneralService } from './general.service';
 import { ProjectService } from './project/project.service';
+import { BadRequest } from '../helpers/helpers';
 
 @Injectable()
 export class OrganizationService extends BaseService<Organization & Document> implements OnModuleInit {
@@ -32,39 +33,40 @@ export class OrganizationService extends BaseService<Organization & Document> im
    * @param organization
    */
   async createOrganization(organization: Organization) {
-    const session = await this.startSession();
+    if (!organization) {
+      BadRequest('invalid request, organization name is required');
+    }
 
-    const organizationModel = new Organization();
-    organizationModel.name = organization.name;
-    organizationModel.description = organization.description;
-    organizationModel.billableMemberCount = 1;
-    organizationModel.activeMembersCount = 1;
-    organizationModel.createdBy = this._generalService.userId;
+    if (!organization.name) {
+      BadRequest('invalid request, organization name is required');
+    }
 
-    // add organization owner as organization member
-    organizationModel.members = [this._generalService.userId];
+    return await this.withRetrySession(async (session: ClientSession) => {
 
-    try {
+      const organizationModel = new Organization();
+      organizationModel.name = organization.name;
+      organizationModel.description = organization.description;
+      organizationModel.billableMemberCount = 1;
+      organizationModel.activeMembersCount = 1;
+      organizationModel.createdBy = this._generalService.userId;
+
+      // add organization owner as organization member
+      organizationModel.members = [this._generalService.userId];
+
       const result = await this.create([organizationModel], session);
 
       // update user
-      const userDetails = await this._userService.findById(organization.createdBy as string);
+      await this._userService.findById(organization.createdBy as string);
 
       // set organization as current organization for user
-      // if (!userDetails.organizations.length) {
-      userDetails.currentOrganizationId = result[0].id;
-      // }
-
-      // add organization to user organization array
-      userDetails.organizations.push(result[0].id);
-      await this._userService.updateUser(userDetails.id, userDetails, session);
-
-      await this.commitTransaction(session);
+      // add organization to user organizations array
+      await this._userService.updateUser(organization.createdBy as string, {
+        $set: {
+          currentOrganizationId: result[0].id
+        }, $push: { organizations: result[0].id }
+      }, session);
       return result[0];
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
+    });
   }
 
   async deleteOrganization(id: string) {
