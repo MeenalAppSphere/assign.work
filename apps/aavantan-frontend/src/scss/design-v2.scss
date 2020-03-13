@@ -674,6 +674,9 @@ $color-green : #42E3A3;
 
 
 /*quill*/
+.ql-mention-list-container {
+  z-index: 1;
+}
 .ql-editor{
   min-height: 120px;
   * {
