@@ -207,7 +207,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
-      color: new FormControl(null, [Validators.required]),
+      color: new FormControl("#000000" ),
       description: new FormControl(''),
       projectId: new FormControl(this.currentProject.id)
     });
@@ -593,7 +593,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   public copyName() {
-    this.taskTypeForm.get('displayName').patchValue(this.taskTypeForm.get('name').value);
+    // 
+    // this.taskTypeForm.get('displayName').patchValue(this.taskTypeForm.get('name').value);
   }
 
   //================== capacity ==================//

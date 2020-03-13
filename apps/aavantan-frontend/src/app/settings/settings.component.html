@@ -586,7 +586,7 @@
                   class="text-info">BUG-1001</b>)</small></nz-form-label>
                 <nz-form-control>
                   <input class="task-type-input" type="text" nzSize="small"
-                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="20"/>
+                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>
                 </nz-form-control>
               </nz-form-item>
               <nz-form-item>
@@ -597,7 +597,7 @@
                   <nz-input-group [nzAddOnBefore]="profixIconButton">
                     <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"
                            nz-input
-                           placeholder="Enter Task type"/>
+                           placeholder="Enter Task Name"/>
                   </nz-input-group>
                   <ng-template #profixIconButton>
                     <input type="color" nzSize="small" formControlName="color"/>
