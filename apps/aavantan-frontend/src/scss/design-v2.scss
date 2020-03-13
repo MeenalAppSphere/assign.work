@@ -78,7 +78,7 @@ $color-green : #42E3A3;
 }
 
 .ant-card-small>.ant-card-head {
-  padding: 6px 15px;
+  padding: 0px 15px;
   font-size: 18px;
 }
 .ant-card-small>.ant-card-body {
@@ -676,6 +676,9 @@ $color-green : #42E3A3;
 /*quill*/
 .ql-editor{
   min-height: 120px;
+  * {
+    color: $color-black;
+  }
 }
 
 .ql-mention-list-container {

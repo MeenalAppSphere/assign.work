@@ -47,7 +47,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
       // check if duplicate
       if (await this.isDuplicate(model)) {
-        BadRequest('Status name is already taken, please choose different');
+        BadRequest('Status title is already taken, please choose different');
       }
 
       const status = new TaskStatusModel();
