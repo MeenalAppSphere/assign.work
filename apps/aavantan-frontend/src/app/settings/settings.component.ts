@@ -592,8 +592,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public copyDispalyName() {
-    this.taskTypeForm.get('name').patchValue(this.taskTypeForm.get('displayName').value);
+  public copyName() {
+    this.taskTypeForm.get('displayName').patchValue(this.taskTypeForm.get('name').value);
   }
 
   //================== capacity ==================//

@@ -40,11 +40,9 @@ import { UserService } from '../shared/services/user/user.service';
 import { debounceTime } from 'rxjs/operators';
 import { ProjectService } from '../shared/services/project/project.service';
 import 'quill-mention';
-import 'quill-emoji';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
-import { ValidationRegexService } from '../shared/services/validation-regex.service';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -350,9 +348,13 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     if (this.currentProject.members.length > 0) {
       this.currentProject.members.forEach((ele) => {
+        let name = ele.userDetails.firstName + ' ' + ele.userDetails.lastName;
+        if(!ele.userDetails.firstName) {
+          name  = ele.userDetails.emailId
+        }
         this.atMentionUsers.push({
           id: ele.userId,
-          value: ele.userDetails.firstName + ' ' + ele.userDetails.lastName,
+          value: name,
           link: ele.userDetails.profileLink ? ele.userDetails.profileLink : ''
         });
       });
@@ -370,12 +372,7 @@ export class TaskComponent implements OnInit, OnDestroy {
           [{ 'color': ['#333333', '#000000', 'red','green'] }],
           ['clean'],                                         // remove formatting button
           ['link', 'image', 'video']
-            ['emoji']
         ],
-        handlers: {
-          'emoji': function() {
-          }
-        }
       },
       mention: {
         allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
@@ -400,9 +397,6 @@ export class TaskComponent implements OnInit, OnDestroy {
           }
         }
       },
-      'emoji-toolbar': true,
-      'emoji-textarea': false,
-      'emoji-shortname': true,
       keyboard: {
         bindings: {
           shiftEnter: {
