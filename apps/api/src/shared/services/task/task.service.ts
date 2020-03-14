@@ -5,7 +5,8 @@ import {
   DbCollection,
   DeleteTaskModel,
   GetAllTaskRequestModel,
-  GetTaskByIdOrDisplayNameModel, Project,
+  GetTaskByIdOrDisplayNameModel,
+  Project,
   SprintStatusEnum,
   Task,
   TaskFilterCondition,
@@ -488,8 +489,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    */
   async getTasks(model: TaskFilterModel) {
     try {
-      await this._projectService.getProjectDetails(model.projectId);
-
       // prepare filter from given model
       const queryFilter = this._utilityService.prepareFilterQuery(model);
 
@@ -610,17 +609,44 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model
    */
   async getAllBacklogs(model: TaskFilterModel) {
-    if (!model || !model.projectId) {
-      BadRequest('Project Not Found');
+    try {
+      if (!model || !model.projectId) {
+        BadRequest('Project Not Found');
+      }
+
+      // project details
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+
+      model = { ...new TaskFilterModel(model.projectId), ...model };
+
+      // filter out last column status data as it is last status so filter them out
+      if (projectDetails.activeBoard) {
+        // check if have more than one columns
+        if (projectDetails.activeBoard.columns.length > 1) {
+          // get last column and last column status
+          const lastStatusId = projectDetails.activeBoard.columns[projectDetails.activeBoard.columns.length - 1].headerStatusId;
+
+          if (lastStatusId) {
+            // filter out tasks with the last status id
+            model.queries.push({
+              key: 'statusId',
+              value: [lastStatusId],
+              condition: TaskFilterCondition.and,
+              reverseFilter: true
+            });
+          }
+        }
+      }
+
+      // query for task not in sprint , sprintId === undefined || sprintId === null
+      model.queries.push({
+        key: 'sprintId', value: [undefined, null], condition: TaskFilterCondition.and
+      });
+
+      return this.getTasks(model);
+    } catch (e) {
+      throw e;
     }
-
-    model = { ...new TaskFilterModel(model.projectId), ...model };
-
-    model.queries.push({
-      key: 'sprintId', value: [undefined, null], condition: TaskFilterCondition.and
-    });
-
-    return this.getTasks(model);
   }
 
   /**
@@ -631,12 +657,15 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     if (!model || !model.projectId) {
       BadRequest('Project Not Found');
     }
+
+    await this._projectService.getProjectDetails(model.projectId);
+
     model = { ...new TaskFilterModel(model.projectId), ...model };
 
     // set query for my tasks only
-    model.queries = [...model.queries, ...[{
+    model.queries.push({
       key: 'assigneeId', value: [toObjectId(this._generalService.userId)], condition: TaskFilterCondition.and
-    }]];
+    });
 
     return this.getTasks(model);
   }
