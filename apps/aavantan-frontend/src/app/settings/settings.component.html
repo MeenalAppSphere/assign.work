@@ -15,8 +15,8 @@
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='board_settings'}"
          (click)="activeTab('board_settings', 'Board Settings')">
-        <img *ngIf="activeView.view==='board_settings'" src="../../assets/images/icons/white_workflow.svg"/>
-        <img *ngIf="activeView.view!=='board_settings'" src="../../assets/images/icons/workflow.svg">
+        <img *ngIf="activeView.view==='board_settings'" src="../../assets/images/icons/white_board_settings.svg"/>
+        <img *ngIf="activeView.view!=='board_settings'" src="../../assets/images/icons/board_settings.svg">
         <div>Board Settings</div>
       </a>
     </li>
@@ -104,6 +104,10 @@
           <button nz-button nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>
         </span>
 
+        <span *ngIf="activeView.view==='taskType'">
+          <button nz-button nzType="primary" (click)="toggleAddTaskTypeShow()">+ Add Task Type</button>
+        </span>
+
         <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
         </button>
 
@@ -112,7 +116,7 @@
       <!-- project tab -->
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
-          <aside class="col-md-3">
+          <aside class="col-md-4">
             <form nz-form class="register-form" [formGroup]="projectForm">
               <nz-form-item>
                 <nz-form-label>Organization</nz-form-label>
@@ -576,57 +580,58 @@
 
         <section class="row task-type-section">
 
-          <aside class="col-md-3">
+<!--          <aside class="col-md-3">-->
 
-            <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
+<!--            <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">-->
 
-              <nz-form-item>
-                <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span> <small
-                  style="display:block;letter-spacing: 0;">(as prefix with id eg : <b
-                  class="text-info">BUG-1001</b>)</small></nz-form-label>
-                <nz-form-control>
-                  <input class="task-type-input" type="text" nzSize="small"
-                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>
-                </nz-form-control>
-              </nz-form-item>
-              <nz-form-item>
-                <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
-                  title)</small></nz-form-label>
+<!--              <nz-form-item>-->
+<!--                <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span> <small-->
+<!--                  style="display:block;letter-spacing: 0;">(as prefix with id eg : <b-->
+<!--                  class="text-info">BUG-1001</b>)</small></nz-form-label>-->
+<!--                <nz-form-control>-->
+<!--                  <input class="task-type-input" type="text" nzSize="small"-->
+<!--                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>-->
+<!--                </nz-form-control>-->
+<!--              </nz-form-item>-->
+<!--              <nz-form-item>-->
+<!--                <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and-->
+<!--                  title)</small></nz-form-label>-->
 
-                <nz-form-control>
-                  <nz-input-group [nzAddOnBefore]="profixIconButton">
-                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"
-                           nz-input
-                           placeholder="Enter Task Name"/>
-                  </nz-input-group>
-                  <ng-template #profixIconButton>
-                    <input type="color" nzSize="small" formControlName="color"/>
-                  </ng-template>
-                </nz-form-control>
+<!--                <nz-form-control>-->
+<!--                  <nz-input-group [nzAddOnBefore]="profixIconButton">-->
+<!--                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"-->
+<!--                           nz-input-->
+<!--                           placeholder="Enter Task Name"/>-->
+<!--                  </nz-input-group>-->
+<!--                  <ng-template #profixIconButton>-->
+<!--                    <input type="color" nzSize="small" formControlName="color"/>-->
+<!--                  </ng-template>-->
+<!--                </nz-form-control>-->
 
-              </nz-form-item>
+<!--              </nz-form-item>-->
 
-              <nz-form-item>
+<!--              <nz-form-item>-->
 
-                <nz-form-label>Description</nz-form-label>
-                <nz-form-control>
-                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"
-                            placeholder="Enter Status Description" rows="5"></textarea>
-                </nz-form-control>
+<!--                <nz-form-label>Description</nz-form-label>-->
+<!--                <nz-form-control>-->
+<!--                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"-->
+<!--                            placeholder="Enter Status Description" rows="5"></textarea>-->
+<!--                </nz-form-control>-->
 
-              </nz-form-item>
+<!--              </nz-form-item>-->
 
-              <nz-form-item>
-                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid"
-                        [nzLoading]="updateRequestInProcess" nzSize="small">Add
-                </button>
-              </nz-form-item>
+<!--              <nz-form-item>-->
+<!--                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid"-->
+<!--                        [nzLoading]="updateRequestInProcess" nzSize="small">Add-->
+<!--                </button>-->
+<!--              </nz-form-item>-->
 
-            </form>
+<!--            </form>-->
 
-          </aside>
 
-          <aside class="col-md-3" *ngIf="typesList && typesList.length>0">
+<!--          </aside>-->
+
+          <aside class="col-md-4" *ngIf="typesList && typesList.length>0">
 
             <nz-form-label>All Types</nz-form-label>
 
@@ -638,7 +643,11 @@
                   <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
                      [ngStyle]="{'color':item.color}"></i>
                   <span>{{item.name}}</span>
-                  <!--                  <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+                  <span class="float-right">
+                      <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close"></i>
+                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline"
+                         class="edit right-30"></i>
+                  </span>
                 </li>
 
               </ul>
@@ -759,6 +768,18 @@
       [addPriorityModalIsVisible]="addPriorityModalIsVisible"
       (toggleAddPriorityShow)="toggleAddPriorityShow($event)">
     </aavantan-add-priority>
+  </ng-container>
+  <!-- endregion -->
+
+
+  <!-- region add/edit task type -->
+  <ng-container *ngIf="addTaskTypeModalIsVisible">
+    <aavantan-task-type
+      [typesList]="typesList"
+      [addEditprojectTaskTypeData]="addEditprojectTaskTypeData"
+      [addTaskTypeModalIsVisible]="addTaskTypeModalIsVisible"
+      (toggleAddTaskTypeShow)="toggleAddTaskTypeShow($event)">
+    </aavantan-task-type>
   </ng-container>
   <!-- endregion -->
 

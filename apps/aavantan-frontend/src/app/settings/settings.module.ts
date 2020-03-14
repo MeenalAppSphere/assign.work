@@ -6,6 +6,7 @@ import { SharedModule } from '../shared/shared.module';
 import { SortableModule, TypeaheadModule } from 'ngx-bootstrap';
 import { AddPriorityComponent } from './add-priority/add-priority.component';
 import { AddStatusComponent } from './add-status/add-status.component';
+import { AddTaskTypeComponent } from './add-task-type/add-task-type.component';
 
 const routes: Routes = [
   { path: '', component: SettingsComponent }
@@ -25,7 +26,8 @@ const routes: Routes = [
   declarations: [
     SettingsComponent,
     AddStatusComponent,
-    AddPriorityComponent
+    AddPriorityComponent,
+    AddTaskTypeComponent
   ]
 })
 export class SettingsModule {

@@ -1,0 +1,53 @@
+<nz-modal [(nzVisible)]="addTaskTypeModalIsVisible" [nzTitle]="titleTemp" nzClassName="priority-modal"
+          nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+  <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
+    <div class="task-type-section">
+
+      <nz-form-item>
+        <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span><small>&nbsp;(as prefix with id eg : <b
+          class="text-info">BUG-1001</b>)</small></nz-form-label>
+        <nz-form-control>
+          <input class="task-type-input" type="text" nzSize="small"
+                 formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
+          title)</small></nz-form-label>
+
+        <nz-form-control>
+          <nz-input-group [nzAddOnBefore]="profixIconButton">
+            <input class="task-type-input" type="text" nzSize="small" formControlName="name" maxlength="20"
+                   nz-input
+                   placeholder="Enter Task Name"/>
+          </nz-input-group>
+          <ng-template #profixIconButton>
+            <input type="color" nzSize="small" formControlName="color"/>
+          </ng-template>
+        </nz-form-control>
+
+      </nz-form-item>
+
+      <nz-form-item>
+
+        <nz-form-label>Description</nz-form-label>
+        <nz-form-control>
+                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"
+                            placeholder="Enter Status Description" rows="5"></textarea>
+        </nz-form-control>
+
+      </nz-form-item>
+
+    </div>
+    <div *nzModalFooter>
+      <button type="button" nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button type="submit" nz-button nzType="primary" (click)="saveTaskType()" [disabled]="taskTypeForm.invalid"
+              [nzLoading]="updateRequestInProcess" nzSize="small">
+        {{addEditprojectTaskTypeData?.id ? 'Save' : 'Add'}}
+      </button>
+    </div>
+    <ng-template #titleTemp>
+      <span>{{addEditprojectTaskTypeData?.id ? 'Edit Task Type' : 'Add Task Type'}}</span>
+    </ng-template>
+  </form>
+</nz-modal>

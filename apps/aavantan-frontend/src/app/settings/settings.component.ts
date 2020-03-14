@@ -102,9 +102,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public addEditprojectStatusData: ProjectStatus;
   public addEditprojectPriorityData: ProjectPriority;
+  public addEditprojectTaskTypeData: TaskTypeModel;
   public addStatusModalIsVisible: boolean;
   public addPriorityModalIsVisible: boolean;
+  public addTaskTypeModalIsVisible: boolean;
   public getBoardListRequestModal: GetAllBoardsRequestModel = new GetAllBoardsRequestModel();
+
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
@@ -592,8 +595,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }));
   }
 
+  public toggleAddTaskTypeShow(item?: TaskTypeModel) {
+    if (item) {
+      this.addEditprojectTaskTypeData = item;
+    } else {
+      this.addEditprojectTaskTypeData = null;
+    }
+    this.addTaskTypeModalIsVisible = !this.addTaskTypeModalIsVisible;
+  }
+
+
   public copyName() {
-    //
     // this.taskTypeForm.get('displayName').patchValue(this.taskTypeForm.get('name').value);
   }
 
