@@ -68,6 +68,7 @@ export class TaskUtilityService {
     taskModel.watchers = model.watchers || [];
     taskModel.description = model.description || '';
     taskModel.tags = model.tags;
+    taskModel.attachments = model.attachments || [];
 
     taskModel.taskTypeId = model.taskTypeId;
     taskModel.priorityId = model.priorityId;
