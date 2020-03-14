@@ -235,6 +235,11 @@ export const toObjectId = (id: string | number): Types.ObjectId => {
   return new Types.ObjectId(id);
 };
 
+/**
+ * max length validator
+ * @param property
+ * @param maxLength
+ */
 export const maxLengthValidator = (property: string = '', maxLength: number) => {
   return !(property.length > maxLength);
 };

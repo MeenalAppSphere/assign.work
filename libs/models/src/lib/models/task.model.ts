@@ -90,6 +90,7 @@ export class TaskFilterQuery {
   key: string;
   value: any[];
   condition: TaskFilterCondition;
+  reverseFilter?: boolean = false
 }
 
 export class TaskFilterModel extends MongoosePaginateQuery {

@@ -68,6 +68,7 @@ export class TaskUtilityService {
     taskModel.watchers = model.watchers || [];
     taskModel.description = model.description || '';
     taskModel.tags = model.tags;
+    taskModel.attachments = model.attachments || [];
 
     taskModel.taskTypeId = model.taskTypeId;
     taskModel.priorityId = model.priorityId;
@@ -234,15 +235,20 @@ export class TaskUtilityService {
         // and condition
         // add directly to the filter.$add
         if (query.condition === TaskFilterCondition.and) {
+          // check if reverse filter is set than use $nin => not in query
+          // else use $in => in query
           filter.$and.push(
-            { [query.key]: { $in: query.value } }
+            { [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value } }
           );
         } else {
           // or condition
           // find last $or stage in filter and add query to last $or stage
           // because this is advance query and it will be executed at last
+
+          // check if reverse filter is set than use $nin => not in query
+          // else use $in => in query
           filter.$and[filter.$and.length - 1].$or.push({
-            [query.key]: { $in: query.value }
+            [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value }
           });
         }
       });
