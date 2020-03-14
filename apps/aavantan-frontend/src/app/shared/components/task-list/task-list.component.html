@@ -10,16 +10,16 @@
 
       <nz-button-group>
 
-        <button nz-button nzType="default" style="height: 33.33px;">
+        <button nz-button nzType="default" style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">
           <label
             nz-checkbox
             [(ngModel)]="allChecked"
             (ngModelChange)="updateAllChecked()"
             [nzIndeterminate]="indeterminate">
-            Check all
+            Status Filter
           </label>
         </button>
-        <button nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight" style="border-left:1px solid #ffffff; min-width:35px; height:33.33px;">
+        <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight" style="border-left:1px solid #ffffff; min-width:35px; height:33.33px;">
           <i nz-icon nzType="caret-down" nzTheme="outline"></i>
         </button>
       </nz-button-group>

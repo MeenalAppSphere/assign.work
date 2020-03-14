@@ -1,4 +1,6 @@
-<div id="row-main" class="form-container row">
+<section id="row-main" class="form-container row" *ngIf="!showTaskNotFoundView">
+
+
   <aside id="content" class="m-b-20 p-r-25 m-t-10" [ngClass]="{
       'col-md-8': isOpenActivitySidebar && taskId,
       'col-md-12': !isOpenActivitySidebar || !taskId
@@ -576,8 +578,10 @@
                                                [taskId]="taskId"
                                                [commentsList]="pinnedCommentsList"></aavantan-app-activity>
                       </ng-container>
-                      <div *ngIf="pinnedCommentsList && pinnedCommentsList.length===0">
-                        <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                      <div *ngIf="pinnedCommentsList && pinnedCommentsList.length===0" class="m-t-30">
+                        <nz-empty
+                          [nzNotFoundImage]="'../../../assets/images/not-found/no-pin-comments.svg'"
+                          [nzNotFoundContent]="contentActivity"></nz-empty>
                         <ng-template #contentActivity>
                           <span> No Pinned Comments</span>
                         </ng-template>
@@ -587,10 +591,12 @@
 
                 </div>
 
-                <div *ngIf="!taskId">
-                  <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                <div *ngIf="!taskId" style="height:130px;" class="m-t-30">
+                  <nz-empty
+                    [nzNotFoundImage]="'../../../assets/images/not-found/no-pin-comments.svg'"
+                    [nzNotFoundContent]="contentActivity"></nz-empty>
                   <ng-template #contentActivity>
-                    <span> No Comments</span>
+                    <span>No Pinned Comments</span>
                   </ng-template>
                 </div>
 
@@ -636,4 +642,21 @@
   <app-add-epic *ngIf="epicModalIsVisible" (toggleEpicShow)="toggleNewEpicModal()" [selectedTaskType]="selectedTaskType"
                 [taskTypeDataSource]="taskTypeDataSource" [epicModalIsVisible]="epicModalIsVisible"></app-add-epic>
 
-</div>
+</section>
+
+
+<section *ngIf="showTaskNotFoundView" class="m-t-70">
+  <nz-empty
+    [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+    [nzNotFoundContent]="contentTpl"
+    [nzNotFoundFooter]="footerTpl">
+    <ng-template #contentTpl>
+      <div class="m-b-20"><span>Task Not Found</span></div>
+      <span class="font-weight-normal font-size-15">
+        If you still can't link to the task, contact your project owner.</span>
+    </ng-template>
+    <ng-template #footerTpl>
+      <a routerLink="../../backlog" nz-button nzType="link">Backlogs</a>
+    </ng-template>
+  </nz-empty>
+</section>

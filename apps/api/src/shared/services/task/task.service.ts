@@ -264,7 +264,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }).populate(taskFullPopulation).select('-comments').lean().exec();
 
       if (!task) {
-        BadRequest('task not found');
+        BadRequest('Task not found');
       }
 
       // task is created now send all the mails
@@ -308,7 +308,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         if (model.estimatedTime !== taskDetails.estimatedTime) {
           // check if task is in the sprint you can't update estimate
           if (taskDetails.sprintId) {
-            throw new BadRequestException('task is in sprint you can\'t update estimate time');
+            throw new BadRequestException('Task is in sprint you can\'t update estimate time');
           }
 
           // if time is logged in this task then and then only re calculate task overall progress
@@ -478,7 +478,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     const task: Task = await this._taskModel.findOne(queryObj).populate(taskFullPopulation).select('-comments').lean().exec();
     if (!task) {
-      throw new BadRequestException('task not found');
+      throw new BadRequestException('Task not found');
     }
     return this.prepareTaskVm(task);
   }

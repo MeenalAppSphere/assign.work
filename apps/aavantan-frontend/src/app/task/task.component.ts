@@ -51,6 +51,7 @@ import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 })
 export class TaskComponent implements OnInit, OnDestroy {
 
+  public showTaskNotFoundView: boolean;
   public currentProject: Project = null;
   public currentUser: User;
   public listOfSelectedWatchers: User[] = [];
@@ -637,6 +638,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         taskId: this.taskId
       };
       this.taskData = await this._taskService.getTask(json).toPromise();
+      this.showTaskNotFoundView = false;
       this.currentTask = this.taskData.data;
 
       this.taskForm.patchValue(this.taskData.data);
@@ -686,6 +688,9 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.getTaskInProcess = false;
     } catch (e) {
+      if(!e.data){
+        this.showTaskNotFoundView = true;
+      }
       this.getTaskInProcess = false;
     }
   }

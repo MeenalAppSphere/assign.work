@@ -179,11 +179,13 @@ export class HomeComponent implements OnInit {
 
       series: [
         {
+          name:"Sprint 1",
           color: '#0667FB',
           data: [10, 4, 7, 7, 8, 1, 2, 23, 24, 10, 3],
           type:'column'
         },
         {
+          name:"Sprint 2",
           color: '#FF1142',
           data: [9, 3, 6, 7, 8, 1, 2, 23, 24, 10, 3],
           type:'column'
