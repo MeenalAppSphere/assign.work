@@ -5,6 +5,45 @@
 
     <div class="col text-right" style="max-width: 320px;">
 
+
+
+
+      <nz-button-group>
+
+        <button nz-button nzType="default" style="height: 33.33px;">
+          <label
+            nz-checkbox
+            [(ngModel)]="allChecked"
+            (ngModelChange)="updateAllChecked()"
+            [nzIndeterminate]="indeterminate">
+            Check all
+          </label>
+        </button>
+        <button nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight" style="border-left:1px solid #ffffff; min-width:35px; height:33.33px;">
+          <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+        </button>
+      </nz-button-group>
+
+
+
+      <nz-dropdown-menu #statusDdl="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item>
+            <label nz-checkbox>TODO</label>
+          </li>
+          <li nz-menu-item>
+            <label nz-checkbox>DONE</label>
+          </li>
+          <!--          <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>-->
+        </ul>
+      </nz-dropdown-menu>
+
+
+
+    </div>
+
+    <div class="col text-right" style="max-width: 320px;">
+
       <nz-input-group [nzSuffix]="suffixIcon">
         <input placeholder="Search..." nzSize="small" nz-input
                style="height:32px;" [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"/>
