@@ -50,7 +50,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     super(_taskCommentModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');

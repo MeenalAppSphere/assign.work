@@ -22,7 +22,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
     super(_taskStatusModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._boardService = this._moduleRef.get('BoardService');
 

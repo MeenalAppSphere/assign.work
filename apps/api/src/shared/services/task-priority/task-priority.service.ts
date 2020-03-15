@@ -20,7 +20,7 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
     super(_taskPriorityModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
 
     this._utilityService = new TaskPriorityUtilityService();

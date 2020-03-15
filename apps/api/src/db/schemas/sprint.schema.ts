@@ -61,6 +61,7 @@ export const sprintSchema = new Schema({
   totalLoggedTime: { type: Number, default: 0 },
   totalOverLoggedTime: { type: Number, default: 0 },
   boardId: { type: Schema.Types.ObjectId, ref: DbCollection.board },
+  reportId: { type: Schema.Types.ObjectId, ref: DbCollection.sprintReports },
   ...commonSchemaFields
 }, schemaOptions);
 

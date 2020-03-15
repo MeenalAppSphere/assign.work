@@ -53,7 +53,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
     super(_boardModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._sprintService = this._moduleRef.get('SprintService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');

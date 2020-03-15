@@ -51,7 +51,7 @@ export class AuthService implements OnModuleInit {
   /**
    * on module init
    */
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._userService = this._moduleRef.get('UsersService', { strict: false });
     this._projectService = this._moduleRef.get('ProjectService', { strict: false });
     this._organizationService = this._moduleRef.get('OrganizationService', { strict: false });

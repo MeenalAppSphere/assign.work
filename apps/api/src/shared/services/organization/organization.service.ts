@@ -25,7 +25,7 @@ export class OrganizationService extends BaseService<Organization & Document> im
     super(_organizationModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._userService = this._moduleRef.get('UsersService');
     this._projectService = this._moduleRef.get('ProjectService');
 

@@ -23,7 +23,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
     super(_invitationModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._userService = this._moduleRef.get('UsersService');
     this._projectService = this._moduleRef.get('ProjectService');
     this._organizationService = this._moduleRef.get('OrganizationService');

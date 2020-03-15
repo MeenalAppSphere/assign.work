@@ -3,7 +3,6 @@ import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
 import { Project, ProjectWorkingDays } from './project.model';
 import { MongoosePaginateQuery } from '../queryOptions';
-import { TaskFilterCondition } from '../enums';
 
 export class Sprint {
   id?: string;
@@ -37,6 +36,7 @@ export class Sprint {
   totalRemainingTimeReadable?: string;
   progress?: number;
   overProgress?: number;
+  reportId?: string;
 }
 
 export class SprintColumn {

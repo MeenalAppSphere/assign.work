@@ -20,7 +20,7 @@ export class WorkflowService extends BaseService<WorkflowModel & Document> imple
     this._utilityService = new WorkflowUtilityService();
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
   }
 

@@ -39,7 +39,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     this.s3Client = new S3Client(new aws.S3({ region: 'ap-south-1' }), 'images.assign.work', '');
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._userService = this._moduleRef.get('UsersService');
   }
 

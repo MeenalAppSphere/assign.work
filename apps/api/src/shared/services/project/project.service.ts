@@ -75,7 +75,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     super(_projectModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     // get services from module
     this._userService = this._moduleRef.get('UsersService');
     this._invitationService = this._moduleRef.get('InvitationService');

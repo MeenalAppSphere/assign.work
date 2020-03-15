@@ -46,7 +46,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
     super(_taskTimeLogModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._sprintService = this._moduleRef.get('SprintService');

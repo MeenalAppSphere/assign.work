@@ -17,6 +17,7 @@ import { taskPrioritySchema } from './schemas/task-priority.schema';
 import { taskTypeSchema } from './schemas/task-type.schema';
 import { boardSchema } from './schemas/board.schema';
 import { taskCommentSchema } from './schemas/task-comment.schema';
+import { sprintReportSchema } from './schemas/sprint-report.schema';
 
 @Module({
   imports: [
@@ -84,6 +85,10 @@ import { taskCommentSchema } from './schemas/task-comment.schema';
       name: DbCollection.taskComments,
       schema: taskCommentSchema,
       collection: DbCollection.taskComments
+    }, {
+      name: DbCollection.sprintReports,
+      schema: sprintReportSchema,
+      collection: DbCollection.sprintReports
     }])
   ],
   exports: [

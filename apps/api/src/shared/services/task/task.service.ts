@@ -104,7 +104,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     super(_taskModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._sprintService = this._moduleRef.get('SprintService');
     this._taskTypeService = this._moduleRef.get('TaskTypeService');

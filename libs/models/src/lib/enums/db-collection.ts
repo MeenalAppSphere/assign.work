@@ -10,6 +10,7 @@ export enum DbCollection {
   taskPriority = 'task-priority',
   taskComments = 'task-comments',
   sprint = 'sprint',
+  sprintReports = 'sprint-reports',
   attachments = 'attachments',
   invitations = 'invitations',
   resetPassword = 'reset-password',

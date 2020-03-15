@@ -21,7 +21,9 @@ export const sprintReportSchema = new Schema({
     estimatedTime: { type: Number, default: 0 },
     totalLoggedTime: { type: Number, default: 0 },
     createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-    updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false }
+    updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+    deletedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
+    deletedAt: { type: Date }
   },
   reportMembers: {
     type: Array,

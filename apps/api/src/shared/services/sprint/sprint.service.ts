@@ -17,11 +17,12 @@ import {
   RemoveTaskFromSprintModel,
   Sprint,
   SprintActionEnum,
-  SprintColumn, SprintColumnTask,
+  SprintColumn,
   SprintDurationsModel,
   SprintErrorEnum,
   SprintErrorResponse,
-  SprintErrorResponseItem, SprintFilterTasksModel,
+  SprintErrorResponseItem,
+  SprintFilterTasksModel,
   SprintStatus,
   SprintStatusEnum,
   Task,
@@ -42,6 +43,7 @@ import { TaskHistoryService } from '../task-history.service';
 import { ProjectService } from '../project/project.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
+import { SprintReportService } from '../sprint-report/sprint-report.service';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -63,7 +65,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'columns.tasks.task',
-  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime',
+  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime createdById createdAt',
   justOne: true,
   populate: [{
     path: 'assignee',
@@ -84,7 +86,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   }]
 }];
 
-const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById removedById removedAt';
+const commonFieldSelection = 'name startedAt endAt goal sprintStatus membersCapacity totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime createdById updatedById removedById removedAt projectId reportId';
 const detailedFiledSelection = `${commonFieldSelection} columns`;
 
 @Injectable()
@@ -93,6 +95,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   private _projectService: ProjectService;
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
+  private _sprintReportService: SprintReportService;
 
   private _sprintUtilityService: SprintUtilityService;
   private _boardUtilityService: BoardUtilityService;
@@ -104,10 +107,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     super(_sprintModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+    this._sprintReportService = this._moduleRef.get('SprintReportService');
 
     this._boardUtilityService = new BoardUtilityService();
     this._sprintUtilityService = new SprintUtilityService();
@@ -739,7 +743,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     return await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId);
 
-      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, commonPopulationForSprint, detailedFiledSelection);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
       if (sprintDetails.sprintStatus) {
         BadRequest(`This sprint can't be published, because sprint is already ${sprintDetails.sprintStatus}`);
@@ -748,12 +752,16 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // check validations
       this._sprintUtilityService.publishSprintValidations(sprintDetails);
 
+      // create sprint report
+      const sprintReport = await this._sprintReportService.createReport(sprintDetails, session);
+
       // update sprint in db
       await this.updateById(model.sprintId, {
         $set: {
           sprintStatus: {
             status: SprintStatusEnum.inProgress, updatedAt: generateUtcDate(), updatedById: this._generalService.userId
-          }
+          },
+          reportId: sprintReport[0].id
         }
       }, session);
 
@@ -1040,6 +1048,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         totalOverLoggedTime: sprintDetails.totalRemainingTime >= 0 ? 0 : Math.abs(sprintDetails.totalRemainingTime)
       }
     }, session);
+
+    // if sprint is published than add task to report
+    if (sprintDetails.sprintStatus && sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
+      // add task to sprint report
+      await this._sprintReportService.addTaskInSprintReport(sprintDetails.reportId, taskDetails, session);
+    }
 
     // create task history
     const taskHistory = new TaskHistory();

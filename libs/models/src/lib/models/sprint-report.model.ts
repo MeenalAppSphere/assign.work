@@ -28,10 +28,13 @@ export class SprintReportTasksModel {
   estimatedTimeReadable?: string;
   totalLoggedTime?: number;
   totalLoggedTimeReadable?: string;
+  isDeleted?: boolean;
   createdById: string;
   createdBy?: User;
   createdAt?: Date;
   updatedAt?: Date;
+  removedAt?: Date;
+  removedById?: string;
 }
 
 export class SprintReportMembersModel extends SprintMembersCapacity {

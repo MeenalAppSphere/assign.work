@@ -21,7 +21,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
     super(_taskTypeModel);
   }
 
-  onModuleInit(): any {
+  onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
 
     this._utilityService = new TaskTypeUtilityService();
