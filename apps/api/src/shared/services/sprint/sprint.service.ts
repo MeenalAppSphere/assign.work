@@ -1036,7 +1036,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         [`columns.${columnIndex}`]: sprintDetails.columns[columnIndex],
         totalEstimation: sprintDetails.totalEstimation,
         totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
-        totalRemainingTime: sprintDetails.totalRemainingTime
+        totalRemainingTime: sprintDetails.totalRemainingTime,
+        totalOverLoggedTime: sprintDetails.totalRemainingTime >= 0 ? 0 : Math.abs(sprintDetails.totalRemainingTime)
       }
     }, session);
 

@@ -18,7 +18,7 @@ import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
-import { BadRequest, secondsToString, stringToSeconds, toObjectId } from '../../helpers/helpers';
+import { BadRequest, stringToSeconds, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
@@ -173,7 +173,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     const result: BasePaginatedResponse<Task> = await this.getAllPaginatedData(filter, model);
 
     result.items = result.items.map(task => {
-      return this.prepareTaskVm(task);
+      return this._utilityService.prepareTaskVm(task);
     });
 
     return result;
@@ -270,7 +270,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       // task is created now send all the mails
       this._utilityService.sendMailForTaskCreated(task, projectDetails);
 
-      return this.prepareTaskVm(task);
+      return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
     }
@@ -308,32 +308,13 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         if (model.estimatedTime !== taskDetails.estimatedTime) {
           // check if task is in the sprint you can't update estimate
           if (taskDetails.sprintId) {
-            throw new BadRequestException('Task is in sprint you can\'t update estimate time');
+            BadRequest('Task is in sprint you can\'t update estimate time');
           }
 
           // if time is logged in this task then and then only re calculate task overall progress
           if (taskDetails.totalLoggedTime > 0) {
-
-            // calculate progress and over progress
-            const progress: number = Number(((100 * taskDetails.totalLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
-
-            // if process is grater 100 then over time is added
-            // in this case calculate overtime and set remaining time to 0
-            if (progress > 100) {
-              model.progress = 100;
-              model.remainingTime = 0;
-              model.overLoggedTime = taskDetails.totalLoggedTime - model.estimatedTime;
-
-              const overProgress = Number(((100 * model.overLoggedTime) / model.estimatedTime).toFixed(DEFAULT_DECIMAL_PLACES));
-              model.overProgress = overProgress > 100 ? 100 : overProgress;
-            } else {
-              // normal time logged
-              // set overtime 0 and calculate remaining time
-              model.progress = progress;
-              model.remainingTime = model.estimatedTime - taskDetails.totalLoggedTime;
-              model.overLoggedTime = 0;
-              model.overProgress = 0;
-            }
+            // calculate task progress
+            this._utilityService.calculateTaskProgress(taskDetails, taskDetails.totalLoggedTime, model.estimatedTime);
           }
         }
       }
@@ -414,7 +395,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // send mail for task updated to all the task watchers
       this._utilityService.sendMailForTaskUpdated(task, projectDetails);
-      return this.prepareTaskVm(task);
+      return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
     }
@@ -480,7 +461,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     if (!task) {
       throw new BadRequestException('Task not found');
     }
-    return this.prepareTaskVm(task);
+    return this._utilityService.prepareTaskVm(task);
   }
 
   /**
@@ -588,7 +569,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // parse tasks to vm
       const parsedTasks = tasks.map(task => {
-        return this.prepareTaskVm(task);
+        return this._utilityService.prepareTaskVm(task);
       });
 
       // return paginated response
@@ -743,55 +724,4 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       action, createdById: this._generalService.userId, taskId, task
     } as TaskHistory;
   }
-
-  /**
-   * parse task object, convert seconds to readable string, fill task type, priority, status etc..
-   * @param task : Task
-   */
-  private prepareTaskVm(task: Task) {
-    task.id = task['_id'];
-
-    if (task.assignee) {
-      task.assignee.id = task.assignee._id;
-    }
-
-    if (task.createdBy) {
-      task.createdBy.id = task.createdBy._id;
-    }
-
-    if (task.updatedBy) {
-      task.updatedBy.id = task.updatedBy._id;
-    }
-
-    if (task.taskType) {
-      task.taskType.id = task.taskType._id;
-    }
-
-    if (task.status) {
-      task.status.id = task.status._id;
-    }
-
-    if (task.priority) {
-      task.priority.id = task.priority._id;
-    }
-
-    // task.taskType = projectDetails.settings.taskTypes.find(t => t.id === task.taskType);
-    // task.priority = projectDetails.settings.priorities.find(t => t.id === task.priority);
-    // task.status = projectDetails.settings.status.find(t => t.id === task.status);
-    task.isSelected = !!task.sprintId;
-
-    // convert all time keys to string from seconds
-    task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime || 0);
-    task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
-    task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
-    task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
-
-    if (task.attachmentsDetails) {
-      task.attachmentsDetails.forEach(attachment => {
-        attachment.id = attachment['_id'];
-      });
-    }
-    return task;
-  }
-
 }

@@ -39,6 +39,11 @@ export class TaskTimeLogResponse {
   overProgress: number;
 }
 
+export class SprintTaskTimeLogResponse extends TaskTimeLogResponse {
+  taskTotalLoggedTime: number;
+  taskTotalLoggedTimeReadable: string;
+}
+
 export class TaskTimeLogHistoryModel {
   taskId: string;
   projectId: string;
