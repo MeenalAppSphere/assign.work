@@ -85,4 +85,9 @@ export class SprintController {
   async closeSprint(@Body() model: CloseSprintModel) {
     return await this._sprintService.closeSprint(model);
   }
+
+  @Post('get-closed-sprints')
+  async getClosedSprints(@Body('projectId') projectId: string) {
+    return await this._sprintService.getClosedSprintsList(projectId);
+  }
 }

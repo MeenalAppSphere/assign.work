@@ -16,7 +16,7 @@ import {
   PublishSprintModel,
   RemoveTaskFromSprintModel,
   Sprint,
-  SprintActionEnum,
+  SprintActionEnum, SprintBaseRequest,
   SprintColumn,
   SprintDurationsModel,
   SprintErrorEnum,
@@ -822,6 +822,36 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // prepare sprint vm model
     sprint = this._sprintUtilityService.prepareSprintVm(sprint);
     return sprint;
+  }
+
+  /**
+   * get all closed sprint list
+   * @param projectId
+   */
+  public async getClosedSprintsList(projectId: string) {
+    try {
+      // get project details
+      await this._projectService.getProjectDetails(projectId);
+
+      // get all closed sprints query
+      const sprints = await this.find({
+        filter: { [`sprintStatus.status`]: SprintStatusEnum.closed },
+        select: 'name goal'
+      });
+
+      // check if sprint found
+      if (sprints && sprints.length) {
+        // map over sprints and assign id
+        return sprints.map(sprint => {
+          sprint.id = sprint._id.toString();
+          return sprint;
+        });
+      } else {
+        return [];
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
