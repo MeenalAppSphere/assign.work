@@ -7,7 +7,19 @@ export class SprintReportModel extends BaseDbModel {
   sprint?: Sprint;
   reportTasks: SprintReportTasksModel[];
   reportMembers: SprintReportMembersModel[];
+  finalStatusId: string[];
+  finalStatus?: TaskStatusModel[];
+
   allTasks?: SprintReportTaskReportModel[];
+  allTasksCount: number;
+  allTaskTotalEstimatedTime?: number;
+  allTaskTotalEstimatedTimeReadable?: string;
+  allTaskTotalLoggedTime?: number;
+  allTaskTotalLoggedTimeReadable?: string;
+  allTaskTotalRemainingTime?: number;
+  allTaskTotalRemainingTimeReadable?: string;
+
+  status?: string;
   unfinishedTasks?: SprintReportTaskReportModel[];
 }
 
@@ -59,4 +71,6 @@ export class SprintReportTaskReportModel {
   totalEstimatedTimeReadable?: string;
   totalLoggedTime?: number;
   totalLoggedTimeReadable?: string;
+  totalRemainingTime?: number;
+  totalRemainingTimeReadable?: string;
 }

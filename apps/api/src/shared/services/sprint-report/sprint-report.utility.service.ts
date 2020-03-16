@@ -1,8 +1,9 @@
-import { Sprint, SprintColumn, SprintColumnTask, SprintMembersCapacity, Task } from '@aavantan-app/models';
-import { groupBy } from 'lodash';
+import { Sprint, SprintColumn, SprintMembersCapacity, SprintStatusEnum, Task } from '@aavantan-app/models';
+import { groupBy, sumBy } from 'lodash';
 import {
   SprintReportMembersModel,
-  SprintReportModel, SprintReportTaskReportModel,
+  SprintReportModel,
+  SprintReportTaskReportModel,
   SprintReportTasksModel
 } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { secondsToString, toObjectId } from '../../helpers/helpers';
@@ -71,29 +72,44 @@ export class SprintReportUtilityService {
     return members;
   }
 
-  prepareSprintReportTasksCountReport(reportTasks: SprintReportTasksModel[]) {
-    const allTasks: SprintReportTaskReportModel[] = [];
-    const groupedTasks = groupBy<SprintReportTasksModel>(reportTasks, (task) => task.statusId);
+  prepareSprintReportTasksCountReport(report: SprintReportModel) {
 
-    Object.keys(groupedTasks).forEach(key => {
-      const task = new SprintReportTaskReportModel();
+    if (report.sprint.sprintStatus && report.sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
 
-      task.statusId = key;
-      task.count = groupedTasks[key].length;
-      task.totalEstimatedTime = groupedTasks[key].reduce((pv, cv) => {
-        return pv + cv.estimatedTime;
-      }, 0);
-      task.totalEstimatedTimeReadable = secondsToString(task.totalEstimatedTime);
+      const allTasks: SprintReportTaskReportModel[] = [];
+      const groupedTasks = groupBy<SprintReportTasksModel>(report.reportTasks, (task) => task.statusId);
+      Object.keys(groupedTasks).forEach(key => {
+        const task = new SprintReportTaskReportModel();
 
-      task.totalLoggedTime = groupedTasks[key].reduce((pv, cv) => {
-        return pv + cv.totalLoggedTime;
-      }, 0);
-      task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
+        task.statusId = key;
+        // get status from 0 element because all elements have same status because array is group by status
+        task.status = groupedTasks[key][0].status;
+        task.count = groupedTasks[key].length;
 
-      allTasks.push(task);
-    });
+        task.totalEstimatedTime = sumBy(groupedTasks[key], 'estimatedTime');
+        task.totalEstimatedTimeReadable = secondsToString(task.totalEstimatedTime);
 
-    return allTasks;
+        task.totalLoggedTime = sumBy(groupedTasks[key], 'totalLoggedTime');
+        task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
+
+        task.totalRemainingTime = task.totalEstimatedTime - task.totalLoggedTime;
+        task.totalRemainingTimeReadable = secondsToString(task.totalRemainingTime);
+
+        allTasks.push(task);
+      });
+
+      report.allTasks = allTasks;
+      report.allTasksCount = sumBy(allTasks, 'count');
+
+      report.allTaskTotalEstimatedTime = sumBy(allTasks, 'totalEstimatedTime');
+      report.allTaskTotalEstimatedTimeReadable = secondsToString(report.allTaskTotalEstimatedTime);
+
+      report.allTaskTotalLoggedTime = sumBy(allTasks, 'totalLoggedTime');
+      report.allTaskTotalLoggedTimeReadable = secondsToString(report.allTaskTotalLoggedTime);
+
+      report.allTaskTotalRemainingTime = sumBy(allTasks, 'totalRemainingTime');
+      report.allTaskTotalRemainingTimeReadable = secondsToString(report.allTaskTotalRemainingTime);
+    }
   }
 
   prepareSprintReportUserProductivity(reportMembers: SprintReportMembersModel[], sprint: Sprint): SprintReportMembersModel[] {

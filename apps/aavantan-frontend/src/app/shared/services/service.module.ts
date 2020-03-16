@@ -15,6 +15,7 @@ import { TaskPriorityService } from './task-priority/task-priority.service';
 import { TaskStatusService } from './task-status/task-status.service';
 import { TaskTypeService } from './task-type/task-type.service';
 import { BoardService } from './board/board.service';
+import { SprintReportService } from './sprint-report/sprint-report.service';
 
 @NgModule()
 export class ServiceModule {
@@ -38,7 +39,8 @@ export class ServiceModule {
         TaskPriorityService,
         TaskStatusService,
         TaskTypeService,
-        BoardService
+        BoardService,
+        SprintReportService
       ]
     };
   }

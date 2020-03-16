@@ -1,6 +1,8 @@
 import { Schema } from 'mongoose';
-import { commonSchemaFields } from './base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions } from './base.schema';
 import { DbCollection } from '@aavantan-app/models';
+
+const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
 export const sprintReportSchema = new Schema({
   projectId: {
@@ -9,6 +11,7 @@ export const sprintReportSchema = new Schema({
     required: [true, 'Please Select Project First!']
   },
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
+  finalStatusId: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
   reportTasks: {
     type: Array,
     taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
@@ -39,3 +42,7 @@ export const sprintReportSchema = new Schema({
   },
   ...commonSchemaFields
 });
+
+// plugins
+sprintReportSchema
+  .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions);

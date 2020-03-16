@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BaseService } from '../base.service';
-import { TaskState, TaskStore } from '../../../store/task/task.store';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import {
-  SprintDurationsModel,
   AddTaskToSprintModel,
   AssignTasksToSprintModel,
   BasePaginatedResponse,
@@ -19,20 +17,23 @@ import {
   RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
+  SprintDurationsModel,
   SprintErrorResponse,
+  SprintFilterTasksModel,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel, SprintFilterTasksModel
+  UpdateSprintModel
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { SprintUrls } from './sprint.url';
 import { catchError, map } from 'rxjs/operators';
 import { UserState, UserStore } from '../../../store/user/user.store';
+import { SprintState, SprintStore } from '../../../store/sprint/sprint.store';
 
 @Injectable()
-export class SprintService extends BaseService<TaskStore, TaskState> {
-  constructor(protected notification: NzNotificationService, protected taskStore: TaskStore, private _http: HttpWrapperService,
+export class SprintService extends BaseService<SprintStore, SprintState> {
+  constructor(protected notification: NzNotificationService, protected sprintStore: SprintStore, private _http: HttpWrapperService,
               private _generalService: GeneralService, private _userStore: UserStore) {
-    super(taskStore, notification);
+    super(sprintStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
     });

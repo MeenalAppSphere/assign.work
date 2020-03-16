@@ -1,9 +1,10 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
-import { AppsService } from '../../shared/services/apps.service';
+import { Component, OnInit } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd';
-import { Project, ProjectTemplateEnum, Sprint } from '@aavantan-app/models';
+import { Project, Sprint } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import * as Highcharts from 'highcharts';
+import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
+import { SprintReportService } from '../../shared/services/sprint-report/sprint-report.service';
 
 @Component({
   templateUrl: './home.component.html',
@@ -13,12 +14,11 @@ export class HomeComponent implements OnInit {
   public view: string = 'listView';
   public projectList: Project[];
   public selectedSprint: Sprint;
-  public sprintDataSource: Sprint[]= [];
+  public sprintDataSource: Sprint[] = [];
 
   Highcharts: typeof Highcharts = Highcharts;
   lineChartOptions: Highcharts.Options = {};
   columnChartOptions: Highcharts.Options = {};
-
 
   public itemsSummary = [
     {
@@ -97,15 +97,19 @@ export class HomeComponent implements OnInit {
       effortDeviation: 50
     }
   ];
+  public getReportInProcess: boolean;
+  public sprintReport: SprintReportModel = new SprintReportModel();
 
   constructor(
-    private projectListSvc: AppsService,
-    private modalService: NzModalService,
-    private _generalService: GeneralService
+    private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService
   ) {
   }
 
   ngOnInit(): void {
+    if (this._generalService.currentProject && this._generalService.currentProject.sprintId) {
+      this.getSprintReport(this._generalService.currentProject.sprintId);
+    }
+
     this.projectList = this._generalService.user.projects as Project[];
     this.showLineChart();
     this.showColumnChart();
@@ -113,13 +117,21 @@ export class HomeComponent implements OnInit {
     this.selectedSprint = this.sprintDataSource[0];
   }
 
-
+  public async getSprintReport(sprintId: string) {
+    this.getReportInProcess = true;
+    try {
+      const report = await this._sprintReportService.getSprintReport(sprintId, this._generalService.currentProject.id).toPromise();
+      this.sprintReport = report.data;
+    } catch (e) {
+      this.getReportInProcess = false;
+    }
+  }
 
   public showLineChart() {
     this.lineChartOptions = {
-      chart :{
-        width:550,
-        height:330
+      chart: {
+        width: 550,
+        height: 330
       },
       legend: {
         enabled: false
@@ -153,9 +165,9 @@ export class HomeComponent implements OnInit {
 
   public showColumnChart() {
     this.columnChartOptions = {
-      chart :{
-        width:550,
-        height:380
+      chart: {
+        width: 550,
+        height: 380
       },
       legend: {
         enabled: true
@@ -179,42 +191,22 @@ export class HomeComponent implements OnInit {
 
       series: [
         {
-          name:"Sprint 1",
+          name: 'Sprint 1',
           color: '#0667FB',
           data: [10, 4, 7, 7, 8, 1, 2, 23, 24, 10, 3],
-          type:'column'
+          type: 'column'
         },
         {
-          name:"Sprint 2",
+          name: 'Sprint 2',
           color: '#FF1142',
           data: [9, 3, 6, 7, 8, 1, 2, 23, 24, 10, 3],
-          type:'column'
+          type: 'column'
         }
       ]
     };
   }
 
-
-  public selectSprint(item:Sprint){
-      this.selectedSprint = item;
-  }
-
-  showNewProject(newProjectContent: TemplateRef<{}>) {
-    const modal = this.modalService.create({
-      nzTitle: 'Create New Project',
-      nzContent: newProjectContent,
-      nzFooter: [
-        {
-          label: 'Create Project',
-          type: 'primary',
-          onClick: () =>
-            this.modalService.confirm({
-              nzTitle: 'Are you sure you want to create this project?',
-              nzOnOk: () => this.modalService.closeAll()
-            })
-        }
-      ],
-      nzWidth: 800
-    });
+  public selectSprint(item: Sprint) {
+    this.selectedSprint = item;
   }
 }

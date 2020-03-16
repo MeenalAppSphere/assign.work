@@ -1,4 +1,3 @@
-
 <nz-card
   nzSize="small"
   [nzBordered]="false"
@@ -35,16 +34,15 @@
         <li nz-menu-item>Sprint 2</li>
         <li nz-menu-item>Sprint 3</li>
         <li nz-menu-item>Sprint 4</li>
-<!--        <li nz-menu-item *ngFor="let item of sprintDataSource" (click)="selectSprint(item)">-->
-<!--           {{ item.name }}-->
-<!--        </li>-->
+        <!--        <li nz-menu-item *ngFor="let item of sprintDataSource" (click)="selectSprint(item)">-->
+        <!--           {{ item.name }}-->
+        <!--        </li>-->
       </ul>
     </nz-dropdown-menu>
 
   </ng-template>
 
-
-  <section class="m-b-30">
+  <section class="m-b-30" *ngIf="sprintReport && sprintReport.sprint">
 
     <label class="text-black-dark font-weight-semibold">Sprint Summary</label>
 
@@ -53,8 +51,8 @@
       <div class="row">
 
         <div class="col-md-5">
-          <label class="text-gray-light font-weight-semibold">Bugs Sprint 1</label>
-          <p class="p-r-40 text-black">This is the goal of the sprint. Lorem ipsum is placeholder text commonly</p>
+          <label class="text-gray-light font-weight-semibold">{{ sprintReport.sprint.name }}</label>
+          <p class="p-r-40 text-black">{{ sprintReport.sprint.goal }}</p>
         </div>
 
         <div class="col-md-7">
@@ -62,7 +60,8 @@
           <div class="row">
             <div class="col-md-5">
               <label class="text-gray-light font-weight-semibold">Duration</label>
-              <p class="text-black">2-Dec-2109 to 13-Dec-2019</p>
+              <p class="text-black">{{ sprintReport.sprint.startedAt | date: 'dd-MMM-yyyy' }} to
+                {{ sprintReport.sprint.endAt | date: 'dd-MMM-yyyy' }}</p>
               <p class="text-gray-light-2 m-t-5">2 Week Sprint</p>
             </div>
 
@@ -85,22 +84,22 @@
     </div>
   </section>
 
-
-  <section class="m-t-30 m-b-30 sprint-progress">
+  <section class="m-t-30 m-b-30 sprint-progress" *ngIf="sprintReport && sprintReport.sprint">
 
     <label class="text-gray-light">Sprint Progress</label>
 
     <div class="row">
 
       <div class="col-md-6">
-        <span class="text-green">57% Completed</span>
-        <nz-progress [nzPercent]="57" nzStrokeColor="#42E3A3" nzStrokeLinecap="square" nzStrokeWidth="14" [nzShowInfo]="false"></nz-progress>
+        <span class="text-green">{{ sprintReport.sprint.progress }}% Completed</span>
+        <nz-progress [nzPercent]="sprintReport.sprint.progress" nzStrokeColor="#42E3A3" nzStrokeLinecap="square" nzStrokeWidth="14"
+                     [nzShowInfo]="false"></nz-progress>
         <div class="row font-size-12 m-t-5">
           <div class="col-md-6">
             <span><span class="font-weight-bold">28</span> of 49 points gained</span>
           </div>
           <div class="col-md-6 text-right">
-            <span><span class="font-weight-bold">8</span> of 15 items done</span>
+            <span><span class="font-weight-bold">8</span> of {{ sprintReport.reportTasks.length }} items done</span>
           </div>
         </div>
       </div>
@@ -109,11 +108,7 @@
 
   </section>
 
-
-
-
-
-  <section class="m-t-30 m-b-30 items-summary-section">
+  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
     <label class="text-black-dark">Item Summary</label>
 
@@ -127,23 +122,23 @@
 
           <th>Status</th>
           <th class="text-right p-l-0">Items</th>
-          <th class="text-right">Points</th>
-          <th class="text-right">Planned</th>
-          <th class="text-right">Burned</th>
-          <th class="text-right">Required</th>
+          <th class="text-right">Estimation</th>
+          <th class="text-right">Logged</th>
+          <th class="text-right">Remaining</th>
 
         </tr>
         </thead>
 
         <tbody>
 
-        <tr *ngFor="let data of itemsSummaryTable.data">
-          <td data-label="Status" class="p-l-0"><nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status }}</nz-tag></td>
-          <td data-label="Items" class="text-right">{{ data.items }}</td>
-          <td data-label="Points" class="text-right">{{ data.points }}</td>
-          <td data-label="Planned" class="text-right">{{ data.effortPlanned }}</td>
-          <td data-label="Burned" class="text-right">{{ data.effortBurned }}</td>
-          <td data-label="Required" class="text-right">{{ data.effortRequired }}</td>
+        <tr *ngFor="let data of sprintReport.allTasks">
+          <td data-label="Status" class="p-l-0">
+            <nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status?.name }}</nz-tag>
+          </td>
+          <td data-label="Items" class="text-right">{{ data?.count }}</td>
+          <td data-label="Estimation" class="text-right">{{ data.totalEstimatedTimeReadable }}</td>
+          <td data-label="Logged" class="text-right">{{ data.totalLoggedTimeReadable }}</td>
+          <td data-label="Remaining" class="text-right">{{ data.totalRemainingTimeReadable }}</td>
         </tr>
 
         </tbody>
@@ -155,11 +150,10 @@
         <thead>
         <tr>
           <th>Total</th>
-          <th class="text-right">25</th>
-          <th class="text-right">25</th>
-          <th class="text-right">25</th>
-          <th class="text-right">25</th>
-          <th class="text-right">25</th>
+          <th class="text-right">{{ sprintReport.allTasksCount }}</th>
+          <th class="text-right">{{ sprintReport.allTaskTotalEstimatedTimeReadable }}</th>
+          <th class="text-right">{{ sprintReport.allTaskTotalLoggedTimeReadable }}</th>
+          <th class="text-right">{{ sprintReport.allTaskTotalRemainingTimeReadable }}</th>
         </tr>
         </thead>
       </table>
@@ -168,19 +162,19 @@
     </div>
 
     <div class="m-t-20">
-      <div class="w-btn inline-block"><nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Budget</nz-tag></div>
+      <div class="w-btn inline-block">
+        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Budget</nz-tag>
+      </div>
       <div class="inline-block text-red">Overrun by approximately : 22.45%</div>
     </div>
     <div class="m-t-5">
-      <div class="w-btn inline-block"><nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Schedule</nz-tag></div>
+      <div class="w-btn inline-block">
+        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Schedule</nz-tag>
+      </div>
       <div class="inline-block text-red">Need more : 2.35 days</div>
     </div>
 
   </section>
-
-
-
-
 
   <section class="m-t-30 m-b-30">
 
@@ -229,15 +223,13 @@
 
   </section>
 
-
-
-  <section class="m-t-30 m-b-30 items-summary-section">
+  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
     <label class="text-black-dark">Sprint Items</label>
 
     <div class="sprint-items">
 
-      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintItems">
+      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
 
         <thead>
 
@@ -245,10 +237,10 @@
 
           <th>Item ID</th>
           <th>Status</th>
-          <th>Item Description</th>
-          <th>Start Date</th>
+          <th>Item Name</th>
+<!--          <th>Start Date</th>-->
           <th>Assignee</th>
-          <th class="text-right">Effort Deviation</th>
+<!--          <th class="text-right">Effort Deviation</th>-->
 
         </tr>
 
@@ -256,13 +248,16 @@
 
         <tbody>
 
-        <tr *ngFor="let data of sprintItemsTable.data">
-          <td data-label="Item ID">{{ data.itemId }}</td>
-          <td data-label="Status"><nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status }}</nz-tag></td>
-          <td data-label="Item Description">{{ data.description }}</td>
-          <td data-label="Start Date">{{ data.startDate }}</td>
-          <td data-label="Assignee">{{ data.assignee }}</td>
-          <td data-label="Effort Deviation" class="text-right" [ngClass]="data.effortDeviation >=50 ? 'text-red' : ''">{{ data.effortDeviation }}</td>
+        <tr *ngFor="let data of sprintReport.reportTasks">
+          <td data-label="Item ID">{{ data.displayName }}</td>
+          <td data-label="Status">
+            <nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status.name }}</nz-tag>
+          </td>
+          <td data-label="Item Description">{{ data.name }}</td>
+<!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
+          <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
+<!--          <td data-label="Effort Deviation" class="text-right"-->
+<!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
         </tr>
 
         </tbody>
@@ -275,6 +270,5 @@
 
 
   </section>
-
 
 </nz-card>

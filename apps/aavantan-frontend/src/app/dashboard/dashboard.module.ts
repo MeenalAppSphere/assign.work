@@ -8,7 +8,6 @@ import { BoardComponent } from './board/board.component';
 import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { PermissionsComponent } from './settings/permissions/permissions.component';
 import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
-import { AppsService } from '../shared/services/apps.service';
 import { PopoverModule, SortableModule, TypeaheadModule } from 'ngx-bootstrap';
 import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
@@ -37,8 +36,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
     SettingsModule,
     HighchartsChartModule
   ],
-  exports: [
-  ],
+  exports: [],
   declarations: [
     DashboardComponent,
     HomeComponent,
@@ -52,8 +50,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
     HiddenStatusComponent
   ],
   providers: [
-    ThemeConstantService,
-    AppsService
+    ThemeConstantService
   ]
 })
 export class DashboardModule {

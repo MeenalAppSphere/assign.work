@@ -10,8 +10,8 @@ export class SprintReportController {
   constructor(private readonly _sprintReportService: SprintReportService) {
   }
 
-  @Post('get-by-id')
-  async createSprint(@Body('reportId') reportId: string, @Body('sprintId') sprintId: string) {
-    return await this._sprintReportService.getReportById(reportId, sprintId);
+  @Post('get-report')
+  async createSprint(@Body('sprintId') sprintId: string, @Body('projectId') projectId: string) {
+    return await this._sprintReportService.getReportById(sprintId, projectId);
   }
 }
