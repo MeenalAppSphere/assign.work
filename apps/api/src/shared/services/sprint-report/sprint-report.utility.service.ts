@@ -73,7 +73,6 @@ export class SprintReportUtilityService {
   }
 
   prepareSprintReportTasksCountReport(report: SprintReportModel) {
-
     if (report.sprint.sprintStatus && report.sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
 
       const allTasks: SprintReportTaskReportModel[] = [];
@@ -110,6 +109,11 @@ export class SprintReportUtilityService {
       report.allTaskTotalRemainingTime = sumBy(allTasks, 'totalRemainingTime');
       report.allTaskTotalRemainingTimeReadable = secondsToString(report.allTaskTotalRemainingTime);
     }
+
+    report.reportTasksCount = report.reportTasks.length;
+    report.finishedTasksCount = report.reportTasks.filter(task => {
+      return report.finalStatusIds.includes(task.statusId);
+    }).length;
   }
 
   prepareSprintReportUserProductivity(reportMembers: SprintReportMembersModel[], sprint: Sprint): SprintReportMembersModel[] {

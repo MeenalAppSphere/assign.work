@@ -36,7 +36,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
   }
 
   async getReportById(sprintId: string, projectId: string) {
-    await this._projectService.getProjectDetails(projectId);
+    const projectDetails = await this._projectService.getProjectDetails(projectId, true);
 
     // sprint details
     const sprintDetails = await this._sprintService.getSprintDetails(sprintId, projectId, [], '-columns -membersCapacity');
@@ -127,6 +127,9 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
       report.reportMembers = this._utilityService.prepareSprintReportUserProductivity(report.reportMembers, report.sprint);
 
+      const lastColumnOfSprint = projectDetails.activeBoard.columns[projectDetails.activeBoard.columns.length - 1];
+
+      report.finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
       this._utilityService.prepareSprintReportTasksCountReport(report);
       return report;
     } else {
