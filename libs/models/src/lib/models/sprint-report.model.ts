@@ -41,12 +41,13 @@ export class SprintReportMembersModel extends SprintMembersCapacity {
   totalLoggedTime?: number;
   totalLoggedTimeReadable?: string;
   taskWiseTimeLog: SprintReportMembersTaskLoggingModel[];
+  sprintProductivity?: number;
 }
 
 export class SprintReportMembersTaskLoggingModel {
   taskId?: string;
-  totalLoggedTime?: number;
-  totalLoggedTimeReadable?: string;
+  loggedTime?: number;
+  loggedTimeReadable?: string;
   loggedAt: Date;
 }
 

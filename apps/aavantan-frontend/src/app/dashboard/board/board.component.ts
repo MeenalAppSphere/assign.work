@@ -139,7 +139,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   private prepareBoardData(data: BaseResponseModel<Sprint>) {
     if (data.data) {
       data.data.membersCapacity.forEach(member => {
-        member.user.isSelected = this.filterSprintTasksRequest.assigneeIds.includes(member.userId);
+        member.user.isSelected = this.filterSprintTasksRequest.assigneeIds.includes(member.userId.toString());
       });
       data.data.columns.forEach((stage) => {
         stage.tasks.forEach((task) => {

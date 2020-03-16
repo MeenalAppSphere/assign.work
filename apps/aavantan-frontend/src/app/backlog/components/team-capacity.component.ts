@@ -46,7 +46,7 @@ export class TeamCapacityComponent implements OnInit {
       if (this.sprintData.membersCapacity && this.sprintData.membersCapacity.length > 0) {
         for (let i = 0; i < this.sprintData.membersCapacity.length; i++) {
           const capacityReqObject = {
-            memberId: this.sprintData.membersCapacity[i].userId,
+            memberId: this.sprintData.membersCapacity[i].userId.toString(),
             workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString(),
             workingCapacityPerDay: this.sprintData.membersCapacity[i].workingCapacityPerDay,
             workingCapacity: this.sprintData.membersCapacity[i].workingCapacity,

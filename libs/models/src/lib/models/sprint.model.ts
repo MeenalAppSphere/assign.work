@@ -3,6 +3,7 @@ import { SprintErrorEnum, SprintStatusEnum } from '../enums/sprint.enum';
 import { User } from './user.model';
 import { Project, ProjectWorkingDays } from './project.model';
 import { MongoosePaginateQuery } from '../queryOptions';
+import { Types } from 'mongoose';
 
 export class Sprint {
   id?: string;
@@ -81,7 +82,7 @@ export class SprintStatus {
 }
 
 export class SprintMembersCapacity {
-  userId: string;
+  userId: string | Types.ObjectId;
   user?: User;
   workingCapacity: number;
   workingCapacityReadable?: number;

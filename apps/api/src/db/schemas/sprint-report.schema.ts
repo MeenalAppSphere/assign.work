@@ -11,6 +11,7 @@ export const sprintReportSchema = new Schema({
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   reportTasks: {
     type: Array,
+    taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
     name: { type: String, required: [true, 'Please Add task title'] },
     displayName: { type: String },
     description: { type: String, default: '' },

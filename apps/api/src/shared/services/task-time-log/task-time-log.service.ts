@@ -4,10 +4,8 @@ import {
   AddTaskTimeModel,
   DbCollection,
   Sprint,
-  SprintColumnTask,
-  SprintStatusEnum, SprintTaskTimeLogResponse,
+  SprintTaskTimeLogResponse,
   Task,
-  TaskHistory,
   TaskHistoryActionEnum,
   TaskTimeLog,
   TaskTimeLogHistoryModel,
@@ -17,7 +15,7 @@ import {
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from '../general.service';
-import { BadRequest, secondsToString, stringToSeconds } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, secondsToString, stringToSeconds } from '../../helpers/helpers';
 import { TaskHistoryService } from '../task-history.service';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { TaskTimeLogUtilityService } from './task-time-log.utility.service';
@@ -27,12 +25,15 @@ import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { TaskUtilityService } from '../task/task.utility.service';
+import { SprintReportService } from '../sprint-report/sprint-report.service';
+import { SprintReportMembersTaskLoggingModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _taskService: TaskService;
   private _sprintService: SprintService;
+  private _sprintReportService: SprintReportService;
   private _taskHistoryService: TaskHistoryService;
 
   private _utilityService: TaskTimeLogUtilityService;
@@ -50,6 +51,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._sprintService = this._moduleRef.get('SprintService');
+    this._sprintReportService = this._moduleRef.get('SprintReportService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
 
     this._utilityService = new TaskTimeLogUtilityService(this._taskTimeLogModel);
@@ -62,6 +64,10 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
    * @param model: model contains project id and timeLog model ( : TaskTimeLog )
    */
   async addTimeLog(model: AddTaskTimeModel): Promise<TaskTimeLogResponse | SprintTaskTimeLogResponse> {
+    if (!model) {
+      BadRequest('Project Not Found');
+    }
+
     return this.withRetrySession(async (session: ClientSession) => {
       const projectDetails = await this._projectService.getProjectDetails(model.projectId);
       const taskDetails = await this._taskService.getTaskDetails(model.timeLog.taskId, model.projectId);
@@ -76,6 +82,9 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
 
       // convert logged time to seconds
       model.timeLog.loggedTime = stringToSeconds(model.timeLog.loggedTimeReadable);
+
+      // assign created by id
+      model.timeLog.createdById = this._generalService.userId;
 
       // region working capacity check
       await this._utilityService.workingCapacityCheck(projectDetails, model.timeLog);
@@ -228,6 +237,51 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
         totalOverLoggedTime: sprintDetails.totalOverLoggedTime,
         [`columns.${sprintColumnIndex}.tasks.${columnTaskIndex}.totalLoggedTime`]: sprintColumnTask.totalLoggedTime
       }, session);
+
+      // get sprint report details
+      const sprintReport = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
+
+      // find task in sprint report
+      const sprintReportTaskIndex = sprintReport.reportTasks.findIndex(task => {
+        return task.taskId.toString() === model.timeLog.taskId;
+      });
+
+      // update task logged time
+      sprintReport.reportTasks[sprintReportTaskIndex].totalLoggedTime = sprintColumnTask.totalLoggedTime;
+
+      // get member index from report member
+      const sprintReportMemberIndex = sprintReport.reportMembers.findIndex(member => {
+        return member.userId.toString() === model.timeLog.createdById;
+      });
+
+      // if user is not part of sprint don't allow him to log time
+      if (sprintReportMemberIndex === -1) {
+        BadRequest('User is not part of sprint, so you can\'t log time');
+      }
+
+      // update member time logged
+      sprintReport.reportMembers[sprintReportMemberIndex].totalLoggedTime += model.timeLog.loggedTime || 0;
+
+      // add new task wise time log in member time wise log
+      const taskWiseLog: SprintReportMembersTaskLoggingModel = {
+        taskId: model.timeLog.taskId, loggedTime: model.timeLog.loggedTime, loggedAt: generateUtcDate()
+      };
+      sprintReport.reportMembers[sprintReportMemberIndex].taskWiseTimeLog.push(taskWiseLog);
+
+      // report update doc
+      const updateReportDoc = {
+        $set: {
+          [`reportTasks.${sprintReportTaskIndex}.totalLoggedTime`]: sprintColumnTask.totalLoggedTime,
+          [`reportMembers.${sprintReportMemberIndex}.totalLoggedTime`]: sprintReport.reportMembers[sprintReportMemberIndex].totalLoggedTime
+        },
+        $push: {
+          [`reportMembers.${sprintReportMemberIndex}.taskWiseTimeLog`]: taskWiseLog
+        }
+      };
+
+      // update report by id
+      await this._sprintReportService.updateById(sprintReport.id, updateReportDoc, session);
+
 
       // return sprint calculations
       return {
