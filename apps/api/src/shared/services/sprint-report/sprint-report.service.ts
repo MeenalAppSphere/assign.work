@@ -2,7 +2,7 @@ import { BaseService } from '../base.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { DbCollection, Sprint, Task } from '@aavantan-app/models';
+import { DbCollection, Sprint, Task, TaskStatusModel } from '@aavantan-app/models';
 import { ModuleRef } from '@nestjs/core';
 import { SprintReportUtilityService } from './sprint-report.utility.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -11,10 +11,12 @@ import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helpe
 import { SprintService } from '../sprint/sprint.service';
 import { ProjectService } from '../project/project.service';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
+import { TaskStatusService } from '../task-status/task-status.service';
 
 @Injectable()
 export class SprintReportService extends BaseService<SprintReportModel & Document> {
   private _projectService: ProjectService;
+  private _taskStatusService: TaskStatusService;
   private _sprintService: SprintService;
 
   private _utilityService: SprintReportUtilityService;
@@ -30,13 +32,20 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
   onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._sprintService = this._moduleRef.get('SprintService');
+    this._taskStatusService = this._moduleRef.get('TaskStatusService');
 
     this._utilityService = new SprintReportUtilityService();
     this._sprintUtilityService = new SprintUtilityService();
   }
 
   async getReportById(sprintId: string, projectId: string) {
+    // get project details
     const projectDetails = await this._projectService.getProjectDetails(projectId, true);
+
+    // get all statuses
+    const taskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
+      filter: { projectId }, lean: true, select: 'name _id'
+    });
 
     // sprint details
     const sprintDetails = await this._sprintService.getSprintDetails(sprintId, projectId, [], '-columns -membersCapacity');
@@ -80,16 +89,16 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
         as: 'reportTasks.assignee'
       })
       .unwind({ path: '$reportTasks.assignee', preserveNullAndEmptyArrays: true })
-      .lookup({
-        from: DbCollection.taskStatus,
-        let: { statusId: '$reportTasks.statusId' },
-        pipeline: [
-          { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-          { $project: { name: 1 } }
-        ],
-        as: 'reportTasks.status'
-      })
-      .unwind({ path: '$reportTasks.status', preserveNullAndEmptyArrays: true })
+      // .lookup({
+      //   from: DbCollection.taskStatus,
+      //   let: { statusId: '$reportTasks.statusId' },
+      //   pipeline: [
+      //     { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
+      //     { $project: { name: 1 } }
+      //   ],
+      //   as: 'reportTasks.status'
+      // })
+      // .unwind({ path: '$reportTasks.status', preserveNullAndEmptyArrays: true })
       .lookup({
         from: DbCollection.taskPriority,
         let: { priorityId: '$reportTasks.priorityId' },
@@ -130,7 +139,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       const lastColumnOfSprint = projectDetails.activeBoard.columns[projectDetails.activeBoard.columns.length - 1];
 
       report.finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
-      this._utilityService.prepareSprintReportTasksCountReport(report);
+      this._utilityService.prepareSprintReportTasksCountReport(report, taskStatuses);
       return report;
     } else {
       throw new NotFoundException('Report Not Found');

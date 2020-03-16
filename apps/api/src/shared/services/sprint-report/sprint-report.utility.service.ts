@@ -1,5 +1,12 @@
-import { Sprint, SprintColumn, SprintMembersCapacity, SprintStatusEnum, Task } from '@aavantan-app/models';
-import { groupBy, sumBy } from 'lodash';
+import {
+  Sprint,
+  SprintColumn,
+  SprintMembersCapacity,
+  SprintStatusEnum,
+  Task,
+  TaskStatusModel
+} from '@aavantan-app/models';
+import { sumBy } from 'lodash';
 import {
   SprintReportMembersModel,
   SprintReportModel,
@@ -72,26 +79,34 @@ export class SprintReportUtilityService {
     return members;
   }
 
-  prepareSprintReportTasksCountReport(report: SprintReportModel) {
+  prepareSprintReportTasksCountReport(report: SprintReportModel, taskStatuses: TaskStatusModel[]) {
     if (report.sprint.sprintStatus && report.sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
 
       const allTasks: SprintReportTaskReportModel[] = [];
-      const groupedTasks = groupBy<SprintReportTasksModel>(report.reportTasks, (task) => task.statusId);
-      Object.keys(groupedTasks).forEach(key => {
+      taskStatuses.forEach(status => {
+        const groupedTasks = [];
+
+        report.reportTasks.forEach(reportTask => {
+          if (reportTask.statusId.toString() === status._id.toString()) {
+            reportTask.status = status;
+            groupedTasks.push(reportTask);
+          }
+          return reportTask;
+        });
+
         const task = new SprintReportTaskReportModel();
 
-        task.statusId = key;
-        // get status from 0 element because all elements have same status because array is group by status
-        task.status = groupedTasks[key][0].status;
-        task.count = groupedTasks[key].length;
+        task.statusId = status._id;
+        task.status = status;
+        task.count = groupedTasks.length;
 
-        task.totalEstimatedTime = sumBy(groupedTasks[key], 'estimatedTime');
+        task.totalEstimatedTime = sumBy(groupedTasks, 'estimatedTime') || 0;
         task.totalEstimatedTimeReadable = secondsToString(task.totalEstimatedTime);
 
-        task.totalLoggedTime = sumBy(groupedTasks[key], 'totalLoggedTime');
+        task.totalLoggedTime = sumBy(groupedTasks, 'totalLoggedTime') || 0;
         task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
 
-        task.totalRemainingTime = task.totalEstimatedTime - task.totalLoggedTime;
+        task.totalRemainingTime = task.totalEstimatedTime - task.totalLoggedTime || 0;
         task.totalRemainingTimeReadable = secondsToString(task.totalRemainingTime);
 
         allTasks.push(task);
@@ -112,7 +127,7 @@ export class SprintReportUtilityService {
 
     report.reportTasksCount = report.reportTasks.length;
     report.finishedTasksCount = report.reportTasks.filter(task => {
-      return report.finalStatusIds.includes(task.statusId);
+      return report.finalStatusIds.some(status => status.toString() === task.statusId.toString());
     }).length;
   }
 

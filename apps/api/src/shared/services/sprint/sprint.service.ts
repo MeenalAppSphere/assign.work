@@ -44,6 +44,7 @@ import { ProjectService } from '../project/project.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
+import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -581,6 +582,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // get task details
       const taskDetail: Task = await this._taskService.getTaskDetails(model.taskId, model.projectId);
 
+      // get report details
+      const sprintReport: SprintReportModel = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
+
       // check task is in given sprint
       if (taskDetail.sprintId.toString() !== model.sprintId) {
         BadRequest('Task is not part of this sprint');
@@ -626,6 +630,22 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           'columns': sprintDetails.columns
         }
       }, session);
+
+      // update sprint report
+      // find task in sprint report
+      const taskIndexInReport = sprintReport.reportTasks.findIndex(task => {
+        return task.taskId.toString() === taskDetail.id.toString();
+      });
+
+      // update task status id as sprint column
+      const updateReportObject = {
+        $set: {
+          [`reportTasks.${taskIndexInReport}.statusId`]: sprintDetails.columns[newColumnIndex].statusId
+        }
+      };
+
+      // update report by id
+      await this._sprintReportService.updateById(sprintDetails.reportId, updateReportObject, session);
 
       // update task status to the column where the task is dropped
       await this._taskService.updateById(model.taskId, {

@@ -31,6 +31,8 @@ import { ProjectUtilityService } from '../project/project.utility.service';
 import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { BoardUtilityService } from '../board/board.utility.service';
+import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
+import { SprintReportService } from '../sprint-report/sprint-report.service';
 
 /**
  * common task population object
@@ -87,6 +89,7 @@ const taskFullPopulation: any[] = [
 export class TaskService extends BaseService<Task & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _sprintService: SprintService;
+  private _sprintReportService: SprintReportService;
   private _taskTypeService: TaskTypeService;
   private _taskPriorityService: TaskPriorityService;
   private _taskStatusService: TaskStatusService;
@@ -107,6 +110,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._sprintService = this._moduleRef.get('SprintService');
+    this._sprintReportService = this._moduleRef.get('SprintReportService');
     this._taskTypeService = this._moduleRef.get('TaskTypeService');
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
@@ -684,6 +688,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    */
   private async updateTaskStatusInSprint(task: Task, newStatusId: string, project: Project, session: ClientSession) {
     const sprintDetails = await this._sprintService.getSprintDetails(task.sprintId, task.projectId, []);
+    // get report details
+    const sprintReport: SprintReportModel = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
 
     const currentColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
     // check if column exits in sprint
@@ -711,6 +717,21 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       $set: { 'columns': sprintDetails.columns }
     }, session);
 
+    // update sprint report
+    // find task in sprint report
+    const taskIndexInReport = sprintReport.reportTasks.findIndex(reportTask => {
+      return reportTask.taskId.toString() === task.id.toString();
+    });
+
+    // update task status id as sprint column
+    const updateReportObject = {
+      $set: {
+        [`reportTasks.${taskIndexInReport}.statusId`]: sprintDetails.columns[newColumnIndex].statusId
+      }
+    };
+
+    // update report by id
+    await this._sprintReportService.updateById(sprintDetails.reportId, updateReportObject, session);
   }
 
   /**
