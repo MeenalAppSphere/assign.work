@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   public view: string = 'listView';
   public projectList: Project[];
-  public selectedSprint: Sprint;
+  public selectedSprint: Partial<Sprint>;
   Highcharts: typeof Highcharts = Highcharts;
   lineChartOptions: Highcharts.Options = {};
   columnChartOptions: Highcharts.Options = {};
@@ -27,7 +27,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   public getReportInProcess: boolean;
   public sprintReport: SprintReportModel = null;
   public closedSprintsList: Partial<Sprint[]> = [];
+  public closedSprintsListBackup: Partial<Sprint[]> = [];
   public currentDate: Date;
+
+  public isReportAvailable:boolean;
+  public isSprintAvailable:boolean;
 
   constructor(
     private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService,
@@ -38,8 +42,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this._generalService.currentProject && this._generalService.currentProject.sprintId) {
-      this.getSprintReport(this._generalService.currentProject.sprintId);
+      this.isSprintAvailable = true;
+      this.getSprintReport(this._generalService.currentProject.sprint.id, this._generalService.currentProject.sprint.name);
     } else {
+      this.isSprintAvailable = false;
       this.setCurrentTimer();
     }
 
@@ -58,12 +64,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  public async getSprintReport(sprintId: string) {
+  public async getSprintReport(sprintId:string, sprintName:string) {
+
     this.getReportInProcess = true;
     try {
+      this.selectedSprint = {
+        id: sprintId,
+        name : sprintName
+      }
+
+      this.closedSprintsList = this.closedSprintsListBackup.filter(sprint => sprint.id!==sprintId);
+
       const report = await this._sprintReportService.getSprintReport(sprintId, this._generalService.currentProject.id).toPromise();
       this.sprintReport = report.data;
-      this.getReportInProcess = false;
+      this.isReportAvailable = true;
+        this.getReportInProcess = false;
 
       if (this.sprintReport.sprint.sprintStatus.status === SprintStatusEnum.closed) {
         this.currentDate = this.sprintReport.sprint.sprintStatus.updatedAt;
@@ -73,6 +88,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setCurrentTimer();
       }
     } catch (e) {
+      this.isReportAvailable = false;
       this.getReportInProcess = false;
       this.setCurrentTimer();
     }
@@ -82,6 +98,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     try {
       const report = await this._sprintService.getAllClosedSprints(this._generalService.currentProject.id).toPromise();
       this.closedSprintsList = report.data;
+      this.closedSprintsListBackup = report.data;
     } catch (e) {
       this.closedSprintsList = [];
     }

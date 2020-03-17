@@ -271,9 +271,9 @@
           </label>
         </div>
 
-        <div class="col text-right" style="max-width: 320px;">
+        <div class="col text-right" style="max-width: 520px;">
 
-          <nz-button-group>
+          <nz-button-group style="max-width: 200px;">
 
             <button nz-button nzType="default" (click)="allStatusesChecked = !allStatusesChecked;selectAllStatuses()"
                     style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">
@@ -283,7 +283,7 @@
               </label>
             </button>
             <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight"
-                    style="border-left:1px solid #ffffff; min-width:35px; height:33.33px;">
+                    style="border-left:1px solid #ffffff; min-width:35px; height: 33px;">
               <i nz-icon nzType="caret-down" nzTheme="outline"></i>
             </button>
           </nz-button-group>
@@ -297,7 +297,7 @@
           </nz-dropdown-menu>
 
 
-          <nz-input-group [nzSuffix]="suffixIcon">
+          <nz-input-group [nzSuffix]="suffixIcon" style="max-width: 290px; margin-left:10px;">
             <input placeholder="Search Backlogs" nzSize="small" nz-input
                    [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"
                    style="height:32px;"/>

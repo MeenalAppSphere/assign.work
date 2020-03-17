@@ -3,7 +3,6 @@
   [nzBordered]="false"
   [nzTitle]="titleTemplateRef"
   [nzExtra]="createSprintBtnTemplate"
-  [nzLoading]="getReportInProcess"
   class="backlog-page">
 
   <ng-template #titleTemplateRef>
@@ -26,19 +25,41 @@
 
     <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
       <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-        {{ sprintReport?.sprint?.name || 'Select Sprint'}}
+        <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
         <i nz-icon nzType="caret-down" theme="outline"></i>
       </button>
     </nz-button-group>
     <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
       <ul nz-menu>
         <li nz-menu-item *ngFor="let sprint of closedSprintsList"
-            (click)="getSprintReport(sprint.id)">{{ sprint.name }}</li>
+            (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
       </ul>
     </nz-dropdown-menu>
 
   </ng-template>
 
+  <nz-spin [nzSpinning]="getReportInProcess" nzTip="Getting Report...">
+
+    <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
+    <nz-empty
+      [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+      [nzNotFoundContent]="contentTpl"
+      [nzNotFoundFooter]="footerTpl">
+      <ng-template #contentTpl>
+        <div class="m-b-20">
+          <span *ngIf="isSprintAvailable">Report Not Available</span>
+          <span *ngIf="!isSprintAvailable">No Running Sprint Available</span>
+        </div>
+        <span class="font-weight-normal font-size-15" *ngIf="!isSprintAvailable">Choose exiting Sprint to view report</span>
+      </ng-template>
+      <ng-template #footerTpl>
+        <a routerLink="/backlog" nz-button nzType="link">Backlogs</a>
+      </ng-template>
+    </nz-empty>
+  </div>
+
+
+    <div *ngIf="isReportAvailable" class="report-available">
   <!-- sprint summary -->
   <section class="m-b-30" *ngIf="sprintReport && sprintReport.sprint">
 
@@ -94,18 +115,22 @@
 
       <div class="col-md-6">
         <span class="text-green">{{ sprintReport.sprint.progress }}% Completed</span>
+        <span class="float-right">
+          <span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of
+          {{ sprintReport.reportTasksCount }} items done
+        </span>
         <nz-progress [nzPercent]="sprintReport.sprint.progress" nzStrokeColor="#42E3A3" nzStrokeLinecap="square"
                      nzStrokeWidth="14"
                      [nzShowInfo]="false"></nz-progress>
-        <div class="row font-size-12 m-t-5">
+<!--        <div class="row font-size-12 m-t-5">-->
 <!--          <div class="col-md-6">-->
 <!--            <span><span class="font-weight-bold">28</span> of 49 points gained</span>-->
 <!--          </div>-->
-          <div class="col-md-6 text-right">
-            <span><span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of
-              {{ sprintReport.reportTasksCount }} items done</span>
-          </div>
-        </div>
+<!--          <div class="col-md-6 text-right">-->
+<!--            <span><span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of-->
+<!--              {{ sprintReport.reportTasksCount }} items done</span>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
 
     </div>
@@ -338,5 +363,11 @@
 
 
   </section>
+
+
+
+  </div >
+
+  </nz-spin>
 
 </nz-card>

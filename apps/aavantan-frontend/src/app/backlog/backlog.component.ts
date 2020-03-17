@@ -74,7 +74,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public backLogTaskRequest: TaskFilterModel;
   public backLogStatusQueryRequest: Array<{ name: string, value: string, isSelected: boolean }> = [];
-  public allStatusesChecked = false;
+  public allStatusesChecked:boolean = true;
   public allStatusesIndeterminate = true;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
