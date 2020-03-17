@@ -131,10 +131,48 @@ export class SprintReportUtilityService {
     }).length;
   }
 
-  prepareSprintReportUserProductivity(reportMembers: SprintReportMembersModel[], sprint: Sprint): SprintReportMembersModel[] {
-    return reportMembers.map(member => {
-      member.sprintProductivity = Number(((member.totalLoggedTime * 100) / sprint.totalLoggedTime).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+  prepareSprintReportUserProductivity(report: SprintReportModel) {
+
+    report.reportMembers = report.reportMembers.map(member => {
+      member.totalLoggedTimeReadable = secondsToString(member.totalLoggedTime);
+      member.workingCapacityReadable = secondsToString(member.workingCapacity);
+
+      member.totalRemainingTime = member.workingCapacity - member.totalLoggedTime;
+      member.totalRemainingTimeReadable = secondsToString(member.totalRemainingTime);
+
+      member.totalAssignedTime = report.reportTasks.reduce((pv, cv) => {
+        if (cv.assigneeId.toString() === member.userId.toString()) {
+          return pv + cv.estimatedTime;
+        } else {
+          return pv;
+        }
+      }, 0);
+      member.totalAssignedTimeReadable = secondsToString(member.totalAssignedTime);
+
+      member.sprintProductivity = Number(((member.totalLoggedTime * 100) / member.totalAssignedTime).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
       return member;
     });
+
+    report.reportMembersTotalAssignedTime = 0;
+    report.reportMembersTotalWorkingCapacity = 0;
+    report.reportMembersTotalLoggedTime = 0;
+    report.reportMembersTotalRemainingTime = 0;
+    report.reportMembersTotalSprintProductivity = 0;
+
+    report.reportMembers.forEach(member => {
+      report.reportMembersTotalAssignedTime += member.totalAssignedTime;
+      report.reportMembersTotalWorkingCapacity += member.workingCapacity;
+      report.reportMembersTotalLoggedTime += member.totalLoggedTime;
+      report.reportMembersTotalRemainingTime += member.totalRemainingTime;
+      report.reportMembersTotalSprintProductivity += member.sprintProductivity;
+    });
+
+    report.reportMembersTotalAssignedTimeReadable = secondsToString(report.reportMembersTotalAssignedTime);
+
+    report.reportMembersTotalWorkingCapacityReadable = secondsToString(report.reportMembersTotalWorkingCapacity);
+
+    report.reportMembersTotalLoggedTimeReadable = secondsToString(report.reportMembersTotalLoggedTime);
+
+    report.reportMembersTotalRemainingTimeReadable = secondsToString(report.reportMembersTotalRemainingTime);
   }
 }

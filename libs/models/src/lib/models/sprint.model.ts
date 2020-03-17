@@ -85,7 +85,7 @@ export class SprintMembersCapacity {
   userId: string | Types.ObjectId;
   user?: User;
   workingCapacity: number;
-  workingCapacityReadable?: number;
+  workingCapacityReadable?: string;
   workingCapacityPerDay?: number;
   workingCapacityPerDayReadable?: string;
   workingDays?: ProjectWorkingDays[];

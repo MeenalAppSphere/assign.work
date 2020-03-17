@@ -134,10 +134,9 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       report.sprint = sprintDetails;
       this._sprintUtilityService.calculateSprintEstimates(sprintDetails);
 
-      report.reportMembers = this._utilityService.prepareSprintReportUserProductivity(report.reportMembers, report.sprint);
+      this._utilityService.prepareSprintReportUserProductivity(report);
 
       const lastColumnOfSprint = projectDetails.activeBoard.columns[projectDetails.activeBoard.columns.length - 1];
-
       report.finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
       this._utilityService.prepareSprintReportTasksCountReport(report, taskStatuses);
       return report;

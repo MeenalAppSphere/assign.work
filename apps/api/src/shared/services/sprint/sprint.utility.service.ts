@@ -380,12 +380,12 @@ export class SprintUtilityService {
     sprint.overProgress = Number(((100 * sprint.totalOverLoggedTime) / sprint.totalEstimation).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
 
     // convert seconds to hours for displaying on ui
-    sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
-    sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
-    sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
-    sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
-    sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
-    sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
+    // sprint.totalCapacity = secondsToHours(sprint.totalCapacity);
+    // sprint.totalEstimation = secondsToHours(sprint.totalEstimation);
+    // sprint.totalRemainingCapacity = secondsToHours(sprint.totalRemainingCapacity);
+    // sprint.totalLoggedTime = secondsToHours(sprint.totalLoggedTime);
+    // sprint.totalOverLoggedTime = secondsToHours(sprint.totalOverLoggedTime || 0);
+    // sprint.totalRemainingTime = secondsToHours(sprint.totalRemainingTime);
 
     // calculate sprint columns estimates
     if (sprint.columns) {

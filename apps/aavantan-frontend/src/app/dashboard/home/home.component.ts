@@ -122,6 +122,7 @@ export class HomeComponent implements OnInit {
     try {
       const report = await this._sprintReportService.getSprintReport(sprintId, this._generalService.currentProject.id).toPromise();
       this.sprintReport = report.data;
+      this.getReportInProcess = false;
     } catch (e) {
       this.getReportInProcess = false;
     }

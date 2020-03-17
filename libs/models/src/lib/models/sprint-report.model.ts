@@ -6,7 +6,18 @@ export class SprintReportModel extends BaseDbModel {
   sprintId: string;
   sprint?: Sprint;
   status?: string;
+
   reportMembers: SprintReportMembersModel[];
+
+  reportMembersTotalAssignedTime: number;
+  reportMembersTotalAssignedTimeReadable: string;
+  reportMembersTotalWorkingCapacity: number;
+  reportMembersTotalWorkingCapacityReadable: string;
+  reportMembersTotalLoggedTime: number;
+  reportMembersTotalLoggedTimeReadable: string;
+  reportMembersTotalRemainingTime: number;
+  reportMembersTotalRemainingTimeReadable: string;
+  reportMembersTotalSprintProductivity: number;
 
   reportTasks: SprintReportTasksModel[];
   reportTasksCount: number;
@@ -60,8 +71,12 @@ export class SprintReportTasksModel {
 }
 
 export class SprintReportMembersModel extends SprintMembersCapacity {
+  totalAssignedTime: number;
+  totalAssignedTimeReadable: string;
   totalLoggedTime?: number;
   totalLoggedTimeReadable?: string;
+  totalRemainingTime?: number;
+  totalRemainingTimeReadable?: string;
   taskWiseTimeLog: SprintReportMembersTaskLoggingModel[];
   sprintProductivity?: number;
 }

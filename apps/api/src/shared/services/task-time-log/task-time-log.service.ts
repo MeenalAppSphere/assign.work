@@ -220,7 +220,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
         sprintDetails.totalOverLoggedTime = sprintDetails.totalLoggedTime - sprintDetails.totalEstimation;
       } else {
         // if progress is lesser or equal to 100 means no over logging done
-        sprintDetails.totalRemainingTime = sprintDetails.totalRemainingTime - sprintDetails.totalLoggedTime;
+        sprintDetails.totalRemainingTime = sprintDetails.totalEstimation - sprintDetails.totalLoggedTime || 0;
         sprintDetails.totalOverLoggedTime = 0;
       }
 
