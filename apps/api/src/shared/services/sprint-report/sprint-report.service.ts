@@ -136,7 +136,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       })
       .exec();
 
-    if (result) {
+    if (result && result[0]) {
       report = result[0];
       report.id = report._id;
 
