@@ -11,7 +11,7 @@ export const sprintReportSchema = new Schema({
     required: [true, 'Please Select Project First!']
   },
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
-  finalStatusId: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
+  finalStatusIds: [{ type: Schema.Types.ObjectId, ref: DbCollection.taskStatus }],
   reportTasks: {
     type: Array,
     taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },

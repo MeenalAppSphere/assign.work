@@ -631,28 +631,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // project details
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
-
+      await this._projectService.getProjectDetails(model.projectId, true);
       model = { ...new TaskFilterModel(model.projectId), ...model };
-
-      // filter out last column status data as it is last status so filter them out
-      if (projectDetails.activeBoard) {
-        // check if have more than one columns
-        if (projectDetails.activeBoard.columns.length > 1) {
-          // get last column and last column status
-          const lastStatusId = projectDetails.activeBoard.columns[projectDetails.activeBoard.columns.length - 1].headerStatusId;
-
-          if (lastStatusId) {
-            // filter out tasks with the last status id
-            model.queries.push({
-              key: 'statusId',
-              value: [lastStatusId],
-              condition: TaskFilterCondition.and,
-              reverseFilter: true
-            });
-          }
-        }
-      }
 
       // query for task not in sprint , sprintId === undefined || sprintId === null
       model.queries.push({

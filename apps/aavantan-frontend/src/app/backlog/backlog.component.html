@@ -199,7 +199,8 @@
 
                   <td data-label="Type" class="text-left">
                     <span *ngIf="!item.taskType">-</span>
-                    <a routerLink="../../task/{{item.displayName}}" class="text-primary" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
+                    <a routerLink="../../task/{{item.displayName}}" class="text-primary"
+                       *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                   </td>
 
                   <td data-label="Title">
@@ -271,6 +272,30 @@
         </div>
 
         <div class="col text-right" style="max-width: 320px;">
+
+          <nz-button-group>
+
+            <button nz-button nzType="default" (click)="allStatusesChecked = !allStatusesChecked;selectAllStatuses()"
+                    style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">
+              <label nz-checkbox [(ngModel)]="allStatusesChecked"
+                     (ngModelChange)="selectAllStatuses()" [nzIndeterminate]="allStatusesIndeterminate">
+                Status Filter
+              </label>
+            </button>
+            <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight"
+                    style="border-left:1px solid #ffffff; min-width:35px; height:33.33px;">
+              <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+            </button>
+          </nz-button-group>
+
+          <nz-dropdown-menu #statusDdl="nzDropdownMenu">
+            <ul nz-menu>
+              <li nz-menu-item *ngFor="let status of backLogStatusQueryRequest">
+                <label nz-checkbox [(ngModel)]="status.isSelected" (ngModelChange)="selectSingleStatus()">{{ status.name }}</label>
+              </li>
+            </ul>
+          </nz-dropdown-menu>
+
 
           <nz-input-group [nzSuffix]="suffixIcon">
             <input placeholder="Search Backlogs" nzSize="small" nz-input
@@ -386,7 +411,8 @@
 
                 <td data-label="Type" class="text-left">
                   <span *ngIf="!item.taskType">-</span>
-                  <a routerLink="../../task/{{item.displayName}}"  class="text-primary" *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
+                  <a routerLink="../../task/{{item.displayName}}" class="text-primary"
+                     *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                 </td>
 
                 <td data-label="Title">

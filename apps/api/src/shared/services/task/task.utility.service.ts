@@ -315,6 +315,15 @@ export class TaskUtilityService {
 
         query.key = this.validTaskQueryKey(query.key);
 
+        // convert value to object id
+        query.value = query.value.map(value => {
+          if (value) {
+            // convert to object id because mongo aggregate requires object id for matching foreign documents
+            value = toObjectId(value);
+          }
+          return value;
+        });
+
         // and condition
         // add directly to the filter.$add
         if (query.condition === TaskFilterCondition.and) {

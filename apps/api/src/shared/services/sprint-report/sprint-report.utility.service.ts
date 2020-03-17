@@ -35,7 +35,7 @@ export class SprintReportUtilityService {
     report.reportMembers = this.createSprintReportMembersFromSprintMembers(sprint.membersCapacity);
 
     const lastColumnOfSprint = project.activeBoard.columns[project.activeBoard.columns.length - 1];
-    report.finalStatusId = lastColumnOfSprint.headerStatusId;
+    report.finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
 
     return report;
   }
@@ -176,7 +176,7 @@ export class SprintReportUtilityService {
 
     report.reportTasksCount = report.reportTasks.length;
     report.finishedTasksCount = report.reportTasks.filter(task => {
-      return report.finalStatusId.toString() !== task.statusId.toString();
+      return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
     }).length;
   }
 

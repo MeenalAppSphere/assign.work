@@ -1,6 +1,5 @@
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  SprintDurationsModel,
   AddTaskToSprintModel,
   DraftSprint,
   GetAllTaskRequestModel,
@@ -8,9 +7,11 @@ import {
   RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
+  SprintDurationsModel,
   SprintErrorEnum,
   SprintErrorResponse,
   Task,
+  TaskFilterCondition,
   TaskFilterModel,
   TaskTypeModel,
   User
@@ -25,8 +26,9 @@ import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
-import { fromEvent, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -64,7 +66,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public searchValue: string;
   public searchValueSubject$: Subject<string> = new Subject<string>();
-  public searchTaskListInProgress: boolean;
 
   public sprintId: string;
   public sprintDurations: SprintDurationsModel;
@@ -72,6 +73,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public selectedTimeLogTask: Task;
 
   public backLogTaskRequest: TaskFilterModel;
+  public backLogStatusQueryRequest: Array<{ name: string, value: string, isSelected: boolean }> = [];
+  public allStatusesChecked = false;
+  public allStatusesIndeterminate = true;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
 
@@ -82,20 +86,34 @@ export class BacklogComponent implements OnInit, OnDestroy {
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
               private _taskTypeQuery: TaskTypeQuery,
+              private _taskStatusQuery: TaskStatusQuery,
               private _userQuery: UserQuery,
               private _sprintService: SprintService,
               protected notification: NzNotificationService,
               private modal: NzModalService,
               private router: Router) {
+  }
 
+  ngOnInit() {
+
+    // subscribe for all task types
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.taskTypeDataSource = res;
       }
     });
-  }
 
-  ngOnInit() {
+    // subscribe for al task statuses
+    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
+      const backLogStatusQueryRequest = [];
+      if (statuses) {
+        statuses.forEach(status => {
+          backLogStatusQueryRequest.push({ name: status.name, value: status.id, isSelectd: false });
+        });
+      }
+
+      this.backLogStatusQueryRequest = backLogStatusQueryRequest;
+    });
 
     this.searchValueSubject$.pipe(
       debounceTime(700),
@@ -477,6 +495,40 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public viewTask(task: Task) {
     this.router.navigateByUrl('dashboard/task/' + task.displayName);
+  }
+
+  public selectAllStatuses() {
+    this.allStatusesIndeterminate = false;
+    this.backLogStatusQueryRequest = this.backLogStatusQueryRequest.map(status => {
+      status.isSelected = this.allStatusesChecked;
+      return status;
+    });
+
+    this.backLogStatusChanged();
+  }
+
+  public selectSingleStatus(): void {
+    this.allStatusesChecked = this.backLogStatusQueryRequest.every(status => status.isSelected);
+    this.allStatusesIndeterminate = !this.allStatusesChecked;
+
+    this.backLogStatusChanged();
+  }
+
+  public backLogStatusChanged() {
+    this.backLogTaskRequest.page = 1;
+    this.backLogTaskRequest.sort = 'name';
+    this.backLogTaskRequest.sortBy = 'asc';
+    this.backLogTaskRequest.queries = [];
+
+    const isAnyStatusSelected = this.backLogStatusQueryRequest.some(status => status.isSelected);
+    if (isAnyStatusSelected) {
+      this.backLogTaskRequest.queries.push({
+        key: 'status', condition: TaskFilterCondition.or,
+        value: this.backLogStatusQueryRequest.filter(status => status.isSelected).map(status => status.value)
+      });
+    }
+
+    this.getAllBacklogTask();
   }
 
   /** time log **/
