@@ -26,7 +26,7 @@
 
     <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
       <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-        {{ sprintReport?.sprint.name || 'Select Sprint'}}
+        {{ sprintReport?.sprint?.name || 'Select Sprint'}}
         <i nz-icon nzType="caret-down" theme="outline"></i>
       </button>
     </nz-button-group>
