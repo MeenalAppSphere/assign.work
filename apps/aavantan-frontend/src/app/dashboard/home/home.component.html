@@ -18,9 +18,9 @@
   <ng-template #createSprintBtnTemplate>
 
     <div class="text-gray-light-2 font-size-12 p-t-5 font-weight-light inline-block">
-      <span>12-Dec-2019</span>
+      <span>{{ currentDate | date: 'dd-MMM-yyyy' }} </span>
       <span class="p-r-5 p-l-5">|</span>
-      <span>11:47 AM IST</span>
+      <span #currentTime> {{ currentDate | date: 'hh:mm:ss A' }} </span>
     </div>
 
 

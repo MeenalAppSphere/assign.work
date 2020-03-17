@@ -761,7 +761,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   public async publishSprint(model: PublishSprintModel) {
     return await this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
 
       // get sprint details
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);

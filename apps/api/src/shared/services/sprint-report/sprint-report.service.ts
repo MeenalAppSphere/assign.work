@@ -131,6 +131,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
         _id: '$_id',
         reportMembers: { '$addToSet': '$reportMembers' },
         reportTasks: { '$addToSet': '$reportTasks' },
+        finalStatusIds: { '$addToSet': '$finalStatusIds' },
         sprint: { '$first': '$sprint' }
       })
       .exec();

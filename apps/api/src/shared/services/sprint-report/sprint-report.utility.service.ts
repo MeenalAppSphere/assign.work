@@ -112,69 +112,68 @@ export class SprintReportUtilityService {
    * @param taskStatuses
    */
   prepareSprintReportTasksCountReport(report: SprintReportModel, taskStatuses: TaskStatusModel[]) {
-    if (report.sprint.sprintStatus && report.sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
+    const allTasks: SprintReportTaskReportModel[] = [];
 
-      const allTasks: SprintReportTaskReportModel[] = [];
+    // loop over project task statuses
+    taskStatuses.forEach(status => {
+      const groupedTasks = [];
 
-      // loop over project task statuses
-      taskStatuses.forEach(status => {
-        const groupedTasks = [];
-
-        // loop over report tasks and group by status
-        report.reportTasks.forEach(reportTask => {
-          if (reportTask.statusId.toString() === status._id.toString()) {
-            reportTask.status = status;
-            groupedTasks.push(reportTask);
-          }
-          return reportTask;
-        });
-
-        // new report task model
-        const task = new SprintReportTaskReportModel();
-
-        task.statusId = status._id;
-        task.status = status;
-        task.count = groupedTasks.length;
-
-        // calculate total estimated time
-        task.totalEstimatedTime = sumBy(groupedTasks, 'estimatedTime') || 0;
-        task.totalEstimatedTimeReadable = secondsToString(task.totalEstimatedTime);
-
-        // calculate total logged time
-        task.totalLoggedTime = sumBy(groupedTasks, 'totalLoggedTime') || 0;
-        task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
-
-        // calculate total remaining time
-        task.totalRemainingTime = task.totalEstimatedTime - task.totalLoggedTime || 0;
-        task.totalRemainingTimeReadable = secondsToString(task.totalRemainingTime);
-
-        allTasks.push(task);
+      // loop over report tasks and group by status
+      report.reportTasks.forEach(reportTask => {
+        if (reportTask.statusId.toString() === status._id.toString()) {
+          reportTask.status = status;
+          groupedTasks.push(reportTask);
+        }
+        return reportTask;
       });
 
-      // assign all tasks
-      report.allTasks = allTasks;
+      // new report task model
+      const task = new SprintReportTaskReportModel();
 
-      // set default zero value for all totals
-      report.allTasksCount = 0;
-      report.allTaskTotalEstimatedTime = 0;
-      report.allTaskTotalLoggedTime = 0;
-      report.allTaskTotalRemainingTime = 0;
+      task.statusId = status._id;
+      task.status = status;
+      task.count = groupedTasks.length;
 
-      // loop over all tasks and calculate all totals
-      allTasks.forEach(task => {
-        report.allTasksCount += task.count;
-        report.allTaskTotalEstimatedTime += task.totalEstimatedTime;
-        report.allTaskTotalLoggedTime += task.totalLoggedTime;
-        report.allTaskTotalRemainingTime += task.totalRemainingTime;
-      });
+      // calculate total estimated time
+      task.totalEstimatedTime = sumBy(groupedTasks, 'estimatedTime') || 0;
+      task.totalEstimatedTimeReadable = secondsToString(task.totalEstimatedTime);
 
-      // convert totals to readable format
-      report.allTaskTotalEstimatedTimeReadable = secondsToString(report.allTaskTotalEstimatedTime);
-      report.allTaskTotalLoggedTimeReadable = secondsToString(report.allTaskTotalLoggedTime);
-      report.allTaskTotalRemainingTimeReadable = secondsToString(report.allTaskTotalRemainingTime);
-    }
+      // calculate total logged time
+      task.totalLoggedTime = sumBy(groupedTasks, 'totalLoggedTime') || 0;
+      task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
 
+      // calculate total remaining time
+      task.totalRemainingTime = task.totalEstimatedTime - task.totalLoggedTime || 0;
+      task.totalRemainingTimeReadable = secondsToString(task.totalRemainingTime);
+
+      allTasks.push(task);
+    });
+
+    // assign all tasks
+    report.allTasks = allTasks;
+
+    // set default zero value for all totals
+    report.allTasksCount = 0;
+    report.allTaskTotalEstimatedTime = 0;
+    report.allTaskTotalLoggedTime = 0;
+    report.allTaskTotalRemainingTime = 0;
+
+    // loop over all tasks and calculate all totals
+    allTasks.forEach(task => {
+      report.allTasksCount += task.count;
+      report.allTaskTotalEstimatedTime += task.totalEstimatedTime;
+      report.allTaskTotalLoggedTime += task.totalLoggedTime;
+      report.allTaskTotalRemainingTime += task.totalRemainingTime;
+    });
+
+    // convert totals to readable format
+    report.allTaskTotalEstimatedTimeReadable = secondsToString(report.allTaskTotalEstimatedTime);
+    report.allTaskTotalLoggedTimeReadable = secondsToString(report.allTaskTotalLoggedTime);
+    report.allTaskTotalRemainingTimeReadable = secondsToString(report.allTaskTotalRemainingTime);
+
+    // calculate report task count
     report.reportTasksCount = report.reportTasks.length;
+    // calculate all finished tasks count
     report.finishedTasksCount = report.reportTasks.filter(task => {
       return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
     }).length;
