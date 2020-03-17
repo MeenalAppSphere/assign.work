@@ -350,8 +350,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     if (this.currentProject.members.length > 0) {
       this.currentProject.members.forEach((ele) => {
         let name = ele.userDetails.firstName + ' ' + ele.userDetails.lastName;
-        if(!ele.userDetails.firstName) {
-          name  = ele.userDetails.emailId
+        if (!ele.userDetails.firstName) {
+          name = ele.userDetails.emailId;
         }
         this.atMentionUsers.push({
           id: ele.userId,
@@ -370,10 +370,10 @@ export class TaskComponent implements OnInit, OnDestroy {
           [{ 'list': 'ordered' }, { 'list': 'bullet' }],
           [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
           [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          [{ 'color': ['#333333', '#000000', 'red','green'] }],
+          [{ 'color': ['#333333', '#000000', 'red', 'green'] }],
           ['clean'],                                         // remove formatting button
           ['link', 'image', 'video']
-        ],
+        ]
       },
       mention: {
         allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
@@ -688,7 +688,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.getTaskInProcess = false;
     } catch (e) {
-      if(!e.data){
+      if (!e.data) {
         this.showTaskNotFoundView = true;
       }
       this.getTaskInProcess = false;
@@ -841,6 +841,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         const data = await this._taskService.updateTask(task).toPromise();
 
         this.currentTask = data.data;
+        this.displayName = data.data.displayName;
 
         if (data && data.data && data.data.progress) {
           this.progressData = {
@@ -853,8 +854,6 @@ export class TaskComponent implements OnInit, OnDestroy {
             overProgress: data.data.overProgress
           };
         }
-
-
       } else {
         const data = await this._taskService.createTask(task).toPromise();
         this.taskId = data.data.id;
@@ -866,7 +865,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.listOfSelectedWatchers = data.data.watchersDetails;
 
       }
-
+      this.router.navigate(['dashboard', 'task', this.displayName], { replaceUrl: true });
       this.createTaskInProcess = false;
     } catch (e) {
       this.createTaskInProcess = false;
@@ -904,7 +903,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.modelChanged.next();
   }
 
-  public clearAssigeeSearchText(){
+  public clearAssigeeSearchText() {
     this.taskForm.get('assigneeId').patchValue('');
   }
 

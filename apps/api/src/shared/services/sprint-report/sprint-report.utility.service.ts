@@ -137,8 +137,8 @@ export class SprintReportUtilityService {
       member.totalLoggedTimeReadable = secondsToString(member.totalLoggedTime);
       member.workingCapacityReadable = secondsToString(member.workingCapacity);
 
-      member.totalRemainingTime = member.workingCapacity - member.totalLoggedTime;
-      member.totalRemainingTimeReadable = secondsToString(member.totalRemainingTime);
+      member.totalRemainingWorkingCapacity = member.workingCapacity - member.totalLoggedTime;
+      member.totalRemainingWorkingCapacityReadable = secondsToString(member.totalRemainingWorkingCapacity);
 
       member.totalAssignedTime = report.reportTasks.reduce((pv, cv) => {
         if (cv.assigneeId.toString() === member.userId.toString()) {
@@ -149,12 +149,16 @@ export class SprintReportUtilityService {
       }, 0);
       member.totalAssignedTimeReadable = secondsToString(member.totalAssignedTime);
 
+      member.totalRemainingTime = member.totalAssignedTime - member.totalLoggedTime;
+      member.totalRemainingTimeReadable = secondsToString(member.totalRemainingTime);
+
       member.sprintProductivity = Number(((member.totalLoggedTime * 100) / member.totalAssignedTime).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
       return member;
     });
 
     report.reportMembersTotalAssignedTime = 0;
     report.reportMembersTotalWorkingCapacity = 0;
+    report.reportMembersTotalRemainingWorkingCapacity = 0;
     report.reportMembersTotalLoggedTime = 0;
     report.reportMembersTotalRemainingTime = 0;
     report.reportMembersTotalSprintProductivity = 0;
@@ -162,6 +166,7 @@ export class SprintReportUtilityService {
     report.reportMembers.forEach(member => {
       report.reportMembersTotalAssignedTime += member.totalAssignedTime;
       report.reportMembersTotalWorkingCapacity += member.workingCapacity;
+      report.reportMembersTotalRemainingWorkingCapacity += member.totalRemainingWorkingCapacity;
       report.reportMembersTotalLoggedTime += member.totalLoggedTime;
       report.reportMembersTotalRemainingTime += member.totalRemainingTime;
       report.reportMembersTotalSprintProductivity += member.sprintProductivity;
@@ -170,6 +175,8 @@ export class SprintReportUtilityService {
     report.reportMembersTotalAssignedTimeReadable = secondsToString(report.reportMembersTotalAssignedTime);
 
     report.reportMembersTotalWorkingCapacityReadable = secondsToString(report.reportMembersTotalWorkingCapacity);
+
+    report.reportMembersTotalRemainingWorkingCapacityReadable = secondsToString(report.reportMembersTotalRemainingWorkingCapacity);
 
     report.reportMembersTotalLoggedTimeReadable = secondsToString(report.reportMembersTotalLoggedTime);
 

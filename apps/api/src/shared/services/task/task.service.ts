@@ -6,7 +6,7 @@ import {
   DeleteTaskModel,
   GetAllTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
-  Project,
+  Project, Sprint,
   SprintStatusEnum,
   Task,
   TaskFilterCondition,
@@ -287,29 +287,54 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model: Task
    */
   async updateTask(model: Task): Promise<Task> {
+    if (!model || !model.id) {
+      BadRequest('Task not found');
+    }
+
+    const taskModel = new Task();
     const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
     let isAssigneeChanged = false;
 
     // update task process
     await this.withRetrySession(async (session: ClientSession) => {
-      if (!model || !model.id) {
-        BadRequest('Task not found');
-      }
 
       const taskDetails = await this.getTaskDetails(model.id, model.projectId);
 
+      // assign property to task model
+      taskModel.id = model.id;
+      taskModel.name = model.name;
+      taskModel.displayName = model.displayName;
+      taskModel.description = model.description;
+      taskModel.tags = model.tags;
+
+      taskModel.taskTypeId = model.taskTypeId;
+      taskModel.priorityId = model.priorityId;
+      taskModel.statusId = model.statusId;
+      taskModel.createdById = model.createdById;
+      taskModel.dependentItemId = model.dependentItemId;
+      taskModel.relatedItemId = model.relatedItemId;
+
+      taskModel.estimatedTime = model.estimatedTime;
+      taskModel.estimatedTimeReadable = model.estimatedTimeReadable;
+      taskModel.remainingTime = model.remainingTime || 0;
+      taskModel.overLoggedTime = model.overLoggedTime || 0;
+      taskModel.totalLoggedTime = model.totalLoggedTime || 0;
+
+      taskModel.projectId = model.projectId;
+      taskModel.sprintId = taskDetails.sprintId;
+
       // check if task assignee id is available or not
       // if not then assign it to task creator
-      model.assigneeId = model.assigneeId || this._generalService.userId;
-      isAssigneeChanged = taskDetails.assigneeId.toString() !== model.assigneeId;
+      taskModel.assigneeId = model.assigneeId || this._generalService.userId;
+      isAssigneeChanged = taskDetails.assigneeId.toString() !== taskModel.assigneeId;
 
       // check if estimated time updated and one have already logged in this task
-      if (model.estimatedTimeReadable) {
+      if (taskModel.estimatedTimeReadable) {
         // estimate time is present then it should be in string parse it to seconds
-        model.estimatedTime = stringToSeconds(model.estimatedTimeReadable);
+        taskModel.estimatedTime = stringToSeconds(taskModel.estimatedTimeReadable);
 
         // ensure estimated time is changed
-        if (model.estimatedTime !== taskDetails.estimatedTime) {
+        if (taskModel.estimatedTime !== taskDetails.estimatedTime) {
           // check if task is in the sprint you can't update estimate
           if (taskDetails.sprintId) {
             BadRequest('Task is in sprint you can\'t update estimate time');
@@ -324,21 +349,21 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // model task-type and model display-name changed then re assign display-name with new task-type
-      if (model.taskTypeId !== taskDetails.taskTypeId) {
-        const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
+      if (taskModel.taskTypeId !== taskDetails.taskTypeId.toString()) {
+        const taskTypeDetails = await this._taskTypeService.getDetails(taskModel.projectId, taskModel.taskTypeId);
 
         // check if task type changed than update task display name
-        const separateDisplayName = model.displayName.split('-');
+        const separateDisplayName = taskModel.displayName.split('-');
         const mainDisplayName = separateDisplayName[0];
 
         if (mainDisplayName.trim().toLowerCase() !== taskTypeDetails.name.toLowerCase()) {
-          model.displayName = `${taskTypeDetails.displayName}-${separateDisplayName[1]}`;
+          taskModel.displayName = `${taskTypeDetails.displayName}-${separateDisplayName[1]}`;
         }
       }
 
-      model.progress = model.progress || 0;
-      model.overProgress = model.overProgress || 0;
-      model.updatedById = this._generalService.userId;
+      taskModel.progress = model.progress || 0;
+      taskModel.overProgress = model.overProgress || 0;
+      taskModel.updatedById = this._generalService.userId;
 
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
@@ -346,12 +371,12 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       // tags processing
       // if any new tag found that is not in projectDetails then need to add that in project
 
-      const isNewTag = model.tags.some(s => {
+      const isNewTag = taskModel.tags.some(s => {
         return !(projectDetails.settings.tags.map(tag => tag.name).includes(s));
       });
 
       if (isNewTag) {
-        const newTags = [...new Set([...model.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
+        const newTags = [...new Set([...taskModel.tags, ...projectDetails.settings.tags.map(tag => tag.name)])];
 
         // const newTags = xorWith(model.tags, projectDetails.settings.tags.map(m => m.name), isEqual);
         if (newTags.length) {
@@ -362,7 +387,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
             };
           });
 
-          await this._projectService.updateById(model.projectId, {
+          await this._projectService.updateById(taskModel.projectId, {
             $set: { 'settings.tags': projectDetails.settings.tags }
           }, session);
         }
@@ -370,27 +395,33 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // check if task is in sprint
       if (taskDetails.sprintId) {
-        if (model.statusId !== taskDetails.statusId) {
+        const sprint = await this._sprintService.getSprintDetails(taskDetails.sprintId, taskDetails.projectId, []);
+
+        // check if status is updated then update task position in sprint columns
+        if (taskModel.statusId !== taskDetails.statusId) {
           // update task position in sprint columns
-          await this.updateTaskStatusInSprint(taskDetails, model.statusId, projectDetails, session);
+          await this.updateTaskStatusInSprint(sprint, taskDetails, taskModel.statusId, projectDetails, session);
         }
+
+        // update sprint report
+        await this._sprintReportService.updateReportTask(sprint.reportId, taskModel, session);
       }
 
       // update task by id
-      await this.updateById(model.id, model, session);
+      await this.updateById(taskModel.id, taskModel, session);
 
       // create task history object
       // on the basis of task updated model
       const taskHistory = this.taskHistoryObjectHelper(isAssigneeChanged ? TaskHistoryActionEnum.assigneeChanged : TaskHistoryActionEnum.taskUpdated,
-        model.id, model);
+        taskModel.id, taskModel);
 
-      // add comment updated history
+      // add task updated history
       await this._taskHistoryService.addHistory(taskHistory, session);
     });
 
     // get updated task details and return it
     try {
-      const task: Task = await this._taskModel.findOne({ _id: model.id }).populate(taskFullPopulation).select('-comments').lean().exec();
+      const task: Task = await this._taskModel.findOne({ _id: taskModel.id }).populate(taskFullPopulation).select('-comments').lean().exec();
 
       // check if assignee changed than send mail to new assignee
       if (isAssigneeChanged) {
@@ -681,15 +712,13 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   /**
    * update task status in sprint
    * update's task column in sprint columns using task status id
+   * @param sprint
    * @param task
    * @param newStatusId
    * @param project
    * @param session
    */
-  private async updateTaskStatusInSprint(task: Task, newStatusId: string, project: Project, session: ClientSession) {
-    const sprintDetails = await this._sprintService.getSprintDetails(task.sprintId, task.projectId, []);
-    // get report details
-    const sprintReport: SprintReportModel = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
+  private async updateTaskStatusInSprint(sprint: Sprint, task: Task, newStatusId: string, project: Project, session: ClientSession) {
 
     const currentColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
     // check if column exits in sprint
@@ -705,33 +734,17 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }
 
     // get task from sprint column that's going to move to new column
-    const oldSprintTask = sprintDetails.columns[currentColumnIndex].tasks.find(
+    const oldSprintTask = sprint.columns[currentColumnIndex].tasks.find(
       sprintTask => sprintTask.taskId.toString() === task.id);
 
     // move task to new column and remove from old column
-    sprintDetails.columns = this._sprintUtilityService.moveTaskToNewColumn(sprintDetails, task, oldSprintTask,
+    sprint.columns = this._sprintUtilityService.moveTaskToNewColumn(sprint, task, oldSprintTask,
       this._generalService.userId, currentColumnIndex, newColumnIndex);
 
     // update sprint columns
-    await this._sprintService.updateById(sprintDetails.id, {
-      $set: { 'columns': sprintDetails.columns }
+    await this._sprintService.updateById(sprint.id, {
+      $set: { 'columns': sprint.columns }
     }, session);
-
-    // update sprint report
-    // find task in sprint report
-    const taskIndexInReport = sprintReport.reportTasks.findIndex(reportTask => {
-      return reportTask.taskId.toString() === task.id.toString();
-    });
-
-    // update task status id as sprint column
-    const updateReportObject = {
-      $set: {
-        [`reportTasks.${taskIndexInReport}.statusId`]: sprintDetails.columns[newColumnIndex].statusId
-      }
-    };
-
-    // update report by id
-    await this._sprintReportService.updateById(sprintDetails.reportId, updateReportObject, session);
   }
 
   /**

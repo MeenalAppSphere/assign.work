@@ -12,6 +12,7 @@ import { SprintService } from '../sprint/sprint.service';
 import { ProjectService } from '../project/project.service';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
+import * as moment from 'moment';
 
 @Injectable()
 export class SprintReportService extends BaseService<SprintReportModel & Document> {
@@ -132,6 +133,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       report.id = report._id;
 
       report.sprint = sprintDetails;
+      report.sprintDuration = `${moment(report.sprint.endAt).diff(report.sprint.startedAt, 'd')} Days`;
       this._sprintUtilityService.calculateSprintEstimates(sprintDetails);
 
       this._utilityService.prepareSprintReportUserProductivity(report);
@@ -150,6 +152,30 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     const report = this._utilityService.createSprintReportModelFromSprint(sprint);
     report.createdById = this._generalService.userId;
     return await this.create([report], session);
+  }
+
+  async updateReportTask(reportId: string, task: Task, session: ClientSession) {
+    // get report details
+    const sprintReport: SprintReportModel = await this.getSprintReportDetails(reportId);
+
+    // update sprint report
+    // find task in sprint report
+    const taskIndexInReport = sprintReport.reportTasks.findIndex(reportTask => {
+      return reportTask.taskId.toString() === task.id.toString();
+    });
+
+    // get updated task form task object
+    const updatedTask = this._utilityService.createSprintReportTaskFromSprintColumnTask(task);
+
+    // update report task object
+    const updateReportObject = {
+      $set: {
+        [`reportTasks.${taskIndexInReport}`]: updatedTask
+      }
+    };
+
+    // update report by id
+    return await this.updateById(reportId, updatedTask, session);
   }
 
   async addTaskInSprintReport(reportId: string, task: Task, session: ClientSession) {

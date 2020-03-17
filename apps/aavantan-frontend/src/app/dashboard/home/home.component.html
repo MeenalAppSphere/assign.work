@@ -64,7 +64,7 @@
               <label class="text-gray-light font-weight-semibold">Duration</label>
               <p class="text-black">{{ sprintReport.sprint.startedAt | date: 'dd-MMM-yyyy' }} to
                 {{ sprintReport.sprint.endAt | date: 'dd-MMM-yyyy' }}</p>
-              <p class="text-gray-light-2 m-t-5">2 Week Sprint</p>
+              <p class="text-gray-light-2 m-t-5">{{ sprintReport.sprintDuration }} Sprint</p>
             </div>
 
             <div class="col-md-4">
@@ -231,7 +231,7 @@
 
   </section>
 
-  <!-- all task of the sprint -->
+  <!-- sprint members -->
   <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
     <label class="text-black-dark">Sprint Members</label>
@@ -248,7 +248,8 @@
           <th>Capacity</th>
           <th>Assigned Time</th>
           <th>Worked</th>
-          <th>Remaining</th>
+          <th>Remaining Work</th>
+          <th>Remaining Capacity</th>
           <th>Productivity</th>
 
         </tr>
@@ -262,7 +263,8 @@
           <td data-label="Capacity">{{ item.workingCapacityReadable }}</td>
           <td data-label="Assigned Time">{{ item.totalAssignedTimeReadable }}</td>
           <td data-label="Worked">{{ item.totalLoggedTimeReadable }}</td>
-          <td data-label="Remaining">{{ item.totalRemainingTimeReadable }}</td>
+          <td data-label="Remaining Work">{{ item.totalRemainingTimeReadable }}</td>
+          <td data-label="Remaining Capacity">{{ item.totalRemainingWorkingCapacityReadable }}</td>
           <td data-label="Productivity">{{ item.sprintProductivity }} %</td>
         </tr>
 
@@ -278,6 +280,7 @@
           <th>{{ sprintReport.reportMembersTotalAssignedTimeReadable }}</th>
           <th>{{ sprintReport.reportMembersTotalLoggedTimeReadable }}</th>
           <th>{{ sprintReport.reportMembersTotalRemainingTimeReadable }}</th>
+          <th>{{ sprintReport.reportMembersTotalRemainingWorkingCapacityReadable }}</th>
           <th>{{ sprintReport.reportMembersTotalSprintProductivity }} %</th>
         </tr>
         </thead>
