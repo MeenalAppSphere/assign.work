@@ -8,6 +8,7 @@ export const SprintUrls = {
   getSprint: createUrl('sprint/get-sprint'),
 
   getAllSprint: createUrl('sprint/all'),
+  getAllClosedSprint: createUrl('sprint/get-closed-sprints'),
 
   publishSprint: createUrl('sprint/publish-sprint'),
   getUnpublishedSprint: createUrl('sprint/get-unpublished-sprint'),

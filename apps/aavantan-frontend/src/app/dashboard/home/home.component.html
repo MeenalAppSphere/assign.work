@@ -26,18 +26,14 @@
 
     <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
       <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-        {{selectedSprint?.name ? selectedSprint?.name : 'Sprint 1'}}
+        {{selectedSprint?.name ? selectedSprint?.name : 'No Closed Sprint Found'}}
         <i nz-icon nzType="caret-down" theme="outline"></i>
       </button>
     </nz-button-group>
     <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
       <ul nz-menu>
-        <li nz-menu-item>Sprint 2</li>
-        <li nz-menu-item>Sprint 3</li>
-        <li nz-menu-item>Sprint 4</li>
-        <!--        <li nz-menu-item *ngFor="let item of sprintDataSource" (click)="selectSprint(item)">-->
-        <!--           {{ item.name }}-->
-        <!--        </li>-->
+        <li nz-menu-item *ngFor="let sprint of closedSprintsList"
+            (click)="getSprintReport(sprint.id)">{{ sprint.name }}</li>
       </ul>
     </nz-dropdown-menu>
 

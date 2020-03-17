@@ -5,6 +5,7 @@ import { GeneralService } from '../../shared/services/general.service';
 import * as Highcharts from 'highcharts';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportService } from '../../shared/services/sprint-report/sprint-report.service';
+import { SprintService } from '../../shared/services/sprint/sprint.service';
 
 @Component({
   templateUrl: './home.component.html',
@@ -14,8 +15,6 @@ export class HomeComponent implements OnInit {
   public view: string = 'listView';
   public projectList: Project[];
   public selectedSprint: Sprint;
-  public sprintDataSource: Sprint[] = [];
-
   Highcharts: typeof Highcharts = Highcharts;
   lineChartOptions: Highcharts.Options = {};
   columnChartOptions: Highcharts.Options = {};
@@ -62,59 +61,26 @@ export class HomeComponent implements OnInit {
       effortRequired: 4
     }
   ];
-
-  public sprintItems = [
-    {
-      itemId: 'ST 1',
-      status: 'TO DO',
-      description: 'ST1 : Description',
-      startDate: 'Jan 2, 2020',
-      assignee: 'Pradeep Kumar',
-      effortDeviation: 0
-    },
-    {
-      itemId: 'ST 2',
-      status: 'In-Progress',
-      description: 'ST2 : Description',
-      startDate: 'Jan 2, 2020',
-      assignee: 'Pradeep Kumar',
-      effortDeviation: 2
-    },
-    {
-      itemId: 'ST 3',
-      status: 'In-Progress',
-      description: 'ST3 : Description',
-      startDate: 'Jan 3, 2020',
-      assignee: 'Vishal',
-      effortDeviation: 16.32
-    },
-    {
-      itemId: 'ST 4',
-      status: 'In-Progress',
-      description: 'ST3 : Description',
-      startDate: 'Jan 3, 2020',
-      assignee: 'Vishal',
-      effortDeviation: 50
-    }
-  ];
   public getReportInProcess: boolean;
   public sprintReport: SprintReportModel = new SprintReportModel();
+  public closedSprintsList: Partial<Sprint[]> = [];
 
   constructor(
-    private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService
+    private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService,
+    private readonly _sprintService: SprintService
   ) {
   }
 
   ngOnInit(): void {
     if (this._generalService.currentProject && this._generalService.currentProject.sprintId) {
       this.getSprintReport(this._generalService.currentProject.sprintId);
+
+      this.getAllClosedSprints();
     }
 
     this.projectList = this._generalService.user.projects as Project[];
     this.showLineChart();
     this.showColumnChart();
-
-    this.selectedSprint = this.sprintDataSource[0];
   }
 
   public async getSprintReport(sprintId: string) {
@@ -125,6 +91,17 @@ export class HomeComponent implements OnInit {
       this.getReportInProcess = false;
     } catch (e) {
       this.getReportInProcess = false;
+    }
+  }
+
+  public async getAllClosedSprints() {
+    try {
+      const report = await this._sprintService.getAllClosedSprints(this._generalService.currentProject.id).toPromise();
+      this.closedSprintsList = report.data;
+      this.selectedSprint = this.closedSprintsList[0];
+    } catch (e) {
+      this.closedSprintsList = [];
+      this.selectedSprint = null;
     }
   }
 

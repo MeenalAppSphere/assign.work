@@ -108,6 +108,17 @@ export class SprintService extends BaseService<SprintStore, SprintState> {
     );
   }
 
+  getAllClosedSprints(projectId: string): Observable<BaseResponseModel<Partial<Sprint[]>>> {
+    return this._http.post(SprintUrls.getAllClosedSprint, { projectId}).pipe(
+      map((res: BaseResponseModel<Partial<Sprint[]>>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
   publishSprint(sprintData: SprintBaseRequest): Observable<BaseResponseModel<Sprint>> {
     return this._http.post(SprintUrls.publishSprint, sprintData).pipe(
       map((res: BaseResponseModel<Sprint>) => {
