@@ -11,7 +11,7 @@ export class SprintReportController {
   }
 
   @Post('get-report')
-  async createSprint(@Body('sprintId') sprintId: string, @Body('projectId') projectId: string) {
-    return await this._sprintReportService.getReportById(sprintId, projectId);
+  async getReport(@Body('sprintId') sprintId: string, @Body('projectId') projectId: string) {
+    return await this._sprintReportService.getReport(sprintId, projectId);
   }
 }

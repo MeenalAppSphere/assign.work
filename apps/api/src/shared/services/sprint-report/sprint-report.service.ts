@@ -2,7 +2,7 @@ import { BaseService } from '../base.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { DbCollection, Sprint, Task, TaskStatusModel } from '@aavantan-app/models';
+import { DbCollection, Project, Sprint, SprintStatusEnum, Task, TaskStatusModel } from '@aavantan-app/models';
 import { ModuleRef } from '@nestjs/core';
 import { SprintReportUtilityService } from './sprint-report.utility.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -13,6 +13,7 @@ import { ProjectService } from '../project/project.service';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import * as moment from 'moment';
+import { BadRequest, generateUtcDate } from '../../helpers/helpers';
 
 @Injectable()
 export class SprintReportService extends BaseService<SprintReportModel & Document> {
@@ -39,7 +40,12 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     this._sprintUtilityService = new SprintUtilityService();
   }
 
-  async getReportById(sprintId: string, projectId: string) {
+  /**
+   * get report
+   * @param sprintId
+   * @param projectId
+   */
+  async getReport(sprintId: string, projectId: string) {
     // get project details
     const projectDetails = await this._projectService.getProjectDetails(projectId, true);
 
@@ -53,6 +59,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
     let report: SprintReportModel = null;
 
+    // get report aggregate query
     const result: SprintReportModel[] = await this.dbModel
       .aggregate()
       .match({ _id: this.toObjectId(sprintDetails.reportId), sprintId: this.toObjectId(sprintId), isDeleted: false })
@@ -132,14 +139,22 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       report = result[0];
       report.id = report._id;
 
+      // assign sprint details to report sprint
       report.sprint = sprintDetails;
+
+      // calculate sprint duration
       report.sprintDuration = `${moment(report.sprint.endAt).diff(report.sprint.startedAt, 'd')} Days`;
+
+      // assign sprint status
+      report.status = report.sprint.sprintStatus.status === SprintStatusEnum.inProgress ? 'In Progress' : 'Closed';
+
+      // calculate sprint estimates
       this._sprintUtilityService.calculateSprintEstimates(sprintDetails);
 
+      // prepare user productivity report from sprint
       this._utilityService.prepareSprintReportUserProductivity(report);
 
-      const lastColumnOfSprint = projectDetails.activeBoard.columns[projectDetails.activeBoard.columns.length - 1];
-      report.finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
+      // prepare task count report
       this._utilityService.prepareSprintReportTasksCountReport(report, taskStatuses);
       return report;
     } else {
@@ -148,12 +163,29 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
   }
 
-  async createReport(sprint: Sprint, session: ClientSession) {
-    const report = this._utilityService.createSprintReportModelFromSprint(sprint);
+  /**
+   * create a new sprint report
+   * @param sprint
+   * @param project
+   * @param session
+   */
+  async createReport(sprint: Sprint, project: Project, session: ClientSession) {
+
+    // create report object
+    const report = this._utilityService.createSprintReportModelFromSprint(sprint, project);
     report.createdById = this._generalService.userId;
+
+    // return new created report
     return await this.create([report], session);
   }
 
+  /**
+   * update task in report
+   * updates report task when a task is updated ( name changed, assign changed, etc.. )
+   * @param reportId
+   * @param task
+   * @param session
+   */
   async updateReportTask(reportId: string, task: Task, session: ClientSession) {
     // get report details
     const sprintReport: SprintReportModel = await this.getSprintReportDetails(reportId);
@@ -178,15 +210,24 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     return await this.updateById(reportId, updatedTask, session);
   }
 
+  /**
+   * add a task in sprint report
+   * @param reportId
+   * @param task
+   * @param session
+   */
   async addTaskInSprintReport(reportId: string, task: Task, session: ClientSession) {
+    // get report details
     const sprintReportDetails: SprintReportModel = await this.getSprintReportDetails(reportId);
 
+    // check if task is already in report
     const alreadyInReportIndex = sprintReportDetails.reportTasks.findIndex(reportTask => {
       return reportTask.taskId.toString() === task.id.toString();
     });
 
     let updateDoc;
 
+    // task is already in sprint than set deletedById and deletedAt to null
     if (alreadyInReportIndex > -1) {
       updateDoc = {
         $set: {
@@ -195,20 +236,71 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
         }
       };
     } else {
+      // create a new report task object from task
       const reportTask = this._utilityService.createSprintReportTaskFromSprintColumnTask(task);
       updateDoc = {
         $push: { reportTasks: reportTask }
       };
     }
 
+    // update report by id
     return await this.updateById(reportId, updateDoc, session);
   }
 
+  /**
+   * remove task from report
+   * @param reportId
+   * @param taskId
+   * @param session
+   */
+  async removeTaskFromReport(reportId: string, taskId: string, session: ClientSession) {
+    // get report details
+    const sprintReportDetails: SprintReportModel = await this.getSprintReportDetails(reportId);
+
+    // check if task is already in report
+    const taskIndexInReport = sprintReportDetails.reportTasks.findIndex(reportTask => {
+      return reportTask.taskId.toString() === taskId;
+    });
+
+    // check if task is in report
+    if (taskIndexInReport > -1) {
+      let updateDoc;
+
+      /**
+       * check if any one have logged time in this task earlier
+       * then don't remove it just mark it as deleted
+       */
+      if (sprintReportDetails.reportTasks[taskIndexInReport].totalLoggedTime > 0) {
+        updateDoc = {
+          $set: {
+            [`reportTasks.${taskIndexInReport}.deletedById`]: this._generalService.userId,
+            [`reportTasks.${taskIndexInReport}.deletedAt`]: generateUtcDate()
+          }
+        };
+      } else {
+        // remove/ pull that task from report
+        updateDoc = {
+          $pull: { reportTasks: { taskId } }
+        };
+      }
+
+      // update report by id
+      return await this.updateById(reportId, updateDoc, session);
+    } else {
+      BadRequest('Task not found in report');
+    }
+  }
+
+  /**
+   * get report details by id
+   * @param reportId
+   */
   async getSprintReportDetails(reportId: string): Promise<SprintReportModel> {
     if (!this.isValidObjectId(reportId)) {
       throw new NotFoundException('Sprint Report not found');
     }
 
+    // find report by id
     const sprintReportDetails = await this.findOne({
       filter: { _id: reportId }, lean: true
     });
@@ -216,8 +308,9 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     if (!sprintReportDetails) {
       throw new NotFoundException('Sprint Report not found');
     }
-    sprintReportDetails.id = sprintReportDetails._id.toString();
 
+    sprintReportDetails.id = sprintReportDetails._id.toString();
+    // return report
     return sprintReportDetails;
   }
 }

@@ -527,16 +527,15 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         }
       }, session);
 
-      // create task history
-      const taskHistory = new TaskHistory();
-      taskHistory.taskId = taskDetails.id;
-      taskHistory.task = taskDetails;
-      taskHistory.sprintId = sprintDetails.id;
-      taskHistory.createdAt = generateUtcDate();
-      taskHistory.createdById = this._generalService.userId;
-      taskHistory.action = TaskHistoryActionEnum.removedFromSprint;
-      taskHistory.desc = TaskHistoryActionEnum.removedFromSprint;
+      // check if report is available
+      if (sprintDetails.reportId) {
+        // remove task from sprint report
+        await this._sprintReportService.removeTaskFromReport(sprintDetails.reportId, taskDetails.id, session);
+      }
 
+      // create task history
+      const taskHistory = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.removedFromSprint, taskDetails.id, taskDetails,
+        sprintDetails.id);
       // create task history
       await this._taskHistoryService.addHistory(taskHistory, session);
 
@@ -761,8 +760,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   public async publishSprint(model: PublishSprintModel) {
     return await this.withRetrySession(async (session: ClientSession) => {
-      await this._projectService.getProjectDetails(model.projectId);
+      // get project details
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
+      // get sprint details
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
       if (sprintDetails.sprintStatus) {
@@ -773,7 +774,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       this._sprintUtilityService.publishSprintValidations(sprintDetails);
 
       // create sprint report
-      const sprintReport = await this._sprintReportService.createReport(sprintDetails, session);
+      const sprintReport = await this._sprintReportService.createReport(sprintDetails, projectDetails, session);
 
       // update sprint in db
       await this.updateById(model.sprintId, {

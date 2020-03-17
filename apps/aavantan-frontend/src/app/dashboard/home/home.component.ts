@@ -19,48 +19,6 @@ export class HomeComponent implements OnInit {
   lineChartOptions: Highcharts.Options = {};
   columnChartOptions: Highcharts.Options = {};
 
-  public itemsSummary = [
-    {
-      status: 'TO DO',
-      items: 5,
-      points: 32,
-      effortPlanned: 24,
-      effortBurned: 20,
-      effortRequired: 4
-    },
-    {
-      status: 'In-Progress',
-      items: 5,
-      points: 32,
-      effortPlanned: 24,
-      effortBurned: 20,
-      effortRequired: 4
-    },
-    {
-      status: 'In-Progress',
-      items: 5,
-      points: 32,
-      effortPlanned: 24,
-      effortBurned: 20,
-      effortRequired: 4
-    },
-    {
-      status: 'Done',
-      items: 5,
-      points: 32,
-      effortPlanned: 24,
-      effortBurned: 20,
-      effortRequired: 0
-    },
-    {
-      status: 'In-Progress',
-      items: 5,
-      points: 32,
-      effortPlanned: 24,
-      effortBurned: 20,
-      effortRequired: 4
-    }
-  ];
   public getReportInProcess: boolean;
   public sprintReport: SprintReportModel = new SprintReportModel();
   public closedSprintsList: Partial<Sprint[]> = [];
@@ -98,10 +56,8 @@ export class HomeComponent implements OnInit {
     try {
       const report = await this._sprintService.getAllClosedSprints(this._generalService.currentProject.id).toPromise();
       this.closedSprintsList = report.data;
-      this.selectedSprint = this.closedSprintsList[0];
     } catch (e) {
       this.closedSprintsList = [];
-      this.selectedSprint = null;
     }
   }
 

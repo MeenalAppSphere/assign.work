@@ -26,7 +26,7 @@
 
     <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
       <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-        {{selectedSprint?.name ? selectedSprint?.name : 'No Closed Sprint Found'}}
+        {{ sprintReport?.sprint.name || 'Select Sprint'}}
         <i nz-icon nzType="caret-down" theme="outline"></i>
       </button>
     </nz-button-group>
@@ -63,15 +63,18 @@
               <p class="text-gray-light-2 m-t-5">{{ sprintReport.sprintDuration }} Sprint</p>
             </div>
 
-            <div class="col-md-4">
-              <label class="text-gray-light font-weight-semibold">Velocity</label>
-              <p class="text-black">28</p>
-            </div>
+            <!--            <div class="col-md-4">-->
+            <!--              <label class="text-gray-light font-weight-semibold">Velocity</label>-->
+            <!--              <p class="text-black">28</p>-->
+            <!--            </div>-->
 
             <div class="col-md-3">
               <label class="text-gray-light font-weight-semibold">Status</label>
               <div>
-                <nz-tag [nzColor]="'#FF1142'">Red</nz-tag>
+                <nz-tag [nzColor]="'#3f87f5'"
+                        *ngIf="sprintReport.status === 'Closed'">{{ sprintReport.status }}</nz-tag>
+                <nz-tag [nzColor]="'#42e3a3'"
+                        *ngIf="sprintReport.status === 'In Progress'">{{ sprintReport.status }}</nz-tag>
               </div>
             </div>
           </div>
@@ -95,9 +98,9 @@
                      nzStrokeWidth="14"
                      [nzShowInfo]="false"></nz-progress>
         <div class="row font-size-12 m-t-5">
-          <div class="col-md-6">
-            <span><span class="font-weight-bold">28</span> of 49 points gained</span>
-          </div>
+<!--          <div class="col-md-6">-->
+<!--            <span><span class="font-weight-bold">28</span> of 49 points gained</span>-->
+<!--          </div>-->
           <div class="col-md-6 text-right">
             <span><span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of
               {{ sprintReport.reportTasksCount }} items done</span>
@@ -116,7 +119,7 @@
 
     <div class="items-summary">
 
-      <nz-table #itemsSummaryTable [nzFrontPagination]="false" [nzData]="itemsSummary">
+      <nz-table [nzFrontPagination]="false" [nzData]="sprintReport.allTasks">
 
         <thead>
 
@@ -164,68 +167,68 @@
     </div>
 
     <!-- budget -->
-    <div class="m-t-20">
-      <div class="w-btn inline-block">
-        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Budget</nz-tag>
-      </div>
-      <div class="inline-block text-red">Overrun by approximately : 22.45%</div>
-    </div>
-    <div class="m-t-5">
-      <div class="w-btn inline-block">
-        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Schedule</nz-tag>
-      </div>
-      <div class="inline-block text-red">Need more : 2.35 days</div>
-    </div>
+<!--    <div class="m-t-20">-->
+<!--      <div class="w-btn inline-block">-->
+<!--        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Budget</nz-tag>-->
+<!--      </div>-->
+<!--      <div class="inline-block text-red">Overrun by approximately : 22.45%</div>-->
+<!--    </div>-->
+<!--    <div class="m-t-5">-->
+<!--      <div class="w-btn inline-block">-->
+<!--        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Schedule</nz-tag>-->
+<!--      </div>-->
+<!--      <div class="inline-block text-red">Need more : 2.35 days</div>-->
+<!--    </div>-->
 
   </section>
 
-  <!-- recommended actions -->
-  <section class="m-t-30 m-b-30">
+  <!-- recommended actions and charts -->
+<!--  <section class="m-t-30 m-b-30">-->
 
-    <label class="text-black-dark">Recommended Actions</label>
+<!--    <label class="text-black-dark">Recommended Actions</label>-->
 
-    <div class="recommended-actions p-l-20 m-b-30 text-black font-weight-normal">
-      <ul>
-        <li>Review items ST1, ST2, ST7. Huge effort deviation should be analysed.</li>
-        <li>13 - Dec is holiday, Increase capacity on 11 - Dec and 12 - Dec to meet the schedule.</li>
-        <li>Moving "Not Started" items in next sprint can be helpful.</li>
-      </ul>
-    </div>
+<!--    <div class="recommended-actions p-l-20 m-b-30 text-black font-weight-normal">-->
+<!--      <ul>-->
+<!--        <li>Review items ST1, ST2, ST7. Huge effort deviation should be analysed.</li>-->
+<!--        <li>13 - Dec is holiday, Increase capacity on 11 - Dec and 12 - Dec to meet the schedule.</li>-->
+<!--        <li>Moving "Not Started" items in next sprint can be helpful.</li>-->
+<!--      </ul>-->
+<!--    </div>-->
 
-    <div class="row">
-      <div class="col-md-6">
+<!--    <div class="row">-->
+<!--      <div class="col-md-6">-->
 
-        <div class="chart-box w-100">
-          <div class="text-black font-size-16">Efforts spent in hours per day</div>
-          <div class="text-gray-light-2 font-size-12">Day 10 is in progress</div>
+<!--        <div class="chart-box w-100">-->
+<!--          <div class="text-black font-size-16">Efforts spent in hours per day</div>-->
+<!--          <div class="text-gray-light-2 font-size-12">Day 10 is in progress</div>-->
 
-          <div id="line-chart" class="m-t-10">
-            <highcharts-chart
-              [Highcharts]="Highcharts"
-              [options]="lineChartOptions"
-            ></highcharts-chart>
-          </div>
+<!--          <div id="line-chart" class="m-t-10">-->
+<!--            <highcharts-chart-->
+<!--              [Highcharts]="Highcharts"-->
+<!--              [options]="lineChartOptions"-->
+<!--            ></highcharts-chart>-->
+<!--          </div>-->
 
-        </div>
+<!--        </div>-->
 
-      </div>
-      <div class="col-md-6">
+<!--      </div>-->
+<!--      <div class="col-md-6">-->
 
-        <div class="chart-box w-100">
+<!--        <div class="chart-box w-100">-->
 
-          <div id="column-chart">
-            <highcharts-chart
-              [Highcharts]="Highcharts"
-              [options]="columnChartOptions"
-            ></highcharts-chart>
-          </div>
+<!--          <div id="column-chart">-->
+<!--            <highcharts-chart-->
+<!--              [Highcharts]="Highcharts"-->
+<!--              [options]="columnChartOptions"-->
+<!--            ></highcharts-chart>-->
+<!--          </div>-->
 
-        </div>
+<!--        </div>-->
 
-      </div>
-    </div>
+<!--      </div>-->
+<!--    </div>-->
 
-  </section>
+<!--  </section>-->
 
   <!-- sprint members -->
   <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">

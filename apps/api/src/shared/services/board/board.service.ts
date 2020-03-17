@@ -30,6 +30,7 @@ import { BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { SprintService } from '../sprint/sprint.service';
+import { SprintReportService } from '../sprint-report/sprint-report.service';
 
 const detailsBoardPopulationObject = [{
   path: 'columns.headerStatus', select: 'name _id'
@@ -42,6 +43,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   private _projectService: ProjectService;
   private _taskStatusService: TaskStatusService;
   private _sprintService: SprintService;
+  private _sprintReportService: SprintReportService;
 
   private _utilityService: BoardUtilityService;
   private _projectUtilityService: ProjectUtilityService;
@@ -56,6 +58,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
   onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._sprintService = this._moduleRef.get('SprintService');
+    this._sprintReportService = this._moduleRef.get('SprintReportService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
 
     this._utilityService = new BoardUtilityService();
@@ -747,6 +750,16 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
       // update sprint in db
       await this._sprintService.updateById(projectDetails.sprintId, sprintDetails, session);
+
+      // update sprint report and set final status ids in respect board changes
+      if (sprintDetails.reportId) {
+        const lastColumnOfSprint = boardDetails.columns[boardDetails.columns.length - 1];
+        const finalStatusId = lastColumnOfSprint.headerStatusId;
+
+        await this._sprintReportService.updateById(sprintDetails.reportId, {
+          $set: { finalStatusId }
+        }, session);
+      }
     }
   }
 
