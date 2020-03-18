@@ -26,7 +26,9 @@ const routes: Routes = [
     NzPopoverModule,
     QuillModule.forRoot()
   ],
-  exports: [],
+  exports: [
+    TaskComponent
+  ],
   declarations: [
     TaskComponent,
     ActivityComponent,

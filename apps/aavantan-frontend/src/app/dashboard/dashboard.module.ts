@@ -20,6 +20,7 @@ import { SettingsModule } from '../settings/settings.module';
 import { AssignUserComponent } from './board-design/assign-user/assign-user.component';
 import { HiddenStatusComponent } from './board-design/hidden-status/hidden-status.component';
 import { HighchartsChartModule } from 'highcharts-angular';
+import { TaskModule } from '../task/task.module';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { HighchartsChartModule } from 'highcharts-angular';
     NzToolTipModule,
     DndModule,
     SettingsModule,
-    HighchartsChartModule
+    HighchartsChartModule,
+    TaskModule
   ],
   exports: [],
   declarations: [

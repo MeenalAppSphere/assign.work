@@ -58,6 +58,8 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public moveFromStage: SprintColumn;
 
+  public viewType:string= 'kanban';
+
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
               private _taskTypeQuery: TaskTypeQuery,
@@ -311,6 +313,15 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.selectedTask = {
       columnIndex: null, taskIndex: null, taskItem: null
     };
+  }
+
+
+  public switchView(view:string) {
+    this.viewType = view;
+  }
+
+  public showTask(task:Task) {
+
   }
 
   ngOnDestroy() {

@@ -47,97 +47,115 @@
       <!--col 2 -->
 
 
-      <div class="col-md-8 user-filter-section p-t-15">
+      <div class="col-md-12 p-0">
+        <div class="row">
+          <div class="col-md-6 user-filter-section p-t-15">
 
-        <span *ngIf="boardData && boardData.membersCapacity?.length>0">
+          <span *ngIf="boardData && boardData.membersCapacity?.length>0">
 
-              <span *ngFor="let item of boardData.membersCapacity | slice:0:10;">
-
-                <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
-                           nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
-                           ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
-                           nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip
-                           class="bg-info"></nz-avatar>
-
-                <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" nzSize=""
-                           ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
-                           nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
-                           nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
-
-              </span>
-
-            <nz-avatar *ngIf="boardData.membersCapacity?.length>10"
-                       nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
-                       nzText="{{boardData.membersCapacity?.length - 10}}+" class="bg-info"></nz-avatar>
-
-              <nz-dropdown-menu #menu="nzDropdownMenu">
-              <ul nz-menu>
-                <li nz-menu-item *ngFor="let item of boardData.membersCapacity | slice:11:boardData.membersCapacity.length;" class="collaborators-avatar p-l-10 p-b-5">
+                <span *ngFor="let item of boardData.membersCapacity | slice:0:10;">
 
                   <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
-                             nzSize="30px"
-                             class="text-uppercase"
                              nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
-                             ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"></nz-avatar>
-
-                  <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" class="text-uppercase" nzSize="30px"
                              ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
-                             nzSrc="{{item.user.profilePic}}"></nz-avatar>
-                  <span class="p-l-5">{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}</span>
-                </li>
-              </ul>
-            </nz-dropdown-menu>
+                             nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip
+                             class="bg-info"></nz-avatar>
 
-          </span>
-
-      </div>
-      <!--col 3 -->
-
-      <div class="col-md-4 p-r-0 m-t-10">
-
-          <div class="sprint-progress-section" *ngIf="boardData">
-            <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
-
-            <span *ngIf="boardData?.endAt" class="sprint-date float-right">
-                <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
-
-                  <span>
-                  <span class="font-weight-bold"
-                        [ngClass]="boardData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{boardData.sprintDaysLeft}}
-                    days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
-                  <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                       class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
-                  </span>
-
+                  <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" nzSize=""
+                             ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
+                             nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
+                             nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
 
                 </span>
-                <ng-template #titleTemplate>
-                    <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
-                    <div><span
-                      class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
-                    <div><span
-                      class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
-                </ng-template>
-              </span>
 
-            <div class="text-right sprint-progress">
-              <nz-progress [nzPercent]="boardData?.progress"
-                           [nzStrokeColor]="boardData?.progress <=100 ? '#42E3A3' : '#F82222'"
-                           nzStatus="active"></nz-progress>
-            </div>
+              <nz-avatar *ngIf="boardData.membersCapacity?.length>10"
+                         nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
+                         nzText="{{boardData.membersCapacity?.length - 10}}+" class="bg-info"></nz-avatar>
+
+                <nz-dropdown-menu #menu="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item *ngFor="let item of boardData.membersCapacity | slice:11:boardData.membersCapacity.length;" class="collaborators-avatar p-l-10 p-b-5">
+
+                    <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
+                               nzSize="30px"
+                               class="text-uppercase"
+                               nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
+                               ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"></nz-avatar>
+
+                    <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" class="text-uppercase" nzSize="30px"
+                               ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
+                               nzSrc="{{item.user.profilePic}}"></nz-avatar>
+                    <span class="p-l-5">{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}</span>
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+
+            </span>
+
+        </div>
+          <!--col 1 -->
+
+          <div class="col-md-4 p-r-0 m-t-10">
+
+              <div class="sprint-progress-section" *ngIf="boardData">
+                  <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
+
+                  <span *ngIf="boardData?.endAt" class="sprint-date float-right">
+                    <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
+
+                      <span>
+                      <span class="font-weight-bold"
+                            [ngClass]="boardData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{boardData.sprintDaysLeft}}
+                        days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
+                      <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
+                           class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
+                      </span>
+
+
+                    </span>
+                    <ng-template #titleTemplate>
+                        <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
+                        <div><span
+                          class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
+                        <div><span
+                          class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
+                    </ng-template>
+                  </span>
+
+                <div class="text-right sprint-progress">
+                  <nz-progress [nzPercent]="boardData?.progress"
+                               [nzStrokeColor]="boardData?.progress <=100 ? '#42E3A3' : '#F82222'"
+                               nzStatus="active"></nz-progress>
+                </div>
+
+              </div>
 
           </div>
+          <!--col 2 -->
 
+          <div class="col-md-2 text-right m-t-15">
+            <nz-button-group class="switch-btns">
+              <button nz-button (click)="switchView('details')" nzType="{{viewType==='details' ? 'primary': 'default'}}" nz-tooltip="List">
+                <i nz-icon nzType="unordered-list" nzTheme="outline"></i>
+              </button>
+              <button nz-button (click)="switchView('kanban')" nzType="{{viewType==='kanban' ? 'primary': 'default'}}" nz-tooltip="Kanban">
+                <i nz-icon nzType="appstore" nzTheme="outline"></i>
+              </button>
+            </nz-button-group>
+          </div>
+          <!--col 3 -->
+
+        </div>
       </div>
-
-      <!--col 4 -->
 
     </div>
 
   </section>
 
   <nz-spin nzTip="Preparing board data..." [nzSpinning]="getStageInProcess">
-    <div class="sprintboard-container">
+
+
+    <div *ngIf="viewType === 'kanban'" class="sprintboard-container">
 
       <div class="shadow-div-right"></div>
 
@@ -218,6 +236,45 @@
         </div>
       </div>
     </div>
+
+
+    <div *ngIf="viewType === 'details'" class="row task-details-view">
+      <aside class="col-md-3">
+
+        <nz-card nzSize="small" class="task-box">
+
+          <div *ngIf="boardData && boardData.columns && boardData.columns.length>0">
+            <div *ngFor="let item of boardData.columns; let last;let columnIndex = index" class="column-section">
+              <div>
+                {{item.name}}
+                <div class="pull-left" style="line-height: 10px;">
+                  <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
+                  <span class="font-size-12">{{item.totalEstimationReadable}}</span>
+                </div>
+              </div>
+
+              <ul>
+                <li *ngFor="let task of item.tasks;let i = index" [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}">
+                  <div (click)="showTask(task.task)">
+                    <a class="cursor-pointer text-primary" target="_blank" routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
+                    -
+                    <span class="task-title">{{task.task.name}}</span>
+                  </div>
+                </li>
+              </ul>
+
+            </div>
+          </div>
+        </nz-card>
+
+      </aside>
+      <aside class="col-md-9">
+        <div>
+          <aavantan-app-task></aavantan-app-task>
+        </div>
+      </aside>
+    </div>
+
 
   </nz-spin>
 
