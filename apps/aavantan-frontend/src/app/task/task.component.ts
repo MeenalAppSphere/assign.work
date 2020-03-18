@@ -43,6 +43,7 @@ import 'quill-mention';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
+import { ThemeConstantService } from '../shared/services/theme-constant.service';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -51,6 +52,7 @@ import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 })
 export class TaskComponent implements OnInit, OnDestroy {
 
+  public isFolded: boolean;
   public showTaskNotFoundView: boolean;
   public currentProject: Project = null;
   public currentUser: User;
@@ -145,7 +147,8 @@ export class TaskComponent implements OnInit, OnDestroy {
               private router: Router,
               private cdr: ChangeDetectorRef,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
-              private _taskTypeQuery: TaskTypeQuery) {
+              private _taskTypeQuery: TaskTypeQuery,
+              private themeService: ThemeConstantService) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -166,6 +169,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
+    this.themeService.toggleFold(true);
 
     this.attachementUrl = TaskUrls.attachement;
 
@@ -1007,7 +1012,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
-
+    this.themeService.toggleFold(false);
   }
 
 }
