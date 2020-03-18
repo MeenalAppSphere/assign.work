@@ -5,40 +5,33 @@
 
     <div class="col text-right" style="max-width: 320px;">
 
+<!--      <nz-button-group>-->
 
+<!--        <button nz-button nzType="default" style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">-->
+<!--          <label-->
+<!--            nz-checkbox-->
+<!--            [(ngModel)]="allChecked"-->
+<!--            (ngModelChange)="updateAllChecked()"-->
+<!--            [nzIndeterminate]="indeterminate">-->
+<!--            Status Filter-->
+<!--          </label>-->
+<!--        </button>-->
+<!--        <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight" style="border-left:1px solid #ffffff; min-width:35px; height:33px;">-->
+<!--          <i nz-icon nzType="caret-down" nzTheme="outline"></i>-->
+<!--        </button>-->
+<!--      </nz-button-group>-->
 
-
-      <nz-button-group>
-
-        <button nz-button nzType="default" style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">
-          <label
-            nz-checkbox
-            [(ngModel)]="allChecked"
-            (ngModelChange)="updateAllChecked()"
-            [nzIndeterminate]="indeterminate">
-            Status Filter
-          </label>
-        </button>
-        <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight" style="border-left:1px solid #ffffff; min-width:35px; height:33px;">
-          <i nz-icon nzType="caret-down" nzTheme="outline"></i>
-        </button>
-      </nz-button-group>
-
-
-
-      <nz-dropdown-menu #statusDdl="nzDropdownMenu">
-        <ul nz-menu>
-          <li nz-menu-item>
-            <label nz-checkbox>TODO</label>
-          </li>
-          <li nz-menu-item>
-            <label nz-checkbox>DONE</label>
-          </li>
-          <!--          <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>-->
-        </ul>
-      </nz-dropdown-menu>
-
-
+<!--      <nz-dropdown-menu #statusDdl="nzDropdownMenu">-->
+<!--        <ul nz-menu>-->
+<!--          <li nz-menu-item>-->
+<!--            <label nz-checkbox>TODO</label>-->
+<!--          </li>-->
+<!--          <li nz-menu-item>-->
+<!--            <label nz-checkbox>DONE</label>-->
+<!--          </li>-->
+<!--          &lt;!&ndash;          <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>&ndash;&gt;-->
+<!--        </ul>-->
+<!--      </nz-dropdown-menu>-->
 
     </div>
 
