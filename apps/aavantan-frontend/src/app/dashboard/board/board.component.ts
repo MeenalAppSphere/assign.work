@@ -106,7 +106,7 @@ export class BoardComponent implements OnInit, OnDestroy {
       duration: new FormControl(null, [Validators.required]),
       startedAt: new FormControl(null, []),
       endAt: new FormControl(null, []),
-      createAndPublishNewSprint: new FormControl(false)
+      createAndPublishNewSprint: new FormControl(true)
     });
 
   }

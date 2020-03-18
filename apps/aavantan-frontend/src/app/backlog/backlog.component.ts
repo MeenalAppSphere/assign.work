@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  AddTaskToSprintModel,
+  AddTaskToSprintModel, CloseSprintModel,
   DraftSprint,
   GetAllTaskRequestModel,
   GetUnpublishedRequestModel,
@@ -29,6 +29,7 @@ import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -77,9 +78,16 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public allStatusesChecked:boolean = true;
   public allStatusesIndeterminate = true;
 
+  public totalItemsInSprint:Number;
+
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
 
   public timelogModalIsVisible: boolean;
+  public isVisibleCloseSprint: boolean;
+  public closeSprintInProcess: boolean;
+  public closeSprintModeSelection = 'createNewSprint';
+  public dateFormat = 'MM/dd/yyyy';
+  public closeSprintNewSprintForm: FormGroup;
 
 
   constructor(private _generalService: GeneralService,
@@ -172,6 +180,19 @@ export class BacklogComponent implements OnInit, OnDestroy {
       endAt: null,
       sprintStatus: null
     };
+
+
+    this.closeSprintNewSprintForm = new FormGroup({
+      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
+      name: new FormControl(null, [Validators.required]),
+      goal: new FormControl(null, [Validators.required]),
+      duration: new FormControl(null, [Validators.required]),
+      startedAt: new FormControl(null, []),
+      endAt: new FormControl(null, []),
+      createAndPublishNewSprint: new FormControl(true)
+    });
+
+
   }
 
   public async getAllBacklogTask() {
@@ -208,6 +229,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.getAllActiveSprintTasksInProcess = true;
 
     const data = await this._taskService.getAllTask(json).toPromise();
+    if(data.data && data.data.totalItems) {
+      this.totalItemsInSprint = data.data.totalItems
+    }else {
+      this.totalItemsInSprint = 0;
+    }
     if (data.data && data.data.items.length > 0) {
       this.draftTaskList = data.data.items;
     }
@@ -546,6 +572,51 @@ export class BacklogComponent implements OnInit, OnDestroy {
       totalEstimation: sprint.totalEstimation,
       totalEstimationReadable: sprint.totalEstimationReadable
     };
+  }
+
+  /** close sprint **/
+
+  toggleCloseSprintShow(): void {
+    this.isVisibleCloseSprint = true;
+  }
+
+  async closeSprint() {
+    this.closeSprintInProcess = true;
+
+    const closeSprintRequest = new CloseSprintModel();
+    closeSprintRequest.projectId = this._generalService.currentProject.id;
+    closeSprintRequest.sprintId = this.sprintId;
+
+    if (this.closeSprintModeSelection === 'createNewSprint') {
+      closeSprintRequest.createNewSprint = true;
+
+      const sprintForm = this.closeSprintNewSprintForm.getRawValue();
+      if (sprintForm.duration) {
+        sprintForm.startedAt = sprintForm.duration[0];
+        sprintForm.endAt = sprintForm.duration[1];
+        delete sprintForm.duration;
+      }
+
+      closeSprintRequest.sprint = sprintForm;
+      closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
+    } else {
+      closeSprintRequest.createNewSprint = false;
+    }
+
+    try {
+      await this._sprintService.closeSprint(closeSprintRequest).toPromise();
+      this.closeSprintInProcess = false;
+
+      this.isVisibleCloseSprint = false;
+      this.router.navigate(['dashboard']);
+    } catch (e) {
+      this.closeSprintInProcess = false;
+      console.log(e);
+    }
+  }
+
+  cancelCloseSprintDialog(): void {
+    this.isVisibleCloseSprint = false;
   }
 
   public ngOnDestroy() {

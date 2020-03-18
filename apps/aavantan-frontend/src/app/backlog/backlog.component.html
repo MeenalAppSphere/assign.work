@@ -8,7 +8,7 @@
     <ng-template #titleTemplateRef>
 
       <span class="p-r-30">
-        <span class="p-r-15 font-size-18 text-black">Backlog</span>
+        <span class="p-r-15 font-size-18 text-black">Active Sprint</span>
         <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Backlog page..."/>
       </span>
 
@@ -56,7 +56,7 @@
 
         <div class="row clearfix m-b-10 m-t-10">
 
-          <div class="col" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
+          <div class="col p-t-10" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
             <span class="font-size-14">
 
               <span class="font-size-18 m-r-30 text-black font-weight-normal"
@@ -64,24 +64,30 @@
 
               <span class="m-r-25 text-gray-light-2 font-size-13"
                     *ngIf="sprintDurations?.totalEstimationReadable">
-                <span>{{sprintDurations?.totalEstimationReadable}}</span>
+                <span class="font-weight-semibold">{{sprintDurations?.totalEstimationReadable}}</span>
                 <span class="font-weight-light">  Sprint Hours </span>
               </span>
 
               <span class="m-r-10 text-gray-light-2 font-size-13">
-                <span>{{sprintDurations?.totalCapacityReadable}}</span>
+                <span class="font-weight-semibold">{{sprintDurations?.totalCapacityReadable}}</span>
                 <span class="m-r-25 font-weight-light"> Sprint Capacity</span>
               </span>
 
 
-              <span class="font-size-12 font-size-13"
-                    [ngClass]="{'text-gray-light-2': sprintDurations?.totalRemainingCapacity>0,
-                    'text-red': sprintDurations?.totalRemainingCapacity<0}"
+              <span class="font-size-13 m-r-25"
+                    [ngClass]="{'text-gray-light-2 font-weight-semibold': sprintDurations?.totalRemainingCapacity>0,
+                    'text-red font-weight-semibold': sprintDurations?.totalRemainingCapacity<0}"
                     *ngIf="sprintDurations?.totalRemainingCapacityReadable">
                 <span
                   class="p-l-5">{{sprintDurations?.totalRemainingCapacityReadable}}</span>
                 <span class="font-weight-light"> Remains</span>
               </span>
+
+              <span class="text-gray-light-2" *ngIf="totalItemsInSprint>0">
+                <span class="text-gray-light-2 font-weight-semibold">{{totalItemsInSprint}}&nbsp;</span>
+                <span class="font-weight-light">{{totalItemsInSprint===1 ? 'Item' : 'Items'}} in Sprint</span>
+              </span>
+
             </span>
           </div>
 
@@ -105,6 +111,14 @@
                 <li nz-menu-item (click)="toggleTeamCapacity()">Edit Capacity</li>
               </ul>
             </nz-dropdown-menu>
+
+
+            <button *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations"
+                    nzType="default" nzSize="small" nz-button class="btn-add-task m-l-10"
+                    (click)="toggleCloseSprintShow()">Close Sprint
+            </button>
+
+
           </div>
         </div>
 
@@ -528,3 +542,83 @@
   <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTimeLogTask"
                (toggleTimeLogShow)="timeLog(selectedTimeLogTask)"></app-timelog>
 </ng-container>
+
+
+
+<nz-modal [(nzVisible)]="isVisibleCloseSprint" nzTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
+          [nzWidth]="700" nzCancelText="Cancel" (nzOnOk)="closeSprint()" [nzOkLoading]="closeSprintInProcess"
+          nzClassName="close-sprint-modal-confirm-box"
+          (nzOnCancel)="cancelCloseSprintDialog()">
+
+  <div>
+    <nz-radio-group [(ngModel)]="closeSprintModeSelection" style="width: 100%;">
+      <div class="row m-b-10">
+        <div class="col-md-9">
+          <label nz-radio nzValue="createNewSprint">Create new sprint and move all open items into it</label>
+        </div>
+        <div class="col-md-3">
+
+        </div>
+      </div>
+
+      <form *ngIf="closeSprintModeSelection === 'createNewSprint'" [formGroup]="closeSprintNewSprintForm"
+            autocomplete="off" nz-form>
+        <ng-container>
+          <section class="draft-sprint-box">
+
+            <div class="steps-content row">
+
+              <div class="col-md-7 col-sm-12">
+                <nz-form-item>
+                  <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
+                  <input nz-input formControlName="name" placeholder="Enter Sprint Title" nzSize="small"
+                         maxlength="50"/>
+                </nz-form-item>
+              </div>
+
+              <div class="col-md-5 col-sm-12">
+                <nz-form-item>
+                  <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
+                  <div class="sprint-duration-datepicker">
+                    <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
+                  </div>
+                </nz-form-item>
+              </div>
+
+
+              <div class="col-md-12">
+                <nz-form-item class="m-0">
+                  <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
+                  <textarea formControlName="goal" nz-input [rows]="3"
+                            placeholder="Enter Sprint Goal (max 250 character)" nzSize="small"
+                            maxlength="250"></textarea>
+                </nz-form-item>
+              </div>
+
+              <div class="col-md-12">
+                <nz-form-item class="m-0">
+                  <label nz-checkbox formControlName="createAndPublishNewSprint">Publish New Sprint ?</label>
+                </nz-form-item>
+              </div>
+
+            </div>
+
+          </section>
+        </ng-container>
+
+      </form>
+
+      <hr class="m-t-15 m-b-0">
+
+      <div class="row">
+        <div class="col-md-9 col-sm-7 p-t-20">
+          <label nz-radio nzValue="moveToBacklog">Move all open items of this sprint to Backlog!</label>
+        </div>
+      </div>
+
+    </nz-radio-group>
+
+  </div>
+
+
+</nz-modal>
