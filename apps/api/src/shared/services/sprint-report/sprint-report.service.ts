@@ -314,4 +314,56 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     // return report
     return sprintReportDetails;
   }
+
+  /**
+   * create missing sprint reports
+   */
+  async createMissingReports() {
+    return this.withRetrySession(async (session: ClientSession) => {
+      // get all sprints where report is not generated
+      const sprintsWithoutReports = await this._sprintService.find({
+        filter: {
+          reportId: { $in: [undefined, null] }
+        },
+        select: '_id projectId reportId'
+      });
+
+      // check if we have any sprints which don't have reports
+      if (sprintsWithoutReports && sprintsWithoutReports.length) {
+        for (const sprint of sprintsWithoutReports) {
+          // get sprint details
+          const sprintDetails = await this._sprintService.getSprintDetails(sprint._id, sprint.projectId);
+
+          const projectPopulate: any = [
+            {
+              path: 'activeBoard',
+              select: 'name projectId columns publishedAt publishedById createdById',
+              populate: {
+                path: 'columns.headerStatus columns.includedStatuses.status columns.includedStatuses.defaultAssignee'
+              }
+            }];
+          const projectSelect = 'name members settings createdById updatedBy sprintId organizationId activeBoardId';
+
+          // get project details
+          const projectDetails = await this._projectService.findOne({
+            filter: { _id: sprintDetails.projectId }, select: projectSelect, populate: projectPopulate, lean: true
+          });
+
+          if (projectDetails) {
+            projectDetails.id = projectDetails._id;
+          } else {
+            BadRequest('Project not found');
+          }
+
+          // create report for the sprint
+          const report = await this.createReport(sprintDetails, projectDetails, session);
+
+          // update sprint add report id
+          await this._sprintService.updateById(sprintDetails.id, { reportId: report[0].id }, session);
+        }
+      }
+
+      return 'Missing Reports Generated Successfully';
+    });
+  }
 }

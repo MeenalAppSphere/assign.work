@@ -14,4 +14,9 @@ export class SprintReportController {
   async getReport(@Body('sprintId') sprintId: string, @Body('projectId') projectId: string) {
     return await this._sprintReportService.getReport(sprintId, projectId);
   }
+
+  @Post('create-missing-reports')
+  async createMissingReports() {
+    return await this._sprintReportService.createMissingReports();
+  }
 }
