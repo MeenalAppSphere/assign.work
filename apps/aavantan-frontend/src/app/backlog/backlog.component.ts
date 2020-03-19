@@ -159,11 +159,15 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
         this.setSprintDurations(this.activeSprintData);
 
-        this.getAllSprintTasks();
       } else {
-        // get unpublished sprint tasks
+        // get unpublished sprint data
         this.getUnpublishedSprint();
+
+        // get unpublished sprint tasks
+        this.sprintTasksRequest = new SprintTaskFilterModel(this._generalService.currentProject.id, null);
       }
+
+      this.getAllSprintTasks();
     }
 
     // get current project from store
@@ -226,7 +230,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
     try {
       this.getAllActiveSprintTasksInProcess = true;
 
-      const data = await this._taskService.getAllSprintTasks(this.sprintTasksRequest).toPromise();
+      let data;
+      if (this.sprintTasksRequest.sprintId) {
+        data = await this._taskService.getAllSprintTasks(this.sprintTasksRequest).toPromise();
+      } else {
+        data = await this._taskService.getAllUnfinishedSprintTasks(this.sprintTasksRequest).toPromise();
+      }
+
       if (data.data) {
         this.draftTaskList = data.data.items;
         this.sprintTasksRequest.page = data.data.page;
@@ -536,8 +546,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.sprintTasksRequest.sort = columnName;
       this.sprintTasksRequest.sortBy = type;
       this.getAllSprintTasks();
-    } else {
-
     }
   }
 

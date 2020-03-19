@@ -72,6 +72,17 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
+  getAllUnfinishedSprintTasks(filterModel: SprintTaskFilterModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
+    return this._http.post(TaskUrls.getAllUnpublishedSprintTasks, filterModel).pipe(
+      map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
+
   getAllBacklogTasks(filterModel: TaskFilterModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
     return this._http.post(TaskUrls.getAllBacklogTasks, filterModel).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
