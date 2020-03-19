@@ -42,6 +42,11 @@ export class TaskController {
     return await this._taskService.getAllSprintTasks(filterModel);
   }
 
+  @Post('get-all-unpublished-sprint-tasks')
+  async getAllUnpublishedSprintTasks(@Body() filterModel: TaskFilterModel) {
+    return await this._taskService.getAllUnPublishedSprintTasks(filterModel);
+  }
+
   @Post('add')
   async createTask(@Body() task: Task) {
     return await this._taskService.addTask(task);

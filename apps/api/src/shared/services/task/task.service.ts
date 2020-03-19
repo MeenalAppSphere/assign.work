@@ -5,7 +5,7 @@ import {
   DbCollection,
   DeleteTaskModel,
   GetAllTaskRequestModel,
-  GetTaskByIdOrDisplayNameModel,
+  GetTaskByIdOrDisplayNameModel, MongooseQueryModel,
   Project, Sprint,
   SprintStatusEnum, SprintTaskFilterModel,
   Task,
@@ -33,6 +33,7 @@ import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
+import * as moment from 'moment';
 
 /**
  * common task population object
@@ -664,6 +665,49 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       // query for task in sprint
       model.queries.push({
         key: 'sprintId', value: [model.sprintId], condition: TaskFilterCondition.and
+      });
+
+      return this.getTasks(model);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   * get all unpublished sprint tasks
+   * @param model
+   */
+  async getAllUnPublishedSprintTasks(model: TaskFilterModel) {
+    try {
+      if (!model || !model.projectId) {
+        BadRequest('Project Not Found');
+      }
+
+      // project details
+      await this._projectService.getProjectDetails(model.projectId);
+
+      // create query object for sprint
+      const queryObjectForUnPublishedSprint: MongooseQueryModel = {
+        filter: {
+          projectId: model.projectId,
+          endAt: { $gt: moment().startOf('d').toDate() },
+          'sprintStatus.status': { $in: [undefined, null] }
+        },
+        select: '-columns -membersCapacity', lean: true, sort: '-createdAt'
+      };
+
+      // get latest unpublished sprint
+      const sprint: Sprint = await this._sprintService.findOne(queryObjectForUnPublishedSprint);
+      if (!sprint) {
+        return 'No Unpublished Sprint Found';
+      }
+
+      sprint.id = sprint._id.toString();
+      model = { ...new SprintTaskFilterModel(model.projectId, sprint.id), ...model };
+
+      // query for task in sprint
+      model.queries.push({
+        key: 'sprintId', value: [sprint.id], condition: TaskFilterCondition.and
       });
 
       return this.getTasks(model);

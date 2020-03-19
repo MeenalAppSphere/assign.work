@@ -167,7 +167,6 @@ export class SprintUtilityService {
     if (!sprint) {
       return sprint;
     }
-
     sprint.id = sprint['_id'];
 
     // calculate sprint totals
@@ -415,7 +414,7 @@ export class SprintUtilityService {
    * @param newColumnIndex
    */
   moveTaskToNewColumn(sprintDetails: Sprint, taskDetail: Task, oldSprintTask: SprintColumnTask,
-                     addedById: string, currentColumnIndex: number, newColumnIndex: number): SprintColumn[] {
+                      addedById: string, currentColumnIndex: number, newColumnIndex: number): SprintColumn[] {
     return sprintDetails.columns.map((column, index) => {
       // remove from current column and minus estimation time from total column estimation time
       if (index === currentColumnIndex) {

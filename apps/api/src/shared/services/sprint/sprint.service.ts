@@ -10,7 +10,7 @@ import {
   DbCollection,
   EmailSubjectEnum,
   GetAllSprintRequestModel,
-  GetSprintByIdRequestModel,
+  GetSprintByIdRequestModel, MongooseQueryModel,
   MoveTaskToColumnModel,
   Project,
   PublishSprintModel,
@@ -800,29 +800,32 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * get un-published sprint details
    * sprint which is not published yet and it's end date is after today
    * @param projectId
-   * @returns {Promise<DocumentQuery<(Sprint & Document)[], Sprint & Document> & {}>}
    */
   public async getUnPublishSprint(projectId: string) {
-    const projectDetails = await this._projectService.getProjectDetails(projectId);
+    try {
+      await this._projectService.getProjectDetails(projectId);
 
-    // create query object for sprint
-    const queryObjectForUnPublishedSprint = {
-      isDeleted: false,
-      projectId: projectId,
-      endAt: { $gt: moment().startOf('d').toDate() },
-      'sprintStatus.status': { $in: [undefined, null] }
-    };
+      // create query object for sprint
+      const queryObjectForUnPublishedSprint: MongooseQueryModel = {
+        filter: {
+          projectId: projectId,
+          endAt: { $gt: moment().startOf('d').toDate() },
+          'sprintStatus.status': { $in: [undefined, null] }
+        },
+        select: '-columns -membersCapacity', lean: true, sort: '-createdAt'
+      };
 
-    // return founded sprint
-    let sprint: Sprint = await this._sprintModel.findOne(queryObjectForUnPublishedSprint).populate(detailedPopulationForSprint).sort('-createdAt').lean();
+      // return founded sprint
+      const sprint: Sprint = await this.findOne(queryObjectForUnPublishedSprint);
+      if (!sprint) {
+        return 'No Unpublished Sprint Found';
+      }
 
-    if (!sprint) {
-      return 'No Unpublished Sprint Found';
+      // prepare sprint vm model
+      return this._sprintUtilityService.prepareSprintVm(sprint);
+    } catch (e) {
+      throw e;
     }
-
-    // prepare sprint vm model
-    sprint = this._sprintUtilityService.prepareSprintVm(sprint);
-    return sprint;
   }
 
   /**
