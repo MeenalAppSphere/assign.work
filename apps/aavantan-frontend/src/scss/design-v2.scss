@@ -363,7 +363,7 @@ $color-green : #42E3A3;
   .ant-collapse-content > .ant-collapse-content-box {
     padding: 0rem .65rem;
     max-height: 335px;
-    min-height: 150px;
+    min-height: 200px;
     overflow: auto;
   }
 
@@ -371,6 +371,11 @@ $color-green : #42E3A3;
     padding-top: .5rem;
     padding-bottom: .5rem;
   }
+
+  .ant-empty-image img {
+    height: 100px;
+  }
+
 }
 
 .ant-collapse {
