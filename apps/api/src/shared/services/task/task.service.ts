@@ -7,7 +7,7 @@ import {
   GetAllTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
   Project, Sprint,
-  SprintStatusEnum,
+  SprintStatusEnum, SprintTaskFilterModel,
   Task,
   TaskFilterCondition,
   TaskFilterModel,
@@ -631,12 +631,39 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // project details
-      await this._projectService.getProjectDetails(model.projectId, true);
+      await this._projectService.getProjectDetails(model.projectId);
       model = { ...new TaskFilterModel(model.projectId), ...model };
 
       // query for task not in sprint , sprintId === undefined || sprintId === null
       model.queries.push({
         key: 'sprintId', value: [undefined, null], condition: TaskFilterCondition.and
+      });
+
+      return this.getTasks(model);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   * get all sprint tasks
+   * @param model
+   */
+  async getAllSprintTasks(model: SprintTaskFilterModel) {
+    try {
+      if (!model || !model.projectId) {
+        BadRequest('Project Not Found');
+      }
+
+      // project details
+      await this._projectService.getProjectDetails(model.projectId);
+      await this._sprintService.getSprintDetails(model.sprintId, model.projectId);
+
+      model = { ...new SprintTaskFilterModel(model.projectId, model.sprintId), ...model };
+
+      // query for task in sprint
+      model.queries.push({
+        key: 'sprintId', value: [model.sprintId], condition: TaskFilterCondition.and
       });
 
       return this.getTasks(model);

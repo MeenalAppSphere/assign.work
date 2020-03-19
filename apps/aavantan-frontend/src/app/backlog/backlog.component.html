@@ -5,6 +5,7 @@
     [nzTitle]="titleTemplateRef"
     [nzExtra]="createSprintBtnTemplate"
     class="backlog-page">
+
     <ng-template #titleTemplateRef>
 
       <span class="p-r-30">
@@ -17,9 +18,9 @@
       <!--      </span>-->
 
     </ng-template>
+
+    <!-- create sprint button and active sprint data -->
     <ng-template #createSprintBtnTemplate>
-
-
 
       <span class="sprint-date" *ngIf="activeSprintData">
             <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
@@ -46,14 +47,13 @@
                 class="d-inline-block w-45px">End</span>: {{activeSprintData?.endAt | date : 'MMM d yyyy'}}</div>
           </ng-template>
           </span>
-
-
     </ng-template>
+    <!-- create sprint button and active sprint data -->
 
     <section class="m-b-10">
       <nz-spin nzTip="Checking Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
 
-
+        <!-- sprint duration -->
         <div class="row clearfix m-b-10 m-t-10">
 
           <div class="col p-t-10" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
@@ -85,7 +85,7 @@
 
               <span class="text-gray-light-2" *ngIf="totalItemsInSprint>0">
                 <span class="text-gray-light-2 font-weight-semibold">{{totalItemsInSprint}}&nbsp;</span>
-                <span class="font-weight-light">{{totalItemsInSprint===1 ? 'Item' : 'Items'}} in Sprint</span>
+                <span class="font-weight-light">{{totalItemsInSprint === 1 ? 'Item' : 'Items'}} in Sprint</span>
               </span>
 
             </span>
@@ -121,8 +121,9 @@
 
           </div>
         </div>
+        <!-- sprint duration -->
 
-
+        <!-- sprint tasks not found/ empty task list -->
         <div class="draft-sprint-box"
              *ngIf="(activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
 
@@ -140,16 +141,25 @@
           </nz-spin>
 
         </div>
+        <!-- sprint tasks not found/ empty task list -->
 
-
+        <!-- sprint task list -->
         <ng-container>
 
           <div *ngIf="activeSprintData?.id || unPublishedSprintData?.id">
 
-            <nz-spin *ngIf="draftTaskList?.length>0"
-                     [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
-                     [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
-              <nz-table #listViewTable [nzData]="draftTaskList" nzSize="small"
+            <nz-spin
+              [nzSpinning]="getAllActiveSprintTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+              [nzTip]="sprintTableLoadingTip">
+
+              <nz-table *ngIf="draftTaskList?.length>0" #sprintListViewTable
+                        [nzData]="draftTaskList"
+                        [nzFrontPagination]="false"
+                        [nzTotal]="sprintTasksRequest.totalItems"
+                        [nzPageIndex]="sprintTasksRequest.page"
+                        [nzPageSize]="sprintTasksRequest.count"
+                        [nzShowPagination]="true" (nzPageIndexChange)="pageChanged($event, 'activeSprint')"
+                        nzSize="small"
                         class="draft-table">
                 <thead>
                 <tr>
@@ -160,14 +170,16 @@
                   <th class="text-left" style="min-width:115px;">
                     <span>Priority</span>
                     <span class="p-l-10">
-                  <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority' }"></ng-container>
+                  <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                  column: 'priority', sortingRequest: sprintTasksRequest, requestType:'activeSprint' }"></ng-container>
                 </span>
                   </th>
 
                   <th class="text-left" width="155">
                     <span>Type</span>
                     <span class="p-l-10">
-                      <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'taskType'}"></ng-container>
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'taskType', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
                     </span>
                   </th>
 
@@ -179,7 +191,7 @@
                     <span>Status</span>
                     <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
-                      column: 'status'}"></ng-container>
+                      column: 'status', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
                     </span>
                   </th>
 
@@ -188,7 +200,8 @@
                   <th class="text-right" width="125">
                     <span>Estimates</span>
                     <span class="p-l-10">
-                    <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'estimatedTime'}"></ng-container>
+                    <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                    column: 'estimatedTime', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
                   </span>
                   </th>
 
@@ -196,7 +209,7 @@
                 </thead>
 
                 <tbody>
-                <tr *ngFor="let item of listViewTable.data">
+                <tr *ngFor="let item of sprintListViewTable.data">
 
                   <td data-label="#" class="text-center">
                     <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
@@ -262,9 +275,8 @@
             </nz-spin>
 
           </div>
-
         </ng-container>
-
+        <!-- sprint task list -->
 
       </nz-spin>
 
@@ -287,28 +299,28 @@
 
         <div class="col text-right" style="max-width: 520px;">
 
-<!--          <nz-button-group style="max-width: 200px;">-->
+          <!--          <nz-button-group style="max-width: 200px;">-->
 
-<!--            <button nz-button nzType="default" (click)="allStatusesChecked = !allStatusesChecked;selectAllStatuses()"-->
-<!--                    style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">-->
-<!--              <label nz-checkbox [(ngModel)]="allStatusesChecked"-->
-<!--                     (ngModelChange)="selectAllStatuses()" [nzIndeterminate]="allStatusesIndeterminate">-->
-<!--                Status Filter-->
-<!--              </label>-->
-<!--            </button>-->
-<!--            <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight"-->
-<!--                    style="border-left:1px solid #ffffff; min-width:35px; height: 33px;">-->
-<!--              <i nz-icon nzType="caret-down" nzTheme="outline"></i>-->
-<!--            </button>-->
-<!--          </nz-button-group>-->
+          <!--            <button nz-button nzType="default" (click)="allStatusesChecked = !allStatusesChecked;selectAllStatuses()"-->
+          <!--                    style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">-->
+          <!--              <label nz-checkbox [(ngModel)]="allStatusesChecked"-->
+          <!--                     (ngModelChange)="selectAllStatuses()" [nzIndeterminate]="allStatusesIndeterminate">-->
+          <!--                Status Filter-->
+          <!--              </label>-->
+          <!--            </button>-->
+          <!--            <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight"-->
+          <!--                    style="border-left:1px solid #ffffff; min-width:35px; height: 33px;">-->
+          <!--              <i nz-icon nzType="caret-down" nzTheme="outline"></i>-->
+          <!--            </button>-->
+          <!--          </nz-button-group>-->
 
-<!--          <nz-dropdown-menu #statusDdl="nzDropdownMenu">-->
-<!--            <ul nz-menu>-->
-<!--              <li nz-menu-item *ngFor="let status of backLogStatusQueryRequest">-->
-<!--                <label nz-checkbox [(ngModel)]="status.isSelected" (ngModelChange)="selectSingleStatus()">{{ status.name }}</label>-->
-<!--              </li>-->
-<!--            </ul>-->
-<!--          </nz-dropdown-menu>-->
+          <!--          <nz-dropdown-menu #statusDdl="nzDropdownMenu">-->
+          <!--            <ul nz-menu>-->
+          <!--              <li nz-menu-item *ngFor="let status of backLogStatusQueryRequest">-->
+          <!--                <label nz-checkbox [(ngModel)]="status.isSelected" (ngModelChange)="selectSingleStatus()">{{ status.name }}</label>-->
+          <!--              </li>-->
+          <!--            </ul>-->
+          <!--          </nz-dropdown-menu>-->
 
           <nz-input-group [nzSuffix]="suffixIcon" style="max-width: 290px; margin-left:10px;">
             <input placeholder="Search Backlogs" nzSize="small" nz-input
@@ -332,6 +344,7 @@
 
       </div>
 
+      <!-- backlog task list container -->
       <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
 
         <div>
@@ -481,12 +494,16 @@
 
 
       </ng-container>
+      <!-- backlog task list container -->
 
+      <!-- create backlog button -->
       <div ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
         <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13"
            (click)="addTaskNavigate()">+ Create Backlog</a>
       </div>
+      <!-- create backlog button -->
 
+      <!-- empty backlog tasks container -->
       <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
 
         <nz-empty
@@ -499,6 +516,7 @@
         </nz-empty>
 
       </ng-container>
+      <!-- empty backlog tasks container -->
 
     </section>
 
@@ -542,7 +560,6 @@
   <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTimeLogTask"
                (toggleTimeLogShow)="timeLog(selectedTimeLogTask)"></app-timelog>
 </ng-container>
-
 
 
 <nz-modal [(nzVisible)]="isVisibleCloseSprint" nzTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"

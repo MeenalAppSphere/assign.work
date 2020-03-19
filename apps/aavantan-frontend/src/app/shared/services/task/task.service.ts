@@ -13,7 +13,7 @@ import {
   CommentPinModel,
   GetAllTaskRequestModel,
   GetTaskByIdOrDisplayNameModel,
-  GetTaskHistoryModel,
+  GetTaskHistoryModel, SprintTaskFilterModel,
   Task,
   TaskComments, TaskFilterModel,
   TaskHistory,
@@ -61,11 +61,20 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getAllBacklogTasks(filterModel: TaskFilterModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
+  getAllSprintTasks(filterModel: SprintTaskFilterModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
+    return this._http.post(TaskUrls.getAllSprintTasks, filterModel).pipe(
+      map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
+        return res;
+      }),
+      catchError(err => {
+        return this.handleError(err);
+      })
+    );
+  }
 
+  getAllBacklogTasks(filterModel: TaskFilterModel): Observable<BaseResponseModel<BasePaginatedResponse<Task>>> {
     return this._http.post(TaskUrls.getAllBacklogTasks, filterModel).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
-
         return res;
       }),
       catchError(err => {
@@ -85,7 +94,7 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  getTaskWithFilter(filter: TaskFilterModel, onlyMyTasks : boolean = false) {
+  getTaskWithFilter(filter: TaskFilterModel, onlyMyTasks: boolean = false) {
     return this._http.post(!onlyMyTasks ? TaskUrls.getAllTaskWithFilter : TaskUrls.getAllMyTasks, filter).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Task>>) => {
         return res;

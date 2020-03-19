@@ -90,7 +90,7 @@ export class TaskFilterQuery {
   key: string;
   value: any[];
   condition: TaskFilterCondition;
-  reverseFilter?: boolean = false
+  reverseFilter?: boolean = false;
 }
 
 export class TaskFilterModel extends MongoosePaginateQuery {
@@ -99,6 +99,12 @@ export class TaskFilterModel extends MongoosePaginateQuery {
   constructor(public projectId: string) {
     super();
     this.queries = [];
+  }
+}
+
+export class SprintTaskFilterModel extends TaskFilterModel {
+  constructor(public projectId: string, public sprintId: string) {
+    super(projectId);
   }
 }
 

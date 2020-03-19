@@ -9,7 +9,7 @@ import {
   GetAllTaskRequestModel,
   GetCommentsModel,
   GetMyTaskRequestModel,
-  GetTaskByIdOrDisplayNameModel,
+  GetTaskByIdOrDisplayNameModel, SprintTaskFilterModel,
   Task,
   TaskFilterModel,
   UpdateCommentModel
@@ -35,6 +35,11 @@ export class TaskController {
   @Post('get-all-backlogs')
   async getAllBacklogTasks(@Body() filterModel: TaskFilterModel) {
     return await this._taskService.getAllBacklogs(filterModel);
+  }
+
+  @Post('get-all-sprint-tasks')
+  async getAllSprintTasks(@Body() filterModel: SprintTaskFilterModel) {
+    return await this._taskService.getAllSprintTasks(filterModel);
   }
 
   @Post('add')

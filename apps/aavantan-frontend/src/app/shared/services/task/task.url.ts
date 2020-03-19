@@ -7,6 +7,7 @@ export const TaskUrls = {
 
   getAllTask: createUrl('task/get-all'),
   getAllMyTasks: createUrl('task/get-all-my-tasks'),
+  getAllSprintTasks: createUrl('task/get-all-sprint-tasks'),
   getAllBacklogTasks: createUrl('task/get-all-backlogs'),
   getAllTaskWithFilter: createUrl('task/filter'),
 
