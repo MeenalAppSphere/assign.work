@@ -541,7 +541,9 @@
                              [nzShowArrow]="true">
 
             <nz-spin [nzSpinning]="getTimeLogInProcess">
-              <nz-list [nzDataSource]="timelogHistoryList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+
+
+              <nz-list *ngIf="timelogHistoryList?.length" [nzDataSource]="timelogHistoryList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
                 <ng-template #item let-item>
                   <nz-list-item class="timelog-history">
                     <div class="media">
@@ -560,6 +562,17 @@
                   </nz-list-item>
                 </ng-template>
               </nz-list>
+
+              <div *ngIf="timelogHistoryList && timelogHistoryList.length===0" class="m-t-30">
+                <nz-empty
+                  [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+                  [nzNotFoundContent]="contentActivity"></nz-empty>
+                <ng-template #contentActivity>
+                  <span>No Time Logged History</span>
+                </ng-template>
+              </div>
+
+
             </nz-spin>
 
           </nz-collapse-panel>
@@ -591,7 +604,7 @@
 
                 </div>
 
-                <div *ngIf="!taskId" style="height:130px;" class="m-t-30">
+                <div *ngIf="!taskId" class="m-t-30">
                   <nz-empty
                     [nzNotFoundImage]="'../../../assets/images/not-found/no-pin-comments.svg'"
                     [nzNotFoundContent]="contentActivity"></nz-empty>
@@ -605,23 +618,32 @@
 
                 <div *ngIf="taskId">
                   <div class="comment-history-scrollable">
+
                     <nz-spin nzTip="Loading..." [nzSpinning]="getHistoryInProcess">
                       <aavantan-app-history *ngIf="historyList && historyList.length>0" [taskId]="taskId"
                                             [historyList]="historyList"></aavantan-app-history>
+
                       <div *ngIf="historyList && historyList.length===0">
-                        <nz-empty [nzNotFoundContent]="contentActivity"></nz-empty>
+                        <nz-empty
+                          [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+                          [nzNotFoundContent]="contentActivity"></nz-empty>
                         <ng-template #contentActivity>
-                          <span> No History</span>
+                          <span>No History</span>
                         </ng-template>
                       </div>
+
                     </nz-spin>
+
                   </div>
                 </div>
 
-                <div *ngIf="!taskId">
-                  <nz-empty [nzNotFoundContent]="contentHistory"></nz-empty>
+
+                <div *ngIf="!taskId" class="m-t-30">
+                  <nz-empty
+                    [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+                    [nzNotFoundContent]="contentHistory"></nz-empty>
                   <ng-template #contentHistory>
-                    <span> No History </span>
+                    <span>No History</span>
                   </ng-template>
                 </div>
 
