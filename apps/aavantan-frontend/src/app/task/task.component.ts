@@ -260,6 +260,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       } else {
         this.selectedTaskType = this.taskTypeDataSource[0];
+        this.resetTaskForm();
       }
     });
 
@@ -535,6 +536,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.selectedPriority = null;
     this.attachementIds = [];
     this.uploadedImages = [];
+    this.listOfSelectedWatchers = [];
+    this.listOfSelectedTags = [];
+
 
     // reset task form if task form is already initialised
     if (this.taskForm) {
@@ -552,7 +556,9 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     if (this.selectedTaskType) {
       this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
-    } else {
+    } else if(this.displayName) {
+      this.router.navigateByUrl('dashboard/task/'+this.displayName);
+    }else {
       this.router.navigateByUrl('dashboard/task/');
     }
 
@@ -1012,7 +1018,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
-    this.themeService.toggleFold(false);
+     this.themeService.toggleFold(false);
   }
 
 }
