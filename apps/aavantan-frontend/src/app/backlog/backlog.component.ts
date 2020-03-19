@@ -9,7 +9,7 @@ import {
   SprintBaseRequest,
   SprintDurationsModel,
   SprintErrorEnum,
-  SprintErrorResponse,
+  SprintErrorResponse, SprintTaskFilterModel,
   Task,
   TaskFilterCondition,
   TaskFilterModel,
@@ -56,6 +56,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public removeTaskFromSprintInProgress: boolean;
 
   public backLogTableLoadingTip: string = 'Loading';
+  public sprintTableLoadingTip: string = 'Loading';
 
   public gettingUnpublishedInProcess: boolean;
   public createdSprintId: string = null;
@@ -75,10 +76,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public backLogTaskRequest: TaskFilterModel;
   public backLogStatusQueryRequest: Array<{ name: string, value: string, isSelected: boolean }> = [];
-  public allStatusesChecked:boolean = true;
+  public allStatusesChecked: boolean = true;
   public allStatusesIndeterminate = true;
 
-  public totalItemsInSprint:Number;
+  public sprintTasksRequest: SprintTaskFilterModel;
+
+  public totalItemsInSprint: Number;
 
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
 
@@ -146,6 +149,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
       // if not get un-published sprint tasks
 
       if (this._generalService.currentProject.sprintId) {
+
+        this.sprintTasksRequest = new SprintTaskFilterModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
+
         // get active sprint tasks
         this.activeSprintData = this._generalService.currentProject.sprint;
         this.sprintId = this.activeSprintData.id;
@@ -181,7 +187,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       sprintStatus: null
     };
 
-
     this.closeSprintNewSprintForm = new FormGroup({
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
@@ -191,8 +196,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       endAt: new FormControl(null, []),
       createAndPublishNewSprint: new FormControl(true)
     });
-
-
   }
 
   public async getAllBacklogTask() {
@@ -218,27 +221,27 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
   public async getAllSprintTasks() {
-    const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
-      sort: 'createdAt',
-      sortBy: 'desc',
-      onlyBackLog: false,
-      sprintId: this.activeSprintData.id
-    };
+    this.sprintTableLoadingTip = 'Getting Sprint Tasks..';
+    try {
+      this.getAllActiveSprintTasksInProcess = true;
 
-    this.getAllActiveSprintTasksInProcess = true;
+      const data = await this._taskService.getAllSprintTasks(this.sprintTasksRequest).toPromise();
+      if (data.data) {
+        this.draftTaskList = data.data.items;
+        this.sprintTasksRequest.page = data.data.page;
+        this.sprintTasksRequest.count = data.data.count;
+        this.sprintTasksRequest.totalPages = data.data.totalPages;
+        this.sprintTasksRequest.totalItems = data.data.totalItems;
 
-    const data = await this._taskService.getAllTask(json).toPromise();
-    if(data.data && data.data.totalItems) {
-      this.totalItemsInSprint = data.data.totalItems
-    }else {
-      this.totalItemsInSprint = 0;
+        this.totalItemsInSprint = data.data.totalItems;
+      } else {
+        this.totalItemsInSprint = 0;
+      }
+
+      this.getAllActiveSprintTasksInProcess = false;
+    } catch (e) {
+      this.getAllActiveSprintTasksInProcess = false;
     }
-    if (data.data && data.data.items.length > 0) {
-      this.draftTaskList = data.data.items;
-    }
-
-    this.getAllActiveSprintTasksInProcess = false;
   }
 
   public async getUnpublishedSprint(hideLoader?: boolean) {
@@ -406,6 +409,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       };
 
       this.backLogTableLoadingTip = 'Adding Task to Sprint...';
+      this.sprintTableLoadingTip = 'Adding Task to Sprint...';
       this.addTaskToSprintInProgress = true;
 
       const data = await this._sprintService.addTaskToSprint(json).toPromise();
@@ -451,7 +455,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
 
       this.draftTaskList = [...this.draftTaskList, task];
+      this.sprintTasksRequest.totalItems++;
+
       this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
+      this.backLogTaskRequest.totalItems--;
 
       this.addTaskToSprintInProgress = false;
     } catch (e) {
@@ -469,12 +476,18 @@ export class BacklogComponent implements OnInit, OnDestroy {
       };
 
       this.backLogTableLoadingTip = 'Removing Task from Sprint...';
+      this.sprintTableLoadingTip = 'Removing Task from Sprint...';
+
       this.removeTaskFromSprintInProgress = true;
       const result = await this._sprintService.removeTaskFromSprint(json).toPromise();
 
       if (result && result.data) {
         this.draftTaskList = this.draftTaskList.filter(draftTask => draftTask.id !== task.id);
+        this.sprintTasksRequest.totalItems--;
+
         this.backLogTasksList = [...this.backLogTasksList, task];
+        this.backLogTaskRequest.totalItems++;
+
         this.sprintDurations = result.data;
       }
 
@@ -503,6 +516,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
     if (requestType === 'backlog') {
       this.backLogTaskRequest.page = index;
       this.getAllBacklogTask();
+
+    } else if (requestType === 'activeSprint') {
+
+      this.sprintTasksRequest.page = index;
+      this.getAllSprintTasks();
     }
   }
 
@@ -512,8 +530,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.backLogTaskRequest.sortBy = type;
 
       this.getAllBacklogTask();
-    } else if (requestType === 'un-published-sprint') {
+    } else if (requestType === 'activeSprint') {
 
+      this.sprintTasksRequest.sort = columnName;
+      this.sprintTasksRequest.sortBy = type;
+      this.getAllSprintTasks();
     } else {
 
     }
