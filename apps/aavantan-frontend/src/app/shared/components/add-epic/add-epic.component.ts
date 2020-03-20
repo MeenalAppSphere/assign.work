@@ -43,7 +43,7 @@ export class AddEpicComponent implements OnInit {
     this.epicForm = this.FB.group({
       projectId: [null],
       name: [null, [Validators.required]],
-      taskType: [null, [Validators.required]],
+      taskTypeId: [null, [Validators.required]],
       description: [null],
       assigneeId: [null],
       watchers: [null]
