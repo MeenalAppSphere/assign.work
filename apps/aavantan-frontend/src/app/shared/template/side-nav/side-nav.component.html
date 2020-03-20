@@ -133,7 +133,12 @@
 </div>
 
 
-<div class="btn-floating-container">
+<div class="btn-floating-container {{ 'is-' + selectedHeaderColor }}"
+     [ngClass]="{
+        'is-folded': isFolded,
+        'is-side-nav-dark' : isSideNavDark,
+        'is-expand' : isExpand
+    }">
   <a *ngIf="isFolded" href="javascript:void(0);"
        [ngStyle]="{'background':isFolded ? '#ffffff20' : 'none' }"
        (click)="createNewTask()" class="btn-floating" nz-button nzType="primary" nzSize="small" nzShape="round" nzTitle="Create Task" nzPlacement="right" nz-tooltip>

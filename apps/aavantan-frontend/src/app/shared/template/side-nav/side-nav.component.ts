@@ -19,6 +19,8 @@ import { TaskService } from '../../services/task/task.service';
 
 export class SideNavComponent implements OnInit, OnDestroy {
 
+  public selectedHeaderColor:string;
+  public isExpand: boolean;
   public menuItems: any[];
   public adminMenuItems: any[];
   isFolded: boolean;
@@ -56,6 +58,10 @@ export class SideNavComponent implements OnInit, OnDestroy {
     this.adminMenuItems = ROUTES.filter(menuItem => menuItem.type === 'admin');
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
+    this.themeService.isExpandChanges.pipe(untilDestroyed(this)).subscribe(isExpand => this.isExpand = isExpand);
+    this.themeService.isMenuFoldedChanges.pipe(untilDestroyed(this)).subscribe(isFolded => this.isFolded = isFolded);
+    this.themeService.isSideNavDarkChanges.pipe(untilDestroyed(this)).subscribe(isDark => this.isSideNavDark = isDark);
+    this.themeService.selectedHeaderColor.pipe(untilDestroyed(this)).subscribe(color => this.selectedHeaderColor = color);
   }
 
   public createNewTask(item?: TaskTypeModel) {

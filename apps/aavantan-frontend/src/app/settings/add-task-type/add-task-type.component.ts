@@ -6,6 +6,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { ProjectPriority, TaskPriorityModel, TaskTypeModel } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskTypeService } from '../../shared/services/task-type/task-type.service';
+import { ColorEvent } from 'ngx-color';
 
 @Component({
   selector: 'aavantan-task-type',
@@ -21,6 +22,10 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
 
   public taskTypeForm: FormGroup;
   public updateRequestInProcess: boolean;
+
+  // for color picker
+  public showColorBox: boolean;
+  public primaryColor = '#000000';
 
   constructor(protected notification: NzNotificationService,
               private _taskTypeService: TaskTypeService,
@@ -40,6 +45,7 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
     });
 
     if (this.addEditprojectTaskTypeData) {
+      this.primaryColor = this.addEditprojectTaskTypeData.color;
       this.taskTypeForm.get('name').patchValue(this.addEditprojectTaskTypeData.name);
       this.taskTypeForm.get('color').patchValue(this.addEditprojectTaskTypeData.color);
       this.taskTypeForm.get('displayName').patchValue(this.addEditprojectTaskTypeData.displayName);
@@ -87,6 +93,21 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
 
   handleCancel(): void {
     this.toggleAddTaskTypeShow.emit();
+  }
+
+
+  // color picker
+  public toggleColor() {
+    this.showColorBox = !this.showColorBox;
+  }
+  public clearColor() {
+    this.primaryColor = '#000000';
+    this.taskTypeForm.get('color').patchValue(this.primaryColor);
+    this.showColorBox = !this.showColorBox;
+  }
+  public changeComplete($event: ColorEvent) {
+    this.primaryColor = $event.color.hex;
+    this.taskTypeForm.get('color').patchValue($event.color.hex);
   }
 
   ngOnDestroy() {

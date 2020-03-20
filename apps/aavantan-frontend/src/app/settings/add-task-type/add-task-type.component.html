@@ -13,22 +13,35 @@
       </nz-form-item>
       <nz-form-item>
         <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
-          name)</small></nz-form-label>
+          name)
+        </small>
+        </nz-form-label>
 
-        <nz-form-control>
+        <nz-form-control class="color-control-section">
           <nz-input-group [nzAddOnBefore]="profixIconButton">
             <input class="task-type-input" type="text" nzSize="small" formControlName="name" maxlength="20"
                    nz-input
                    placeholder="Enter Task Name"/>
           </nz-input-group>
+
           <ng-template #profixIconButton>
-            <input type="color" nzSize="small" formControlName="color"/>
+
+
+            <div [ngStyle]="{'background':primaryColor}" (click)="toggleColor()" class="picker-btn">
+            </div>
+            <div *ngIf="showColorBox" class="picker-container">
+              <color-sketch [color]="primaryColor"
+                            (onChangeComplete)="changeComplete($event)"></color-sketch>
+              <div class="color-picker-footer">
+                <button nz-button type="button" nzType="primary" (click)="toggleColor()">Done</button>
+                <button nz-button type="button" nzType="default" (click)="clearColor()">Cancel</button>
+              </div>
+
+            </div>
+
           </ng-template>
         </nz-form-control>
 
-      </nz-form-item>
-
-      <nz-form-item>
 
         <nz-form-label>Description</nz-form-label>
         <nz-form-control>

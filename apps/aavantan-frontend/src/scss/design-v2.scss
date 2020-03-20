@@ -914,6 +914,16 @@ $color-green : #42E3A3;
 /* for mobile view */
 
 @media only screen and (max-width: 768px) {
+
+  .btn-floating-container {
+    display: none;
+  }
+
+  .btn-floating-container.is-default.is-expand {
+    display: block;
+  }
+
+
   /* header */
   .project-name-btn {
     max-width: 170px;
@@ -975,3 +985,53 @@ $color-green : #42E3A3;
   }
 
 }
+
+
+
+
+/* for color picker */
+.sketch-picker {
+  border-radius: 0px!important;
+}
+.sketch-saturation {
+  padding-bottom: 50%!important;
+}
+.color-control-section {
+  position: relative;
+
+  .picker-btn {
+    height: 20px!important;
+    width:20px!important;
+    border-radius: 4px;
+  }
+  .ant-input-group-addon {
+    padding: 0 8px;
+  }
+}
+
+.picker-container {
+  background: #ffffff;
+  z-index: 2;
+  position:absolute;
+  left:0px;
+  top:34px;
+  width:220px;
+
+  .sketch-picker {
+    box-shadow: none;
+  }
+  .color-picker-footer {
+    padding: 8px;
+    text-align: left;
+    background: #ffffff;
+    border-top:1px solid #dddddd;
+
+    button {
+      padding: 5px !important;
+      font-size: 12px;
+      min-width: 60px;
+      margin-right: 10px;
+    }
+  }
+}
+/* ---------- */

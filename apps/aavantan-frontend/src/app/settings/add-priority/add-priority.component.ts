@@ -5,6 +5,7 @@ import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProjectPriority, TaskPriorityModel } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
+import { ColorEvent } from 'ngx-color';
 
 @Component({
   selector: 'aavantan-add-priority',
@@ -20,6 +21,10 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
 
   public priorityForm: FormGroup;
   public updateRequestInProcess: boolean;
+
+  // for color picker
+  public showColorBox: boolean;
+  public primaryColor = '#000000';
 
   constructor(protected notification: NzNotificationService,
               private _taskService: TaskService,
@@ -38,6 +43,7 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
     });
 
     if (this.addEditprojectPriorityData) {
+      this.primaryColor = this.addEditprojectPriorityData.color;
       this.priorityForm.get('name').patchValue(this.addEditprojectPriorityData.name);
       this.priorityForm.get('color').patchValue(this.addEditprojectPriorityData.color);
       this.priorityForm.get('id').patchValue(this.addEditprojectPriorityData.id);
@@ -87,6 +93,20 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
 
   handleCancel(): void {
     this.toggleAddPriorityShow.emit();
+  }
+
+  // color picker
+  public toggleColor() {
+    this.showColorBox = !this.showColorBox;
+  }
+  public clearColor() {
+    this.primaryColor = '#000000';
+    this.priorityForm.get('color').patchValue(this.primaryColor);
+    this.showColorBox = !this.showColorBox;
+  }
+  public changeComplete($event: ColorEvent) {
+    this.primaryColor = $event.color.hex;
+    this.priorityForm.get('color').patchValue($event.color.hex);
   }
 
   ngOnDestroy() {

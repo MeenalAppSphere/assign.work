@@ -7,6 +7,7 @@ import { SortableModule, TypeaheadModule } from 'ngx-bootstrap';
 import { AddPriorityComponent } from './add-priority/add-priority.component';
 import { AddStatusComponent } from './add-status/add-status.component';
 import { AddTaskTypeComponent } from './add-task-type/add-task-type.component';
+import { ColorSketchModule } from 'ngx-color/sketch';
 
 const routes: Routes = [
   { path: '', component: SettingsComponent }
@@ -18,7 +19,8 @@ const routes: Routes = [
     CommonModule,
     SharedModule,
     TypeaheadModule,
-    SortableModule
+    SortableModule,
+    ColorSketchModule
   ],
   exports: [
     AddStatusComponent

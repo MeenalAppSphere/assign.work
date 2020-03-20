@@ -7,15 +7,29 @@
         <nz-form-label>Priority<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
           title)</small></nz-form-label>
 
-        <nz-form-control>
+        <nz-form-control class="color-control-section">
           <nz-input-group [nzAddOnBefore]="profixIconButton">
             <input class="task-type-input" type="text" nzSize="small" formControlName="name" nz-input
                    placeholder="eg: Low"/>
-          </nz-input-group
-          >
+          </nz-input-group>
+
           <ng-template #profixIconButton>
-            <input type="color" nzSize="small" formControlName="color"/>
+
+            <div [ngStyle]="{'background':primaryColor}" (click)="toggleColor()" class="picker-btn">
+            </div>
+            <div *ngIf="showColorBox" class="picker-container">
+              <color-sketch [color]="primaryColor"
+                            (onChangeComplete)="changeComplete($event)"></color-sketch>
+
+              <div class="color-picker-footer">
+                <button nz-button type="button" nzType="primary" (click)="toggleColor()">Done</button>
+                <button nz-button type="button" nzType="default" (click)="clearColor()">Cancel</button>
+              </div>
+
+            </div>
+
           </ng-template>
+
         </nz-form-control>
 
       </nz-form-item>
