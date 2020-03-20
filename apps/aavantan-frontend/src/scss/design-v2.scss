@@ -662,6 +662,14 @@ $color-green : #42E3A3;
 .side-nav {
   width: 208px;
 }
+.header .logo {
+  width: 208px;
+  padding: 18px 0px;
+}
+.is-folded .header .logo {
+  padding: 0px 17px;
+}
+
 @media only screen and (max-width: 1440px) and (min-width: 992px){
   .header .logo {
     width: 208px;
@@ -675,7 +683,7 @@ $color-green : #42E3A3;
   }
 }
 
-@media only screen and (max-width: 1440px) and (min-width: 992px) {
+@media only screen and (min-width: 992px) {
   .common-layout .page-container {
     padding-left: 208px;
   }
