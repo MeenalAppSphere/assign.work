@@ -208,7 +208,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     };
 
     // update report by id
-    return await this.updateById(reportId, updatedTask, session);
+    return await this.updateById(reportId, updateReportObject, session);
   }
 
   /**

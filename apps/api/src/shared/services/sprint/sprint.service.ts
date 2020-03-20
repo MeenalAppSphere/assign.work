@@ -863,12 +863,19 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model
    */
   public async closeSprint(model: CloseSprintModel) {
-    return await this.withRetrySession(async (session: ClientSession) => {
-      // get project details
-      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+    if (!model) {
+      BadRequest('Sprint not found');
+    }
+
+    // get project details
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+
+    // close sprint process
+    const publishedSprint = await this.withRetrySession(async (session: ClientSession) => {
 
       // get current sprint details
       const currentSprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
+      let newSprint;
 
       // check if sprint is running
       if (!currentSprintDetails.sprintStatus || currentSprintDetails.sprintStatus.status !== SprintStatusEnum.inProgress) {
@@ -901,7 +908,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         return task.statusId.toString() === lastColumn.statusId.toString();
       }).map(task => task._id.toString());
 
-
       // check if sprint has tasks
       if (!allTaskList.length) {
         BadRequest('This Sprint don\'t have any tasks');
@@ -911,7 +917,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         // create new sprint and move all un-Finished task of this sprint to new sprint
 
         // new sprint process
-        const newSprint = await this.createSprintCommonProcess({
+        newSprint = await this.createSprintCommonProcess({
           sprint: model.sprint, doPublishSprint: model.createAndPublishNewSprint, unFinishedTasks
         }, projectDetails, session);
 
@@ -937,21 +943,38 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // close old sprint and set staus as completed
       await this.updateSprintStatus(model.sprintId, sprintStatus, session);
 
-      // get sprint details
-      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
-      this._sprintUtilityService.calculateSprintEstimates(sprintDetails);
+      // send emails for current sprint is closed
+      this._sprintUtilityService.sendSprintEmails(currentSprintDetails, EmailSubjectEnum.sprintClosed);
 
-      // send emails for sprint is closed
-      this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintClosed);
-
-      // check if create and publish new sprint is true than send emails
-      if (model.createAndPublishNewSprint) {
-        // send mails for sprint published
-        this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintPublished);
-      }
-
-      return sprintDetails;
+      return model.createAndPublishNewSprint ? newSprint[0] : null;
     });
+
+
+    // check if new sprint is created then create report and send email for new published sprint
+    if (model.createAndPublishNewSprint && publishedSprint) {
+
+      // create sprint report and send email process
+      return await this.withRetrySession(async (session: ClientSession) => {
+        // get new published sprint details
+        const sprintDetails = await this.getSprintDetails(publishedSprint.id, model.projectId);
+
+        // create report for sprint
+        const report = await this._sprintReportService.createReport(sprintDetails, projectDetails, session);
+
+        // update new sprint and set report id
+        await this.updateById(sprintDetails.id, { $set: { reportId: report[0].id } }, session);
+
+        // check if create and publish new sprint is true than send emails
+        if (model.createAndPublishNewSprint) {
+          // send mails for sprint published
+          this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintPublished);
+        }
+
+        return sprintDetails;
+      });
+    } else {
+      return 'Sprint Closed Successfully and all Un Finished To Back Log';
+    }
   }
 
   /**
