@@ -109,6 +109,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public getBoardListRequestModal: GetAllBoardsRequestModel = new GetAllBoardsRequestModel();
 
 
+  public moveStatusModalIsVisible: boolean;
+
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
@@ -500,11 +502,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public removeStatus(status: ProjectStatus) {
     this.deleteStatusInProcess = true;
-    this._projectService.removeStatus(this.currentProject.id, status.id).subscribe((res => {
-      this.deleteStatusInProcess = false;
-    }), (error => {
-      this.deleteStatusInProcess = false;
-    }));
+
+    try {
+      this.modal.confirm({
+        nzTitle: 'Do You really want to remove status?',
+        nzContent: '',
+        nzOnOk: () =>
+          new Promise(async (resolve, reject) => {
+
+            // await this._projectService.removeStatus(this.currentProject.id, status.id);
+
+            this.moveStatusModalIsVisible = true;
+
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+
+            resolve();
+          }).catch(() => console.log('Oops errors!'))
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+  }
+
+  public toggleMoveStatusShow(data:any) {
+    this.moveStatusModalIsVisible = !this.moveStatusModalIsVisible;
   }
 
   public toggleAddStatusShow(item?: ProjectStatus) {

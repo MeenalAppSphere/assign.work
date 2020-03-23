@@ -1,0 +1,44 @@
+<nz-modal [(nzVisible)]="moveStatusModalIsVisible" [nzTitle]="titleTemp" nzClassName="move-status-modal"
+          nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+
+  <form nz-form (ngSubmit)="moveTask()">
+    <div class="task-type-section">
+
+      <p class="m-b-20">Note : Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+      Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+      </p>
+
+      <nz-form-item style="max-width: 300px;">
+        <nz-form-label nzFor="taskType">Status</nz-form-label>
+        <nz-form-control class="issue-type-btn-grp">
+          <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight"
+                           style="width:100%!important;">
+            <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
+                    style="width:100%!important;">
+              {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}} <i nz-icon
+                                                                                                   nzType="caret-down"
+                                                                                                   theme="outline"></i>
+            </button>
+          </nz-button-group>
+          <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
+            <ul nz-menu>
+              <li nz-menu-item *ngFor="let item of statusDataSource" (click)="selectStatus(item)">
+                {{ item.name }}
+              </li>
+            </ul>
+          </nz-dropdown-menu>
+        </nz-form-control>
+      </nz-form-item>
+
+      <p class="m-t-10">You are going to move <strong>27 Tasks</strong> into</p>
+
+    </div>
+    <div *nzModalFooter>
+      <button type="button" nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button type="submit" nz-button nzType="primary" nzSize="small" (click)="moveTask()">Move</button>
+    </div>
+    <ng-template #titleTemp>
+      <span>Move Task</span>
+    </ng-template>
+  </form>
+</nz-modal>

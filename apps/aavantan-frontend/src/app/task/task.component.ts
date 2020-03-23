@@ -239,7 +239,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
-    // get all task statuses from store
+    // get all task status from store
     this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
       this.statusDataSource = statuses;
     });

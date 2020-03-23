@@ -783,5 +783,15 @@
   </ng-container>
   <!-- endregion -->
 
+
+  <!-- region move status -->
+  <ng-container *ngIf="moveStatusModalIsVisible">
+    <aavantan-move-status
+      [moveStatusModalIsVisible]="moveStatusModalIsVisible"
+      (toggleMoveStatusShow)="toggleMoveStatusShow($event)">
+    </aavantan-move-status>
+  </ng-container>
+  <!-- endregion -->
+
 </section>
 
