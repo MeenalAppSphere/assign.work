@@ -160,7 +160,7 @@
                         [nzPageSize]="sprintTasksRequest.count"
                         [nzShowPagination]="true" (nzPageIndexChange)="pageChanged($event, 'activeSprint')"
                         nzSize="small"
-                        class="draft-table">
+                        class="draft-table" [nzScroll]="{ y: '265px' }">
                 <thead>
                 <tr>
 

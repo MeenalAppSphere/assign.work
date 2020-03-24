@@ -505,7 +505,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     try {
       this.modal.confirm({
-        nzTitle: 'Do You really want to remove status?',
+        nzTitle: 'Do you really want to remove status?',
         nzContent: '',
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {

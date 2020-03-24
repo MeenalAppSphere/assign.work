@@ -269,26 +269,48 @@
           </aside>
           <aside class="col-md-6">
 
-            <nz-spin [nzSpinning]="resendInviteInProcess || removeCollaboratorInProcess">
+            <nz-spin [nzSpinning]="resendInviteInProcess || removeCollaboratorInProcess" nzTip="{{resendInviteInProcess ? 'Sending request...' : 'Removing...'}}">
               <div *ngIf="projectMembersList?.length>0">
                 <nz-form-label>Collaborators</nz-form-label>
-                <ul class="stages-list">
+                <ul class="stages-list collaborators-list">
                   <li *ngFor="let item of projectMembersList">
+
                     <a href="mailto:{{item.emailId}}">
-                      <nz-avatar class="m-r-10"
+
+                      <nz-avatar class="m-r-10 small"
                                  [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''"
                                  [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
-                      <span>{{item.emailId}}</span>
-                      <div class="m-l-35 text-muted small user-name-on-collaborator"
-                           *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</div>
+
+
+                      <!-- if first name not available -->
+                      <span *ngIf="!item.userDetails?.firstName" class="text-primary user-email-on-collaborator">
+                        {{item.emailId}}
+                      </span>
+                      <!---->
+
+                      <!-- if first name available -->
+                      <span *ngIf="item.userDetails?.firstName" class="text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}
+                      </span>
+
+                      <div class="m-l-35 text-primary user-email-on-collaborator" *ngIf="item.userDetails?.firstName">{{item.emailId}}</div>
+                      <!---->
+
+
                     </a>
+
                     <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
-                      <span class="text-warning p-r-10" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
-                      <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-info p-r-10"><i
-                        nz-icon nzType="mail" theme="outline"></i> Resend</span>
-                      <span class="text-success m-r-5" *ngIf="item.isInviteAccepted"><i nz-icon nzType="check-circle"
-                                                                                        class="m-r-5 text-success font-size-16"
-                                                                                        nzTheme="outline"></i>Accepted</span>
+
+
+                      <div>
+                        <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
+
+                        <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="d-block text-primary p-r-10 font-size-12 font-weight-light">
+                          <i nz-icon nzType="mail" theme="outline"></i> Resend Invite</span>
+                      </div>
+
+                      <span *ngIf="item.isInviteAccepted">
+                        <i nz-icon nzType="check-circle" class="m-r-5 m-t-5 text-green font-size-24" nzTheme="fill"></i>
+                      </span>
                       <!--                      <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-15 float-right"></i>-->
                     </span>
                   </li>
