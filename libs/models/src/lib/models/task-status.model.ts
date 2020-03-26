@@ -6,3 +6,8 @@ export class TaskStatusModel extends BaseDbModel {
   isDefault?: boolean;
   description: string;
 }
+
+export class DeleteStatusModel {
+  projectId: string;
+  statusId: string;
+}

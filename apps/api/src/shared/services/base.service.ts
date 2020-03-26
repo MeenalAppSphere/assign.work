@@ -109,7 +109,7 @@ export class BaseService<T extends Document> {
     return this.model.count(filter);
   }
 
-  public async delete(id: string): Promise<T> {
+  public async delete(id: string, session: ClientSession): Promise<T> {
     return this.model
       .update({ id: this.toObjectId(id) }, { isDeleted: true })
       .exec();

@@ -226,4 +226,13 @@ export class BoardUtilityService {
 
     return statues;
   }
+
+  /**
+   * get last column from board
+   * filter out hidden columns
+   * @param boardColumns
+   */
+  getLastColumnFromBoard(boardColumns: BoardColumns[]): BoardColumns {
+    return boardColumns.reverse().find(column => !column.isHidden);
+  }
 }

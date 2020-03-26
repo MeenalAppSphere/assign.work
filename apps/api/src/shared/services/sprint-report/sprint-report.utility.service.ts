@@ -1,12 +1,4 @@
-import {
-  Project,
-  Sprint,
-  SprintColumn,
-  SprintMembersCapacity,
-  SprintStatusEnum,
-  Task,
-  TaskStatusModel
-} from '@aavantan-app/models';
+import { Project, Sprint, SprintColumn, SprintMembersCapacity, Task, TaskStatusModel } from '@aavantan-app/models';
 import { sumBy } from 'lodash';
 import {
   SprintReportMembersModel,
@@ -16,9 +8,13 @@ import {
 } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { secondsToString, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import { BoardUtilityService } from '../board/board.utility.service';
 
 export class SprintReportUtilityService {
+  private _boardUtilityService: BoardUtilityService;
+
   constructor() {
+    this._boardUtilityService = new BoardUtilityService();
   }
 
   /**
@@ -34,7 +30,7 @@ export class SprintReportUtilityService {
     report.reportTasks = this.createSprintReportTasksFromSprintColumns(sprint.columns);
     report.reportMembers = this.createSprintReportMembersFromSprintMembers(sprint.membersCapacity);
 
-    const lastColumnOfSprint = project.activeBoard.columns[project.activeBoard.columns.length - 1];
+    const lastColumnOfSprint =  this._boardUtilityService.getLastColumnFromBoard(project.activeBoard.columns);
     report.finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
 
     return report;

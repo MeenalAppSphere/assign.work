@@ -1,5 +1,5 @@
 import { BaseService } from '../base.service';
-import { BoardColumns, DbCollection, Project, TaskStatusModel } from '@aavantan-app/models';
+import { BoardColumns, DbCollection, DeleteStatusModel, Project, TaskStatusModel } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from '../project/project.service';
@@ -9,10 +9,14 @@ import { TaskStatusUtilityService } from './task-status.utility.service';
 import { BadRequest } from '../../helpers/helpers';
 import { GeneralService } from '../general.service';
 import { BoardService } from '../board/board.service';
+import { TaskService } from '../task/task.service';
+import { BoardUtilityService } from '../board/board.utility.service';
 
 export class TaskStatusService extends BaseService<TaskStatusModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
+  private _taskService: TaskService;
   private _boardService: BoardService;
+  private _boardUtilityService: BoardUtilityService;
   private _utilityService: TaskStatusUtilityService;
 
   constructor(
@@ -24,9 +28,11 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
   onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
+    this._taskService = this._moduleRef.get(TaskService);
     this._boardService = this._moduleRef.get('BoardService');
 
     this._utilityService = new TaskStatusUtilityService();
+    this._boardUtilityService = new BoardUtilityService();
   }
 
   /**
@@ -98,6 +104,44 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       }
 
     });
+  }
+
+  async deleteStatus(model: DeleteStatusModel) {
+    if (!model) {
+      BadRequest('Status not found');
+    }
+
+    return this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+      const statusDetails = await this.getDetails(model.statusId, model.projectId);
+
+      const statusUsedInTasks = await this._taskService.dbModel.countDocuments({
+        projectId: model.projectId,
+        statusId: model.statusId
+      });
+
+      if (statusUsedInTasks > 0) {
+
+      } else {
+        // delete status
+        await this.delete(model.statusId, session);
+      }
+
+    });
+  }
+
+  private async deleteStatusProcess(statusId: string, project: Project, session: ClientSession) {
+    // delete status
+    await this.delete(statusId, session);
+
+    // delete column from board
+    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, statusId);
+
+    if (columnIndex > -1) {
+
+    } else {
+
+    }
   }
 
   /**

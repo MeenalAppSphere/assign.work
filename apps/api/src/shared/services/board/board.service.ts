@@ -753,7 +753,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
       // update sprint report and set final status ids in respect board changes
       if (sprintDetails.reportId) {
-        const lastColumnOfSprint = boardDetails.columns[boardDetails.columns.length - 1];
+        const lastColumnOfSprint = this._utilityService.getLastColumnFromBoard(boardDetails.columns);
         const finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
 
         await this._sprintReportService.updateById(sprintDetails.reportId, {

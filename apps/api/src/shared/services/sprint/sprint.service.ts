@@ -891,7 +891,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       });
 
       // get last column of sprint and last column statuses because we consider last column as completed status of a task for a sprint
-      const lastColumn = currentSprintDetails.columns[currentSprintDetails.columns.length - 1];
+      const lastColumn =  this._sprintUtilityService.getLastColumnFromSprint(currentSprintDetails.columns);
 
       // get all unfinished tasks
       const unFinishedTasks = allTaskList.filter(task => {

@@ -73,22 +73,6 @@ export class OrganizationService extends BaseService<Organization & Document> im
     });
   }
 
-  async deleteOrganization(id: string) {
-    const session = await this._organizationModel.db.startSession();
-    session.startTransaction();
-
-    try {
-      await this.delete(id);
-      await session.commitTransaction();
-      session.endSession();
-      return 'Organization Deleted Successfully!';
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
-  }
-
   async updateOrganization(id: string, organization: Partial<Organization>) {
     const session = await this._organizationModel.db.startSession();
     session.startTransaction();

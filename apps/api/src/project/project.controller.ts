@@ -35,11 +35,6 @@ export class ProjectController {
     return await this._projectService.createProject(model);
   }
 
-  @Delete(':id')
-  async deleteProject(@Param() id: string) {
-    return await this._projectService.delete(id);
-  }
-
   @Post('update')
   async updateProject(@Body() project: Project) {
     return await this._projectService.updateProject(project);

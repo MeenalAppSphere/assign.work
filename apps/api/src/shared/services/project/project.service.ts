@@ -476,19 +476,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
   }
 
   async deleteProject(id: string) {
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
-
-    try {
-      await this.delete(id);
+    return this.withRetrySession(async (session) => {
+      await this.delete(id, session);
       await session.commitTransaction();
       session.endSession();
       return 'Project Deleted Successfully!';
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
+    });
   }
 
   /**

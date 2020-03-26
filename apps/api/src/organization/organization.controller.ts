@@ -15,11 +15,6 @@ export class OrganizationController {
     return await this._organizationService.createOrganization(organization);
   }
 
-  @Delete(':id')
-  async deleteProject(@Query() id: string) {
-    return await this._organizationService.delete(id);
-  }
-
   @Put()
   async updateProject(@Query() id: string, @Body() organization: Organization) {
     return await this._organizationService.updateOrganization(id, organization);

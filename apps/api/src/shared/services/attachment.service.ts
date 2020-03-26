@@ -28,7 +28,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
 
   constructor(
     @InjectModel(DbCollection.attachments) protected readonly _attachmentModel: Model<AttachmentModel & Document>,
-    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef,
+    private _generalService: GeneralService, private readonly _moduleRef: ModuleRef
   ) {
     super(_attachmentModel);
     aws.config.update({
@@ -81,20 +81,17 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
   }
 
   async deleteAttachment(id: string): Promise<string> {
-    const attachmentDetails = await this._attachmentModel.findById(id).lean().exec();
+    return await this.withRetrySession(async (session) => {
+      const attachmentDetails = await this._attachmentModel.findById(id).lean().exec();
 
-    if (!attachmentDetails) {
-      throw new NotFoundException('Attachment not found!');
-    }
-    const filePath = attachmentDetails.url.split('image.assign.work/');
-    try {
+      if (!attachmentDetails) {
+        throw new NotFoundException('Attachment not found!');
+      }
+      const filePath = attachmentDetails.url.split('image.assign.work/');
       await this.s3Client.delete(filePath[1]);
-      await this.delete(id);
+      await this.delete(id, session);
       return 'Attachment Deleted Successfully';
-    } catch (e) {
-      throw e;
-    }
-
+    });
   }
 
   /**

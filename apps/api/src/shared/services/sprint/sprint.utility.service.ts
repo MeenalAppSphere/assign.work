@@ -1,4 +1,5 @@
 import {
+  BoardColumns,
   BoardModel,
   EmailSubjectEnum,
   EmailTemplatePathEnum,
@@ -586,5 +587,14 @@ export class SprintUtilityService {
     if (!validWorkingDays) {
       BadRequest('One of Collaborator working days are invalid');
     }
+  }
+
+  /**
+   * get last column from sprint column
+   * filter out hidden columns
+   * @param sprintColumns
+   */
+  getLastColumnFromSprint(sprintColumns: SprintColumn[]): SprintColumn {
+    return sprintColumns.reverse().find(column => !column.isHidden);
   }
 }
