@@ -1033,6 +1033,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           reportMembers: { $each: sprintReportMembers }
         }
       }, session);
+
+      return 'Collaborators Updated Successfully';
     });
   }
 
