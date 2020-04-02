@@ -9,7 +9,7 @@ import {
   GetSprintByIdRequestModel,
   MoveTaskToColumnModel,
   PublishSprintModel,
-  RemoveTaskFromSprintModel, SprintFilterTasksModel,
+  RemoveTaskFromSprintModel, SprintBaseRequest, SprintFilterTasksModel,
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
@@ -89,5 +89,10 @@ export class SprintController {
   @Post('get-closed-sprints')
   async getClosedSprints(@Body('projectId') projectId: string) {
     return await this._sprintService.getClosedSprintsList(projectId);
+  }
+
+  @Post('add-missing-collaborators')
+  async addMissingCollaborators(@Body() model: SprintBaseRequest) {
+    return await this._sprintService.addMissingCollaborators(model);
   }
 }

@@ -22,7 +22,7 @@ import {
   SprintErrorEnum,
   SprintErrorResponse,
   SprintErrorResponseItem,
-  SprintFilterTasksModel,
+  SprintFilterTasksModel, SprintMembersCapacity,
   SprintStatus,
   SprintStatusEnum,
   Task,
@@ -45,6 +45,7 @@ import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
+import { SprintReportUtilityService } from '../sprint-report/sprint-report.utility.service';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -100,6 +101,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
   private _sprintUtilityService: SprintUtilityService;
   private _boardUtilityService: BoardUtilityService;
+  private _sprintReportUtilityService: SprintReportUtilityService;
 
   constructor(
     @InjectModel(DbCollection.sprint) protected readonly _sprintModel: Model<Sprint & Document>,
@@ -116,6 +118,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     this._boardUtilityService = new BoardUtilityService();
     this._sprintUtilityService = new SprintUtilityService();
+    this._sprintReportUtilityService = new SprintReportUtilityService();
   }
 
   /**
@@ -891,7 +894,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       });
 
       // get last column of sprint and last column statuses because we consider last column as completed status of a task for a sprint
-      const lastColumn =  this._sprintUtilityService.getLastColumnFromSprint(currentSprintDetails.columns);
+      const lastColumn = this._sprintUtilityService.getLastColumnFromSprint(currentSprintDetails.columns);
 
       // get all unfinished tasks
       const unFinishedTasks = allTaskList.filter(task => {
@@ -984,6 +987,53 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    */
   public reassignSprintColumns(activeBoard: BoardModel, activeSprint: Sprint) {
     return this._sprintUtilityService.reassignSprintColumns(activeBoard, activeSprint);
+  }
+
+  /**
+   * add missing collaborators to sprint
+   * missing means who accepted project invitation after sprint was created or sprint published
+   * @param model
+   */
+  public addMissingCollaborators(model: SprintBaseRequest) {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+      const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
+      const sprintReport = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
+
+      const newMembers: SprintMembersCapacity[] = [];
+      let totalCapacity = sprintDetails.totalCapacity;
+
+      // add only those members who accepted invitation of project means active collaborator of project and not yet part of sprint
+      projectDetails.members
+        .filter(member => {
+          return member.isInviteAccepted && sprintDetails.membersCapacity.some(sprintMember => sprintMember.userId.toString() !== member.userId.toString());
+        })
+        .forEach(member => {
+          newMembers.push({
+            userId: member.userId,
+            workingCapacity: member.workingCapacity,
+            workingCapacityPerDay: member.workingCapacityPerDay,
+            workingDays: member.workingDays
+          });
+          totalCapacity += Number(member.workingCapacity);
+        });
+
+      // update sprint member capacity and total capacity
+      await this.updateById(sprintDetails.id, {
+        totalCapacity, $push: {
+          membersCapacity: { $each: newMembers }
+        }
+      }, session);
+
+      const sprintReportMembers = this._sprintReportUtilityService.createSprintReportMembersFromSprintMembers(newMembers);
+
+      // update sprint report and add missing members
+      await this._sprintReportService.updateById(sprintDetails.reportId, {
+        $push: {
+          reportMembers: { $each: sprintReportMembers }
+        }
+      }, session);
+    });
   }
 
   /**

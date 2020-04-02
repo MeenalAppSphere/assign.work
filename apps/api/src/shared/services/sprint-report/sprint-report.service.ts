@@ -76,17 +76,6 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       })
       .unwind({ path: '$reportMembers.user', preserveNullAndEmptyArrays: true })
       .unwind('reportTasks')
-      // .lookup({
-      //   from: DbCollection.tasks,
-      //   let: { taskId: '$reportTasks.taskId' },
-      //   pipeline: [
-      //     { $match: { $expr: { $eq: ['$_id', '$$taskId'] } } },
-      //     { $addFields: { id: '$_id' } },
-      //     { $project: { comments: 0, attachments: 0, watchers: 0, tags: 0, relatedItemId: 0, dependentItemId: 0,  } }
-      //   ],
-      //   as: 'reportTasks.task'
-      // })
-      // .unwind({ path: '$reportTasks.task', preserveNullAndEmptyArrays: true })
       .lookup({
         from: DbCollection.users,
         let: { assigneeId: '$reportTasks.assigneeId' },
@@ -97,16 +86,6 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
         as: 'reportTasks.assignee'
       })
       .unwind({ path: '$reportTasks.assignee', preserveNullAndEmptyArrays: true })
-      // .lookup({
-      //   from: DbCollection.taskStatus,
-      //   let: { statusId: '$reportTasks.statusId' },
-      //   pipeline: [
-      //     { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-      //     { $project: { name: 1 } }
-      //   ],
-      //   as: 'reportTasks.status'
-      // })
-      // .unwind({ path: '$reportTasks.status', preserveNullAndEmptyArrays: true })
       .lookup({
         from: DbCollection.taskPriority,
         let: { priorityId: '$reportTasks.priorityId' },
