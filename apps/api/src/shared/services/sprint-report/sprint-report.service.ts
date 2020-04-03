@@ -258,9 +258,10 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
           }
         };
       } else {
-        // remove/ pull that task from report
+        // directly remove task from report
+        sprintReportDetails.reportTasks.splice(taskIndexInReport, 1);
         updateDoc = {
-          $pull: { reportTasks: { taskId } }
+          $set: { reportTasks: sprintReportDetails.reportTasks }
         };
       }
 

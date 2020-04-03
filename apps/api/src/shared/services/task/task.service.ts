@@ -295,6 +295,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     const taskModel = new Task();
     const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
     let isAssigneeChanged = false;
+    let isStatusChanged = false;
 
     // update task process
     await this.withRetrySession(async (session: ClientSession) => {
@@ -310,7 +311,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       taskModel.taskTypeId = model.taskTypeId;
       taskModel.priorityId = model.priorityId;
-      taskModel.statusId = model.statusId;
       taskModel.createdById = model.createdById;
       taskModel.dependentItemId = model.dependentItemId;
       taskModel.relatedItemId = model.relatedItemId;
@@ -323,6 +323,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       taskModel.projectId = model.projectId;
       taskModel.sprintId = taskDetails.sprintId;
+
+      taskModel.statusId = model.statusId;
+      isStatusChanged = taskModel.statusId !== taskDetails.statusId.toString();
 
       // check if task assignee id is available or not
       // if not then assign it to task creator
@@ -404,8 +407,17 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           await this.updateTaskStatusInSprint(sprint, taskDetails, taskModel.statusId, projectDetails, session);
         }
 
-        // update sprint report
-        await this._sprintReportService.updateReportTask(sprint.reportId, taskModel, session);
+        // update sprint report, convert string to objectId for not loosing references
+        const reportTaskDoc: any = {
+          ...taskModel,
+          _id: toObjectId(taskModel.id),
+          assigneeId: toObjectId(taskModel.assigneeId),
+          statusId: toObjectId(taskModel.statusId),
+          priorityId: toObjectId(taskModel.priorityId),
+          taskTypeId: toObjectId(taskModel.taskTypeId),
+          createdById: toObjectId(taskModel.createdById)
+        };
+        await this._sprintReportService.updateReportTask(sprint.reportId, reportTaskDoc, session);
       }
 
       // update task by id
