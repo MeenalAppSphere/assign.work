@@ -9,7 +9,11 @@
 
     <span class="p-r-30">
       <span class="p-r-15 font-size-18 text-black">Sprint Report</span>
-      <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Sprint Report..."/>
+       <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText"
+            class="p-l-10"/>
+          <ng-template #templateTitleText>
+            Sprint Report
+          </ng-template>
     </span>
 
   </ng-template>
