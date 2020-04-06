@@ -267,7 +267,6 @@ $color-green : #42E3A3;
 }
 //side nav end
 
-
 .ant-btn {
   border-radius: 2px;
   min-width: 80px;
@@ -280,6 +279,8 @@ $color-green : #42E3A3;
     //box-shadow: 0px 3px 4px -2px #9b9b9b;
   }
 }
+
+
 .ant-btn.ant-btn-primary {
   background: $theme-blue; //linear-gradient(to top left, $orange-dark  0%, $orange-light 100%)!important;
   &:hover{
@@ -325,6 +326,42 @@ $color-green : #42E3A3;
   top: 8px;
   right: 7px;
 }
+
+
+.toggle-btn-group {
+
+  display: inline-flex!important;
+
+  .ant-btn {
+    min-width: 30px;
+    height:32px;
+    padding-top: 5px!important;
+    padding-bottom: 5px!important;
+  }
+
+  .ant-btn-link {
+    box-shadow: 0px 0px 0px 1px inset;
+    border-left: 0px;
+    min-width: 48px;
+  }
+  .ant-btn-link:first-child {
+    border-left: 1px solid $theme-blue;
+  }
+ 
+
+  .ant-btn-primary {
+    width: 36px;
+    min-width: 36px!important;
+    max-width: 36px;
+    padding-left: 0px!important;
+    padding-right: 0px!important;
+    img {
+      opacity: 0.6;
+    }
+  }
+}
+
+
 .p-0{
   padding: 0px;
 }

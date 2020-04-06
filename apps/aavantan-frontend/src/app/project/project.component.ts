@@ -177,6 +177,10 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.getAllTasks();
   }
 
+  public changeView(view: string) {
+    this.view = view;
+  }
+
   public ngOnDestroy() {
   }
 }
