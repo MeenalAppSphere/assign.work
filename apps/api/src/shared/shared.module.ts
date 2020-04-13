@@ -60,8 +60,10 @@ const providers = [
         new winston.transports.File({
           format: winston.format.combine(
             winston.format.timestamp(),
-            winston.format.prettyPrint()
+            winston.format.prettyPrint(),
           ),
+          tailable: true,
+          maxFiles: 2,
           filename: resolvePathHelper('error.log')
         })
       ]

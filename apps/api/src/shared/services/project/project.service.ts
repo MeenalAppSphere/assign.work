@@ -31,6 +31,7 @@ import { BaseService } from '../base.service';
 import { UsersService } from '../users.service';
 import { GeneralService } from '../general.service';
 import {
+  DEFAULT_PROJECT_TEMPLATE_TYPE,
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
@@ -139,7 +140,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }
 
       // get default settings in respect of chosen template
-      const defaultSettings = getDefaultSettingsFromProjectTemplate(projectModel.template);
+      const defaultSettings = getDefaultSettingsFromProjectTemplate(DEFAULT_PROJECT_TEMPLATE_TYPE);
 
       // create default task types for project
       const defaultTaskTypes = await this._taskTypesService.createDefaultTaskTypes(defaultSettings.taskTypes, session);
@@ -167,7 +168,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         $push: {
           'settings.statuses': { $each: projectModel.settings.statuses },
           'settings.taskTypes': { $each: projectModel.settings.taskTypes },
-          'settings.priorities': { $each: projectModel.settings.priorities },
+          'settings.priorities': { $each: projectModel.settings.priorities }
         },
         $set: { activeBoardId: defaultBoard[0].id }
       }, session);
@@ -432,23 +433,24 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param model
    */
   async updateProjectTemplate(model: ProjectTemplateUpdateModel) {
-    const projectDetails: Project = await this.getProjectDetails(model.projectId);
+    // update project template process
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      await this.getProjectDetails(model.projectId);
 
-    const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template);
-    if (invalidTemplate) {
-      throw new BadRequestException('invalid project template');
-    }
+      // check if valid template selected
+      const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template);
+      if (invalidTemplate) {
+        throw new BadRequestException('invalid project template');
+      }
 
-    const session = await this.startSession();
-    try {
-      await this.updateById(model.projectId, { $set: { template: model.template } }, session);
-      await this.commitTransaction(session);
-      const result = await this.findById(model.projectId, projectBasicPopulation);
-      return this.parseProjectToVm(result);
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
+      // update project's template
+      return await this.updateById(model.projectId, { $set: { template: model.template } }, session);
+    });
+
+    // find project and return updated project
+    const result = await this.findById(model.projectId, projectBasicPopulation);
+    return this.parseProjectToVm(result);
   }
 
   /**
