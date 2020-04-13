@@ -1,5 +1,5 @@
 import { Project, ProjectDefaultStatusEnum, TaskStatusModel } from '@aavantan-app/models';
-import { BadRequest, isValidString } from '../../helpers/helpers';
+import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
 
 export class TaskStatusUtilityService {
   constructor() {
@@ -18,6 +18,11 @@ export class TaskStatusUtilityService {
     // is status name has valid string
     if (!isValidString(status.name, true)) {
       BadRequest('No Special characters allowed in status name');
+    }
+
+    // max length validator
+    if (!maxLengthValidator(status.name, 50)) {
+      BadRequest('Maximum 10 characters allowed in Task Status name');
     }
   }
 

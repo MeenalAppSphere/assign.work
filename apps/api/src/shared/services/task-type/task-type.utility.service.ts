@@ -1,5 +1,5 @@
 import { TaskTypeModel } from '@aavantan-app/models';
-import { BadRequest, isValidString } from '../../helpers/helpers';
+import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
 
 export class TaskTypeUtilityService {
   constructor() {
@@ -17,6 +17,11 @@ export class TaskTypeUtilityService {
     // name validation
     if (!isValidString(taskType.name)) {
       BadRequest('No special characters allowed in name');
+    }
+
+    // max length validator
+    if (!maxLengthValidator(taskType.name, 10)) {
+      BadRequest('Maximum 10 characters allowed in Task type name');
     }
 
     // display name validation

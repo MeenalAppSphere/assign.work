@@ -1,5 +1,5 @@
 import { TaskPriorityModel } from '@aavantan-app/models';
-import { BadRequest, isValidString } from '../../helpers/helpers';
+import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
 
 export class TaskPriorityUtilityService {
   constructor() {
@@ -17,6 +17,11 @@ export class TaskPriorityUtilityService {
     // name validation
     if (!isValidString(taskPriority.name)) {
       BadRequest('No special characters allowed in name');
+    }
+
+    // max length validator
+    if (!maxLengthValidator(taskPriority.name, 10)) {
+      BadRequest('Maximum 10 characters allowed in Task Priority name');
     }
 
     // color validation
