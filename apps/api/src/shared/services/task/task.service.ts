@@ -5,9 +5,12 @@ import {
   DbCollection,
   DeleteTaskModel,
   GetAllTaskRequestModel,
-  GetTaskByIdOrDisplayNameModel, MongooseQueryModel,
-  Project, Sprint,
-  SprintStatusEnum, SprintTaskFilterModel,
+  GetTaskByIdOrDisplayNameModel,
+  MongooseQueryModel,
+  Project,
+  Sprint,
+  SprintStatusEnum,
+  SprintTaskFilterModel,
   Task,
   TaskFilterCondition,
   TaskFilterModel,
@@ -19,7 +22,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
 import { BadRequest, stringToSeconds, toObjectId } from '../../helpers/helpers';
-import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
 import { TaskTypeService } from '../task-type/task-type.service';
@@ -31,7 +33,6 @@ import { ProjectUtilityService } from '../project/project.utility.service';
 import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { BoardUtilityService } from '../board/board.utility.service';
-import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
 import * as moment from 'moment';
 

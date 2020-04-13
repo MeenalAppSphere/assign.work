@@ -289,7 +289,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
           // check if user is not adding him/her self to project as collaborator
           if (userDetails.id === this._generalService.userId) {
-            throw new BadRequestException('You can\'t add your self as collaborator');
+            BadRequest('You can\'t add your self as collaborator');
           }
 
           collaboratorsAlreadyInDb.push({ emailId: userDetails.emailId, userId: userDetails.id });

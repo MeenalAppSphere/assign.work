@@ -1,4 +1,6 @@
-import { DefaultSettingsModel, ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
+import { DefaultSettingsModel } from '@aavantan-app/models';
+import { ProjectTemplateEnum } from 'libs/models/src/lib/enums';
+import { ProjectWorkingDays } from 'libs/models/src/lib/models';
 
 // default query filter
 export const DEFAULT_QUERY_FILTER = {
