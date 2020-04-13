@@ -1,5 +1,4 @@
-import { ProjectTemplateEnum } from 'libs/models/src/lib/enums';
-import { ProjectWorkingDays } from 'libs/models/src/lib/models';
+import { DefaultSettingsModel, ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
 
 // default query filter
 export const DEFAULT_QUERY_FILTER = {
@@ -64,3 +63,49 @@ export const MAX_TRANSACTION_RETRY_TIMEOUT = 120000;
 
 // default board name that will be created when you create a project
 export const DEFAULT_BOARD_NAME = 'BOARD - 1';
+
+// default settings for software development template
+export const DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT: DefaultSettingsModel = {
+  taskTypes: [
+    { name: 'BUG', displayName: 'BUG', color: '#FF0000', description: 'BUG' },
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK' },
+    { name: 'Story', displayName: 'Story', color: '#008000', description: 'Story' },
+    { name: 'EPIC', displayName: 'EPIC', color: '#000000', description: 'EPIC' }
+  ],
+  priorities: [
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA' },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C' },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000' },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000' }
+  ]
+};
+
+// default settings for task management template
+export const DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT: DefaultSettingsModel = {
+  taskTypes: [
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK' }
+  ],
+  priorities: [
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA' },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C' },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000' },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000' }
+  ]
+};
+
+// default settings for accounting template
+export const DEFAULT_SETTINGS_FOR_ACCOUNTING: DefaultSettingsModel = {
+  taskTypes: [
+    { name: 'GST', displayName: 'GST', color: '#0000FF', description: 'GST' },
+    { name: 'COMP', displayName: 'COMP', color: '#008000', description: 'COMP' },
+    { name: 'AUDIT', displayName: 'AUDIT', color: '#EE82EE', description: 'AUDIT' },
+    { name: 'MEETINGS', displayName: 'MEETINGS', color: '#CD853F', description: 'MEETINGS' },
+    { name: 'CALLS', displayName: 'CALLS', color: '#ADFF2F', description: 'CALLS' }
+  ],
+  priorities: [
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA' },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C' },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000' },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000' }
+  ]
+};

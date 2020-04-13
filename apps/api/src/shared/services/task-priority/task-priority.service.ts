@@ -1,6 +1,6 @@
 import { BaseService } from '../base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { DbCollection, TaskPriorityModel } from '@aavantan-app/models';
+import { DbCollection, TaskPriorityModel, TaskTypeModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
@@ -73,6 +73,15 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
     return this.dbModel.aggregate([{
       $match: { projectId: this.toObjectId(projectId), isDeleted: false }
     }, { $project: { createdAt: 0, updatedAt: 0, '__v': 0 } }, aggregateConvert_idToId]);
+  }
+
+  /**
+   * create default task priority in respect of chosen template
+   * @param taskPriorities
+   * @param session
+   */
+  public async createDefaultTaskPriorities(taskPriorities: TaskPriorityModel[], session: ClientSession) {
+    return await this.create(taskPriorities, session) as Array<Document & TaskPriorityModel>;
   }
 
   /**

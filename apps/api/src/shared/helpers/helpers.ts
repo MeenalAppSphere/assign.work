@@ -1,11 +1,14 @@
-import { EmailSubjectEnum, ProjectWorkingDays } from '@aavantan-app/models';
+import { DefaultSettingsModel, EmailSubjectEnum, ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
 import * as path from 'path';
 import * as moment from 'moment';
 
 import {
   DEFAULT_DECIMAL_PLACES,
   DEFAULT_INVITATION_EXPIRY,
-  DEFAULT_RESET_PASSWORD_CODE_EXPIRY
+  DEFAULT_RESET_PASSWORD_CODE_EXPIRY,
+  DEFAULT_SETTINGS_FOR_ACCOUNTING,
+  DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT,
+  DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT
 } from './defaultValueConstant';
 import { BadRequestException } from '@nestjs/common';
 import { emailSubjectTemplateMapper } from '@aavantan-app/models';
@@ -242,4 +245,23 @@ export const toObjectId = (id: string | number): Types.ObjectId => {
  */
 export const maxLengthValidator = (property: string = '', maxLength: number) => {
   return !(property.length > maxLength);
+};
+
+/**
+ * get default settings from project template
+ */
+export const getDefaultSettingsFromProjectTemplate = (template: ProjectTemplateEnum): DefaultSettingsModel => {
+  switch (template) {
+    case ProjectTemplateEnum.accounts:
+      return DEFAULT_SETTINGS_FOR_ACCOUNTING;
+
+    case ProjectTemplateEnum.softwareDevelopment:
+      return DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT;
+
+    case ProjectTemplateEnum.taskManagement:
+      return DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT;
+
+    case ProjectTemplateEnum.production:
+      return { taskTypes: [], priorities: [] };
+  }
 };

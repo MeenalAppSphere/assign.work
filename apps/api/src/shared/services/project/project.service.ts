@@ -22,7 +22,7 @@ import {
   SearchProjectTags,
   Sprint,
   SprintColumn,
-  SwitchProjectRequest, TaskStatusModel,
+  SwitchProjectRequest,
   User,
   UserStatus
 } from '@aavantan-app/models';
@@ -37,7 +37,7 @@ import {
 } from '../../helpers/defaultValueConstant';
 import {
   BadRequest,
-  generateUtcDate,
+  generateUtcDate, getDefaultSettingsFromProjectTemplate,
   hourToSeconds,
   secondsToHours,
   validWorkingDaysChecker
@@ -50,6 +50,8 @@ import { OrganizationService } from '../organization/organization.service';
 import { ProjectUtilityService } from './project.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { BoardService } from '../board/board.service';
+import { TaskTypeService } from '../task-type/task-type.service';
+import { TaskPriorityService } from '../task-priority/task-priority.service';
 
 const projectBasicPopulation = [{
   path: 'members.userDetails',
@@ -63,6 +65,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _organizationService: OrganizationService;
   private _utilityService: ProjectUtilityService;
   private _taskStatusService: TaskStatusService;
+  private _taskTypesService: TaskTypeService;
+  private _taskPriorityService: TaskPriorityService;
   private _boardService: BoardService;
 
   constructor(
@@ -81,6 +85,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._invitationService = this._moduleRef.get('InvitationService');
     this._organizationService = this._moduleRef.get('OrganizationService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
+    this._taskTypesService = this._moduleRef.get('TaskTypeService');
+    this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._boardService = this._moduleRef.get('BoardService');
 
     this._utilityService = new ProjectUtilityService();
@@ -125,7 +131,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       // create default statues for project
       const defaultStatues = await this._taskStatusService.createDefaultStatuses(createdProject[0], session);
-
       if (defaultStatues && defaultStatues.length) {
         defaultStatues.forEach(status => {
           projectModel.settings.statuses.push(status.id);
@@ -133,12 +138,37 @@ export class ProjectService extends BaseService<Project & Document> implements O
         });
       }
 
+      // get default settings in respect of chosen template
+      const defaultSettings = getDefaultSettingsFromProjectTemplate(projectModel.template);
+
+      // create default task types for project
+      const defaultTaskTypes = await this._taskTypesService.createDefaultTaskTypes(defaultSettings.taskTypes, session);
+      if (defaultTaskTypes && defaultTaskTypes.length) {
+        defaultTaskTypes.forEach(taskType => {
+          projectModel.settings.taskTypes.push(taskType.id);
+          createdProject[0].settings.taskTypes.push(taskType.id);
+        });
+      }
+
+      // create default task priorities for project
+      const defaultTaskPriorities = await this._taskPriorityService.createDefaultTaskPriorities(defaultSettings.priorities, session);
+      if (defaultTaskPriorities && defaultTaskPriorities.length) {
+        defaultTaskPriorities.forEach(priority => {
+          projectModel.settings.priorities.push(priority.id);
+          createdProject[0].settings.priorities.push(priority.id);
+        });
+      }
+
       // create default board goes here
       const defaultBoard = await this._boardService.createDefaultBoard(createdProject[0], session);
 
-      // update project and set default statues and active board
+      // update project and set default settings and active board
       await this.updateById(createdProject[0].id, {
-        $push: { 'settings.statuses': { $each: projectModel.settings.statuses } },
+        $push: {
+          'settings.statuses': { $each: projectModel.settings.statuses },
+          'settings.taskTypes': { $each: projectModel.settings.taskTypes },
+          'settings.priorities': { $each: projectModel.settings.priorities },
+        },
         $set: { activeBoardId: defaultBoard[0].id }
       }, session);
 
