@@ -31,7 +31,6 @@ import { BaseService } from '../base.service';
 import { UsersService } from '../users.service';
 import { GeneralService } from '../general.service';
 import {
-  DEFAULT_PROJECT_TEMPLATE_TYPE,
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
@@ -130,46 +129,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create project and get project id from them
       const createdProject = await this.create([projectModel], session);
 
-      // create default statues for project
-      const defaultStatues = await this._taskStatusService.createDefaultStatuses(createdProject[0], session);
-      if (defaultStatues && defaultStatues.length) {
-        defaultStatues.forEach(status => {
-          projectModel.settings.statuses.push(status.id);
-          createdProject[0].settings.statuses.push(status.id);
-        });
-      }
-
-      // get default settings in respect of chosen template
-      const defaultSettings = getDefaultSettingsFromProjectTemplate(DEFAULT_PROJECT_TEMPLATE_TYPE);
-
-      // create default task types for project
-      const defaultTaskTypes = await this._taskTypesService.createDefaultTaskTypes(defaultSettings.taskTypes, session);
-      if (defaultTaskTypes && defaultTaskTypes.length) {
-        defaultTaskTypes.forEach(taskType => {
-          projectModel.settings.taskTypes.push(taskType.id);
-          createdProject[0].settings.taskTypes.push(taskType.id);
-        });
-      }
-
-      // create default task priorities for project
-      const defaultTaskPriorities = await this._taskPriorityService.createDefaultTaskPriorities(defaultSettings.priorities, session);
-      if (defaultTaskPriorities && defaultTaskPriorities.length) {
-        defaultTaskPriorities.forEach(priority => {
-          projectModel.settings.priorities.push(priority.id);
-          createdProject[0].settings.priorities.push(priority.id);
-        });
-      }
-
       // create default board goes here
       const defaultBoard = await this._boardService.createDefaultBoard(createdProject[0], session);
 
       // update project and set default settings and active board
       await this.updateById(createdProject[0].id, {
-        $push: {
-          'settings.statuses': { $each: projectModel.settings.statuses },
-          'settings.taskTypes': { $each: projectModel.settings.taskTypes },
-          'settings.priorities': { $each: projectModel.settings.priorities }
-        },
         $set: { activeBoardId: defaultBoard[0].id }
       }, session);
 
@@ -436,7 +400,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     // update project template process
     await this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      await this.getProjectDetails(model.projectId);
+      const project = await this.getProjectDetails(model.projectId);
 
       // check if valid template selected
       const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template);
@@ -444,8 +408,42 @@ export class ProjectService extends BaseService<Project & Document> implements O
         throw new BadRequestException('invalid project template');
       }
 
+      // create default statues
+      const defaultStatues = await this._taskStatusService.createDefaultStatuses(project, session);
+      if (defaultStatues && defaultStatues.length) {
+        defaultStatues.forEach(status => {
+          project.settings.statuses.push(status.id);
+        });
+      }
+
+      // get default settings in respect of chosen template
+      const defaultSettings = getDefaultSettingsFromProjectTemplate(model.template);
+
+      // create default task types for project
+      const defaultTaskTypes = await this._taskTypesService.createDefaultTaskTypes(defaultSettings.taskTypes, session);
+      if (defaultTaskTypes && defaultTaskTypes.length) {
+        defaultTaskTypes.forEach(taskType => {
+          project.settings.taskTypes.push(taskType.id);
+        });
+      }
+
+      // create default task priorities for project
+      const defaultTaskPriorities = await this._taskPriorityService.createDefaultTaskPriorities(defaultSettings.priorities, session);
+      if (defaultTaskPriorities && defaultTaskPriorities.length) {
+        defaultTaskPriorities.forEach(priority => {
+          project.settings.priorities.push(priority.id);
+        });
+      }
+
       // update project's template
-      return await this.updateById(model.projectId, { $set: { template: model.template } }, session);
+      return await this.updateById(model.projectId, {
+        $set: { template: model.template },
+        $push: {
+          'settings.statuses': { $each: project.settings.statuses },
+          'settings.taskTypes': { $each: project.settings.taskTypes },
+          'settings.priorities': { $each: project.settings.priorities }
+        }
+      }, session);
     });
 
     // find project and return updated project

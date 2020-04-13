@@ -322,7 +322,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.enableInviteBtn = false;
   }
 
-  public onKeydown(event, isPressedInvite) {
+  public onKeydown(event, isPressedInvite?) {
     if (event.key === 'Enter' || isPressedInvite) {
       const member: User = {
         emailId: this.collaboratorForm.get('collaborator').value
