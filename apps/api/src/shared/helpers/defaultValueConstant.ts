@@ -69,45 +69,58 @@ export const DEFAULT_BOARD_NAME = 'BOARD - 1';
 // default settings for software development template
 export const DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'BUG', displayName: 'BUG', color: '#FF0000', description: 'BUG' },
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK' },
-    { name: 'Story', displayName: 'Story', color: '#008000', description: 'Story' },
-    { name: 'EPIC', displayName: 'EPIC', color: '#000000', description: 'EPIC' }
+    { name: 'BUG', displayName: 'BUG', color: '#FF0000', description: 'BUG', isDefault: true },
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK', isDefault: true },
+    { name: 'Story', displayName: 'Story', color: '#008000', description: 'Story', isDefault: true },
+    { name: 'EPIC', displayName: 'EPIC', color: '#000000', description: 'EPIC', isDefault: true }
   ],
   priorities: [
-    { name: 'LOW', description: 'LOW', color: '#E6E6FA' },
-    { name: 'HIGH', description: 'HIGH', color: '#DC143C' },
-    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000' },
-    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000' }
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
   ]
 };
 
 // default settings for task management template
 export const DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK' }
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK', isDefault: true }
   ],
   priorities: [
-    { name: 'LOW', description: 'LOW', color: '#E6E6FA' },
-    { name: 'HIGH', description: 'HIGH', color: '#DC143C' },
-    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000' },
-    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000' }
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
   ]
 };
 
 // default settings for accounting template
 export const DEFAULT_SETTINGS_FOR_ACCOUNTING: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'GST', displayName: 'GST', color: '#0000FF', description: 'GST' },
-    { name: 'COMP', displayName: 'COMP', color: '#008000', description: 'COMP' },
-    { name: 'AUDIT', displayName: 'AUDIT', color: '#EE82EE', description: 'AUDIT' },
-    { name: 'MEETINGS', displayName: 'MEETINGS', color: '#CD853F', description: 'MEETINGS' },
-    { name: 'CALLS', displayName: 'CALLS', color: '#ADFF2F', description: 'CALLS' }
+    { name: 'GST', displayName: 'GST', color: '#0000FF', description: 'GST', isDefault: true },
+    { name: 'COMP', displayName: 'COMP', color: '#008000', description: 'COMP', isDefault: true },
+    { name: 'AUDIT', displayName: 'AUDIT', color: '#EE82EE', description: 'AUDIT', isDefault: true },
+    { name: 'MEETINGS', displayName: 'MEETINGS', color: '#CD853F', description: 'MEETINGS', isDefault: true },
+    { name: 'CALLS', displayName: 'CALLS', color: '#ADFF2F', description: 'CALLS', isDefault: true }
   ],
   priorities: [
-    { name: 'LOW', description: 'LOW', color: '#E6E6FA' },
-    { name: 'HIGH', description: 'HIGH', color: '#DC143C' },
-    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000' },
-    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000' }
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
+  ]
+};
+
+// default settings for accounting template
+export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
+  taskTypes: [
+    { name: 'STATUS', displayName: 'STATUS', color: '#0000FF', description: 'STATUS', isDefault: true }
+  ],
+  priorities: [
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
   ]
 };

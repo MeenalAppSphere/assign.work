@@ -5,4 +5,5 @@ export class TaskPriorityModel extends BaseDbModel {
   color: string;
   projectId?: string;
   description?: string;
+  isDefault?: boolean;
 }

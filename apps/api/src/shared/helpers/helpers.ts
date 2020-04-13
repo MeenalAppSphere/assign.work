@@ -6,7 +6,7 @@ import {
   DEFAULT_DECIMAL_PLACES,
   DEFAULT_INVITATION_EXPIRY,
   DEFAULT_RESET_PASSWORD_CODE_EXPIRY,
-  DEFAULT_SETTINGS_FOR_ACCOUNTING,
+  DEFAULT_SETTINGS_FOR_ACCOUNTING, DEFAULT_SETTINGS_FOR_PRODUCTION,
   DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT,
   DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT
 } from './defaultValueConstant';
@@ -262,6 +262,6 @@ export const getDefaultSettingsFromProjectTemplate = (template: ProjectTemplateE
       return DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT;
 
     case ProjectTemplateEnum.production:
-      return { taskTypes: [], priorities: [] };
+      return DEFAULT_SETTINGS_FOR_PRODUCTION;
   }
 };

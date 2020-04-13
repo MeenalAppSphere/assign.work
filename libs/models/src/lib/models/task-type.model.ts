@@ -6,4 +6,5 @@ export class TaskTypeModel extends BaseDbModel {
   displayName?: string;
   projectId?: string;
   description: string;
+  isDefault?: boolean;
 }
