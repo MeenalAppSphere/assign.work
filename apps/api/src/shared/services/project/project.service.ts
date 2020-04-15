@@ -6,12 +6,9 @@ import {
   GetAllProjectsModel,
   Invitation,
   MongooseQueryModel,
-  Organization,
   Project,
   ProjectInvitationType,
   ProjectMembers,
-  ProjectStages,
-  ProjectStageSequenceChangeRequest,
   ProjectTags,
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
@@ -20,13 +17,11 @@ import {
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
-  Sprint,
-  SprintColumn,
   SwitchProjectRequest,
   User,
   UserStatus
 } from '@aavantan-app/models';
-import { ClientSession, Document, Model, Types } from 'mongoose';
+import { ClientSession, Document, Model } from 'mongoose';
 import { BaseService } from '../base.service';
 import { UsersService } from '../users.service';
 import { GeneralService } from '../general.service';
@@ -37,7 +32,8 @@ import {
 } from '../../helpers/defaultValueConstant';
 import {
   BadRequest,
-  generateUtcDate, getDefaultSettingsFromProjectTemplate,
+  generateUtcDate,
+  getDefaultSettingsFromProjectTemplate,
   hourToSeconds,
   secondsToHours,
   validWorkingDaysChecker
@@ -66,9 +62,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
-    @InjectModel(DbCollection.users) private readonly _userModel: Model<User & Document>,
-    @InjectModel(DbCollection.organizations) private readonly _organizationModel: Model<Organization & Document>,
-    @InjectModel(DbCollection.sprint) private readonly _sprintModel: Model<Sprint & Document>,
     private readonly _generalService: GeneralService, private _moduleRef: ModuleRef, private _emailService: EmailService
   ) {
     super(_projectModel);
@@ -107,7 +100,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     const newProject = await this.withRetrySession(async (session: ClientSession) => {
       // get organization details
-      await this.getOrganizationDetails(model.organizationId);
+      await this._organizationService.getOrganizationDetails(model.organizationId);
 
       // get user details
       const userDetails = await this._userService.findById(this._generalService.userId);
@@ -142,7 +135,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       return createdProject[0];
     });
     // get project by id and send it
-    return await this.findById(newProject.id);
+    return await this.getProjectDetails(newProject.id);
   }
 
   /**
@@ -166,7 +159,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     // update project process
     await this.withRetrySession(async (session: ClientSession) => {
       // get organization details
-      await this.getOrganizationDetails(model.organizationId);
+      await this._organizationService.getOrganizationDetails(model.organizationId);
       await this.getProjectDetails(model.id);
 
       const updatedProject = new Project();
@@ -512,23 +505,23 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param model
    */
   async switchProject(model: SwitchProjectRequest) {
-    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get organization details
+      await this._organizationService.getOrganizationDetails(model.organizationId);
 
-    const session = await this.startSession();
+      // get project details
+      await this.getProjectDetails(model.projectId);
 
-    try {
-      await this._userModel.updateOne({ _id: this._generalService.userId }, {
+      // update user current project
+      return await this._userService.updateById(this._generalService.userId, {
         $set: {
           currentProject: model.projectId, currentOrganizationId: model.organizationId
         }
-      }, { session });
-      await this.commitTransaction(session);
-      return await this._userService.getUserProfile(this._generalService.userId);
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
+      }, session);
+    });
+
+    // return user profile
+    return await this._userService.getUserProfile(this._generalService.userId);
   }
 
   /**
@@ -539,7 +532,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param model
    */
   async searchProject(model: SearchProjectRequest) {
-    const organizationDetails = await this.getOrganizationDetails(model.organizationId);
+    const organizationDetails = await this._organizationService.getOrganizationDetails(model.organizationId);
 
     const query = new MongooseQueryModel();
 
@@ -741,28 +734,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     // convert to vm
     return this.parseProjectToVm(projectDetails);
-  }
-
-  /**
-   * get organization details by id
-   * @param id: organization id
-   */
-  private async getOrganizationDetails(id: string) {
-    if (!this.isValidObjectId(id)) {
-      throw new NotFoundException('Organization not found');
-    }
-    const organizationDetails: Organization = await this._organizationModel.findById(id).select('members createdBy updatedBy').lean().exec();
-
-    if (!organizationDetails) {
-      throw new NotFoundException('Organization not Found');
-    } else {
-      const isMember = organizationDetails.members.some(s => s.toString() === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
-
-      if (!isMember) {
-        throw new BadRequestException('You are not a part of this Organization');
-      }
-    }
-    return organizationDetails;
   }
 
   /**

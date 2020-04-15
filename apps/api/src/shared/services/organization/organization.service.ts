@@ -172,4 +172,28 @@ export class OrganizationService extends BaseService<Organization & Document> im
 
     return !!(queryResult && queryResult.length);
   }
+
+  /**
+   * get organization details by id
+   * @param id: organization id
+   */
+  public async getOrganizationDetails(id: string) {
+    if (!this.isValidObjectId(id)) {
+      throw new NotFoundException('Organization not found');
+    }
+    const organizationDetails: Organization = await this.findOne({
+      filter: { _id: id }, select: 'members createdBy updatedBy', lean: true
+    });
+
+    if (!organizationDetails) {
+      throw new NotFoundException('Organization not Found');
+    } else {
+      const isMember = organizationDetails.members.some(s => s.toString() === this._generalService.userId) || (organizationDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
+
+      if (!isMember) {
+        throw new BadRequestException('You are not a part of this Organization');
+      }
+    }
+    return organizationDetails;
+  }
 }
