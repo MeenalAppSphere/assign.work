@@ -1,4 +1,4 @@
-import { TaskPriorityModel } from '@aavantan-app/models';
+import { Project, TaskPriorityModel, TaskTypeModel } from '@aavantan-app/models';
 import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
 
 export class TaskPriorityUtilityService {
@@ -28,5 +28,14 @@ export class TaskPriorityUtilityService {
     if (!taskPriority.color) {
       BadRequest('Please choose color');
     }
+  }
+
+  public prepareDefaultTaskPriorities(taskPriorities: TaskPriorityModel[], project: Project): TaskPriorityModel[] {
+    return taskPriorities.map(taskPriority => {
+      taskPriority.projectId = project._id;
+      taskPriority.createdById = project.createdById;
+      taskPriority.description = `${taskPriority.name} is a default task Priority which is provided when you create a new Project`;
+      return taskPriority;
+    });
   }
 }

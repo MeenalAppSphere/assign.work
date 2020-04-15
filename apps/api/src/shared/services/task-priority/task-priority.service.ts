@@ -1,6 +1,6 @@
 import { BaseService } from '../base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { DbCollection, TaskPriorityModel, TaskTypeModel } from '@aavantan-app/models';
+import { DbCollection, Project, TaskPriorityModel, TaskTypeModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
@@ -78,10 +78,13 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
   /**
    * create default task priority in respect of chosen template
    * @param taskPriorities
+   * @param project
    * @param session
    */
-  public async createDefaultTaskPriorities(taskPriorities: TaskPriorityModel[], session: ClientSession) {
-    return await this.create(taskPriorities, session) as Array<Document & TaskPriorityModel>;
+  public async createDefaultTaskPriorities(taskPriorities: TaskPriorityModel[], project: Project, session: ClientSession) {
+    taskPriorities = this._utilityService.prepareDefaultTaskPriorities(taskPriorities, project);
+
+    return await this.createMany(taskPriorities, session) as Array<Document & TaskPriorityModel>;
   }
 
   /**

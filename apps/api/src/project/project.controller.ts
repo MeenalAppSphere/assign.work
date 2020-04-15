@@ -55,22 +55,6 @@ export class ProjectController {
     return await this._projectService.updateProjectTemplate(model);
   }
 
-  @Post(':id/add-stage')
-  async addStage(@Param('id') id: string, @Body() stage: ProjectStages) {
-    return await this._projectService.createStage(id, stage);
-  }
-
-  @ApiImplicitBody({ type: ProjectStageSequenceChangeRequest, name: 'stageSequenceChangeModel' })
-  @Post('change-stage-sequence')
-  async changeStageSequence(@Body() stageSequenceChangeModel: ProjectStageSequenceChangeRequest) {
-    return await this._projectService.changeStageSequence(stageSequenceChangeModel);
-  }
-
-  @Delete(':id/remove-stage/:stageId')
-  async removeStage(@Param('id') id: string, @Param('stageId') stageId: string) {
-    return await this._projectService.removeStage(id, stageId);
-  }
-
   @Put(':id/update-working-capacity')
   async updateCollaboratorWorkingCapacity(@Param('id') id: string, @Body() dto: ProjectWorkingCapacityUpdateDto[]) {
     return await this._projectService.updateCollaboratorWorkingCapacity(id, dto);

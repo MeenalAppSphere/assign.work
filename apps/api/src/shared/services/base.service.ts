@@ -46,6 +46,10 @@ export class BaseService<T extends Document> {
     return await this.model.create(doc, { session });
   }
 
+  public async createMany(docs: any[], session: ClientSession): Promise<T[]> {
+    return await this.model.insertMany(docs, { session });
+  }
+
   public async updateById(id: string, updatedDoc: any, session: ClientSession): Promise<T> {
     return await this.model
       .updateOne({ _id: id }, updatedDoc, { session }).exec();
@@ -165,9 +169,9 @@ export class BaseService<T extends Document> {
       try {
         // execute requested function
         const result = await txnFn(session);
+
         // if all seems good commit transaction
         await this.commitTransaction(session);
-        // return result
         return result;
       } catch (e) {
         // if error type is TransientTransactionError then try to re commit the session

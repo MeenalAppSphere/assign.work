@@ -53,11 +53,6 @@ import { BoardService } from '../board/board.service';
 import { TaskTypeService } from '../task-type/task-type.service';
 import { TaskPriorityService } from '../task-priority/task-priority.service';
 
-const projectBasicPopulation = [{
-  path: 'members.userDetails',
-  select: 'firstName lastName emailId userName profilePic'
-}, { path: 'settings.statuses' }, { path: 'settings.taskTypes' }, { path: 'settings.priorities' }];
-
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
   private _userService: UsersService;
@@ -183,8 +178,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     });
 
     try {
-      const result = await this.findById(model.id, projectBasicPopulation);
-      return this.parseProjectToVm(result);
+      return this.getProjectDetails(model.id);
     } catch (e) {
       throw e;
     }
@@ -306,8 +300,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       await this.updateById(id, { $push: { 'members': { $each: finalCollaborators } } }, session);
       await this.commitTransaction(session);
-      const result = await this.findById(id, projectBasicPopulation);
-      return this.parseProjectToVm(result);
+      return await this.getProjectDetails(id, true);
     } catch (e) {
       await session.abortTransaction();
       session.endSession();
@@ -399,20 +392,21 @@ export class ProjectService extends BaseService<Project & Document> implements O
   async updateProjectTemplate(model: ProjectTemplateUpdateModel) {
     // update project template process
     await this.withRetrySession(async (session: ClientSession) => {
+
       // get project details
       const project = await this.getProjectDetails(model.projectId);
 
       // check if valid template selected
       const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template);
       if (invalidTemplate) {
-        throw new BadRequestException('invalid project template');
+        BadRequest('invalid project template');
       }
 
       // create default statues
       const defaultStatues = await this._taskStatusService.createDefaultStatuses(project, session);
       if (defaultStatues && defaultStatues.length) {
         defaultStatues.forEach(status => {
-          project.settings.statuses.push(status.id);
+          project.settings.statuses.push(status._id);
         });
       }
 
@@ -420,23 +414,23 @@ export class ProjectService extends BaseService<Project & Document> implements O
       const defaultSettings = getDefaultSettingsFromProjectTemplate(model.template);
 
       // create default task types for project
-      const defaultTaskTypes = await this._taskTypesService.createDefaultTaskTypes(defaultSettings.taskTypes, session);
+      const defaultTaskTypes = await this._taskTypesService.createDefaultTaskTypes(defaultSettings.taskTypes, project, session);
       if (defaultTaskTypes && defaultTaskTypes.length) {
         defaultTaskTypes.forEach(taskType => {
-          project.settings.taskTypes.push(taskType.id);
+          project.settings.taskTypes.push(taskType._id);
         });
       }
 
       // create default task priorities for project
-      const defaultTaskPriorities = await this._taskPriorityService.createDefaultTaskPriorities(defaultSettings.priorities, session);
+      const defaultTaskPriorities = await this._taskPriorityService.createDefaultTaskPriorities(defaultSettings.priorities, project, session);
       if (defaultTaskPriorities && defaultTaskPriorities.length) {
         defaultTaskPriorities.forEach(priority => {
-          project.settings.priorities.push(priority.id);
+          project.settings.priorities.push(priority._id);
         });
       }
 
       // update project's template
-      return await this.updateById(model.projectId, {
+      await this.updateById(model.projectId, {
         $set: { template: model.template },
         $push: {
           'settings.statuses': { $each: project.settings.statuses },
@@ -447,8 +441,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     });
 
     // find project and return updated project
-    const result = await this.findById(model.projectId, projectBasicPopulation);
-    return this.parseProjectToVm(result);
+    return await this.getProjectDetails(model.projectId);
   }
 
   /**
@@ -512,122 +505,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
       session.endSession();
       return 'Project Deleted Successfully!';
     });
-  }
-
-  /**
-   * create new stage
-   * @param id: string Project Id
-   * @param stage: ProjectStages Stage Object
-   */
-  async createStage(id: string, stage: ProjectStages) {
-    if (!stage || !stage.name) {
-      throw new BadRequestException('Please add stage name');
-    }
-
-    // get project details
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    if (projectDetails.settings.stages) {
-      const isDuplicate = projectDetails.settings.stages.some(s => s.name.toLowerCase().trim() === stage.name.toLowerCase().trim());
-
-      if (isDuplicate) {
-        throw new BadRequestException('Stage Name Already Exists');
-      }
-    } else {
-      projectDetails.settings.stages = [];
-    }
-
-    stage.id = new Types.ObjectId().toHexString();
-
-    // set stage sequence number from length
-    stage.sequenceNumber = projectDetails.settings.stages.length + 1;
-
-    projectDetails.settings.stages.push(stage);
-
-    const session = await this._projectModel.db.startSession();
-    session.startTransaction();
-
-    try {
-      // if project has a sprint id
-      // means project have a active sprint
-      if (projectDetails.sprintId) {
-
-        // create sprint model
-        const sprintStage = new SprintColumn();
-        sprintStage.id = stage.id;
-        sprintStage.statusId = stage.id;
-        sprintStage.tasks = [];
-        sprintStage.totalEstimation = 0;
-        sprintStage.isHidden = false;
-
-        // update sprint and add a stage
-        await this._sprintModel.updateOne({ _id: projectDetails.sprintId }, {
-          $push: { stages: sprintStage }
-        }, { session });
-      }
-
-      return await this.updateProjectHelper(id, projectDetails, session);
-    } catch (e) {
-      await session.abortTransaction();
-      session.endSession();
-      throw e;
-    }
-  }
-
-  /**
-   * change sequence of stage in project stages array
-   * @param model: ProjectStageSequenceChangeRequest
-   */
-  async changeStageSequence(model: ProjectStageSequenceChangeRequest) {
-    if (!model || !model.projectId) {
-      throw new BadRequestException('Project not Found');
-    }
-
-    if (!model.stageId) {
-      throw new BadRequestException('Stage Not Found');
-    }
-
-    if (model.sequenceNo === undefined || model.sequenceNo === null) {
-      throw new BadRequestException('Sequence no not found');
-    }
-
-    const projectDetails = await this.getProjectDetails(model.projectId);
-    const existingIndex = projectDetails.settings.stages.findIndex(stage => stage.id === model.stageId);
-    projectDetails.settings.stages.splice(model.sequenceNo, 0, projectDetails.settings.stages.splice(existingIndex, 1)[0]);
-
-    projectDetails.settings.stages.forEach((stage, index) => {
-      stage.sequenceNumber = index;
-    });
-
-    return await this.updateProjectHelper(model.projectId, { $set: { 'settings.stages': projectDetails.settings.stages } });
-  }
-
-  /**
-   * remove stage from project
-   * remove stage from active sprint if project have an active sprint
-   * @param id
-   * @param stageId
-   * @returns {Promise<Project>}
-   */
-  async removeStage(id: string, stageId: string) {
-    const projectDetails: Project = await this.getProjectDetails(id);
-
-    projectDetails.settings.stages = projectDetails.settings.stages.filter(f => f.id !== stageId);
-
-    // need to check active sprint logic here
-    const session = await this.startSession();
-
-    try {
-      // means this project have an active sprint
-      if (projectDetails.sprintId) {
-        // get sprint details
-        // remove stage from a sprint logic goes here...
-      }
-      return await this.updateProjectHelper(id, { $set: { 'settings.stages': projectDetails.settings.stages } }, session);
-    } catch (e) {
-      await this.abortTransaction(session);
-      throw e;
-    }
   }
 
   /**
@@ -804,8 +681,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     try {
       await this.updateById(id, project, session);
       await this.commitTransaction(session);
-      const result = await this.findById(id, projectBasicPopulation);
-      return this.parseProjectToVm(result);
+      return await this.getProjectDetails(id, true);
     } catch (e) {
       await this.abortTransaction(session);
       throw e;
@@ -822,6 +698,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       throw new NotFoundException('Project not found');
     }
 
+    // populate basic things
     const populate: any = [
       {
         path: 'createdBy',
@@ -829,8 +706,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }, {
         path: 'organization',
         select: 'name'
-      }, { path: 'settings.statuses' }, { path: 'settings.taskTypes' }, { path: 'settings.priorities' }];
+      }];
 
+    // check if full details is required
     if (getFullDetails) {
       populate.push({
         path: 'activeBoard',
@@ -839,12 +717,19 @@ export class ProjectService extends BaseService<Project & Document> implements O
           path: 'columns.headerStatus columns.includedStatuses.status columns.includedStatuses.defaultAssignee'
         }
       });
+      populate.push({
+        path: 'members.userDetails',
+        select: 'firstName lastName emailId userName profilePic'
+      });
     }
 
-    const projectDetails: Project = await this._projectModel.findById(id)
-      .select('name members settings createdById updatedBy sprintId organizationId activeBoardId')
-      .populate(populate)
-      .lean().exec();
+    // project details query
+    const projectDetails: Project = await this.findOne({
+      filter: { _id: id },
+      select: 'name members settings template createdById updatedBy sprintId organizationId activeBoardId',
+      populate: populate,
+      lean: true
+    });
 
     if (!projectDetails) {
       throw new NotFoundException('Project not found');
@@ -854,8 +739,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }
     }
 
-    projectDetails.id = projectDetails._id.toString();
-    return projectDetails;
+    // convert to vm
+    return this.parseProjectToVm(projectDetails);
   }
 
   /**
@@ -906,9 +791,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param project
    */
   private parseProjectToVm(project: Project): Project {
-    if (!project) {
-      return project;
-    }
+    project.id = project._id;
 
     project.members = project.members.map(member => {
       member.workingCapacity = secondsToHours(member.workingCapacity);
@@ -976,5 +859,4 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     return invitation;
   }
-
 }

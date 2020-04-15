@@ -585,7 +585,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // get status from column
       const status = column.includedStatuses[statusIndex];
 
-      // check one trying to hide main status of column (i.e :- headerStatus of a column )
+      // check if one trying to hide main status of column (i.e :- headerStatus of a column )
       if (column.headerStatusId === status.statusId) {
         BadRequest('You can hide default status');
       }
@@ -751,7 +751,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // update sprint in db
       await this._sprintService.updateById(projectDetails.sprintId, sprintDetails, session);
 
-      // update sprint report and set final status ids in respect board changes
+      // update sprint report and set final status ids in respect of board changes
       if (sprintDetails.reportId) {
         const lastColumnOfSprint = this._utilityService.getLastColumnFromBoard(boardDetails.columns);
         const finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);

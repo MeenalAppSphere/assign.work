@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
-import { DbCollection, TaskStatusModel, TaskTypeModel } from '@aavantan-app/models';
+import { DbCollection, Project, TaskStatusModel, TaskTypeModel } from '@aavantan-app/models';
 import { ProjectService } from '../project/project.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -79,10 +79,13 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
   /**
    * create default task type in respect of chosen template
    * @param taskTypes
+   * @param project
    * @param session
    */
-  public async createDefaultTaskTypes(taskTypes: TaskTypeModel[], session: ClientSession) {
-    return await this.create(taskTypes, session) as Array<Document & TaskTypeModel>;
+  public async createDefaultTaskTypes(taskTypes: TaskTypeModel[], project: Project, session: ClientSession) {
+    taskTypes = this._utilityService.prepareDefaultTaskTypes(taskTypes, project);
+
+    return await this.createMany(taskTypes, session) as Array<Document & TaskTypeModel>;
   }
 
   /**

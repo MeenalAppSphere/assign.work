@@ -6,7 +6,6 @@ import { MongoosePaginateQuery } from '../queryOptions';
 import { Sprint } from './sprint.model';
 import { TaskStatusModel } from './task-status.model';
 import { TaskPriorityModel } from './task-priority.model';
-import { BaseRequestModel } from '../baseRequest.model';
 
 export class Task {
   id?: string;

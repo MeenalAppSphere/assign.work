@@ -112,18 +112,36 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
     }
 
     return this.withRetrySession(async (session: ClientSession) => {
+      // get project details
       const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
+
+      // get status details
       const statusDetails = await this.getDetails(model.statusId, model.projectId);
 
-      const statusUsedInTasks = await this._taskService.dbModel.countDocuments({
+      const tasksOfStatusQuery = {
         projectId: model.projectId,
-        statusId: model.statusId
-      });
+        statusId: model.statusId,
+        isDeleted: false
+      };
 
+      // get all tasks of this status
+      const statusUsedInTasks = await this._taskService.dbModel.countDocuments(tasksOfStatusQuery);
+
+      // if tasks found for this status
       if (statusUsedInTasks > 0) {
+        // if nextStatus is not chosen that set haveTasks to true and return it, so ui can show a popup for selecting next status
+        if (!model.nextStatusId) {
+          model.haveTasks = true;
+          return model;
+        } else {
+          // process delete status and update old tasks with the new status
+          const nextStatusDetails = await this.getDetails(model.nextStatusId, model.projectId);
 
+          // update all tasks and update status to nextStatus
+          await this._taskService.update(tasksOfStatusQuery, { $set: { statusId: model.nextStatusId } }, session);
+        }
       } else {
-        // delete status
+        // delete status process
         await this.delete(model.statusId, session);
       }
 
@@ -131,9 +149,6 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
   }
 
   private async deleteStatusProcess(statusId: string, project: Project, session: ClientSession) {
-    // delete status
-    await this.delete(statusId, session);
-
     // delete column from board
     const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, statusId);
 
@@ -199,7 +214,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
   async createDefaultStatuses(project: Project, session: ClientSession): Promise<Array<Document & TaskStatusModel>> {
     const defaultStatuses = this._utilityService.prepareDefaultStatuses(project);
 
-    return await this.create(defaultStatuses, session) as Array<Document & TaskStatusModel>;
+    return await this.createMany(defaultStatuses, session) as Array<Document & TaskStatusModel>;
   }
 
   /**

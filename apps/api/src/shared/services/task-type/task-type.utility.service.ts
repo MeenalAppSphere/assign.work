@@ -1,4 +1,4 @@
-import { TaskTypeModel } from '@aavantan-app/models';
+import { Project, TaskTypeModel } from '@aavantan-app/models';
 import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
 
 export class TaskTypeUtilityService {
@@ -38,5 +38,14 @@ export class TaskTypeUtilityService {
     if (!taskType.color) {
       BadRequest('Please choose color');
     }
+  }
+
+  public prepareDefaultTaskTypes(taskTypes: TaskTypeModel[], project: Project): TaskTypeModel[] {
+    return taskTypes.map(taskType => {
+      taskType.projectId = project._id;
+      taskType.createdById = project.createdById;
+      taskType.description = `${taskType.name} is a default task type which is provided when you create a new Project`;
+      return taskType;
+    });
   }
 }

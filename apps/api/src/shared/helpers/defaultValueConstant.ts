@@ -69,29 +69,29 @@ export const DEFAULT_BOARD_NAME = 'BOARD - 1';
 // default settings for software development template
 export const DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'BUG', displayName: 'BUG', color: '#FF0000', description: 'BUG', isDefault: true },
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK', isDefault: true },
-    { name: 'Story', displayName: 'Story', color: '#008000', description: 'Story', isDefault: true },
-    { name: 'EPIC', displayName: 'EPIC', color: '#000000', description: 'EPIC', isDefault: true }
+    { name: 'BUG', displayName: 'BUG', color: '#FF0000', isDefault: true },
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true },
+    { name: 'Story', displayName: 'Story', color: '#008000', isDefault: true },
+    { name: 'EPIC', displayName: 'EPIC', color: '#000000', isDefault: true }
   ],
   priorities: [
-    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
-    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
-    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
-    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
+    { name: 'LOW', color: '#E6E6FA', isDefault: true },
+    { name: 'HIGH', color: '#DC143C', isDefault: true },
+    { name: 'MEDIUM', color: '#008000', isDefault: true },
+    { name: 'CRITICAL', color: '#FF0000', isDefault: true }
   ]
 };
 
 // default settings for task management template
 export const DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', description: 'TASK', isDefault: true }
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true }
   ],
   priorities: [
-    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
-    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
-    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
-    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
+    { name: 'LOW', color: '#E6E6FA', isDefault: true },
+    { name: 'HIGH', color: '#DC143C', isDefault: true },
+    { name: 'MEDIUM', color: '#008000', isDefault: true },
+    { name: 'CRITICAL', color: '#FF0000', isDefault: true }
   ]
 };
 

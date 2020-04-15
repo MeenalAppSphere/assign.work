@@ -5,6 +5,6 @@ export class TaskTypeModel extends BaseDbModel {
   color: string;
   displayName?: string;
   projectId?: string;
-  description: string;
+  description?: string;
   isDefault?: boolean;
 }
