@@ -16,7 +16,8 @@
                 <nz-form-item>
                   <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
                   <div class="sprint-duration-datepicker">
-                    <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
+                    <nz-range-picker ng-model-options="{timezone: 'utc'}"
+                                     formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
                   </div>
                 </nz-form-item>
               </div>
@@ -32,7 +33,7 @@
         </div>
 
       </section>
- 
+
     </ng-container>
 
     <div *nzModalFooter>
