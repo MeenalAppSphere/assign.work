@@ -70,6 +70,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public epicModalIsVisible: boolean = false;
   public isOpenActivitySidebar: boolean = true;
   public createTaskInProcess: boolean = false;
+  public updateSidebarContentInProcess: boolean = false;
   public createCommentInProcess: boolean = false;
   public getTaskInProcess: boolean = false;
   public getCommentInProcess: boolean = false;
@@ -82,6 +83,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public uploadedImages = [];
 
   public taskForm: FormGroup;
+  public taskFormSideBar: FormGroup;
   public commentForm: FormGroup;
   public assigneeDataSource: User[] = [];
   public relatedTaskDataSource: Task[] = [];
@@ -193,12 +195,25 @@ export class TaskComponent implements OnInit, OnDestroy {
       createdById: [null],
       sprint: [null],
       priorityId: [null],
-      watchers: [null],
       dependentItemId: [null],
       relatedItemId: [null],
+      statusId: [null],
+
       tags: [null],
       epic: [null],
-      statusId: [null],
+      watchers: [null],
+      estimatedTime: [null],
+      remainingHours: [null],
+      remainingMinutes: [null]
+    });
+
+
+    // for sidebar controls
+    this.taskFormSideBar = this.FB.group({
+      projectId: [null],
+      watchers: [null],
+      tags: [null],
+      epic: [null],
       estimatedTime: [null],
       remainingHours: [null],
       remainingMinutes: [null]
@@ -305,7 +320,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         debounceTime(500))
       .subscribe(() => {
 
-        const queryText = this.taskForm.get('watchers').value;
+        const queryText = this.taskFormSideBar.get('watchers').value;
 
         if (!queryText || (queryText && typeof (queryText) === 'object')) {
           return;
@@ -332,7 +347,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(500))
       .subscribe(() => {
-        const queryText = this.taskForm.get('tags').value;
+        const queryText = this.taskFormSideBar.get('tags').value;
         if (!queryText || (queryText && typeof (queryText) === 'object')) {
           return;
         }
@@ -453,14 +468,18 @@ export class TaskComponent implements OnInit, OnDestroy {
     if (user && user.emailId) {
       if (this.listOfSelectedWatchers.findIndex(item => item.emailId === user.emailId) < 0) {
         this.listOfSelectedWatchers.push(user);
-        this.taskForm.get('watchers').patchValue('');
+
+        this.saveTaskSideBar(); // save api call
+
+        this.taskFormSideBar.get('watchers').patchValue('');
       }
     }
     this.modelChangedWatchers.next();
   }
 
-  public removeCollaborators(mem: User) {
+  public removeWatchers(mem: User) {
     this.listOfSelectedWatchers = this.listOfSelectedWatchers.filter(item => item !== mem);
+    this.saveTaskSideBar(); // save api call
   }
 
 
@@ -468,10 +487,10 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public searchTags(tag?: ProjectTags) {
     if (tag && tag.name) {
-      console.log(this.listOfSelectedTags.findIndex(item => item.name === tag.name));
+      // console.log(this.listOfSelectedTags.findIndex(item => item.name === tag.name));
       if (this.listOfSelectedTags.findIndex(item => item.name === tag.name) < 0) {
         this.listOfSelectedTags.push(tag);
-        this.taskForm.get('tags').patchValue('');
+        this.taskFormSideBar.get('tags').patchValue('');
       }
     }
     this.modelChangedTags.next();
@@ -479,11 +498,12 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public removeTag(tag?: ProjectTags) {
     this.listOfSelectedTags = this.listOfSelectedTags.filter(item => item.name !== tag.name);
+    this.saveTaskSideBar(); // save api call
   }
 
   public onKeydown(event) {
     if (event.key === 'Enter') {
-      const tg = this.taskForm.get('tags').value;
+      const tg = this.taskFormSideBar.get('tags').value;
       let tag: ProjectTags = { name: tg, id: null };
       if (typeof (tg) === 'object') {
         tag = tg;
@@ -491,8 +511,11 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       if (this.listOfSelectedTags.findIndex(item => item.name === tag.name) < 0) {
         this.listOfSelectedTags.push(tag);
+
+        this.saveTaskSideBar(); // save api call
+
       }
-      this.taskForm.get('tags').patchValue('');
+      this.taskFormSideBar.get('tags').patchValue('');
     }
   }
 
@@ -654,8 +677,10 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.taskForm.patchValue(this.taskData.data);
 
-      this.taskForm.get('watchers').patchValue('');
-      this.taskForm.get('tags').patchValue('');
+      //sidebar form
+      this.taskFormSideBar.get('watchers').patchValue('');
+      this.taskFormSideBar.get('tags').patchValue('');
+      //-------------
 
       this.taskId = this.taskData.data.id;
       this.getMessage();
@@ -791,6 +816,36 @@ export class TaskComponent implements OnInit, OnDestroy {
     obs.next(false);
   });
 
+
+  async saveTaskSideBar() {
+
+    this.updateSidebarContentInProcess = true;
+    const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
+    const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
+    this.taskData.data.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
+
+
+    this.taskData.data.watchers = [];
+    if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
+      this.listOfSelectedWatchers.forEach(ele => {
+        this.taskData.data.watchers.push(ele.id || ele._id);
+      });
+    }
+
+    this.taskData.data.tags = [];
+    if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
+      this.listOfSelectedTags.forEach(ele => {
+        this.taskData.data.tags.push(ele.name);
+      });
+    }
+
+    console.log(this.taskData.data);
+    await this.updateTask(this.taskData.data);
+
+    this.updateSidebarContentInProcess = false;
+
+  }
+
   async saveForm() {
     const task: Task = { ...this.taskForm.getRawValue() };
 
@@ -812,10 +867,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.relatedItemId = this.listOfSelectedRelatedItems;
     task.attachments = this.attachementIds;
 
-    const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
-    const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
-    task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
-
 
     if (!task.taskTypeId) {
       this.notification.error('Error', 'Please select task type');
@@ -827,44 +878,13 @@ export class TaskComponent implements OnInit, OnDestroy {
       return;
     }
 
-    task.watchers = [];
-    if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
-      this.listOfSelectedWatchers.forEach(ele => {
-        task.watchers.push(ele.id || ele._id);
-      });
-    }
-
-    task.tags = [];
-    if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
-      this.listOfSelectedTags.forEach(ele => {
-        task.tags.push(ele.name);
-      });
-    }
-
     this.createTaskInProcess = true;
     try {
 
       if (this.taskId) {
-        task.id = this.taskId;
-        task.displayName = this.displayName;
 
+        this.updateTask(task);
 
-        const data = await this._taskService.updateTask(task).toPromise();
-
-        this.currentTask = data.data;
-        this.displayName = data.data.displayName;
-
-        if (data && data.data && data.data.progress) {
-          this.progressData = {
-            progress: data.data.progress,
-            totalLoggedTime: data.data.totalLoggedTime,
-            totalLoggedTimeReadable: data.data.totalLoggedTimeReadable,
-            remainingTimeReadable: data.data.remainingTimeReadable,
-            overLoggedTime: data.data.overLoggedTime,
-            overLoggedTimeReadable: data.data.overLoggedTimeReadable,
-            overProgress: data.data.overProgress
-          };
-        }
       } else {
         const data = await this._taskService.createTask(task).toPromise();
         this.taskId = data.data.id;
@@ -884,6 +904,29 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   }
 
+  async updateTask(task:Task) {
+    task.id = this.taskId;
+    task.displayName = this.displayName;
+
+
+    const data = await this._taskService.updateTask(task).toPromise();
+
+    this.currentTask = data.data;
+    this.displayName = data.data.displayName;
+
+    if (data && data.data && data.data.progress) {
+      this.progressData = {
+        progress: data.data.progress,
+        totalLoggedTime: data.data.totalLoggedTime,
+        totalLoggedTimeReadable: data.data.totalLoggedTimeReadable,
+        remainingTimeReadable: data.data.remainingTimeReadable,
+        overLoggedTime: data.data.overLoggedTime,
+        overLoggedTimeReadable: data.data.overLoggedTimeReadable,
+        overProgress: data.data.overProgress
+      };
+    }
+  }
+
   public resetCommentForm() {
     this.commentForm.reset({ uuid: Date.now() });
   }
@@ -894,8 +937,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     const rhours = Math.floor(hours);
     const minutes = (hours - rhours) * 60;
     const rminutes = Math.round(minutes);
-    this.taskForm.get('remainingHours').patchValue(rhours);
-    this.taskForm.get('remainingMinutes').patchValue(rminutes);
+    this.taskFormSideBar.get('remainingHours').patchValue(rhours);
+    this.taskFormSideBar.get('remainingMinutes').patchValue(rminutes);
     return {
       h: rhours,
       m: rminutes
@@ -935,7 +978,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     if (event.key === 'Enter' && event.target.value) {
       this.listOfSelectedTags = this.taskForm.get('tags').value;
       this.listOfSelectedTags.push(event.target.value);
-      this.taskForm.get('tags').patchValue(this.listOfSelectedTags);
+      this.taskFormSideBar.get('tags').patchValue(this.listOfSelectedTags);
       this.tagsDataSource.push(event.target.value);
       event.target.value = null;
     }

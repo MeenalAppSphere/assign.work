@@ -88,8 +88,7 @@
 }
 
 #sidebar {
-  /* for the animation */
-  height: calc(100vh - 80px);
+  height: calc(100vh);
   transition: margin 0.3s ease;
   background: #FFFFFF 0% 0% no-repeat padding-box;
   box-shadow: 0px 4px 10px #0000001A;
@@ -102,10 +101,12 @@
   width: 24px!important;
   height: 25px!important;
   padding: 4px!important;
+  display: flex;
+  justify-content: center;
 }
 
 .comment-history-scrollable{
-  height: calc(100vh - 340px);
+  eight: calc(100vh - 590px);
   overflow: auto;
   overflow-x: hidden;
 }

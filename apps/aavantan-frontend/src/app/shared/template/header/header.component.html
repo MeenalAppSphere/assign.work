@@ -138,8 +138,8 @@
                 </div>
               </a>
             </li>
-            <li nz-menu-item (click)="projectModalShow()">
-              <a class="p-v-5 d-flex align-items-center justify-content-between">
+            <li nz-menu-item>
+              <a routerLink="project" class="p-v-5 d-flex align-items-center justify-content-between">
                 <div>
                   <img class="opacity-04"  src="../../assets/images/icons/project.svg"/>
                   <span class="m-l-10">Projects</span>
@@ -162,3 +162,15 @@
     </ul>
   </div>
 </div>
+
+
+
+<!-- region add project -->
+<ng-container *ngIf="projectModalIsVisible && !getProjectsInProcess">
+  <aavantan-app-add-project
+    [projectListData]="projectListData"
+    [projectModalIsVisible]="projectModalIsVisible"
+    (toggleShow)="projectModalShow()">
+  </aavantan-app-add-project>
+</ng-container>
+<!-- endregion -->
