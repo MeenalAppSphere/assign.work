@@ -5,6 +5,12 @@
     <title>Assign.Work | Best Task Management and Productivity Software</title>
     <base href="/" />
 
+    <script>
+      if (location.host.indexOf('localhost') < 0 && location.protocol === 'http:') {
+        location.href = location.href.replace(location.protocol, 'https:');
+      }
+    </script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="mR8EuqiDsLu5qhjjZj6dooeeqifZeiGa_eRNb_YkwjQ" />
     <meta name="description" content="Best Budgeting and Productivity tool for Task Management, Visit Us for More." />
