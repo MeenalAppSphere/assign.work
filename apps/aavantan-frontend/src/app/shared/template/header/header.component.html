@@ -163,14 +163,3 @@
   </div>
 </div>
 
-
-
-<!-- region add project -->
-<ng-container *ngIf="projectModalIsVisible && !getProjectsInProcess">
-  <aavantan-app-add-project
-    [projectListData]="projectListData"
-    [projectModalIsVisible]="projectModalIsVisible"
-    (toggleShow)="projectModalShow()">
-  </aavantan-app-add-project>
-</ng-container>
-<!-- endregion -->
