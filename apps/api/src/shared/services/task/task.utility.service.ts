@@ -152,7 +152,7 @@ export class TaskUtilityService {
 
     const taskAssigneeEmailObject: SendEmailModel = {
       to: [task.assignee.emailId],
-      subject: subject,
+      subject: subject as EmailSubjectEnum,
       message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskAssigned, taskAssigneeEmailTemplateData)
     };
 
@@ -190,7 +190,7 @@ export class TaskUtilityService {
 
       sendEmailArrays.push({
         to: [watcher.emailId],
-        subject: subject,
+        subject: subject as EmailSubjectEnum,
         message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskUpdated, templateData)
       });
     }

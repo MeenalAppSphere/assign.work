@@ -137,6 +137,8 @@ export class UsersService extends BaseService<User & Document> implements OnModu
           }, {
             path: 'organization',
             select: 'name description displayName logoUrl'
+          }, {
+            path: 'activeBoard'
           }]
         }, {
           path: 'currentOrganization',
