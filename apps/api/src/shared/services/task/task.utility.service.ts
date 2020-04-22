@@ -148,9 +148,11 @@ export class TaskUtilityService {
       appUrl: environment.APP_URL
     };
 
+    const subject = EmailSubjectEnum.taskAssigned.replace(':displayName', task.displayName);
+
     const taskAssigneeEmailObject: SendEmailModel = {
       to: [task.assignee.emailId],
-      subject: EmailSubjectEnum.taskAssigned,
+      subject: subject,
       message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskAssigned, taskAssigneeEmailTemplateData)
     };
 
@@ -182,9 +184,13 @@ export class TaskUtilityService {
         appUrl: environment.APP_URL
       };
 
+
+      const subject = EmailSubjectEnum.taskUpdated.replace(':userName', task.updatedBy.firstName +' '+task.updatedBy.lastName)
+        .replace(':displayName', task.displayName);
+
       sendEmailArrays.push({
         to: [watcher.emailId],
-        subject: EmailSubjectEnum.taskUpdated,
+        subject: subject,
         message: await this._emailService.getTemplate(EmailTemplatePathEnum.taskUpdated, templateData)
       });
     }
