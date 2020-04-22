@@ -131,10 +131,10 @@ export class AddEpicComponent implements OnInit {
     task.projectId = this._generalService.currentProject.id;
     task.createdById = this._generalService.user.id;
 
-    task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
+    task.taskTypeId = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
 
-    if (!task.name || !task.taskType) {
+    if (!task.name || !task.taskTypeId) {
       this.notification.error('Error', 'Please check all mandatory fields');
       return;
     }

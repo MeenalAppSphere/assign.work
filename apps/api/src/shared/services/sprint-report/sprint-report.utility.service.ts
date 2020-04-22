@@ -180,6 +180,12 @@ export class SprintReportUtilityService {
    * @param report
    */
   prepareSprintReportUserProductivity(report: SprintReportModel) {
+     // calculate report task count
+     report.reportTasksCount = report.reportTasks.length;
+     // calculate all finished tasks count
+     report.finishedTasksCount = report.reportTasks.filter(task => {
+       return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
+     }).length;
     // loop over report members
     report.reportMembers = report.reportMembers.map(member => {
       // convert totalLoggedTimeReadable, workingCapacityReadable to readable string
@@ -201,11 +207,12 @@ export class SprintReportUtilityService {
       member.totalAssignedTimeReadable = secondsToString(member.totalAssignedTime);
 
       // calculate total remaining time
+
       member.totalRemainingTime = member.totalAssignedTime - member.totalLoggedTime;
       member.totalRemainingTimeReadable = secondsToString(member.totalRemainingTime);
 
       // calculate sprint productivity
-      member.sprintProductivity = Number(((member.totalLoggedTime * 100) / member.totalAssignedTime).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+      member.sprintProductivity = Number(((report.finishedTasksCount * 100) / report.reportTasksCount).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
       return member;
     });
 
