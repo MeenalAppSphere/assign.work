@@ -1,9 +1,9 @@
 export enum UserStatus {
-  'deleted' = 'deleted',
-  'blocked' = 'blocked',
-  'Active' = 'Active',
-  'Left' = 'Left',
-  'Expired' = 'Expired'
+  Active = 'Active',
+  Blocked = 'Blocked',
+  Expired = 'Expired',
+  Left = 'Left',
+  InActive = 'InActive'
 }
 
 export enum UserLoginProviderEnum {

@@ -12,7 +12,7 @@ import {
   ProjectTags,
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
-  ProjectWorkingCapacityUpdateDto,
+  ProjectWorkingCapacityUpdateDto, RemoveProjectCollaborator,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
@@ -48,6 +48,8 @@ import { TaskStatusService } from '../task-status/task-status.service';
 import { BoardService } from '../board/board.service';
 import { TaskTypeService } from '../task-type/task-type.service';
 import { TaskPriorityService } from '../task-priority/task-priority.service';
+import { TaskService } from '../task/task.service';
+import { SprintService } from '../sprint/sprint.service';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
@@ -55,10 +57,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _invitationService: InvitationService;
   private _organizationService: OrganizationService;
   private _utilityService: ProjectUtilityService;
+  private _taskService: TaskService;
   private _taskStatusService: TaskStatusService;
   private _taskTypesService: TaskTypeService;
   private _taskPriorityService: TaskPriorityService;
   private _boardService: BoardService;
+  private _sprintService: SprintService;
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
@@ -72,10 +76,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._userService = this._moduleRef.get('UsersService');
     this._invitationService = this._moduleRef.get('InvitationService');
     this._organizationService = this._moduleRef.get('OrganizationService');
+    this._taskService = this._moduleRef.get('TaskService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
     this._taskTypesService = this._moduleRef.get('TaskTypeService');
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._boardService = this._moduleRef.get('BoardService');
+    this._sprintService = this._moduleRef.get('SprintService');
 
     this._utilityService = new ProjectUtilityService();
   }
@@ -371,11 +377,53 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
   }
 
-  async removeCollaborator(id: string, projectId: string) {
-    const projectDetails: Project = await this.getProjectDetails(projectId);
+  /**
+   * remove collaborator
+   * @param model
+   */
+  async removeCollaborator(model: RemoveProjectCollaborator) {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this.getProjectDetails(model.projectId);
 
-    projectDetails.members = projectDetails.members.filter(f => f.userId !== id);
-    return await this.updateProjectHelper(projectId, projectDetails);
+      // check if collaborator whose going to remove is part of project
+      const isCurrentCollaboratorIsPartOfProject = this._utilityService.userPartOfProject(model.collaboratorId, projectDetails);
+      if (!isCurrentCollaboratorIsPartOfProject) {
+        BadRequest('Collaborator is not part of project, so it can\'t be removed from Project');
+      }
+
+      // check if next collaborator is part of project
+      const isNextCollaboratorIsPartOfProject = this._utilityService.userPartOfProject(model.nextCollaboratorId, projectDetails);
+      if (!isNextCollaboratorIsPartOfProject) {
+        BadRequest('New selected Collaborator is not part of project');
+      }
+
+      // get tasks of collaborator
+      const userTaskQuery = {
+        projectId: model.projectId, assigneeId: model.collaboratorId
+      };
+
+      const tasks = await this._taskService.find({ filter: userTaskQuery, lean: true });
+      if (tasks.length) {
+        // change assignee of that task
+      } else {
+        // don't do anything
+      }
+
+
+      if (projectDetails.sprintId) {
+        // get sprint details
+        const sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails.sprintId);
+
+        // get current and next collaborator from sprint member capacity
+        const currentCollaboratorFromSprint = sprintDetails.membersCapacity.find(member => member.userId.toString() === model.collaboratorId);
+        const nextCollaboratorFromSprint = sprintDetails.membersCapacity.find(member => member.userId.toString() === model.nextCollaboratorId);
+
+        // check if both current and next collaborator are part of sprint
+        if (currentCollaboratorFromSprint && nextCollaboratorFromSprint) {
+          // get current collaborator remaining capacity and add it next collaborator
+        }
+      }
+    });
   }
 
   /**
@@ -761,7 +809,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * create project vm model
    * @param project
    */
-  private parseProjectToVm(project: Project): Project {
+  public parseProjectToVm(project: Project): Project {
     project.id = project._id;
 
     project.members = project.members.map(member => {

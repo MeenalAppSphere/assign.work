@@ -1,4 +1,11 @@
-import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  OnModuleInit,
+  UnauthorizedException
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DbCollection, MongoosePaginateQuery, Project, SearchUserModel, User } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Query, QueryFindOneAndUpdateOptions, Types } from 'mongoose';
@@ -8,17 +15,22 @@ import { slice } from 'lodash';
 import { GeneralService } from './general.service';
 import { secondsToHours } from '../helpers/helpers';
 import { SprintUtilityService } from './sprint/sprint.utility.service';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
-export class UsersService extends BaseService<User & Document> {
+export class UsersService extends BaseService<User & Document> implements OnModuleInit {
+  private _projectService: ProjectService;
   private _sprintUtilityService: SprintUtilityService;
 
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
-              @Inject(forwardRef(() => ProjectService)) private readonly _projectService: ProjectService,
-              private _generalService: GeneralService) {
+              private _generalService: GeneralService, private _moduleRef: ModuleRef) {
     super(_userModel);
 
     this._sprintUtilityService = new SprintUtilityService();
+  }
+
+  onModuleInit() {
+    this._projectService = this._moduleRef.get('ProjectService');
   }
 
   /**
@@ -140,7 +152,7 @@ export class UsersService extends BaseService<User & Document> {
 
     if (userDetails.currentProject) {
       userDetails.currentProject.id = userDetails.currentProject._id.toString();
-      userDetails.currentProject = this.parseProjectToVm(userDetails.currentProject);
+      userDetails.currentProject = this._projectService.parseProjectToVm(userDetails.currentProject);
 
       if (userDetails.currentProject.sprint) {
         userDetails.currentProject.sprint.id = userDetails.currentProject.sprint._id;
@@ -236,24 +248,5 @@ export class UsersService extends BaseService<User & Document> {
     delete model.organizations;
     delete model.projects;
     delete model.lastLoginProvider;
-  }
-
-  /**
-   * parse project to view model
-   * @param project
-   * @returns {Project}
-   */
-  private parseProjectToVm(project: Project): Project {
-    if (!project) {
-      return project;
-    }
-
-    project.members = project.members.map(member => {
-      member.workingCapacity = secondsToHours(member.workingCapacity);
-      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
-      return member;
-    });
-
-    return project;
   }
 }

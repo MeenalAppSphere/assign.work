@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { BaseService } from './base.service';
 import {
   BasePaginatedResponse,
@@ -13,17 +13,23 @@ import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralService } from './general.service';
 import { generateUtcDate } from '../helpers/helpers';
+import { ModuleRef } from '@nestjs/core';
+import { ProjectService } from './project/project.service';
 
 @Injectable()
-export class TaskHistoryService extends BaseService<TaskHistory & Document> {
+export class TaskHistoryService extends BaseService<TaskHistory & Document> implements OnModuleInit {
+  public _projectService: ProjectService;
+
   constructor(
     @InjectModel(DbCollection.taskHistory) protected readonly _taskHistoryModel: Model<TaskHistory & Document>,
-    @InjectModel(DbCollection.projects) private readonly _projectModel: Model<Project & Document>,
-    private readonly _generalService: GeneralService
+    private readonly _generalService: GeneralService, private _moduleRef: ModuleRef
   ) {
     super(_taskHistoryModel);
   }
 
+  onModuleInit(): any {
+    this._projectService = this._moduleRef.get('ProjectService');
+  }
 
   /**
    * create and return task history object on basis of given input
@@ -61,7 +67,7 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
    * @returns {Promise<BasePaginatedResponse<TaskHistory>>}
    */
   async getTaskHistory(model: GetTaskHistoryModel) {
-    const projectDetails = await this.getProjectDetails(model.projectId);
+    await this._projectService.getProjectDetails(model.projectId);
 
     model.populate = [{
       path: 'createdBy',
@@ -79,26 +85,6 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> {
       return history;
     });
     return result;
-  }
-
-  /**
-   * get project details by id
-   * @param id
-   * @returns {Promise<Project>}
-   */
-  private async getProjectDetails(id: string): Promise<Project> {
-    const projectDetails: Project = await this._projectModel.findById(id).select('members settings createdBy updatedBy').lean().exec();
-
-    if (!projectDetails) {
-      throw new NotFoundException('No Project Found');
-    } else {
-      const isMember = projectDetails.members.some(s => s.userId === this._generalService.userId) || (projectDetails.createdBy as User)['_id'].toString() === this._generalService.userId;
-
-      if (!isMember) {
-        throw new BadRequestException('You are not a part of Project');
-      }
-    }
-    return projectDetails;
   }
 
   /**

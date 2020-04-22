@@ -10,26 +10,30 @@ import {
   DbCollection,
   EmailSubjectEnum,
   GetAllSprintRequestModel,
-  GetSprintByIdRequestModel, MongooseQueryModel,
+  GetSprintByIdRequestModel,
+  MongooseQueryModel,
   MoveTaskToColumnModel,
   Project,
   PublishSprintModel,
   RemoveTaskFromSprintModel,
   Sprint,
-  SprintActionEnum, SprintBaseRequest,
+  SprintActionEnum,
+  SprintBaseRequest,
   SprintColumn,
   SprintDurationsModel,
   SprintErrorEnum,
   SprintErrorResponse,
   SprintErrorResponseItem,
-  SprintFilterTasksModel, SprintMembersCapacity,
+  SprintFilterTasksModel,
+  SprintMembersCapacity,
   SprintStatus,
   SprintStatusEnum,
   Task,
   TaskHistory,
   TaskHistoryActionEnum,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel
+  UpdateSprintModel,
+  UserStatus
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -394,6 +398,13 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
           // get task assignee details from sprint members
           const currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
+
+          // check if assignee is active and part of sprint
+          if (currentAssigneeDetails.user.status !== UserStatus.Active) {
+            // throw error if assignee is not part of sprint or not an active user
+            sprintErrorResponse.tasksError.reason = SprintErrorEnum.memberNotFound;
+            return sprintErrorResponse;
+          }
 
           // get all tasks from the sprint and push it to all tasks array
           sprintDetails.columns.forEach(column => {
