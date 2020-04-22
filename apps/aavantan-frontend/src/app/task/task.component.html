@@ -346,7 +346,7 @@
   <aside id="sidebar" #sidebar [ngClass]="{ 'collapsed': !isOpenActivitySidebar || (isOpenActivitySidebar && !taskId) }"
          class="col-md-4 p-t-15 m-b-20 p-r-15 p-l-15 m-t-10 bg-white border-radius-4">
 
-    <nz-spin nzTip="Please wait..." [nzSpinning]="updateSidebarContentInProcess">
+<!--    <nz-spin nzTip="Please wait..." [nzSpinning]="updateSidebarContentInProcess">-->
       <section class="first-section">
       <div class="row m-b-15">
 
@@ -642,7 +642,7 @@
       </div>
 
     </section>
-    </nz-spin>
+<!--    </nz-spin>-->
 
     <app-timelog *ngIf="timelogModalIsVisible" [timelogModalIsVisible]="timelogModalIsVisible"
                  (toggleTimeLogShow)="timeLog($event)" [selectedTaskItem]="currentTask"></app-timelog>

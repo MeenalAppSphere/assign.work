@@ -490,6 +490,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       // console.log(this.listOfSelectedTags.findIndex(item => item.name === tag.name));
       if (this.listOfSelectedTags.findIndex(item => item.name === tag.name) < 0) {
         this.listOfSelectedTags.push(tag);
+        this.saveTaskSideBar(); // save api call
         this.taskFormSideBar.get('tags').patchValue('');
       }
     }
@@ -540,6 +541,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.selectedAssignee.id = this._generalService.user.id;
     this.selectedAssignee.firstName = this._generalService.user.firstName;
     this.selectedAssignee.lastName = this._generalService.user.lastName ? this._generalService.user.lastName : null;
+    this.selectedAssignee.profilePic = this._generalService.user.profilePic ? this._generalService.user.profilePic : null;
 
     let userName = this._generalService.user.firstName ? this._generalService.user.firstName : this._generalService.user.emailId;
     if (this._generalService.user.firstName && this._generalService.user.lastName) {
@@ -568,6 +570,10 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.taskForm.reset();
     }
 
+    if (this.taskFormSideBar) {
+      this.taskFormSideBar.reset();
+    }
+
     if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
       this.selectedTaskType = this.taskTypeDataSource[0];
       this.displayName = this.selectedTaskType.displayName;
@@ -576,6 +582,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.pinnedCommentsList = null;
     this.historyList = null;
     this.progressData = null;
+    this.selectedAssignee.profilePic = null;
 
     if (this.selectedTaskType) {
       this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
@@ -824,22 +831,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
     this.taskData.data.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
 
+    // watcher and tags in this.updateTask function
 
-    this.taskData.data.watchers = [];
-    if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
-      this.listOfSelectedWatchers.forEach(ele => {
-        this.taskData.data.watchers.push(ele.id || ele._id);
-      });
-    }
-
-    this.taskData.data.tags = [];
-    if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
-      this.listOfSelectedTags.forEach(ele => {
-        this.taskData.data.tags.push(ele.name);
-      });
-    }
-
-    console.log(this.taskData.data);
     await this.updateTask(this.taskData.data);
 
     this.updateSidebarContentInProcess = false;
@@ -886,6 +879,10 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.updateTask(task);
 
       } else {
+
+        task.watchers = [];
+        task.tags = [];
+
         const data = await this._taskService.createTask(task).toPromise();
         this.taskId = data.data.id;
         this.displayName = data.data.displayName;
@@ -908,6 +905,22 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.id = this.taskId;
     task.displayName = this.displayName;
 
+    this.taskData.data.watchers = [];
+    if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
+      this.listOfSelectedWatchers.forEach(ele => {
+        this.taskData.data.watchers.push(ele.id || ele._id);
+      });
+    }
+
+    this.taskData.data.tags = [];
+    if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
+      this.listOfSelectedTags.forEach(ele => {
+        this.taskData.data.tags.push(ele.name);
+      });
+    }
+
+    task.watchers = this.taskData.data.watchers;
+    task.tags = this.taskData.data.tags;
 
     const data = await this._taskService.updateTask(task).toPromise();
 
@@ -959,6 +972,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public clearAssigeeSearchText() {
     this.taskForm.get('assigneeId').patchValue('');
+    this.selectedAssignee.profilePic = null;
   }
 
   public selectTaskType(item: TaskTypeModel) {
