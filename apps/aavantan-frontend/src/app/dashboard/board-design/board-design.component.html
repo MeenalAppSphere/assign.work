@@ -90,7 +90,7 @@
                     (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
             </button>
             <button class="m-l-5" nz-button nzType="primary" (click)="saveAndPublish()"
-                    [disabled]="!boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+                    [disabled]="!activeBoard?.id || !boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
                    || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess">Save &amp; Publish</button>
             <!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
             <!--                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip-->

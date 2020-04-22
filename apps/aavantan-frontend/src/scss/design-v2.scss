@@ -91,6 +91,29 @@ $color-green : #42E3A3;
   color: $color-gray-light-3;
 }
 
+
+/* ant-checkbox-group */
+
+.vertical-checkbox.ant-checkbox-group {
+  background: #ffffff;
+  padding: 10px;
+  min-width: 200px;
+  width: 100%;
+  .ant-checkbox-wrapper {
+    display: block;
+    text-align: left;
+    padding: 10px 5px;
+    margin-left: 8px!important;
+  }
+}
+
+
+.ant-checkbox-indeterminate .ant-checkbox-inner::after {
+  width: 0px;
+  height: 0px;
+}
+
+
 .ant-pagination-item-active {
   border-color: $brand-default-btn;
   font-weight: 400;

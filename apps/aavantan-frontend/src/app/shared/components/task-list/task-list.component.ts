@@ -17,6 +17,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
+import { BoardQuery } from '../../../queries/board/board.query';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -63,13 +64,9 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   };
 
   // status ddl
-  allChecked = false;
-  indeterminate = true;
-  checkOptionsOne = [
-    { label: 'Apple', value: 'Apple', checked: true },
-    { label: 'Pear', value: 'Pear', checked: false },
-    { label: 'Orange', value: 'Orange', checked: false }
-  ];
+  public allChecked = false;
+  public indeterminate = true;
+  public statusColumnDataSource = [];
 
 
   constructor(protected notification: NzNotificationService,
@@ -87,6 +84,21 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
         this.taskTypeDataSource = res;
       }
     });
+
+    // ready status filter dropdown data
+    const columns =  this._generalService.currentProject.activeBoard.columns;
+    if (columns) {
+      const data = columns.reverse().find(column => !column.isHidden);
+
+      columns.forEach((ele)=>{
+        let checked= true;
+        if(data.headerStatus.id===ele.headerStatus.id) {
+          checked= false;
+        }
+        this.statusColumnDataSource.unshift({ label: ele.headerStatus.name, value: ele.headerStatus.id, checked: checked });
+      });
+    }
+
 
     // search event
     this.searchValueSubject$.pipe(
@@ -119,14 +131,14 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   public updateAllChecked(): void {
     this.indeterminate = false;
     if (this.allChecked) {
-      this.checkOptionsOne = this.checkOptionsOne.map(item => {
+      this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
         return {
           ...item,
           checked: true
         };
       });
     } else {
-      this.checkOptionsOne = this.checkOptionsOne.map(item => {
+      this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
         return {
           ...item,
           checked: false
@@ -136,10 +148,10 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public updateSingleChecked(): void {
-    if (this.checkOptionsOne.every(item => !item.checked)) {
+    if (this.statusColumnDataSource.every(item => !item.checked)) {
       this.allChecked = false;
       this.indeterminate = false;
-    } else if (this.checkOptionsOne.every(item => item.checked)) {
+    } else if (this.statusColumnDataSource.every(item => item.checked)) {
       this.allChecked = true;
       this.indeterminate = false;
     } else {

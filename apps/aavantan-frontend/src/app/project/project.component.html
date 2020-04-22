@@ -52,16 +52,6 @@
 
   <ng-template #tabSwitchTemplate>
 
-<!--    <nz-radio-group [(ngModel)]="view">-->
-<!--      <label nz-radio-button nzValue="listView" nzTitle="List View" nzPlacement="bottom" nz-tooltip>-->
-<!--        <i class="font-size-14" nz-icon nzType="ordered-list" theme="outline"></i>-->
-<!--      </label>-->
-<!--      <label nz-radio-button nzValue="cardView" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>-->
-<!--        <i class="font-size-14" nz-icon nzType="appstore" theme="outline"></i>-->
-<!--      </label>-->
-<!--    </nz-radio-group>-->
-
-
 
     <nz-button-group class="toggle-btn-group">
       <button (click)="changeView('listView')" nz-button [nzType]="view==='listView' ? 'link' : 'primary'" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
