@@ -309,6 +309,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.displayName = model.displayName;
       taskModel.description = model.description;
       taskModel.tags = model.tags;
+      taskModel.watchers = model.watchers;
 
       taskModel.taskTypeId = model.taskTypeId;
       taskModel.priorityId = model.priorityId;
@@ -435,15 +436,16 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     // get updated task details and return it
     try {
-      const task: Task = await this._taskModel.findOne({ _id: taskModel.id }).populate(taskFullPopulation).select('-comments').lean().exec();
+      const task: Task = await this._taskModel.findOne({ _id: taskModel.id })
+        .populate(taskFullPopulation).select('-comments').lean().exec();
 
       // check if assignee changed than send mail to new assignee
       if (isAssigneeChanged) {
-        this._utilityService.sendMailForTaskAssigned(task, projectDetails);
+        this._utilityService.sendMailForTaskAssigned({ ...task }, projectDetails);
       }
 
       // send mail for task updated to all the task watchers
-      this._utilityService.sendMailForTaskUpdated(task, projectDetails);
+      this._utilityService.sendMailForTaskUpdated({ ...task }, projectDetails);
       return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
