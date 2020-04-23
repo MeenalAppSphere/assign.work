@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { NzNotificationService, UploadFile } from 'ng-zorro-antd';
 import { TaskUrls } from '../shared/services/task/task.url';
 import { UserUrls } from '../shared/services/user/user.url';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
     templateUrl: './profile.component.html',
@@ -24,10 +25,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public uploadedImages = [];
   public skillListData:string[] = [];
   public uploadingImage:boolean = false;
+  public activeView: any = {
+    title: 'Profile',
+    view: 'profile'
+  };
+  public passwordForm: FormGroup;
+  public updateRequestInProcess:boolean;
 
   constructor(private _userQuery: UserQuery, private _generalService : GeneralService,
               private _projectService: ProjectService,
-              protected notification: NzNotificationService) {
+              protected notification: NzNotificationService,
+              private FB: FormBuilder) {
   }
 
 
@@ -54,6 +62,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
       this.skillListData = [];
 
+      this.passwordForm = this.FB.group({
+        current_password: new FormControl(null, [Validators.required]),
+        new_password: new FormControl(null, [Validators.required]),
+        confirm_password: new FormControl(null, [Validators.required]),
+      }, {validator: this.checkPasswords });
+
     }
 
   handleChange({ file, fileList }): void {
@@ -75,6 +89,36 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
+  public activeTab(view: string, title: string) {
+    this.activeView = {
+      title: title,
+      view: view
+    };
+  }
+
+
+  /* change password tab */
+
+  public checkPasswords(group: FormGroup) {
+    const pass = group.get('new_password').value;
+    const confirmPass = group.get('confirm_password').value;
+    return pass === confirmPass ? null : { notSame: true }
+  }
+
+  public save() {
+
+    try{
+      this.updateRequestInProcess = true;
+      // api call here
+      console.log(this.passwordForm.getRawValue());
+
+
+      this.updateRequestInProcess = true;
+    }catch (e) {
+      this.updateRequestInProcess = true;
+    }
+
+  }
 
   ngOnDestroy (){
 
