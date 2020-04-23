@@ -3,7 +3,7 @@ import {
   AddTaskToSprintModel,
   DraftSprint,
   GetAllTaskRequestModel,
-  RemoveTaskFromSprintModel, StatusDDLModel,
+  RemoveTaskFromSprintModel,
   Task,
   TaskFilterModel,
   TaskTimeLogResponse, TaskTypeModel

@@ -61,7 +61,7 @@ const commonPopulationForSprint = [{
   justOne: true
 }, {
   path: 'membersCapacity.user',
-  select: 'emailId userName firstName lastName profilePic',
+  select: 'emailId userName firstName lastName profilePic status',
   justOne: true
 }];
 
@@ -826,7 +826,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           endAt: { $gt: moment().startOf('d').toDate() },
           'sprintStatus.status': { $in: [undefined, null] }
         },
-        select: '-columns -membersCapacity', lean: true, sort: '-createdAt'
+        lean: true, sort: '-createdAt',
+        populate: detailedPopulationForSprint
       };
 
       // return founded sprint
@@ -835,8 +836,34 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         return 'No Unpublished Sprint Found';
       }
 
+      sprint.id = sprint['_id'];
+
+      // calculate sprint totals
+      this._sprintUtilityService.calculateSprintEstimates(sprint);
+
+      // loop over columns and filter out hidden columns and
+      // convert total estimation time to readable format
+      if (sprint.columns) {
+
+        sprint.columns = sprint.columns.filter(column => !column.isHidden).map(column => {
+          column.tasks = column.tasks.filter(task => !task.removedById);
+          column.tasks = column.tasks.map(task => {
+            task.task = this._sprintUtilityService.parseTaskObjectVm(task.task);
+            task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
+            return task;
+          });
+          return column;
+        });
+
+        this._sprintUtilityService.calculateTotalEstimateForColumns(sprint);
+
+        sprint.columns.forEach(column => {
+          column.totalEstimationReadable = secondsToString(column.totalEstimation);
+        });
+      }
+
       // prepare sprint vm model
-      return this._sprintUtilityService.prepareSprintVm(sprint);
+      return sprint;
     } catch (e) {
       throw e;
     }
@@ -1176,7 +1203,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     this._sprintUtilityService.addTaskToColumn(project, sprintDetails, taskDetails, this._generalService.userId);
 
     // get column index where task is added
-    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, taskDetails.statusId);
+    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, taskDetails.statusId.toString());
 
     // update sprint by id and update sprint columns
     await this.updateById(sprintDetails.id, {
