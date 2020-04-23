@@ -1,6 +1,5 @@
 <section id="row-main" class="form-container row" *ngIf="!showTaskNotFoundView">
 
-
   <aside id="content" class="m-b-20 p-r-25 m-t-10" [ngClass]="{
       'col-md-8': isOpenActivitySidebar && taskId,
       'col-md-12': !isOpenActivitySidebar || !taskId
@@ -237,7 +236,7 @@
         <div class="row floating-save-btns">
           <div class="col-md-12 text-right">
 
-            <button type="reset" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
+            <a routerLink="../../backlog" class="m-r-15">Backlogs</a>
             <button type="reset" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
             <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
