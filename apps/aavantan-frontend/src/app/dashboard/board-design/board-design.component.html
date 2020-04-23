@@ -109,9 +109,15 @@
                    || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
                    nzSize="large">
 
+
+
+
+
             <section class="sprintboard-container p-l-10">
 
-              <div class="row flex-row flex-nowrap sprintboard-column-container" *ngIf="!getActiveBoardInProcess"
+              <div class="row flex-row flex-nowrap sprintboard-column-container"
+                   [ngStyle]="{'width':(activeBoard?.columns.length*255+220)+'px'}"
+                    *ngIf="!getActiveBoardInProcess"
                    dndDropzone dndEffectAllowed="copyMove" dndHorizontal="true" (dndDrop)="onColumnDropped($event)">
 
                 <div dndPlaceholderRef class="dndColumnPlaceholder">

@@ -1,6 +1,8 @@
 .sprintboard-container {
+  overflow: inherit;
   .column {
     width: 225px;
+    margin-right: 30px;
   }
   .card-block {
     width: 100%;
