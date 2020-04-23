@@ -123,14 +123,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create project and get project id from them
       const createdProject = await this.create([projectModel], session);
 
-      // create default board goes here
-      const defaultBoard = await this._boardService.createDefaultBoard(createdProject[0], session);
-
-      // update project and set default settings and active board
-      await this.updateById(createdProject[0].id, {
-        $set: { activeBoardId: defaultBoard[0].id }
-      }, session);
-
       // set created project as current project of user
       userDetails.currentProject = createdProject[0].id;
       // push project to user projects array
@@ -470,9 +462,15 @@ export class ProjectService extends BaseService<Project & Document> implements O
         });
       }
 
+      // create default board goes here
+      const defaultBoard = await this._boardService.createDefaultBoard(project, session);
+
       // update project's template
       await this.updateById(model.projectId, {
-        $set: { template: model.template },
+        $set: {
+          template: model.template,
+          activeBoardId: defaultBoard[0].id
+        },
         $push: {
           'settings.statuses': { $each: project.settings.statuses },
           'settings.taskTypes': { $each: project.settings.taskTypes },
