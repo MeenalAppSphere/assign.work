@@ -103,7 +103,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public statusDataSource: TaskStatusModel[] = [];
   public priorityDataSource: TaskPriorityModel[] = [];
   public displayName: string;
-  public taskData: BaseResponseModel<Task>;
+  public taskData: Task;
   public taskId: string;
   public attachementHeader: any;
   public attachementUrl: string;
@@ -678,56 +678,57 @@ export class TaskComponent implements OnInit, OnDestroy {
         displayName: this.displayName,
         taskId: this.taskId
       };
-      this.taskData = await this._taskService.getTask(json).toPromise();
+      const res = await this._taskService.getTask(json).toPromise();
       this.showTaskNotFoundView = false;
-      this.currentTask = this.taskData.data;
+      this.currentTask = res.data;
+      this.taskData = res.data;
 
-      this.taskForm.patchValue(this.taskData.data);
+      this.taskForm.patchValue(this.taskData);
 
       //sidebar form
       this.taskFormSideBar.get('watchers').patchValue('');
       this.taskFormSideBar.get('tags').patchValue('');
       //-------------
 
-      this.taskId = this.taskData.data.id;
+      this.taskId = this.taskData.id;
       this.getMessage();
       this.getHistory();
-      this.selectTaskType(this.taskData.data.taskType as TaskTypeModel);
-      this.selectStatus(this.taskData.data.status);
-      this.selectPriority(this.taskData.data.priority as ProjectPriority);
-      this.selectDependentItemTypeahead(this.taskData.data.dependentItem as Task);
-      if (this.taskData.data.assignee && this.taskData.data.assigneeId) {
-        this.taskData.data.assignee.id = this.taskData.data.assigneeId;
-        this.selectAssigneeTypeahead(this.taskData.data.assignee as User);
+      this.selectTaskType(this.taskData.taskType as TaskTypeModel);
+      this.selectStatus(this.taskData.status);
+      this.selectPriority(this.taskData.priority as ProjectPriority);
+      this.selectDependentItemTypeahead(this.taskData.dependentItem as Task);
+      if (this.taskData.assignee && this.taskData.assigneeId) {
+        this.taskData.assignee.id = this.taskData.assigneeId;
+        this.selectAssigneeTypeahead(this.taskData.assignee as User);
       }
-      if (this.taskData.data.estimatedTime) {
-        this.setHoursMinutes(this.taskData.data.estimatedTime);
+      if (this.taskData.estimatedTime) {
+        this.setHoursMinutes(this.taskData.estimatedTime);
       }
 
-      if (this.taskData.data && this.taskData.data.progress) {
+      if (this.taskData && this.taskData.progress) {
 
         this.progressData = {
-          progress: this.taskData.data.progress,
-          totalLoggedTime: this.taskData.data.totalLoggedTime,
-          totalLoggedTimeReadable: this.taskData.data.totalLoggedTimeReadable,
-          remainingTimeReadable: this.taskData.data.remainingTimeReadable,
-          overLoggedTime: this.taskData.data.overLoggedTime,
-          overLoggedTimeReadable: this.taskData.data.overLoggedTimeReadable,
-          overProgress: this.taskData.data.overProgress
+          progress: this.taskData.progress,
+          totalLoggedTime: this.taskData.totalLoggedTime,
+          totalLoggedTimeReadable: this.taskData.totalLoggedTimeReadable,
+          remainingTimeReadable: this.taskData.remainingTimeReadable,
+          overLoggedTime: this.taskData.overLoggedTime,
+          overLoggedTimeReadable: this.taskData.overLoggedTimeReadable,
+          overProgress: this.taskData.overProgress
         };
 
       }
 
-      this.listOfSelectedWatchers = this.taskData.data.watchersDetails;
+      this.listOfSelectedWatchers = this.taskData.watchersDetails;
 
-      if (this.taskData.data.tags && this.taskData.data.tags.length > 0) {
-        this.taskData.data.tags.forEach(name => {
+      if (this.taskData.tags && this.taskData.tags.length > 0) {
+        this.taskData.tags.forEach(name => {
           this.listOfSelectedTags.push({ name: name, id: null });
         });
       }
 
-      this.attachementIds = this.taskData.data.attachments;
-      this.uploadedImages = this.taskData.data.attachmentsDetails;
+      this.attachementIds = this.taskData.attachments;
+      this.uploadedImages = this.taskData.attachmentsDetails;
 
       this.getTaskInProcess = false;
     } catch (e) {
@@ -829,11 +830,11 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.updateSidebarContentInProcess = true;
     const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
     const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
-    this.taskData.data.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
+    this.taskData.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
 
     // watcher and tags in this.updateTask function
 
-    await this.updateTask(this.taskData.data);
+    await this.updateTask(this.taskData);
 
     this.updateSidebarContentInProcess = false;
 
@@ -887,6 +888,11 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskId = data.data.id;
         this.displayName = data.data.displayName;
 
+        if(!this.taskData){
+          this.taskData = data.data;
+        }
+
+
         this.selectStatus(data.data.status);
         this.selectAssigneeTypeahead(data.data.assignee);
 
@@ -905,26 +911,27 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.id = this.taskId;
     task.displayName = this.displayName;
 
-    this.taskData.data.watchers = [];
+    this.taskData.watchers = [];
     if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
       this.listOfSelectedWatchers.forEach(ele => {
-        this.taskData.data.watchers.push(ele.id || ele._id);
+        this.taskData.watchers.push(ele.id || ele._id);
       });
     }
 
-    this.taskData.data.tags = [];
+    this.taskData.tags = [];
     if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
       this.listOfSelectedTags.forEach(ele => {
-        this.taskData.data.tags.push(ele.name);
+        this.taskData.tags.push(ele.name);
       });
     }
 
-    task.watchers = this.taskData.data.watchers;
-    task.tags = this.taskData.data.tags;
+    task.watchers = this.taskData.watchers;
+    task.tags = this.taskData.tags;
 
     const data = await this._taskService.updateTask(task).toPromise();
 
     this.currentTask = data.data;
+    this.taskData = data.data;
     this.displayName = data.data.displayName;
 
     if (data && data.data && data.data.progress) {
