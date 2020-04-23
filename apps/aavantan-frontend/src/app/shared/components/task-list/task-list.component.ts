@@ -86,16 +86,20 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // ready status filter dropdown data
-    const columns =  this._generalService.currentProject.activeBoard.columns;
+    const columns = this._generalService.currentProject.activeBoard.columns;
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden);
 
-      columns.forEach((ele)=>{
-        let checked= true;
-        if(data.headerStatus.id===ele.headerStatus.id) {
-          checked= false;
+      columns.forEach((ele) => {
+        let checked = true;
+        if (data.headerStatusId === ele.headerStatusId) {
+          checked = false;
         }
-        this.statusColumnDataSource.unshift({ label: ele.headerStatus.name, value: ele.headerStatus.id, checked: checked });
+        this.statusColumnDataSource.unshift({
+          label: ele.headerStatus.name,
+          value: ele.headerStatus.id,
+          checked: checked
+        });
       });
     }
 
@@ -158,6 +162,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
       this.indeterminate = true;
     }
   }
+
   //---------------------//
 
   ngOnChanges(changes: SimpleChanges): void {

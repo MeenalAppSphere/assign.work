@@ -118,7 +118,7 @@ export class SprintUtilityService {
    */
   addTaskToColumn(project: Project, sprint: Sprint, task: Task, addedById: string) {
     // get column index where we can add this task in sprint column from active board details
-    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
+    const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId.toString());
     if (columnIndex === -1) {
       BadRequest('Column not found');
     }
