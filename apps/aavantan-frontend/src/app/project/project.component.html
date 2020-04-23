@@ -17,6 +17,7 @@
               (pageChangedEvent)="myTaskPageChanged($event)"
               (sortingChangedEvent)="myTaskSortingChanged($event)"
               (searchEvent)="searchMyTasks($event)"
+              (filterEvent)="filterApplied($event)"
             ></aavantan-task-list>
           </ng-container>
         </nz-spin>
@@ -41,6 +42,7 @@
               (pageChangedEvent)="allTaskPageChanged($event)"
               (sortingChangedEvent)="allTaskSortingChanged($event)"
               (searchEvent)="searchAllTasks($event)"
+              (filterEvent)="filterApplied($event)"
             ></aavantan-task-list>
           </ng-container>
 

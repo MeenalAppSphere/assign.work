@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  GetAllTaskRequestModel,
+  GetAllTaskRequestModel, StatusDDLModel,
   Task,
   TaskFilterCondition,
   TaskFilterModel,
@@ -124,6 +124,22 @@ export class ProjectComponent implements OnInit, OnDestroy {
     }
 
     this.router.navigateByUrl('dashboard/task/' + displayName);
+  }
+
+  public filterApplied(query: StatusDDLModel[]) {
+
+    let queryIds: string[]= [];
+    query.forEach((ele) => {
+      if (ele.checked) {
+        queryIds.push(ele.value);
+      }
+    });
+
+    this.myTaskFilterRequest.queries= [];
+    this.myTaskFilterRequest.queries.push({
+      key: 'statusId', value: queryIds, condition: TaskFilterCondition.and
+    });
+    this.getMyTasks();
   }
 
   public searchMyTasks(term: string) {
