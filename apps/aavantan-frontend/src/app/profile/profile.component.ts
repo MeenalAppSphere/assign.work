@@ -25,10 +25,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public uploadedImages = [];
   public skillListData:string[] = [];
   public uploadingImage:boolean = false;
-  public activeView: any = {
-    title: 'Profile',
-    view: 'profile'
-  };
   public passwordForm: FormGroup;
   public updateRequestInProcess:boolean;
 
@@ -87,13 +83,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     } else if (status === 'error') {
       this.notification.error('Error', `${file.name} file upload failed.`);
     }
-  }
-
-  public activeTab(view: string, title: string) {
-    this.activeView = {
-      title: title,
-      view: view
-    };
   }
 
 
