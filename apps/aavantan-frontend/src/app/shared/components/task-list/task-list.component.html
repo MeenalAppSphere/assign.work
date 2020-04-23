@@ -3,11 +3,11 @@
 
   <div class="row m-b-10 justify-content-end">
 
-    <div class="col text-right" style="max-width: 320px;">
+    <div class="col text-right" style="max-width: 320px; display:none;">
 
       <nz-button-group nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight">
 
-        <button nz-button nzType="default" style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">
+        <button nz-button nzType="default" (click)="updateAllChecked(true)" style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">
           <label
             nz-checkbox
             [(ngModel)]="allChecked"

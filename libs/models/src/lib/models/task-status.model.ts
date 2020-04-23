@@ -13,3 +13,9 @@ export class DeleteStatusModel {
   nextStatusId?: string;
   haveTasks?: boolean;
 }
+
+export class StatusDDLModel {
+  value:string;
+  label:string;
+  checked:boolean;
+}

@@ -3,7 +3,7 @@ import {
   AddTaskToSprintModel,
   DraftSprint,
   GetAllTaskRequestModel,
-  RemoveTaskFromSprintModel,
+  RemoveTaskFromSprintModel, StatusDDLModel,
   Task,
   TaskFilterModel,
   TaskTimeLogResponse, TaskTypeModel
@@ -17,7 +17,6 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
-import { BoardQuery } from '../../../queries/board/board.query';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -47,6 +46,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   @Output() pageChangedEvent: EventEmitter<number> = new EventEmitter<number>();
   @Output() sortingChangedEvent: EventEmitter<{ type: string, columnName: string }> = new EventEmitter();
   @Output() searchEvent: EventEmitter<string> = new EventEmitter();
+  @Output() filterEvent: EventEmitter<StatusDDLModel[]> = new EventEmitter();
 
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;
@@ -66,7 +66,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   // status ddl
   public allChecked = false;
   public indeterminate = true;
-  public statusColumnDataSource = [];
+  public statusColumnDataSource:StatusDDLModel[] = [];
 
 
   constructor(protected notification: NzNotificationService,
@@ -86,6 +86,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // ready status filter dropdown data
+    /*
     const columns =  this._generalService.currentProject.activeBoard.columns;
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden);
@@ -97,7 +98,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.statusColumnDataSource.unshift({ label: ele.headerStatus.name, value: ele.headerStatus.id, checked: checked });
       });
-    }
+    }*/
 
 
     // search event
@@ -128,15 +129,17 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
 
 
   // status ddl
-  public updateAllChecked(): void {
+  public updateAllChecked(isAll?:boolean): void {
     this.indeterminate = false;
-    if (this.allChecked) {
+    if (this.allChecked || isAll) {
       this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
         return {
           ...item,
           checked: true
         };
       });
+      this.allChecked=!this.allChecked;
+      this.indeterminate = false;
     } else {
       this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
         return {
@@ -144,7 +147,11 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
           checked: false
         };
       });
+      this.allChecked=!this.allChecked;
+      this.indeterminate = true;
     }
+    //console.log(this.statusColumnDataSource);
+    this.filterEvent.emit(this.statusColumnDataSource);
   }
 
   public updateSingleChecked(): void {
@@ -157,7 +164,12 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.indeterminate = true;
     }
+
+    this.filterEvent.emit(this.statusColumnDataSource);
+
   }
+
+
   //---------------------//
 
   ngOnChanges(changes: SimpleChanges): void {
