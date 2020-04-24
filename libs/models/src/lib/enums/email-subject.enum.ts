@@ -1,6 +1,7 @@
 export enum EmailSubjectEnum {
   projectInvitation = 'Project Invitation',
   resetPassword = 'Reset Password',
+  changePassword = 'Password Changed',
   sprintPublished = 'A new sprint published',
   sprintClosed = 'Sprint Closed',
   taskMoved = 'Task moved to a column',

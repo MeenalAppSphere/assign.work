@@ -1,12 +1,17 @@
 import { Body, Controller, Get, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { UsersService } from '../shared/services/users.service';
 import { AuthGuard } from '@nestjs/passport';
-import { SearchUserModel, User } from '@aavantan-app/models';
+import { ChangePasswordModel, SearchUserModel, User } from '@aavantan-app/models';
 
 @Controller('user')
 @UseGuards(AuthGuard('jwt'))
 export class UserController {
   constructor(private readonly _userService: UsersService) {
+  }
+
+  @Post('change-password')
+  async changePassword(@Body() model: ChangePasswordModel) {
+    return await this._userService.changePassword(model);
   }
 
   @Get('profile')
