@@ -810,11 +810,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
   public parseProjectToVm(project: Project): Project {
     project.id = project._id;
 
-    // project.members = project.members.map(member => {
-    //   member.workingCapacity = secondsToHours(member.workingCapacity);
-    //   member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
-    //   return member;
-    // });
+    project.members = project.members.map(member => {
+      member.workingCapacity = secondsToHours(member.workingCapacity);
+      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+      return member;
+    });
 
     return project;
   }
