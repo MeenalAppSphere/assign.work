@@ -1,7 +1,7 @@
 import * as aws from 'aws-sdk';
 import { DEFAULT_EMAIL_ADDRESS, DEFAULT_EMAIL_TEMPLATE_PATH } from '../helpers/defaultValueConstant';
 import * as ejs from 'ejs';
-import { getEmailTemplateFromEmailSubject, resolvePathHelper } from '../helpers/helpers';
+import { resolvePathHelper } from '../helpers/helpers';
 import { BuildEmailConfigurationModel, SendEmailModel } from '@aavantan-app/models';
 
 
@@ -65,7 +65,7 @@ export class EmailService {
         const emailObject: SendEmailModel = {
           to: [configuration.recipients[i]],
           subject: configuration.subject,
-          message: await this.getTemplate(getEmailTemplateFromEmailSubject(configuration.subject), configuration.templateDetails[i])
+          message: await this.getTemplate(configuration.template, configuration.templateDetails[i])
         };
 
         this.sendMail(emailObject.to, emailObject.subject, emailObject.message);

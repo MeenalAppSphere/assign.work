@@ -1,4 +1,4 @@
-import { DefaultSettingsModel, EmailSubjectEnum, ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
+import { DefaultSettingsModel, ProjectTemplateEnum, ProjectWorkingDays } from '@aavantan-app/models';
 import * as path from 'path';
 import * as moment from 'moment';
 
@@ -6,12 +6,12 @@ import {
   DEFAULT_DECIMAL_PLACES,
   DEFAULT_INVITATION_EXPIRY,
   DEFAULT_RESET_PASSWORD_CODE_EXPIRY,
-  DEFAULT_SETTINGS_FOR_ACCOUNTING, DEFAULT_SETTINGS_FOR_PRODUCTION,
+  DEFAULT_SETTINGS_FOR_ACCOUNTING,
+  DEFAULT_SETTINGS_FOR_PRODUCTION,
   DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT,
   DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT
 } from './defaultValueConstant';
 import { BadRequestException } from '@nestjs/common';
-import { emailSubjectTemplateMapper } from '@aavantan-app/models';
 import { Types } from 'mongoose';
 
 /**
@@ -219,15 +219,6 @@ export const getMentionedUsersFromString = (str: string = ''): string[] => {
   } else {
     return [];
   }
-};
-
-/**
- * get email template path using email subject
- * @param subject
- */
-export const getEmailTemplateFromEmailSubject = (subject: EmailSubjectEnum) => {
-  const mapper = emailSubjectTemplateMapper();
-  return mapper.get(subject);
 };
 
 /**

@@ -124,3 +124,6 @@ export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
     { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
   ]
 };
+
+// default sal rounds for hashing the password
+export const HASH_PASSWORD_SALT_ROUNDS = 10;
