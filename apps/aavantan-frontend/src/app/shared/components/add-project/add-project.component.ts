@@ -64,6 +64,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public searchProjectText: string;
   public modelChanged = new Subject<string>();
   public isSearching: boolean;
+  public searchSatarted:boolean;
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
@@ -95,6 +96,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(300))
       .subscribe(() => {
+        this.searchSatarted = true;
         this.isSearching = true;
         this._projectService.searchProject(this.searchProjectText).subscribe((data) => {
           this.projectListSearch = data.data;

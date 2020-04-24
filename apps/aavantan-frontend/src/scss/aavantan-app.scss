@@ -346,7 +346,8 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 
-.ant-table-small>.ant-table-content>.ant-table-body>table>.ant-table-tbody>tr>td{
+.ant-table-small>.ant-table-content>.ant-table-body>table>.ant-table-tbody>tr>td,
+.ant-table-small>.ant-table-content>.ant-table-scroll>.ant-table-body>table>.ant-table-tbody>tr>td {
   padding: 4px;
   font-size: 13px;
   h6,a, span{

@@ -481,7 +481,7 @@
               <nz-form-label>All Status</nz-form-label>
 
               <ul class="stages-list">
-                <li *ngFor="let item of statusList"><span>{{item.name}}</span>
+                <li *ngFor="let item of statusList"><span (click)="toggleAddStatusShow(item)">{{item.name}}</span>
 
                   <span class="float-right">
                       <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>
@@ -562,7 +562,7 @@
                   <div>
                     <i nz-tooltip [nzTitle]="item.color"
                        [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
-                    <span class="p-l-10">{{item.name}}</span></div>
+                    <span class="p-l-10" (click)="toggleAddPriorityShow(item)" >{{item.name}}</span></div>
 
                   <span class="float-right">
                       <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>
@@ -664,7 +664,7 @@
                 <li *ngFor="let item of typesList">
                   <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
                      [ngStyle]="{'color':item.color}"></i>
-                  <span>{{item.name}}</span>
+                  <span (click)="toggleAddTaskTypeShow(item)">{{item.name}}</span>
                   <span class="float-right">
                       <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close"></i>
                       <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline"

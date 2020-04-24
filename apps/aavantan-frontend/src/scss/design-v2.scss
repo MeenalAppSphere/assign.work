@@ -710,6 +710,9 @@ $color-green : #42E3A3;
   //.ant-steps-item-process > .ant-steps-item-content > .ant-steps-item-title:after {
   //  background-color: #6e829c!important;
   //}
+  .ant-modal-body {
+    padding-bottom: 0px;
+  }
   .ant-steps-item-process .ant-steps-item-icon {
     background: $theme-blue !important;
     border-color: $theme-blue!important;
