@@ -1,4 +1,11 @@
-import { BuildEmailConfigurationModel, EmailSubjectEnum, Project, Task, TaskComments } from '@aavantan-app/models';
+import {
+  BuildEmailConfigurationModel,
+  EmailSubjectEnum,
+  EmailTemplatePathEnum,
+  Project,
+  Task,
+  TaskComments
+} from '@aavantan-app/models';
 import { BadRequest, getMentionedUsersFromString } from '../../helpers/helpers';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { environment } from '../../../environments/environment';
@@ -51,7 +58,7 @@ export class TaskCommentUtilityService {
    * @param type
    */
   async sendMailForComments(task: Task, project: Project, comment: TaskComments, subject: EmailSubjectEnum, type: string) {
-    const emailConfiguration = new BuildEmailConfigurationModel(subject);
+    const emailConfiguration = new BuildEmailConfigurationModel(subject, EmailTemplatePathEnum.taskCommentAdded);
 
     // prepare data for sending mail
     for (const watcher of task.watchersDetails) {

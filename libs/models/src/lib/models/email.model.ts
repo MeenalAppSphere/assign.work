@@ -10,7 +10,7 @@ export class BuildEmailConfigurationModel {
   recipients: string[];
   templateDetails: any[];
 
-  constructor(public subject: EmailSubjectEnum) {
+  constructor(public subject: EmailSubjectEnum, public template: EmailTemplatePathEnum) {
     this.recipients = [];
     this.templateDetails = [];
   }
