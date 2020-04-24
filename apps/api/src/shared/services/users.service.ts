@@ -1,15 +1,6 @@
 import { BadRequestException, Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  BuildEmailConfigurationModel,
-  ChangePasswordModel,
-  DbCollection,
-  EmailSubjectEnum,
-  EmailTemplatePathEnum,
-  SearchUserModel,
-  User,
-  UserLoginProviderEnum
-} from '@aavantan-app/models';
+import { ChangePasswordModel, DbCollection, SearchUserModel, User, UserLoginProviderEnum } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project/project.service';
@@ -20,13 +11,11 @@ import { SprintUtilityService } from './sprint/sprint.utility.service';
 import { ModuleRef } from '@nestjs/core';
 import * as bcrypt from 'bcrypt';
 import { HASH_PASSWORD_SALT_ROUNDS } from '../helpers/defaultValueConstant';
-import { EmailService } from './email.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _sprintUtilityService: SprintUtilityService;
-  private _emailService: EmailService;
 
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
               private _generalService: GeneralService, private _moduleRef: ModuleRef) {
@@ -37,7 +26,6 @@ export class UsersService extends BaseService<User & Document> implements OnModu
 
   onModuleInit() {
     this._projectService = this._moduleRef.get('ProjectService');
-    this._emailService = new EmailService();
   }
 
   /**
@@ -87,12 +75,6 @@ export class UsersService extends BaseService<User & Document> implements OnModu
             // update user password
             const hashedPassword = await bcrypt.hash(model.newPassword, HASH_PASSWORD_SALT_ROUNDS);
             await this.updateById(user._id, { $set: { password: hashedPassword } }, session);
-
-            // send mail for change password
-            const mailConfig = new BuildEmailConfigurationModel(EmailSubjectEnum.changePassword, EmailTemplatePathEnum.changePassword);
-            mailConfig.recipients = [model.emailId];
-            mailConfig.templateDetails = [{ user }];
-            this._emailService.buildAndSendEmail(mailConfig);
 
             // return jwt token
             return 'Password Changed Successfully';

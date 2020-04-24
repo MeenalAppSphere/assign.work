@@ -1,7 +1,6 @@
 export enum EmailTemplatePathEnum {
   projectInvitation = 'project-invitation/project-invitation.ejs',
   resetPassword = 'reset-password/reset-password.ejs',
-  changePassword = 'change-password/change-password.ejs',
   publishSprint = 'publish-sprint/publish-sprint.ejs',
   closeSprint = 'close-sprint/close-sprint.ejs',
   taskCreated = 'task-created/task-created.ejs',
