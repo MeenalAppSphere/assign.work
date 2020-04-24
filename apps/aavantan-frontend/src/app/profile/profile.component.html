@@ -71,7 +71,7 @@
 
 
 
-  <nz-card [nzTitle]="templateTitle">
+  <nz-card [nzTitle]="templateTitle" *ngIf="isShowChangePassword">
 
     <ng-template #templateTitle>
       Change Password
@@ -83,13 +83,14 @@
 
     <section class="row">
       <aside class="col-md-4">
+
         <form nz-form class="register-form" [formGroup]="passwordForm">
           <nz-form-item>
             <nz-form-label>Current Password</nz-form-label>
             <nz-form-control nzErrorTip="Please enter current password">
               <input
                 autocomplete="Off"
-                formControlName="current_password"
+                formControlName="currentPassword"
                 maxlength="50"
                 type="password"
                 placeholder="Current Password"
@@ -101,7 +102,7 @@
             <nz-form-control nzErrorTip="Please enter new password">
               <input
                 autocomplete="Off"
-                formControlName="new_password"
+                formControlName="newPassword"
                 type="password"
                 placeholder="New password"
                 maxlength="50"
@@ -113,7 +114,7 @@
             <nz-form-control nzErrorTip="Please enter confirm password">
               <input
                 autocomplete="Off"
-                formControlName="confirm_password"
+                formControlName="confirmPassword"
                 type="password"
                 maxlength="50"
                 placeholder="Confirm Password"
@@ -123,7 +124,7 @@
 
           <nz-form-item>
 
-            <p *ngIf="passwordForm.get('confirm_password').touched && passwordForm.errors?.notSame" class="text-danger">New password and Confirm password is not matching.</p>
+            <p *ngIf="passwordForm.errors?.notSame" class="text-danger">New password and Confirm password is not matching.</p>
 
             <button (click)="save()" [disabled]="passwordForm.invalid" [nzLoading]="updateRequestInProcess"
                     nz-button nzType="primary"
