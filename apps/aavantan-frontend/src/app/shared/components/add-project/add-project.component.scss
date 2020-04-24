@@ -36,7 +36,8 @@
 
 .search-list {
     overflow: auto;
-    max-height: 310px;
+    max-height: 240px;
+    min-height: 180px;
   .ant-list-item{
     &:hover{
       cursor: pointer;

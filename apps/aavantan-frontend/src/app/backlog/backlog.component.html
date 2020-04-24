@@ -125,9 +125,9 @@
 
         <!-- sprint tasks not found/ empty task list -->
         <div class="draft-sprint-box"
-             *ngIf="(activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
+             *ngIf="(sprintId && !draftTaskList) || (activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
 
-          <nz-spin *ngIf="draftTaskList?.length==0"
+          <nz-spin *ngIf="sprintId || draftTaskList?.length==0"
                    [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
                    [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
             <nz-empty
@@ -164,10 +164,10 @@
                 <thead>
                 <tr>
 
-                  <th class="text-center" width="50">#</th>
+                  <th class="text-center" data-label="#" width="50">#</th>
 
 
-                  <th class="text-left" style="min-width:115px;">
+                  <th class="text-left" width="115">
                     <span>Priority</span>
                     <span class="p-l-10">
                   <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -211,12 +211,12 @@
                 <tbody>
                 <tr *ngFor="let item of sprintListViewTable.data">
 
-                  <td data-label="#" class="text-center">
+                  <td data-label="#" width="50" class="text-center">
                     <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
                        class="remove-item cursor-pointer text-muted" theme="fill"></i>
                   </td>
 
-                  <td data-label="Priority" class="text-left">
+                  <td data-label="Priority" width="115" class="text-left">
                   <span *ngIf="item && item.priority">
                     <i [ngStyle]="{'border-left':'solid 3px '+item.priority.color+'', 'height':'15px' }"></i>
                   </span>
@@ -224,7 +224,7 @@
                     <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>
                   </td>
 
-                  <td data-label="Type" class="text-left">
+                  <td data-label="Type" width="155" class="text-left">
                     <span *ngIf="!item.taskType">-</span>
                     <a routerLink="../../task/{{item.displayName}}" class="text-primary"
                        *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
@@ -248,7 +248,7 @@
                     </div>
                   </td>
 
-                  <td data-label="Status" class="text-center">
+                  <td data-label="Status" width="110" class="text-center">
                     <span *ngIf="!item.status">-</span>
                     <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
                       <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
@@ -256,7 +256,7 @@
                     </nz-tag>
                   </td>
 
-                  <td data-label="Members" class="text-left">
+                  <td data-label="Members" width="160" class="text-left">
                     <span *ngIf="!item.assignee">-</span>
                     <span *ngIf="item.assignee" nz-tooltip
                           [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar
@@ -265,7 +265,7 @@
                        [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
                   </td>
 
-                  <td data-label="Estimate" class="text-right">
+                  <td data-label="Estimate" width="125" class="text-right">
                     <span class="text-black display-block">{{item.estimatedTimeReadable}}</span>
                   </td>
 
@@ -365,9 +365,9 @@
               <thead>
               <tr>
 
-                <th class="text-center" width="50" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
+                <th class="text-center" data-label="#" width="50" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
 
-                <th class="text-left" style="min-width:115px;">
+                <th class="text-left" width="115">
                   <span>Priority</span>
                   <span class="p-l-10">
                   <ng-container *ngTemplateOutlet="sortTemplate;context: {
