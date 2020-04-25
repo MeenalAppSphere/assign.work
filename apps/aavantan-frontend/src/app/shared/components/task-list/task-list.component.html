@@ -3,29 +3,30 @@
 
   <div class="row m-b-10 justify-content-end">
 
-    <div class="col text-right" style="max-width: 320px;">
+    <div class="col text-right" style="max-width: 360px;">
 
-      <nz-button-group nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight">
+      <div class="ng-select-content">
 
-        <button nz-button nzType="default" (click)="updateAllChecked(true)" style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">
-          <label
-            nz-checkbox
-            [(ngModel)]="allChecked"
-            (ngModelChange)="updateAllChecked()"
-            [nzIndeterminate]="indeterminate">
-            Choose Status
-          </label>
-        </button>
-        <button class="p-r-5 p-l-5" nz-button style="border-left:1px solid #ffffff; min-width:35px; height:33px;">
-          <i nz-icon nzType="caret-down" nzTheme="outline"></i>
-        </button>
-      </nz-button-group>
 
-      <nz-dropdown-menu #statusDdl="nzDropdownMenu">
-        <div class="shadow-sm box-shadow">
-          <nz-checkbox-group class="vertical-checkbox" [(ngModel)]="statusColumnDataSource" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
-        </div>
-      </nz-dropdown-menu>
+
+          <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()" *ngIf="selectedColumnDataSource?.length===0">
+
+            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status</button>
+
+          <nz-select
+            *ngIf="selectedColumnDataSource?.length>0"
+            class="ng-select"
+            [nzMaxTagCount]="2"
+            (ngModelChange)="updateSingleChecked($event)"
+            [nzMaxTagPlaceholder]="tagPlaceHolder"
+            nzMode="multiple"
+            nzPlaceHolder="Please select"
+            [(ngModel)]="selectedColumnDataSource">
+            <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+          </nz-select>
+          <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more</ng-template>
+
+      </div>
 
     </div>
 
@@ -175,43 +176,48 @@
       <thead>
       <tr>
 
-        <th class="text-center" width="50" *ngIf="isDraftTable">#</th>
+        <th class="text-center td-sn" *ngIf="isDraftTable">#</th>
 
-        <th class="text-center" width="50"
+        <th class="text-center td-sn" style="width:50px;max-width:50px;min-width:50px;"
             *ngIf="showCheckboxOption && (activeSprintId || tasksSelected?.sprintId || sprintId)">#
         </th>
 
-        <th class="text-left" style="min-width:115px;">
+        <th class="text-left td-priority">
           <span>Priority</span>
           <span class="p-l-10" *ngIf="showSorting">
                   <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'priority'}"></ng-container>
                 </span>
         </th>
 
-        <th class="text-left" width="155">
+        <th class="text-left td-type">
           <span>Type</span>
           <span class="p-l-10" *ngIf="showSorting">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'taskType'}"></ng-container>
                     </span>
         </th>
 
-        <th style="min-width: 400px; max-width: 40%;">
+        <th class="td-title">
           <span>Title</span>
         </th>
 
-        <th class="text-center" *ngIf="showProgressOption">Progress</th>
-
-        <th class="text-center" width="110">
+        <th class="text-center td-status">
           <span>Status</span>
         </th>
+        <th class="text-center td-reporter">Reporter</th>
 
-        <th class="text-left" width="160">Member</th>
+        <!-- <th class="text-center" width="110">Progress</th>-->
 
-        <th class="text-right" width="125">
+        <th class="text-center td-assignee">Assignee</th>
+
+        <th class="text-right td-estimates">
           <span>Estimates</span>
           <span class="p-l-10" *ngIf="showSorting">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'estimatedTime'}"></ng-container>
                   </span>
+        </th>
+
+        <th class="text-center td-log-hours">
+          <span>Log Hours</span>
         </th>
 
       </tr>
@@ -268,10 +274,11 @@
           </div>
         </td>
 
-        <td *ngIf="showProgressOption" data-label="Progress" class="text-center">
-          <span *ngIf="!item.progress">-</span>
-          <span *ngIf="item.progress">{{item.progress}}%</span>
-        </td>
+
+<!--        <td *ngIf="showProgressOption" data-label="Progress" class="text-center">-->
+<!--          <span *ngIf="!item.progress">-</span>-->
+<!--          <span *ngIf="item.progress">{{item.progress}}%</span>-->
+<!--        </td>-->
 
         <td data-label="Status" class="text-center">
           <span *ngIf="!item.status">-</span>
@@ -281,21 +288,28 @@
           </nz-tag>
         </td>
 
-        <td data-label="Members" class="text-left">
+        <td data-label="Reporter" class="text-center">
+          <span *ngIf="!item.createdBy">-</span>
+          <span *ngIf="item.createdBy" nz-tooltip
+                [nzTitle]="item.assignee && item.createdBy.firstName ? item.createdBy.firstName +' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
+            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+        </td>
+
+        <td data-label="Assignee" class="text-center">
           <span *ngIf="!item.assignee">-</span>
           <span *ngIf="item.assignee" nz-tooltip
-                [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar
-            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>
-                    <p class="assignee-name text-black" nz-paragraph nzEllipsis
-                       [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
+                [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.createdBy.lastName : item.assignee.emailId"> <nz-avatar
+            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>  </span>
         </td>
 
         <td data-label="Estimate" class="text-right">
-          <span class="text-black display-block">{{item.estimatedTimeReadable}}</span><a href="javascript:void(0);"
-                                                                                         class="float-right text-primary"
-                                                                                         *ngIf="showLogOption"
-                                                                                         (click)="timeLog(item)">&nbsp;<i
-          nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+          <span class="text-black display-block">{{item.estimatedTimeReadable}}</span>
+        </td>
+
+        <td data-label="Log Hours" class="text-center">
+          <a href="javascript:void(0);" class="text-primary" *ngIf="showLogOption"
+                                                                        (click)="timeLog(item)">&nbsp;<i
+          nz-icon nzType="clock-circle" theme="outline"></i></a>
         </td>
 
       </tr>
