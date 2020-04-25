@@ -2,8 +2,16 @@
 <section id="project-page">
 
   <nz-tabset [nzTabBarExtraContent]="tabSwitchTemplate" nzSize="small">
-    <nz-tab nzTitle="My Task">
-      <ng-template nz-tab>
+    <nz-tab [nzTitle]="titleTemplateMy">
+
+      <ng-template #titleTemplateMy>
+        <div class="tab-title" (click)="changeTab('my')">
+          My Task
+        </div>
+      </ng-template>
+
+
+      <ng-template nz-tab *ngIf="activeTab==='my'">
 
         <nz-spin nzTip="Loading..." [nzSpinning]="getMyTaskInProcess">
 
@@ -11,13 +19,15 @@
             <aavantan-task-list
               [taskByUser]="'my'"
               [taskList]="myTaskList"
+              [statusColumnDataSource]="statusColumnDataSource"
+              [selectedColumnDataSource]="selectedColumnDataSource"
               [view]="view"
               [showSorting]="true"
               [requestModel]="myTaskFilterRequest"
               (pageChangedEvent)="myTaskPageChanged($event)"
               (sortingChangedEvent)="myTaskSortingChanged($event)"
               (searchEvent)="searchMyTasks($event)"
-              (filterEvent)="filterApplied($event)"
+              (filterEvent)="filterStatusApplied($event)"
             ></aavantan-task-list>
           </ng-container>
         </nz-spin>
@@ -26,8 +36,16 @@
 
     </nz-tab>
 
-    <nz-tab nzTitle="All">
-      <ng-template nz-tab>
+    <nz-tab [nzTitle]="titleTemplateAll">
+
+      <ng-template #titleTemplateAll>
+        <div class="tab-title" (click)="changeTab('all')">
+          All
+        </div>
+      </ng-template>
+
+
+      <ng-template nz-tab *ngIf="activeTab==='all'">
 
         <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
 
@@ -36,13 +54,15 @@
             <aavantan-task-list
               [taskByUser]="'all'"
               [taskList]="allTaskList"
+              [statusColumnDataSource]="statusColumnDataSource"
+              [selectedColumnDataSource]="selectedColumnDataSource"
               [view]="view"
               [showSorting]="true"
               [requestModel]="allTaskFilterRequest"
               (pageChangedEvent)="allTaskPageChanged($event)"
               (sortingChangedEvent)="allTaskSortingChanged($event)"
               (searchEvent)="searchAllTasks($event)"
-              (filterEvent)="filterApplied($event)"
+              (filterEvent)="filterStatusApplied($event)"
             ></aavantan-task-list>
           </ng-container>
 

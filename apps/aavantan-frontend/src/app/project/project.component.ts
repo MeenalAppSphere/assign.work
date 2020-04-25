@@ -31,8 +31,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public allTaskFilterRequest: TaskFilterModel;
   public myTaskFilterRequest: TaskFilterModel;
+  public activeTab: string= 'my';
 
   public isFilterApplied: boolean;
+  public statusColumnDataSource: StatusDDLModel[] = [];
+  public selectedColumnDataSource: string[] = [];
 
   constructor(protected notification: NzNotificationService,
               private _generalService: GeneralService,
@@ -54,11 +57,36 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
     });
 
-    if (this._generalService.currentProject) {
-      this.getAllTasks();
-      this.getMyTasks();
-    }
+    // get filters and the call first tab data
+    this.getFilterStatus();
+
   }
+
+  public getFilterStatus() {
+    // ready status filter dropdown data
+    const columns = this._generalService.currentProject.activeBoard.columns;
+    if (columns) {
+      const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
+      columns.forEach((ele) => {
+        let checked = true;
+        if (data.headerStatus.id !== ele.headerStatus.id) {
+          this.selectedColumnDataSource.unshift(ele.headerStatus.id);
+        } else {
+          checked = false;
+        }
+        this.statusColumnDataSource.unshift({
+          label: ele.headerStatus.name,
+          value: ele.headerStatus.id,
+          checked: checked
+        });
+      });
+    }
+    if (this._generalService.currentProject) {
+      this.filterStatusApplied(this.selectedColumnDataSource); // 'selectedColumnDataSource' have selected filter except 'Done/Complete'
+    }
+    //status dropdown code
+  }
+
 
   getAllTasks() {
     this.getTaskInProcess = true;
@@ -126,20 +154,48 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
-  public filterApplied(query: StatusDDLModel[]) {
 
-    const queryIds: string[]= [];
-    query.forEach((ele) => {
-      if (ele.checked) {
-        queryIds.push(ele.value);
+  public changeTab(tab?: string) {
+    this.activeTab = tab;
+    if(this.activeTab ==='my'){
+      this.myTaskFilterRequest.page = 1;
+      this.myTaskFilterRequest.queries= [];
+      this.myTaskFilterRequest.queries.push({
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+      });
+      this.getMyTasks();
+    } else {
+      this.allTaskFilterRequest.page = 1;
+      this.allTaskFilterRequest.queries= [];
+      this.allTaskFilterRequest.queries.push({
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+      });
+      this.getAllTasks();
+    }
+  }
+
+
+  // this function also calling from emitter from task list component
+  public filterStatusApplied(query: string[]) {
+    if(this.activeTab==='my') {
+      if(query.length===this.statusColumnDataSource.length) {
+        this.myTaskFilterRequest.page = 1;
       }
-    });
-
-    this.myTaskFilterRequest.queries= [];
-    this.myTaskFilterRequest.queries.push({
-      key: 'statusId', value: queryIds, condition: TaskFilterCondition.or
-    });
-    this.getMyTasks();
+      this.myTaskFilterRequest.queries= [];
+      this.myTaskFilterRequest.queries.push({
+        key: 'statusId', value: query, condition: TaskFilterCondition.or
+      });
+      this.getMyTasks();
+    }else {
+      if(query.length===this.statusColumnDataSource.length) {
+        this.allTaskFilterRequest.page = 1;
+      }
+      this.allTaskFilterRequest.queries= [];
+      this.allTaskFilterRequest.queries.push({
+        key: 'statusId', value: query, condition: TaskFilterCondition.or
+      });
+      this.getAllTasks();
+    }
   }
 
   public searchMyTasks(term: string) {

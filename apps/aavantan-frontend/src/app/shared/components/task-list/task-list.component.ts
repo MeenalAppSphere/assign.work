@@ -1,4 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import {
   AddTaskToSprintModel,
   DraftSprint,
@@ -17,6 +27,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
+import { ChangeDetection } from '@angular/cli/lib/config/schema';
 
 @Component({
   selector: 'aavantan-task-list',
@@ -41,12 +52,17 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() public activeSprintId: string;
   @Input() public isDraftTable: boolean;
 
+
+  // status ddl
+  @Input() public statusColumnDataSource: StatusDDLModel[] = [];
+  @Input() public selectedColumnDataSource: string[] = [];
+
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
   @Output() tasksSelectedForDraftSprint: EventEmitter<any> = new EventEmitter<any>();
   @Output() pageChangedEvent: EventEmitter<number> = new EventEmitter<number>();
   @Output() sortingChangedEvent: EventEmitter<{ type: string, columnName: string }> = new EventEmitter();
   @Output() searchEvent: EventEmitter<string> = new EventEmitter();
-  @Output() filterEvent: EventEmitter<StatusDDLModel[]> = new EventEmitter();
+  @Output() filterEvent: EventEmitter<string[]> = new EventEmitter();
 
   public timelogModalIsVisible: boolean;
   public selectedTaskItem: Task;
@@ -63,10 +79,6 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
     duration: 0
   };
 
-  // status ddl
-  public allChecked = false;
-  public indeterminate = true;
-  public statusColumnDataSource: StatusDDLModel[] = [];
 
 
   constructor(protected notification: NzNotificationService,
@@ -74,7 +86,8 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
               private _generalService: GeneralService,
               private _sprintService: SprintService,
               private _taskService: TaskService,
-              private _taskTypeQuery: TaskTypeQuery) {
+              private _taskTypeQuery: TaskTypeQuery,
+              private _cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -84,26 +97,6 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
         this.taskTypeDataSource = res;
       }
     });
-
-    // ready status filter dropdown data
-
-    const columns = this._generalService.currentProject.activeBoard.columns;
-    if (columns) {
-      const data = columns.reverse().find(column => !column.isHidden);
-
-      columns.forEach((ele) => {
-        let checked = true;
-        if (data.headerStatus.id === ele.headerStatus.id) {
-          checked = false;
-        }
-        this.statusColumnDataSource.unshift({
-          label: ele.headerStatus.name,
-          value: ele.headerStatus.id,
-          checked: checked
-        });
-      });
-    }
-
 
     // search event
     this.searchValueSubject$.pipe(
@@ -132,45 +125,17 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
 
-  // status ddl
-  public updateAllChecked(isAll?: boolean): void {
-    this.indeterminate = false;
-    if (this.allChecked || isAll) {
-      this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
-        return {
-          ...item,
-          checked: true
-        };
-      });
-      this.allChecked = !this.allChecked;
-      this.indeterminate = false;
-    } else {
-      this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
-        return {
-          ...item,
-          checked: false
-        };
-      });
-      this.allChecked = !this.allChecked;
-      this.indeterminate = true;
-    }
-    //console.log(this.statusColumnDataSource);
-    this.filterEvent.emit(this.statusColumnDataSource);
+  // filter status
+  public showAll() {
+    this.statusColumnDataSource.forEach((ele)=>{
+      this.selectedColumnDataSource.push(ele.value);
+    });
+    this._cdr.detectChanges();
+    this.filterEvent.emit(this.selectedColumnDataSource);
   }
 
-  public updateSingleChecked(): void {
-    if (this.statusColumnDataSource.every(item => !item.checked)) {
-      this.allChecked = false;
-      this.indeterminate = false;
-    } else if (this.statusColumnDataSource.every(item => item.checked)) {
-      this.allChecked = true;
-      this.indeterminate = false;
-    } else {
-      this.indeterminate = true;
-    }
-
-    this.filterEvent.emit(this.statusColumnDataSource);
-
+  public updateSingleChecked(item:any) {
+    this.filterEvent.emit(item);
   }
 
 
