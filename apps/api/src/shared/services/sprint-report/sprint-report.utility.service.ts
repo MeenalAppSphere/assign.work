@@ -30,7 +30,7 @@ export class SprintReportUtilityService {
     report.reportTasks = this.createSprintReportTasksFromSprintColumns(sprint.columns);
     report.reportMembers = this.createSprintReportMembersFromSprintMembers(sprint.membersCapacity);
 
-    const lastColumnOfSprint =  this._boardUtilityService.getLastColumnFromBoard(project.activeBoard.columns);
+    const lastColumnOfSprint = this._boardUtilityService.getLastColumnFromBoard(project.activeBoard.columns);
     report.finalStatusIds = lastColumnOfSprint.includedStatuses.map(status => status.statusId);
 
     return report;
@@ -107,10 +107,10 @@ export class SprintReportUtilityService {
    * @param report
    * @param taskStatuses
    */
-  prepareSprintReportTasksCountReport(report: SprintReportModel, taskStatuses: TaskStatusModel[]) {
+  prepareSprintReportTasksCounts(report: SprintReportModel, taskStatuses: TaskStatusModel[]) {
     const allTasks: SprintReportTaskReportModel[] = [];
 
-    // loop over project task statuses
+    // loop over project task statuses for grouping all taks status wise
     taskStatuses.forEach(status => {
       const groupedTasks = [];
 
@@ -166,13 +166,6 @@ export class SprintReportUtilityService {
     report.allTaskTotalEstimatedTimeReadable = secondsToString(report.allTaskTotalEstimatedTime);
     report.allTaskTotalLoggedTimeReadable = secondsToString(report.allTaskTotalLoggedTime);
     report.allTaskTotalRemainingTimeReadable = secondsToString(report.allTaskTotalRemainingTime);
-
-    // calculate report task count
-    report.reportTasksCount = report.reportTasks.length;
-    // calculate all finished tasks count
-    report.finishedTasksCount = report.reportTasks.filter(task => {
-      return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
-    }).length;
   }
 
   /**
@@ -180,12 +173,14 @@ export class SprintReportUtilityService {
    * @param report
    */
   prepareSprintReportUserProductivity(report: SprintReportModel) {
-     // calculate report task count
-     report.reportTasksCount = report.reportTasks.length;
-     // calculate all finished tasks count
-     report.finishedTasksCount = report.reportTasks.filter(task => {
-       return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
-     }).length;
+    // calculate report task count
+    report.reportTasksCount = report.reportTasks.length;
+
+    // calculate all finished tasks count
+    report.finishedTasksCount = report.reportTasks.filter(task => {
+      return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
+    }).length;
+
     // loop over report members
     report.reportMembers = report.reportMembers.map(member => {
       // convert totalLoggedTimeReadable, workingCapacityReadable to readable string
@@ -207,7 +202,6 @@ export class SprintReportUtilityService {
       member.totalAssignedTimeReadable = secondsToString(member.totalAssignedTime);
 
       // calculate total remaining time
-
       member.totalRemainingTime = member.totalAssignedTime - member.totalLoggedTime;
       member.totalRemainingTimeReadable = secondsToString(member.totalRemainingTime);
 

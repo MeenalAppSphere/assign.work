@@ -135,7 +135,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       this._utilityService.prepareSprintReportUserProductivity(report);
 
       // prepare task count report
-      this._utilityService.prepareSprintReportTasksCountReport(report, taskStatuses);
+      this._utilityService.prepareSprintReportTasksCounts(report, taskStatuses);
       return report;
     } else {
       throw new NotFoundException('Report Not Found');
