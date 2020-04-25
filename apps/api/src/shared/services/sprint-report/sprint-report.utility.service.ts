@@ -166,6 +166,7 @@ export class SprintReportUtilityService {
     report.allTaskTotalEstimatedTimeReadable = secondsToString(report.allTaskTotalEstimatedTime);
     report.allTaskTotalLoggedTimeReadable = secondsToString(report.allTaskTotalLoggedTime);
     report.allTaskTotalRemainingTimeReadable = secondsToString(report.allTaskTotalRemainingTime);
+
   }
 
   /**
@@ -225,7 +226,7 @@ export class SprintReportUtilityService {
       report.reportMembersTotalRemainingWorkingCapacity += member.totalRemainingWorkingCapacity;
       report.reportMembersTotalLoggedTime += member.totalLoggedTime;
       report.reportMembersTotalRemainingTime += member.totalRemainingTime;
-      report.reportMembersTotalSprintProductivity += member.sprintProductivity;
+      report.reportMembersTotalSprintProductivity = Number((report.reportMembersTotalSprintProductivity + member.sprintProductivity).toFixed(DEFAULT_DECIMAL_PLACES));
     });
 
     // convert all totals to readable format
