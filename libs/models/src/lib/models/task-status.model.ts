@@ -15,7 +15,7 @@ export class DeleteStatusModel {
 }
 
 export class StatusDDLModel {
-  value:string;
-  label:string;
-  checked:boolean;
+  value: string;
+  label: string;
+  checked: boolean;
 }

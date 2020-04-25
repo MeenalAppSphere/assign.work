@@ -128,7 +128,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public filterApplied(query: StatusDDLModel[]) {
 
-    let queryIds: string[]= [];
+    const queryIds: string[]= [];
     query.forEach((ele) => {
       if (ele.checked) {
         queryIds.push(ele.value);
@@ -137,7 +137,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     this.myTaskFilterRequest.queries= [];
     this.myTaskFilterRequest.queries.push({
-      key: 'statusId', value: queryIds, condition: TaskFilterCondition.and
+      key: 'statusId', value: queryIds, condition: TaskFilterCondition.or
     });
     this.getMyTasks();
   }

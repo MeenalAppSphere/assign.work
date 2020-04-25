@@ -11,21 +11,24 @@ import { SprintUtilityService } from './sprint/sprint.utility.service';
 import { ModuleRef } from '@nestjs/core';
 import * as bcrypt from 'bcrypt';
 import { HASH_PASSWORD_SALT_ROUNDS } from '../helpers/defaultValueConstant';
+import { BoardUtilityService } from './board/board.utility.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _sprintUtilityService: SprintUtilityService;
+  private _boardUtilityService: BoardUtilityService;
 
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
               private _generalService: GeneralService, private _moduleRef: ModuleRef) {
     super(_userModel);
-
-    this._sprintUtilityService = new SprintUtilityService();
   }
 
   onModuleInit() {
     this._projectService = this._moduleRef.get('ProjectService');
+
+    this._sprintUtilityService = new SprintUtilityService();
+    this._boardUtilityService = new BoardUtilityService();
   }
 
   /**
@@ -215,6 +218,10 @@ export class UsersService extends BaseService<User & Document> implements OnModu
     if (userDetails.currentProject) {
       userDetails.currentProject.id = userDetails.currentProject._id.toString();
       userDetails.currentProject = this._projectService.parseProjectToVm(userDetails.currentProject);
+
+      if (userDetails.currentProject && userDetails.currentProject.activeBoard) {
+        userDetails.currentProject.activeBoard = this._boardUtilityService.convertToVm(userDetails.currentProject.activeBoard);
+      }
 
       if (userDetails.currentProject.sprint) {
         userDetails.currentProject.sprint.id = userDetails.currentProject.sprint._id;
