@@ -78,6 +78,10 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
     select: 'emailId userName firstName lastName profilePic',
     justOne: true
   }, {
+    path: 'createdBy',
+    select: 'emailId userName firstName lastName profilePic',
+    justOne: true
+  }, {
     path: 'taskType',
     select: 'name color',
     justOne: true
