@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BaseResponseModel, SearchProjectCollaborators, SearchUserModel, User } from '@aavantan-app/models';
+import {
+  BaseResponseModel, ChangePasswordModel,
+  SearchProjectCollaborators,
+  SearchUserModel,
+  User
+} from '@aavantan-app/models';
 import { BaseService } from '../base.service';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { catchError, map } from 'rxjs/operators';
@@ -89,5 +94,19 @@ export class UserService extends BaseService<UserStore, UserState> {
       })
     );
   }
+
+  changePassword(json: ChangePasswordModel) {
+    return this._http.post(UserUrls.changePassword, json).pipe(
+      map((res: BaseResponseModel<string>) => {
+        this.notification.success('Success', res.data);
+        this.router.navigate(['login']);
+        return res;
+      }),
+      catchError((err => {
+        return this.handleError(err);
+      }))
+    );
+  }
+
 
 }

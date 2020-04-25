@@ -263,7 +263,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
 
       // update active sprint
-      await this.updateActiveSprint(projectDetails, boardDetails, session);
+      await this.updateActiveSprint(projectDetails, { ...boardDetails }, session);
 
       // update board by id and set columns
       await this.updateById(requestModel.boardId, {
@@ -326,7 +326,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
 
         // check if project have active sprint than reassign sprint's columns as per new board suggests
         if (projectDetails.sprintId) {
-          await this.updateActiveSprint(projectDetails, boardDetails, session);
+          await this.updateActiveSprint(projectDetails, { ...boardDetails }, session);
         }
 
         // update project's active board id
@@ -405,7 +405,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
 
       // update active sprint
-      await this.updateActiveSprint(projectDetails, boardDetails, session);
+      await this.updateActiveSprint(projectDetails, { ...boardDetails }, session);
 
       // update board by id and set columns
       return await this.updateById(requestModel.boardId, {
@@ -459,7 +459,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
 
       // update active sprint
-      await this.updateActiveSprint(projectDetails, boardDetails, session);
+      await this.updateActiveSprint(projectDetails, { ...boardDetails }, session);
 
       // update board by id and set columns
       await this.updateById(requestModel.boardId, {
@@ -496,7 +496,7 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       boardDetails.columns = this._utilityService.reassignColumnOrderNo(boardDetails);
 
       // update active sprint
-      await this.updateActiveSprint(projectDetails, boardDetails, session);
+      await this.updateActiveSprint(projectDetails, { ...boardDetails }, session);
 
       // update board and set column status shown or hidden
       await this.updateById(requestModel.boardId, {

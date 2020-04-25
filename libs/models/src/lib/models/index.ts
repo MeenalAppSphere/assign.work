@@ -16,4 +16,3 @@ export * from './task-status.model';
 export * from './task-priority.model';
 export * from './board.model';
 export * from './email.model';
-export * from './email.template.subject.mapper.model';

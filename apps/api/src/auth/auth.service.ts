@@ -17,10 +17,11 @@ import { get, Response } from 'request';
 import { UsersService } from '../shared/services/users.service';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../shared/services/project/project.service';
-import { DEFAULT_QUERY_FILTER } from '../shared/helpers/defaultValueConstant';
+import { HASH_PASSWORD_SALT_ROUNDS } from '../shared/helpers/defaultValueConstant';
 import { OrganizationService } from '../shared/services/organization/organization.service';
 import { InvitationService } from '../shared/services/invitation.service';
 import {
+  BadRequest,
   emailAddressValidator,
   generateRandomCode,
   generateUtcDate,
@@ -30,8 +31,6 @@ import {
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../shared/services/email.service';
 import { ResetPasswordService } from '../shared/services/reset-password/reset-password.service';
-
-const saltRounds = 10;
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -194,11 +193,11 @@ export class AuthService implements OnModuleInit {
       if (codeDetails) {
         // check reset password code expired
         if (isResetPasswordCodeExpired(codeDetails.resetPasswordAt)) {
-          throw new BadRequestException('code is expired, please click resend button');
+          BadRequest('code is expired, please click resend button');
         }
 
         // update user password
-        const hashedPassword = await bcrypt.hash(model.password, saltRounds);
+        const hashedPassword = await bcrypt.hash(model.password, HASH_PASSWORD_SALT_ROUNDS);
         await this._userService.update({ emailId: model.emailId }, { password: hashedPassword }, session);
 
         // expire all this verification code
@@ -210,7 +209,7 @@ export class AuthService implements OnModuleInit {
 
       } else {
         // no details found throw error
-        throw new BadRequestException('invalid verification code');
+        BadRequest('invalid verification code');
       }
     } catch (e) {
       await session.abortTransaction();
@@ -351,7 +350,7 @@ export class AuthService implements OnModuleInit {
         model.memberType = MemberTypes.alien;
 
         // hashed password
-        model.password = await bcrypt.hash(user.password, saltRounds);
+        model.password = await bcrypt.hash(user.password, HASH_PASSWORD_SALT_ROUNDS);
 
         const newUser = await this._userService.create([model], session);
         jwtPayload.id = newUser[0].id;
@@ -500,7 +499,7 @@ export class AuthService implements OnModuleInit {
           } else {
             // user not exist but invitation link then it's malicious invitation link
             if (invitationId) {
-              throw new BadRequestException('Invalid invitation link');
+              BadRequest('Invalid invitation link');
             }
 
             // new user
@@ -604,45 +603,6 @@ export class AuthService implements OnModuleInit {
     userQuery.select = '_id emailId';
     userQuery.lean = true;
     return this._userService.findOne(userQuery);
-  }
-
-  /**
-   * get project details by id
-   * @param id
-   */
-  private async getProjectById(id: string) {
-    const projectQuery = new MongooseQueryModel();
-
-    projectQuery.filter = {
-      _id: id, ...DEFAULT_QUERY_FILTER
-    };
-    projectQuery.select = '_id organization members';
-    projectQuery.lean = true;
-
-    const projectDetails = await this._projectService.findOne(projectQuery);
-    if (!projectDetails) {
-      throw new BadRequestException('Project not found');
-    }
-    return projectDetails;
-  }
-
-  /**
-   * get organization details by id
-   * @param id
-   */
-  private async getOrganizationById(id: string) {
-    const organizationQuery = new MongooseQueryModel();
-
-    organizationQuery.filter = {
-      _id: id, ...DEFAULT_QUERY_FILTER
-    };
-    organizationQuery.lean = true;
-
-    const organizationDetails = await this._organizationService.findOne(organizationQuery);
-    if (!organizationDetails) {
-      throw new BadRequestException('Organization not found');
-    }
-    return organizationDetails;
   }
 
   /**

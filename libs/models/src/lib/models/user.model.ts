@@ -60,6 +60,12 @@ export class SearchUserModel {
   query: string;
 }
 
+export class ChangePasswordModel {
+  emailId: string;
+  currentPassword: string;
+  newPassword: string;
+}
+
 export class Mention {
   id: string;
   value: string;

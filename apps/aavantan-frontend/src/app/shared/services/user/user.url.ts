@@ -9,4 +9,5 @@ export const UserUrls = {
   getAll: `${createUrl('user')}`,
   switchProject: `${createUrl('switch-project')}`,
   uploadProfilePic: `${createUrl('attachment/profilepic')}`,
+  changePassword : `${createUrl('user/change-password')}`,
 };

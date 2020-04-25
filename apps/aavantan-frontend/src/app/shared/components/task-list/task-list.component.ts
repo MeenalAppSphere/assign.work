@@ -66,7 +66,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   // status ddl
   public allChecked = false;
   public indeterminate = true;
-  public statusColumnDataSource:StatusDDLModel[] = [];
+  public statusColumnDataSource: StatusDDLModel[] = [];
 
 
   constructor(protected notification: NzNotificationService,
@@ -86,19 +86,23 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     // ready status filter dropdown data
-    /*
-    const columns =  this._generalService.currentProject.activeBoard.columns;
+
+    const columns = this._generalService.currentProject.activeBoard.columns;
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden);
 
-      columns.forEach((ele)=>{
-        let checked= true;
-        if(data.headerStatus.id===ele.headerStatus.id) {
-          checked= false;
+      columns.forEach((ele) => {
+        let checked = true;
+        if (data.headerStatus.id === ele.headerStatus.id) {
+          checked = false;
         }
-        this.statusColumnDataSource.unshift({ label: ele.headerStatus.name, value: ele.headerStatus.id, checked: checked });
+        this.statusColumnDataSource.unshift({
+          label: ele.headerStatus.name,
+          value: ele.headerStatus.id,
+          checked: checked
+        });
       });
-    }*/
+    }
 
 
     // search event
@@ -129,7 +133,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
 
 
   // status ddl
-  public updateAllChecked(isAll?:boolean): void {
+  public updateAllChecked(isAll?: boolean): void {
     this.indeterminate = false;
     if (this.allChecked || isAll) {
       this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
@@ -138,7 +142,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
           checked: true
         };
       });
-      this.allChecked=!this.allChecked;
+      this.allChecked = !this.allChecked;
       this.indeterminate = false;
     } else {
       this.statusColumnDataSource = this.statusColumnDataSource.map(item => {
@@ -147,7 +151,7 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
           checked: false
         };
       });
-      this.allChecked=!this.allChecked;
+      this.allChecked = !this.allChecked;
       this.indeterminate = true;
     }
     //console.log(this.statusColumnDataSource);

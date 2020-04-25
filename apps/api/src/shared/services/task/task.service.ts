@@ -528,8 +528,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       if (model.sort) {
         model.sort = this._utilityService.validTaskSortingKey(model.sort);
       } else {
-        model.sort = 'name';
-        model.sortBy = 'asc';
+        model.sort = 'createdAt';
+        model.sortBy = 'desc';
       }
 
       // aggregate query for get all tasks

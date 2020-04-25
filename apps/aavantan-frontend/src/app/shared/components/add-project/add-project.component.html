@@ -37,7 +37,7 @@
                     </ng-template>
                 </nz-list>
             </div>
-            <div class="p-10">
+            <div class="p-r-10 p-l-10 p-t-10">
                 <nz-form-item class="m-b-5">
                     <nz-form-control>
                         <nz-input-group [nzSuffix]="suffixIconSearch">
@@ -50,7 +50,18 @@
                     </nz-form-control>
                 </nz-form-item>
                 <div class="search-list">
-                    <nz-list [nzDataSource]="projectListSearch" [nzRenderItem]="item1" [nzItemLayout]="'horizontal'">
+
+                  <ng-template #noResult>
+                    <nz-empty
+                      style="height:120px"
+                      [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+                      [nzNotFoundContent]="contentActivity"></nz-empty>
+                    <ng-template #contentActivity>
+                      <span>{{searchSatarted ? 'No data found' : 'You can search project'}}</span>
+                    </ng-template>
+                  </ng-template>
+
+                    <nz-list [nzDataSource]="projectListSearch" [nzNoResult]="noResult" [nzRenderItem]="item1" [nzItemLayout]="'horizontal'">
                         <ng-template #item1 let-item>
 
                             <nz-list-item (click)="switchProject(item)">

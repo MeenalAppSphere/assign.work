@@ -841,29 +841,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // calculate sprint totals
       this._sprintUtilityService.calculateSprintEstimates(sprint);
 
-      // loop over columns and filter out hidden columns and
-      // convert total estimation time to readable format
-      if (sprint.columns) {
-
-        sprint.columns = sprint.columns.filter(column => !column.isHidden).map(column => {
-          column.tasks = column.tasks.filter(task => !task.removedById);
-          column.tasks = column.tasks.map(task => {
-            task.task = this._sprintUtilityService.parseTaskObjectVm(task.task);
-            task.totalLoggedTimeReadable = secondsToString(task.totalLoggedTime);
-            return task;
-          });
-          return column;
-        });
-
-        this._sprintUtilityService.calculateTotalEstimateForColumns(sprint);
-
-        sprint.columns.forEach(column => {
-          column.totalEstimationReadable = secondsToString(column.totalEstimation);
-        });
-      }
-
       // prepare sprint vm model
-      return sprint;
+      return this._sprintUtilityService.prepareSprintVm(sprint);
     } catch (e) {
       throw e;
     }
@@ -1036,7 +1015,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     return this.withRetrySession(async (session: ClientSession) => {
       const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
-      const sprintReport = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
+      await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
 
       const newMembers: SprintMembersCapacity[] = [];
       let totalCapacity = sprintDetails.totalCapacity;
@@ -1049,11 +1028,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         .forEach(member => {
           newMembers.push({
             userId: member.userId,
-            workingCapacity: member.workingCapacity,
-            workingCapacityPerDay: member.workingCapacityPerDay,
+            workingCapacity: hourToSeconds(member.workingCapacity),
+            workingCapacityPerDay: hourToSeconds(member.workingCapacityPerDay),
             workingDays: member.workingDays
           });
-          totalCapacity += Number(member.workingCapacity);
+          totalCapacity += Number(hourToSeconds(member.workingCapacity));
         });
 
       // update sprint member capacity and total capacity
@@ -1149,11 +1128,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
       sprintModel.membersCapacity.push({
         userId: member.userId,
-        workingCapacity: member.workingCapacity,
-        workingCapacityPerDay: member.workingCapacityPerDay,
+        workingCapacity: hourToSeconds(member.workingCapacity),
+        workingCapacityPerDay: hourToSeconds(member.workingCapacityPerDay),
         workingDays: member.workingDays
       });
-      sprintModel.totalCapacity += Number(member.workingCapacity);
+      sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
     });
 
     // create columns array for sprint from project

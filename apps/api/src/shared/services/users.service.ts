@@ -1,36 +1,96 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable,
-  OnModuleInit,
-  UnauthorizedException
-} from '@nestjs/common';
+import { BadRequestException, Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DbCollection, MongoosePaginateQuery, Project, SearchUserModel, User } from '@aavantan-app/models';
-import { ClientSession, Document, Model, Query, QueryFindOneAndUpdateOptions, Types } from 'mongoose';
+import { ChangePasswordModel, DbCollection, SearchUserModel, User, UserLoginProviderEnum } from '@aavantan-app/models';
+import { ClientSession, Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project/project.service';
 import { slice } from 'lodash';
 import { GeneralService } from './general.service';
-import { secondsToHours } from '../helpers/helpers';
+import { BadRequest } from '../helpers/helpers';
 import { SprintUtilityService } from './sprint/sprint.utility.service';
 import { ModuleRef } from '@nestjs/core';
+import * as bcrypt from 'bcrypt';
+import { HASH_PASSWORD_SALT_ROUNDS } from '../helpers/defaultValueConstant';
+import { BoardUtilityService } from './board/board.utility.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _sprintUtilityService: SprintUtilityService;
+  private _boardUtilityService: BoardUtilityService;
 
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
               private _generalService: GeneralService, private _moduleRef: ModuleRef) {
     super(_userModel);
-
-    this._sprintUtilityService = new SprintUtilityService();
   }
 
   onModuleInit() {
     this._projectService = this._moduleRef.get('ProjectService');
+
+    this._sprintUtilityService = new SprintUtilityService();
+    this._boardUtilityService = new BoardUtilityService();
+  }
+
+  /**
+   * change password
+   * first find user with email id
+   * then compare currentPassword
+   * if it matches than change current password with new password
+   * @param model
+   */
+  async changePassword(model: ChangePasswordModel) {
+    // email id validation
+    if (!model || !model.emailId) {
+      BadRequest('User not found');
+    }
+
+    // current password validation
+    if (!model.currentPassword) {
+      BadRequest('Please enter your current password');
+    }
+
+    // new password validation
+    if (!model.newPassword) {
+      BadRequest('Please enter your new password');
+    }
+
+    // current and new password both are same validation
+    if (model.currentPassword === model.newPassword) {
+      BadRequest('Current Password and New Password can not be same, please choose different password');
+    }
+
+    return this.withRetrySession(async (session: ClientSession) => {
+      // get user by email id
+      const user: User = await this.findOne({
+        filter: { emailId: model.emailId }, lean: true
+      });
+
+      // check if user is there
+      if (user) {
+        // check if user is logged in with user name and password not with any social login helper
+        if (!user.password || user.lastLoginProvider !== UserLoginProviderEnum.normal) {
+          throw new UnauthorizedException('Your\'e not logged with Email And Password, So you can\'t change password!');
+        } else {
+          // compare hashed password
+          const isPasswordMatched = await bcrypt.compare(model.currentPassword, user.password);
+
+          if (isPasswordMatched) {
+            // update user password
+            const hashedPassword = await bcrypt.hash(model.newPassword, HASH_PASSWORD_SALT_ROUNDS);
+            await this.updateById(user._id, { $set: { password: hashedPassword } }, session);
+
+            // return jwt token
+            return 'Password Changed Successfully';
+          } else {
+            // throw invalid login error
+            throw new UnauthorizedException('Invalid email or password');
+          }
+        }
+      } else {
+        // throw invalid login error
+        throw new UnauthorizedException('Invalid email or password');
+      }
+    });
   }
 
   /**
@@ -158,6 +218,10 @@ export class UsersService extends BaseService<User & Document> implements OnModu
     if (userDetails.currentProject) {
       userDetails.currentProject.id = userDetails.currentProject._id.toString();
       userDetails.currentProject = this._projectService.parseProjectToVm(userDetails.currentProject);
+
+      if (userDetails.currentProject && userDetails.currentProject.activeBoard) {
+        userDetails.currentProject.activeBoard = this._boardUtilityService.convertToVm(userDetails.currentProject.activeBoard);
+      }
 
       if (userDetails.currentProject.sprint) {
         userDetails.currentProject.sprint.id = userDetails.currentProject.sprint._id;
