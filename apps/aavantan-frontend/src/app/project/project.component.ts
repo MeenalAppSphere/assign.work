@@ -58,7 +58,9 @@ export class ProjectComponent implements OnInit, OnDestroy {
     });
 
     // get filters and the call first tab data
-    this.getFilterStatus();
+    if(this._generalService.currentProject && this._generalService.currentProject.activeBoard) {
+      this.getFilterStatus();
+    }
 
   }
 

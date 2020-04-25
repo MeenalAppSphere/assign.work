@@ -1,4 +1,4 @@
-<nz-spin nzTip="Loading..." [nzSpinning]="getBacklogTasksInProcess">
+
   <nz-card
     nzSize="small"
     [nzBordered]="false"
@@ -123,36 +123,37 @@
         </div>
         <!-- sprint duration -->
 
-        <!-- sprint tasks not found/ empty task list -->
-        <div class="draft-sprint-box"
-             *ngIf="(sprintId && !draftTaskList) || (activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
 
-          <nz-spin *ngIf="sprintId || draftTaskList?.length==0"
-                   [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
-                   [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
-            <nz-empty
-              [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-              [nzNotFoundContent]="contentTpl">
-              <ng-template #contentTpl>
-                <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
-              </ng-template>
-
-            </nz-empty>
-          </nz-spin>
-
-        </div>
-        <!-- sprint tasks not found/ empty task list -->
 
         <!-- sprint task list -->
         <ng-container>
 
-          <div *ngIf="activeSprintData?.id || unPublishedSprintData?.id">
+          <div *ngIf="sprintId || activeSprintData?.id || unPublishedSprintData?.id">
 
             <nz-spin
               [nzSpinning]="getAllActiveSprintTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
               [nzTip]="sprintTableLoadingTip">
 
-              <nz-table *ngIf="draftTaskList?.length>0" #sprintListViewTable
+
+              <!-- sprint tasks not found/ empty task list -->
+              <div class="draft-sprint-box"
+                   *ngIf="(sprintId && !draftTaskList) || (activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
+
+                  <nz-empty
+                    [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
+                    [nzNotFoundContent]="contentTpl">
+                    <ng-template #contentTpl>
+                      <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
+                    </ng-template>
+
+                  </nz-empty>
+
+              </div>
+              <!-- sprint tasks not found/ empty task list -->
+
+
+              <nz-table *ngIf="draftTaskList?.length>0"
+                        #sprintListViewTable
                         [nzData]="draftTaskList"
                         [nzFrontPagination]="false"
                         [nzTotal]="sprintTasksRequest.totalItems"
@@ -285,6 +286,7 @@
     <section ngClass="{{unPublishedSprintData && unPublishedSprintData.id ? 'm-t-30' : 'm-t-10'}}">
 
       <div class="row m-b-10">
+
         <div class="col">
           <label class="font-size-18"><span class="text-black">Backlogs</span>
 
@@ -297,32 +299,33 @@
           </label>
         </div>
 
-        <div class="col text-right" style="max-width: 520px;">
+        <div class="col text-right" style="max-width: 360px;">
 
-          <!--          <nz-button-group style="max-width: 200px;">-->
+          <div class="ng-select-content">
 
-          <!--            <button nz-button nzType="default" (click)="allStatusesChecked = !allStatusesChecked;selectAllStatuses()"-->
-          <!--                    style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">-->
-          <!--              <label nz-checkbox [(ngModel)]="allStatusesChecked"-->
-          <!--                     (ngModelChange)="selectAllStatuses()" [nzIndeterminate]="allStatusesIndeterminate">-->
-          <!--                Status Filter-->
-          <!--              </label>-->
-          <!--            </button>-->
-          <!--            <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight"-->
-          <!--                    style="border-left:1px solid #ffffff; min-width:35px; height: 33px;">-->
-          <!--              <i nz-icon nzType="caret-down" nzTheme="outline"></i>-->
-          <!--            </button>-->
-          <!--          </nz-button-group>-->
+            <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()" *ngIf="selectedColumnDataSource?.length===0">
 
-          <!--          <nz-dropdown-menu #statusDdl="nzDropdownMenu">-->
-          <!--            <ul nz-menu>-->
-          <!--              <li nz-menu-item *ngFor="let status of backLogStatusQueryRequest">-->
-          <!--                <label nz-checkbox [(ngModel)]="status.isSelected" (ngModelChange)="selectSingleStatus()">{{ status.name }}</label>-->
-          <!--              </li>-->
-          <!--            </ul>-->
-          <!--          </nz-dropdown-menu>-->
+              <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status</button>
 
-          <nz-input-group [nzSuffix]="suffixIcon" style="max-width: 290px; margin-left:10px;">
+            <nz-select
+              *ngIf="selectedColumnDataSource?.length>0"
+              class="ng-select"
+              [nzMaxTagCount]="2"
+              (ngModelChange)="updateSingleChecked($event)"
+              [nzMaxTagPlaceholder]="tagPlaceHolder"
+              nzMode="multiple"
+              nzPlaceHolder="Please select"
+              [(ngModel)]="selectedColumnDataSource">
+              <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+            <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more</ng-template>
+
+          </div>
+
+        </div>
+
+        <div class="col" style="max-width: 290px;">
+          <nz-input-group [nzSuffix]="suffixIcon">
             <input placeholder="Search Backlogs" nzSize="small" nz-input
                    [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"
                    style="height:32px;"/>
@@ -331,7 +334,6 @@
             <i nz-icon nzType="search"></i>
             <!--            <i class="fas fa-spin fa-spinner"></i>-->
           </ng-template>
-
         </div>
 
         <div class="col text-right p-l-0" style="max-width: 120px;"
@@ -344,8 +346,11 @@
 
       </div>
 
+
+
+
       <!-- backlog task list container -->
-      <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
+      <ng-container>
 
         <div>
 
@@ -354,7 +359,25 @@
             [nzSpinning]="getBacklogTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
             [nzTip]="backLogTableLoadingTip">
 
-            <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
+
+
+            <!-- empty backlog tasks container -->
+            <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
+
+              <nz-empty
+                class="m-t-65"
+                [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
+                [nzNotFoundContent]="footerTpl">
+                <ng-template #footerTpl>
+                  No Backlogs!
+                </ng-template>
+              </nz-empty>
+
+            </ng-container>
+            <!-- empty backlog tasks container -->
+
+            <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
+              <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
                       [nzData]="backLogTasksList"
                       [nzFrontPagination]="false"
                       [nzTotal]="backLogTaskRequest.totalItems"
@@ -487,8 +510,14 @@
               </tr>
               </tbody>
             </nz-table>
+            </ng-container>
+
+
           </nz-spin>
           <!-- backlogs -->
+
+
+
 
         </div>
 
@@ -503,25 +532,12 @@
       </div>
       <!-- create backlog button -->
 
-      <!-- empty backlog tasks container -->
-      <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
 
-        <nz-empty
-          class="m-t-65"
-          [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-          [nzNotFoundContent]="footerTpl">
-          <ng-template #footerTpl>
-            No Backlogs!
-          </ng-template>
-        </nz-empty>
-
-      </ng-container>
-      <!-- empty backlog tasks container -->
 
     </section>
 
   </nz-card>
-</nz-spin>
+
 
 <!-- sorting icon template -->
 <ng-template #sortTemplate let-column="column" let-sortingRequest="sortingRequest" let-requestType="requestType">

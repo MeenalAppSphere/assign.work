@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import {
   AddTaskToSprintModel,
   CloseSprintModel,
@@ -10,7 +10,7 @@ import {
   SprintDurationsModel,
   SprintErrorEnum,
   SprintErrorResponse,
-  SprintTaskFilterModel,
+  SprintTaskFilterModel, StatusDDLModel,
   Task,
   TaskFilterCondition,
   TaskFilterModel,
@@ -93,6 +93,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public dateFormat = 'MM/dd/yyyy';
   public closeSprintNewSprintForm: FormGroup;
 
+  // status ddl
+  public statusColumnDataSource: StatusDDLModel[] = [];
+  public selectedColumnDataSource: string[] = [];
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -103,7 +106,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
               private _sprintService: SprintService,
               protected notification: NzNotificationService,
               private modal: NzModalService,
-              private router: Router) {
+              private router: Router,
+              private _cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -126,6 +130,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       this.backLogStatusQueryRequest = backLogStatusQueryRequest;
     });
+
+    this.getFilterStatus();
 
     this.searchValueSubject$.pipe(
       debounceTime(700),
@@ -201,6 +207,28 @@ export class BacklogComponent implements OnInit, OnDestroy {
       endAt: new FormControl(null, []),
       createAndPublishNewSprint: new FormControl(true)
     });
+  }
+
+
+  public getFilterStatus() {
+    // ready status filter dropdown data
+    const columns = this._generalService.currentProject.activeBoard.columns;
+    if (columns) {
+      const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
+      columns.forEach((ele) => {
+        let checked = true;
+        if (data.headerStatus.id !== ele.headerStatus.id) {
+          this.selectedColumnDataSource.unshift(ele.headerStatus.id);
+        } else {
+          checked = false;
+        }
+        this.statusColumnDataSource.unshift({
+          label: ele.headerStatus.name,
+          value: ele.headerStatus.id,
+          checked: checked
+        });
+      });
+    }
   }
 
   public async getAllBacklogTask() {
@@ -359,6 +387,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     if (data) {
       this.unPublishedSprintData = data;
       this.sprintId = data.id;
+      this.draftTaskList = this.draftTaskList ? this.draftTaskList : [];
     }
     this.sprintModalIsVisible = !this.sprintModalIsVisible;
   }
@@ -586,6 +615,29 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     this.getAllBacklogTask();
   }
+
+
+  /** filter status **/
+  public showAll() {
+    this.statusColumnDataSource.forEach((ele)=>{
+      this.selectedColumnDataSource.push(ele.value);
+    });
+    this._cdr.detectChanges();
+    this.backLogTaskRequest.queries= [];
+    this.backLogTaskRequest.queries.push({
+      key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+    });
+    this.getAllBacklogTask();
+  }
+
+  public updateSingleChecked(item:any) {
+    this.backLogTaskRequest.queries= [];
+    this.backLogTaskRequest.queries.push({
+      key: 'statusId', value: item, condition: TaskFilterCondition.or
+    });
+    this.getAllBacklogTask();
+  }
+
 
   /** time log **/
   public timeLog(item: Task) {
