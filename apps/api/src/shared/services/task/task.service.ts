@@ -520,6 +520,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * @param model
    */
   async getTasks(model: TaskFilterModel) {
+    // get project details
+    await this._projectService.getProjectDetails(model.projectId);
+
     try {
       // prepare filter from given model
       const queryFilter = this._utilityService.prepareFilterQuery(model);
@@ -646,8 +649,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         BadRequest('Project Not Found');
       }
 
-      // project details
-      await this._projectService.getProjectDetails(model.projectId);
       model = { ...new TaskFilterModel(model.projectId), ...model };
 
       // query for task not in sprint , sprintId === undefined || sprintId === null
@@ -671,8 +672,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
         BadRequest('Project Not Found');
       }
 
-      // project details
-      await this._projectService.getProjectDetails(model.projectId);
+      // get sprint details
       await this._sprintService.getSprintDetails(model.sprintId, model.projectId);
 
       model = { ...new SprintTaskFilterModel(model.projectId, model.sprintId), ...model };
@@ -697,9 +697,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       if (!model || !model.projectId) {
         BadRequest('Project Not Found');
       }
-
-      // project details
-      await this._projectService.getProjectDetails(model.projectId);
 
       // create query object for sprint
       const queryObjectForUnPublishedSprint: MongooseQueryModel = {
@@ -739,8 +736,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     if (!model || !model.projectId) {
       BadRequest('Project Not Found');
     }
-
-    await this._projectService.getProjectDetails(model.projectId);
 
     model = { ...new TaskFilterModel(model.projectId), ...model };
 

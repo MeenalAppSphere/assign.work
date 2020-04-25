@@ -183,7 +183,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         },
         {
           path: 'currentProject',
-          select: 'name description organizationId members settings template createdById updatedBy sprintId activeBoardId',
+          select: 'name description organizationId members settings template createdById updatedBy sprintId activeBoardId createdAt updatedAt',
           justOne: true,
           populate: [{
             path: 'members.userDetails',
@@ -216,7 +216,6 @@ export class UsersService extends BaseService<User & Document> implements OnModu
     userDetails.id = userDetails._id;
 
     if (userDetails.currentProject) {
-      userDetails.currentProject.id = userDetails.currentProject._id.toString();
       userDetails.currentProject = this._projectService.parseProjectToVm(userDetails.currentProject);
 
       if (userDetails.currentProject && userDetails.currentProject.activeBoard) {
@@ -248,7 +247,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         slice(
           userDetails.projects
             .filter(f => f.organizationId.toString() === userDetails.currentOrganizationId)
-            .filter(f => f._id.toString() !== userDetails.currentProject.id),
+            .filter(f => f._id.toString() !== userDetails.currentProject.id.toString()),
           0, 1
         ).map((pro: any) => {
           pro.id = pro._id.toString();
