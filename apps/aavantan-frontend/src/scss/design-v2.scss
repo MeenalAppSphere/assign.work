@@ -609,7 +609,7 @@
 }
 
 .draft-sprint-box {
-  min-height: 250px;
+  min-height: 200px;
   .ant-empty{
     margin: 0px;
   }
@@ -623,6 +623,31 @@
     margin-top: 10px;
   }
 }
+
+
+
+.backlog-sprint-box {
+  min-height: 200px;
+  padding: 15px;
+  border: 2px dashed #DEDFE2;
+  border-radius: 4px;
+  min-height: 55px;
+  margin-bottom: 15px;
+  .ant-empty{
+    margin: 0px;
+  }
+
+  .ant-empty-description {
+    margin-top: 0px !important;
+    color:$color-black;
+  }
+
+  .ant-empty-footer {
+    margin-top: 10px;
+  }
+}
+
+
 
 /* task-list */
 .ant-table-thead > tr > th {

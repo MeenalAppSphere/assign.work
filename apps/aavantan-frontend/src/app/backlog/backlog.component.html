@@ -370,14 +370,16 @@
             <!-- empty backlog tasks container -->
             <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
 
-              <nz-empty
-                class="m-t-65"
-                [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-                [nzNotFoundContent]="footerTpl">
-                <ng-template #footerTpl>
-                  No Backlogs!
-                </ng-template>
-              </nz-empty>
+
+              <div class="backlog-sprint-box">
+                <nz-empty
+                  [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
+                  [nzNotFoundContent]="footerTpl">
+                  <ng-template #footerTpl>
+                    No Backlogs!
+                  </ng-template>
+                </nz-empty>
+              </div>
 
             </ng-container>
             <!-- empty backlog tasks container -->
