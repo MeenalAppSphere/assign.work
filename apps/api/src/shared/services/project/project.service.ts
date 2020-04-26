@@ -133,7 +133,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       return createdProject[0];
     });
     // get project by id and send it
-    return await this.getProjectDetails(newProject.id);
+    return await this.getProjectDetails(newProject.id, true);
   }
 
   /**
