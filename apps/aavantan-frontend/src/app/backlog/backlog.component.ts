@@ -131,7 +131,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.backLogStatusQueryRequest = backLogStatusQueryRequest;
     });
 
-    this.getFilterStatus();
 
     this.searchValueSubject$.pipe(
       debounceTime(700),
@@ -141,13 +140,15 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.backLogTaskRequest.page = 1;
       this.backLogTaskRequest.sort = 'name';
       this.backLogTaskRequest.sortBy = 'asc';
-
       this.getAllBacklogTask();
     });
 
     if (this._generalService.currentProject && this._generalService.currentProject.id) {
 
       this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
+
+      // create status dropdown
+      this.getFilterStatus();
 
       // get all back log tasks
       this.getAllBacklogTask();
@@ -227,6 +228,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
           value: ele.headerStatus.id,
           checked: checked
         });
+      });
+
+      this.backLogTaskRequest.queries= [];
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
       });
     }
   }
@@ -625,7 +631,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this._cdr.detectChanges();
     this.backLogTaskRequest.queries= [];
     this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+      key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
     });
     this.getAllBacklogTask();
   }
@@ -633,7 +639,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public updateSingleChecked(item:any) {
     this.backLogTaskRequest.queries= [];
     this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: item, condition: TaskFilterCondition.or
+      key: 'statusId', value: item, condition: TaskFilterCondition.and
     });
     this.getAllBacklogTask();
   }

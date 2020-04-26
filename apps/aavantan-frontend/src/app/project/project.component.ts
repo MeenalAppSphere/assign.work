@@ -163,14 +163,14 @@ export class ProjectComponent implements OnInit, OnDestroy {
       this.myTaskFilterRequest.page = 1;
       this.myTaskFilterRequest.queries= [];
       this.myTaskFilterRequest.queries.push({
-        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
       });
       this.getMyTasks();
     } else {
       this.allTaskFilterRequest.page = 1;
       this.allTaskFilterRequest.queries= [];
       this.allTaskFilterRequest.queries.push({
-        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
       });
       this.getAllTasks();
     }
@@ -185,7 +185,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
       this.myTaskFilterRequest.queries= [];
       this.myTaskFilterRequest.queries.push({
-        key: 'statusId', value: query, condition: TaskFilterCondition.or
+        key: 'statusId', value: query, condition: TaskFilterCondition.and
       });
       this.getMyTasks();
     }else {
@@ -194,7 +194,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
       this.allTaskFilterRequest.queries= [];
       this.allTaskFilterRequest.queries.push({
-        key: 'statusId', value: query, condition: TaskFilterCondition.or
+        key: 'statusId', value: query, condition: TaskFilterCondition.and
       });
       this.getAllTasks();
     }

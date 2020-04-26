@@ -165,18 +165,17 @@
                 <thead>
                 <tr>
 
-                  <th class="text-center" data-label="#" width="50">#</th>
+                  <th class="text-center td-sn" data-label="#">#</th>
 
-
-                  <th class="text-left" width="115">
+                  <th class="text-left td-priority">
                     <span>Priority</span>
-                    <span class="p-l-10">
-                  <ng-container *ngTemplateOutlet="sortTemplate;context: {
-                  column: 'priority', sortingRequest: sprintTasksRequest, requestType:'activeSprint' }"></ng-container>
-                </span>
-                  </th>
+                        <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'priority', sortingRequest: sprintTasksRequest, requestType:'activeSprint' }"></ng-container>
+                    </span>
+                    </th>
 
-                  <th class="text-left" width="155">
+                  <th class="text-left td-type">
                     <span>Type</span>
                     <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -184,11 +183,11 @@
                     </span>
                   </th>
 
-                  <th style="min-width: 400px; max-width: 40%;">
+                  <th class="td-title">
                     <span>Title</span>
                   </th>
 
-                  <th class="text-center" width="110">
+                  <th class="text-center td-status">
                     <span>Status</span>
                     <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -196,9 +195,11 @@
                     </span>
                   </th>
 
-                  <th class="text-left" width="160">Member</th>
+                  <th class="text-center td-reporter">Reporter</th>
 
-                  <th class="text-right" width="125">
+                  <th class="text-center td-assignee">Assignee</th>
+
+                  <th class="text-right td-estimates">
                     <span>Estimates</span>
                     <span class="p-l-10">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -212,12 +213,12 @@
                 <tbody>
                 <tr *ngFor="let item of sprintListViewTable.data">
 
-                  <td data-label="#" width="50" class="text-center">
+                  <td data-label="#" class="text-center td-sn">
                     <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
                        class="remove-item cursor-pointer text-muted" theme="fill"></i>
                   </td>
 
-                  <td data-label="Priority" width="115" class="text-left">
+                  <td data-label="Priority" class="text-left td-priority">
                   <span *ngIf="item && item.priority">
                     <i [ngStyle]="{'border-left':'solid 3px '+item.priority.color+'', 'height':'15px' }"></i>
                   </span>
@@ -225,13 +226,13 @@
                     <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>
                   </td>
 
-                  <td data-label="Type" width="155" class="text-left">
+                  <td data-label="Type" class="text-left td-type">
                     <span *ngIf="!item.taskType">-</span>
                     <a routerLink="../../task/{{item.displayName}}" class="text-primary"
                        *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                   </td>
 
-                  <td data-label="Title">
+                  <td data-label="Title" class="td-title">
                     <div class="media align-items-center">
 
                       <div class="">
@@ -249,7 +250,7 @@
                     </div>
                   </td>
 
-                  <td data-label="Status" width="110" class="text-center">
+                  <td data-label="Status" class="text-center td-status">
                     <span *ngIf="!item.status">-</span>
                     <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
                       <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
@@ -257,16 +258,21 @@
                     </nz-tag>
                   </td>
 
-                  <td data-label="Members" width="160" class="text-left">
-                    <span *ngIf="!item.assignee">-</span>
-                    <span *ngIf="item.assignee" nz-tooltip
-                          [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar
-                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>
-                    <p class="assignee-name text-black" nz-paragraph nzEllipsis
-                       [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
+                  <td data-label="Reporter" class="text-center td-reporter">
+                    <span *ngIf="!item.createdBy">-</span>
+                    <span *ngIf="item.createdBy" nz-tooltip
+                          [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
+                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
                   </td>
 
-                  <td data-label="Estimate" width="125" class="text-right">
+                  <td data-label="Assignee" class="text-center td-assignee">
+                    <span *ngIf="!item.assignee">-</span>
+                    <span *ngIf="item.assignee" nz-tooltip
+                          [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.assignee.lastName : item.assignee.emailId"> <nz-avatar
+                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
+                  </td>
+
+                  <td data-label="Estimate" class="text-right td-estimates">
                     <span class="text-black display-block">{{item.estimatedTimeReadable}}</span>
                   </td>
 
@@ -388,9 +394,9 @@
               <thead>
               <tr>
 
-                <th class="text-center" data-label="#" width="50" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
+                <th class="text-center td-sn" data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
 
-                <th class="text-left" width="115">
+                <th class="text-left td-priority">
                   <span>Priority</span>
                   <span class="p-l-10">
                   <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -398,7 +404,7 @@
                 </span>
                 </th>
 
-                <th class="text-left" width="155">
+                <th class="text-left td-type">
                   <span>Type</span>
                   <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -406,11 +412,11 @@
                     </span>
                 </th>
 
-                <th style="min-width: 400px; max-width: 40%;">
+                <th class="td-title">
                   <span>Title</span>
                 </th>
 
-                <th class="text-center" width="110">
+                <th class="text-center td-status">
                   <span>Status</span>
                   <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -418,15 +424,19 @@
                     </span>
                 </th>
 
-                <th class="text-left" width="160">Member</th>
+                <th class="text-center td-reporter">Reporter</th>
 
-                <th class="text-right" width="125">
+                <th class="text-center td-assignee">Assignee</th>
+
+                <th class="text-right td-estimates">
                   <span>Estimates</span>
                   <span class="p-l-10">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {
                     column: 'estimatedTime', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
                   </span>
                 </th>
+
+                <th class="text-right td-log-hours">Log Hours</th>
 
               </tr>
               </thead>
@@ -490,21 +500,28 @@
                   </nz-tag>
                 </td>
 
-                <td data-label="Members" class="text-left">
+                <td data-label="Reporter" class="text-center">
+                  <span *ngIf="!item.createdBy">-</span>
+                  <span *ngIf="item.createdBy" nz-tooltip
+                        [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
+                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+                </td>
+
+                <td data-label="Assignee" class="text-center">
                   <span *ngIf="!item.assignee">-</span>
                   <span *ngIf="item.assignee" nz-tooltip
-                        [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar
-                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>
-                    <p class="assignee-name text-black" nz-paragraph nzEllipsis
-                       [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
+                        [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+ item.assignee.lastName : item.assignee.emailId"> <nz-avatar
+                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
                 </td>
 
                 <td data-label="Estimate" class="text-right">
-                  <span class="text-black display-block">{{item.estimatedTimeReadable}}</span><a
-                  href="javascript:void(0);"
-                  class="float-right text-primary"
-                  (click)="timeLog(item)">&nbsp;<i
-                  nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                  <span class="text-black display-block">{{item.estimatedTimeReadable}}</span>
+                </td>
+
+                <td data-label="Estimate" class="text-center td-log-hours">
+                  <a href="javascript:void(0);"
+                    class="text-primary"
+                    (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i></a>
                 </td>
 
               </tr>
