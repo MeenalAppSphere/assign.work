@@ -20,6 +20,9 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TaskService } from '../../services/task/task.service';
 import { Router } from '@angular/router';
+import { TaskStatusService } from '../../services/task-status/task-status.service';
+import { TaskPriorityService } from '../../services/task-priority/task-priority.service';
+import { TaskTypeService } from '../../services/task-type/task-type.service';
 
 
 @Component({
@@ -72,7 +75,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               private _generalService: GeneralService, private _userQuery: UserQuery,
               private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService: TaskService,
-              private router: Router) {
+              private router: Router, private _taskStatusService: TaskStatusService,
+              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService) {
     // this.getAllUsers();
   }
 
@@ -354,6 +358,16 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       }).toPromise();
       this.selectTemplateInProcess = false;
       this.getTasks();
+
+      // get all task statuses
+      this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
+
+      // get all task types
+      this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
+
+      // get all task priorities
+      this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+
       this.toggleShow.emit();
     } catch (e) {
       this.selectTemplateInProcess = false;
