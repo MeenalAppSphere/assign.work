@@ -1,4 +1,4 @@
-<nz-spin nzTip="Loading..." [nzSpinning]="getBacklogTasksInProcess">
+
   <nz-card
     nzSize="small"
     [nzBordered]="false"
@@ -123,36 +123,37 @@
         </div>
         <!-- sprint duration -->
 
-        <!-- sprint tasks not found/ empty task list -->
-        <div class="draft-sprint-box"
-             *ngIf="(sprintId && !draftTaskList) || (activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
 
-          <nz-spin *ngIf="sprintId || draftTaskList?.length==0"
-                   [nzSpinning]="addTaskToSprintInProgress || removeTaskFromSprintInProgress"
-                   [nzTip]="addTaskToSprintInProgress ? 'Adding Task to Sprint...' : 'Removing Task from Sprint...'">
-            <nz-empty
-              [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-              [nzNotFoundContent]="contentTpl">
-              <ng-template #contentTpl>
-                <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
-              </ng-template>
-
-            </nz-empty>
-          </nz-spin>
-
-        </div>
-        <!-- sprint tasks not found/ empty task list -->
 
         <!-- sprint task list -->
         <ng-container>
 
-          <div *ngIf="activeSprintData?.id || unPublishedSprintData?.id">
+          <div *ngIf="sprintId || activeSprintData?.id || unPublishedSprintData?.id">
 
             <nz-spin
               [nzSpinning]="getAllActiveSprintTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
               [nzTip]="sprintTableLoadingTip">
 
-              <nz-table *ngIf="draftTaskList?.length>0" #sprintListViewTable
+
+              <!-- sprint tasks not found/ empty task list -->
+              <div class="draft-sprint-box"
+                   *ngIf="(sprintId && !draftTaskList) || (activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
+
+                  <nz-empty
+                    [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
+                    [nzNotFoundContent]="contentTpl">
+                    <ng-template #contentTpl>
+                      <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
+                    </ng-template>
+
+                  </nz-empty>
+
+              </div>
+              <!-- sprint tasks not found/ empty task list -->
+
+
+              <nz-table *ngIf="draftTaskList?.length>0"
+                        #sprintListViewTable
                         [nzData]="draftTaskList"
                         [nzFrontPagination]="false"
                         [nzTotal]="sprintTasksRequest.totalItems"
@@ -164,18 +165,17 @@
                 <thead>
                 <tr>
 
-                  <th class="text-center" data-label="#" width="50">#</th>
+                  <th class="text-center td-sn" data-label="#">#</th>
 
-
-                  <th class="text-left" width="115">
+                  <th class="text-left td-priority">
                     <span>Priority</span>
-                    <span class="p-l-10">
-                  <ng-container *ngTemplateOutlet="sortTemplate;context: {
-                  column: 'priority', sortingRequest: sprintTasksRequest, requestType:'activeSprint' }"></ng-container>
-                </span>
-                  </th>
+                        <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'priority', sortingRequest: sprintTasksRequest, requestType:'activeSprint' }"></ng-container>
+                    </span>
+                    </th>
 
-                  <th class="text-left" width="155">
+                  <th class="text-left td-type">
                     <span>Type</span>
                     <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -183,11 +183,11 @@
                     </span>
                   </th>
 
-                  <th style="min-width: 400px; max-width: 40%;">
+                  <th class="td-title">
                     <span>Title</span>
                   </th>
 
-                  <th class="text-center" width="110">
+                  <th class="text-center td-status">
                     <span>Status</span>
                     <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -195,9 +195,11 @@
                     </span>
                   </th>
 
-                  <th class="text-left" width="160">Member</th>
+                  <th class="text-center td-reporter">Reporter</th>
 
-                  <th class="text-right" width="125">
+                  <th class="text-center td-assignee">Assignee</th>
+
+                  <th class="text-right td-estimates">
                     <span>Estimates</span>
                     <span class="p-l-10">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -211,12 +213,12 @@
                 <tbody>
                 <tr *ngFor="let item of sprintListViewTable.data">
 
-                  <td data-label="#" width="50" class="text-center">
+                  <td data-label="#" class="text-center td-sn">
                     <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
                        class="remove-item cursor-pointer text-muted" theme="fill"></i>
                   </td>
 
-                  <td data-label="Priority" width="115" class="text-left">
+                  <td data-label="Priority" class="text-left td-priority">
                   <span *ngIf="item && item.priority">
                     <i [ngStyle]="{'border-left':'solid 3px '+item.priority.color+'', 'height':'15px' }"></i>
                   </span>
@@ -224,13 +226,13 @@
                     <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>
                   </td>
 
-                  <td data-label="Type" width="155" class="text-left">
+                  <td data-label="Type" class="text-left td-type">
                     <span *ngIf="!item.taskType">-</span>
                     <a routerLink="../../task/{{item.displayName}}" class="text-primary"
                        *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
                   </td>
 
-                  <td data-label="Title">
+                  <td data-label="Title" class="td-title">
                     <div class="media align-items-center">
 
                       <div class="">
@@ -248,7 +250,7 @@
                     </div>
                   </td>
 
-                  <td data-label="Status" width="110" class="text-center">
+                  <td data-label="Status" class="text-center td-status">
                     <span *ngIf="!item.status">-</span>
                     <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
                       <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
@@ -256,16 +258,21 @@
                     </nz-tag>
                   </td>
 
-                  <td data-label="Members" width="160" class="text-left">
-                    <span *ngIf="!item.assignee">-</span>
-                    <span *ngIf="item.assignee" nz-tooltip
-                          [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar
-                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>
-                    <p class="assignee-name text-black" nz-paragraph nzEllipsis
-                       [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
+                  <td data-label="Reporter" class="text-center td-reporter">
+                    <span *ngIf="!item.createdBy">-</span>
+                    <span *ngIf="item.createdBy" nz-tooltip
+                          [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
+                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
                   </td>
 
-                  <td data-label="Estimate" width="125" class="text-right">
+                  <td data-label="Assignee" class="text-center td-assignee">
+                    <span *ngIf="!item.assignee">-</span>
+                    <span *ngIf="item.assignee" nz-tooltip
+                          [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.assignee.lastName : item.assignee.emailId"> <nz-avatar
+                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
+                  </td>
+
+                  <td data-label="Estimate" class="text-right td-estimates">
                     <span class="text-black display-block">{{item.estimatedTimeReadable}}</span>
                   </td>
 
@@ -285,6 +292,7 @@
     <section ngClass="{{unPublishedSprintData && unPublishedSprintData.id ? 'm-t-30' : 'm-t-10'}}">
 
       <div class="row m-b-10">
+
         <div class="col">
           <label class="font-size-18"><span class="text-black">Backlogs</span>
 
@@ -297,32 +305,33 @@
           </label>
         </div>
 
-        <div class="col text-right" style="max-width: 520px;">
+        <div class="col text-right" style="max-width: 360px;">
 
-          <!--          <nz-button-group style="max-width: 200px;">-->
+          <div class="ng-select-content">
 
-          <!--            <button nz-button nzType="default" (click)="allStatusesChecked = !allStatusesChecked;selectAllStatuses()"-->
-          <!--                    style="height: 33.33px; padding-left: 10px!important; padding-right: 10px!important;">-->
-          <!--              <label nz-checkbox [(ngModel)]="allStatusesChecked"-->
-          <!--                     (ngModelChange)="selectAllStatuses()" [nzIndeterminate]="allStatusesIndeterminate">-->
-          <!--                Status Filter-->
-          <!--              </label>-->
-          <!--            </button>-->
-          <!--            <button class="p-r-5 p-l-5" nz-button nz-dropdown [nzDropdownMenu]="statusDdl" nzPlacement="bottomRight"-->
-          <!--                    style="border-left:1px solid #ffffff; min-width:35px; height: 33px;">-->
-          <!--              <i nz-icon nzType="caret-down" nzTheme="outline"></i>-->
-          <!--            </button>-->
-          <!--          </nz-button-group>-->
+            <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()" *ngIf="selectedColumnDataSource?.length===0">
 
-          <!--          <nz-dropdown-menu #statusDdl="nzDropdownMenu">-->
-          <!--            <ul nz-menu>-->
-          <!--              <li nz-menu-item *ngFor="let status of backLogStatusQueryRequest">-->
-          <!--                <label nz-checkbox [(ngModel)]="status.isSelected" (ngModelChange)="selectSingleStatus()">{{ status.name }}</label>-->
-          <!--              </li>-->
-          <!--            </ul>-->
-          <!--          </nz-dropdown-menu>-->
+              <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status</button>
 
-          <nz-input-group [nzSuffix]="suffixIcon" style="max-width: 290px; margin-left:10px;">
+            <nz-select
+              *ngIf="selectedColumnDataSource?.length>0"
+              class="ng-select"
+              [nzMaxTagCount]="2"
+              (ngModelChange)="updateSingleChecked($event)"
+              [nzMaxTagPlaceholder]="tagPlaceHolder"
+              nzMode="multiple"
+              nzPlaceHolder="Please select"
+              [(ngModel)]="selectedColumnDataSource">
+              <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </nz-select>
+            <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more</ng-template>
+
+          </div>
+
+        </div>
+
+        <div class="col" style="max-width: 290px;">
+          <nz-input-group [nzSuffix]="suffixIcon">
             <input placeholder="Search Backlogs" nzSize="small" nz-input
                    [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"
                    style="height:32px;"/>
@@ -331,7 +340,6 @@
             <i nz-icon nzType="search"></i>
             <!--            <i class="fas fa-spin fa-spinner"></i>-->
           </ng-template>
-
         </div>
 
         <div class="col text-right p-l-0" style="max-width: 120px;"
@@ -344,8 +352,11 @@
 
       </div>
 
+
+
+
       <!-- backlog task list container -->
-      <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
+      <ng-container>
 
         <div>
 
@@ -354,7 +365,25 @@
             [nzSpinning]="getBacklogTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
             [nzTip]="backLogTableLoadingTip">
 
-            <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
+
+
+            <!-- empty backlog tasks container -->
+            <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
+
+              <nz-empty
+                class="m-t-65"
+                [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
+                [nzNotFoundContent]="footerTpl">
+                <ng-template #footerTpl>
+                  No Backlogs!
+                </ng-template>
+              </nz-empty>
+
+            </ng-container>
+            <!-- empty backlog tasks container -->
+
+            <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
+              <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
                       [nzData]="backLogTasksList"
                       [nzFrontPagination]="false"
                       [nzTotal]="backLogTaskRequest.totalItems"
@@ -365,9 +394,9 @@
               <thead>
               <tr>
 
-                <th class="text-center" data-label="#" width="50" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
+                <th class="text-center td-sn" data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
 
-                <th class="text-left" width="115">
+                <th class="text-left td-priority">
                   <span>Priority</span>
                   <span class="p-l-10">
                   <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -375,7 +404,7 @@
                 </span>
                 </th>
 
-                <th class="text-left" width="155">
+                <th class="text-left td-type">
                   <span>Type</span>
                   <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -383,11 +412,11 @@
                     </span>
                 </th>
 
-                <th style="min-width: 400px; max-width: 40%;">
+                <th class="td-title">
                   <span>Title</span>
                 </th>
 
-                <th class="text-center" width="110">
+                <th class="text-center td-status">
                   <span>Status</span>
                   <span class="p-l-10">
                       <ng-container *ngTemplateOutlet="sortTemplate;context: {
@@ -395,15 +424,19 @@
                     </span>
                 </th>
 
-                <th class="text-left" width="160">Member</th>
+                <th class="text-center td-reporter">Reporter</th>
 
-                <th class="text-right" width="125">
+                <th class="text-center td-assignee">Assignee</th>
+
+                <th class="text-right td-estimates">
                   <span>Estimates</span>
                   <span class="p-l-10">
                     <ng-container *ngTemplateOutlet="sortTemplate;context: {
                     column: 'estimatedTime', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
                   </span>
                 </th>
+
+                <th class="text-right td-log-hours">Log Hours</th>
 
               </tr>
               </thead>
@@ -467,28 +500,41 @@
                   </nz-tag>
                 </td>
 
-                <td data-label="Members" class="text-left">
+                <td data-label="Reporter" class="text-center">
+                  <span *ngIf="!item.createdBy">-</span>
+                  <span *ngIf="item.createdBy" nz-tooltip
+                        [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
+                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+                </td>
+
+                <td data-label="Assignee" class="text-center">
                   <span *ngIf="!item.assignee">-</span>
                   <span *ngIf="item.assignee" nz-tooltip
-                        [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId"> <nz-avatar
-                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>
-                    <p class="assignee-name text-black" nz-paragraph nzEllipsis
-                       [nzEllipsisRows]="1">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</p></span>
+                        [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+ item.assignee.lastName : item.assignee.emailId"> <nz-avatar
+                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
                 </td>
 
                 <td data-label="Estimate" class="text-right">
-                  <span class="text-black display-block">{{item.estimatedTimeReadable}}</span><a
-                  href="javascript:void(0);"
-                  class="float-right text-primary"
-                  (click)="timeLog(item)">&nbsp;<i
-                  nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                  <span class="text-black display-block">{{item.estimatedTimeReadable}}</span>
+                </td>
+
+                <td data-label="Estimate" class="text-center td-log-hours">
+                  <a href="javascript:void(0);"
+                    class="text-primary"
+                    (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i></a>
                 </td>
 
               </tr>
               </tbody>
             </nz-table>
+            </ng-container>
+
+
           </nz-spin>
           <!-- backlogs -->
+
+
+
 
         </div>
 
@@ -503,25 +549,12 @@
       </div>
       <!-- create backlog button -->
 
-      <!-- empty backlog tasks container -->
-      <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
 
-        <nz-empty
-          class="m-t-65"
-          [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-          [nzNotFoundContent]="footerTpl">
-          <ng-template #footerTpl>
-            No Backlogs!
-          </ng-template>
-        </nz-empty>
-
-      </ng-container>
-      <!-- empty backlog tasks container -->
 
     </section>
 
   </nz-card>
-</nz-spin>
+
 
 <!-- sorting icon template -->
 <ng-template #sortTemplate let-column="column" let-sortingRequest="sortingRequest" let-requestType="requestType">
