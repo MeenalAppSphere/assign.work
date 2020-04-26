@@ -758,8 +758,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // return sprint totals
       return {
-        totalCapacity: sprintDetails.totalCapacity,
-        totalCapacityReadable: secondsToString(sprintDetails.totalCapacity),
+        totalCapacity: totalWorkingCapacity,
+        totalCapacityReadable: secondsToString(totalWorkingCapacity),
         totalEstimation: sprintDetails.totalEstimation,
         totalEstimationReadable: secondsToString(sprintDetails.totalEstimation),
         totalRemainingCapacity: sprintDetails.totalRemainingCapacity,
