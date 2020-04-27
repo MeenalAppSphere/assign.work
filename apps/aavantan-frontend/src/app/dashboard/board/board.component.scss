@@ -1,8 +1,10 @@
+@import '../../../scss/custom_variable';
+
 .sprint-name-button {
   background: none!important;
   height: 40px;
   font-size: 24px!important;
-  color: #111111;
+  color: $text-black;
   padding: 0px!important;
   box-shadow: none;
   margin-top: 0px;
@@ -48,7 +50,7 @@
 }
 
 .dndPlaceholder {
-  border: 2px dashed #c3c3c3;
+  border: 2px dashed $border;
   line-height: 95px;
   color: #c3c3c3;
   text-align: center;
@@ -56,6 +58,38 @@
   border-radius: 5px;
   margin-bottom: 8px;
 }
+
+.card-box {
+  position: relative;
+  .remove-to-sprint {
+    cursor: pointer;
+    text-align: center;
+    width: 124px;
+    padding: 1px 0px;
+    border-radius: 10px;
+    background: rgb(255, 255, 255);
+    font-size: 11px;
+    color: red;
+    margin: auto;
+    box-shadow: 0px 2px 3px 0px #cbcaca;
+    position: absolute;
+    top: -8px;
+    left: calc(50% - 65px);
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 1s ease;
+
+      &:hover {
+        background: $color-red;
+        color: #ffffff;
+      }
+  }
+  &:hover .remove-to-sprint {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
 
 /* old design
 .collaborators-avatar{

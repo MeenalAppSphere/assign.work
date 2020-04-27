@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  BaseResponseModel, CloseSprintModel,
+  BaseResponseModel,
+  CloseSprintModel,
   GetAllTaskRequestModel,
   MoveTaskToColumnModel,
   ProjectStatus,
@@ -10,7 +11,12 @@ import {
   Task,
   TaskTypeModel,
   User,
-  TaskTimeLogResponse, SprintFilterTasksModel
+  TaskTimeLogResponse,
+  SprintFilterTasksModel,
+  AddTaskToSprintModel,
+  SprintErrorResponse,
+  SprintErrorEnum,
+  RemoveTaskFromSprintModel
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -311,6 +317,26 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.selectedTask = {
       columnIndex: null, taskIndex: null, taskItem: null
     };
+  }
+
+
+
+
+
+  public async removeTaskToSprint(taskId:string) {
+    try {
+      const json: RemoveTaskFromSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.boardData.id,
+        taskId: taskId
+      };
+      this.getStageInProcess = true;
+      await this._sprintService.removeTaskFromSprint(json).toPromise();
+      this.getBoardData();
+    } catch (e) {
+      console.log(e);
+      this.getStageInProcess = false;
+    }
   }
 
   ngOnDestroy() {

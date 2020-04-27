@@ -414,16 +414,16 @@
           </div>
 
 
-          <div class="col-md-6 text-right">
+          <div class="col-md-6 text-right add-task-to-sprint">
 
-              <button *ngIf="taskData?.sprintId" nzType="primary" nzSize="small" class="m-t-20 add-task-to-sprint" nz-button nz-tooltip nzTitle="Add this task to running sprint"
+              <button *ngIf="taskData?.sprintId" nzType="primary" nzSize="small" nz-button nz-tooltip nzTitle="Remove from running sprint"
                       (click)="removeTaskToSprint()">
-                Remove Task From Sprint
+                Remove From Sprint
               </button>
 
-              <button *ngIf="sprintData?.id && !taskData?.sprintId" nzType="primary" nzSize="small" class="m-t-20 add-task-to-sprint" nz-button nz-tooltip nzTitle="Add this task to running sprint"
+              <button *ngIf="sprintData?.id && !taskData?.sprintId" nzType="primary" nzSize="small"  nz-button nz-tooltip nzTitle="Add to running sprint"
                       (click)="addTaskToSprint()">
-                Add Task to Sprint
+                Add to Sprint
               </button>
 
           </div>

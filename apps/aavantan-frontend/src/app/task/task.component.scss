@@ -89,9 +89,11 @@
 }
 
 .add-task-to-sprint {
-  height: 29px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-top: 23px;
+  button {
+    padding-bottom: 7px!important;
+    padding-top: 7px!important;
+  }
 }
 #sidebar {
   height: calc(100vh);
@@ -125,7 +127,7 @@
 .collapsed-title {
   cursor: pointer;
   position: absolute;
-  top: 2px;
+  top: 0px;
   right: 0px;
   box-shadow: none;
   border: none;

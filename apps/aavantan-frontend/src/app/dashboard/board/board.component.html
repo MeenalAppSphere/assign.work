@@ -144,7 +144,7 @@
       <div class="container-fluid">
         <div class="row flex-row flex-nowrap" *ngIf="boardData && boardData.columns && boardData.columns.length>0">
 
-          <div class="column dndList" joyrideStep="board" title="Board" text="Board"
+          <div class="column dndList" joyrideStep="board" title="" text=""
                *ngFor="let item of boardData.columns; let last;let columnIndex = index">
             <div class="card card-block">
 
@@ -162,12 +162,23 @@
                   Drop Here...
                 </div>
 
-                <div *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
+                <div class="card-box" *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
+
+                  <div class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
+                    + remove from sprint
+                  </div>
+
                   <div id="{{task.taskId}}" class="task-card"
                        [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}" [dndDraggable]="task"
                        (dndStart)="onDragStart(item)" [dndEffectAllowed]="'move'">
+
+
+
+
                     <h6 [ngStyle]="{'color': task.task.taskType.color}">
-                      <a class="cursor-pointer text-primary" routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
+                      <a class="cursor-pointer text-primary"
+                         nz-tooltip [nzTitle]="task.task.priority.name ? task.task.priority.name : 'No Priority'"
+                         routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
                       <span class="float-right duration">
                                         <span nz-tooltip [nzTitle]="'Logged time'"
                                               class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
@@ -183,15 +194,27 @@
                     </div>
                     <div class="task-footer">
 
-                      <div class="m-b-10">
+                      <div class="m-b-10 d-flex flex-row justify-content-between">
                         <nz-tag [nzColor]="'#F1F2F4'" class="text-black status-tag">{{task.task.status.name}}</nz-tag>
+
+                        <p class="profile-name inline-block text-right m-0"
+                           nz-tooltip [nzTitle]="'Reporter: '+task.task.createdBy.firstName+' '+ task.task.createdBy.lastName"
+                           nz-paragraph nzEllipsis [nzEllipsisRows]="1">
+                          <nz-avatar class="m-r-5" nzIcon="user"
+                                     nzSrc="{{task.task.createdBy.profilePic}}"
+                                     nzShape="circle"></nz-avatar>
+                          <span>{{task.task.createdBy.firstName}}</span>
+                        </p>
+
                       </div>
 
                       <div>
-                                        <span><nz-avatar class="m-r-5" nzIcon="user"
-                                                         nzSrc="{{task.task.assignee.profilePic}}"
-                                                         nzShape="circle"></nz-avatar><span
-                                          class="profile-name">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span></span>
+                            <span nz-tooltip [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
+                              <nz-avatar class="m-r-5" nzIcon="user"
+                                             nzSrc="{{task.task.assignee.profilePic}}"
+                                             nzShape="circle"></nz-avatar>
+                              <span class="profile-name">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span>
+                            </span>
                         <span class="pull-right">
                                           <a (click)="showTimeLogModal(columnIndex, i, task.task)"
                                              href="javascript:void(0);"
