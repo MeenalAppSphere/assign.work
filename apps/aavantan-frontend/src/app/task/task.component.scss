@@ -69,6 +69,7 @@
 
 .estimate-box {
   display: flex;
+  flex-direction: column;
   div {
     width:70px;
     display: inline-block;
@@ -87,6 +88,11 @@
   }
 }
 
+.add-task-to-sprint {
+  height: 29px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
 #sidebar {
   height: calc(100vh);
   transition: margin 0.3s ease;

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {
-  AddCommentModel,
+  AddCommentModel, AddTaskToSprintModel,
   BasePaginatedResponse,
   BaseResponseModel,
   CommentPinModel,
@@ -12,9 +12,9 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectTags,
+  ProjectStages, ProjectTags, RemoveTaskFromSprintModel,
   SearchProjectCollaborators,
-  Sprint,
+  Sprint, SprintDurationsModel, SprintErrorEnum, SprintErrorResponse,
   Task,
   TaskComments,
   TaskHistory,
@@ -44,6 +44,7 @@ import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
+import { SprintService } from '../shared/services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -105,6 +106,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public displayName: string;
   public taskData: Task;
   public taskId: string;
+  public sprintData:Sprint;
   public attachementHeader: any;
   public attachementUrl: string;
   public attachementIds: string[] = [];
@@ -150,7 +152,8 @@ export class TaskComponent implements OnInit, OnDestroy {
               private cdr: ChangeDetectorRef,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
               private _taskTypeQuery: TaskTypeQuery,
-              private themeService: ThemeConstantService) {
+              private themeService: ThemeConstantService,
+              private _sprintService: SprintService) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -181,6 +184,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     };
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
+
+    this.sprintData = this._generalService.currentProject.sprint;
 
     if (this.displayName && this.displayName.split('-').length > 1) {
       this.getTask();
@@ -669,6 +674,87 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
+
+  public async addTaskToSprint() {
+    try {
+
+      const json: AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        taskId: this.taskData.id,
+        adjustHoursAllowed: false
+      };
+
+      this.updateSidebarContentInProcess = true;
+      const data = await this._sprintService.addTaskToSprint(json).toPromise();
+
+      if (data.data) {
+        // check if we found error while adding task
+
+        if (data.data.hasOwnProperty('tasksError') || data.data.hasOwnProperty('membersError')) {
+          const errorResponse = data.data as SprintErrorResponse;
+
+          // check if error is related to tasks error or members error
+          if (errorResponse.tasksError) {
+            // if sprint capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
+
+              // uncheck item code here
+
+              return;
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          } else {
+            // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
+
+              // uncheck item code here
+
+              return;
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          }
+        } else {
+
+          this.taskData.sprintId = this.sprintData.id;
+          this.notification.success('Success', 'Task successfully added to this Sprint');
+        }
+      }
+
+      this.updateSidebarContentInProcess = false;
+    } catch (e) {
+      console.log(e);
+      this.updateSidebarContentInProcess = false;
+    }
+  }
+
+
+  public async removeTaskToSprint() {
+    try {
+
+      const json: RemoveTaskFromSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        taskId: this.taskData.id
+      };
+
+      this.updateSidebarContentInProcess = true;
+      await this._sprintService.removeTaskFromSprint(json).toPromise();
+
+      this.taskData.sprintId = null;
+
+      this.updateSidebarContentInProcess = false;
+    } catch (e) {
+      console.log(e);
+      this.updateSidebarContentInProcess = false;
+    }
+  }
+
+
 
   async getTask() {
     this.getTaskInProcess = true;

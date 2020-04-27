@@ -357,6 +357,7 @@
 
         <div class="col-md-11 text-right">
             <div class="d-flex float-right">
+
               <button type="button" nz-button nzType="link" (click)="toggleNewEpicModal()" class="m-r-5"
                       *ngIf="!epicDataSource || (epicDataSource && epicDataSource.length===0)">
                 <i nz-icon nzType="plus" theme="outline"></i> Create New Epic
@@ -366,6 +367,7 @@
                       (click)="timeLog()">
                 Log Time
               </button>
+
             </div>
         </div>
 
@@ -392,6 +394,7 @@
             </nz-form-item>
           </div>
 
+
           <div class="col-md-6">
             <nz-form-item *ngIf="taskId" class="m-b-5">
               <nz-form-label>Estimate Time</nz-form-label>
@@ -408,6 +411,21 @@
                 </div>
               </nz-form-control>
             </nz-form-item>
+          </div>
+
+
+          <div class="col-md-6 text-right">
+
+              <button *ngIf="taskData?.sprintId" nzType="primary" nzSize="small" class="m-t-20 add-task-to-sprint" nz-button nz-tooltip nzTitle="Add this task to running sprint"
+                      (click)="removeTaskToSprint()">
+                Remove Task From Sprint
+              </button>
+
+              <button *ngIf="sprintData?.id && !taskData?.sprintId" nzType="primary" nzSize="small" class="m-t-20 add-task-to-sprint" nz-button nz-tooltip nzTitle="Add this task to running sprint"
+                      (click)="addTaskToSprint()">
+                Add Task to Sprint
+              </button>
+
           </div>
 
         </div>
