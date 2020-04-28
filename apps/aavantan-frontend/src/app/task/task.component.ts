@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {
-  AddCommentModel,
+  AddCommentModel, AddTaskToSprintModel,
   BasePaginatedResponse,
   BaseResponseModel,
   CommentPinModel,
@@ -12,9 +12,9 @@ import {
   Project,
   ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectTags,
+  ProjectStages, ProjectTags, RemoveTaskFromSprintModel,
   SearchProjectCollaborators,
-  Sprint,
+  Sprint, SprintDurationsModel, SprintErrorEnum, SprintErrorResponse,
   Task,
   TaskComments,
   TaskHistory,
@@ -32,7 +32,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ActivatedRoute, NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { TaskQuery } from '../queries/task/task.query';
 import { TaskUrls } from '../shared/services/task/task.url';
 import { Observable, Subject } from 'rxjs';
@@ -44,6 +44,7 @@ import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
+import { SprintService } from '../shared/services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -105,6 +106,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public displayName: string;
   public taskData: Task;
   public taskId: string;
+  public sprintData:Sprint;
   public attachementHeader: any;
   public attachementUrl: string;
   public attachementIds: string[] = [];
@@ -150,7 +152,9 @@ export class TaskComponent implements OnInit, OnDestroy {
               private cdr: ChangeDetectorRef,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery,
               private _taskTypeQuery: TaskTypeQuery,
-              private themeService: ThemeConstantService) {
+              private themeService: ThemeConstantService,
+              private _sprintService: SprintService,
+              private modal: NzModalService) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -181,6 +185,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     };
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
+
+    this.sprintData = this._generalService.currentProject.sprint;
 
     if (this.displayName && this.displayName.split('-').length > 1) {
       this.getTask();
@@ -670,6 +676,101 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
   }
 
+  public async addTaskToSprint(adjustHoursAllowed?: boolean) {
+    try {
+
+      const json: AddTaskToSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        taskId: this.taskData.id,
+        adjustHoursAllowed: adjustHoursAllowed
+      };
+
+      this.updateSidebarContentInProcess = true;
+      const data = await this._sprintService.addTaskToSprint(json).toPromise();
+
+      if (data.data) {
+        // check if we found error while adding task
+
+        if (data.data.hasOwnProperty('tasksError') || data.data.hasOwnProperty('membersError')) {
+          const errorResponse = data.data as SprintErrorResponse;
+
+          // check if error is related to tasks error or members error
+          if (errorResponse.tasksError) {
+            // if sprint capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
+
+              // uncheck item code here
+              await this.addTaskConfirmAfterError(this.taskData);
+              return;
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          } else {
+            // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
+
+              // uncheck item code here
+              await this.addTaskConfirmAfterError(this.taskData);
+              return;
+            } else {
+              // show error toaster
+              this.notification.error('Error', errorResponse.tasksError.reason);
+            }
+          }
+        } else {
+
+          this.taskData.sprintId = this.sprintData.id;
+          this.notification.success('Success', 'Task successfully added to this Sprint');
+        }
+      }
+
+      this.updateSidebarContentInProcess = false;
+    } catch (e) {
+      console.log(e);
+      this.updateSidebarContentInProcess = false;
+    }
+  }
+
+
+  public async removeTaskToSprint() {
+    try {
+
+      const json: RemoveTaskFromSprintModel = {
+        projectId: this._generalService.currentProject.id,
+        sprintId: this.sprintData.id,
+        taskId: this.taskData.id
+      };
+
+      this.updateSidebarContentInProcess = true;
+      await this._sprintService.removeTaskFromSprint(json).toPromise();
+
+      this.taskData.sprintId = null;
+
+      this.updateSidebarContentInProcess = false;
+    } catch (e) {
+      console.log(e);
+      this.updateSidebarContentInProcess = false;
+    }
+  }
+
+
+  async addTaskConfirmAfterError(task: Task) {
+    return this.modal.confirm({
+      nzTitle: 'Still Want to add task?',
+      nzContent: 'May be this will effect your current Sprint',
+      nzOnOk: () =>
+        new Promise((resolve, reject) => {
+          this.addTaskToSprint(true);
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+          return true;
+        }).catch(() => console.log('Oops errors!'))
+    });
+
+  }
+
+
   async getTask() {
     this.getTaskInProcess = true;
     try {
@@ -908,42 +1009,47 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   async updateTask(task:Task) {
-    task.id = this.taskId;
-    task.displayName = this.displayName;
 
-    this.taskData.watchers = [];
-    if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
-      this.listOfSelectedWatchers.forEach(ele => {
-        this.taskData.watchers.push(ele.id || ele._id);
-      });
-    }
+    try {
+      task.id = this.taskId;
+      task.displayName = this.displayName;
 
-    this.taskData.tags = [];
-    if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
-      this.listOfSelectedTags.forEach(ele => {
-        this.taskData.tags.push(ele.name);
-      });
-    }
+      this.taskData.watchers = [];
+      if (this.listOfSelectedWatchers && this.listOfSelectedWatchers.length > 0) {
+        this.listOfSelectedWatchers.forEach(ele => {
+          this.taskData.watchers.push(ele.id || ele._id);
+        });
+      }
 
-    task.watchers = this.taskData.watchers;
-    task.tags = this.taskData.tags;
+      this.taskData.tags = [];
+      if (this.listOfSelectedTags && this.listOfSelectedTags.length > 0) {
+        this.listOfSelectedTags.forEach(ele => {
+          this.taskData.tags.push(ele.name);
+        });
+      }
 
-    const data = await this._taskService.updateTask(task).toPromise();
+      task.watchers = this.taskData.watchers;
+      task.tags = this.taskData.tags;
 
-    this.currentTask = data.data;
-    this.taskData = data.data;
-    this.displayName = data.data.displayName;
+      const data = await this._taskService.updateTask(task).toPromise();
 
-    if (data && data.data && data.data.progress) {
-      this.progressData = {
-        progress: data.data.progress,
-        totalLoggedTime: data.data.totalLoggedTime,
-        totalLoggedTimeReadable: data.data.totalLoggedTimeReadable,
-        remainingTimeReadable: data.data.remainingTimeReadable,
-        overLoggedTime: data.data.overLoggedTime,
-        overLoggedTimeReadable: data.data.overLoggedTimeReadable,
-        overProgress: data.data.overProgress
-      };
+      this.currentTask = data.data;
+      this.taskData = data.data;
+      this.displayName = data.data.displayName;
+
+      if (data && data.data && data.data.progress) {
+        this.progressData = {
+          progress: data.data.progress,
+          totalLoggedTime: data.data.totalLoggedTime,
+          totalLoggedTimeReadable: data.data.totalLoggedTimeReadable,
+          remainingTimeReadable: data.data.remainingTimeReadable,
+          overLoggedTime: data.data.overLoggedTime,
+          overLoggedTimeReadable: data.data.overLoggedTimeReadable,
+          overProgress: data.data.overProgress
+        };
+      }
+    }catch (e) {
+      this.createTaskInProcess = false;
     }
   }
 
