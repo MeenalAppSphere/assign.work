@@ -97,9 +97,10 @@
 
       &:hover{
         background: #ffffff;
+        box-shadow: 0px 1px 3px -2px #5f5f5fc4;
       }
       &:hover span{
-        color: #2680EB;
+        //color: #2680EB;
       }
       i.close{
         position: absolute;
