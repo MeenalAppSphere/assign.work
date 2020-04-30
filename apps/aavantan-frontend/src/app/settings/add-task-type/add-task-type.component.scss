@@ -20,5 +20,18 @@
   input[type="color"]::-webkit-color-swatch {
     border: none;
   }
+
+  .assigned-user-icon {
+    position: absolute;
+    z-index: 1;
+    left: 6px;
+    top: -2px;
+  }
+
+  .assigned-user-input {
+    padding-left: 28px !important;
+    height: 35px;
+  }
+
 }
 

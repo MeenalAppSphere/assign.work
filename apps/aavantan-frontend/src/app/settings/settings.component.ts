@@ -14,7 +14,7 @@ import {
   ProjectWorkingDays,
   ResendProjectInvitationModel, SaveAndPublishBoardModel,
   SearchProjectCollaborators,
-  SearchUserModel,
+  SearchUserModel, TaskStatusModel,
   TaskTypeModel,
   User
 } from '@aavantan-app/models';
@@ -66,6 +66,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     title: 'Project',
     view: 'project'
   };
+
+  public selectedAssignee: User = {};
+  public selectedTaskType:TaskTypeModel;
+  public selectedStatus: ProjectStatus;
+  public selectedPriority: ProjectPriority;
+  public displayName: string;
+  public assigneeDataSource:User[] = []
+  public isSearchingDefaultAssignee:boolean;
+
+
   public stagesList: any = [];
   public statusList: ProjectStatus[] = [];
   public typesList: TaskTypeModel[] = [];
@@ -111,6 +121,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public moveStatusModalIsVisible: boolean;
 
+  public assigneeModelChanged = new Subject<string>();
+
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
@@ -151,6 +163,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
           });
         }
 
+        // search default assignee
+        this.assigneeModelChanged
+          .pipe(
+            debounceTime(500))
+          .subscribe(() => {
+            const queryText = this.projectForm.get('assigneeId').value;
+            const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
+            if (!queryText || this.projectForm.get('assigneeId').value === name) {
+              return;
+            }
+            this.isSearchingDefaultAssignee = true;
+            const json: SearchProjectCollaborators = {
+              projectId: this._generalService.currentProject.id,
+              query: queryText
+            };
+            this._userService.searchProjectCollaborator(json).subscribe((data) => {
+              this.isSearchingDefaultAssignee = false;
+              this.assigneeDataSource = data.data;
+            });
+
+          });
+        // end default search assignee
+
+
         this.createProjectForm();
 
       }
@@ -179,16 +215,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // get all task statuses from store
     this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
       this.statusList = statuses;
+      this.selectedStatus =  statuses[0];
     });
 
     // get all task types from store
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
       this.typesList = types;
+      this.selectedTaskType = types[0];
     });
 
     // get all task priorities from store
     this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
       this.priorityList = priorities;
+      this.selectedPriority =  priorities[0];
     });
 
     this.collaboratorForm = this.FB.group({
@@ -301,7 +340,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.projectForm = this.FB.group({
       id: new FormControl(this.currentProject ? this.currentProject.id : null),
       name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required]),
-      organizationId: new FormControl(this._generalService.currentOrganization.id)
+      organizationId: new FormControl(this._generalService.currentOrganization.id),
+      assigneeId: new FormControl( null),
+      taskTypeId: new FormControl( null),
+      statusId: new FormControl( null),
+      priorityId:new FormControl( null),
     });
   }
 
@@ -695,6 +738,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   //================== project tab ==================//
+
   public updateProjectDetails(project: Partial<Project>) {
     this.updateRequestInProcess = true;
     this._projectService.updateProject(project).subscribe((res => {
@@ -709,19 +753,37 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.projectModalIsVisible = !this.projectModalIsVisible;
   }
 
-  //================== workflow =====================//
+  public selectTaskType(item: TaskTypeModel) {
+    this.selectedTaskType = item;
+  }
+
+  public selectPriority(item: ProjectPriority) {
+    this.selectedPriority = item;
+  }
+
+  public selectStatus(item: ProjectStatus) {
+    this.selectedStatus = item;
+  }
+
 
   public selectDefaultAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
-      this.selectedDefaultAssignee = user;
+      this.selectedAssignee = user;
       let userName = user && user.firstName ? user.firstName : user.emailId;
       if (user && user.firstName && user && user.lastName) {
         userName = userName + ' ' + user.lastName;
       }
-      this.workflowForm.get('assigneeId').patchValue(userName);
+      this.projectForm.get('assigneeId').patchValue(userName);
     }
-    this.modelChangedSearchDefaultAssignee.next();
+    this.assigneeModelChanged.next();
   }
+
+  public clearAssigeeSearchText() {
+    this.projectForm.get('assigneeId').patchValue('');
+    this.selectedAssignee.profilePic = null;
+  }
+
+  //================== workflow =====================//
 
   public editBoard(boardId: string) {
     this.router.navigate(['dashboard', 'board-setting', boardId]);
