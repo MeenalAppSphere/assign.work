@@ -69,7 +69,8 @@ export class BoardComponent implements OnInit, OnDestroy {
               private _taskTypeQuery: TaskTypeQuery,
               protected notification: NzNotificationService,
               private modalService: NzModalService,
-              private _userQuery: UserQuery, private router: Router) {
+              private _userQuery: UserQuery, private router: Router,
+              private modal: NzModalService) {
 
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -325,14 +326,24 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public async removeTaskToSprint(taskId:string) {
     try {
-      const json: RemoveTaskFromSprintModel = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this.boardData.id,
-        taskId: taskId
-      };
-      this.getStageInProcess = true;
-      await this._sprintService.removeTaskFromSprint(json).toPromise();
-      this.getBoardData();
+
+      return this.modal.confirm({
+        nzTitle: 'Want to remove task from sprint?',
+        nzContent: '',
+        nzOnOk: () =>
+          new Promise(async (resolve, reject) => {
+            const json: RemoveTaskFromSprintModel = {
+              projectId: this._generalService.currentProject.id,
+              sprintId: this.boardData.id,
+              taskId: taskId
+            };
+            await this._sprintService.removeTaskFromSprint(json).toPromise();
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+            this.getBoardData();
+            return true;
+          }).catch(() => console.log('Oops errors!'))
+      });
+
     } catch (e) {
       console.log(e);
       this.getStageInProcess = false;
