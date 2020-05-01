@@ -734,25 +734,35 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
 
+
   public async removeTaskToSprint() {
+
     try {
 
-      const json: RemoveTaskFromSprintModel = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this.sprintData.id,
-        taskId: this.taskData.id
-      };
+      return this.modal.confirm({
+        nzTitle: 'Want to remove task from sprint?',
+        nzContent: '',
+        nzOnOk: () =>
+          new Promise(async (resolve, reject) => {
+            const json: RemoveTaskFromSprintModel = {
+              projectId: this._generalService.currentProject.id,
+              sprintId: this.sprintData.id,
+              taskId: this.taskData.id
+            };
+            //this.updateSidebarContentInProcess = true;
+            await this._sprintService.removeTaskFromSprint(json).toPromise();
+            this.taskData.sprintId = null;
+            //this.updateSidebarContentInProcess = false;
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+            return true;
+          }).catch(() => console.log('Oops errors!'))
+      });
 
-      this.updateSidebarContentInProcess = true;
-      await this._sprintService.removeTaskFromSprint(json).toPromise();
-
-      this.taskData.sprintId = null;
-
-      this.updateSidebarContentInProcess = false;
     } catch (e) {
       console.log(e);
       this.updateSidebarContentInProcess = false;
     }
+
   }
 
 

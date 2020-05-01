@@ -1,5 +1,24 @@
 <section id="row-main" class="form-container row" *ngIf="!showTaskNotFoundView">
 
+  <section class="m-b-10 p-l-20 m-t-10 col-md-12">
+
+    <nz-breadcrumb [nzSeparator]="iconTemplate">
+    <nz-breadcrumb-item>
+      <a routerLink="../../" ><img src="../../../assets/images/icons/gray-home.svg" class="p-r-5"/>Dashboard</a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item>
+      <a routerLink="../../board" ><img src="../../../assets/images/icons/gray-board.svg" class="p-r-5"/>Board</a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item>
+      <a routerLink="../../backlog" ><img src="../../../assets/images/icons/gray-backlogs.svg" class="p-r-5" />Backlog</a>
+    </nz-breadcrumb-item>
+    </nz-breadcrumb>
+
+    <ng-template #iconTemplate><span>|</span></ng-template>
+
+  </section>
+
+
   <aside id="content" class="m-b-20 p-r-25 m-t-10" [ngClass]="{
       'col-md-8': isOpenActivitySidebar && taskId,
       'col-md-12': !isOpenActivitySidebar || !taskId
@@ -236,7 +255,6 @@
         <div class="row floating-save-btns">
           <div class="col-md-12 text-right">
 
-            <a routerLink="../../backlog" class="m-r-15">Backlogs</a>
             <button type="reset" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
             <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
