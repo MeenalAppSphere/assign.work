@@ -484,8 +484,8 @@
                 <li *ngFor="let item of statusList"><span>{{item.name}}</span>
 
                   <span class="float-right">
-                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>
-<!--                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>-->
+<!--                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
+                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
                     </span>
 
                 </li>
@@ -565,9 +565,9 @@
                     <span class="p-l-10" >{{item.name}}</span></div>
 
                   <span class="float-right">
-                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>
-<!--                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"-->
-<!--                         class="edit right-30"></i>-->
+<!--                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
+                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
+                         class="edit right-30"></i>
                     </span>
                 </li>
 
@@ -666,9 +666,9 @@
                      [ngStyle]="{'color':item.color}"></i>
                   <span>{{item.name}}</span>
                   <span class="float-right">
-                      <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close"></i>
-<!--                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline"-->
-<!--                         class="edit right-30"></i>-->
+<!--                      <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
+                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline"
+                         class="edit right-30"></i>
                   </span>
                 </li>
 
