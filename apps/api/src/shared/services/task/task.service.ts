@@ -409,17 +409,20 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           await this.updateTaskStatusInSprint(sprint, taskDetails, taskModel.statusId, projectDetails, session);
         }
 
-        // update sprint report, convert string to objectId for not loosing references
-        const reportTaskDoc: any = {
-          ...taskModel,
-          _id: toObjectId(taskModel.id),
-          assigneeId: toObjectId(taskModel.assigneeId),
-          statusId: toObjectId(taskModel.statusId),
-          priorityId: toObjectId(taskModel.priorityId),
-          taskTypeId: toObjectId(taskModel.taskTypeId),
-          createdById: toObjectId(taskModel.createdById)
-        };
-        await this._sprintReportService.updateReportTask(sprint.reportId, reportTaskDoc, session);
+        // if sprint is published than update corresponding sprint report
+        if (sprint.sprintStatus && sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
+          // update sprint report, convert string to objectId for not loosing references
+          const reportTaskDoc: any = {
+            ...taskModel,
+            _id: toObjectId(taskModel.id),
+            assigneeId: toObjectId(taskModel.assigneeId),
+            statusId: toObjectId(taskModel.statusId),
+            priorityId: toObjectId(taskModel.priorityId),
+            taskTypeId: toObjectId(taskModel.taskTypeId),
+            createdById: toObjectId(taskModel.createdById)
+          };
+          await this._sprintReportService.updateReportTask(sprint.reportId, reportTaskDoc, session);
+        }
       }
 
       // update task by id
