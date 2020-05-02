@@ -662,13 +662,13 @@
               <ul class="stages-list">
 
                 <li *ngFor="let item of typesList">
-                  <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
-                     [ngStyle]="{'color':item.color}"></i>
-                  <span>{{item.name}}</span>
-                  <span class="float-right">
-<!--                      <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-<!--                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline"-->
-<!--                         class="edit right-30"></i>-->
+                  <span>
+                    <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
+                       [ngStyle]="{'color':item.color}"></i>
+                    {{item.name}}</span>
+                  <span class="float-right d-flex p-t-5">
+                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+<!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                   </span>
                 </li>
 

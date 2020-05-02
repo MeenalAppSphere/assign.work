@@ -7,6 +7,7 @@ import { TaskTypeUrls } from './task-type.url';
 import { catchError, map } from 'rxjs/operators';
 import { BaseResponseModel, TaskTypeModel } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
+import { cloneDeep } from 'lodash';
 
 export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
   constructor(protected notification: NzNotificationService, protected taskTypeStore: TaskTypeStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
@@ -58,7 +59,20 @@ export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
     this.updateState({ updateInProcess: true, updateSuccess: false });
     return this._http.post(TaskTypeUrls.updateTaskType, taskType).pipe(
       map((res: BaseResponseModel<TaskTypeModel>) => {
-        this.updateState({ updateInProcess: false, updateSuccess: true });
+
+        this.store.update(state => {
+
+          const preState = cloneDeep(state);
+          const typeIndex = preState.types.findIndex((ele)=>ele.id===res.data.id);
+          preState.types[typeIndex] = res.data;
+          return {
+            ...state,
+            addNewSuccess: true,
+            addNewInProcess: false,
+            types: preState.types
+          };
+        });
+
         this.notification.success('Success', 'Task Type Updated Successfully');
         return res;
       }),

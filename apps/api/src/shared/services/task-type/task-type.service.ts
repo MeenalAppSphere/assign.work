@@ -5,7 +5,7 @@ import { ProjectService } from '../project/project.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Document, Model } from 'mongoose';
 import { ModuleRef } from '@nestjs/core';
-import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
+import { aggregateConvert_idToId, BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { TaskTypeUtilityService } from './task-type.utility.service';
 import { GeneralService } from '../general.service';
 
@@ -45,8 +45,14 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
       this._utilityService.taskTypeValidations(model);
 
       // check if duplicate
-      if (await this.isDuplicate(model)) {
-        BadRequest('Duplicate Task Type is not allowed..');
+      if (model.id) {
+        if (await this.isDuplicate(model, model.id)) {
+          BadRequest('Duplicate Task Type is not allowed..');
+        }
+      }else {
+        if (await this.isDuplicate(model)) {
+          BadRequest('Duplicate Task Type is not allowed..');
+        }
       }
 
       const taskType = new TaskTypeModel();
@@ -61,7 +67,16 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         const newTaskType = await this.create([taskType], session);
         return newTaskType[0];
       } else {
-        // update task type by id
+
+        taskType.id = model.id;
+        taskType.updatedById = this._generalService.userId;
+        taskType.updatedAt = generateUtcDate();
+
+        await this.updateById(model.id, taskType, session);
+
+        return taskType;
+
+
       }
     });
   }

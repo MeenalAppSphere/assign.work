@@ -103,23 +103,17 @@
         //color: #2680EB;
       }
       i.close{
-        position: absolute;
-        top: 13px;
         font-size: 14px;
         opacity: 1;
         text-shadow: none;
-        right: 10px;
         &:hover{
           color: red;
         }
       }
       i.edit{
-        position: absolute;
-        top: 13px;
         font-size: 14px;
         opacity: 1;
         text-shadow: none;
-        right: 30px;
         &:hover{
           color: #ff8828;
         }
