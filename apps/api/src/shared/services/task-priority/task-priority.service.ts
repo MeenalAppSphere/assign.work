@@ -48,12 +48,13 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
         if (await this.isDuplicate(model, model.id)) {
           BadRequest('Duplicate Task Priority is not allowed..');
         }
-      }else {
+      } else {
         if (await this.isDuplicate(model)) {
           BadRequest('Duplicate Task Priority is not allowed..');
         }
       }
 
+      // task priority model
       const taskPriority = new TaskPriorityModel();
       taskPriority.projectId = model.projectId;
       taskPriority.name = model.name;
@@ -62,19 +63,15 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
       taskPriority.createdById = this._generalService.userId;
 
       if (!model.id) {
+        // add
         const newTaskPriority = await this.create([taskPriority], session);
-        await this._projectService.updateById(model.projectId, { $push: { 'settings.priorities': newTaskPriority[0].id } }, session);
         return newTaskPriority[0];
       } else {
-
+        // update
         taskPriority.id = model.id;
         taskPriority.updatedById = this._generalService.userId;
-        taskPriority.updatedAt = generateUtcDate();
-
         await this.updateById(model.id, taskPriority, session);
-
         return taskPriority;
-
       }
     });
   }

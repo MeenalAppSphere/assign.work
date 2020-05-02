@@ -49,12 +49,13 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         if (await this.isDuplicate(model, model.id)) {
           BadRequest('Duplicate Task Type is not allowed..');
         }
-      }else {
+      } else {
         if (await this.isDuplicate(model)) {
           BadRequest('Duplicate Task Type is not allowed..');
         }
       }
 
+      // task type model
       const taskType = new TaskTypeModel();
       taskType.projectId = model.projectId;
       taskType.displayName = model.displayName;
@@ -64,19 +65,15 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
       taskType.createdById = this._generalService.userId;
 
       if (!model.id) {
+        // add
         const newTaskType = await this.create([taskType], session);
         return newTaskType[0];
       } else {
-
+        // update
         taskType.id = model.id;
         taskType.updatedById = this._generalService.userId;
-        taskType.updatedAt = generateUtcDate();
-
         await this.updateById(model.id, taskType, session);
-
         return taskType;
-
-
       }
     });
   }

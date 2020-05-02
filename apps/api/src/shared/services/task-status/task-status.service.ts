@@ -56,12 +56,13 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
         if (await this.isDuplicate(model, model.id)) {
           BadRequest('Status title is already taken, please choose different');
         }
-      }else {
+      } else {
         if (await this.isDuplicate(model)) {
           BadRequest('Status title is already taken, please choose different');
         }
       }
 
+      // status model
       const status = new TaskStatusModel();
       status.name = model.name;
       status.projectId = model.projectId;
@@ -69,17 +70,11 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       status.createdById = this._generalService.userId;
 
       if (!model.id) {
-        // create new status
+        // add
         const newStatus = await this.create([status], session);
-
-        // update project
-        await this._projectService.updateById(model.projectId, {
-          $push: { 'settings.statuses': newStatus[0] }
-        }, session);
-
         // update board and add this status as a column
         if (projectDetails.activeBoardId) {
-          const boardDetails = await this._boardService.getDetails(projectDetails.activeBoardId, model.projectId);
+          await this._boardService.getDetails(projectDetails.activeBoardId, model.projectId);
 
           // create new column object
           const column = new BoardColumns();
@@ -93,28 +88,18 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
           column.columnOrderNo = 0;
           column.isHidden = false;
 
-          const boardUpdateObject = {
-            $push: {
-              'columns': column
-            }
-          };
-
           // update board by id
-          await this._boardService.updateById(projectDetails.activeBoardId, boardUpdateObject, session);
+          await this._boardService.updateById(projectDetails.activeBoardId, { $push: { 'columns': column } }, session);
         }
 
         newStatus[0].id = newStatus[0]._id;
         return newStatus[0];
       } else {
-
+        // update
         status.id = model.id;
         status.updatedById = this._generalService.userId;
-        status.updatedAt = generateUtcDate();
-
         await this.updateById(model.id, status, session);
-
         return status;
-
       }
 
     });
