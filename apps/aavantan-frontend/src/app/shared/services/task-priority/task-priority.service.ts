@@ -3,11 +3,13 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
-import { BaseResponseModel, TaskPriorityModel } from '@aavantan-app/models';
+import { BaseResponseModel, Project, ProjectPriority, TaskPriorityModel } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { TaskUrls } from '../task/task.url';
 import { TaskPriorityState, TaskPriorityStore } from '../../../store/task-priority/task-priority.store';
 import { TaskPriorityUrls } from './task-priority.url';
+import { ProjectUrls } from '../project/project.url';
+import { cloneDeep } from 'lodash';
 
 export class TaskPriorityService extends BaseService<TaskPriorityStore, TaskPriorityState> {
   constructor(protected notification: NzNotificationService, protected taskPriorityStore: TaskPriorityStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
@@ -31,35 +33,48 @@ export class TaskPriorityService extends BaseService<TaskPriorityStore, TaskPrio
     );
   }
 
-  createTaskPriority(taskPriority: TaskPriorityModel): Observable<BaseResponseModel<TaskPriorityModel>> {
-    this.updateState({ addNewInProcess: true, addNewSuccess: false });
-    return this._http.post(TaskPriorityUrls.addTaskPriority, taskPriority).pipe(
+  createPriority(priority: ProjectPriority): Observable<BaseResponseModel<Project>> {
+    return this._http.post(TaskPriorityUrls.addPriority, priority)
+      .pipe(
+        map(res => {
+
+          // add new created priority to store's priority array
+          this.taskPriorityStore.update((state) => {
+            return {
+              ...state,
+              addNewSuccess: true,
+              addNewInProcess: false,
+              priorities: [...state.priorities, res.data]
+            };
+          });
+
+          this.notification.success('Success', 'Priority Created Successfully');
+          return res;
+        }),
+        catchError(e => this.handleError(e))
+      );
+  }
+
+
+  updatePriority(taskPriority: TaskPriorityModel): Observable<BaseResponseModel<TaskPriorityModel>> {
+    this.updateState({ updateInProcess: true, updateSuccess: false });
+    return this._http.post(TaskPriorityUrls.updatePriority, taskPriority).pipe(
       map((res: BaseResponseModel<TaskPriorityModel>) => {
+        this.updateState({ updateInProcess: false, updateSuccess: true });
 
         this.store.update(state => {
+
+          const preState = cloneDeep(state);
+          const index = preState.priorities.findIndex((ele)=>ele.id===res.data.id);
+          preState.priorities[index] = res.data;
           return {
             ...state,
             addNewSuccess: true,
             addNewInProcess: false,
-            priorities: [...state.priorities, res.data]
+            priorities: preState.priorities
           };
         });
 
-        this.notification.success('Success', 'Task Priority Created Successfully');
-        return res;
-      }),
-      catchError(err => {
-        this.updateState({ addNewInProcess: false, addNewSuccess: false });
-        return this.handleError(err);
-      })
-    );
-  }
-
-  updateTaskType(taskPriority: TaskPriorityModel): Observable<BaseResponseModel<TaskPriorityModel>> {
-    this.updateState({ updateInProcess: true, updateSuccess: false });
-    return this._http.post(TaskUrls.addTask, taskPriority).pipe(
-      map((res: BaseResponseModel<TaskPriorityModel>) => {
-        this.updateState({ updateInProcess: false, updateSuccess: true });
         this.notification.success('Success', 'Task Priority Updated Successfully');
         return res;
       }),

@@ -84,13 +84,10 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
           return;
         }
         this.updateRequestInProcess = true;
-        this._taskTypeService.createTaskType(this.taskTypeForm.value).subscribe((res => {
-          this.taskTypeForm.reset({ projectId: this._generalService.currentProject.id });
-          this.updateRequestInProcess = false;
-          this.toggleAddTaskTypeShow.emit();
-        }), (error => {
-          this.updateRequestInProcess = false;
-        }));
+        await this._taskTypeService.createTaskType(this.taskTypeForm.value).toPromise();
+        this.taskTypeForm.reset({ projectId: this._generalService.currentProject.id });
+        this.updateRequestInProcess = false;
+        this.toggleAddTaskTypeShow.emit();
 
       }
     }catch (e) {

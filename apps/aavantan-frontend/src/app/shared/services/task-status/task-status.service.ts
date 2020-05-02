@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { TaskStatusState, TaskStatusStore } from '../../../store/task-status/task-status.store';
 import { TaskStatusUrls } from './task-status.url';
 import { BoardStore } from '../../../store/board/board.store';
+import { cloneDeep } from 'lodash';
 
 export class TaskStatusService extends BaseService<TaskStatusStore, TaskStatusState> {
   constructor(protected notification: NzNotificationService, protected taskStatusStore: TaskStatusStore, private _http: HttpWrapperService,
@@ -72,6 +73,20 @@ export class TaskStatusService extends BaseService<TaskStatusStore, TaskStatusSt
     return this._http.post(TaskStatusUrls.updateTaskStatus, taskStatus).pipe(
       map((res: BaseResponseModel<TaskStatusModel>) => {
         this.updateState({ updateInProcess: false, updateSuccess: true });
+
+        this.store.update(state => {
+
+          const preState = cloneDeep(state);
+          const index = preState.statuses.findIndex((ele)=>ele.id===res.data.id);
+          preState.statuses[index] = res.data;
+          return {
+            ...state,
+            addNewSuccess: true,
+            addNewInProcess: false,
+            statuses: preState.statuses
+          };
+        });
+
         this.notification.success('Success', 'Task Status Updated Successfully');
         return res;
       }),

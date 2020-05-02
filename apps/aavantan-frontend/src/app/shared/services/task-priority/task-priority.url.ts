@@ -2,6 +2,6 @@ import { createUrl } from '../apiUrls/base.url';
 
 export const TaskPriorityUrls = {
   getAllTaskPriorities: createUrl('task-priority/get-all'),
-  addTaskPriority: createUrl('task-priority/create'),
-  updateTaskPriority: createUrl('task-priority/update')
+  addPriority: `${createUrl('task-priority/create')}`,
+  updatePriority: createUrl('task-priority/create')
 };

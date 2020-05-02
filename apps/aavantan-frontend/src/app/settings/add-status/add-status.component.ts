@@ -44,27 +44,35 @@ export class AddStatusComponent implements OnInit, OnDestroy {
     }
   }
 
-  public addStatus() {
-    if (this.statusForm.invalid) {
-      this.notification.error('Error', 'Please check Status Title');
-      return;
-    }
-    const statusData: TaskStatusModel = this.statusForm.value;
-    statusData.name = statusData.name.trim();
-    this.updateRequestInProcess = true;
+  async addStatus() {
+    try {
+      if (this.statusForm.invalid) {
+        this.notification.error('Error', 'Please check Status Title');
+        return;
+      }
+      const statusData: TaskStatusModel = this.statusForm.value;
+      statusData.name = statusData.name.trim();
+      this.updateRequestInProcess = true;
 
-    if (this.addEditprojectStatusData && this.addEditprojectStatusData.id) {
-      console.log('Updated status :', statusData);
-      this.updateRequestInProcess = false;
-      this.toggleAddStatusShow.emit();
-    } else {
-      this._taskStatusService.createTaskStatus(statusData).subscribe((res => {
+      if (this.addEditprojectStatusData && this.addEditprojectStatusData.id) {
+
+        this.updateRequestInProcess = true;
+
+        await this._taskStatusService.updateTaskStatus(statusData).toPromise();
+
+        this.updateRequestInProcess = false;
+        this.toggleAddStatusShow.emit();
+
+      } else {
+
+        await this._taskStatusService.createTaskStatus(statusData).toPromise();
         this.statusForm.reset();
         this.updateRequestInProcess = false;
         this.toggleAddStatusShow.emit();
-      }), (error => {
-        this.updateRequestInProcess = false;
-      }));
+
+      }
+    }catch (e) {
+      this.updateRequestInProcess = false;
     }
 
   }

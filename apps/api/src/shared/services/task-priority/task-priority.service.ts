@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
 import { OnModuleInit } from '@nestjs/common';
-import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
+import { aggregateConvert_idToId, BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { TaskPriorityUtilityService } from './task-priority.utility.service';
 import { GeneralService } from '../general.service';
 
@@ -44,8 +44,14 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
       this._utilityService.taskPriorityValidations(model);
 
       // check if duplicate
-      if (await this.isDuplicate(model)) {
-        BadRequest('Duplicate Task Priority is not allowed..');
+      if (model.id) {
+        if (await this.isDuplicate(model, model.id)) {
+          BadRequest('Duplicate Task Priority is not allowed..');
+        }
+      }else {
+        if (await this.isDuplicate(model)) {
+          BadRequest('Duplicate Task Priority is not allowed..');
+        }
       }
 
       const taskPriority = new TaskPriorityModel();
@@ -60,7 +66,15 @@ export class TaskPriorityService extends BaseService<TaskPriorityModel & Documen
         await this._projectService.updateById(model.projectId, { $push: { 'settings.priorities': newTaskPriority[0].id } }, session);
         return newTaskPriority[0];
       } else {
-        // update task priority by id
+
+        taskPriority.id = model.id;
+        taskPriority.updatedById = this._generalService.userId;
+        taskPriority.updatedAt = generateUtcDate();
+
+        await this.updateById(model.id, taskPriority, session);
+
+        return taskPriority;
+
       }
     });
   }

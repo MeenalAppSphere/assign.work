@@ -6,7 +6,7 @@ import { ProjectService } from '../project/project.service';
 import { OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { TaskStatusUtilityService } from './task-status.utility.service';
-import { BadRequest } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { GeneralService } from '../general.service';
 import { BoardService } from '../board/board.service';
 import { TaskService } from '../task/task.service';
@@ -52,8 +52,14 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       this._utilityService.statusValidations(model);
 
       // check if duplicate
-      if (await this.isDuplicate(model)) {
-        BadRequest('Status title is already taken, please choose different');
+      if (model.id) {
+        if (await this.isDuplicate(model, model.id)) {
+          BadRequest('Status title is already taken, please choose different');
+        }
+      }else {
+        if (await this.isDuplicate(model)) {
+          BadRequest('Status title is already taken, please choose different');
+        }
       }
 
       const status = new TaskStatusModel();
@@ -100,7 +106,15 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
         newStatus[0].id = newStatus[0]._id;
         return newStatus[0];
       } else {
-        // perform update status here..
+
+        status.id = model.id;
+        status.updatedById = this._generalService.userId;
+        status.updatedAt = generateUtcDate();
+
+        await this.updateById(model.id, status, session);
+
+        return status;
+
       }
 
     });

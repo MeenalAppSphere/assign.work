@@ -485,7 +485,7 @@
 
                   <span class="float-right">
 <!--                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-<!--                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>-->
+                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-r-10"></i>
                     </span>
 
                 </li>
@@ -559,16 +559,18 @@
               <ul class="stages-list">
 
                 <li *ngFor="let item of priorityList">
-                  <div>
-                    <i nz-tooltip [nzTitle]="item.color"
+
+                  <span>
+                    <i class="p-l-10"  nz-tooltip [nzTitle]="item.color"
                        [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
-                    <span class="p-l-10" >{{item.name}}</span></div>
+                    {{item.name}}
+                  </span>
 
                   <span class="float-right">
 <!--                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-<!--                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"-->
-<!--                         class="edit right-30"></i>-->
-                    </span>
+                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-l-10"></i>
+                  </span>
+
                 </li>
 
               </ul>

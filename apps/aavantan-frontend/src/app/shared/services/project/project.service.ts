@@ -251,28 +251,6 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       );
   }
 
-  addPriority(priority: ProjectPriority): Observable<BaseResponseModel<Project>> {
-    return this._http.post(ProjectUrls.addPriority, priority)
-      .pipe(
-        map(res => {
-
-          // add new created priority to store's priority array
-          this.taskPriorityStore.update((state) => {
-            return {
-              ...state,
-              addNewSuccess: true,
-              addNewInProcess: false,
-              priorities: [...state.priorities, res.data]
-            };
-          });
-
-          this.notification.success('Success', 'Priority Created Successfully');
-          return res;
-        }),
-        catchError(e => this.handleError(e))
-      );
-  }
-
   removePriority(projectId: string, priorityId: string): Observable<BaseResponseModel<Project>> {
     return this._http.delete(ProjectUrls.removeTaskType
       .replace(':projectId', projectId)

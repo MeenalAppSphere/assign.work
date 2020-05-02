@@ -60,6 +60,8 @@ export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
     return this._http.post(TaskTypeUrls.updateTaskType, taskType).pipe(
       map((res: BaseResponseModel<TaskTypeModel>) => {
 
+        this.updateState({ updateInProcess: false, updateSuccess: true });
+
         this.store.update(state => {
 
           const preState = cloneDeep(state);
