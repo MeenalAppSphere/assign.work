@@ -55,39 +55,43 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
     }
   }
 
-  public saveTaskType() {
-    if (this.taskTypeForm.invalid) {
-      this.notification.error('Error', 'Please check Display name, Color and Task type');
-      return;
-    }
+  async saveTaskType() {
 
-    if (this.addEditprojectTaskTypeData && this.addEditprojectTaskTypeData.id) {
+    try {
 
-      console.log('Updated Task Type :', this.taskTypeForm.value);
-      this.updateRequestInProcess = false;
-      this.toggleAddTaskTypeShow.emit();
-
-    } else {
-      
-      const dup: TaskTypeModel[] = this.typesList.filter((ele) => {
-        if (ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName) {
-          return ele;
-        }
-      });
-
-      if (dup && dup.length > 0) {
-        this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
+      if (this.taskTypeForm.invalid) {
+        this.notification.error('Error', 'Please check Display name, Color and Task type');
         return;
       }
-      this.updateRequestInProcess = true;
-      this._taskTypeService.createTaskType(this.taskTypeForm.value).subscribe((res => {
+
+      if (this.addEditprojectTaskTypeData && this.addEditprojectTaskTypeData.id) {
+
+        this.updateRequestInProcess = true;
+        await this._taskTypeService.updateTaskType(this.taskTypeForm.value).toPromise();
+        this.updateRequestInProcess = false;
+        this.toggleAddTaskTypeShow.emit();
+
+      } else {
+
+        const dup: TaskTypeModel[] = this.typesList.filter((ele) => {
+          if (ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName) {
+            return ele;
+          }
+        });
+
+        if (dup && dup.length > 0) {
+          this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
+          return;
+        }
+        this.updateRequestInProcess = true;
+        await this._taskTypeService.createTaskType(this.taskTypeForm.value).toPromise();
         this.taskTypeForm.reset({ projectId: this._generalService.currentProject.id });
         this.updateRequestInProcess = false;
         this.toggleAddTaskTypeShow.emit();
-      }), (error => {
-        this.updateRequestInProcess = false;
-      }));
 
+      }
+    }catch (e) {
+      this.updateRequestInProcess = false;
     }
   }
 

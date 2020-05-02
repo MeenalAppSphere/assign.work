@@ -2,21 +2,17 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/cor
 import {
   BaseResponseModel,
   CloseSprintModel,
-  GetAllTaskRequestModel,
   MoveTaskToColumnModel,
   ProjectStatus,
+  RemoveTaskFromSprintModel,
   Sprint,
   SprintColumn,
   SprintColumnTask,
-  Task,
-  TaskTypeModel,
-  User,
-  TaskTimeLogResponse,
   SprintFilterTasksModel,
-  AddTaskToSprintModel,
-  SprintErrorResponse,
-  SprintErrorEnum,
-  RemoveTaskFromSprintModel
+  Task,
+  TaskTimeLogResponse,
+  TaskTypeModel,
+  User
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';

@@ -212,7 +212,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
-      color: new FormControl("#000000" ),
+      color: new FormControl('#000000'),
       description: new FormControl(''),
       projectId: new FormControl(this.currentProject.id)
     });
@@ -525,7 +525,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   }
 
-  public toggleMoveStatusShow(data:any) {
+  public toggleMoveStatusShow(data: any) {
     this.moveStatusModalIsVisible = !this.moveStatusModalIsVisible;
   }
 
@@ -536,33 +536,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.addEditprojectStatusData = null;
     }
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
-  }
-
-  //================== Priority ==================//
-  public savePriority() {
-    if (this.priorityForm.invalid) {
-      this.notification.error('Error', 'Please check Color and Priority');
-      return;
-    }
-
-    const dup: ProjectPriority[] = this.priorityList.filter((ele) => {
-      if (ele.color === this.priorityForm.value.color || ele.name === this.priorityForm.value.name) {
-        return ele;
-      }
-    });
-
-    if (dup && dup.length > 0) {
-      this.notification.error('Error', 'Duplicate color or name');
-      return;
-    }
-
-    this.updateRequestInProcess = true;
-    this._projectService.addPriority(this.priorityForm.value).subscribe((res => {
-      this.priorityForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
   }
 
   public removePriority(item: ProjectPriority) {

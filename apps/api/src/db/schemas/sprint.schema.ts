@@ -34,7 +34,8 @@ export const sprintSchema = new Schema({
   columns: {
     type: Array,
     default: [],
-    status: [],
+    id: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
+    statusId: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
     totalEstimation: { type: Number, default: 0 },
     tasks: {
       type: Array,
@@ -91,6 +92,12 @@ sprintSchema.virtual('createdBy', {
 sprintSchema.virtual('updatedBy', {
   ref: DbCollection.users,
   localField: 'updatedById',
+  foreignField: '_id'
+});
+
+sprintSchema.virtual('columns.status', {
+  ref: DbCollection.taskStatus,
+  localField: 'columns.statusId',
   foreignField: '_id'
 });
 
