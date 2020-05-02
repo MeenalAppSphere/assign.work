@@ -4,6 +4,7 @@ import { User } from './user.model';
 import { Project, ProjectWorkingDays } from './project.model';
 import { MongoosePaginateQuery } from '../queryOptions';
 import { Types } from 'mongoose';
+import { TaskStatusModel } from './task-status.model';
 
 export class Sprint {
   id?: string;
@@ -43,6 +44,7 @@ export class Sprint {
 export class SprintColumn {
   id: string;
   statusId: string;
+  status?: TaskStatusModel;
   name?: string;
   tasks: SprintColumnTask[];
   totalEstimation: number;

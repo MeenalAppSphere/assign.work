@@ -36,15 +36,6 @@ export class SprintReportModel extends BaseDbModel {
   allTaskTotalLoggedTimeReadable?: string;
   allTaskTotalRemainingTime?: number;
   allTaskTotalRemainingTimeReadable?: string;
-
-  unfinishedTasks?: SprintReportTaskReportModel[];
-  unfinishedTasksCount: number;
-  unfinishedTasksTotalEstimatedTime?: number;
-  unfinishedTasksTotalEstimatedTimeReadable?: string;
-  unfinishedTasksTotalLoggedTime?: number;
-  unfinishedTasksTotalLoggedTimeReadable?: string;
-  unfinishedTasksTotalRemainingTime?: number;
-  unfinishedTasksTotalRemainingTimeReadable?: string;
 }
 
 export class SprintReportTasksModel {

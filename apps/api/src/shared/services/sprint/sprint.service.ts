@@ -66,6 +66,10 @@ const commonPopulationForSprint = [{
 }];
 
 const detailedPopulationForSprint = [...commonPopulationForSprint, {
+  path: 'columns.status',
+  select: 'name',
+  justOne: true
+}, {
   path: 'columns.tasks.addedBy',
   select: 'emailId userName firstName lastName profilePic',
   justOne: true
