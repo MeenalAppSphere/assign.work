@@ -1,11 +1,9 @@
-import { Body, Controller, Delete, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ProjectService } from '../shared/services/project/project.service';
 import {
   GetAllProjectsModel,
   Project,
   ProjectMembers,
-  ProjectStages,
-  ProjectStageSequenceChangeRequest,
   ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
@@ -15,7 +13,6 @@ import {
   SwitchProjectRequest
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiImplicitBody } from '@nestjs/swagger';
 
 @Controller('project')
 @UseGuards(AuthGuard('jwt'))

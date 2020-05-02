@@ -20,7 +20,6 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { resolvePathHelper } from './helpers/helpers';
 import { GenericExceptionFilter } from './exceptionFilters/generic.exceptionFilter';
-import { WorkflowService } from './services/workflow/workflow.service';
 import { TaskStatusService } from './services/task-status/task-status.service';
 import { TaskPriorityService } from './services/task-priority/task-priority.service';
 import { TaskTypeService } from './services/task-type/task-type.service';
@@ -41,7 +40,6 @@ const providers = [
   InvitationService,
   EmailService,
   ResetPasswordService,
-  WorkflowService,
   TaskStatusService,
   TaskPriorityService,
   TaskTypeService,
