@@ -8,7 +8,7 @@ import {
   Sprint,
   SprintColumn,
   SprintColumnTask,
-  SprintFilterTasksModel,
+  SprintFilterTasksModel, SprintTaskTimeLogResponse,
   Task,
   TaskTimeLogResponse,
   TaskTypeModel,
@@ -304,12 +304,12 @@ export class BoardComponent implements OnInit, OnDestroy {
     };
   }
 
-  public hideTimeLogModal(resp?: TaskTimeLogResponse) {
+  public hideTimeLogModal(resp?: SprintTaskTimeLogResponse) {
     if (resp) {
       this.boardData.progress = resp.progress;
       this.boardData.overProgress = resp.overProgress;
-      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.totalLoggedTime;
-      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.totalLoggedTimeReadable;
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.taskTotalLoggedTime;
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.taskTotalLoggedTimeReadable;
 
     }
     this.timelogModalIsVisible = false;
