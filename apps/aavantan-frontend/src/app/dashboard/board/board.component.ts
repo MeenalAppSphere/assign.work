@@ -306,6 +306,8 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public hideTimeLogModal(resp?: TaskTimeLogResponse) {
     if (resp) {
+      this.boardData.progress = resp.progress;
+      this.boardData.overProgress = resp.overProgress;
       this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.totalLoggedTime;
       this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.totalLoggedTimeReadable;
 

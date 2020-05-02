@@ -423,6 +423,19 @@
 }
 
 /* board page */
+
+.board-sprint-progress {
+  .ant-progress-show-info .ant-progress-outer {
+    margin-right: calc(-4em - 8px);
+    padding-right: calc(4em + 8px);
+  }
+
+  .ant-progress-text {
+    width: 4em;
+  }
+}
+
+
 .collaborators-avatar{
   padding: 7px 0px 18px 0px;
   background: none;
@@ -486,7 +499,7 @@
   }
   .card-block {
     width: 290px;
-    min-height: 170px;
+    min-height: 180px;
     border: 1px solid #EBECEE;
     border-radius: 6px;
     .pull-right{
