@@ -395,8 +395,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // if adjustHoursAllowed not allowed than apply strict check for sprint timings
       if (!model.adjustHoursAllowed) {
 
-        // check if sprint have over logged time
-        if (sprintDetails.totalOverLoggedTime) {
+        // check if sprint have over logged time && total logged time is grater than sprint total capacity
+        if (sprintDetails.totalOverLoggedTime && (sprintDetails.totalLoggedTime > sprintDetails.totalCapacity)) {
           // return error sprint capacity exceed
           sprintErrorResponse.tasksError.reason = SprintErrorEnum.sprintCapacityExceed;
           return sprintErrorResponse;
