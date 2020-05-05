@@ -111,6 +111,57 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public moveStatusModalIsVisible: boolean;
 
+  public tabs:any = [
+    {
+      label :'Project',
+      id:'project',
+      icon:'project_setting.svg',
+      iconActive : 'white_project_setting.svg'
+    },
+    {
+      label :'Board Settings',
+      id:'board_settings',
+      icon:'board_settings.svg',
+      iconActive : 'white_board_settings.svg'
+    },
+    {
+      label :'Collaborators',
+      id:'collaborators',
+      icon:'collaborator.svg',
+      iconActive : 'white_collaborator.svg'
+    },
+    {
+      label :'Status',
+      id:'status',
+      icon:'status.svg',
+      iconActive : 'white_status.svg'
+    },
+    {
+      label :'Priority',
+      id:'priority',
+      icon:'priority.svg',
+      iconActive : 'white_priority.svg'
+    },
+    {
+      label :'Task Type',
+      id:'taskType',
+      icon:'task_type.svg',
+      iconActive : 'white_task_type.svg'
+    },
+    {
+      label :'Team Capacity',
+      id:'capacity',
+      icon:'team_capacity.svg',
+      iconActive : 'white_team_capacity.svg'
+    },
+    {
+      label :'Security',
+      id:'security',
+      icon:'security.svg',
+      iconActive : 'white_security.svg'
+    }
+  ]
+
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,

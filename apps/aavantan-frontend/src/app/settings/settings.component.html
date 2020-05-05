@@ -3,75 +3,13 @@
 
   <ul class="setting-tab-btn">
 
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='project'}"
-         (click)="activeTab('project', 'Project')">
-        <img *ngIf="activeView.view==='project'" src="../../assets/images/icons/white_project_setting.svg"/>
-        <img *ngIf="activeView.view!=='project'" src="../../assets/images/icons/project_setting.svg"/>
-        <div>Project</div>
-      </a>
-    </li>
-
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='board_settings'}"
-         (click)="activeTab('board_settings', 'Board Settings')">
-        <img *ngIf="activeView.view==='board_settings'" src="../../assets/images/icons/white_board_settings.svg"/>
-        <img *ngIf="activeView.view!=='board_settings'" src="../../assets/images/icons/board_settings.svg">
-        <div>Board Settings</div>
-      </a>
-    </li>
-
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='collaborators'}"
-         (click)="activeTab('collaborators', 'Collaborators')">
-        <img *ngIf="activeView.view==='collaborators'" src="../../assets/images/icons/white_collaborator.svg"/>
-        <img *ngIf="activeView.view!=='collaborators'" src="../../assets/images/icons/collaborator.svg"/>
-        <div>Collaborators</div>
-      </a>
-    </li>
-
-<!--    <li>-->
-<!--      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"-->
-<!--         (click)="activeTab('stages', 'Stages')">-->
-<!--        <img *ngIf="activeView.view==='stages'" src="../../assets/images/icons/white_stages.svg"/>-->
-<!--        <img *ngIf="activeView.view!=='stages'" src="../../assets/images/icons/stages.svg"/>-->
-<!--        <div>Stages</div>-->
-<!--      </a>-->
-<!--    </li>-->
-
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='status'}"
-         (click)="activeTab('status', 'Status')">
-        <img *ngIf="activeView.view==='status'" src="../../assets/images/icons/white_status.svg"/>
-        <img *ngIf="activeView.view!=='status'" src="../../assets/images/icons/status.svg"/>
-        <div>Status</div>
-      </a>
-    </li>
-
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='priority'}"
-         (click)="activeTab('priority', 'Priority')">
-        <img *ngIf="activeView.view==='priority'" src="../../assets/images/icons/white_priority.svg"/>
-        <img *ngIf="activeView.view!=='priority'" src="../../assets/images/icons/priority.svg"/>
-        <div>Priority</div>
-      </a>
-    </li>
-
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='taskType'}"
-         (click)="activeTab('taskType', 'Task Type')">
-        <img *ngIf="activeView.view==='taskType'" src="../../assets/images/icons/white_task_type.svg"/>
-        <img *ngIf="activeView.view!=='taskType'" src="../../assets/images/icons/task_type.svg">
-        <div>Task Type</div>
-      </a>
-    </li>
-
-    <li>
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='capacity'}"
-         (click)="activeTab('capacity', 'Team Capacity')">
-        <img *ngIf="activeView.view==='capacity'" src="../../assets/images/icons/white_team_capacity.svg"/>
-        <img *ngIf="activeView.view!=='capacity'" src="../../assets/images/icons/team_capacity.svg">
-        <div>Team Capacity</div>
+    <!-- tabs list -->
+    <li *ngFor="let item of tabs">
+      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}"
+         (click)="activeTab(item.id, item.label)">
+        <img *ngIf="activeView.view===item.id" src="../../assets/images/icons/{{item.iconActive}}"/>
+        <img *ngIf="activeView.view!==item.id" src="../../assets/images/icons/{{item.icon}}"/>
+        <div>{{item.label}}</div>
       </a>
     </li>
 
@@ -760,6 +698,16 @@
         </aside>
       </ng-container>
       <!-- capacity tab -->
+
+      <!-- security tab -->
+      <ng-container *ngIf="activeView.view==='security'">
+        <aside>
+
+            Security Tab
+
+        </aside>
+      </ng-container>
+      <!-- security tab -->
 
     </nz-card>
   </section>
