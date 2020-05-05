@@ -273,12 +273,12 @@
         <tr>
 
           <th>Name</th>
-          <th>Capacity</th>
-          <th>Assigned Time</th>
-          <th>Worked</th>
-          <th>Remaining Work</th>
-          <th>Remaining Capacity</th>
-          <th>Productivity</th>
+          <th class="text-right">Capacity</th>
+          <th class="text-right">Assigned Time</th>
+          <th class="text-right">Worked</th>
+          <th class="text-right">Remaining Work</th>
+          <th class="text-right">Remaining Capacity</th>
+          <th class="text-right">Productivity</th>
 
         </tr>
 
@@ -288,12 +288,12 @@
 
         <tr *ngFor="let item of sprintReport.reportMembers">
           <td data-label="Name">{{ item.user.firstName }} {{ item.user.lastName }}</td>
-          <td data-label="Capacity">{{ item.workingCapacityReadable }}</td>
-          <td data-label="Assigned Time">{{ item.totalAssignedTimeReadable }}</td>
-          <td data-label="Worked">{{ item.totalLoggedTimeReadable }}</td>
-          <td data-label="Remaining Work">{{ item.totalRemainingTimeReadable }}</td>
-          <td data-label="Remaining Capacity">{{ item.totalRemainingWorkingCapacityReadable }}</td>
-          <td data-label="Productivity">{{ item.sprintProductivity }} %</td>
+          <td class="text-right" data-label="Capacity">{{ item.workingCapacityReadable }}</td>
+          <td class="text-right" data-label="Assigned Time">{{ item.totalAssignedTimeReadable }}</td>
+          <td class="text-right" data-label="Worked">{{ item.totalLoggedTimeReadable }}</td>
+          <td class="text-right" data-label="Remaining Work">{{ item.totalRemainingTimeReadable }}</td>
+          <td class="text-right" data-label="Remaining Capacity">{{ item.totalRemainingWorkingCapacityReadable }}</td>
+          <td class="text-right" data-label="Productivity">{{ item.sprintProductivity }} %</td>
         </tr>
 
         </tbody>
@@ -304,12 +304,12 @@
         <thead>
         <tr>
           <th>Total</th>
-          <th>{{ sprintReport.reportMembersTotalWorkingCapacityReadable }}</th>
-          <th>{{ sprintReport.reportMembersTotalAssignedTimeReadable }}</th>
-          <th>{{ sprintReport.reportMembersTotalLoggedTimeReadable }}</th>
-          <th>{{ sprintReport.reportMembersTotalRemainingTimeReadable }}</th>
-          <th>{{ sprintReport.reportMembersTotalRemainingWorkingCapacityReadable }}</th>
-          <th>{{ sprintReport.reportMembersTotalSprintProductivity }} %</th>
+          <th class="text-right">{{ sprintReport.reportMembersTotalWorkingCapacityReadable }}</th>
+          <th class="text-right">{{ sprintReport.reportMembersTotalAssignedTimeReadable }}</th>
+          <th class="text-right">{{ sprintReport.reportMembersTotalLoggedTimeReadable }}</th>
+          <th class="text-right">{{ sprintReport.reportMembersTotalRemainingTimeReadable }}</th>
+          <th class="text-right">{{ sprintReport.reportMembersTotalRemainingWorkingCapacityReadable }}</th>
+          <th class="text-right">{{ sprintReport.reportMembersTotalSprintProductivity }} %</th>
         </tr>
         </thead>
       </table>
