@@ -169,7 +169,7 @@
                 <div class="card-box" *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
 
                   <div nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
-                    <i nz-icon nzType="close-circle" nzTheme="outline"></i>
+                    <i nz-icon nzType="close" nzTheme="outline"></i>
                   </div>
 
                   <div id="{{task.taskId}}" class="task-card"
