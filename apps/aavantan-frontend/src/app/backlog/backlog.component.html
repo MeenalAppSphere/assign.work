@@ -262,17 +262,13 @@
                   </td>
 
                   <td data-label="Reporter" class="text-center td-reporter">
-                    <span *ngIf="!item.createdBy">-</span>
-                    <span *ngIf="item.createdBy" nz-tooltip
-                          [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
-                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+                    <profile-name [user]="item.createdBy"></profile-name>
                   </td>
 
                   <td data-label="Assignee" class="text-center td-assignee">
-                    <span *ngIf="!item.assignee">-</span>
-                    <span *ngIf="item.assignee" nz-tooltip
-                          [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.assignee.lastName : item.assignee.emailId"> <nz-avatar
-                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
+
+                    <profile-name [user]="item.assignee"></profile-name>
+
                   </td>
 
                   <td data-label="Estimate" class="text-right td-estimates">
@@ -506,17 +502,11 @@
                 </td>
 
                 <td data-label="Reporter" class="text-center">
-                  <span *ngIf="!item.createdBy">-</span>
-                  <span *ngIf="item.createdBy" nz-tooltip
-                        [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
-                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+                  <profile-name [user]="item.createdBy"></profile-name>
                 </td>
 
                 <td data-label="Assignee" class="text-center">
-                  <span *ngIf="!item.assignee">-</span>
-                  <span *ngIf="item.assignee" nz-tooltip
-                        [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+ item.assignee.lastName : item.assignee.emailId"> <nz-avatar
-                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
+                  <profile-name [user]="item.assignee"></profile-name>
                 </td>
 
                 <td data-label="Estimate" class="text-right">
