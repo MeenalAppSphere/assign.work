@@ -168,8 +168,8 @@
 
                 <div class="card-box" *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
 
-                  <div class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
-                    + remove from sprint
+                  <div nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
+                    <i nz-icon nzType="close-circle" nzTheme="outline"></i>
                   </div>
 
                   <div id="{{task.taskId}}" class="task-card"
@@ -181,7 +181,7 @@
                       <a class="cursor-pointer text-primary"
                          nz-tooltip [nzTitle]="task.task.priority.name ? task.task.priority.name : 'No Priority'"
                          routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
-                      <span class="float-right duration">
+                      <span class="float-right duration p-r-25">
                                         <span nz-tooltip [nzTitle]="'Logged time'"
                                               class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
                                         <span nz-tooltip [nzTitle]="'Estimated time'"
