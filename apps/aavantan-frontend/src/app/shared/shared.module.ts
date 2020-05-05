@@ -17,6 +17,7 @@ import { NumericDirective } from './directives/numbers-only.directive';
 import { AddEpicComponent } from './components/add-epic/add-epic.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { RouterModule } from '@angular/router';
+import { ProfileNameComponent } from './components/profile-name/profile-name.component';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { RouterModule } from '@angular/router';
     DateAgoPipe,
     Safe,
     NumericDirective,
-    AddEpicComponent
+    AddEpicComponent,
+    ProfileNameComponent,
   ],
   imports: [
     CommonModule,
@@ -59,7 +61,8 @@ import { RouterModule } from '@angular/router';
     DateAgoPipe,
     Safe,
     NumericDirective,
-    AddEpicComponent
+    AddEpicComponent,
+    ProfileNameComponent,
   ]
 })
 export class SharedModule {

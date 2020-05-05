@@ -1,0 +1,11 @@
+
+<!-- if not user object then only avatar-->
+<span *ngIf="!user"><nz-avatar nzSize="small" nzIcon="user" class="m-r-5" nzText="AW"></nz-avatar></span>
+
+
+<span *ngIf="user" nz-tooltip [nzTitle]="user?.firstName ? user?.firstName+' '+user?.lastName : user?.emailId">
+  <nz-avatar nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="user?.profilePic"></nz-avatar>
+  <span *ngIf="fullName">{{user?.firstName ? user?.firstName+' '+user?.lastName : user?.emailId}}</span>
+  <span *ngIf="firstName">{{user?.firstName }}</span>
+  <span *ngIf="emailId">{{ user?.emailId }}</span>
+</span>
