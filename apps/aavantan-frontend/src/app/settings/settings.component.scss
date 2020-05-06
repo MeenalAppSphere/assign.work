@@ -1,10 +1,28 @@
+@import "../../scss/custom_variable";
+
 #settings-page{
   .right-30 {
     right:30px!important;
   }
+
   .assigned-user-input {
     height: 36px;
   }
+
+  .collaborator-form {
+    .ant-form-item {
+      margin-bottom: 5px;
+    }
+    .collaborator-search-invite {
+      padding-right: 130px!important;
+      padding-left: 45px!important;
+      height: 46px;
+    }
+    .btn-collaborator-search-invite {
+      padding:5px 20px!important;
+    }
+  }
+
   .ant-tabs-extra-content{
     line-height: initial!important;
   }
@@ -38,11 +56,11 @@
         border-radius: 8px;
         color: #7A869A;
         &:hover{
-          border: 0px solid #0053D1;
-          background: #0053D1!important;
+          border: 0px solid $theme-blue-hover;
+          background: $theme-blue-hover!important;
           color: #ffffff!important;
           i{
-            color: #0053D1;
+            color: $theme-blue-hover;
           }
         }
         div{
@@ -60,8 +78,8 @@
         }
       }
       .active{
-        border: 0px solid #0667FB;
-        background: #0667FB!important;
+        border: 0px solid $theme-blue;
+        background: $theme-blue!important;
         color: #ffffff!important;
         i{
           color: #ffffff;
@@ -107,7 +125,7 @@
         opacity: 1;
         text-shadow: none;
         &:hover{
-          color: red;
+          color: $color-red;
         }
       }
       i.edit{
@@ -229,12 +247,6 @@
   }
 }
 
-$color-black:#333333;
-$theme-blue:#0667FB;
-$board-card-header: #f7f7f7;
-$board-card-body: #f7f7f7;
-$color-black:#333333;
-
 .workflow-section {
 
     .status-cols {
@@ -324,4 +336,26 @@ $color-black:#333333;
     top: 11px;
     right: 7px;
   }
+}
+
+
+.collaborator-table {
+  td, td {
+    padding: 10px 5px;
+  }
+
+  .ant-tag {
+    border-radius: 3px;
+  }
+  .ant-tag-has-color {
+    color: $color-black;
+  }
+
+  .action-remove {
+    cursor: pointer;
+    &:hover {
+      color: red;
+    }
+  }
+
 }

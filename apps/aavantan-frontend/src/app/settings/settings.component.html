@@ -54,7 +54,7 @@
       <!-- project tab -->
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
-          <aside class="col-md-4">
+          <aside class="col-md-3">
             <form nz-form class="register-form" [formGroup]="projectForm">
               <nz-form-item>
                 <nz-form-label>Organization</nz-form-label>
@@ -158,14 +158,20 @@
       <!-- collaborators tab -->
       <ng-container *ngIf="activeView.view==='collaborators'">
         <section class="row">
-          <aside class="col-md-3">
-            <form nz-form class="register-form" [formGroup]="collaboratorForm">
+
+
+
+          <!-- user access -->
+          <div class="col-md-9 ant-col-md-push-3">
+
+
+            <form nz-form class="collaborator-form" [formGroup]="collaboratorForm">
 
               <nz-form-item>
                 <nz-form-label>Search or Invite Collaborator</nz-form-label>
-                <nz-form-control class="relative">
-                  <nz-input-group [nzSuffix]="suffixIconSearch">
-                    <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input"
+                <nz-form-control class="relative m-b-5">
+                  <nz-input-group [nzPrefix]="prefixIconSearch" [nzSuffix]="suffixIconSearch">
+                    <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input collaborator-search-invite"
                            nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small"
                            [nzAutocomplete]="autoAssignee"/>
                   </nz-input-group>
@@ -182,82 +188,107 @@
                     </nz-auto-option>
                   </nz-autocomplete>
                 </nz-form-control>
-                <ng-template #suffixIconSearch>
+
+                <ng-template #prefixIconSearch>
                   <i nz-icon nzType="search" *ngIf="!isSearching"></i>
                   <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
                 </ng-template>
+
+                <ng-template #suffixIconSearch>
+                  <button (click)="addCollaborators(true)" [nzLoading]="addCollaboratorsInProcess"
+                          [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary"
+                          nzSize="small" class="btn-collaborator-search-invite">
+                    <i nz-icon nzType="mail" theme="outline"></i> Invite
+                  </button>
+                </ng-template>
+
               </nz-form-item>
 
+            <!-- note added so commented for now
+            <p class="text-info" *ngIf="enableInviteBtn && !isCollaboratorExits">Please enter email id to invite member</p>-->
 
-              <p class="text-info" *ngIf="enableInviteBtn && !isCollaboratorExits">Please enter email id to invite
-                member</p>
               <p class="text-danger" *ngIf="isCollaboratorExits">This user already added in this Project</p>
               <nz-form-explain class="text-danger m-b-15"
                                *ngIf="response && response.message">{{response.message}}</nz-form-explain>
-              <nz-form-item>
-                <button (click)="addCollaborators(true)" [nzLoading]="addCollaboratorsInProcess"
-                        [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary"
-                        nzSize="small">
-                  <i nz-icon nzType="mail" theme="outline"></i> Invite
-                </button>
 
-              </nz-form-item>
-              <p>Note: If user not available into list then you type email id and then invite them directly.</p>
+              <p class="font-weight-bold font-size-12">Note: <span class="font-weight-light">If user not available into list then you type email id and then invite them directly.</span></p>
             </form>
-          </aside>
-          <aside class="col-md-6">
 
-            <nz-spin [nzSpinning]="resendInviteInProcess || removeCollaboratorInProcess" nzTip="{{resendInviteInProcess ? 'Sending request...' : 'Removing...'}}">
-              <div *ngIf="projectMembersList?.length>0">
-                <nz-form-label>Collaborators</nz-form-label>
-                <ul class="stages-list collaborators-list">
-                  <li *ngFor="let item of projectMembersList">
 
-                    <a href="mailto:{{item.emailId}}">
 
-                      <nz-avatar class="m-r-10 small"
+            <nz-table class="collaborator-table" #projectMembersTable [nzData]="projectMembersList">
+
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let item of projectMembersTable.data">
+
+                  <td>
+                    <div class="d-flex">
+
+                      <nz-avatar class="m-r-10"
                                  [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''"
-                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                                 [nzShape]="'circle'" [nzSize]="32" [nzIcon]="'user'"></nz-avatar>
+
+                      <div class="d-inline-block">
+                        <!-- if first name not available -->
+                        <a href="mailto:{{item.emailId}}" *ngIf="!item.userDetails?.firstName" class="text-primary user-email-on-collaborator">{{item.emailId}}</a>
 
 
-                      <!-- if first name not available -->
-                      <span *ngIf="!item.userDetails?.firstName" class="text-primary user-email-on-collaborator">
-                        {{item.emailId}}
-                      </span>
-                      <!---->
-
-                      <!-- if first name available -->
-                      <span *ngIf="item.userDetails?.firstName" class="text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}
-                      </span>
-
-                      <div class="m-l-35 text-primary user-email-on-collaborator" *ngIf="item.userDetails?.firstName">{{item.emailId}}</div>
-                      <!---->
-
-
-                    </a>
-
-                    <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
-
-
-                      <div>
-                        <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
-
-                        <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="d-block text-primary p-r-10 font-size-12 font-weight-light">
-                          <i nz-icon nzType="mail" theme="outline"></i> Resend Invite</span>
+                        <!-- if first name available -->
+                        <span *ngIf="item.userDetails?.firstName">
+                          <span class="d-block text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
+                          <span class="d-block text-primary user-email-on-collaborator font-weight-light" style="line-height:1.1" *ngIf="item.userDetails?.firstName">{{item.emailId}}</span>
+                        </span>
                       </div>
 
-                      <span *ngIf="item.isInviteAccepted">
-                        <i nz-icon nzType="check-circle" class="m-r-5 m-t-5 text-green font-size-24" nzTheme="fill"></i>
+                      <!---->
+                    </div>
+
+                  </td>
+
+                  <td>
+                    <nz-tag [nzColor]="'#F1F2F4'">
+                      Project Manager
+                    </nz-tag>
+                  </td>
+
+                  <td>
+                      <span class="text-green" *ngIf="item.isInviteAccepted">
+                        <i nz-icon nzType="check-circle" class="m-r-5 font-size-18" nzTheme="fill"></i> <span>Active</span>
                       </span>
-                      <!--                      <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="p-l-15 float-right"></i>-->
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </nz-spin>
+                      <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">
+                        Invitation Sent
+                      </span>
+                  </td>
+
+                  <td class="relative">
+
+                      <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
+                        <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
+                      </span>
+                      <span class="text-primary font-size-12 font-weight-light" *ngIf="item.isInviteAccepted">See Access</span>
+                      <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>
+
+                  </td>
+
+                </tr>
+              </tbody>
+
+            </nz-table>
+          </div>
 
 
-          </aside>
+
+
+
         </section>
       </ng-container>
       <!-- collaborators tab -->
@@ -701,11 +732,92 @@
 
       <!-- security tab -->
       <ng-container *ngIf="activeView.view==='security'">
-        <aside>
+        <section class="row">
 
-            Security Tab
+          <aside class="col-md-4">
 
-        </aside>
+            <nz-spin nzTip="Loading..." [nzSpinning]="requestRoleInProcess">
+
+              <div *ngIf="roleList?.length>0">
+                <nz-form-label>Roles</nz-form-label>
+                <ul class="stages-list">
+                  <li *ngFor="let item of roleList">
+
+                    <span>{{item.name}}</span>
+
+                    <span class="float-right m-t-5 d-flex">
+                        <i (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit m-r-10"></i>
+                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>
+                      </span>
+
+                  </li>
+                </ul>
+              </div>
+
+              <div *ngIf="!statusList || roleList?.length===0">
+                  <nz-empty
+                    [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+                    [nzNotFoundContent]="contentTpl"
+                    [nzNotFoundFooter]="footerTpl">
+                    <ng-template #contentTpl>
+                      <span>No Role Avilable</span>
+                    </ng-template>
+                    <ng-template #footerTpl>
+                    </ng-template>
+                  </nz-empty>
+              </div>
+
+            </nz-spin>
+
+          </aside>
+
+          <aside class="col-md-8">
+
+                <form nz-form class="">
+
+                  <div class="row">
+
+                    <div class="col-md-5">
+
+                      <nz-form-item>
+                        <nz-form-label>User Role</nz-form-label>
+                        <nz-form-control>
+                          <input nz-input placeholder="eg: Project Manager" nzSize="default" maxlength="30"/>
+                          <p class="m-t-10 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified..</span></p>
+                        </nz-form-control>
+                      </nz-form-item>
+
+                    </div>
+
+                    <div class="col-md-12">
+                      <nz-form-item>
+                        <nz-form-label>Permissions</nz-form-label>
+                        <nz-checkbox-wrapper style="width: 100%;" (nzOnChange)="selectPermissions($event)">
+                          <div nz-row>
+                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="A" [ngModel]="true">Create</label></div>
+                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="B">Read</label></div>
+                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="C">Write</label></div>
+                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="D">Assign</label></div>
+                          </div>
+                        </nz-checkbox-wrapper>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-control>
+                          <button nz-button nzType="primary" nzSize="small">Create</button>
+                        </nz-form-control>
+                      </nz-form-item>
+                    </div>
+
+                  </div>
+
+
+                </form>
+
+
+
+          </aside>
+
+        </section>
       </ng-container>
       <!-- security tab -->
 

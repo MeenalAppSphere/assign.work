@@ -36,6 +36,7 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardQuery } from '../queries/board/board.query';
 import { BoardService } from '../shared/services/board/board.service';
 import { Router } from '@angular/router';
+import { UserRoleModel } from '../../../../../libs/models/src/lib/models/user-role.model';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -110,6 +111,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
   public moveStatusModalIsVisible: boolean;
+
+  //security
+  public requestRoleInProcess:boolean;
+  public roleList:UserRoleModel[]= [{
+    name :'Member'
+  },
+  {
+    name :'Developer'
+  }
+  ];
+
 
   public tabs:any = [
     {
@@ -811,6 +823,20 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.getBoardListRequestModal.sortBy = sort.value === 'ascend' ? 'desc' : 'asc';
     this.getAllBoards();
   }
+
+
+  //================== security =====================//
+  public removeRole(item:UserRoleModel) {
+
+  }
+  public startEditRole(item:UserRoleModel) {
+
+  }
+
+  public selectPermissions(event:any) {
+
+  }
+
 
   public ngOnDestroy(): void {
   }
