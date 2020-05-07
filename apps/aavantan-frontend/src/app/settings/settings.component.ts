@@ -62,6 +62,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public projectForm: FormGroup;
   public taskTypeForm: FormGroup;
   public priorityForm: FormGroup;
+  public userRoleForm: FormGroup;
 
   public activeView: any = {
     title: 'Project',
@@ -113,14 +114,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public moveStatusModalIsVisible: boolean;
 
   //security
+
+  public permissions= [
+    { label: 'Create', value: 'create', disabled: false, checked: false },
+    { label: 'Read', value: 'read', disabled: false, checked: true},
+    { label: 'Write', value: 'write', disabled: false, checked: false},
+    { label: 'Assign', value: 'assign', disabled: false, checked: false },
+  ];
+
+  public updateUserRoleModalIsVisible:boolean;
+  public updateUserRoleData:ProjectMembers;
   public requestRoleInProcess:boolean;
   public roleList:UserRoleModel[]= [{
     name :'Member'
   },
   {
     name :'Developer'
-  }
-  ];
+  }];
 
 
   public tabs:any = [
@@ -284,6 +294,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
+
+    this.userRoleForm = this.FB.group({
+      name: new FormControl(null, [Validators.required]),
+      permission: new FormControl([], [Validators.required]),
+    });
+
+
 
     this.getProjects();
 
@@ -511,6 +528,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     this.modelChangedSearchCollaborators.next();
   }
+
+  public toggleUpdateUserRoleShow(item?: ProjectMembers) {
+    if(item) {
+      this.updateUserRoleData = item;
+    }
+    this.updateUserRoleModalIsVisible = !this.updateUserRoleModalIsVisible;
+  }
+
+
 
   /*================== Stage tab ==================*/
   public addStage() {
@@ -833,10 +859,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   }
 
-  public selectPermissions(event:any) {
+  public selectPermissions(value:any) {
 
   }
-
 
   public ngOnDestroy(): void {
   }

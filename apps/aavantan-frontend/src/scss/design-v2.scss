@@ -15,13 +15,13 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #7A869A;
+  background: $light-gray;
   border-radius: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #6E829C;
+  background: $light-gray;
 }
 
 
@@ -35,7 +35,7 @@
 }
 
 .ant-card-bordered {
-  border: 1px solid #DEDFE2;
+  border: 1px solid $border;
 }
 
 .ant-input:focus {
@@ -73,6 +73,15 @@
 
 
 /* ant-checkbox-group */
+
+.ant-checkbox-disabled .ant-checkbox-inner {
+  border-color: #b2b5b8 !important;
+  background-color: #ececec;
+}
+.ant-checkbox-disabled+span {
+  color: rgba(0, 0, 0, 0.55);
+  cursor: not-allowed;
+}
 
 .vertical-checkbox.ant-checkbox-group {
   background: #ffffff;

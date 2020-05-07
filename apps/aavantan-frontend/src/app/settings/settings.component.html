@@ -249,7 +249,6 @@
                         </span>
                       </div>
 
-                      <!---->
                     </div>
 
                   </td>
@@ -274,7 +273,7 @@
                       <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
                         <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                       </span>
-                      <span class="text-primary font-size-12 font-weight-light" *ngIf="item.isInviteAccepted">See Access</span>
+                      <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted">Change Access</span>
                       <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>
 
                   </td>
@@ -773,7 +772,7 @@
 
           <aside class="col-md-8">
 
-                <form nz-form class="">
+                <form nz-form class="" [formGroup]="userRoleForm">
 
                   <div class="row">
 
@@ -782,8 +781,8 @@
                       <nz-form-item>
                         <nz-form-label>User Role</nz-form-label>
                         <nz-form-control>
-                          <input nz-input placeholder="eg: Project Manager" nzSize="default" maxlength="30"/>
-                          <p class="m-t-10 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified..</span></p>
+                          <input nz-input formControlName="name" placeholder="eg: Project Manager" nzSize="default" maxlength="30"/>
+                          <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified..</span></p>
                         </nz-form-control>
                       </nz-form-item>
 
@@ -792,14 +791,11 @@
                     <div class="col-md-12">
                       <nz-form-item>
                         <nz-form-label>Permissions</nz-form-label>
-                        <nz-checkbox-wrapper style="width: 100%;" (nzOnChange)="selectPermissions($event)">
-                          <div nz-row>
-                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="A" [ngModel]="true">Create</label></div>
-                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="B">Read</label></div>
-                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="C">Write</label></div>
-                            <div nz-col nzSpan="4"><label nz-checkbox nzValue="D">Assign</label></div>
-                          </div>
-                        </nz-checkbox-wrapper>
+                        <nz-checkbox-group style="width: 100%;"
+                                           formControlName="permission"
+                                           [(ngModel)]="permissions"
+                                           (ngModelChange)="selectPermissions($event)">
+                        </nz-checkbox-group>
                       </nz-form-item>
                       <nz-form-item>
                         <nz-form-control>
@@ -874,6 +870,17 @@
       [moveStatusModalIsVisible]="moveStatusModalIsVisible"
       (toggleMoveStatusShow)="toggleMoveStatusShow($event)">
     </aavantan-move-status>
+  </ng-container>
+  <!-- endregion -->
+
+
+  <!-- region add/update user role -->
+  <ng-container *ngIf="updateUserRoleModalIsVisible">
+    <update-user-role
+      [updateUserRoleData]="updateUserRoleData"
+      [updateUserRoleModalIsVisible]="updateUserRoleModalIsVisible"
+      (toggleUpdateUserRoleShow)="toggleUpdateUserRoleShow($event)">
+    </update-user-role>
   </ng-container>
   <!-- endregion -->
 
