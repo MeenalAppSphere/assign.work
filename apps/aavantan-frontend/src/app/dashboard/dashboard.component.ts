@@ -276,6 +276,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // get all task priorities
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+
+    this._projectService.getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
+
   }
 
   ngOnDestroy(): void {

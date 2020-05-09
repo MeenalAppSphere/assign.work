@@ -4,6 +4,7 @@ import { Store, StoreConfig } from '@datorama/akita';
 
 export interface ProjectState {
   projects: Project[];
+  getAllProjectInProcess: boolean;
   createProjectInProcess: boolean;
   createProjectSuccess: boolean;
   projectSwitchInProcess: boolean;
@@ -12,6 +13,7 @@ export interface ProjectState {
 
 const initialState: ProjectState = {
   projects: null,
+  getAllProjectInProcess: false,
   createProjectInProcess: false,
   createProjectSuccess: false,
   projectSwitchInProcess: false,

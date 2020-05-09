@@ -25,10 +25,41 @@
           <img src="assets/images/icons/icon-bar.svg"/>
         </a>
       </li>
-      <li joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
-        <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
-          <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-5" nzText="{{ currentProject?.name | slice : 0:2 }}"></nz-avatar> {{ currentProject?.name }}
+
+      <li>
+        <span class="d-block font-size-12 m-l-10">Project</span>
+        <a href="javascript:void(0);" nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomLeft'" class="project-name-btn dark-blue-black">
+          <span class="p-r-10">{{ currentProject?.name }}</span> <i nz-icon nzType="down" class="font-size-10"></i>
         </a>
+
+        <nz-dropdown-menu #menu="nzDropdownMenu" class="bg-white porject-ddls">
+
+          <ul nz-menu>
+            <li class="p-10 relative">
+              <nz-form-control>
+                <nz-input-group [nzSuffix]="suffixIconProjectSearch">
+                  <input placeholder="Search Assignee" class="assigned-user-input" nz-input style="height:28px"
+                         (ngModelChange)="searchProjectSubject$.next($event)" nzSize="small" [(ngModel)]="projectSearchKey" />
+                </nz-input-group>
+              </nz-form-control>
+              <ng-template #suffixIconProjectSearch>
+                <i nz-icon nzType="search" *ngIf="!isProjectSearching && !projectSearchKey"></i>
+                <i nz-icon nzType="close" class="cursor-pointer" (click)="clearProjectSearchText()" *ngIf="!isProjectSearching && projectSearchKey"></i>
+                <i class="fas fa-spin fa-spinner" *ngIf="isProjectSearching"></i>
+              </ng-template>
+            </li>
+            <li *ngFor="let item of projectDataSource" nz-menu-item (click)="switchProject(item)">
+              <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
+              <span>{{item.name}}</span>
+            </li>
+            <li class="text-center p-t-30 p-b-30 text-muted" *ngIf="projectDataSource?.length===0">
+              <img src="../../../../assets/images/not-found/no-data.svg" height="80px" class="m-b-10"/>
+              <p>Not Found</p>
+            </li>
+          </ul>
+
+        </nz-dropdown-menu>
+
       </li>
 
     </ul>
@@ -163,3 +194,4 @@
   </div>
 </div>
 
+<nz-spin nzTip="Setting up..." *ngIf="switchingProjectInProcess" [nzSpinning]="switchingProjectInProcess" class="full-page-spinner"></nz-spin>

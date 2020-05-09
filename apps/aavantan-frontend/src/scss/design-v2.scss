@@ -184,10 +184,23 @@
     left: 0px !important;
     width: 32px;
     text-align: center;
+    position: inherit!important;
     background: $side-nav-bg;
     color: $dark-blue-black;
   }
 }
+
+.ant-dropdown-menu {
+
+  .ant-avatar {
+    background: $dark-blue-black;
+  }
+  .ant-avatar-string{
+    position: initial!important;
+  }
+
+}
+
 
 .header .logo {
   background: #0045ab;
@@ -1126,3 +1139,13 @@
   }
 }
 /* ---------- */
+
+.full-page-spinner {
+  position: fixed;
+  height:100vh;
+  width: 100%;
+  z-index: 99999999;
+  top:0;
+  left:0;
+  background: rgba(255, 255, 255, 0.7);
+}

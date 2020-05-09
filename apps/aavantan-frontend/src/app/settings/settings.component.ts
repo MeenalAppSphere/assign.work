@@ -37,6 +37,7 @@ import { BoardQuery } from '../queries/board/board.query';
 import { BoardService } from '../shared/services/board/board.service';
 import { Router } from '@angular/router';
 import { UserRoleModel } from '../../../../../libs/models/src/lib/models/user-role.model';
+import { ProjectQuery } from '../queries/project/project.query';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -189,7 +190,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
               private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
-              private modal: NzModalService) {
+              private modal: NzModalService, private _projectQuery: ProjectQuery) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -387,13 +388,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public getProjects() {
     try {
-      const json: GetAllProjectsModel = {
-        organizationId: this._generalService.currentOrganization.id
-      };
-      this._projectService.getAllProject(json).subscribe((data) => {
-        this.projectListData = data.data;
-        this.getProjectsInProcess = false;
+
+      this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
+        if (res) {
+          this.projectListData = res;
+        }
       });
+
     } catch (e) {
       this.getProjectsInProcess = false;
     }

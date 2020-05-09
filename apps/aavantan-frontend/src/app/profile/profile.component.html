@@ -6,7 +6,7 @@
     <div class="row align-items-center">
       <div class="col-md-7">
         <div class="d-md-flex align-items-center">
-          <div class="text-center text-sm-left avatar-box">
+          <div class="text-center text-sm-leprojectListDataft avatar-box">
 
             <div class="uploading-box" *ngIf="uploadingImage">
               <span class="font-size-11">Uploading...</span>
@@ -138,41 +138,4 @@
 
   </nz-card>
 
-
-
-
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8">
-        <nz-card *ngIf="skillListData && skillListData.length>0">
-
-          <h5>Specialilty</h5>
-          <div class="m-t-20" style="overflow: auto; max-height: 235px; min-height: 235px;">
-            <nz-tag *ngFor="let item of skillListData">{{item}}</nz-tag>
-          </div>
-          <hr>
-
-        </nz-card>
-
-      </div>
-      <div class="col-md-4" *ngIf="projectListData && projectListData.length>0">
-        <nz-card>
-          <h5>Projects</h5>
-          <div class="m-t-20" style="overflow: auto; max-height: 300px; min-height: 300px;">
-            <div class="m-b-10 p-b-10 border-bottom" *ngFor="let item of projectListData">
-              <div class="media align-items-center">
-                <nz-avatar class="shadow-smm-r-10" nzText="AW"></nz-avatar>
-                <div class="media-body m-l-10">
-                  <h5 class="m-b-0">
-                    <span class="text-dark">{{item.name}}</span>
-                  </h5>
-                </div>
-              </div>
-            </div>
-          </div>
-        </nz-card>
-      </div>
-    </div>
-  </div>
-
-
+</section>
