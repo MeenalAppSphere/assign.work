@@ -20,6 +20,7 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardService } from '../shared/services/board/board.service';
 import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
+import { UserRoleService } from '../shared/services/user-role/user-role.service';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -41,7 +42,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
-              private _taskTypeService: TaskTypeService, private _boardService: BoardService) {
+              private _taskTypeService: TaskTypeService, private _boardService: BoardService,
+              private _userRoleService: UserRoleService) {
   }
 
   ngOnInit() {
@@ -277,6 +279,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // get all task priorities
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
 
+    // get all user roles
+    this._userRoleService.getAllUserRoles(this._generalService.currentProject.id).subscribe();
+
+    // get all project limit 10 for header dropdown init
     this._projectService.getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
 
   }

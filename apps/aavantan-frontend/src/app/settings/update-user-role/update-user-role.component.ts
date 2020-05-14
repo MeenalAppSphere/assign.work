@@ -3,10 +3,9 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ProjectMembers, TaskStatusModel, User } from '@aavantan-app/models';
+import { ProjectMembers, UserRoleModel } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskStatusService } from '../../shared/services/task-status/task-status.service';
-import { UserRoleModel } from '../../../../../../libs/models/src/lib/models/user-role.model';
 
 @Component({
   selector: 'update-user-role',

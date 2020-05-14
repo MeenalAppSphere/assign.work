@@ -733,7 +733,7 @@
       <ng-container *ngIf="activeView.view==='security'">
         <section class="row">
 
-          <aside class="col-md-4">
+          <aside class="col-md-4 p-r-25" *ngIf="roleList?.length>0">
 
             <nz-spin nzTip="Loading..." [nzSpinning]="requestRoleInProcess">
 
@@ -745,8 +745,8 @@
                     <span>{{item.name}}</span>
 
                     <span class="float-right m-t-5 d-flex">
-                        <i (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit m-r-10"></i>
-                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>
+                        <i (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+<!--                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
                       </span>
 
                   </li>
@@ -772,17 +772,24 @@
 
           <aside class="col-md-8">
 
-                <form nz-form class="" [formGroup]="userRoleForm">
+                <form nz-form class="" (ngSubmit)="saveUserRole()" [formGroup]="userRoleForm">
 
                   <div class="row">
 
                     <div class="col-md-5">
 
                       <nz-form-item>
-                        <nz-form-label>User Role</nz-form-label>
+                        <nz-form-label>User Role<span class="text-danger">*</span></nz-form-label>
                         <nz-form-control>
                           <input nz-input formControlName="name" placeholder="eg: Project Manager" nzSize="default" maxlength="30"/>
                           <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified..</span></p>
+                        </nz-form-control>
+                      </nz-form-item>
+
+                      <nz-form-item>
+                        <nz-form-label>Description</nz-form-label>
+                        <nz-form-control>
+                          <textarea nz-input formControlName="description" rows="3" placeholder="Description" nzSize="default" maxlength="500"></textarea>
                         </nz-form-control>
                       </nz-form-item>
 
@@ -791,15 +798,22 @@
                     <div class="col-md-12">
                       <nz-form-item>
                         <nz-form-label>Permissions</nz-form-label>
-                        <nz-checkbox-group style="width: 100%;"
-                                           formControlName="permission"
-                                           [(ngModel)]="permissions"
-                                           (ngModelChange)="selectPermissions($event)">
-                        </nz-checkbox-group>
+
+                        <nz-checkbox-wrapper style="width: 100%;" (nzOnChange)="selectPermission($event)">
+                          <div nz-row>
+                            <div nz-col nzSpan="6" *ngFor="let item of permissionsList; let index">
+                              <label nz-checkbox [ngModelOptions]="{standalone: true}" [nzValue]="item.value" [ngModel]="item.checked">{{item.name}}</label>
+                            </div>
+                          </div>
+                        </nz-checkbox-wrapper>
+
                       </nz-form-item>
                       <nz-form-item>
                         <nz-form-control>
-                          <button nz-button nzType="primary" nzSize="small">Create</button>
+                          <button nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
+                            {{roleData?.id ? 'Save' : 'Add'}}
+                          </button>
+                          <button type="button" nz-button nzType="default" *ngIf="roleData?.id" (click)="cancelEdit()" nzSize="small">Cancel</button>
                         </nz-form-control>
                       </nz-form-item>
                     </div>

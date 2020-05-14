@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  AccessPermission,
   BoardModel,
   BoardModelBaseRequest,
   GetAllBoardsRequestModel,
-  GetAllProjectsModel,
   Organization,
   Project,
   ProjectMembers,
@@ -16,7 +16,8 @@ import {
   SearchProjectCollaborators,
   SearchUserModel,
   TaskTypeModel,
-  User
+  User,
+  UserRoleModel
 } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
@@ -36,8 +37,9 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardQuery } from '../queries/board/board.query';
 import { BoardService } from '../shared/services/board/board.service';
 import { Router } from '@angular/router';
-import { UserRoleModel } from '../../../../../libs/models/src/lib/models/user-role.model';
 import { ProjectQuery } from '../queries/project/project.query';
+import { UserRoleService } from '../shared/services/user-role/user-role.service';
+import { UserRoleQuery } from '../queries/user-role/user-role.query';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -114,24 +116,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public moveStatusModalIsVisible: boolean;
 
-  //security
+  //securitypermissions
 
-  public permissions= [
-    { label: 'Create', value: 'create', disabled: false, checked: false },
-    { label: 'Read', value: 'read', disabled: false, checked: true},
-    { label: 'Write', value: 'write', disabled: false, checked: false},
-    { label: 'Assign', value: 'assign', disabled: false, checked: false },
+  public permissionsList: AccessPermission[] = [
+    {name:'Edit Organization', label: 'Edit Organization', id:'1', value: 'create', disabled: false, checked: false },
+    {name:'Edit Project', label: 'Edit Project', id:'2', value: 'read', disabled: false, checked: false},
+    {name:'Add Task', label: 'Add Task', id:'3', value: 'assign', disabled: false, checked: false },
+    {name:'Edit Task', label: 'Edit Task', id:'4', value: 'write', disabled: false, checked: false}
   ];
+  public permissionsCopy:AccessPermission[]=[];
+  public selectedPermissions:string[];
 
   public updateUserRoleModalIsVisible:boolean;
   public updateUserRoleData:ProjectMembers;
   public requestRoleInProcess:boolean;
-  public roleList:UserRoleModel[]= [{
-    name :'Member'
-  },
-  {
-    name :'Developer'
-  }];
+  public roleList:UserRoleModel[]= [];
+  public roleData:UserRoleModel;
+
 
 
   public tabs:any = [
@@ -190,7 +191,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
               private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
-              private modal: NzModalService, private _projectQuery: ProjectQuery) {
+              private modal: NzModalService, private _projectQuery: ProjectQuery,
+              private _userRolesService: UserRoleService, private _userRoleQuery: UserRoleQuery) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -265,6 +267,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.priorityList = priorities;
     });
 
+    // get all user roles from store
+    this._userRoleQuery.roles$.pipe(untilDestroyed(this)).subscribe(roles => {
+      this.roleList = roles;
+    });
+
     this.collaboratorForm = this.FB.group({
       collaborator: new FormControl(null, [Validators.required])
     });
@@ -298,9 +305,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.userRoleForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
-      permission: new FormControl([], [Validators.required]),
+      accessPermissions: new FormControl([],[Validators.required]),
+      description: new FormControl(null),
     });
 
+    this.permissionsCopy = cloneDeep(this.permissionsList);
 
 
     this.getProjects();
@@ -853,14 +862,81 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
   //================== security =====================//
+
+  async saveUserRole() {
+
+    try {
+      if (this.userRoleForm.invalid) {
+        this.notification.error('Error', 'Please check Role');
+        return;
+      }
+
+      const json:UserRoleModel = {...this.userRoleForm.getRawValue()};
+      json.projectId = this._generalService.currentProject.id;
+
+      // update role
+      if (this.roleData && this.roleData.id) {
+        json.id = this.roleData.id;
+        this.updateRequestInProcess = true;
+        await this._userRolesService.updateRole(json).toPromise();
+        this.updateRequestInProcess = false;
+        this.roleData = {name : ''};
+
+      } else { // add role
+
+        const dup: UserRoleModel[] = this.roleList.filter((ele) => {
+          if (ele.name === this.userRoleForm.value.name) {
+            return ele;
+          }
+        });
+
+        if (dup && dup.length > 0) {
+          this.notification.error('Error', 'Duplicate name not allowed');
+          return;
+        }
+
+        this.updateRequestInProcess = true;
+        await this._userRolesService.createRole(json).toPromise();
+        this.userRoleForm.reset();
+        this.updateRequestInProcess = false;
+
+      }
+    }catch (e) {
+      this.updateRequestInProcess = false;
+    }
+  }
+
+
+  // remove role
   public removeRole(item:UserRoleModel) {
 
   }
+
+  // start edit
   public startEditRole(item:UserRoleModel) {
 
+    console.log(this.selectedPermissions);
+
+    this.permissionsList.forEach((ele)=>{
+      ele.checked = true;
+    });
+
+    this.roleData = item;
+    this.userRoleForm.patchValue(item);
   }
 
-  public selectPermissions(value:any) {
+  // cancel/reset edit
+  public cancelEdit() {
+    this.permissionsList = cloneDeep(this.permissionsCopy);
+    this.roleData = { name :'' };
+    this.userRoleForm.reset();
+  }
+
+  public selectPermission(value:string[]) {
+
+    this.selectedPermissions = value;
+    this.userRoleForm.get('accessPermissions').patchValue(value);
+    console.log(value);
 
   }
 
