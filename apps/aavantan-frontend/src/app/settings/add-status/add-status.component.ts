@@ -31,6 +31,7 @@ export class AddStatusComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.statusForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
+      color: new FormControl(null, [Validators.required]),
       id: new FormControl(null),
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
       description: new FormControl('')
@@ -39,6 +40,7 @@ export class AddStatusComponent implements OnInit, OnDestroy {
     if (this.addEditprojectStatusData) {
       this.statusForm.get('name').patchValue(this.addEditprojectStatusData.name);
       this.statusForm.get('id').patchValue(this.addEditprojectStatusData.id);
+      this.statusForm.get('color').patchValue(this.addEditprojectStatusData.color);
       this.statusForm.get('projectId').patchValue(this.addEditprojectStatusData.projectId);
       this.statusForm.get('description').patchValue(this.addEditprojectStatusData.description);
     }

@@ -256,7 +256,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
         color: { $in: [undefined, null, ''] }
       };
 
-      await this.update(statusesWithNoColorQuery, { color: DEFAULT_TASK_STATUS_COLOR }, session);
+      await this.bulkUpdate(statusesWithNoColorQuery, { color: DEFAULT_TASK_STATUS_COLOR }, session);
 
       return 'Default color added successfully';
     });

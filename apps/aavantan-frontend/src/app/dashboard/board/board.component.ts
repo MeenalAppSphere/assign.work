@@ -8,9 +8,9 @@ import {
   Sprint,
   SprintColumn,
   SprintColumnTask,
-  SprintFilterTasksModel, SprintTaskTimeLogResponse,
+  SprintFilterTasksModel,
+  SprintTaskTimeLogResponse,
   Task,
-  TaskTimeLogResponse,
   TaskTypeModel,
   User
 } from '@aavantan-app/models';
@@ -149,7 +149,8 @@ export class BoardComponent implements OnInit, OnDestroy {
           if (!task.task.priority) {
             task.task.priority = {
               name: null,
-              color: '#6E829C'
+              color: '#6E829C',
+              projectId: ''
             };
           }
           if (!task.task.taskType) {
