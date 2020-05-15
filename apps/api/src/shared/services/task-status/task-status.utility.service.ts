@@ -1,5 +1,6 @@
-import { Project, ProjectDefaultStatusEnum, TaskStatusModel } from '@aavantan-app/models';
+import { Project, TaskStatusModel } from '@aavantan-app/models';
 import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
+import { DEFAULT_TASK_STATUSES } from '../../helpers/defaultValueConstant';
 
 export class TaskStatusUtilityService {
   constructor() {
@@ -24,17 +25,27 @@ export class TaskStatusUtilityService {
     if (!maxLengthValidator(status.name, 50)) {
       BadRequest('Maximum 10 characters allowed in Task Status name');
     }
+
+    // color validation
+    if (!status.color) {
+      BadRequest('Please choose color');
+    }
   }
 
+  /**
+   * prepare default statues model for new project
+   * @param project
+   */
   public prepareDefaultStatuses(project: Project): TaskStatusModel[] {
     const statuses: TaskStatusModel[] = [];
-    Object.keys(ProjectDefaultStatusEnum).forEach(statusKey => {
+    DEFAULT_TASK_STATUSES.forEach(defaultStatus => {
       const status = new TaskStatusModel();
-      status.name = ProjectDefaultStatusEnum[statusKey];
-      status.isDefault = true;
+      status.name = defaultStatus.name;
+      status.color = defaultStatus.color;
+      status.isDefault = defaultStatus.isDefault;
       status.projectId = project.id;
       status.createdById = project.createdById;
-      status.description = `${status.name} is a default status which is provided when you create a new Project`;
+      status.description = `${status.name} is a default status which is provided with new Project`;
 
       statuses.push(status);
     });

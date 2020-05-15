@@ -3,6 +3,7 @@ import { BaseDbModel } from './base.model';
 export class TaskStatusModel extends BaseDbModel {
   projectId: string;
   name: string;
+  color: string;
   isDefault?: boolean;
   description: string;
 }

@@ -18,7 +18,6 @@ export const boardSchema = new Schema({
       isShown: { type: Boolean, default: true }
     },
     columnOrderNo: { type: Number },
-    columnColor: { type: String }
   },
   isPublished: { type: Boolean, default: false },
   publishedAt: { type: Date },

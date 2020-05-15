@@ -1,4 +1,4 @@
-import { DefaultSettingsModel } from '@aavantan-app/models';
+import { DefaultSettingsModel, TaskStatusModel } from '@aavantan-app/models';
 import { ProjectTemplateEnum } from 'libs/models/src/lib/enums';
 import { ProjectWorkingDays } from 'libs/models/src/lib/models';
 
@@ -66,62 +66,79 @@ export const MAX_TRANSACTION_RETRY_TIMEOUT = 120000;
 // default board name that will be created when you create a project
 export const DEFAULT_BOARD_NAME = 'BOARD - 1';
 
+// default task status color
+export const DEFAULT_TASK_STATUS_COLOR = '#FFFFFF';
+
+// default task status for new project
+export const DEFAULT_TASK_STATUSES: TaskStatusModel[] = [
+  { name: 'Todo', color: '#0000FF', isDefault: true, description: '', projectId: '' },
+  { name: 'In Progress', color: '#ADFF2F', isDefault: true, description: '', projectId: '' },
+  { name: 'Done', color: '#008000', isDefault: true, description: '', projectId: '' }
+];
+
 // default settings for software development template
 export const DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'BUG', displayName: 'BUG', color: '#FF0000', isDefault: true },
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true },
-    { name: 'Story', displayName: 'Story', color: '#008000', isDefault: true },
-    { name: 'EPIC', displayName: 'EPIC', color: '#000000', isDefault: true }
+    { name: 'BUG', displayName: 'BUG', color: '#FF0000', isDefault: true, projectId: '' },
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true, projectId: '' },
+    { name: 'Story', displayName: 'Story', color: '#008000', isDefault: true, projectId: '' },
+    { name: 'EPIC', displayName: 'EPIC', color: '#000000', isDefault: true, projectId: '' }
   ],
   priorities: [
-    { name: 'LOW', color: '#E6E6FA', isDefault: true },
-    { name: 'HIGH', color: '#DC143C', isDefault: true },
-    { name: 'MEDIUM', color: '#008000', isDefault: true },
-    { name: 'CRITICAL', color: '#FF0000', isDefault: true }
+    { name: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },
+    { name: 'HIGH', color: '#DC143C', isDefault: true, projectId: '' },
+    { name: 'MEDIUM', color: '#008000', isDefault: true, projectId: '' },
+    { name: 'CRITICAL', color: '#FF0000', isDefault: true, projectId: '' }
   ]
 };
 
 // default settings for task management template
 export const DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true }
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true, projectId: '' }
   ],
   priorities: [
-    { name: 'LOW', color: '#E6E6FA', isDefault: true },
-    { name: 'HIGH', color: '#DC143C', isDefault: true },
-    { name: 'MEDIUM', color: '#008000', isDefault: true },
-    { name: 'CRITICAL', color: '#FF0000', isDefault: true }
+    { name: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },
+    { name: 'HIGH', color: '#DC143C', isDefault: true, projectId: '' },
+    { name: 'MEDIUM', color: '#008000', isDefault: true, projectId: '' },
+    { name: 'CRITICAL', color: '#FF0000', isDefault: true, projectId: '' }
   ]
 };
 
 // default settings for accounting template
 export const DEFAULT_SETTINGS_FOR_ACCOUNTING: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'GST', displayName: 'GST', color: '#0000FF', description: 'GST', isDefault: true },
-    { name: 'COMP', displayName: 'COMP', color: '#008000', description: 'COMP', isDefault: true },
-    { name: 'AUDIT', displayName: 'AUDIT', color: '#EE82EE', description: 'AUDIT', isDefault: true },
-    { name: 'MEETINGS', displayName: 'MEETINGS', color: '#CD853F', description: 'MEETINGS', isDefault: true },
-    { name: 'CALLS', displayName: 'CALLS', color: '#ADFF2F', description: 'CALLS', isDefault: true }
+    { name: 'GST', displayName: 'GST', color: '#0000FF', description: 'GST', isDefault: true, projectId: '' },
+    { name: 'COMP', displayName: 'COMP', color: '#008000', description: 'COMP', isDefault: true, projectId: '' },
+    { name: 'AUDIT', displayName: 'AUDIT', color: '#EE82EE', description: 'AUDIT', isDefault: true, projectId: '' },
+    {
+      name: 'MEETINGS',
+      displayName: 'MEETINGS',
+      color: '#CD853F',
+      description: 'MEETINGS',
+      isDefault: true,
+      projectId: ''
+    },
+    { name: 'CALLS', displayName: 'CALLS', color: '#ADFF2F', description: 'CALLS', isDefault: true, projectId: '' }
   ],
   priorities: [
-    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
-    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
-    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
-    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true, projectId: '' },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true, projectId: '' },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true, projectId: '' }
   ]
 };
 
 // default settings for accounting template
 export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'STATUS', displayName: 'STATUS', color: '#0000FF', description: 'STATUS', isDefault: true }
+    { name: 'STATUS', displayName: 'STATUS', color: '#0000FF', description: 'STATUS', isDefault: true, projectId: '' }
   ],
   priorities: [
-    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true },
-    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true },
-    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true },
-    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true }
+    { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },
+    { name: 'HIGH', description: 'HIGH', color: '#DC143C', isDefault: true, projectId: '' },
+    { name: 'MEDIUM', description: 'MEDIUM', color: '#008000', isDefault: true, projectId: '' },
+    { name: 'CRITICAL', description: 'CRITICAL', color: '#FF0000', isDefault: true, projectId: '' }
   ]
 };
 
