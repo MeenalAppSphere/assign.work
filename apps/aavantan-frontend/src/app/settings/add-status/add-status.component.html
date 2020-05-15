@@ -2,15 +2,36 @@
   <form  autocomplete="off" nz-form (submit)="addStatus()" [formGroup]="statusForm">
     <div>
 
-        <nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Status<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and
+          title)</small></nz-form-label>
 
-          <nz-form-label>Status Title<span class="text-danger">*</span></nz-form-label>
-          <nz-form-control>
-            <input nz-input nzSize="small" formControlName="name" placeholder="Enter Status Title"
-                   maxlength="30"/>
-          </nz-form-control>
+        <nz-form-control class="color-control-section">
+          <nz-input-group [nzAddOnBefore]="profixIconButton">
+            <input class="task-type-input" maxlength="30" type="text" nzSize="small" formControlName="name" nz-input
+                   placeholder="eg: TODO"/>
+          </nz-input-group>
 
-        </nz-form-item>
+          <ng-template #profixIconButton>
+
+            <div [ngStyle]="{'background':primaryColor}" (click)="toggleColor()" class="picker-btn">
+            </div>
+            <div *ngIf="showColorBox" class="picker-container">
+              <color-sketch [color]="primaryColor"
+                            (onChangeComplete)="changeComplete($event)"></color-sketch>
+
+              <div class="color-picker-footer">
+                <button nz-button type="button" nzType="primary" (click)="toggleColor()">Done</button>
+                <button nz-button type="button" nzType="default" (click)="clearColor()">Cancel</button>
+              </div>
+
+            </div>
+
+          </ng-template>
+
+        </nz-form-control>
+
+      </nz-form-item>
 
       <nz-form-item>
 

@@ -255,8 +255,8 @@
 
                   <td data-label="Status" class="text-center td-status">
                     <span *ngIf="!item.status">-</span>
-                    <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
-                      <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
+                    <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#00255B'">
+                      <p class="status-tag-lable m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
                          [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                     </nz-tag>
                   </td>
@@ -495,8 +495,8 @@
 
                 <td data-label="Status" class="text-center">
                   <span *ngIf="!item.status">-</span>
-                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
-                    <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
+                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#00255B'">
+                    <p class="status-tag-lable m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
                        [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                   </nz-tag>
                 </td>

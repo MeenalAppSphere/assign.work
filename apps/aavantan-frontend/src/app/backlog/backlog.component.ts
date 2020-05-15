@@ -213,7 +213,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public getFilterStatus() {
     // ready status filter dropdown data
-    const columns = this._generalService.currentProject.activeBoard.columns;
+    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
       columns.forEach((ele) => {

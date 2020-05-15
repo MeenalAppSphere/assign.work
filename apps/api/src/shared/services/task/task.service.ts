@@ -578,7 +578,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           let: { statusId: '$statusId' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-            { $project: { name: 1 } }
+            { $project: { name: 1, color: 1} }
           ],
           as: 'status'
         })

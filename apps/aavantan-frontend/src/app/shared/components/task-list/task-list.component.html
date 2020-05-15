@@ -82,11 +82,11 @@
                 [nzTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''"
                 nz-tooltip>{{item.displayName}}</a>
 
-          <span class="float-right">
-                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'" style=" text-transform: initial;"
-                          class="text-black">{{item.status.name}}</nz-tag>
-                  <nz-tag *ngIf="!item.status" [nzColor]="'#F1F2F4'" class="text-black">-</nz-tag>
-                </span>
+            <span class="float-right">
+                <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#475364'"
+                        style="text-transform: initial;" class="text-white">{{item.status.name}}</nz-tag>
+                <nz-tag *ngIf="!item.status" [nzColor]="'#F1F2F4'" class="text-black">-</nz-tag>
+            </span>
 
         </div>
 
@@ -282,8 +282,8 @@
 
         <td data-label="Status" class="text-center">
           <span *ngIf="!item.status">-</span>
-          <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
-            <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
+          <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#475364'">
+            <p class="status-tag-lable m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
                [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
           </nz-tag>
         </td>

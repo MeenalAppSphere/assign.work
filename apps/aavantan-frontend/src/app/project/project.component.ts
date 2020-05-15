@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  GetAllTaskRequestModel, StatusDDLModel,
+  StatusDDLModel,
   Task,
   TaskFilterCondition,
   TaskFilterModel,
@@ -15,6 +15,7 @@ import { GeneralService } from '../shared/services/general.service';
 import { UserQuery } from '../queries/user/user.query';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
+import { cloneDeep } from 'lodash';
 
 @Component({
   templateUrl: './project.component.html',
@@ -66,7 +67,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public getFilterStatus() {
     // ready status filter dropdown data
-    const columns = this._generalService.currentProject.activeBoard.columns;
+    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
       columns.forEach((ele) => {
