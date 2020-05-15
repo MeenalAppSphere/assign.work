@@ -3,7 +3,7 @@ import {
   StatusDDLModel,
   Task,
   TaskFilterCondition,
-  TaskFilterModel,
+  TaskFilterModel, TaskStatusModel,
   TaskTypeModel,
   User
 } from '@aavantan-app/models';
@@ -16,6 +16,7 @@ import { UserQuery } from '../queries/user/user.query';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { cloneDeep } from 'lodash';
+import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 
 @Component({
   templateUrl: './project.component.html',
@@ -43,6 +44,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
               private _userQuery: UserQuery,
               private router: Router,
               private _taskQuery: TaskQuery,
+              private _taskStatusQuery: TaskStatusQuery,
               private _taskService: TaskService,
               private _taskTypeQuery: TaskTypeQuery) {
 
@@ -60,32 +62,45 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     // get filters and the call first tab data
     if(this._generalService.currentProject && this._generalService.currentProject.activeBoard) {
-      this.getFilterStatus();
+
+      this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
+        if (res) {
+          this.getFilterStatus(res);
+        }
+      });
+
     }
 
   }
 
-  public getFilterStatus() {
+  public getFilterStatus(statusList:TaskStatusModel[]) {
+
     // ready status filter dropdown data
+
     const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
+
     if (columns) {
+
       const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
-      columns.forEach((ele) => {
-        let checked = true;
-        if (data.headerStatus.id !== ele.headerStatus.id) {
-          this.selectedColumnDataSource.unshift(ele.headerStatus.id);
-        } else {
-          checked = false;
-        }
-        this.statusColumnDataSource.unshift({
-          label: ele.headerStatus.name,
-          value: ele.headerStatus.id,
-          checked: checked
+
+      if (statusList && statusList.length > 0) {
+        statusList.forEach((ele) => {
+          let checked = true;
+          if (data.headerStatus.id !== ele.id) {
+            this.selectedColumnDataSource.push(ele.id);
+          } else {
+            checked = false;
+          }
+          this.statusColumnDataSource.push({
+            label: ele.name,
+            value: ele.id,
+            checked: checked
+          });
         });
-      });
-    }
-    if (this._generalService.currentProject) {
-      this.filterStatusApplied(this.selectedColumnDataSource); // 'selectedColumnDataSource' have selected filter except 'Done/Complete'
+      }
+      if (this._generalService.currentProject) {
+        this.filterStatusApplied(this.selectedColumnDataSource); // 'selectedColumnDataSource' have selected filter except 'Done/Complete'
+      }
     }
     //status dropdown code
   }
