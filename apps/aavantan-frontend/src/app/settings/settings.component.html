@@ -457,30 +457,6 @@
 
         <section class="row">
 
-          <!--
-          <aside class="col-md-3">
-
-            <form nz-form (submit)="addStatus()" [formGroup]="statusForm">
-
-              <nz-form-item>
-
-                <nz-form-label>Status title<span class="text-danger">*</span></nz-form-label>
-                <nz-form-control>
-                  <input nz-input nzSize="small" formControlName="name" placeholder="Enter Status title"
-                         maxlength="30"/>
-                </nz-form-control>
-
-              </nz-form-item>
-
-              <nz-form-item>
-                <button nz-button nzType="primary" [disabled]="statusForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
-              </nz-form-item>
-
-            </form>
-
-          </aside>
-          -->
-
           <aside class="col-md-4" *ngIf="statusList && statusList.length>0">
 
             <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
@@ -490,10 +466,11 @@
               <ul class="stages-list">
                 <li *ngFor="let item of statusList">
 
+
                   <span>
-                    <i class="p-l-10" nz-tooltip [nzTitle]="item.color"
-                       [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
-                    {{item.name}}
+                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTitle]="item.color"
+                       [ngStyle]="{'color': item.color }"></i>
+                      {{item.name}}
                   </span>
 
                   <span class="float-right">
