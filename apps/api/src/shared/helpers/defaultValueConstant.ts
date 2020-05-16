@@ -67,7 +67,7 @@ export const MAX_TRANSACTION_RETRY_TIMEOUT = 120000;
 export const DEFAULT_BOARD_NAME = 'BOARD - 1';
 
 // default task status color
-export const DEFAULT_TASK_STATUS_COLOR = '#FFFFFF';
+export const DEFAULT_TASK_STATUS_COLOR = '#000000';
 
 // default task status for new project
 export const DEFAULT_TASK_STATUSES: TaskStatusModel[] = [
