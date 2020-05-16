@@ -167,7 +167,7 @@
 
         <tr *ngFor="let data of sprintReport.allTasks">
           <td data-label="Status" class="p-l-0">
-            <nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status?.name }}</nz-tag>
+            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
           </td>
           <td data-label="Items" class="text-right">{{ data?.count }}</td>
           <td data-label="Estimation" class="text-right">{{ data.totalEstimatedTimeReadable }}</td>
@@ -348,7 +348,7 @@
         <tr *ngFor="let data of sprintReport.reportTasks">
           <td data-label="Item ID">{{ data.displayName }}</td>
           <td data-label="Status">
-            <nz-tag [nzColor]="'#F1F2F4'" class="text-black font-weight-semibold">{{ data.status.name }}</nz-tag>
+            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
           </td>
           <td data-label="Item Description">{{ data.name }}</td>
           <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
