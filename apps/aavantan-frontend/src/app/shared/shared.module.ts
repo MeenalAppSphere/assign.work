@@ -18,6 +18,7 @@ import { AddEpicComponent } from './components/add-epic/add-epic.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { RouterModule } from '@angular/router';
 import { ProfileNameComponent } from './components/profile-name/profile-name.component';
+import { KeysPipe } from './pipes/keys.pipe';
 
 
 @NgModule({
@@ -39,6 +40,7 @@ import { ProfileNameComponent } from './components/profile-name/profile-name.com
     NumericDirective,
     AddEpicComponent,
     ProfileNameComponent,
+    KeysPipe
   ],
   imports: [
     CommonModule,
@@ -63,6 +65,7 @@ import { ProfileNameComponent } from './components/profile-name/profile-name.com
     NumericDirective,
     AddEpicComponent,
     ProfileNameComponent,
+    KeysPipe
   ]
 })
 export class SharedModule {

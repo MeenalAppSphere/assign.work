@@ -7,6 +7,7 @@ const mongooseValidationErrorTransform = require('mongoose-validation-error-tran
 export const userRoleSchema = new Schema({
   name: { type: String, required: [true, 'Role name is required'], text: true },
   description: { type: String },
+  accessPermissions : { type : Object},
   projectId: { type: Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project id is required'] },
   ...commonSchemaFields
 }, schemaOptions);

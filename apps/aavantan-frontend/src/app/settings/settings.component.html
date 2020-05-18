@@ -61,8 +61,8 @@
                 <input
                   autocomplete="Off"
                   disabled="true"
-                  placeholder="{{currentOrganization.name}}"
-                  value="{{currentOrganization.name}}"
+                  placeholder="{{currentOrganization?.name}}"
+                  value="{{currentOrganization?.name}}"
                   nz-input nzSize="small">
               </nz-form-item>
               <nz-form-item>
@@ -782,30 +782,46 @@
                         <nz-form-label>User Role<span class="text-danger">*</span></nz-form-label>
                         <nz-form-control>
                           <input nz-input formControlName="name" placeholder="eg: Project Manager" nzSize="default" maxlength="30"/>
-                          <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified..</span></p>
+                          <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified.</span></p>
                         </nz-form-control>
                       </nz-form-item>
 
                       <nz-form-item>
                         <nz-form-label>Description</nz-form-label>
                         <nz-form-control>
-                          <textarea nz-input formControlName="description" rows="3" placeholder="Description" nzSize="default" maxlength="500"></textarea>
+                          <textarea nz-input formControlName="description" rows="3" placeholder="Description" nzSize="default" rows="2" maxlength="500"></textarea>
                         </nz-form-control>
                       </nz-form-item>
 
                     </div>
 
                     <div class="col-md-12">
-                      <nz-form-item>
-                        <nz-form-label>Permissions</nz-form-label>
+                      <nz-form-item class="collapse-panel">
+                        <nz-form-label>Permissions<span class="text-danger">*</span></nz-form-label>
 
-                        <nz-checkbox-wrapper style="width: 100%;" (nzOnChange)="selectPermission($event)">
-                          <div nz-row>
-                            <div nz-col nzSpan="6" *ngFor="let item of permissionsList; let index">
-                              <label nz-checkbox [ngModelOptions]="{standalone: true}" [nzValue]="item.value" [ngModel]="item.checked">{{item.name}}</label>
-                            </div>
-                          </div>
-                        </nz-checkbox-wrapper>
+                        <nz-collapse nzAccordion>
+                          <nz-checkbox-wrapper style="width: 100%;" (nzOnChange)="selectPermission($event)">
+                            <nz-collapse-panel *ngFor="let key of permissionsObj | keys"  [nzHeader]="key" [nzShowArrow]="true" [nzActive]="true">
+
+                              <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
+                                <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" [nzValue]="item.value" [ngModel]="item.checked">{{item.name}}</label>
+                              </div>
+
+                            </nz-collapse-panel>
+                          </nz-checkbox-wrapper>
+                        </nz-collapse>
+
+
+<!--                        <nz-checkbox-wrapper style="width: 100%;" (nzOnChange)="selectPermission($event)">-->
+<!--                          <div nz-row *ngFor="let key of permissionsObj | keys">-->
+
+<!--                            <div><label class="text-capitalize text-black" >{{ key }}</label></div>-->
+<!--                            <div nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">-->
+<!--                              <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" [nzValue]="item.value" [ngModel]="item.checked">{{item.name}}</label>-->
+<!--                            </div>-->
+
+<!--                          </div>-->
+<!--                        </nz-checkbox-wrapper>-->
 
                       </nz-form-item>
                       <nz-form-item>

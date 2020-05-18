@@ -7,7 +7,7 @@ import {
   TaskPriorityModel,
   TaskStatusModel,
   TaskTypeModel,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
 
@@ -45,6 +45,7 @@ export class ProjectMembers {
   workingCapacity?: number;
   workingCapacityPerDay?: number;
   workingDays?: ProjectWorkingDays[];
+  role?: UserRoleModel
 }
 
 export class ProjectSettings {

@@ -6,11 +6,11 @@ export class UserRoleModel extends BaseDbModel {
   name: string;
   description?:string;
   projectId?:string;
-  accessPermissions?:string[];
+  accessPermissions?: Permissions;
 }
 
 
-export class AccessPermission {
+export class AccessPermissionVM {
   _id?:string;
   id?:string;
   name: string;
@@ -18,4 +18,16 @@ export class AccessPermission {
   disabled:boolean;
   checked:boolean;
   value:string;
+  group:string;
+}
+
+export class Permissions {
+  sprint?: PermissionItem;
+  task?: PermissionItem;
+  board?: PermissionItem;
+  member?: PermissionItem;
+}
+
+export class PermissionItem {
+  [key: string]: boolean
 }

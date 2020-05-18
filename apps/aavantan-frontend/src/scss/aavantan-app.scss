@@ -457,6 +457,26 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   }
 }
 
+
+#settings-page {
+
+    .ant-collapse-item {
+
+      .ant-collapse-header {
+        padding: 8px 15px;
+        text-transform: capitalize;
+        font-weight: 500;
+
+        .anticon {
+          float: right;
+          margin-top: 4px;
+        }
+      }
+
+    }
+
+}
+
 .sortable-wrapper{
   .placeholderStyle{
     height: 75px;

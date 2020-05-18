@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  AccessPermission,
+  AccessPermissionVM,
   BoardModel,
   BoardModelBaseRequest,
   GetAllBoardsRequestModel,
-  Organization,
+  Organization, Permissions,
   Project,
   ProjectMembers,
   ProjectPriority,
@@ -40,7 +40,7 @@ import { Router } from '@angular/router';
 import { ProjectQuery } from '../queries/project/project.query';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleQuery } from '../queries/user-role/user-role.query';
-
+import { PERMISSIONS } from '../../../../../libs/models/src/lib/constants/permission';
 @Component({
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
@@ -116,15 +116,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public moveStatusModalIsVisible: boolean;
 
-  //securitypermissions
-
-  public permissionsList: AccessPermission[] = [
-    {name:'Edit Organization', label: 'Edit Organization', id:'1', value: 'create', disabled: false, checked: false },
-    {name:'Edit Project', label: 'Edit Project', id:'2', value: 'read', disabled: false, checked: false},
-    {name:'Add Task', label: 'Add Task', id:'3', value: 'assign', disabled: false, checked: false },
-    {name:'Edit Task', label: 'Edit Task', id:'4', value: 'write', disabled: false, checked: false}
-  ];
-  public permissionsCopy:AccessPermission[]=[];
+  //security permissions
+  public permissionsList: AccessPermissionVM[] = [];
+  public permissionsCopy:AccessPermissionVM[]=[];
   public selectedPermissions:string[];
 
   public updateUserRoleModalIsVisible:boolean;
@@ -184,7 +178,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       icon:'security.svg',
       iconActive : 'white_security.svg'
     }
-  ]
+  ];
+
+  public permissionsObj: Permissions = {};
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
@@ -204,6 +200,35 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    //const permissionVm: { name: string; label:string, id:string, value: any; group: string; }[] = [];
+
+    const recur = (obj: any, group: string) => {
+      Object.keys(obj).forEach(key => {
+        const name = key.match(/[A-Z][a-z]*/g).join(' '); // to format "canRemove" like "Can Remove"
+        this.permissionsList.push({name:name, label: key, id: key, group: group, value: obj[key], disabled: false, checked: false });
+      });
+    };
+
+    Object.keys(PERMISSIONS).forEach(key => {
+      if (typeof PERMISSIONS[key] !== 'boolean') {
+        recur(PERMISSIONS[key], key);
+      }
+    });
+
+    console.log('permissionsList', this.permissionsList);
+
+    let groupByName = {};
+    console.log('before permissionsObj', this.permissionsObj);
+
+    this.permissionsList.forEach(function (a) {
+      groupByName[a.group] = groupByName[a.group] || [];
+      groupByName[a.group].push({name:a.name, label: a.name, id: a.name, group: a.name, value: a.name, disabled: false, checked: false });
+    });
+
+
+    this.permissionsObj = groupByName;
+
     this.currentOrganization = this._generalService.currentOrganization;
 
     // get current project from store
