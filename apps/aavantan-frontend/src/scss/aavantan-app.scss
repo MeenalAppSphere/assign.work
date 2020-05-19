@@ -458,7 +458,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 
-#settings-page {
+.collapse-panel {
 
     .ant-collapse-item {
 
@@ -469,12 +469,12 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 
         .anticon {
           float: right;
-          margin-top: 4px;
+          margin-top: 10px;
+          position: initial;
         }
+
       }
-
     }
-
 }
 
 .sortable-wrapper{

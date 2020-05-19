@@ -1,60 +1,83 @@
-<nz-modal [(nzVisible)]="updateUserRoleModalIsVisible" [nzTitle]="titleTemp" nzClassName="user-role-modal" nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+<nz-modal [(nzVisible)]="updateUserRoleModalIsVisible" [nzTitle]="titleTemp" nzClassName="user-role-modal" nzFooter="nzModalFooter" nzWidth="800" nzClosable="false">
   <form  autocomplete="off" nz-form (submit)="save()" [formGroup]="userRoleForm">
     <div>
 
-      <div class="d-flex m-b-30">
+      <!--header info -->
+      <div class="row">
 
-        <nz-avatar class="m-r-10"
-                   [nzSrc]="updateUserRoleData.userDetails && updateUserRoleData.userDetails.profilePic ? updateUserRoleData.userDetails.profilePic : ''"
-                   [nzShape]="'circle'" [nzSize]="60" [nzIcon]="'user'"></nz-avatar>
+        <div class="col-md-6">
 
-        <div class="d-inline-block m-t-20">
-          <!-- if first name not available -->
-          <a href="mailto:{{updateUserRoleData.userDetails.emailId}}" *ngIf="!updateUserRoleData.userDetails?.firstName" class="text-black-50">
-            <i nz-icon nzType="mail" class="font-size-12 p-r-10" theme="outline"></i>{{updateUserRoleData.userDetails.emailId}}
-          </a>
+          <div class="d-flex m-b-10 p-l-20 p-r-20">
 
+            <nz-avatar class="m-r-10"
+                       [nzSrc]="updateUserRoleData.userDetails && updateUserRoleData.userDetails.profilePic ? updateUserRoleData.userDetails.profilePic : ''"
+                       [nzShape]="'circle'" [nzSize]="64" [nzIcon]="'user'"></nz-avatar>
 
-          <!-- if first name available -->
-          <span *ngIf="updateUserRoleData.userDetails?.firstName">
-            <span class="d-block m-b-5 m-t-5 text-gray-light font-size-16">{{updateUserRoleData.userDetails.firstName}} {{updateUserRoleData.userDetails.lastName}}</span>
-            <span class="d-block text-black-50 font-weight-light" style="line-height:1.1" *ngIf="updateUserRoleData.userDetails?.firstName"><i nz-icon nzType="mail" class="font-size-12 p-r-10" theme="outline"></i>{{updateUserRoleData.userDetails.emailId}}</span>
-          </span>
+            <div class="d-inline-block m-t-5">
+              <!-- if first name not available -->
+              <a href="mailto:{{updateUserRoleData.userDetails.emailId}}" *ngIf="!updateUserRoleData.userDetails?.firstName" class="text-black-50">
+                <i nz-icon nzType="mail" class="font-size-12 p-r-10" theme="outline"></i>{{updateUserRoleData.userDetails.emailId}}
+              </a>
+
+              <!-- if first name available -->
+              <span *ngIf="updateUserRoleData.userDetails?.firstName">
+                <span class="d-block m-b-5 m-t-5 text-gray-light font-size-16">{{updateUserRoleData.userDetails.firstName}} {{updateUserRoleData.userDetails.lastName}}</span>
+                <span class="d-block text-black-50 font-weight-light" style="line-height:1.1" *ngIf="updateUserRoleData.userDetails?.firstName"><i nz-icon nzType="mail" class="font-size-12 p-r-10" theme="outline"></i>{{updateUserRoleData.userDetails.emailId}}</span>
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+          <nz-form-item class="p-l-20 p-r-20">
+
+              <nz-form-label>Select Role to Change</nz-form-label>
+              <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
+                <nz-button-group nz-dropdown [nzDropdownMenu]="role" nzPlacement="bottomLeft"
+                                 style="width: 100%!important;">
+                  <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
+                    {{selectedUserRole?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                  </button>
+                </nz-button-group>
+                <nz-dropdown-menu #role="nzDropdownMenu">
+                  <ul nz-menu>
+                    <li nz-menu-item *ngFor="let item of roleListDataSource" (click)="selectRole(item)">
+                       {{ item.name }}
+                    </li>
+                  </ul>
+                </nz-dropdown-menu>
+                <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified.</span></p>
+              </nz-form-control>
+
+            </nz-form-item>
 
         </div>
 
       </div>
+      <!-- end header info -->
 
-        <nz-form-item>
+      <!-- permission list binding -->
+        <nz-form-item class="collapse-panel">
+          <nz-form-label>Permissions</nz-form-label>
 
-          <nz-form-label>User Role</nz-form-label>
-          <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-            <nz-button-group nz-dropdown [nzDropdownMenu]="role" nzPlacement="bottomLeft"
-                             style="width: 100%!important;">
-              <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-                {{selectedUserRole?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
-              </button>
-            </nz-button-group>
-            <nz-dropdown-menu #role="nzDropdownMenu">
-              <ul nz-menu>
-                <li nz-menu-item *ngFor="let item of roleListDataSource" (click)="selectRole(item)">
-                   {{ item.name }}
-                </li>
-              </ul>
-            </nz-dropdown-menu>
-            <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified.</span></p>
-          </nz-form-control>
+          <nz-collapse nzAccordion>
+
+            <nz-collapse-panel *ngFor="let key of permissionsObj | keys"  [nzHeader]="key" [nzShowArrow]="true" [nzActive]="true">
+
+              <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
+                <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" [nzDisabled]="true" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
+              </div>
+
+            </nz-collapse-panel>
+
+          </nz-collapse>
 
         </nz-form-item>
-
-          <nz-form-item>
-            <nz-form-label>Permissions</nz-form-label>
-            <nz-checkbox-group style="width: 100%;"
-                               formControlName="permission"
-                               [(ngModel)]="permissions"
-                               (ngModelChange)="selectPermissions($event)">
-            </nz-checkbox-group>
-          </nz-form-item>
+      <!-- end permission list binding -->
 
 
     </div>

@@ -1,13 +1,13 @@
 import { Organization } from './organization.model';
 
 import {
-  BoardModel,
+  BoardModel, Permissions,
   ProjectTemplateEnum,
   Sprint,
   TaskPriorityModel,
   TaskStatusModel,
   TaskTypeModel,
-  User, UserRoleModel
+  User
 } from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
 
@@ -45,7 +45,8 @@ export class ProjectMembers {
   workingCapacity?: number;
   workingCapacityPerDay?: number;
   workingDays?: ProjectWorkingDays[];
-  role?: UserRoleModel
+  userRoleId?: string;
+  accessPermissions?: Permissions
 }
 
 export class ProjectSettings {

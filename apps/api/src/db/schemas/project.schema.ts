@@ -29,7 +29,8 @@ export const projectSchema = new Schema({
     workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY },
     workingDays: {
       type: Array, default: DEFAULT_WORKING_DAYS
-    }
+    },
+    userRoleId: { type: String },
   },
   organizationId: {
     type: Schema.Types.ObjectId,

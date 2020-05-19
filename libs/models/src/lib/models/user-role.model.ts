@@ -11,10 +11,7 @@ export class UserRoleModel extends BaseDbModel {
 
 
 export class AccessPermissionVM {
-  _id?:string;
-  id?:string;
   name: string;
-  label?:string;
   disabled:boolean;
   checked:boolean;
   value:string;

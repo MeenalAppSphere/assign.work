@@ -118,15 +118,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   //security permissions
   public permissionsList: AccessPermissionVM[] = [];
-  public permissionsCopy:AccessPermissionVM[]=[];
   public selectedPermissions:string[];
+  public permissionsObj: Permissions = {};
+  public permissionsCopy:Permissions={};
+  public permissionConst = PERMISSIONS;
 
   public updateUserRoleModalIsVisible:boolean;
   public updateUserRoleData:ProjectMembers;
   public requestRoleInProcess:boolean;
   public roleList:UserRoleModel[]= [];
   public roleData:UserRoleModel;
-
 
 
   public tabs:any = [
@@ -180,8 +181,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   ];
 
-  public permissionsObj: Permissions = {};
-
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
@@ -200,34 +199,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
-    //const permissionVm: { name: string; label:string, id:string, value: any; group: string; }[] = [];
-
-    const recur = (obj: any, group: string) => {
-      Object.keys(obj).forEach(key => {
-        const name = key.match(/[A-Z][a-z]*/g).join(' '); // to format "canRemove" like "Can Remove"
-        this.permissionsList.push({name:name, label: key, id: key, group: group, value: obj[key], disabled: false, checked: false });
-      });
-    };
-
-    Object.keys(PERMISSIONS).forEach(key => {
-      if (typeof PERMISSIONS[key] !== 'boolean') {
-        recur(PERMISSIONS[key], key);
-      }
-    });
-
-    console.log('permissionsList', this.permissionsList);
-
-    let groupByName = {};
-    console.log('before permissionsObj', this.permissionsObj);
-
-    this.permissionsList.forEach(function (a) {
-      groupByName[a.group] = groupByName[a.group] || [];
-      groupByName[a.group].push({name:a.name, label: a.name, id: a.name, group: a.name, value: a.name, disabled: false, checked: false });
-    });
-
-
-    this.permissionsObj = groupByName;
 
     this.currentOrganization = this._generalService.currentOrganization;
 
@@ -297,24 +268,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.roleList = roles;
     });
 
+    // Form for collaborator tab
     this.collaboratorForm = this.FB.group({
       collaborator: new FormControl(null, [Validators.required])
     });
 
+    // Form for stage tab
     this.stageForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
 
+    // Form for workflow tab
     this.statusForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
 
+    // Form for workflow tab
     this.workflowForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
 
+    // init project form
     this.createProjectForm();
 
+    // Form for priority tab
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
@@ -323,20 +300,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
       projectId: new FormControl(this.currentProject.id)
     });
 
+    // Form for priority tab
     this.priorityForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
 
+    // Form for security tab
     this.userRoleForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
       accessPermissions: new FormControl([],[Validators.required]),
       description: new FormControl(null),
     });
 
-    this.permissionsCopy = cloneDeep(this.permissionsList);
+    // init/prepare all permissions list from 'PERMISSIONS' const
+    this.generatePermissionsList(PERMISSIONS);
 
 
+    // get Projects
     this.getProjects();
 
     // search collaborators
@@ -888,6 +869,34 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   //================== security =====================//
 
+  public generatePermissionsList(permissionConstantObj:Permissions) {
+
+    this.permissionsList = [];
+    const recur = (obj: any, group: string) => {
+      Object.keys(obj).forEach(key => {
+        const name = key.match(/[A-Z][a-z]*/g).join(' '); // to format "canRemove" like " Remove"
+        this.permissionsList.push({name:name, group: group, value: key, disabled: false, checked: obj[key] });
+      });
+    };
+
+    Object.keys(permissionConstantObj).forEach(key => {
+      if (typeof permissionConstantObj[key] !== 'boolean') {
+        recur(permissionConstantObj[key], key);
+      }
+    });
+
+    const groupByName = {};
+
+    this.permissionsList.forEach(function (a) {
+      groupByName[a.group] = groupByName[a.group] || [];
+      groupByName[a.group].push({name:a.name, group: a.group, value: a.value, disabled: false, checked: a.checked });
+    });
+
+    this.permissionsObj = groupByName;
+
+    this.permissionsCopy = cloneDeep(this.permissionsObj);
+  }
+
   async saveUserRole() {
 
     try {
@@ -903,9 +912,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       if (this.roleData && this.roleData.id) {
         json.id = this.roleData.id;
         this.updateRequestInProcess = true;
+
         await this._userRolesService.updateRole(json).toPromise();
         this.updateRequestInProcess = false;
-        this.roleData = {name : ''};
 
       } else { // add role
 
@@ -921,8 +930,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
 
         this.updateRequestInProcess = true;
+
         await this._userRolesService.createRole(json).toPromise();
-        this.userRoleForm.reset();
+
+        this.resetRoleForm();
+
         this.updateRequestInProcess = false;
 
       }
@@ -940,28 +952,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // start edit
   public startEditRole(item:UserRoleModel) {
 
-    console.log(this.selectedPermissions);
-
-    this.permissionsList.forEach((ele)=>{
-      ele.checked = true;
-    });
+    this.generatePermissionsList(item.accessPermissions);
 
     this.roleData = item;
     this.userRoleForm.patchValue(item);
   }
 
   // cancel/reset edit
-  public cancelEdit() {
-    this.permissionsList = cloneDeep(this.permissionsCopy);
+  public resetRoleForm() {
+
+    this.generatePermissionsList(PERMISSIONS); // reset with CONSTANT data
+
     this.roleData = { name :'' };
     this.userRoleForm.reset();
   }
 
-  public selectPermission(value:string[]) {
+  public selectPermission(item:AccessPermissionVM) {
 
-    this.selectedPermissions = value;
-    this.userRoleForm.get('accessPermissions').patchValue(value);
-    console.log(value);
+    item.checked = !item.checked;
+
+    this.permissionsObj[item.group][item.value] = item.checked;
+
+    this.permissionConst[item.group][item.value] = item.checked;
+
+    this.userRoleForm.get('accessPermissions').patchValue(this.permissionConst);
 
   }
 
