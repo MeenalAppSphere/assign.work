@@ -79,9 +79,9 @@ export const DEFAULT_TASK_STATUSES: TaskStatusModel[] = [
 // default settings for software development template
 export const DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT: DefaultSettingsModel = {
   taskTypes: [
+    { name: 'Story', displayName: 'Story', color: '#008000', isDefault: true, projectId: '' },
     { name: 'BUG', displayName: 'BUG', color: '#FF0000', isDefault: true, projectId: '' },
     { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true, projectId: '' },
-    { name: 'Story', displayName: 'Story', color: '#008000', isDefault: true, projectId: '' },
     { name: 'EPIC', displayName: 'EPIC', color: '#000000', isDefault: true, projectId: '' }
   ],
   priorities: [
