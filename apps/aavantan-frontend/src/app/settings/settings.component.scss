@@ -1,12 +1,38 @@
 @import "../../scss/custom_variable";
 
 #settings-page{
-  .right-30 {
-    right:30px!important;
+
+  .max-width-ddls {
+    max-width: 250px;
+  }
+
+  .max-width-input {
+    max-width: 250px;
+
+    .assigned-user-input {
+      height: 28px;
+    }
+
+    .assigned-user-icon {
+      top: 0px;
+    }
+
   }
 
   .assigned-user-input {
+    padding-left: 28px !important;
     height: 36px;
+  }
+
+  .assigned-user-icon {
+    position: absolute;
+    z-index: 1;
+    left: 6px;
+    top: -2px;
+  }
+
+  .right-30 {
+    right:30px!important;
   }
 
   .collaborator-form {
