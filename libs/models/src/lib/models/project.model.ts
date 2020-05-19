@@ -53,6 +53,14 @@ export class ProjectSettings {
   priorities: TaskPriorityModel[];
   statuses?: TaskStatusModel[];
   tags?: ProjectTags[];
+  defaultAssigneeId?: string;
+  defaultAssignee?: User;
+  defaultTaskTypeId?: string;
+  defaultTaskType?: TaskTypeModel;
+  defaultTaskStatusId?: string;
+  defaultTaskStatus?: TaskTypeModel;
+  defaultTaskPriorityId?: string;
+  defaultTaskPriority?: TaskTypeModel;
 }
 
 export class ProjectStages {
@@ -125,4 +133,24 @@ export class SearchProjectCollaborators {
 export class ProjectTemplateUpdateModel {
   projectId: string;
   template: ProjectTemplateEnum;
+}
+
+export class ProjectUpdateDefaultAssigneeModel {
+  projectId: string;
+  assigneeId: string;
+}
+
+export class ProjectUpdateDefaultTaskTypeModel {
+  projectId: string;
+  taskTypeId: string;
+}
+
+export class ProjectUpdateDefaultPriorityModel {
+  projectId: string;
+  taskPriorityId: string;
+}
+
+export class ProjectUpdateDefaultTaskStatusModel {
+  projectId: string;
+  taskStatusId: string;
 }

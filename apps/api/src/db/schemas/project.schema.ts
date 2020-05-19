@@ -48,6 +48,10 @@ export const projectSchema = new Schema({
     priorities: [],
     statuses: [{ type: Types.ObjectId }],
     tags: [projectTagsSchema],
+    defaultAssigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
+    defaultTaskTypeId: { type: Schema.Types.ObjectId, ref: DbCollection.taskType },
+    defaultTaskStatusId: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
+    defaultTaskPriorityId: { type: Schema.Types.ObjectId, ref: DbCollection.taskPriority },
     required: false
   },
   activeBoardId: { type: Types.ObjectId, ref: DbCollection.board },
@@ -82,9 +86,34 @@ projectSchema
   });
 
 projectSchema
-  .virtual('members.userDetails', {
+  .virtual('settings.defaultAssignee', {
     ref: DbCollection.users,
-    localField: 'members.userId',
+    localField: 'settings.defaultAssigneeId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+
+projectSchema
+  .virtual('settings.defaultTaskType', {
+    ref: DbCollection.taskType,
+    localField: 'settings.defaultTaskTypeId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
+  .virtual('settings.defaultTaskStatus', {
+    ref: DbCollection.taskStatus,
+    localField: 'settings.defaultTaskStatusId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
+  .virtual('settings.defaultTaskPriority', {
+    ref: DbCollection.taskPriority,
+    localField: 'settings.defaultTaskPriorityId',
     foreignField: '_id',
     justOne: true
   });
