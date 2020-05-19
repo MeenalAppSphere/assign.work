@@ -7,6 +7,9 @@ import {
   ProjectStages,
   ProjectStageSequenceChangeRequest,
   ProjectTemplateUpdateModel,
+  ProjectUpdateDefaultAssigneeModel,
+  ProjectUpdateDefaultPriorityModel, ProjectUpdateDefaultTaskStatusModel,
+  ProjectUpdateDefaultTaskTypeModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
@@ -55,6 +58,26 @@ export class ProjectController {
     return await this._projectService.updateProjectTemplate(model);
   }
 
+  @Post('update-project-default-assignee')
+  async updateProjectDefaultAssignee(@Body() model: ProjectUpdateDefaultAssigneeModel) {
+    return await this._projectService.updateProjectDefaultAssignee(model);
+  }
+
+  @Post('update-project-default-task-type')
+  async updateProjectDefaultTaskType(@Body() model: ProjectUpdateDefaultTaskTypeModel) {
+    return await this._projectService.updateProjectDefaultTaskType(model);
+  }
+
+  @Post('update-project-default-task-priority')
+  async updateProjectDefaultTaskPriority(@Body() model: ProjectUpdateDefaultPriorityModel) {
+    return await this._projectService.updateProjectDefaultPriority(model);
+  }
+
+  @Post('update-project-default-task-priority')
+  async updateProjectDefaultTaskStatus(@Body() model: ProjectUpdateDefaultTaskStatusModel) {
+    return await this._projectService.updateProjectDefaultStatus(model);
+  }
+
   @Put(':id/update-working-capacity')
   async updateCollaboratorWorkingCapacity(@Param('id') id: string, @Body() dto: ProjectWorkingCapacityUpdateDto[]) {
     return await this._projectService.updateCollaboratorWorkingCapacity(id, dto);
@@ -78,5 +101,10 @@ export class ProjectController {
   @Post('search-collaborator')
   async searchProjectCollaborators(@Body() model: SearchProjectCollaborators) {
     return await this._projectService.searchProjectCollaborators(model);
+  }
+
+  @Post('add-missing-project-default-settings')
+  async addMissingProjectDefaultSettings() {
+    return await this._projectService.addMissingProjectDefaultSettings();
   }
 }
