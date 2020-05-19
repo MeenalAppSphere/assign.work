@@ -55,13 +55,21 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
     if (this.updateUserRoleData) {
       // this.userRoleForm.get('name').patchValue();
       // this.userRoleForm.get('id').patchValue();
-      this.generatePermissionsList(PERMISSIONS);
-    }
 
+      // init/prepare all permissions list from 'PERMISSIONS' const
+      this.generatePermissionsList(PERMISSIONS);
+
+    }
 
     this.selectedUserRole = this.roleListDataSource[0];
 
   }
+
+
+
+  //**********************//
+  // Generate Permissions List from object
+  //**********************//
 
   public generatePermissionsList(permissionConstantObj:Permissions) {
 
@@ -89,15 +97,20 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
     this.permissionsObj = groupByName;
   }
 
+
+  //**********************//
+  // Select role from dropdown
+  //**********************//
+
   public selectRole(item: UserRoleModel) {
     this.selectedUserRole = item;
     this.generatePermissionsList(item.accessPermissions);
   }
 
-  public selectPermissions(value:any) {
-    console.log(value);
-  }
 
+  //**********************//
+  // Save permission
+  //**********************//
   async save() {
     try {
       if (this.userRoleForm.invalid) {

@@ -118,9 +118,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   //security permissions
   public permissionsList: AccessPermissionVM[] = [];
-  public selectedPermissions:string[];
   public permissionsObj: Permissions = {};
-  public permissionsCopy:Permissions={};
   public permissionConst = PERMISSIONS;
 
   public updateUserRoleModalIsVisible:boolean;
@@ -444,6 +442,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*================== Collaborators tab ==================*/
 
+  //**********************//
+  // Remove Collaborators
+  //**********************//
   async removeCollaborators(user: ProjectMembers) {
     try {
 
@@ -471,6 +472,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  //**********************//
+  // Resend Invitation
+  //**********************//
   async resendInvitation(user: ProjectMembers) {
     try {
       this.resendInviteInProcess = true;
@@ -486,6 +490,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  //**********************//
+  // Add member to project
+  //**********************//
   async addMembers() {
     this.addCollaboratorsInProcess = true;
     const members: ProjectMembers[] = [];
@@ -506,6 +513,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  //**********************//
+  // Add selected Collabarator list
+  //**********************//
   public addCollaborators(isInvite?: boolean) {
     let emailData = null;
 
@@ -537,6 +547,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  //**********************//
+  // Select Assignee form Typeahead DDL
+  //**********************//
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
       this.selectedCollaborator = user;
@@ -545,6 +558,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.modelChangedSearchCollaborators.next();
   }
 
+  //**********************//
+  // Toggle User Role modal
+  //**********************//
   public toggleUpdateUserRoleShow(item?: ProjectMembers) {
     if(item) {
       this.updateUserRoleData = item;
@@ -553,8 +569,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
 
-
+  /*===============================================*/
   /*================== Stage tab ==================*/
+  /*===============================================*/
+
   public addStage() {
     if (this.stageForm.invalid) {
       this.notification.error('Error', 'Please check Stage title');
@@ -585,50 +603,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     console.log(this.stagesList);
   }
 
-  /*================ Status ==================*/
-  public addStatus() {
-
-    if (this.statusForm.invalid) {
-      this.notification.error('Error', 'Please check Status title');
-      return;
-    }
-
-    const statusData: ProjectStatus = this.statusForm.value;
-    statusData.name = statusData.name.trim();
-    this.updateRequestInProcess = true;
-
-    this._projectService.addStatus(this.currentProject.id, statusData).subscribe((res => {
-      this.statusForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
-  }
-
-  public removeStatus(status: ProjectStatus) {
-    this.deleteStatusInProcess = true;
-
-    try {
-      this.modal.confirm({
-        nzTitle: 'Do you really want to remove status?',
-        nzContent: '',
-        nzOnOk: () =>
-          new Promise(async (resolve, reject) => {
-
-            // await this._projectService.removeStatus(this.currentProject.id, status.id);
-
-            this.moveStatusModalIsVisible = true;
-
-            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
-
-            resolve();
-          }).catch(() => console.log('Oops errors!'))
-      });
-    } catch (e) {
-      console.log(e);
-    }
-
-  }
+  /*===============================================*/
+  /*================== Status tab =================*/
+  /*===============================================*/
 
   public toggleMoveStatusShow(data: any) {
     this.moveStatusModalIsVisible = !this.moveStatusModalIsVisible;
@@ -643,14 +620,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
-  public removePriority(item: ProjectPriority) {
-    this.deletePriorityInProcess = true;
-    this._projectService.removePriority(this.currentProject.id, item.id).subscribe((res => {
-      this.deletePriorityInProcess = false;
-    }), (error => {
-      this.deletePriorityInProcess = false;
-    }));
-  }
+  /*===============================================*/
+  /*================== Priority tab ===============*/
+  /*===============================================*/
 
   public toggleAddPriorityShow(item?: ProjectPriority) {
     if (item) {
@@ -661,39 +633,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.addPriorityModalIsVisible = !this.addPriorityModalIsVisible;
   }
 
-  //================== task type ==================//
-  public saveTaskType() {
-    if (this.taskTypeForm.invalid) {
-      this.notification.error('Error', 'Please check Display name, Color and Task type');
-      return;
-    }
-    const dup: TaskTypeModel[] = this.typesList.filter((ele) => {
-      if (ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName) {
-        return ele;
-      }
-    });
-
-    if (dup && dup.length > 0) {
-      this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
-      return;
-    }
-    this.updateRequestInProcess = true;
-    this._taskTypeService.createTaskType(this.taskTypeForm.value).subscribe((res => {
-      this.taskTypeForm.reset({ projectId: this.currentProject.id });
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
-  }
-
-  public removeTaskType(taskType: TaskTypeModel) {
-    this.deleteTaskTypeInProcess = true;
-    this._projectService.removeTaskType(this.currentProject.id, taskType.id).subscribe((res => {
-      this.deleteTaskTypeInProcess = false;
-    }), (error => {
-      this.deleteTaskTypeInProcess = false;
-    }));
-  }
+  /*===============================================*/
+  /*================= Task Type tab ===============*/
+  /*===============================================*/
 
   public toggleAddTaskTypeShow(item?: TaskTypeModel) {
     if (item) {
@@ -705,11 +647,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
 
-  public copyName() {
-    // this.taskTypeForm.get('displayName').patchValue(this.taskTypeForm.get('name').value);
-  }
+  /*===============================================*/
+  /*==================== Capacity =================*/
+  /*===============================================*/
 
-  //================== capacity ==================//
   public selectDay(wd: ProjectWorkingDays, userRow: ProjectMembers) {
     if (wd.selected) {
       wd.selected = false;
@@ -772,7 +713,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   }
 
-  //================== project tab ==================//
+  /*===============================================*/
+  /*================== Project Tab ================*/
+  /*===============================================*/
+
   public updateProjectDetails(project: Partial<Project>) {
     this.updateRequestInProcess = true;
     this._projectService.updateProject(project).subscribe((res => {
@@ -787,19 +731,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.projectModalIsVisible = !this.projectModalIsVisible;
   }
 
-  //================== workflow =====================//
 
-  public selectDefaultAssigneeTypeahead(user: User) {
-    if (user && user.emailId) {
-      this.selectedDefaultAssignee = user;
-      let userName = user && user.firstName ? user.firstName : user.emailId;
-      if (user && user.firstName && user && user.lastName) {
-        userName = userName + ' ' + user.lastName;
-      }
-      this.workflowForm.get('assigneeId').patchValue(userName);
-    }
-    this.modelChangedSearchDefaultAssignee.next();
-  }
+  /*===============================================*/
+  /*================== Workflow Tab ===============*/
+  /*===============================================*/
 
   public editBoard(boardId: string) {
     this.router.navigate(['dashboard', 'board-setting', boardId]);
@@ -867,7 +802,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
 
-  //================== security =====================//
+
+  /*===============================================*/
+  /*================== Security Tab ===============*/
+  /*===============================================*/
+
+  //**********************//
+  // Generate Permissions List from object
+  //**********************//
 
   public generatePermissionsList(permissionConstantObj:Permissions) {
 
@@ -894,8 +836,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.permissionsObj = groupByName;
 
-    this.permissionsCopy = cloneDeep(this.permissionsObj);
   }
+
+
+  //**********************//
+  // // Create or Update user role
+  //**********************//
 
   async saveUserRole() {
 
@@ -909,7 +855,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       json.projectId = this._generalService.currentProject.id;
 
       // update role
+
       if (this.roleData && this.roleData.id) {
+
         json.id = this.roleData.id;
         this.updateRequestInProcess = true;
 
@@ -944,12 +892,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
 
-  // remove role
-  public removeRole(item:UserRoleModel) {
+  //**********************//
+  // Start edit to prefill form
+  //**********************//
 
-  }
-
-  // start edit
   public startEditRole(item:UserRoleModel) {
 
     this.generatePermissionsList(item.accessPermissions);
@@ -958,14 +904,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.userRoleForm.patchValue(item);
   }
 
-  // cancel/reset edit
+  //**********************//
+  // Cancel/reset edit
+  //**********************//
+
   public resetRoleForm() {
 
-    this.generatePermissionsList(PERMISSIONS); // reset with CONSTANT data
+    this.generatePermissionsList(cloneDeep(PERMISSIONS)); // reset with CONSTANT data
 
     this.roleData = { name :'' };
     this.userRoleForm.reset();
   }
+
+
+  //**********************//
+  // check uncheck permissions
+  //**********************//
 
   public selectPermission(item:AccessPermissionVM) {
 
