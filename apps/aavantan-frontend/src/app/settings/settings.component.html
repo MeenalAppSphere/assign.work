@@ -1,489 +1,428 @@
 <!-- section 1 -->
 <section id="settings-page">
 
-  <ul class="setting-tab-btn">
+    <ul class="setting-tab-btn">
 
-    <!-- tabs list -->
-    <li *ngFor="let item of tabs">
-      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}"
-         (click)="activeTab(item.id, item.label)">
-        <img *ngIf="activeView.view===item.id" src="../../assets/images/icons/{{item.iconActive}}"/>
-        <img *ngIf="activeView.view!==item.id" src="../../assets/images/icons/{{item.icon}}"/>
-        <div>{{item.label}}</div>
-      </a>
-    </li>
+        <!-- tabs list -->
+        <li *ngFor="let item of tabs">
+            <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}" (click)="activeTab(item.id, item.label)">
+                <img *ngIf="activeView.view===item.id" src="../../assets/images/icons/{{item.iconActive}}" />
+                <img *ngIf="activeView.view!==item.id" src="../../assets/images/icons/{{item.icon}}" />
+                <div>{{item.label}}</div>
+            </a>
+        </li>
 
-  </ul>
+    </ul>
 
-  <section>
+    <section>
 
-    <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:470px;">
+        <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:470px;">
 
-      <ng-template #templateTitle>
-        {{activeView.title}}
-        <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTitle]="templateTitleText"/>
-      </ng-template>
-      <ng-template #templateTitleText>
-        About {{activeView.title}}
-      </ng-template>
-      <ng-template #templateExtra>
+            <ng-template #templateTitle>
+                {{activeView.title}}
+                <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTitle]="templateTitleText" />
+            </ng-template>
+            <ng-template #templateTitleText>
+                About {{activeView.title}}
+            </ng-template>
+            <ng-template #templateExtra>
 
-        <span *ngIf="activeView.view==='board_settings'">
+                <span *ngIf="activeView.view==='board_settings'">
           <a nz-button nzType="primary" size="small" routerLink="/dashboard/board-setting">
              + New Board Setting
           </a>
         </span>
 
-        <span *ngIf="activeView.view==='status'">
+                <span *ngIf="activeView.view==='status'">
           <button nz-button nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>
         </span>
 
-        <span *ngIf="activeView.view==='priority'">
+                <span *ngIf="activeView.view==='priority'">
           <button nz-button nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>
         </span>
 
-        <span *ngIf="activeView.view==='taskType'">
+                <span *ngIf="activeView.view==='taskType'">
           <button nz-button nzType="primary" (click)="toggleAddTaskTypeShow()">+ Add Task Type</button>
         </span>
 
-        <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
+                <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
         </button>
 
-      </ng-template>
+            </ng-template>
 
-      <!-- project tab -->
-      <ng-container *ngIf="activeView.view==='project'">
-        <section class="row">
-          <aside class="col-md-3">
-            <form nz-form class="register-form" [formGroup]="projectForm">
-              <nz-form-item>
-                <nz-form-label>Organization</nz-form-label>
-                <input
-                  autocomplete="Off"
-                  disabled="true"
-                  placeholder="{{currentOrganization?.name}}"
-                  value="{{currentOrganization?.name}}"
-                  nz-input nzSize="small">
-              </nz-form-item>
-              <nz-form-item>
-                <nz-form-label>Project Title<span class="text-danger">*</span></nz-form-label>
-                <input
-                  autocomplete="Off"
-                  formControlName="name"
-                  placeholder="Enter Project Name, eg : Food Application"
-                  nz-input nzSize="small">
-              </nz-form-item>
-              <nz-form-item>
-                <button (click)="saveProject()" [disabled]="projectForm.invalid" [nzLoading]="updateRequestInProcess"
-                        nz-button nzType="primary"
-                        nzSize="small"> Save
+            <!-- project tab -->
+            <ng-container *ngIf="activeView.view==='project'">
+                <section class="row">
+                    <aside class="col-md-3">
+                        <form nz-form class="register-form" [formGroup]="projectForm">
+                            <nz-form-item>
+                                <nz-form-label>Organization</nz-form-label>
+                                <input autocomplete="Off" disabled="true" placeholder="{{currentOrganization?.name}}" value="{{currentOrganization?.name}}" nz-input nzSize="small">
+                            </nz-form-item>
+                            <nz-form-item>
+                                <nz-form-label>Project Title<span class="text-danger">*</span></nz-form-label>
+                                <input autocomplete="Off" formControlName="name" placeholder="Enter Project Name, eg : Food Application" nz-input nzSize="small">
+                            </nz-form-item>
+                            <nz-form-item>
+                                <button (click)="saveProject()" [disabled]="projectForm.invalid" [nzLoading]="updateRequestInProcess" nz-button nzType="primary" nzSize="small"> Save
                 </button>
-              </nz-form-item>
-            </form>
-          </aside>
-        </section>
-      </ng-container>
-      <!-- project tab -->
+                            </nz-form-item>
+                        </form>
+                    </aside>
+                </section>
+            </ng-container>
+            <!-- project tab -->
 
-      <!-- board_settings tab -->
-      <ng-container *ngIf="activeView.view==='board_settings'">
+            <!-- board_settings tab -->
+            <ng-container *ngIf="activeView.view==='board_settings'">
 
-        <section class="row">
+                <section class="row">
 
-          <aside class="col-md-12 board-settings-box">
+                    <aside class="col-md-12 board-settings-box">
 
-            <nz-table
-              [nzFrontPagination]="false"
-              [nzTotal]="getBoardListRequestModal.totalItems"
-              [nzPageIndex]="getBoardListRequestModal.page"
-              [nzPageSize]="getBoardListRequestModal.count"
-              [nzShowPagination]="true"
-              (nzPageIndexChange)="boardPageChanged($event)"
-              #smallTable
-              [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess"
-              nzSize="small"
-              [nzData]="boardsList" >
+                        <nz-table [nzFrontPagination]="false" [nzTotal]="getBoardListRequestModal.totalItems" [nzPageIndex]="getBoardListRequestModal.page" [nzPageSize]="getBoardListRequestModal.count" [nzShowPagination]="true" (nzPageIndexChange)="boardPageChanged($event)"
+                            #smallTable [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess" nzSize="small" [nzData]="boardsList">
 
-              <thead (nzSortChange)="boardSortOrderChanged($event)">
-              <tr>
-                <th data-label="SN">#</th>
-                <th width="35%" nzSortKey="name" nzShowSort>Name</th>
-                <th>Created By</th>
-                <th nzSortKey="createdAt" nzShowSort>Created On</th>
-                <th>Published</th>
-                <th width="125px">Action</th>
-              </tr>
-              </thead>
+                            <thead (nzSortChange)="boardSortOrderChanged($event)">
+                                <tr>
+                                    <th data-label="SN">#</th>
+                                    <th width="35%" nzSortKey="name" nzShowSort>Name</th>
+                                    <th>Created By</th>
+                                    <th nzSortKey="createdAt" nzShowSort>Created On</th>
+                                    <th>Published</th>
+                                    <th width="125px">Action</th>
+                                </tr>
+                            </thead>
 
 
-              <tbody>
-              <tr *ngFor="let data of smallTable.data; let index = index;">
-                <td data-label="SN">{{(index+1)}}</td>
-                <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
-                <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
-                <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
+                            <tbody>
+                                <tr *ngFor="let data of smallTable.data; let index = index;">
+                                    <td data-label="SN">{{(index + 1)}}</td>
+                                    <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
+                                    <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
+                                    <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
 
-                <td data-label="Published">
+                                    <td data-label="Published">
 
-                  <span *ngIf="data.isPublished">
+                                        <span *ngIf="data.isPublished">
                     <nz-tag [nzColor]="'#42E3A3'">
                       <i nz-icon nzType="check" class="text-white" nzTheme="outline"></i>
                       <span class="text-white font-size-12">&ensp;Published</span>
-                    </nz-tag>
+                                        </nz-tag>
 
-                  </span>
+                                        </span>
 
-                  <span *ngIf="!data.isPublished"></span>
+                                        <span *ngIf="!data.isPublished"></span>
 
-                </td>
+                                    </td>
 
-                <td data-label="Action">
+                                    <td data-label="Action">
 
-                  <span *ngIf="!data.isPublished" (click)="publishBoard(data.id)" class="text-primary cursor-pointer">Publish</span>
+                                        <span *ngIf="!data.isPublished" (click)="publishBoard(data.id)" class="text-primary cursor-pointer">Publish</span>
 
-                  <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)" class="text-red m-l-15" nzTheme="outline"></i>
+                                        <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)" class="text-red m-l-15" nzTheme="outline"></i>
 
-                </td>
-              </tr>
-              </tbody>
-            </nz-table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </nz-table>
 
-          </aside>
+                    </aside>
 
-        </section>
+                </section>
 
-      </ng-container>
-      <!-- board_settings tab -->
+            </ng-container>
+            <!-- board_settings tab -->
 
-      <!-- collaborators tab -->
-      <ng-container *ngIf="activeView.view==='collaborators'">
-        <section class="row">
-
-
-
-          <!-- user access -->
-          <div class="col-md-9 ant-col-md-push-3">
+            <!-- collaborators tab -->
+            <ng-container *ngIf="activeView.view==='collaborators'">
+                <section class="row">
 
 
-            <form nz-form class="collaborator-form" [formGroup]="collaboratorForm">
 
-              <nz-form-item>
-                <nz-form-label>Search or Invite Collaborator</nz-form-label>
-                <nz-form-control class="relative m-b-5">
-                  <nz-input-group [nzPrefix]="prefixIconSearch" [nzSuffix]="suffixIconSearch">
-                    <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input collaborator-search-invite"
-                           nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small"
-                           [nzAutocomplete]="autoAssignee"/>
-                  </nz-input-group>
-                  <nz-autocomplete #autoAssignee>
-                    <nz-auto-option *ngFor="let option of collaboratorsDataSource"
-                                    [nzLabel]="option && option.firstName ? option.firstName : option.emailId"
-                                    [nzValue]="option">
-                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"
-                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
-                      <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
-                      <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
-                      <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small
-                        class="text-muted">{{ option.emailId }}</small></div>
-                    </nz-auto-option>
-                  </nz-autocomplete>
-                </nz-form-control>
+                    <!-- user access -->
+                    <div class="col-md-9 ant-col-md-push-3">
 
-                <ng-template #prefixIconSearch>
-                  <i nz-icon nzType="search" *ngIf="!isSearching"></i>
-                  <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
-                </ng-template>
 
-                <ng-template #suffixIconSearch>
-                  <button (click)="addCollaborators(true)" [nzLoading]="addCollaboratorsInProcess"
-                          [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary"
-                          nzSize="small" class="btn-collaborator-search-invite">
+                        <form nz-form class="collaborator-form" [formGroup]="collaboratorForm">
+
+                            <nz-form-item>
+                                <nz-form-label>Search or Invite Collaborator</nz-form-label>
+                                <nz-form-control class="relative m-b-5">
+                                    <nz-input-group [nzPrefix]="prefixIconSearch" [nzSuffix]="suffixIconSearch">
+                                        <input placeholder="Search Collaborators" formControlName="collaborator" class="assigned-user-input collaborator-search-invite" nz-input (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small" [nzAutocomplete]="autoAssignee" />
+                                    </nz-input-group>
+                                    <nz-autocomplete #autoAssignee>
+                                        <nz-auto-option *ngFor="let option of collaboratorsDataSource" [nzLabel]="option && option.firstName ? option.firstName : option.emailId" [nzValue]="option">
+                                            <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                                            <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
+                                            <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
+                                            <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small class="text-muted">{{ option.emailId }}</small></div>
+                                        </nz-auto-option>
+                                    </nz-autocomplete>
+                                </nz-form-control>
+
+                                <ng-template #prefixIconSearch>
+                                    <i nz-icon nzType="search" *ngIf="!isSearching"></i>
+                                    <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
+                                </ng-template>
+
+                                <ng-template #suffixIconSearch>
+                                    <button (click)="addCollaborators(true)" [nzLoading]="addCollaboratorsInProcess" [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary" nzSize="small" class="btn-collaborator-search-invite">
                     <i nz-icon nzType="mail" theme="outline"></i> Invite
                   </button>
-                </ng-template>
+                                </ng-template>
 
-              </nz-form-item>
+                            </nz-form-item>
 
-            <!-- note added so commented for now
+                            <!-- note added so commented for now
             <p class="text-info" *ngIf="enableInviteBtn && !isCollaboratorExits">Please enter email id to invite member</p>-->
 
-              <p class="text-danger" *ngIf="isCollaboratorExits">This user already added in this Project</p>
-              <nz-form-explain class="text-danger m-b-15"
-                               *ngIf="response && response.message">{{response.message}}</nz-form-explain>
+                            <p class="text-danger" *ngIf="isCollaboratorExits">This user already added in this Project</p>
+                            <nz-form-explain class="text-danger m-b-15" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
 
-              <p class="font-weight-bold font-size-12">Note: <span class="font-weight-light">If user not available into list then you type email id and then invite them directly.</span></p>
-            </form>
-
-
-            <nz-table class="collaborator-table" #projectMembersTable [nzData]="projectMembersList">
-
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr *ngFor="let item of projectMembersTable.data">
-
-                  <td>
-                    <div class="d-flex">
-
-                      <nz-avatar class="m-r-10"
-                                 [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''"
-                                 [nzShape]="'circle'" [nzSize]="32" [nzIcon]="'user'"></nz-avatar>
-
-                      <div class="d-inline-block">
-                        <!-- if first name not available -->
-                        <a href="mailto:{{item.emailId}}" *ngIf="!item.userDetails?.firstName" class="text-primary user-email-on-collaborator">{{item.emailId}}</a>
+                            <p class="font-weight-bold font-size-12">Note: <span class="font-weight-light">If user not available into list then you type email id and then invite them directly.</span></p>
+                        </form>
 
 
-                        <!-- if first name available -->
-                        <span *ngIf="item.userDetails?.firstName">
+                        <nz-table class="collaborator-table" #projectMembersTable [nzData]="projectMembersList">
+
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr *ngFor="let item of projectMembersTable.data">
+
+                                    <td>
+                                        <div class="d-flex">
+
+                                            <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="32" [nzIcon]="'user'"></nz-avatar>
+
+                                            <div class="d-inline-block">
+                                                <!-- if first name not available -->
+                                                <a href="mailto:{{item.emailId}}" *ngIf="!item.userDetails?.firstName" class="text-primary user-email-on-collaborator">{{item.emailId}}</a>
+
+
+                                                <!-- if first name available -->
+                                                <span *ngIf="item.userDetails?.firstName">
                           <span class="d-block text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
-                          <span class="d-block text-primary user-email-on-collaborator font-weight-light" style="line-height:1.1" *ngIf="item.userDetails?.firstName">{{item.emailId}}</span>
-                        </span>
-                      </div>
+                                                <span class="d-block text-primary user-email-on-collaborator font-weight-light" style="line-height:1.1" *ngIf="item.userDetails?.firstName">{{item.emailId}}</span>
+                                                </span>
+                                            </div>
 
-                    </div>
+                                        </div>
 
-                  </td>
+                                    </td>
 
-                  <td>
-                    <nz-tag [nzColor]="'#F1F2F4'">
-                      Project Manager
-                    </nz-tag>
-                  </td>
+                                    <td>
+                                        <nz-tag [nzColor]="'#F1F2F4'">
+                                            Project Manager
+                                        </nz-tag>
+                                    </td>
 
-                  <td>
-                      <span class="text-green" *ngIf="item.isInviteAccepted">
+                                    <td>
+                                        <span class="text-green" *ngIf="item.isInviteAccepted">
                         <i nz-icon nzType="check-circle" class="m-r-5 font-size-18" nzTheme="fill"></i> <span>Active</span>
-                      </span>
-                      <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">
+                                        </span>
+                                        <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">
                         Invitation Sent
                       </span>
-                  </td>
+                                    </td>
 
-                  <td class="relative">
+                                    <td class="relative">
 
-                      <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
+                                        <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
                         <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                       </span>
-                      <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted">Change Access</span>
-                      <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>
+                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted">Change Access</span>
+                                        <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>
 
-                  </td>
+                                    </td>
 
-                </tr>
-              </tbody>
+                                </tr>
+                            </tbody>
 
-            </nz-table>
-          </div>
-
-        </section>
-      </ng-container>
-      <!-- collaborators tab -->
-
-      <!-- stages tab -->
-      <ng-container *ngIf="activeView.view==='stages'">
-
-        <section class="row">
-
-          <aside class="col-md-3">
-
-            <form nz-form (submit)="addStage()" [formGroup]="stageForm">
-
-              <nz-form-item>
-
-                <nz-form-label>Stage title<span class="text-danger">*</span></nz-form-label>
-                <nz-form-control>
-                  <input nz-input nzSize="small" formControlName="name" placeholder="Enter Stage title" maxlength="25"/>
-                </nz-form-control>
-
-              </nz-form-item>
-
-              <nz-form-item>
-                <button nz-button nzType="primary" [disabled]="stageForm.invalid" [nzLoading]="updateRequestInProcess"
-                        nzSize="small">Add
-                </button>
-              </nz-form-item>
-
-            </form>
-
-
-            <div *ngIf="stagesList && stagesList.length>0">
-
-              <nz-form-label>Default Stages</nz-form-label>
-
-              <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
-
-                <ul class="stages-list">
-                  <bs-sortable
-                    id="bsstage"
-                    [(ngModel)]="stagesList"
-                    (dragend)="reorderList($event)"
-                    itemClass="sortable-item"
-                    itemActiveClass="sortable-item-active"
-                    [itemTemplate]="itemTemplate"
-                    placeholderClass="placeholderStyle"
-                    wrapperClass="sortable-wrapper"
-                  ></bs-sortable>
-
-
-                  <ng-template #itemTemplate let-item="item" let-index="index">
-                    <li class="cursor-move" id="{{item.value.id}}"><span>{{item.value.name}}</span>
-                      <!--<i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
-                    </li>
-                  </ng-template>
-                </ul>
-
-                <!--              <ul class="stages-list">-->
-                <!--                <li *ngFor="let item of stagesList"><span>{{item.name}}</span>-->
-                <!--&lt;!&ndash;        <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>&ndash;&gt;-->
-                <!--                </li>-->
-                <!--              </ul>-->
-
-              </nz-spin>
-
-            </div>
-
-
-          </aside>
-
-          <aside class="col-md-9" *ngIf="stagesList && stagesList.length>0">
-
-            <nz-form-label>Preview</nz-form-label>
-            <section class="sprintboard-container p-l-10">
-              <div class="row flex-row flex-nowrap" *ngIf="stagesList && stagesList.length>0">
-
-                <div class="column" *ngFor="let item of stagesList; let last">
-                  <div class="card card-block">
-
-                    <div class="card-header">{{item.name}} <span class="pull-right"><i
-                      class="pl-3 fa fa-ellipsis-v"></i></span>
-                      <div class="pull-left" style="line-height: 10px;">
-                        <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
-                        <span class="font-size-12">2Hrs</span>
-                      </div>
+                        </nz-table>
                     </div>
 
-                    <div class="card-body">
+                </section>
+            </ng-container>
+            <!-- collaborators tab -->
 
-                      <div>
-                        <div class="task-card"
-                             [ngStyle]="{'border-left': '4px solid #0090FB'}">
-                          <h6 [ngStyle]="{'color': '#EF1B1B'}">#BUG-1
-                            <span class="float-right duration">1 Sec ago</span>
-                          </h6>
-                          <div class="task-body">
-                            <div>
-                              <a href="" class="task-title">
+            <!-- stages tab -->
+            <ng-container *ngIf="activeView.view==='stages'">
+
+                <section class="row">
+
+                    <aside class="col-md-3">
+
+                        <form nz-form (submit)="addStage()" [formGroup]="stageForm">
+
+                            <nz-form-item>
+
+                                <nz-form-label>Stage title<span class="text-danger">*</span></nz-form-label>
+                                <nz-form-control>
+                                    <input nz-input nzSize="small" formControlName="name" placeholder="Enter Stage title" maxlength="25" />
+                                </nz-form-control>
+
+                            </nz-form-item>
+
+                            <nz-form-item>
+                                <button nz-button nzType="primary" [disabled]="stageForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">Add
+                </button>
+                            </nz-form-item>
+
+                        </form>
+
+
+                        <div *ngIf="stagesList && stagesList.length>0">
+
+                            <nz-form-label>Default Stages</nz-form-label>
+
+                            <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
+
+                                <ul class="stages-list">
+                                    <bs-sortable id="bsstage" [(ngModel)]="stagesList" (dragend)="reorderList($event)" itemClass="sortable-item" itemActiveClass="sortable-item-active" [itemTemplate]="itemTemplate" placeholderClass="placeholderStyle" wrapperClass="sortable-wrapper"></bs-sortable>
+
+
+                                    <ng-template #itemTemplate let-item="item" let-index="index">
+                                        <li class="cursor-move" id="{{item.value.id}}"><span>{{item.value.name}}</span>
+                                            <!--<i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>-->
+                                        </li>
+                                    </ng-template>
+                                </ul>
+
+                                <!--              <ul class="stages-list">-->
+                                <!--                <li *ngFor="let item of stagesList"><span>{{item.name}}</span>-->
+                                <!--&lt;!&ndash;        <i (click)="removeStage(item)" nz-icon nzType="close" theme="outline" class="close float-right"></i>&ndash;&gt;-->
+                                <!--                </li>-->
+                                <!--              </ul>-->
+
+                            </nz-spin>
+
+                        </div>
+
+
+                    </aside>
+
+                    <aside class="col-md-9" *ngIf="stagesList && stagesList.length>0">
+
+                        <nz-form-label>Preview</nz-form-label>
+                        <section class="sprintboard-container p-l-10">
+                            <div class="row flex-row flex-nowrap" *ngIf="stagesList && stagesList.length>0">
+
+                                <div class="column" *ngFor="let item of stagesList; let last">
+                                    <div class="card card-block">
+
+                                        <div class="card-header">{{item.name}} <span class="pull-right"><i
+                      class="pl-3 fa fa-ellipsis-v"></i></span>
+                                            <div class="pull-left" style="line-height: 10px;">
+                                                <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
+                                                <span class="font-size-12">2Hrs</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-body">
+
+                                            <div>
+                                                <div class="task-card" [ngStyle]="{'border-left': '4px solid #0090FB'}">
+                                                    <h6 [ngStyle]="{'color': '#EF1B1B'}">#BUG-1
+                                                        <span class="float-right duration">1 Sec ago</span>
+                                                    </h6>
+                                                    <div class="task-body">
+                                                        <div>
+                                                            <a href="" class="task-title">
                                 Task Name
                               </a>
-                            </div>
-                          </div>
-                          <div class="task-footer">
-                      <span><nz-avatar class="m-r-5" nzIcon="user" nzText="J"
+                                                        </div>
+                                                    </div>
+                                                    <div class="task-footer">
+                                                        <span><nz-avatar class="m-r-5" nzIcon="user" nzText="J"
                                        nzShape="circle"></nz-avatar><span class="profile-name">Jone Doe</span></span>
-                            <span class="pull-right">
+                                                        <span class="pull-right">
                             <a href="javascript:void(0);" class="text-primary">
                               <i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                  </div>
-                </div>
-              </div>
-            </section>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
 
-          </aside><!-- preview -->
+                    </aside>
+                    <!-- preview -->
 
 
-        </section>
-      </ng-container>
-      <!-- stages tab -->
+                </section>
+            </ng-container>
+            <!-- stages tab -->
 
-      <!-- status tab -->
-      <ng-container *ngIf="activeView.view==='status'">
+            <!-- status tab -->
+            <ng-container *ngIf="activeView.view==='status'">
 
-        <section class="row">
+                <section class="row">
 
-          <!--
-          <aside class="col-md-3">
+                    <aside class="col-md-4" *ngIf="statusList && statusList.length>0">
 
-            <form nz-form (submit)="addStatus()" [formGroup]="statusForm">
+                        <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
 
-              <nz-form-item>
+                            <nz-form-label>All Status</nz-form-label>
 
-                <nz-form-label>Status title<span class="text-danger">*</span></nz-form-label>
-                <nz-form-control>
-                  <input nz-input nzSize="small" formControlName="name" placeholder="Enter Status title"
-                         maxlength="30"/>
-                </nz-form-control>
+                            <ul class="stages-list">
+                                <li *ngFor="let item of statusList">
 
-              </nz-form-item>
 
-              <nz-form-item>
-                <button nz-button nzType="primary" [disabled]="statusForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
-              </nz-form-item>
+                                    <span>
+                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTitle]="item.color"
+                       [ngStyle]="{'color': item.color }"></i>
+                      {{item.name}}
+                  </span>
 
-            </form>
-
-          </aside>
-          -->
-
-          <aside class="col-md-4" *ngIf="statusList && statusList.length>0">
-
-            <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
-
-              <nz-form-label>All Status</nz-form-label>
-
-              <ul class="stages-list">
-                <li *ngFor="let item of statusList"><span>{{item.name}}</span>
-
-                  <span class="float-right">
+                                    <span class="float-right">
 <!--                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-l-10"></i>
+                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline"
+                         class="edit m-l-10"></i>
                     </span>
 
-                </li>
-              </ul>
+                                </li>
+                            </ul>
 
-            </nz-spin>
+                        </nz-spin>
 
-          </aside>
-
-
-          <aside class="col-md-12" *ngIf="!statusList || statusList.length===0">
-            <nz-empty
-              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
-              [nzNotFoundContent]="contentTpl"
-              [nzNotFoundFooter]="footerTpl">
-              <ng-template #contentTpl>
-                <span>No Status Found</span>
-              </ng-template>
-              <ng-template #footerTpl>
-                <!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>-->
-              </ng-template>
-            </nz-empty>
-          </aside>
+                    </aside>
 
 
-        </section>
-      </ng-container>
-      <!-- status tab -->
+                    <aside class="col-md-12" *ngIf="!statusList || statusList.length===0">
+                        <nz-empty [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'" [nzNotFoundContent]="contentTpl" [nzNotFoundFooter]="footerTpl">
+                            <ng-template #contentTpl>
+                                <span>No Status Found</span>
+                            </ng-template>
+                            <ng-template #footerTpl>
+                                <!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>-->
+                            </ng-template>
+                        </nz-empty>
+                    </aside>
 
-      <!-- priority tab -->
-      <ng-container *ngIf="activeView.view==='priority'">
 
-        <section class="row task-type-section">
+                </section>
+            </ng-container>
+            <!-- status tab -->
 
-          <!--
+            <!-- priority tab -->
+            <ng-container *ngIf="activeView.view==='priority'">
+
+                <section class="row task-type-section">
+
+                    <!--
           <aside class="col-md-3">
 
             <form nz-form (submit)="savePriority()" [formGroup]="priorityForm">
@@ -513,390 +452,354 @@
           </aside>
           -->
 
-          <aside class="col-md-4" *ngIf="priorityList && priorityList.length>0">
+                    <aside class="col-md-4" *ngIf="priorityList && priorityList.length>0">
 
-            <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
+                        <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
 
-              <nz-form-label>Default Priorities</nz-form-label>
+                            <nz-form-label>Default Priorities</nz-form-label>
 
-              <ul class="stages-list">
+                            <ul class="stages-list">
 
-                <li *ngFor="let item of priorityList">
+                                <li *ngFor="let item of priorityList">
 
-                  <span>
-                    <i class="p-l-10"  nz-tooltip [nzTitle]="item.color"
+                                    <span>
+                    <i class="p-l-10" nz-tooltip [nzTitle]="item.color"
                        [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
                     {{item.name}}
                   </span>
 
-                  <span class="float-right">
+                                    <span class="float-right">
 <!--                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-l-10"></i>
+                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
+                         class="edit m-l-10"></i>
                   </span>
 
-                </li>
+                                </li>
 
-              </ul>
+                            </ul>
 
-            </nz-spin>
+                        </nz-spin>
 
-          </aside>
-
-
-          <aside class="col-md-12" *ngIf="!priorityList || priorityList.length===0">
-            <nz-empty
-              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
-              [nzNotFoundContent]="contentTpl"
-              [nzNotFoundFooter]="footerTpl">
-              <ng-template #contentTpl>
-                <span>No Priority Found</span>
-              </ng-template>
-              <ng-template #footerTpl>
-                <!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>-->
-              </ng-template>
-            </nz-empty>
-          </aside>
+                    </aside>
 
 
-        </section>
-      </ng-container>
-      <!-- priority tab -->
-
-      <!-- taskType tab -->
-      <ng-container *ngIf="activeView.view==='taskType'">
-
-        <section class="row task-type-section">
-
-<!--          <aside class="col-md-3">-->
-
-<!--            <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">-->
-
-<!--              <nz-form-item>-->
-<!--                <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span> <small-->
-<!--                  style="display:block;letter-spacing: 0;">(as prefix with id eg : <b-->
-<!--                  class="text-info">BUG-1001</b>)</small></nz-form-label>-->
-<!--                <nz-form-control>-->
-<!--                  <input class="task-type-input" type="text" nzSize="small"-->
-<!--                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>-->
-<!--                </nz-form-control>-->
-<!--              </nz-form-item>-->
-<!--              <nz-form-item>-->
-<!--                <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and-->
-<!--                  title)</small></nz-form-label>-->
-
-<!--                <nz-form-control>-->
-<!--                  <nz-input-group [nzAddOnBefore]="profixIconButton">-->
-<!--                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"-->
-<!--                           nz-input-->
-<!--                           placeholder="Enter Task Name"/>-->
-<!--                  </nz-input-group>-->
-<!--                  <ng-template #profixIconButton>-->
-<!--                    <input type="color" nzSize="small" formControlName="color"/>-->
-<!--                  </ng-template>-->
-<!--                </nz-form-control>-->
-
-<!--              </nz-form-item>-->
-
-<!--              <nz-form-item>-->
-
-<!--                <nz-form-label>Description</nz-form-label>-->
-<!--                <nz-form-control>-->
-<!--                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"-->
-<!--                            placeholder="Enter Status Description" rows="5"></textarea>-->
-<!--                </nz-form-control>-->
-
-<!--              </nz-form-item>-->
-
-<!--              <nz-form-item>-->
-<!--                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid"-->
-<!--                        [nzLoading]="updateRequestInProcess" nzSize="small">Add-->
-<!--                </button>-->
-<!--              </nz-form-item>-->
-
-<!--            </form>-->
+                    <aside class="col-md-12" *ngIf="!priorityList || priorityList.length===0">
+                        <nz-empty [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'" [nzNotFoundContent]="contentTpl" [nzNotFoundFooter]="footerTpl">
+                            <ng-template #contentTpl>
+                                <span>No Priority Found</span>
+                            </ng-template>
+                            <ng-template #footerTpl>
+                                <!--                <button nz-button nzSize="small" nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>-->
+                            </ng-template>
+                        </nz-empty>
+                    </aside>
 
 
-<!--          </aside>-->
+                </section>
+            </ng-container>
+            <!-- priority tab -->
 
-          <aside class="col-md-4" *ngIf="typesList && typesList.length>0">
+            <!-- taskType tab -->
+            <ng-container *ngIf="activeView.view==='taskType'">
 
-            <nz-form-label>All Types</nz-form-label>
+                <section class="row task-type-section">
 
-            <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
+                    <!--          <aside class="col-md-3">-->
 
-              <ul class="stages-list">
+                    <!--            <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">-->
 
-                <li *ngFor="let item of typesList">
-                  <span>
+                    <!--              <nz-form-item>-->
+                    <!--                <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span> <small-->
+                    <!--                  style="display:block;letter-spacing: 0;">(as prefix with id eg : <b-->
+                    <!--                  class="text-info">BUG-1001</b>)</small></nz-form-label>-->
+                    <!--                <nz-form-control>-->
+                    <!--                  <input class="task-type-input" type="text" nzSize="small"-->
+                    <!--                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>-->
+                    <!--                </nz-form-control>-->
+                    <!--              </nz-form-item>-->
+                    <!--              <nz-form-item>-->
+                    <!--                <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and-->
+                    <!--                  title)</small></nz-form-label>-->
+
+                    <!--                <nz-form-control>-->
+                    <!--                  <nz-input-group [nzAddOnBefore]="profixIconButton">-->
+                    <!--                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"-->
+                    <!--                           nz-input-->
+                    <!--                           placeholder="Enter Task Name"/>-->
+                    <!--                  </nz-input-group>-->
+                    <!--                  <ng-template #profixIconButton>-->
+                    <!--                    <input type="color" nzSize="small" formControlName="color"/>-->
+                    <!--                  </ng-template>-->
+                    <!--                </nz-form-control>-->
+
+                    <!--              </nz-form-item>-->
+
+                    <!--              <nz-form-item>-->
+
+                    <!--                <nz-form-label>Description</nz-form-label>-->
+                    <!--                <nz-form-control>-->
+                    <!--                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"-->
+                    <!--                            placeholder="Enter Status Description" rows="5"></textarea>-->
+                    <!--                </nz-form-control>-->
+
+                    <!--              </nz-form-item>-->
+
+                    <!--              <nz-form-item>-->
+                    <!--                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid"-->
+                    <!--                        [nzLoading]="updateRequestInProcess" nzSize="small">Add-->
+                    <!--                </button>-->
+                    <!--              </nz-form-item>-->
+
+                    <!--            </form>-->
+
+
+                    <!--          </aside>-->
+
+                    <aside class="col-md-4" *ngIf="typesList && typesList.length>0">
+
+                        <nz-form-label>All Types</nz-form-label>
+
+                        <nz-spin nzTip="Loading..." [nzSpinning]="deleteTaskTypeInProcess">
+
+                            <ul class="stages-list">
+
+                                <li *ngFor="let item of typesList">
+                                    <span>
                     <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
                        [ngStyle]="{'color':item.color}"></i>
                     {{item.name}}</span>
-                  <span class="float-right d-flex p-t-5">
+                                    <span class="float-right d-flex p-t-5">
                       <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
-<!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
+                    <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                   </span>
-                </li>
+                                </li>
 
-              </ul>
+                            </ul>
 
-            </nz-spin>
+                        </nz-spin>
 
-          </aside>
+                    </aside>
 
-        </section>
-      </ng-container>
-      <!-- taskType tab -->
+                </section>
+            </ng-container>
+            <!-- taskType tab -->
 
-      <!-- capacity tab -->
-      <ng-container *ngIf="activeView.view==='capacity'">
-        <aside class="col-md-12">
-          <div *ngIf="!projectCapacityMembersList || projectCapacityMembersList.length===0">
-            <nz-empty
-              [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
-              [nzNotFoundContent]="contentTpl"
-              [nzNotFoundFooter]="footerTpl">
-              <ng-template #contentTpl>
-                <span>Please add collaborator to add capacity</span>
-              </ng-template>
-              <ng-template #footerTpl>
-                <button nz-button nzSize="small" nzType="primary" (click)="activeTab('collaborators', 'Collaborators')">
+            <!-- capacity tab -->
+            <ng-container *ngIf="activeView.view==='capacity'">
+                <aside class="col-md-12">
+                    <div *ngIf="!projectCapacityMembersList || projectCapacityMembersList.length===0">
+                        <nz-empty [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'" [nzNotFoundContent]="contentTpl" [nzNotFoundFooter]="footerTpl">
+                            <ng-template #contentTpl>
+                                <span>Please add collaborator to add capacity</span>
+                            </ng-template>
+                            <ng-template #footerTpl>
+                                <button nz-button nzSize="small" nzType="primary" (click)="activeTab('collaborators', 'Collaborators')">
                   Go to Collaborators Tab
                 </button>
-              </ng-template>
-            </nz-empty>
-          </div>
-          <div class="capacity-table"
-               *ngIf="projectCapacityMembersList && projectCapacityMembersList.length>0">
+                            </ng-template>
+                        </nz-empty>
+                    </div>
+                    <div class="capacity-table" *ngIf="projectCapacityMembersList && projectCapacityMembersList.length>0">
 
-            <div class="row">
-              <div class="col-md-4 col-lg-3 text-left" colspan="2">Name</div>
-              <div class="col-md-1 col-lg-1 text-right" width="140">Working hours</div>
-              <div class="col-md-2 col-lg-1 text-right" width="190">Per day</div>
-              <div class="col-md-5 col-lg-7 text-center">Working days</div>
-            </div>
+                        <div class="row">
+                            <div class="col-md-4 col-lg-3 text-left" colspan="2">Name</div>
+                            <div class="col-md-1 col-lg-1 text-right" width="140">Working hours</div>
+                            <div class="col-md-2 col-lg-1 text-right" width="190">Per day</div>
+                            <div class="col-md-5 col-lg-7 text-center">Working days</div>
+                        </div>
 
 
-            <div class="row" *ngFor="let item of projectCapacityMembersList; let i = index;">
+                        <div class="row" *ngFor="let item of projectCapacityMembersList; let i = index;">
 
-              <div class="col-md-4 col-lg-3">
-                <span class="sn">{{i + 1}}.</span>
-                <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''"
-                           [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                            <div class="col-md-4 col-lg-3">
+                                <span class="sn">{{i + 1}}.</span>
+                                <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
 
-                <span class="p-l-5"
-                      *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
-                <div class="cap-email"><small class="text-muted">{{item.emailId}}</small></div>
+                                <span class="p-l-5" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
+                                <div class="cap-email"><small class="text-muted">{{item.emailId}}</small></div>
 
-              </div>
-              <div class="col-md-1 col-lg-1 text-right">
-                <input nz-input placeholder="Hours" disabled numeric numericType="decimal"
-                       [(ngModel)]="item.workingCapacity" (keyup)="calculateTotal()" class="team-list-input"
-                       nzSize="small" maxlength="3"/>
-              </div>
-              <div class="col-md-2 col-lg-1 text-right">
-                <input nz-input placeholder="Hours" numeric numericType="decimal"
-                       [(ngModel)]="item.workingCapacityPerDay" (keyup)="calculateTotal()" class="team-list-input"
-                       nzSize="small" maxlength="2"/>
-              </div>
-              <div class="col-md-5 col-lg-7">
-                  <span *ngFor="let wd of item.workingDays">
+                            </div>
+                            <div class="col-md-1 col-lg-1 text-right">
+                                <input nz-input placeholder="Hours" disabled numeric numericType="decimal" [(ngModel)]="item.workingCapacity" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="3" />
+                            </div>
+                            <div class="col-md-2 col-lg-1 text-right">
+                                <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacityPerDay" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="2" />
+                            </div>
+                            <div class="col-md-5 col-lg-7">
+                                <span *ngFor="let wd of item.workingDays">
                     <button *ngIf="wd.selected" (click)="selectDay(wd,item)" nz-button nzType="primary" nzSize="small"
                             nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{wd.day}}</button>
                     <button *ngIf="!wd.selected" (click)="selectDay(wd, item)" nz-button nzType="link" nzSize="small"
                             nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{wd.day}}</button>
                   </span>
-              </div>
-            </div>
+                            </div>
+                        </div>
 
 
-            <div class="row m-b-10">
-              <div class="col-md-4 col-lg-3"></div>
-              <div class="col-md-1 col-lg-1 text-right">Total: {{totalCapacity}}</div>
-              <div class="col-md-2 col-lg-1 text-right">Total: {{totalCapacityPerDay}}</div>
-              <div class="col-md-5 col-lg-7"></div>
-            </div>
+                        <div class="row m-b-10">
+                            <div class="col-md-4 col-lg-3"></div>
+                            <div class="col-md-1 col-lg-1 text-right">Total: {{totalCapacity}}</div>
+                            <div class="col-md-2 col-lg-1 text-right">Total: {{totalCapacityPerDay}}</div>
+                            <div class="col-md-5 col-lg-7"></div>
+                        </div>
 
-            <button (click)="saveCapacity()" [nzLoading]="updateRequestInProcess" nz-button nzSize="small"
-                    nzType="primary">Save
+                        <button (click)="saveCapacity()" [nzLoading]="updateRequestInProcess" nz-button nzSize="small" nzType="primary">Save
             </button>
-          </div>
-        </aside>
-      </ng-container>
-      <!-- capacity tab -->
+                    </div>
+                </aside>
+            </ng-container>
+            <!-- capacity tab -->
 
-      <!-- security tab -->
-      <ng-container *ngIf="activeView.view==='security'">
-        <section class="row">
+            <!-- security tab -->
+            <ng-container *ngIf="activeView.view==='security'">
+                <section class="row">
 
-          <aside class="col-md-4 p-r-25" *ngIf="roleList?.length>0">
+                    <aside class="col-md-4 p-r-25" *ngIf="roleList?.length>0">
 
-            <nz-spin nzTip="Loading..." [nzSpinning]="requestRoleInProcess">
+                        <nz-spin nzTip="Loading..." [nzSpinning]="requestRoleInProcess">
 
-              <div *ngIf="roleList?.length>0">
-                <nz-form-label>Roles</nz-form-label>
-                <ul class="stages-list">
-                  <li *ngFor="let item of roleList">
+                            <div *ngIf="roleList?.length>0">
+                                <nz-form-label>Roles</nz-form-label>
+                                <ul class="stages-list">
+                                    <li *ngFor="let item of roleList">
 
-                    <span>{{item.name}}</span>
+                                        <span>{{item.name}}</span>
 
-                    <span class="float-right m-t-5 d-flex">
+                                        <span class="float-right m-t-5 d-flex">
                         <i (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
 <!--                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
                       </span>
 
-                  </li>
-                </ul>
-              </div>
+                                    </li>
+                                </ul>
+                            </div>
 
-              <div *ngIf="!statusList || roleList?.length===0">
-                  <nz-empty
-                    [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
-                    [nzNotFoundContent]="contentTpl"
-                    [nzNotFoundFooter]="footerTpl">
-                    <ng-template #contentTpl>
-                      <span>No Role Avilable</span>
-                    </ng-template>
-                    <ng-template #footerTpl>
-                    </ng-template>
-                  </nz-empty>
-              </div>
+                            <div *ngIf="!statusList || roleList?.length===0">
+                                <nz-empty [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'" [nzNotFoundContent]="contentTpl" [nzNotFoundFooter]="footerTpl">
+                                    <ng-template #contentTpl>
+                                        <span>No Role Avilable</span>
+                                    </ng-template>
+                                    <ng-template #footerTpl>
+                                    </ng-template>
+                                </nz-empty>
+                            </div>
 
-            </nz-spin>
+                        </nz-spin>
 
-          </aside>
+                    </aside>
 
-          <aside class="col-md-8">
+                    <aside class="col-md-8">
 
-                <form nz-form class="" (ngSubmit)="saveUserRole()" [formGroup]="userRoleForm">
+                        <form nz-form class="" (ngSubmit)="saveUserRole()" [formGroup]="userRoleForm">
 
-                  <div class="row">
+                            <div class="row">
 
-                    <div class="col-md-5">
+                                <div class="col-md-5">
 
-                      <nz-form-item>
-                        <nz-form-label>User Role<span class="text-danger">*</span></nz-form-label>
-                        <nz-form-control>
-                          <input nz-input formControlName="name" placeholder="eg: Project Manager" nzSize="default" maxlength="30"/>
-                          <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified.</span></p>
-                        </nz-form-control>
-                      </nz-form-item>
+                                    <nz-form-item>
+                                        <nz-form-label>User Role<span class="text-danger">*</span></nz-form-label>
+                                        <nz-form-control>
+                                            <input nz-input formControlName="name" placeholder="eg: Project Manager" nzSize="default" maxlength="30" />
+                                            <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified.</span></p>
+                                        </nz-form-control>
+                                    </nz-form-item>
 
-                      <nz-form-item>
-                        <nz-form-label>Description</nz-form-label>
-                        <nz-form-control>
-                          <textarea nz-input formControlName="description" rows="3" placeholder="Description" nzSize="default" rows="2" maxlength="500"></textarea>
-                        </nz-form-control>
-                      </nz-form-item>
+                                    <nz-form-item>
+                                        <nz-form-label>Description</nz-form-label>
+                                        <nz-form-control>
+                                            <textarea nz-input formControlName="description" rows="3" placeholder="Description" nzSize="default" rows="2" maxlength="500"></textarea>
+                                        </nz-form-control>
+                                    </nz-form-item>
 
-                    </div>
+                                </div>
 
-                    <!-- permission list binding -->
-                    <div class="col-md-12">
-                      <nz-form-item class="collapse-panel">
-                        <nz-form-label>Permissions<span class="text-danger">*</span></nz-form-label>
+                                <!-- permission list binding -->
+                                <div class="col-md-12">
+                                    <nz-form-item class="collapse-panel">
+                                        <nz-form-label>Permissions<span class="text-danger">*</span></nz-form-label>
 
-                        <nz-collapse nzAccordion>
+                                        <nz-collapse nzAccordion>
 
-                            <nz-collapse-panel *ngFor="let key of permissionsObj | keys"  [nzHeader]="key" [nzShowArrow]="true" [nzActive]="true">
+                                            <nz-collapse-panel *ngFor="let key of permissionsObj | keys" [nzHeader]="key" [nzShowArrow]="true" [nzActive]="true">
 
-                              <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
-                                <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" (ngModelChange)="selectPermission(item)" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
-                              </div>
+                                                <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
+                                                    <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" (ngModelChange)="selectPermission(item)" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
+                                                </div>
 
-                            </nz-collapse-panel>
+                                            </nz-collapse-panel>
 
-                        </nz-collapse>
+                                        </nz-collapse>
 
-                      </nz-form-item>
-                      <nz-form-item>
-                        <nz-form-control>
-                          <button nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
+                                    </nz-form-item>
+                                    <nz-form-item>
+                                        <nz-form-control>
+                                            <button nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
                             {{roleData?.id ? 'Save' : 'Add'}}
                           </button>
-                          <button type="button" nz-button nzType="default" *ngIf="roleData?.id" (click)="resetRoleForm()" nzSize="small">Cancel</button>
-                        </nz-form-control>
-                      </nz-form-item>
-                    </div>
-                    <!-- end permission list binding -->
+                                            <button type="button" nz-button nzType="default" *ngIf="roleData?.id" (click)="resetRoleForm()" nzSize="small">Cancel</button>
+                                        </nz-form-control>
+                                    </nz-form-item>
+                                </div>
+                                <!-- end permission list binding -->
 
-                  </div>
-
-
-                </form>
+                            </div>
 
 
-          </aside>
-
-        </section>
-      </ng-container>
-      <!-- security tab -->
-
-    </nz-card>
-  </section>
-
-  <!-- region add project -->
-  <ng-container *ngIf="projectModalIsVisible && !getProjectsInProcess">
-    <aavantan-app-add-project
-      [projectListData]="projectListData"
-      [projectModalIsVisible]="projectModalIsVisible"
-      (toggleShow)="projectModalShow()">
-    </aavantan-app-add-project>
-  </ng-container>
-  <!-- endregion -->
-
-  <!-- region add/edit status -->
-  <ng-container *ngIf="addStatusModalIsVisible">
-    <aavantan-add-status
-      [addEditprojectStatusData]="addEditprojectStatusData"
-      [addStatusModalIsVisible]="addStatusModalIsVisible"
-      (toggleAddStatusShow)="toggleAddStatusShow($event)">
-    </aavantan-add-status>
-  </ng-container>
-  <!-- endregion -->
-
-  <!-- region add/edit priority -->
-  <ng-container *ngIf="addPriorityModalIsVisible">
-    <aavantan-add-priority
-      [priorityList]="priorityList"
-      [addEditprojectPriorityData]="addEditprojectPriorityData"
-      [addPriorityModalIsVisible]="addPriorityModalIsVisible"
-      (toggleAddPriorityShow)="toggleAddPriorityShow($event)">
-    </aavantan-add-priority>
-  </ng-container>
-  <!-- endregion -->
+                        </form>
 
 
-  <!-- region add/edit task type -->
-  <ng-container *ngIf="addTaskTypeModalIsVisible">
-    <aavantan-task-type
-      [typesList]="typesList"
-      [addEditprojectTaskTypeData]="addEditprojectTaskTypeData"
-      [addTaskTypeModalIsVisible]="addTaskTypeModalIsVisible"
-      (toggleAddTaskTypeShow)="toggleAddTaskTypeShow($event)">
-    </aavantan-task-type>
-  </ng-container>
-  <!-- endregion -->
+                    </aside>
+
+                </section>
+            </ng-container>
+            <!-- security tab -->
+
+        </nz-card>
+    </section>
+
+    <!-- region add project -->
+    <ng-container *ngIf="projectModalIsVisible && !getProjectsInProcess">
+        <aavantan-app-add-project [projectListData]="projectListData" [projectModalIsVisible]="projectModalIsVisible" (toggleShow)="projectModalShow()">
+        </aavantan-app-add-project>
+    </ng-container>
+    <!-- endregion -->
+
+    <!-- region add/edit status -->
+    <ng-container *ngIf="addStatusModalIsVisible">
+        <aavantan-add-status [addEditprojectStatusData]="addEditprojectStatusData" [addStatusModalIsVisible]="addStatusModalIsVisible" (toggleAddStatusShow)="toggleAddStatusShow($event)">
+        </aavantan-add-status>
+    </ng-container>
+    <!-- endregion -->
+
+    <!-- region add/edit priority -->
+    <ng-container *ngIf="addPriorityModalIsVisible">
+        <aavantan-add-priority [priorityList]="priorityList" [addEditprojectPriorityData]="addEditprojectPriorityData" [addPriorityModalIsVisible]="addPriorityModalIsVisible" (toggleAddPriorityShow)="toggleAddPriorityShow($event)">
+        </aavantan-add-priority>
+    </ng-container>
+    <!-- endregion -->
 
 
-  <!-- region move status -->
-  <ng-container *ngIf="moveStatusModalIsVisible">
-    <aavantan-move-status
-      [moveStatusModalIsVisible]="moveStatusModalIsVisible"
-      (toggleMoveStatusShow)="toggleMoveStatusShow($event)">
-    </aavantan-move-status>
-  </ng-container>
-  <!-- endregion -->
+    <!-- region add/edit task type -->
+    <ng-container *ngIf="addTaskTypeModalIsVisible">
+        <aavantan-task-type [typesList]="typesList" [addEditprojectTaskTypeData]="addEditprojectTaskTypeData" [addTaskTypeModalIsVisible]="addTaskTypeModalIsVisible" (toggleAddTaskTypeShow)="toggleAddTaskTypeShow($event)">
+        </aavantan-task-type>
+    </ng-container>
+    <!-- endregion -->
 
 
-  <!-- region add/update user role -->
-  <ng-container *ngIf="updateUserRoleModalIsVisible">
-    <update-user-role
-      [updateUserRoleData]="updateUserRoleData"
-      [updateUserRoleModalIsVisible]="updateUserRoleModalIsVisible"
-      (toggleUpdateUserRoleShow)="toggleUpdateUserRoleShow($event)">
-    </update-user-role>
-  </ng-container>
-  <!-- endregion -->
+    <!-- region move status -->
+    <ng-container *ngIf="moveStatusModalIsVisible">
+        <aavantan-move-status [moveStatusModalIsVisible]="moveStatusModalIsVisible" (toggleMoveStatusShow)="toggleMoveStatusShow($event)">
+        </aavantan-move-status>
+    </ng-container>
+    <!-- endregion -->
+
+
+    <!-- region add/update user role -->
+    <ng-container *ngIf="updateUserRoleModalIsVisible">
+        <update-user-role [updateUserRoleData]="updateUserRoleData" [updateUserRoleModalIsVisible]="updateUserRoleModalIsVisible" (toggleUpdateUserRoleShow)="toggleUpdateUserRoleShow($event)">
+        </update-user-role>
+    </ng-container>
+    <!-- endregion -->
 
 </section>
-

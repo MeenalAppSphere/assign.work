@@ -11,6 +11,7 @@ import { GeneralService } from '../general.service';
 import { BoardService } from '../board/board.service';
 import { TaskService } from '../task/task.service';
 import { BoardUtilityService } from '../board/board.utility.service';
+import { DEFAULT_TASK_STATUS_COLOR } from '../../helpers/defaultValueConstant';
 
 export class TaskStatusService extends BaseService<TaskStatusModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
@@ -66,6 +67,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       const status = new TaskStatusModel();
       status.name = model.name;
       status.projectId = model.projectId;
+      status.color = model.color;
       status.description = model.description;
       status.createdById = this._generalService.userId;
 
@@ -84,7 +86,6 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
             defaultAssigneeId: this._generalService.userId,
             isShown: true
           }];
-          column.columnColor = '';
           column.columnOrderNo = 0;
           column.isHidden = false;
 
@@ -245,13 +246,40 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
   }
 
   /**
+   * add missing color field in status
+   * we added decided to add color feature in status
+   * so need to update existing status with default color that user can update
+   */
+  async addMissingColorFiled() {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const statusesWithNoColorQuery = {
+        color: { $in: [undefined, null, ''] }
+      };
+
+      await this.bulkUpdate(statusesWithNoColorQuery, { color: DEFAULT_TASK_STATUS_COLOR }, session);
+
+      return 'Default color added successfully';
+    });
+  }
+
+  /**
    * is duplicate status
+   * check duplicity for name and color
+   * if exceptThisId present than filter that record
    * @param model
    * @param exceptThis
    */
   private async isDuplicate(model: TaskStatusModel, exceptThis?: string): Promise<boolean> {
     const queryFilter = {
-      projectId: model.projectId, name: { $regex: `^${model.name.trim()}$`, $options: 'i' }
+      $and: [
+        { projectId: model.projectId },
+        {
+          $or: [
+            { name: { $regex: `^${model.name.trim()}$`, $options: 'i' } },
+            { color: { $regex: `^${model.color.trim()}$`, $options: 'i' } }
+          ]
+        }
+      ]
     };
 
     if (exceptThis) {

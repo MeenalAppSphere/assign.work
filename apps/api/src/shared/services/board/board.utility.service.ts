@@ -46,7 +46,6 @@ export class BoardUtilityService {
           isShown: true
         }],
         columnOrderNo: index + 1,
-        columnColor: ''
       });
     });
 
@@ -69,7 +68,6 @@ export class BoardUtilityService {
           isShown: true
         }],
         columnOrderNo: index + 1,
-        columnColor: ''
       });
     });
   }

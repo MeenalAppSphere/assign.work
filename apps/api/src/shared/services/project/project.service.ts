@@ -12,7 +12,11 @@ import {
   ProjectTags,
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
-  ProjectWorkingCapacityUpdateDto, RemoveProjectCollaborator,
+  ProjectUpdateDefaultAssigneeModel,
+  ProjectUpdateDefaultPriorityModel, ProjectUpdateDefaultTaskStatusModel,
+  ProjectUpdateDefaultTaskTypeModel,
+  ProjectWorkingCapacityUpdateDto,
+  RemoveProjectCollaborator,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
@@ -173,6 +177,149 @@ export class ProjectService extends BaseService<Project & Document> implements O
     } catch (e) {
       throw e;
     }
+  }
+
+  /**
+   * update project default assignee
+   * updates projects default assignee
+   * @param model
+   */
+  async updateProjectDefaultAssignee(model: ProjectUpdateDefaultAssigneeModel) {
+    // validations
+    if (!model.projectId) {
+      BadRequest('Project not found');
+    }
+
+    if (!model.assigneeId) {
+      BadRequest('Please select a Default Assignee');
+    }
+
+    // process update assignee
+    return await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      const projectDetails = await this.getProjectDetails(model.projectId);
+
+      // check if new assignee and current assignee are same
+      if (projectDetails.settings.defaultAssigneeId.toString() === model.assigneeId) {
+        BadRequest('This assignee is already set as Default Assignee! Please choose another one');
+      }
+
+      // check if new assignee is part of project
+      const isAssigneePartOfProject = this._utilityService.userPartOfProject(model.assigneeId, projectDetails);
+      if (!isAssigneePartOfProject) {
+        BadRequest('This assignee is not part of this Project');
+      }
+
+      // update project set default assignee
+      await this.updateById(projectDetails._id, { 'settings.defaultAssigneeId': model.assigneeId }, session);
+
+      return 'Project Default Assignee Changed Successfully';
+    });
+  }
+
+  /**
+   * update project default task type
+   * updates projects default task type
+   * @param model
+   */
+  async updateProjectDefaultTaskType(model: ProjectUpdateDefaultTaskTypeModel) {
+    // validations
+    if (!model.projectId) {
+      BadRequest('Project not found');
+    }
+
+    if (!model.taskTypeId) {
+      BadRequest('Please select a Default TaskType');
+    }
+
+    // process update assignee
+    return await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      const projectDetails = await this.getProjectDetails(model.projectId);
+
+      // check if new assignee and current assignee are same
+      if (projectDetails.settings.defaultTaskTypeId.toString() === model.taskTypeId) {
+        BadRequest('This task type is already set as Default Task Type! Please choose another one');
+      }
+
+      // get task type details
+      await this._taskTypesService.getDetails(projectDetails._id, model.taskTypeId);
+
+      // update project set default assignee
+      await this.updateById(projectDetails._id, { 'settings.defaultTaskTypeId': model.taskTypeId }, session);
+
+      return 'Project Default Task Type Changed Successfully';
+    });
+  }
+
+  /**
+   * update project default task priority
+   * updates projects default task priority
+   * @param model
+   */
+  async updateProjectDefaultPriority(model: ProjectUpdateDefaultPriorityModel) {
+    // validations
+    if (!model.projectId) {
+      BadRequest('Project not found');
+    }
+
+    if (!model.taskPriorityId) {
+      BadRequest('Please select a Default Priority');
+    }
+
+    // process update assignee
+    return await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      const projectDetails = await this.getProjectDetails(model.projectId);
+
+      // check if new assignee and current assignee are same
+      if (projectDetails.settings.defaultTaskPriorityId.toString() === model.taskPriorityId) {
+        BadRequest('This task priority is already set as Default Task Priority! Please choose another one');
+      }
+
+      // get task priority details
+      await this._taskPriorityService.getDetails(projectDetails._id, model.taskPriorityId);
+
+      // update project set default task priority
+      await this.updateById(projectDetails._id, { 'settings.defaultTaskPriorityId': model.taskPriorityId }, session);
+
+      return 'Project Default Task Priority Changed Successfully';
+    });
+  }
+
+  /**
+   * update project default task type
+   * updates projects default task type
+   * @param model
+   */
+  async updateProjectDefaultStatus(model: ProjectUpdateDefaultTaskStatusModel) {
+    // validations
+    if (!model.projectId) {
+      BadRequest('Project not found');
+    }
+
+    if (!model.taskStatusId) {
+      BadRequest('Please select a Default Status');
+    }
+
+    // process update assignee
+    return await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      const projectDetails = await this.getProjectDetails(model.projectId);
+
+      // check if new assignee and current assignee are same
+      if (projectDetails.settings.defaultTaskStatusId.toString() === model.taskStatusId) {
+        BadRequest('This task status is already set as Default Task Status! Please choose another one');
+      }
+
+      // get task priority details
+      await this._taskPriorityService.getDetails(projectDetails._id, model.taskStatusId);
+
+      // update project set default task priority
+      await this.updateById(projectDetails._id, { 'settings.defaultTaskStatusId': model.taskStatusId }, session);
+
+      return 'Project Default Task Status Changed Successfully';
+    });
   }
 
   /**
@@ -465,11 +612,15 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create default board goes here
       const defaultBoard = await this._boardService.createDefaultBoard(project, session);
 
-      // update project's template
+      // update project's template and update default taskType, taskStatus and default taskPriority
       await this.updateById(model.projectId, {
         $set: {
           template: model.template,
-          activeBoardId: defaultBoard[0].id
+          activeBoardId: defaultBoard[0].id,
+          'settings.defaultAssigneeId': project.createdById,
+          'settings.defaultTaskTypeId': defaultTaskTypes[0]._id,
+          'settings.defaultTaskStatusId': defaultStatues[0]._id,
+          'settings.defaultTaskPriorityId': defaultTaskPriorities[0]._id
         },
         $push: {
           'settings.statuses': { $each: project.settings.statuses },
@@ -783,6 +934,67 @@ export class ProjectService extends BaseService<Project & Document> implements O
   }
 
   /**
+   * add missing project details default settings
+   * add defaultTaskType, defaultStatus and defaultTaskPriority Id
+   */
+  public async addMissingProjectDefaultSettings() {
+    return this.withRetrySession(async (session) => {
+      // find projects where default settings is not yet implemented
+      const findProjectsQuery = {
+        'settings.defaultAssigneeId': { $in: [undefined, null, ''] },
+        'settings.defaultTaskTypeId': { $in: [undefined, null, ''] },
+        'settings.defaultTaskStatusId': { $in: [undefined, null, ''] },
+        'settings.defaultTaskPriorityId': { $in: [undefined, null, ''] }
+      };
+
+      // get projects without default settings
+      const projectsWithoutDefaultSettings = await this.find({ filter: findProjectsQuery, lean: true });
+
+      // check if we have any projects whose default settings is not yet implemented
+      if (projectsWithoutDefaultSettings && projectsWithoutDefaultSettings.length) {
+
+        // loop over projects
+        for (let i = 0; i < projectsWithoutDefaultSettings.length; i++) {
+          const project = projectsWithoutDefaultSettings[i];
+
+          // get task types for the project
+          const taskTypes = await this._taskTypesService.getAllTaskTypes(project._id);
+          // get task status for the project
+          const taskStatues = await this._taskStatusService.getAllStatues(project._id);
+          // get task priorities for the project
+          const taskPriorities = await this._taskPriorityService.getAllTaskPriorities(project._id);
+
+          // update project and add default settings
+          await this.updateById(project._id, {
+            'settings.defaultAssigneeId': project.createdById,
+            'settings.defaultTaskTypeId': taskTypes[0]._id,
+            'settings.defaultTaskStatusId': taskStatues[0]._id,
+            'settings.defaultTaskPriorityId': taskPriorities[0]._id
+          }, session);
+        }
+
+        return 'Default Settings added successfully';
+      }
+    });
+  }
+
+  /**
+   * create project vm model
+   * @param project
+   */
+  public parseProjectToVm(project: Project): Project {
+    project.id = project._id;
+
+    project.members = project.members.map(member => {
+      member.workingCapacity = secondsToHours(member.workingCapacity);
+      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+      return member;
+    });
+
+    return project;
+  }
+
+  /**
    * is duplicate project name
    * @param model
    * @param exceptThis
@@ -801,22 +1013,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
     });
 
     return !!(queryResult && queryResult.length);
-  }
-
-  /**
-   * create project vm model
-   * @param project
-   */
-  public parseProjectToVm(project: Project): Project {
-    project.id = project._id;
-
-    project.members = project.members.map(member => {
-      member.workingCapacity = secondsToHours(member.workingCapacity);
-      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
-      return member;
-    });
-
-    return project;
   }
 
   /**

@@ -67,7 +67,7 @@ const commonPopulationForSprint = [{
 
 const detailedPopulationForSprint = [...commonPopulationForSprint, {
   path: 'columns.status',
-  select: 'name',
+  select: 'name color',
   justOne: true
 }, {
   path: 'columns.tasks.addedBy',
@@ -91,7 +91,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
     justOne: true
   }, {
     path: 'status',
-    select: 'name',
+    select: 'name color',
     justOne: true
   }, {
     path: 'priority',

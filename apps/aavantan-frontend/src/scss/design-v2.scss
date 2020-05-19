@@ -305,6 +305,11 @@
   }
 }
 
+.ant-dropdown-trigger.ant-btn-group {
+  .ant-btn {
+    padding: .5rem .6rem !important;
+  }
+}
 
 .ant-btn.ant-btn-primary {
   background: $theme-blue; //linear-gradient(to top left, $orange-dark  0%, $orange-light 100%)!important;

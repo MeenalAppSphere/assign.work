@@ -102,38 +102,49 @@
                                  style="width:100%!important;">
                   <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
                           style="width:100%!important;">
-                    {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}} <i nz-icon
-                                                                                                         nzType="caret-down"
-                                                                                                         theme="outline"></i>
+
+                    <span *ngIf="selectedStatus?.color" class="fas fa-square m-r-5" [ngStyle]="{'color': selectedStatus?.color}"></span>
+                    <span *ngIf="!selectedStatus?.color" class="fas fa-square m-r-5" [ngStyle]="{'color': '#cccccc' }"></span>
+
+                    {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}}
+                    <i nz-icon nzType="caret-down" theme="outline"></i>
                   </button>
                 </nz-button-group>
                 <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
                   <ul nz-menu>
                     <li nz-menu-item *ngFor="let item of statusDataSource" (click)="selectStatus(item)">
-                      {{ item.name }}
+                      <i class="fas fa-square m-r-5" [ngStyle]="{'color': item.color}"></i>{{ item.name }}
                     </li>
                   </ul>
                 </nz-dropdown-menu>
               </nz-form-control>
             </nz-form-item>
           </div>
+
+
           <div class="col-md-2">
             <nz-form-item>
               <nz-form-label>Priority</nz-form-label>
               <nz-form-control class="issue-type-btn-grp">
+
                 <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzPlacement="bottomRight"
                                  style="width:100%!important;">
                   <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
                           style="width:100%!important;">
-                    <span class="fas fa-square m-r-5"
-                          [ngStyle]="{'color': selectedPriority && selectedPriority.color ? selectedPriority.color :'#cccccc'}"></span> {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
+
+                    <span *ngIf="selectedPriority?.color" class="p-r-5" [ngStyle]="{'border-left':'5px solid '+selectedPriority?.color, 'height':'12px'}"></span>
+                    <span *ngIf="!selectedPriority?.color" class="p-r-5" [ngStyle]="{'border-left':'5px solid #ccc', 'height':'12px'}"></span>
+
+                    {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
                     <i nz-icon nzType="caret-down" theme="outline"></i>
                   </button>
                 </nz-button-group>
+
                 <nz-dropdown-menu #proiorityDDLTemplate="nzDropdownMenu">
                   <ul nz-menu>
                     <li nz-menu-item *ngFor="let item of priorityDataSource" (click)="selectPriority(item)">
-                      <i class="fas fa-square m-r-5" [ngStyle]="{'color': item.color}"></i>{{ item.name }}
+                      <i class="p-r-5" [ngStyle]="{'border-left':'5px solid '+item?.color, 'height':'12px'}"></i>
+                      {{ item.name }}
                     </li>
                   </ul>
                 </nz-dropdown-menu>

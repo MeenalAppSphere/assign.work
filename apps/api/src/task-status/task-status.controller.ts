@@ -24,4 +24,9 @@ export class TaskStatusController {
   async getAllTaskStatues(@Body('projectId') projectId: string) {
     return await this._taskStatusService.getAllStatues(projectId);
   }
+
+  @Post('add-default-color')
+  async addMissingColorField() {
+    return await this._taskStatusService.addMissingColorFiled();
+  }
 }

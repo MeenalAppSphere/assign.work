@@ -16,7 +16,7 @@ import {
   ResendProjectInvitationModel,
   SaveAndPublishBoardModel,
   SearchProjectCollaborators,
-  SearchUserModel,
+  SearchUserModel, TaskStatusModel,
   TaskTypeModel,
   User,
   UserRoleModel
@@ -77,7 +77,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     view: 'project'
   };
   public stagesList: any = [];
-  public statusList: ProjectStatus[] = [];
+  public statusList: TaskStatusModel[] = [];
   public typesList: TaskTypeModel[] = [];
   public priorityList: ProjectPriority[] = [];
   public projectMembersList: ProjectMembers[] = [];
@@ -110,7 +110,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
 
-  public addEditprojectStatusData: ProjectStatus;
+  public addEditprojectStatusData: TaskStatusModel;
   public addEditprojectPriorityData: ProjectPriority;
   public addEditprojectTaskTypeData: TaskTypeModel;
   public addStatusModalIsVisible: boolean;
@@ -658,7 +658,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.moveStatusModalIsVisible = !this.moveStatusModalIsVisible;
   }
 
-  public toggleAddStatusShow(item?: ProjectStatus) {
+  public toggleAddStatusShow(item?: TaskStatusModel) {
     if (item) {
       this.addEditprojectStatusData = item;
     } else {

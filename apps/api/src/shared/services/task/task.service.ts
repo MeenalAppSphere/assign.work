@@ -53,7 +53,7 @@ const taskBasicPopulation: any[] = [{
   justOne: true
 }, {
   path: 'status',
-  select: 'name',
+  select: 'name color',
   justOne: true
 }, {
   path: 'taskType',
@@ -143,7 +143,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       justOne: true
     }, {
       path: 'status',
-      select: 'name',
+      select: 'name color',
       justOne: true
     }, {
       path: 'taskType',
@@ -578,7 +578,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           let: { statusId: '$statusId' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-            { $project: { name: 1 } }
+            { $project: { name: 1, color: 1} }
           ],
           as: 'status'
         })

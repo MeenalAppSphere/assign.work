@@ -6,6 +6,7 @@ const mongooseValidationErrorTransform = require('mongoose-validation-error-tran
 
 export const taskStatusSchema = new Schema({
   name: { type: String, required: [true, 'Status name is required'], text: true },
+  color: { type: String, required: [true, 'Status color is required'] },
   projectId: { type: Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
   isDefault: { type: Boolean, default: false },
   description: { type: String },

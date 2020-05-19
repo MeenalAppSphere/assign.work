@@ -51,7 +51,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
     // get all statuses
     const taskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
-      filter: { projectId }, lean: true, select: 'name _id'
+      filter: { projectId }, lean: true, select: 'name _id color'
     });
 
     // sprint details
