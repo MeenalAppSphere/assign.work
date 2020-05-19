@@ -4,7 +4,8 @@ import {
   BoardModel,
   BoardModelBaseRequest,
   GetAllBoardsRequestModel,
-  Organization, Permissions,
+  Organization,
+  Permissions,
   Project,
   ProjectMembers,
   ProjectPriority,
@@ -12,14 +13,20 @@ import {
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
   ProjectWorkingDays,
-  ResendProjectInvitationModel, SaveAndPublishBoardModel,
+  ResendProjectInvitationModel,
+  SaveAndPublishBoardModel,
   SearchProjectCollaborators,
   SearchUserModel,
   TaskTypeModel,
   User,
   UserRoleModel
 } from '@aavantan-app/models';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
@@ -45,12 +52,10 @@ import { PERMISSIONS } from '../../../../../libs/models/src/lib/constants/permis
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
-
 export class SettingsComponent implements OnInit, OnDestroy {
   public response: any;
   public collaboratorForm: FormGroup;
   public workflowForm: FormGroup;
-
 
   public projectModalIsVisible: boolean;
   public selectedCollaborator: User;
@@ -113,7 +118,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public addTaskTypeModalIsVisible: boolean;
   public getBoardListRequestModal: GetAllBoardsRequestModel = new GetAllBoardsRequestModel();
 
-
   public moveStatusModalIsVisible: boolean;
 
   //security permissions
@@ -121,72 +125,84 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public permissionsObj: Permissions = {};
   public permissionConst = PERMISSIONS;
 
-  public updateUserRoleModalIsVisible:boolean;
-  public updateUserRoleData:ProjectMembers;
-  public requestRoleInProcess:boolean;
-  public roleList:UserRoleModel[]= [];
-  public roleData:UserRoleModel;
+  public updateUserRoleModalIsVisible: boolean;
+  public updateUserRoleData: ProjectMembers;
+  public requestRoleInProcess: boolean;
+  public roleList: UserRoleModel[] = [];
+  public roleData: UserRoleModel;
 
-
-  public tabs:any = [
+  public tabs: any = [
     {
-      label :'Project',
-      id:'project',
-      icon:'project_setting.svg',
-      iconActive : 'white_project_setting.svg'
+      label: 'Project',
+      id: 'project',
+      icon: 'project_setting.svg',
+      iconActive: 'white_project_setting.svg'
     },
     {
-      label :'Board Settings',
-      id:'board_settings',
-      icon:'board_settings.svg',
-      iconActive : 'white_board_settings.svg'
+      label: 'Board Settings',
+      id: 'board_settings',
+      icon: 'board_settings.svg',
+      iconActive: 'white_board_settings.svg'
     },
     {
-      label :'Collaborators',
-      id:'collaborators',
-      icon:'collaborator.svg',
-      iconActive : 'white_collaborator.svg'
+      label: 'Collaborators',
+      id: 'collaborators',
+      icon: 'collaborator.svg',
+      iconActive: 'white_collaborator.svg'
     },
     {
-      label :'Status',
-      id:'status',
-      icon:'status.svg',
-      iconActive : 'white_status.svg'
+      label: 'Status',
+      id: 'status',
+      icon: 'status.svg',
+      iconActive: 'white_status.svg'
     },
     {
-      label :'Priority',
-      id:'priority',
-      icon:'priority.svg',
-      iconActive : 'white_priority.svg'
+      label: 'Priority',
+      id: 'priority',
+      icon: 'priority.svg',
+      iconActive: 'white_priority.svg'
     },
     {
-      label :'Task Type',
-      id:'taskType',
-      icon:'task_type.svg',
-      iconActive : 'white_task_type.svg'
+      label: 'Task Type',
+      id: 'taskType',
+      icon: 'task_type.svg',
+      iconActive: 'white_task_type.svg'
     },
     {
-      label :'Team Capacity',
-      id:'capacity',
-      icon:'team_capacity.svg',
-      iconActive : 'white_team_capacity.svg'
+      label: 'Team Capacity',
+      id: 'capacity',
+      icon: 'team_capacity.svg',
+      iconActive: 'white_team_capacity.svg'
     },
     {
-      label :'Security',
-      id:'security',
-      icon:'security.svg',
-      iconActive : 'white_security.svg'
+      label: 'Security',
+      id: 'security',
+      icon: 'security.svg',
+      iconActive: 'white_security.svg'
     }
   ];
 
-  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
-              private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
-              private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
-              private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
-              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
-              private modal: NzModalService, private _projectQuery: ProjectQuery,
-              private _userRolesService: UserRoleService, private _userRoleQuery: UserRoleQuery) {
-
+  constructor(
+    protected notification: NzNotificationService,
+    private FB: FormBuilder,
+    private validationRegexService: ValidationRegexService,
+    private _generalService: GeneralService,
+    private _projectService: ProjectService,
+    private _userQuery: UserQuery,
+    private _userService: UserService,
+    private modalService: NzModalService,
+    private _taskTypeService: TaskTypeService,
+    private _taskStatusQuery: TaskStatusQuery,
+    private _taskPriorityQuery: TaskPriorityQuery,
+    private _boardQuery: BoardQuery,
+    private _taskTypeQuery: TaskTypeQuery,
+    private _boardService: BoardService,
+    private router: Router,
+    private modal: NzModalService,
+    private _projectQuery: ProjectQuery,
+    private _userRolesService: UserRoleService,
+    private _userRoleQuery: UserRoleQuery
+  ) {
     this.notification.config({
       nzPlacement: 'bottomRight'
     });
@@ -197,34 +213,38 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
     this.currentOrganization = this._generalService.currentOrganization;
 
     // get current project from store
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.currentProject = res;
-        this.stagesList = res.settings.stages;
-        this.projectMembersList = cloneDeep(res.members);
+    this._userQuery.currentProject$
+      .pipe(untilDestroyed(this))
+      .subscribe(res => {
+        if (res) {
+          this.currentProject = res;
+          this.stagesList = res.settings.stages;
+          this.projectMembersList = cloneDeep(res.members);
 
-        this.totalCapacity = 0;
-        this.totalCapacityPerDay = 0;
-        if (this.projectMembersList && this.projectMembersList.length > 0) {
-          this.projectCapacityMembersList = this.projectMembersList.filter((ele) => {
-            if (ele.isInviteAccepted) {
-              return ele;
-            }
-          });
-          this.projectCapacityMembersList.forEach((ele) => {
-            this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
-            this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
-          });
+          this.totalCapacity = 0;
+          this.totalCapacityPerDay = 0;
+          if (this.projectMembersList && this.projectMembersList.length > 0) {
+            this.projectCapacityMembersList = this.projectMembersList.filter(
+              ele => {
+                if (ele.isInviteAccepted) {
+                  return ele;
+                }
+              }
+            );
+            this.projectCapacityMembersList.forEach(ele => {
+              this.totalCapacity =
+                this.totalCapacity + Number(ele.workingCapacity);
+              this.totalCapacityPerDay =
+                this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
+            });
+          }
+
+          this.createProjectForm();
         }
-
-        this.createProjectForm();
-
-      }
-    });
+      });
 
     // get all boards
     this._boardQuery.boards$.pipe(untilDestroyed(this)).subscribe(boards => {
@@ -232,24 +252,32 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     // get all boards in process
-    this._boardQuery.getAllInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
-      this.getAllBoardsInProcess = inProcess;
-    });
+    this._boardQuery.getAllInProcess$
+      .pipe(untilDestroyed(this))
+      .subscribe(inProcess => {
+        this.getAllBoardsInProcess = inProcess;
+      });
 
     // publish board in process
-    this._boardQuery.publishBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
-      this.publishBoardInProcess = inProcess;
-    });
+    this._boardQuery.publishBoardInProcess$
+      .pipe(untilDestroyed(this))
+      .subscribe(inProcess => {
+        this.publishBoardInProcess = inProcess;
+      });
 
     // delete board in process
-    this._boardQuery.deleteBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
-      this.deleteBoardInProcess = inProcess;
-    });
+    this._boardQuery.deleteBoardInProcess$
+      .pipe(untilDestroyed(this))
+      .subscribe(inProcess => {
+        this.deleteBoardInProcess = inProcess;
+      });
 
     // get all task statuses from store
-    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
-      this.statusList = statuses;
-    });
+    this._taskStatusQuery.statuses$
+      .pipe(untilDestroyed(this))
+      .subscribe(statuses => {
+        this.statusList = statuses;
+      });
 
     // get all task types from store
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
@@ -257,9 +285,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     // get all task priorities from store
-    this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
-      this.priorityList = priorities;
-    });
+    this._taskPriorityQuery.priorities$
+      .pipe(untilDestroyed(this))
+      .subscribe(priorities => {
+        this.priorityList = priorities;
+      });
 
     // get all user roles from store
     this._userRoleQuery.roles$.pipe(untilDestroyed(this)).subscribe(roles => {
@@ -307,29 +337,33 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Form for security tab
     this.userRoleForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
-      accessPermissions: new FormControl([],[Validators.required]),
-      description: new FormControl(null),
+      accessPermissions: new FormControl([], [Validators.required]),
+      description: new FormControl(null)
     });
 
     // init/prepare all permissions list from 'PERMISSIONS' const
     this.generatePermissionsList(PERMISSIONS);
-
 
     // get Projects
     this.getProjects();
 
     // search collaborators
     this.modelChangedSearchCollaborators
-      .pipe(
-        debounceTime(500))
+      .pipe(debounceTime(500))
       .subscribe(() => {
         const queryText = this.collaboratorForm.get('collaborator').value;
         let name = '';
         if (this.selectedCollaborator) {
-          name = this.selectedCollaborator.firstName + ' ' + this.selectedCollaborator.lastName;
+          name =
+            this.selectedCollaborator.firstName +
+            ' ' +
+            this.selectedCollaborator.lastName;
         }
 
-        if (!queryText || this.collaboratorForm.get('collaborator').value === name) {
+        if (
+          !queryText ||
+          this.collaboratorForm.get('collaborator').value === name
+        ) {
           return;
         }
 
@@ -340,39 +374,40 @@ export class SettingsComponent implements OnInit, OnDestroy {
         };
 
         this.isCollaboratorExits = false;
-        this.projectMembersList.forEach((ele) => {
+        this.projectMembersList.forEach(ele => {
           if (ele.emailId === queryText) {
             this.isCollaboratorExits = true;
           }
         });
 
-
-        this._userService.searchOrgUser(json).subscribe((data) => {
+        this._userService.searchOrgUser(json).subscribe(data => {
           this.isSearching = false;
           this.collaboratorsDataSource = data.data;
-          if (this.collaboratorsDataSource && this.collaboratorsDataSource.length === 0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress) {
-
+          if (
+            this.collaboratorsDataSource &&
+            this.collaboratorsDataSource.length === 0 &&
+            !this.validationRegexService.emailValidator(queryText)
+              .invalidEmailAddress
+          ) {
             if (!this.isCollaboratorExits) {
               this.enableInviteBtn = true;
             }
-
           } else {
             this.enableInviteBtn = false;
           }
         });
-
-
       });
     // end search collaborators
 
-
     // search default assignee
     this.modelChangedSearchDefaultAssignee
-      .pipe(
-        debounceTime(500))
+      .pipe(debounceTime(500))
       .subscribe(() => {
         const queryText = this.workflowForm.get('assigneeId').value;
-        const name = this.selectedDefaultAssignee.firstName + ' ' + this.selectedDefaultAssignee.lastName;
+        const name =
+          this.selectedDefaultAssignee.firstName +
+          ' ' +
+          this.selectedDefaultAssignee.lastName;
         if (!queryText || this.workflowForm.get('assigneeId').value === name) {
           return;
         }
@@ -381,33 +416,34 @@ export class SettingsComponent implements OnInit, OnDestroy {
           projectId: this._generalService.currentProject.id,
           query: queryText
         };
-        this._userService.searchProjectCollaborator(json).subscribe((data) => {
+        this._userService.searchProjectCollaborator(json).subscribe(data => {
           this.isSearchingDefaultUser = false;
           this.defaultAssigneeDataSource = data.data;
         });
-
       });
     // end search assignee
-
   }
 
   public createProjectForm() {
     this.projectForm = this.FB.group({
       id: new FormControl(this.currentProject ? this.currentProject.id : null),
-      name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required]),
-      organizationId: new FormControl(this._generalService.currentOrganization.id)
+      name: new FormControl(
+        this.currentProject ? this.currentProject.name : null,
+        [Validators.required]
+      ),
+      organizationId: new FormControl(
+        this._generalService.currentOrganization.id
+      )
     });
   }
 
   public getProjects() {
     try {
-
       this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
         if (res) {
           this.projectListData = res;
         }
       });
-
     } catch (e) {
       this.getProjectsInProcess = false;
     }
@@ -415,14 +451,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public async getAllBoards() {
     try {
-      const result = await this._boardService.getAllBoards(this.getBoardListRequestModal).toPromise();
+      const result = await this._boardService
+        .getAllBoards(this.getBoardListRequestModal)
+        .toPromise();
       this.getBoardListRequestModal.page = result.data.page;
       this.getBoardListRequestModal.count = result.data.count;
       this.getBoardListRequestModal.totalItems = result.data.totalItems;
       this.getBoardListRequestModal.totalPages = result.data.totalPages;
-    } catch (e) {
-    }
-
+    } catch (e) {}
   }
 
   public activeTab(view: string, title: string) {
@@ -447,9 +483,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   //**********************//
   async removeCollaborators(user: ProjectMembers) {
     try {
-
       this.modalService.confirm({
-        nzTitle: 'Are you sure want to remove this Collaborator from this Project?',
+        nzTitle:
+          'Are you sure want to remove this Collaborator from this Project?',
         nzOnOk: () => {
           this.modalService.closeAll();
 
@@ -459,14 +495,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
             userId: user.userId
           };
 
-          this.projectMembersList = this.projectMembersList.filter(item => item.emailId !== user.emailId);
+          this.projectMembersList = this.projectMembersList.filter(
+            item => item.emailId !== user.emailId
+          );
           // await this._projectService.removeCollaborators(json).toPromise();
           this.removeCollaboratorInProcess = false;
-
         }
       });
-
-
     } catch (e) {
       this.removeCollaboratorInProcess = false;
     }
@@ -504,7 +539,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     try {
-      await this._projectService.addCollaborators(this.currentProject.id, members).toPromise();
+      await this._projectService
+        .addCollaborators(this.currentProject.id, members)
+        .toPromise();
       this.selectedCollaborators = [];
       this.addCollaboratorsInProcess = false;
       this.collaboratorForm.get('collaborator').patchValue('');
@@ -531,7 +568,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     };
 
     this.response = this.validationRegexService.emailValidator(user.emailId);
-    if (this.selectedCollaborators.filter(item => item.emailId === user.emailId).length === 0) {
+    if (
+      this.selectedCollaborators.filter(item => item.emailId === user.emailId)
+        .length === 0
+    ) {
       if (!this.response.invalidEmailAddress) {
         this.projectMembersList.push({
           userId: user.id,
@@ -562,12 +602,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // Toggle User Role modal
   //**********************//
   public toggleUpdateUserRoleShow(item?: ProjectMembers) {
-    if(item) {
+    if (item) {
       this.updateUserRoleData = item;
     }
     this.updateUserRoleModalIsVisible = !this.updateUserRoleModalIsVisible;
   }
-
 
   /*===============================================*/
   /*================== Stage tab ==================*/
@@ -582,21 +621,29 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const stageData: ProjectStages = this.stageForm.value;
     stageData.name = stageData.name.trim();
 
-    this._projectService.addStage(this.currentProject.id, stageData).subscribe((res => {
-      this.stageForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
+    this._projectService.addStage(this.currentProject.id, stageData).subscribe(
+      res => {
+        this.stageForm.reset();
+        this.updateRequestInProcess = false;
+      },
+      error => {
+        this.updateRequestInProcess = false;
+      }
+    );
   }
 
   public removeStage(stage: ProjectStages) {
     this.deleteStageInProcess = true;
-    this._projectService.removeStage(this.currentProject.id, stage.id).subscribe((res => {
-      this.deleteStageInProcess = false;
-    }), (error => {
-      this.deleteStageInProcess = false;
-    }));
+    this._projectService
+      .removeStage(this.currentProject.id, stage.id)
+      .subscribe(
+        res => {
+          this.deleteStageInProcess = false;
+        },
+        error => {
+          this.deleteStageInProcess = false;
+        }
+      );
   }
 
   public reorderList(ev: any) {
@@ -646,7 +693,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.addTaskTypeModalIsVisible = !this.addTaskTypeModalIsVisible;
   }
 
-
   /*===============================================*/
   /*==================== Capacity =================*/
   /*===============================================*/
@@ -657,12 +703,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else {
       wd.selected = true;
     }
-    const countSelected = userRow.workingDays.filter((ele) => {
+    const countSelected = userRow.workingDays.filter(ele => {
       if (ele.selected) {
         return ele;
       }
     });
-    userRow.workingCapacity = userRow.workingCapacityPerDay * countSelected.length;
+    userRow.workingCapacity =
+      userRow.workingCapacityPerDay * countSelected.length;
     this.calculateTotal();
   }
 
@@ -670,9 +717,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const capacityList: ProjectWorkingCapacityUpdateDto[] = [];
     this.totalCapacity = 0;
     this.totalCapacityPerDay = 0;
-    this.projectCapacityMembersList.forEach((ele) => {
+    this.projectCapacityMembersList.forEach(ele => {
       this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
-      this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
+      this.totalCapacityPerDay =
+        this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
       const obj: ProjectWorkingCapacityUpdateDto = {
         userId: ele.userId,
         workingCapacityPerDay: ele.workingCapacityPerDay,
@@ -683,12 +731,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     this.updateRequestInProcess = true;
-    this._projectService.updateCapacity(this.currentProject.id, capacityList).subscribe((res => {
-      // this.taskTypeForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
+    this._projectService
+      .updateCapacity(this.currentProject.id, capacityList)
+      .subscribe(
+        res => {
+          // this.taskTypeForm.reset();
+          this.updateRequestInProcess = false;
+        },
+        error => {
+          this.updateRequestInProcess = false;
+        }
+      );
   }
 
   public calculateTotal() {
@@ -696,9 +749,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.totalCapacityPerDay = 0;
 
     if (this.projectCapacityMembersList && this.projectMembersList.length > 0) {
-      this.projectCapacityMembersList.forEach((ele) => {
-
-        const countSelected = ele.workingDays.filter((ele1) => {
+      this.projectCapacityMembersList.forEach(ele => {
+        const countSelected = ele.workingDays.filter(ele1 => {
           if (ele1.selected) {
             return ele1;
           }
@@ -706,11 +758,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         ele.workingCapacity = ele.workingCapacityPerDay * countSelected.length;
 
         this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
-        this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
-
+        this.totalCapacityPerDay =
+          this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
       });
     }
-
   }
 
   /*===============================================*/
@@ -719,18 +770,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public updateProjectDetails(project: Partial<Project>) {
     this.updateRequestInProcess = true;
-    this._projectService.updateProject(project).subscribe((res => {
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
-
+    this._projectService.updateProject(project).subscribe(
+      res => {
+        this.updateRequestInProcess = false;
+      },
+      error => {
+        this.updateRequestInProcess = false;
+      }
+    );
   }
 
   projectModalShow(): void {
     this.projectModalIsVisible = !this.projectModalIsVisible;
   }
-
 
   /*===============================================*/
   /*================== Workflow Tab ===============*/
@@ -746,17 +798,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     request.projectId = this._generalService.currentProject.id;
 
     try {
-
       this.modal.confirm({
         nzTitle: 'You want to Publish?',
         nzContent: '',
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {
-
             await this._boardService.publishBoard(request).toPromise();
             this.getAllBoards();
             setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
-
           }).catch(() => console.log('Oops errors!'))
       });
     } catch (e) {
@@ -770,21 +819,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     request.projectId = this._generalService.currentProject.id;
 
     try {
-
       this.modal.confirm({
         nzTitle: 'You want to delete?',
         nzContent: '',
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {
-
             await this._boardService.deleteBoard(request).toPromise();
             this.getAllBoards();
 
             setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
-
           }).catch(() => console.log('Oops errors!'))
       });
-
     } catch (e) {
       console.log(e);
     }
@@ -797,11 +842,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public boardSortOrderChanged(sort: { key: string; value: string }) {
     this.getBoardListRequestModal.sort = sort.key;
-    this.getBoardListRequestModal.sortBy = sort.value === 'ascend' ? 'desc' : 'asc';
+    this.getBoardListRequestModal.sortBy =
+      sort.value === 'ascend' ? 'desc' : 'asc';
     this.getAllBoards();
   }
-
-
 
   /*===============================================*/
   /*================== Security Tab ===============*/
@@ -811,13 +855,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // Generate Permissions List from object
   //**********************//
 
-  public generatePermissionsList(permissionConstantObj:Permissions) {
-
+  public generatePermissionsList(permissionConstantObj: Permissions) {
     this.permissionsList = [];
     const recur = (obj: any, group: string) => {
       Object.keys(obj).forEach(key => {
         const name = key.match(/[A-Z][a-z]*/g).join(' '); // to format "canRemove" like " Remove"
-        this.permissionsList.push({name:name, group: group, value: key, disabled: false, checked: obj[key] });
+        this.permissionsList.push({
+          name: name,
+          group: group,
+          value: key,
+          disabled: false,
+          checked: obj[key]
+        });
       });
     };
 
@@ -829,44 +878,46 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     const groupByName = {};
 
-    this.permissionsList.forEach(function (a) {
+    this.permissionsList.forEach(function(a) {
       groupByName[a.group] = groupByName[a.group] || [];
-      groupByName[a.group].push({name:a.name, group: a.group, value: a.value, disabled: false, checked: a.checked });
+      groupByName[a.group].push({
+        name: a.name,
+        group: a.group,
+        value: a.value,
+        disabled: false,
+        checked: a.checked
+      });
     });
 
     this.permissionsObj = groupByName;
-
   }
-
 
   //**********************//
   // // Create or Update user role
   //**********************//
 
   async saveUserRole() {
-
     try {
       if (this.userRoleForm.invalid) {
         this.notification.error('Error', 'Please check Role');
         return;
       }
 
-      const json:UserRoleModel = {...this.userRoleForm.getRawValue()};
+      const json: UserRoleModel = { ...this.userRoleForm.getRawValue() };
       json.projectId = this._generalService.currentProject.id;
 
       // update role
 
       if (this.roleData && this.roleData.id) {
-
         json.id = this.roleData.id;
         this.updateRequestInProcess = true;
 
         await this._userRolesService.updateRole(json).toPromise();
         this.updateRequestInProcess = false;
+      } else {
+        // add role
 
-      } else { // add role
-
-        const dup: UserRoleModel[] = this.roleList.filter((ele) => {
+        const dup: UserRoleModel[] = this.roleList.filter(ele => {
           if (ele.name === this.userRoleForm.value.name) {
             return ele;
           }
@@ -884,20 +935,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.resetRoleForm();
 
         this.updateRequestInProcess = false;
-
       }
-    }catch (e) {
+    } catch (e) {
       this.updateRequestInProcess = false;
     }
   }
-
 
   //**********************//
   // Start edit to prefill form
   //**********************//
 
-  public startEditRole(item:UserRoleModel) {
-
+  public startEditRole(item: UserRoleModel) {
     this.generatePermissionsList(item.accessPermissions);
 
     this.roleData = item;
@@ -909,20 +957,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
   //**********************//
 
   public resetRoleForm() {
-
     this.generatePermissionsList(cloneDeep(PERMISSIONS)); // reset with CONSTANT data
 
-    this.roleData = { name :'' };
+    this.roleData = { name: '' };
     this.userRoleForm.reset();
   }
-
 
   //**********************//
   // check uncheck permissions
   //**********************//
 
-  public selectPermission(item:AccessPermissionVM) {
-
+  public selectPermission(item: AccessPermissionVM) {
     item.checked = !item.checked;
 
     this.permissionsObj[item.group][item.value] = item.checked;
@@ -930,10 +975,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.permissionConst[item.group][item.value] = item.checked;
 
     this.userRoleForm.get('accessPermissions').patchValue(this.permissionConst);
-
   }
 
-  public ngOnDestroy(): void {
-  }
-
+  public ngOnDestroy(): void {}
 }
