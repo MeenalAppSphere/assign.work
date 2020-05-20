@@ -56,43 +56,46 @@
         <!-- sprint duration -->
         <div class="row clearfix m-b-10 m-t-10">
 
-          <div class="col-md-7 p-t-10" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
-            <span class="font-size-14">
-
-              <span class="font-size-18 m-r-30 text-black font-weight-normal"
-                    *ngIf="unPublishedSprintData?.name">{{unPublishedSprintData?.name}}</span>
-
-              <span class="m-r-25 text-gray-light-2 font-size-13"
-                    *ngIf="sprintDurations?.totalEstimationReadable">
-                <span class="font-weight-semibold">{{sprintDurations?.totalEstimationReadable}}</span>
-                <span class="font-weight-light">  Sprint Hours </span>
-              </span>
-
-              <span class="m-r-10 text-gray-light-2 font-size-13">
-                <span class="font-weight-semibold">{{sprintDurations?.totalCapacityReadable}}</span>
-                <span class="m-r-25 font-weight-light"> Sprint Capacity</span>
-              </span>
+          <div class="col-md-8 font-size-14" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
 
 
-              <span class="font-size-13 m-r-25"
-                    [ngClass]="{'text-gray-light-2 font-weight-semibold': sprintDurations?.totalRemainingCapacity>0,
-                    'text-red font-weight-semibold': sprintDurations?.totalRemainingCapacity<0}"
-                    *ngIf="sprintDurations?.totalRemainingCapacityReadable">
-                <span
-                  class="p-l-5">{{sprintDurations?.totalRemainingCapacityReadable}}</span>
-                <span class="font-weight-light"> Remains</span>
-              </span>
+              <div class="font-size-18 m-r-10 text-black font-weight-normal"
+                    *ngIf="unPublishedSprintData?.name">{{unPublishedSprintData?.name}}</div>
 
-              <span class="text-gray-light-2" *ngIf="totalItemsInSprint>0">
-                <span class="text-gray-light-2 font-weight-semibold">{{totalItemsInSprint}}&nbsp;</span>
-                <span class="font-weight-light">{{totalItemsInSprint === 1 ? 'Item' : 'Items'}} in Sprint</span>
-              </span>
 
-            </span>
+              <div [ngClass]="unPublishedSprintData?.name ? '' : 'p-t-10'">
+                <span class="m-r-25 text-gray-light-2 font-size-13"
+                      *ngIf="sprintDurations?.totalEstimationReadable">
+                  <span class="font-weight-semibold">{{sprintDurations?.totalEstimationReadable}}</span>
+                  <span class="font-weight-light">  Sprint Hours </span>
+                </span>
+
+                <span class="m-r-10 text-gray-light-2 font-size-13">
+                  <span class="font-weight-semibold">{{sprintDurations?.totalCapacityReadable}}</span>
+                  <span class="m-r-25 font-weight-light"> Sprint Capacity</span>
+                </span>
+
+
+                <span class="font-size-13 m-r-25"
+                      [ngClass]="{'text-gray-light-2 font-weight-semibold': sprintDurations?.totalRemainingCapacity>0,
+                      'text-red font-weight-semibold': sprintDurations?.totalRemainingCapacity<0}"
+                      *ngIf="sprintDurations?.totalRemainingCapacityReadable">
+                  <span
+                    class="p-l-5">{{sprintDurations?.totalRemainingCapacityReadable}}</span>
+                  <span class="font-weight-light"> Remains</span>
+                </span>
+
+                <span class="text-gray-light-2" *ngIf="totalItemsInSprint>0">
+                  <span class="text-gray-light-2 font-weight-semibold">{{totalItemsInSprint}}&nbsp;</span>
+                  <span class="font-weight-light">{{totalItemsInSprint === 1 ? 'Item' : 'Items'}} in Sprint</span>
+                </span>
+              </div>
+
+
           </div>
 
 
-          <div class="col-md-5 text-right">
+          <div class="col-md-4 text-right">
             <span *ngIf="(unPublishedSprintData?.id)">
               <button class="m-l-10" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
                       nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
@@ -252,24 +255,20 @@
 
                   <td data-label="Status" class="text-center td-status">
                     <span *ngIf="!item.status">-</span>
-                    <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
-                      <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
+                    <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#00255B'">
+                      <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
                          [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                     </nz-tag>
                   </td>
 
                   <td data-label="Reporter" class="text-center td-reporter">
-                    <span *ngIf="!item.createdBy">-</span>
-                    <span *ngIf="item.createdBy" nz-tooltip
-                          [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
-                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+                    <profile-name [user]="item.createdBy"></profile-name>
                   </td>
 
                   <td data-label="Assignee" class="text-center td-assignee">
-                    <span *ngIf="!item.assignee">-</span>
-                    <span *ngIf="item.assignee" nz-tooltip
-                          [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.assignee.lastName : item.assignee.emailId"> <nz-avatar
-                      nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
+
+                    <profile-name [user]="item.assignee"></profile-name>
+
                   </td>
 
                   <td data-label="Estimate" class="text-right td-estimates">
@@ -496,24 +495,18 @@
 
                 <td data-label="Status" class="text-center">
                   <span *ngIf="!item.status">-</span>
-                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="'#F1F2F4'">
-                    <p class="status-tag-lable m-0 text-black" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
+                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#00255B'">
+                    <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
                        [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                   </nz-tag>
                 </td>
 
                 <td data-label="Reporter" class="text-center">
-                  <span *ngIf="!item.createdBy">-</span>
-                  <span *ngIf="item.createdBy" nz-tooltip
-                        [nzTitle]="item.createdBy && item.createdBy.firstName ? item.createdBy.firstName+' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
-                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+                  <profile-name [user]="item.createdBy"></profile-name>
                 </td>
 
                 <td data-label="Assignee" class="text-center">
-                  <span *ngIf="!item.assignee">-</span>
-                  <span *ngIf="item.assignee" nz-tooltip
-                        [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+ item.assignee.lastName : item.assignee.emailId"> <nz-avatar
-                    nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar></span>
+                  <profile-name [user]="item.assignee"></profile-name>
                 </td>
 
                 <td data-label="Estimate" class="text-right">

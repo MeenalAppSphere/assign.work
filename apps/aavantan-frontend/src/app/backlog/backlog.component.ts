@@ -13,7 +13,7 @@ import {
   SprintTaskFilterModel, StatusDDLModel,
   Task,
   TaskFilterCondition,
-  TaskFilterModel,
+  TaskFilterModel, TaskStatusModel,
   TaskTypeModel,
   User
 } from '@aavantan-app/models';
@@ -148,7 +148,11 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
 
       // create status dropdown
-      this.getFilterStatus();
+      this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
+        if(res) {
+          this.getFilterStatus(res);
+        }
+      });
 
       // get all back log tasks
       this.getAllBacklogTask();
@@ -211,30 +215,35 @@ export class BacklogComponent implements OnInit, OnDestroy {
   }
 
 
-  public getFilterStatus() {
+  public getFilterStatus(statusList:TaskStatusModel[]) {
     // ready status filter dropdown data
-    const columns = this._generalService.currentProject.activeBoard.columns;
+    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
-      columns.forEach((ele) => {
-        let checked = true;
-        if (data.headerStatus.id !== ele.headerStatus.id) {
-          this.selectedColumnDataSource.unshift(ele.headerStatus.id);
-        } else {
-          checked = false;
-        }
-        this.statusColumnDataSource.unshift({
-          label: ele.headerStatus.name,
-          value: ele.headerStatus.id,
-          checked: checked
-        });
-      });
 
-      this.backLogTaskRequest.queries= [];
-      this.backLogTaskRequest.queries.push({
-        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
-      });
+      if(statusList && statusList.length>0) {
+        statusList.forEach((ele) => {
+          let checked = true;
+          if (data.headerStatus.id !== ele.id) {
+            this.selectedColumnDataSource.push(ele.id);
+          } else {
+            checked = false;
+          }
+          this.statusColumnDataSource.push({
+            label: ele.name,
+            value: ele.id,
+            checked: checked
+          });
+        });
+
+        this.backLogTaskRequest.queries = [];
+        this.backLogTaskRequest.queries.push({
+          key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
+        });
+      }
+
     }
+
   }
 
   public async getAllBacklogTask() {

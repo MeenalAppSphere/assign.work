@@ -15,7 +15,6 @@ import * as aws from 'aws-sdk';
 import { InvitationsModule } from '../invitations/invitations.module';
 import { PublicModule } from '../public/public.module';
 import { TaskStatusModule } from '../task-status/task-status.module';
-import { WorkflowModule } from '../workflow/workflow.module';
 import { TaskPriorityModule } from '../task-priority/task-priority.module';
 import { TaskTypeModule } from '../task-type/task-type.module';
 import { BoardModule } from '../board/board.module';
@@ -48,7 +47,6 @@ const dbConnectionString = environment.production ? process.env.DB_CONNECTION_ST
     TaskStatusModule,
     TaskPriorityModule,
     TaskTypeModule,
-    WorkflowModule,
     BoardModule,
     TaskCommentModule,
     SprintReportModule

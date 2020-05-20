@@ -53,7 +53,7 @@ const taskBasicPopulation: any[] = [{
   justOne: true
 }, {
   path: 'status',
-  select: 'name',
+  select: 'name color',
   justOne: true
 }, {
   path: 'taskType',
@@ -143,7 +143,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       justOne: true
     }, {
       path: 'status',
-      select: 'name',
+      select: 'name color',
       justOne: true
     }, {
       path: 'taskType',
@@ -409,17 +409,20 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           await this.updateTaskStatusInSprint(sprint, taskDetails, taskModel.statusId, projectDetails, session);
         }
 
-        // update sprint report, convert string to objectId for not loosing references
-        const reportTaskDoc: any = {
-          ...taskModel,
-          _id: toObjectId(taskModel.id),
-          assigneeId: toObjectId(taskModel.assigneeId),
-          statusId: toObjectId(taskModel.statusId),
-          priorityId: toObjectId(taskModel.priorityId),
-          taskTypeId: toObjectId(taskModel.taskTypeId),
-          createdById: toObjectId(taskModel.createdById)
-        };
-        await this._sprintReportService.updateReportTask(sprint.reportId, reportTaskDoc, session);
+        // if sprint is published than update corresponding sprint report
+        if (sprint.sprintStatus && sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
+          // update sprint report, convert string to objectId for not loosing references
+          const reportTaskDoc: any = {
+            ...taskModel,
+            _id: toObjectId(taskModel.id),
+            assigneeId: toObjectId(taskModel.assigneeId),
+            statusId: toObjectId(taskModel.statusId),
+            priorityId: toObjectId(taskModel.priorityId),
+            taskTypeId: toObjectId(taskModel.taskTypeId),
+            createdById: toObjectId(taskModel.createdById)
+          };
+          await this._sprintReportService.updateReportTask(sprint.reportId, reportTaskDoc, session);
+        }
       }
 
       // update task by id
@@ -575,7 +578,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           let: { statusId: '$statusId' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-            { $project: { name: 1 } }
+            { $project: { name: 1, color: 1} }
           ],
           as: 'status'
         })

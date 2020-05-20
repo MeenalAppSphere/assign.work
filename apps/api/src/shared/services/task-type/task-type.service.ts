@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
-import { DbCollection, Project, TaskStatusModel, TaskTypeModel } from '@aavantan-app/models';
+import { DbCollection, Project, TaskTypeModel } from '@aavantan-app/models';
 import { ProjectService } from '../project/project.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -8,10 +8,12 @@ import { ModuleRef } from '@nestjs/core';
 import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { TaskTypeUtilityService } from './task-type.utility.service';
 import { GeneralService } from '../general.service';
+import { TaskService } from '../task/task.service';
 
 @Injectable()
 export class TaskTypeService extends BaseService<TaskTypeModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
+  private _taskService: TaskService;
   private _utilityService: TaskTypeUtilityService;
 
   constructor(
@@ -23,6 +25,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
 
   onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
+    this._taskService = this._moduleRef.get('TaskService');
 
     this._utilityService = new TaskTypeUtilityService();
   }
@@ -35,8 +38,9 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
    */
   async addUpdate(model: TaskTypeModel) {
     return await this.withRetrySession(async (session: ClientSession) => {
+      let taskTypeDetails: TaskTypeModel = null;
       if (model.id) {
-        await this.getDetails(model.projectId, model.id);
+        taskTypeDetails = await this.getDetails(model.projectId, model.id);
       }
       // get project details
       await this._projectService.getProjectDetails(model.projectId);
@@ -45,10 +49,17 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
       this._utilityService.taskTypeValidations(model);
 
       // check if duplicate
-      if (await this.isDuplicate(model)) {
-        BadRequest('Duplicate Task Type is not allowed..');
+      if (model.id) {
+        if (await this.isDuplicate(model, model.id)) {
+          BadRequest('Duplicate Task Type is not allowed..');
+        }
+      } else {
+        if (await this.isDuplicate(model)) {
+          BadRequest('Duplicate Task Type is not allowed..');
+        }
       }
 
+      // task type model
       const taskType = new TaskTypeModel();
       taskType.projectId = model.projectId;
       taskType.displayName = model.displayName;
@@ -58,10 +69,48 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
       taskType.createdById = this._generalService.userId;
 
       if (!model.id) {
+        // add
         const newTaskType = await this.create([taskType], session);
         return newTaskType[0];
       } else {
-        // update task type by id
+        // update
+        taskType.id = model.id;
+        taskType.updatedById = this._generalService.userId;
+        await this.updateById(model.id, taskType, session);
+
+        // region update task display name
+        // task type display name is changed
+        if (taskTypeDetails.displayName !== taskType.displayName) {
+          // update tasks whose task type display name ic changed
+          const filterForTasks = {
+            projectId: model.projectId,
+            displayName: { '$regex': new RegExp('^' + taskTypeDetails.displayName.toLowerCase()), $options: 'i' }
+          };
+
+          // find task with current display name
+          const tasksWithDisplayName = await this._taskService.find({
+            filter: filterForTasks, lean: true, select: 'displayName'
+          });
+
+          // loop over tasks
+          if (tasksWithDisplayName && tasksWithDisplayName.length) {
+            // update display name
+
+            // loop over each task, set task name and update it
+            for (let i = 0; i < tasksWithDisplayName.length; i++) {
+              const task = tasksWithDisplayName[i];
+
+              // separate display name with '-'
+              const tempDisplayName = task.displayName.split('-');
+              task.displayName = `${model.displayName}-${tempDisplayName[1]}`;
+
+              // update task display name
+              await this._taskService.updateById(tasksWithDisplayName[i]._id, { displayName: task.displayName }, session);
+            }
+          }
+        }
+        // endregion
+        return taskType;
       }
     });
   }

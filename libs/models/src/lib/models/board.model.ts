@@ -17,7 +17,6 @@ export class BoardColumns {
   headerStatus?: TaskStatusModel;
   includedStatuses: BoardColumnIncludedStatus[];
   columnOrderNo: number;
-  columnColor: string;
   isHidden?: boolean;
 }
 

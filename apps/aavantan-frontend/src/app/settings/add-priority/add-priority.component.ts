@@ -6,6 +6,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { ProjectPriority, TaskPriorityModel } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { ColorEvent } from 'ngx-color';
+import { TaskPriorityService } from '../../shared/services/task-priority/task-priority.service';
 
 @Component({
   selector: 'aavantan-add-priority',
@@ -27,8 +28,7 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
   public primaryColor = '#000000';
 
   constructor(protected notification: NzNotificationService,
-              private _taskService: TaskService,
-              private _projectService: ProjectService,
+              private _priorityService: TaskPriorityService,
               private _generalService: GeneralService,
               private FB: FormBuilder) {
   }
@@ -52,42 +52,46 @@ export class AddPriorityComponent implements OnInit, OnDestroy {
     }
   }
 
-  public savePriority() {
-    if (this.priorityForm.invalid) {
-      this.notification.error('Error', 'Please check Color and Priority');
-      return;
-    }
+  async savePriority() {
 
-    if (this.addEditprojectPriorityData && this.addEditprojectPriorityData.id) {
-
-      console.log('Updated Priority :', this.priorityForm.value);
-      this.updateRequestInProcess = false;
-      this.toggleAddPriorityShow.emit();
-
-    } else {
-
-      const dup: ProjectPriority[] = this.priorityList.filter((ele) => {
-        if (ele.color === this.priorityForm.value.color || ele.name === this.priorityForm.value.name) {
-          return ele;
-        }
-      });
-
-      if (dup && dup.length > 0) {
-        this.notification.error('Error', 'Duplicate color or name');
+    try {
+      if (this.priorityForm.invalid) {
+        this.notification.error('Error', 'Please check Color and Priority');
         return;
       }
 
-      this.updateRequestInProcess = true;
+      if (this.addEditprojectPriorityData && this.addEditprojectPriorityData.id) {
 
-      this._projectService.addPriority(this.priorityForm.value).subscribe((res => {
+        this.updateRequestInProcess = true;
+
+        await this._priorityService.updatePriority(this.priorityForm.value).toPromise();
+
+        this.updateRequestInProcess = false;
+        this.toggleAddPriorityShow.emit();
+
+      } else {
+
+        const dup: ProjectPriority[] = this.priorityList.filter((ele) => {
+          if (ele.color === this.priorityForm.value.color || ele.name === this.priorityForm.value.name) {
+            return ele;
+          }
+        });
+
+        if (dup && dup.length > 0) {
+          this.notification.error('Error', 'Duplicate color or name');
+          return;
+        }
+
+        this.updateRequestInProcess = true;
+
+        await this._priorityService.createPriority(this.priorityForm.value).toPromise();
 
         this.priorityForm.reset();
         this.updateRequestInProcess = false;
         this.toggleAddPriorityShow.emit();
-
-      }), (error => {
-        this.updateRequestInProcess = false;
-      }));
+      }
+    }catch (e) {
+      this.updateRequestInProcess = false;
     }
   }
 

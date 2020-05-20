@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MiddlewareComponent } from './middleware.component';
 import { AuthGuard } from './shared/guard/auth.guard';
-import { DashboardDataResolver } from './resolver/dashboardData.resolver';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -31,10 +29,6 @@ const appRoutes: Routes = [
       import('./dashboard/dashboard.module').then(m => m.DashboardModule),
     canActivate: [AuthGuard]
   },
-  {
-    path: 'middleware',
-    component: MiddlewareComponent
-  }
 ];
 
 @NgModule({

@@ -66,6 +66,10 @@ const commonPopulationForSprint = [{
 }];
 
 const detailedPopulationForSprint = [...commonPopulationForSprint, {
+  path: 'columns.status',
+  select: 'name color',
+  justOne: true
+}, {
   path: 'columns.tasks.addedBy',
   select: 'emailId userName firstName lastName profilePic',
   justOne: true
@@ -87,7 +91,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
     justOne: true
   }, {
     path: 'status',
-    select: 'name',
+    select: 'name color',
     justOne: true
   }, {
     path: 'priority',
@@ -391,8 +395,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // if adjustHoursAllowed not allowed than apply strict check for sprint timings
       if (!model.adjustHoursAllowed) {
 
-        // check if sprint have over logged time
-        if (sprintDetails.totalOverLoggedTime) {
+        // check if sprint have over logged time && total logged time is grater than sprint total capacity
+        if (sprintDetails.totalOverLoggedTime && (sprintDetails.totalLoggedTime > sprintDetails.totalCapacity)) {
           // return error sprint capacity exceed
           sprintErrorResponse.tasksError.reason = SprintErrorEnum.sprintCapacityExceed;
           return sprintErrorResponse;

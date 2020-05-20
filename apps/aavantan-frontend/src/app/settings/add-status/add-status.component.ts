@@ -6,6 +6,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { TaskStatusModel } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskStatusService } from '../../shared/services/task-status/task-status.service';
+import { ColorEvent } from 'ngx-color';
 
 @Component({
   selector: 'aavantan-add-status',
@@ -20,6 +21,11 @@ export class AddStatusComponent implements OnInit, OnDestroy {
   public statusForm: FormGroup;
   public updateRequestInProcess: boolean;
 
+  // for color picker
+  public showColorBox: boolean;
+  public primaryColor = '#000000';
+
+
   constructor(protected notification: NzNotificationService,
               private _taskService: TaskService,
               private _projectService: ProjectService,
@@ -31,46 +37,71 @@ export class AddStatusComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.statusForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
+      color: new FormControl(null, [Validators.required]),
       id: new FormControl(null),
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
       description: new FormControl('')
     });
 
     if (this.addEditprojectStatusData) {
+      this.primaryColor = this.addEditprojectStatusData.color;
       this.statusForm.get('name').patchValue(this.addEditprojectStatusData.name);
       this.statusForm.get('id').patchValue(this.addEditprojectStatusData.id);
+      this.statusForm.get('color').patchValue(this.addEditprojectStatusData.color);
       this.statusForm.get('projectId').patchValue(this.addEditprojectStatusData.projectId);
       this.statusForm.get('description').patchValue(this.addEditprojectStatusData.description);
     }
   }
 
-  public addStatus() {
-    if (this.statusForm.invalid) {
-      this.notification.error('Error', 'Please check Status Title');
-      return;
-    }
-    const statusData: TaskStatusModel = this.statusForm.value;
-    statusData.name = statusData.name.trim();
-    this.updateRequestInProcess = true;
+  async addStatus() {
+    try {
+      if (this.statusForm.invalid) {
+        this.notification.error('Error', 'Please check Status Title');
+        return;
+      }
+      const statusData: TaskStatusModel = this.statusForm.value;
+      statusData.name = statusData.name.trim();
+      this.updateRequestInProcess = true;
 
-    if (this.addEditprojectStatusData && this.addEditprojectStatusData.id) {
-      console.log('Updated status :', statusData);
-      this.updateRequestInProcess = false;
-      this.toggleAddStatusShow.emit();
-    } else {
-      this._taskStatusService.createTaskStatus(statusData).subscribe((res => {
+      if (this.addEditprojectStatusData && this.addEditprojectStatusData.id) {
+
+        this.updateRequestInProcess = true;
+
+        await this._taskStatusService.updateTaskStatus(statusData).toPromise();
+
+        this.updateRequestInProcess = false;
+        this.toggleAddStatusShow.emit();
+
+      } else {
+
+        await this._taskStatusService.createTaskStatus(statusData).toPromise();
         this.statusForm.reset();
         this.updateRequestInProcess = false;
         this.toggleAddStatusShow.emit();
-      }), (error => {
-        this.updateRequestInProcess = false;
-      }));
+
+      }
+    }catch (e) {
+      this.updateRequestInProcess = false;
     }
 
   }
 
   handleCancel(): void {
     this.toggleAddStatusShow.emit();
+  }
+
+  // color picker
+  public toggleColor() {
+    this.showColorBox = !this.showColorBox;
+  }
+  public clearColor() {
+    this.primaryColor = '#000000';
+    this.statusForm.get('color').patchValue(this.primaryColor);
+    this.showColorBox = !this.showColorBox;
+  }
+  public changeComplete($event: ColorEvent) {
+    this.primaryColor = $event.color.hex;
+    this.statusForm.get('color').patchValue($event.color.hex);
   }
 
   ngOnDestroy() {

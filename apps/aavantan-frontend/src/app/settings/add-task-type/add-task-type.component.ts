@@ -3,14 +3,7 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import {
-  ProjectMembers,
-  ProjectPriority,
-  SearchProjectCollaborators,
-  TaskPriorityModel,
-  TaskTypeModel,
-  User
-} from '@aavantan-app/models';
+import { ProjectPriority, TaskPriorityModel, TaskTypeModel } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskTypeService } from '../../shared/services/task-type/task-type.service';
 import { ColorEvent } from 'ngx-color';
@@ -119,17 +112,21 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
 
 
 
-  public saveTaskType() {
-    if (this.taskTypeForm.invalid) {
-      this.notification.error('Error', 'Please check Display name, Color and Task type');
-      return;
-    }
+  async saveTaskType() {
 
-    if (this.addEditprojectTaskTypeData && this.addEditprojectTaskTypeData.id) {
+    try {
 
-      console.log('Updated Task Type :', this.taskTypeForm.value);
-      this.updateRequestInProcess = false;
-      this.toggleAddTaskTypeShow.emit();
+      if (this.taskTypeForm.invalid) {
+        this.notification.error('Error', 'Please check Display name, Color and Task type');
+        return;
+      }
+
+      if (this.addEditprojectTaskTypeData && this.addEditprojectTaskTypeData.id) {
+
+        this.updateRequestInProcess = true;
+        await this._taskTypeService.updateTaskType(this.taskTypeForm.value).toPromise();
+        this.updateRequestInProcess = false;
+        this.toggleAddTaskTypeShow.emit();
 
     } else {
 
@@ -139,19 +136,19 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
         }
       });
 
-      if (dup && dup.length > 0) {
-        this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
-        return;
-      }
-      this.updateRequestInProcess = true;
-      this._taskTypeService.createTaskType(this.taskTypeForm.value).subscribe((res => {
+        if (dup && dup.length > 0) {
+          this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
+          return;
+        }
+        this.updateRequestInProcess = true;
+        await this._taskTypeService.createTaskType(this.taskTypeForm.value).toPromise();
         this.taskTypeForm.reset({ projectId: this._generalService.currentProject.id });
         this.updateRequestInProcess = false;
         this.toggleAddTaskTypeShow.emit();
-      }), (error => {
-        this.updateRequestInProcess = false;
-      }));
 
+      }
+    }catch (e) {
+      this.updateRequestInProcess = false;
     }
   }
 

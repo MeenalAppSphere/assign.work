@@ -23,7 +23,6 @@ export const ProjectUrls = {
   removeTaskType: `${createUrl('project/:projectId/remove-task-type/:taskTypeId')}`,
 
   getAllPriority: `${createUrl('task-priority/get-all')}`,
-  addPriority: `${createUrl('task-priority/create')}`,
   updatePriority: `${createUrl('task-priority/update')}`,
   removePriority: `${createUrl('task-priority/remove')}`,
 

@@ -77,7 +77,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
   public stagesList: any = [];
-  public statusList: ProjectStatus[] = [];
+  public statusList: TaskStatusModel[] = [];
   public typesList: TaskTypeModel[] = [];
   public priorityList: ProjectPriority[] = [];
   public projectMembersList: ProjectMembers[] = [];
@@ -110,7 +110,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public totalCapacity: number = 0;
   public totalCapacityPerDay: number = 0;
 
-  public addEditprojectStatusData: ProjectStatus;
+  public addEditprojectStatusData: TaskStatusModel;
   public addEditprojectPriorityData: ProjectPriority;
   public addEditprojectTaskTypeData: TaskTypeModel;
   public addStatusModalIsVisible: boolean;
@@ -251,7 +251,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
-      color: new FormControl("#000000" ),
+      color: new FormControl('#000000'),
       description: new FormControl(''),
       projectId: new FormControl(this.currentProject.id)
     });
@@ -568,44 +568,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   }
 
-  public toggleMoveStatusShow(data:any) {
+  public toggleMoveStatusShow(data: any) {
     this.moveStatusModalIsVisible = !this.moveStatusModalIsVisible;
   }
 
-  public toggleAddStatusShow(item?: ProjectStatus) {
+  public toggleAddStatusShow(item?: TaskStatusModel) {
     if (item) {
       this.addEditprojectStatusData = item;
     } else {
       this.addEditprojectStatusData = null;
     }
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
-  }
-
-  //================== Priority ==================//
-  public savePriority() {
-    if (this.priorityForm.invalid) {
-      this.notification.error('Error', 'Please check Color and Priority');
-      return;
-    }
-
-    const dup: ProjectPriority[] = this.priorityList.filter((ele) => {
-      if (ele.color === this.priorityForm.value.color || ele.name === this.priorityForm.value.name) {
-        return ele;
-      }
-    });
-
-    if (dup && dup.length > 0) {
-      this.notification.error('Error', 'Duplicate color or name');
-      return;
-    }
-
-    this.updateRequestInProcess = true;
-    this._projectService.addPriority(this.priorityForm.value).subscribe((res => {
-      this.priorityForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
   }
 
   public removePriority(item: ProjectPriority) {

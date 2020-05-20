@@ -251,7 +251,6 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
           defaultAssigneeId: this._generalService.userId,
           isShown: true
         }];
-        column.columnColor = '';
         column.columnOrderNo = requestModel.columnIndex + 1;
         column.isHidden = false;
 

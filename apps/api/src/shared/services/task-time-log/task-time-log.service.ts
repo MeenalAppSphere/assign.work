@@ -214,6 +214,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
 
       if (sprintDetails.progress > 100) {
         // if progress > 100 means over logging happened
+        sprintDetails.progress = 100;
         sprintDetails.totalRemainingTime = 0;
 
         // calculate over logged time by deducting total estimation from total logged time

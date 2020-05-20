@@ -11,7 +11,6 @@ export * from './attachment.model';
 export * from './task-time-log.model';
 export * from './invitation.model';
 export * from './reset-password.model';
-export * from './workflow.model';
 export * from './task-status.model';
 export * from './task-priority.model';
 export * from './board.model';

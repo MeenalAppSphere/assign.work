@@ -72,7 +72,9 @@
 
               <nz-dropdown-menu #menu="nzDropdownMenu">
               <ul nz-menu>
-                <li nz-menu-item *ngFor="let item of boardData.membersCapacity | slice:11:boardData.membersCapacity.length;" class="collaborators-avatar p-l-10 p-b-5">
+                <li nz-menu-item
+                    *ngFor="let item of boardData.membersCapacity | slice:11:boardData.membersCapacity.length;"
+                    class="collaborators-avatar p-l-10 p-b-5">
 
                   <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
                              nzSize="30px"
@@ -80,10 +82,12 @@
                              nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
                              ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"></nz-avatar>
 
-                  <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" class="text-uppercase" nzSize="30px"
+                  <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user"
+                             class="text-uppercase" nzSize="30px"
                              ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
                              nzSrc="{{item.user.profilePic}}"></nz-avatar>
-                  <span class="p-l-5">{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}</span>
+                  <span
+                    class="p-l-5">{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}</span>
                 </li>
               </ul>
             </nz-dropdown-menu>
@@ -95,10 +99,10 @@
 
       <div class="col-md-4 p-r-0 m-t-10">
 
-          <div class="sprint-progress-section" *ngIf="boardData">
-            <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
+        <div class="sprint-progress-section" *ngIf="boardData">
+          <span class="text-gray-light-2 font-weight-normal font-size-12">Current progress</span>
 
-            <span *ngIf="boardData?.endAt" class="sprint-date float-right">
+          <span *ngIf="boardData?.endAt" class="sprint-date float-right">
                 <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
 
                   <span>
@@ -120,13 +124,13 @@
                 </ng-template>
               </span>
 
-            <div class="text-right sprint-progress">
-              <nz-progress [nzPercent]="boardData?.progress"
-                           [nzStrokeColor]="boardData?.progress <=100 ? '#42E3A3' : '#F82222'"
-                           nzStatus="active"></nz-progress>
-            </div>
-
+          <div class="text-right sprint-progress">
+            <nz-progress [nzPercent]="boardData?.progress"
+                         [nzStrokeColor]="boardData?.progress <=100 ? '#42E3A3' : '#F82222'"
+                         nzStatus="active"></nz-progress>
           </div>
+
+        </div>
 
       </div>
 
@@ -148,7 +152,7 @@
                *ngFor="let item of boardData.columns; let last;let columnIndex = index">
             <div class="card card-block">
 
-              <div class="card-header">{{item.name}} <span class="pull-right"><i
+              <div class="card-header">{{item.status.name}} <span class="pull-right"><i
                 class="pl-3 fa fa-ellipsis-v"></i></span>
                 <div class="pull-left" style="line-height: 10px;">
                   <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
@@ -164,8 +168,8 @@
 
                 <div class="card-box" *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
 
-                  <div class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
-                    + remove from sprint
+                  <div nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
+                    <i nz-icon nzType="close" nzTheme="outline"></i>
                   </div>
 
                   <div id="{{task.taskId}}" class="task-card"
@@ -173,13 +177,11 @@
                        (dndStart)="onDragStart(item)" [dndEffectAllowed]="'move'">
 
 
-
-
                     <h6 [ngStyle]="{'color': task.task.taskType.color}">
                       <a class="cursor-pointer text-primary"
                          nz-tooltip [nzTitle]="task.task.priority.name ? task.task.priority.name : 'No Priority'"
                          routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
-                      <span class="float-right duration">
+                      <span class="float-right duration p-r-25">
                                         <span nz-tooltip [nzTitle]="'Logged time'"
                                               class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
                                         <span nz-tooltip [nzTitle]="'Estimated time'"
@@ -198,7 +200,8 @@
                         <nz-tag [nzColor]="'#F1F2F4'" class="text-black status-tag">{{task.task.status.name}}</nz-tag>
 
                         <p class="profile-name inline-block text-right m-0"
-                           nz-tooltip [nzTitle]="'Reporter: '+task.task.createdBy.firstName+' '+ task.task.createdBy.lastName"
+                           nz-tooltip
+                           [nzTitle]="'Reporter: '+task.task.createdBy.firstName+' '+ task.task.createdBy.lastName"
                            nz-paragraph nzEllipsis [nzEllipsisRows]="1">
                           <nz-avatar class="m-r-5" nzIcon="user"
                                      nzSrc="{{task.task.createdBy.profilePic}}"
@@ -209,11 +212,13 @@
                       </div>
 
                       <div>
-                            <span nz-tooltip [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
+                            <span nz-tooltip
+                                  [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
                               <nz-avatar class="m-r-5" nzIcon="user"
-                                             nzSrc="{{task.task.assignee.profilePic}}"
-                                             nzShape="circle"></nz-avatar>
-                              <span class="profile-name">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span>
+                                         nzSrc="{{task.task.assignee.profilePic}}"
+                                         nzShape="circle"></nz-avatar>
+                              <span
+                                class="profile-name">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span>
                             </span>
                         <span class="pull-right">
                                           <a (click)="showTimeLogModal(columnIndex, i, task.task)"

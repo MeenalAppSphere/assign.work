@@ -2,21 +2,17 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/cor
 import {
   BaseResponseModel,
   CloseSprintModel,
-  GetAllTaskRequestModel,
   MoveTaskToColumnModel,
   ProjectStatus,
+  RemoveTaskFromSprintModel,
   Sprint,
   SprintColumn,
   SprintColumnTask,
+  SprintFilterTasksModel,
+  SprintTaskTimeLogResponse,
   Task,
   TaskTypeModel,
-  User,
-  TaskTimeLogResponse,
-  SprintFilterTasksModel,
-  AddTaskToSprintModel,
-  SprintErrorResponse,
-  SprintErrorEnum,
-  RemoveTaskFromSprintModel
+  User
 } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -69,7 +65,8 @@ export class BoardComponent implements OnInit, OnDestroy {
               private _taskTypeQuery: TaskTypeQuery,
               protected notification: NzNotificationService,
               private modalService: NzModalService,
-              private _userQuery: UserQuery, private router: Router) {
+              private _userQuery: UserQuery, private router: Router,
+              private modal: NzModalService) {
 
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -152,7 +149,8 @@ export class BoardComponent implements OnInit, OnDestroy {
           if (!task.task.priority) {
             task.task.priority = {
               name: null,
-              color: '#6E829C'
+              color: '#6E829C',
+              projectId: ''
             };
           }
           if (!task.task.taskType) {
@@ -307,10 +305,12 @@ export class BoardComponent implements OnInit, OnDestroy {
     };
   }
 
-  public hideTimeLogModal(resp?: TaskTimeLogResponse) {
+  public hideTimeLogModal(resp?: SprintTaskTimeLogResponse) {
     if (resp) {
-      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.totalLoggedTime;
-      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.totalLoggedTimeReadable;
+      this.boardData.progress = resp.progress;
+      this.boardData.overProgress = resp.overProgress;
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTime = resp.taskTotalLoggedTime;
+      this.boardData.columns[this.selectedTask.columnIndex].tasks[this.selectedTask.taskIndex].totalLoggedTimeReadable = resp.taskTotalLoggedTimeReadable;
 
     }
     this.timelogModalIsVisible = false;
@@ -325,14 +325,24 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public async removeTaskToSprint(taskId:string) {
     try {
-      const json: RemoveTaskFromSprintModel = {
-        projectId: this._generalService.currentProject.id,
-        sprintId: this.boardData.id,
-        taskId: taskId
-      };
-      this.getStageInProcess = true;
-      await this._sprintService.removeTaskFromSprint(json).toPromise();
-      this.getBoardData();
+
+      return this.modal.confirm({
+        nzTitle: 'Want to remove task from sprint?',
+        nzContent: '',
+        nzOnOk: () =>
+          new Promise(async (resolve, reject) => {
+            const json: RemoveTaskFromSprintModel = {
+              projectId: this._generalService.currentProject.id,
+              sprintId: this.boardData.id,
+              taskId: taskId
+            };
+            await this._sprintService.removeTaskFromSprint(json).toPromise();
+            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+            this.getBoardData();
+            return true;
+          }).catch(() => console.log('Oops errors!'))
+      });
+
     } catch (e) {
       console.log(e);
       this.getStageInProcess = false;

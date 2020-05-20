@@ -679,7 +679,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   async getAllProjects(model: GetAllProjectsModel) {
     const filter = {
-      organization: model.organizationId
+      organizationId: model.organizationId
     };
 
     // populate

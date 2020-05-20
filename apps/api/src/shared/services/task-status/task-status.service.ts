@@ -6,11 +6,12 @@ import { ProjectService } from '../project/project.service';
 import { OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { TaskStatusUtilityService } from './task-status.utility.service';
-import { BadRequest } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate } from '../../helpers/helpers';
 import { GeneralService } from '../general.service';
 import { BoardService } from '../board/board.service';
 import { TaskService } from '../task/task.service';
 import { BoardUtilityService } from '../board/board.utility.service';
+import { DEFAULT_TASK_STATUS_COLOR } from '../../helpers/defaultValueConstant';
 
 export class TaskStatusService extends BaseService<TaskStatusModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
@@ -52,28 +53,30 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       this._utilityService.statusValidations(model);
 
       // check if duplicate
-      if (await this.isDuplicate(model)) {
-        BadRequest('Status title is already taken, please choose different');
+      if (model.id) {
+        if (await this.isDuplicate(model, model.id)) {
+          BadRequest('Status title is already taken, please choose different');
+        }
+      } else {
+        if (await this.isDuplicate(model)) {
+          BadRequest('Status title is already taken, please choose different');
+        }
       }
 
+      // status model
       const status = new TaskStatusModel();
       status.name = model.name;
       status.projectId = model.projectId;
+      status.color = model.color;
       status.description = model.description;
       status.createdById = this._generalService.userId;
 
       if (!model.id) {
-        // create new status
+        // add
         const newStatus = await this.create([status], session);
-
-        // update project
-        await this._projectService.updateById(model.projectId, {
-          $push: { 'settings.statuses': newStatus[0] }
-        }, session);
-
         // update board and add this status as a column
         if (projectDetails.activeBoardId) {
-          const boardDetails = await this._boardService.getDetails(projectDetails.activeBoardId, model.projectId);
+          await this._boardService.getDetails(projectDetails.activeBoardId, model.projectId);
 
           // create new column object
           const column = new BoardColumns();
@@ -83,24 +86,21 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
             defaultAssigneeId: this._generalService.userId,
             isShown: true
           }];
-          column.columnColor = '';
           column.columnOrderNo = 0;
           column.isHidden = false;
 
-          const boardUpdateObject = {
-            $push: {
-              'columns': column
-            }
-          };
-
           // update board by id
-          await this._boardService.updateById(projectDetails.activeBoardId, boardUpdateObject, session);
+          await this._boardService.updateById(projectDetails.activeBoardId, { $push: { 'columns': column } }, session);
         }
 
         newStatus[0].id = newStatus[0]._id;
         return newStatus[0];
       } else {
-        // perform update status here..
+        // update
+        status.id = model.id;
+        status.updatedById = this._generalService.userId;
+        await this.updateById(model.id, status, session);
+        return status;
       }
 
     });
@@ -246,13 +246,40 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
   }
 
   /**
+   * add missing color field in status
+   * we added decided to add color feature in status
+   * so need to update existing status with default color that user can update
+   */
+  async addMissingColorFiled() {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const statusesWithNoColorQuery = {
+        color: { $in: [undefined, null, ''] }
+      };
+
+      await this.bulkUpdate(statusesWithNoColorQuery, { color: DEFAULT_TASK_STATUS_COLOR }, session);
+
+      return 'Default color added successfully';
+    });
+  }
+
+  /**
    * is duplicate status
+   * check duplicity for name and color
+   * if exceptThisId present than filter that record
    * @param model
    * @param exceptThis
    */
   private async isDuplicate(model: TaskStatusModel, exceptThis?: string): Promise<boolean> {
     const queryFilter = {
-      projectId: model.projectId, name: { $regex: `^${model.name.trim()}$`, $options: 'i' }
+      $and: [
+        { projectId: model.projectId },
+        {
+          $or: [
+            { name: { $regex: `^${model.name.trim()}$`, $options: 'i' } },
+            { color: { $regex: `^${model.color.trim()}$`, $options: 'i' } }
+          ]
+        }
+      ]
     };
 
     if (exceptThis) {

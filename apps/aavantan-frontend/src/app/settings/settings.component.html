@@ -30,14 +30,14 @@
       </a>
     </li>
 
-<!--    <li>-->
-<!--      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"-->
-<!--         (click)="activeTab('stages', 'Stages')">-->
-<!--        <img *ngIf="activeView.view==='stages'" src="../../assets/images/icons/white_stages.svg"/>-->
-<!--        <img *ngIf="activeView.view!=='stages'" src="../../assets/images/icons/stages.svg"/>-->
-<!--        <div>Stages</div>-->
-<!--      </a>-->
-<!--    </li>-->
+    <!--    <li>-->
+    <!--      <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='stages'}"-->
+    <!--         (click)="activeTab('stages', 'Stages')">-->
+    <!--        <img *ngIf="activeView.view==='stages'" src="../../assets/images/icons/white_stages.svg"/>-->
+    <!--        <img *ngIf="activeView.view!=='stages'" src="../../assets/images/icons/stages.svg"/>-->
+    <!--        <div>Stages</div>-->
+    <!--      </a>-->
+    <!--    </li>-->
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='status'}"
@@ -256,7 +256,7 @@
               #smallTable
               [nzLoading]="getAllBoardsInProcess || publishBoardInProcess || deleteBoardInProcess"
               nzSize="small"
-              [nzData]="boardsList" >
+              [nzData]="boardsList">
 
               <thead (nzSortChange)="boardSortOrderChanged($event)">
               <tr>
@@ -272,8 +272,9 @@
 
               <tbody>
               <tr *ngFor="let data of smallTable.data; let index = index;">
-                <td data-label="SN">{{(index+1)}}</td>
-                <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
+                <td data-label="SN">{{(index + 1)}}</td>
+                <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary"
+                                         (click)="editBoard(data.id)">{{data.name}}</a></td>
                 <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                 <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
 
@@ -295,7 +296,8 @@
 
                   <span *ngIf="!data.isPublished" (click)="publishBoard(data.id)" class="text-primary cursor-pointer">Publish</span>
 
-                  <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)" class="text-red m-l-15" nzTheme="outline"></i>
+                  <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)"
+                     class="text-red m-l-15" nzTheme="outline"></i>
 
                 </td>
               </tr>
@@ -361,7 +363,8 @@
           </aside>
           <aside class="col-md-6">
 
-            <nz-spin [nzSpinning]="resendInviteInProcess || removeCollaboratorInProcess" nzTip="{{resendInviteInProcess ? 'Sending request...' : 'Removing...'}}">
+            <nz-spin [nzSpinning]="resendInviteInProcess || removeCollaboratorInProcess"
+                     nzTip="{{resendInviteInProcess ? 'Sending request...' : 'Removing...'}}">
               <div *ngIf="projectMembersList?.length>0">
                 <nz-form-label>Collaborators</nz-form-label>
                 <ul class="stages-list collaborators-list">
@@ -381,10 +384,12 @@
                       <!---->
 
                       <!-- if first name available -->
-                      <span *ngIf="item.userDetails?.firstName" class="text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}
+                      <span *ngIf="item.userDetails?.firstName"
+                            class="text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}
                       </span>
 
-                      <div class="m-l-35 text-primary user-email-on-collaborator" *ngIf="item.userDetails?.firstName">{{item.emailId}}</div>
+                      <div class="m-l-35 text-primary user-email-on-collaborator"
+                           *ngIf="item.userDetails?.firstName">{{item.emailId}}</div>
                       <!---->
 
 
@@ -394,9 +399,11 @@
 
 
                       <div>
-                        <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
+                        <span class="text-gray-light-2 d-block font-weight-light"
+                              *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
 
-                        <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="d-block text-primary p-r-10 font-size-12 font-weight-light">
+                        <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)"
+                              class="d-block text-primary p-r-10 font-size-12 font-weight-light">
                           <i nz-icon nzType="mail" theme="outline"></i> Resend Invite</span>
                       </div>
 
@@ -542,30 +549,6 @@
 
         <section class="row">
 
-          <!--
-          <aside class="col-md-3">
-
-            <form nz-form (submit)="addStatus()" [formGroup]="statusForm">
-
-              <nz-form-item>
-
-                <nz-form-label>Status title<span class="text-danger">*</span></nz-form-label>
-                <nz-form-control>
-                  <input nz-input nzSize="small" formControlName="name" placeholder="Enter Status title"
-                         maxlength="30"/>
-                </nz-form-control>
-
-              </nz-form-item>
-
-              <nz-form-item>
-                <button nz-button nzType="primary" [disabled]="statusForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">Add</button>
-              </nz-form-item>
-
-            </form>
-
-          </aside>
-          -->
-
           <aside class="col-md-4" *ngIf="statusList && statusList.length>0">
 
             <nz-spin nzTip="Loading..." [nzSpinning]="deleteStageInProcess">
@@ -573,11 +556,19 @@
               <nz-form-label>All Status</nz-form-label>
 
               <ul class="stages-list">
-                <li *ngFor="let item of statusList"><span>{{item.name}}</span>
+                <li *ngFor="let item of statusList">
+
+
+                  <span>
+                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTitle]="item.color"
+                       [ngStyle]="{'color': item.color }"></i>
+                      {{item.name}}
+                  </span>
 
                   <span class="float-right">
 <!--                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline"
+                         class="edit m-l-10"></i>
                     </span>
 
                 </li>
@@ -651,16 +642,19 @@
               <ul class="stages-list">
 
                 <li *ngFor="let item of priorityList">
-                  <div>
-                    <i nz-tooltip [nzTitle]="item.color"
+
+                  <span>
+                    <i class="p-l-10" nz-tooltip [nzTitle]="item.color"
                        [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
-                    <span class="p-l-10">{{item.name}}</span></div>
+                    {{item.name}}
+                  </span>
 
                   <span class="float-right">
 <!--                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
                       <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
-                         class="edit right-30"></i>
-                    </span>
+                         class="edit m-l-10"></i>
+                  </span>
+
                 </li>
 
               </ul>
@@ -694,56 +688,56 @@
 
         <section class="row task-type-section">
 
-<!--          <aside class="col-md-3">-->
+          <!--          <aside class="col-md-3">-->
 
-<!--            <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">-->
+          <!--            <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">-->
 
-<!--              <nz-form-item>-->
-<!--                <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span> <small-->
-<!--                  style="display:block;letter-spacing: 0;">(as prefix with id eg : <b-->
-<!--                  class="text-info">BUG-1001</b>)</small></nz-form-label>-->
-<!--                <nz-form-control>-->
-<!--                  <input class="task-type-input" type="text" nzSize="small"-->
-<!--                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>-->
-<!--                </nz-form-control>-->
-<!--              </nz-form-item>-->
-<!--              <nz-form-item>-->
-<!--                <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and-->
-<!--                  title)</small></nz-form-label>-->
+          <!--              <nz-form-item>-->
+          <!--                <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span> <small-->
+          <!--                  style="display:block;letter-spacing: 0;">(as prefix with id eg : <b-->
+          <!--                  class="text-info">BUG-1001</b>)</small></nz-form-label>-->
+          <!--                <nz-form-control>-->
+          <!--                  <input class="task-type-input" type="text" nzSize="small"-->
+          <!--                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>-->
+          <!--                </nz-form-control>-->
+          <!--              </nz-form-item>-->
+          <!--              <nz-form-item>-->
+          <!--                <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and-->
+          <!--                  title)</small></nz-form-label>-->
 
-<!--                <nz-form-control>-->
-<!--                  <nz-input-group [nzAddOnBefore]="profixIconButton">-->
-<!--                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"-->
-<!--                           nz-input-->
-<!--                           placeholder="Enter Task Name"/>-->
-<!--                  </nz-input-group>-->
-<!--                  <ng-template #profixIconButton>-->
-<!--                    <input type="color" nzSize="small" formControlName="color"/>-->
-<!--                  </ng-template>-->
-<!--                </nz-form-control>-->
+          <!--                <nz-form-control>-->
+          <!--                  <nz-input-group [nzAddOnBefore]="profixIconButton">-->
+          <!--                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"-->
+          <!--                           nz-input-->
+          <!--                           placeholder="Enter Task Name"/>-->
+          <!--                  </nz-input-group>-->
+          <!--                  <ng-template #profixIconButton>-->
+          <!--                    <input type="color" nzSize="small" formControlName="color"/>-->
+          <!--                  </ng-template>-->
+          <!--                </nz-form-control>-->
 
-<!--              </nz-form-item>-->
+          <!--              </nz-form-item>-->
 
-<!--              <nz-form-item>-->
+          <!--              <nz-form-item>-->
 
-<!--                <nz-form-label>Description</nz-form-label>-->
-<!--                <nz-form-control>-->
-<!--                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"-->
-<!--                            placeholder="Enter Status Description" rows="5"></textarea>-->
-<!--                </nz-form-control>-->
+          <!--                <nz-form-label>Description</nz-form-label>-->
+          <!--                <nz-form-control>-->
+          <!--                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"-->
+          <!--                            placeholder="Enter Status Description" rows="5"></textarea>-->
+          <!--                </nz-form-control>-->
 
-<!--              </nz-form-item>-->
+          <!--              </nz-form-item>-->
 
-<!--              <nz-form-item>-->
-<!--                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid"-->
-<!--                        [nzLoading]="updateRequestInProcess" nzSize="small">Add-->
-<!--                </button>-->
-<!--              </nz-form-item>-->
+          <!--              <nz-form-item>-->
+          <!--                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid"-->
+          <!--                        [nzLoading]="updateRequestInProcess" nzSize="small">Add-->
+          <!--                </button>-->
+          <!--              </nz-form-item>-->
 
-<!--            </form>-->
+          <!--            </form>-->
 
 
-<!--          </aside>-->
+          <!--          </aside>-->
 
           <aside class="col-md-4" *ngIf="typesList && typesList.length>0">
 
@@ -754,13 +748,13 @@
               <ul class="stages-list">
 
                 <li *ngFor="let item of typesList">
-                  <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
-                     [ngStyle]="{'color':item.color}"></i>
-                  <span>{{item.name}}</span>
-                  <span class="float-right">
-<!--                      <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline"
-                         class="edit right-30"></i>
+                  <span>
+                    <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
+                       [ngStyle]="{'color':item.color}"></i>
+                    {{item.name}}</span>
+                  <span class="float-right d-flex p-t-5">
+                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+                    <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                   </span>
                 </li>
 
