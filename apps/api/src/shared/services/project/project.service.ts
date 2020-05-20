@@ -594,6 +594,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // get project details
       await this.getProjectDetails(model.projectId);
 
+      // update project updated at
+      await this.updateById(model.projectId, { updatedAt: generateUtcDate() }, session);
+
       // update user current project
       return await this._userService.updateById(this._generalService.userId, {
         $set: {
@@ -846,7 +849,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
           // get task status for the project
           const taskStatues = await this._taskStatusService.find({ filter: { projectId: project._id }, lean: true });
           // get task priorities for the project
-          const taskPriorities = await this._taskPriorityService.find({ filter: { projectId: project._id }, lean: true });
+          const taskPriorities = await this._taskPriorityService.find({
+            filter: { projectId: project._id },
+            lean: true
+          });
 
           if (taskTypes.length && taskStatues.length && taskPriorities.length) {
             // update project and add default settings
