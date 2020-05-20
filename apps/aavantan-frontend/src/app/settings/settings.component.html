@@ -171,13 +171,14 @@
                                    style="width: 100%!important;">
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
+                      <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
                       {{selectedStatus?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #statusDDL="nzDropdownMenu">
                     <ul nz-menu>
                       <li nz-menu-item *ngFor="let item of statusList" (click)="selectStatus(item)">
-                        {{ item.name }}
+                        <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>{{ item.name }}
                       </li>
                     </ul>
                   </nz-dropdown-menu>
