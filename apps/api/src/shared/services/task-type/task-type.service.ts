@@ -29,9 +29,9 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
   onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
-    this._projectUtilityService = this._moduleRef.get(ProjectUtilityService.name);
 
     this._utilityService = new TaskTypeUtilityService();
+    this._projectUtilityService = new ProjectUtilityService();
   }
 
   /**
@@ -186,7 +186,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
   async addMissingAssigneeFiled() {
     return this.withRetrySession(async (session: ClientSession) => {
       const typesWithNoAssigneeIdQuery = {
-        assigneeId: { $in: [undefined, null, ''] }
+        assigneeId: { $in: [undefined, null] }
       };
 
       // get types who has no assignee id in db

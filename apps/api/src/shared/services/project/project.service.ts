@@ -826,9 +826,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
     return this.withRetrySession(async (session) => {
       // find projects where default settings is not yet implemented
       const findProjectsQuery = {
-        'settings.defaultTaskTypeId': { $in: [undefined, null, ''] },
-        'settings.defaultTaskStatusId': { $in: [undefined, null, ''] },
-        'settings.defaultTaskPriorityId': { $in: [undefined, null, ''] }
+        'settings.defaultTaskTypeId': { $in: [undefined, null] },
+        'settings.defaultTaskStatusId': { $in: [undefined, null] },
+        'settings.defaultTaskPriorityId': { $in: [undefined, null] }
       };
 
       // get projects without default settings
@@ -842,18 +842,20 @@ export class ProjectService extends BaseService<Project & Document> implements O
           const project = projectsWithoutDefaultSettings[i];
 
           // get task types for the project
-          const taskTypes = await this._taskTypesService.getAllTaskTypes(project._id);
+          const taskTypes = await this._taskTypesService.find({ filter: { projectId: project._id }, lean: true });
           // get task status for the project
-          const taskStatues = await this._taskStatusService.getAllStatues(project._id);
+          const taskStatues = await this._taskStatusService.find({ filter: { projectId: project._id }, lean: true });
           // get task priorities for the project
-          const taskPriorities = await this._taskPriorityService.getAllTaskPriorities(project._id);
+          const taskPriorities = await this._taskPriorityService.find({ filter: { projectId: project._id }, lean: true });
 
-          // update project and add default settings
-          await this.updateById(project._id, {
-            'settings.defaultTaskTypeId': taskTypes[0]._id,
-            'settings.defaultTaskStatusId': taskStatues[0]._id,
-            'settings.defaultTaskPriorityId': taskPriorities[0]._id
-          }, session);
+          if (taskTypes.length && taskStatues.length && taskPriorities.length) {
+            // update project and add default settings
+            await this.updateById(project._id, {
+              'settings.defaultTaskTypeId': taskTypes[0]._id,
+              'settings.defaultTaskStatusId': taskStatues[0]._id,
+              'settings.defaultTaskPriorityId': taskPriorities[0]._id
+            }, session);
+          }
         }
 
         return 'Default Settings added successfully';
