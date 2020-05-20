@@ -247,8 +247,8 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
   /**
    * add missing color field in status
-   * we added decided to add color feature in status
-   * so need to update existing status with default color that user can update
+   * we decided to add color feature in status
+   * so need to update existing status with default assignee that user can update later
    */
   async addMissingColorFiled() {
     return this.withRetrySession(async (session: ClientSession) => {

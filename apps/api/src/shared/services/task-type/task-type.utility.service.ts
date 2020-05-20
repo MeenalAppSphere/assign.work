@@ -38,6 +38,11 @@ export class TaskTypeUtilityService {
     if (!taskType.color) {
       BadRequest('Please choose color');
     }
+
+    // assignee id validations
+    if (!taskType.assigneeId) {
+      BadRequest('Please select Assignee Name');
+    }
   }
 
   public prepareDefaultTaskTypes(taskTypes: TaskTypeModel[], project: Project): TaskTypeModel[] {

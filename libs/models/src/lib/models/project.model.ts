@@ -53,8 +53,6 @@ export class ProjectSettings {
   priorities: TaskPriorityModel[];
   statuses?: TaskStatusModel[];
   tags?: ProjectTags[];
-  defaultAssigneeId?: string;
-  defaultAssignee?: User;
   defaultTaskTypeId?: string;
   defaultTaskType?: TaskTypeModel;
   defaultTaskStatusId?: string;
@@ -153,4 +151,14 @@ export class ProjectUpdateDefaultPriorityModel {
 export class ProjectUpdateDefaultTaskStatusModel {
   projectId: string;
   taskStatusId: string;
+}
+
+export class UpdateProjectRequestModel {
+  id: string;
+  organizationId: string;
+  name: string;
+  description: string;
+  defaultTaskTypeId: string;
+  defaultStatusId: string;
+  defaultPriorityId: string;
 }

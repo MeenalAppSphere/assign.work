@@ -23,4 +23,9 @@ export class TaskTypeController {
   async getAllTaskType(@Body('projectId') projectId: string) {
     return await this._taskTypeService.getAllTaskTypes(projectId);
   }
+
+  @Post('add-missing-default-assignee')
+  async addMissingAssigneeFiled() {
+    return await this._taskTypeService.addMissingAssigneeFiled();
+  }
 }

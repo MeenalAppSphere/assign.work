@@ -57,7 +57,7 @@ const taskBasicPopulation: any[] = [{
   justOne: true
 }, {
   path: 'taskType',
-  select: 'name displayName color',
+  select: 'name displayName color assigneeId',
   justOne: true
 }, {
   path: 'priority',
@@ -194,16 +194,13 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
     // new task process
     const newTask = await this.withRetrySession(async (session: ClientSession) => {
-
-      const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, model.taskTypeId);
+      // get task type details
+      const taskTypeDetails = await this._taskTypeService.getDetails(model.projectId, (model.taskTypeId || projectDetails.settings.defaultTaskTypeId));
 
       // prepare task model
       const taskModel = this._utilityService.prepareTaskObjectFromRequest(model, projectDetails);
 
-      if (!taskTypeDetails) {
-        BadRequest('Task Type not found');
-      }
-
+      // get last task
       const lastTask = await this._taskModel.find({
         projectId: taskModel.projectId
       }).sort({ _id: -1 }).limit(1).select('_id, displayName').lean();
@@ -217,8 +214,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // check if task assignee id is available or not
-      // if not then assign it to task creator
-      taskModel.assigneeId = taskModel.assigneeId || this._generalService.userId;
+      // if not then assign it to default assignee from task type
+      taskModel.assigneeId = taskModel.assigneeId || taskTypeDetails.assigneeId;
 
       // add task creator and assignee as default watcher
       taskModel.watchers = [
@@ -578,7 +575,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           let: { statusId: '$statusId' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$statusId'] } } },
-            { $project: { name: 1, color: 1} }
+            { $project: { name: 1, color: 1 } }
           ],
           as: 'status'
         })
@@ -598,7 +595,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
           let: { taskTypeId: '$taskTypeId' },
           pipeline: [
             { $match: { $expr: { $eq: ['$_id', '$$taskTypeId'] } } },
-            { $project: { name: 1, color: 1 } }
+            { $project: { name: 1, color: 1, assigneeId: 1 } }
           ],
           as: 'taskType'
         })

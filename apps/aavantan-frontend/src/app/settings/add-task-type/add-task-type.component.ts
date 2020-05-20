@@ -3,7 +3,13 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ProjectPriority, TaskPriorityModel, TaskTypeModel } from '@aavantan-app/models';
+import {
+  ProjectPriority,
+  SearchProjectCollaborators,
+  TaskPriorityModel,
+  TaskTypeModel,
+  User
+} from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskTypeService } from '../../shared/services/task-type/task-type.service';
 import { ColorEvent } from 'ngx-color';

@@ -1,4 +1,4 @@
-import { Project, ProjectMembers, User } from '@aavantan-app/models';
+import { Project, ProjectMembers, UpdateProjectRequestModel, User } from '@aavantan-app/models';
 import { BadRequest, maxLengthValidator, validOrganizationOrProjectName } from '../../helpers/helpers';
 import {
   DEFAULT_WORKING_CAPACITY,
@@ -16,7 +16,7 @@ export class ProjectUtilityService {
    * check add project validations
    * @param project
    */
-  checkAddUpdateProjectValidations(project: Project) {
+  checkAddUpdateProjectValidations(project: Project | UpdateProjectRequestModel) {
     if (!project) {
       BadRequest('Project name is required');
     }

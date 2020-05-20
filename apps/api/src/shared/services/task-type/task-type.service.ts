@@ -9,12 +9,15 @@ import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { TaskTypeUtilityService } from './task-type.utility.service';
 import { GeneralService } from '../general.service';
 import { TaskService } from '../task/task.service';
+import { ProjectUtilityService } from '../project/project.utility.service';
+import { DEFAULT_TASK_STATUS_COLOR } from '../../helpers/defaultValueConstant';
 
 @Injectable()
 export class TaskTypeService extends BaseService<TaskTypeModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _taskService: TaskService;
   private _utilityService: TaskTypeUtilityService;
+  private _projectUtilityService: ProjectUtilityService;
 
   constructor(
     @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskTypeModel & Document>,
@@ -26,6 +29,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
   onModuleInit(): void {
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
+    this._projectUtilityService = this._moduleRef.get(ProjectUtilityService.name);
 
     this._utilityService = new TaskTypeUtilityService();
   }
@@ -43,7 +47,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         taskTypeDetails = await this.getDetails(model.projectId, model.id);
       }
       // get project details
-      await this._projectService.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       // check task type validations...
       this._utilityService.taskTypeValidations(model);
@@ -59,12 +63,19 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         }
       }
 
+      // check if new assignee is part of project
+      const isAssigneePartOfProject = this._projectUtilityService.userPartOfProject(model.assigneeId, projectDetails);
+      if (!isAssigneePartOfProject) {
+        BadRequest('This assignee is not part of this Project');
+      }
+
       // task type model
       const taskType = new TaskTypeModel();
       taskType.projectId = model.projectId;
       taskType.displayName = model.displayName;
       taskType.name = model.name;
       taskType.color = model.color;
+      taskType.assigneeId = model.assigneeId || this._generalService.userId;
       taskType.description = model.description;
       taskType.createdById = this._generalService.userId;
 
@@ -165,6 +176,33 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
     } catch (e) {
       throw e;
     }
+  }
+
+  /**
+   * add missing assignee field in task type
+   * we decided to add default assignee feature in task type
+   * so need to update existing status with default assignee ( project creator ) that user can update later
+   */
+  async addMissingAssigneeFiled() {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const typesWithNoAssigneeIdQuery = {
+        assigneeId: { $in: [undefined, null, ''] }
+      };
+
+      // get types who has no assignee id in db
+      const typesWithNoAssigneeId = await this.find({ filter: typesWithNoAssigneeIdQuery, lean: true });
+      if (typesWithNoAssigneeId && typesWithNoAssigneeId.length) {
+
+        // loop over task types
+        for (let i = 0; i < typesWithNoAssigneeId.length; i++) {
+          const taskType = typesWithNoAssigneeId[i];
+          // update
+          await this.updateById(taskType._id, { assigneeId: taskType.createdById }, session);
+        }
+      }
+
+      return 'Default assignee added successfully';
+    });
   }
 
   /**
