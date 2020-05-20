@@ -11,6 +11,7 @@ import { GeneralService } from '../general.service';
 import { TaskService } from '../task/task.service';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { DEFAULT_TASK_STATUS_COLOR } from '../../helpers/defaultValueConstant';
+import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
 
 @Injectable()
 export class TaskTypeService extends BaseService<TaskTypeModel & Document> implements OnModuleInit {
@@ -132,8 +133,23 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
   public async getAllTaskTypes(projectId: string) {
     await this._projectService.getProjectDetails(projectId);
     return this.dbModel.aggregate([{
-      $match: { projectId: this.toObjectId(projectId), isDeleted: false }
-    }, { $project: { createdAt: 0, updatedAt: 0, '__v': 0 } }, aggregateConvert_idToId]);
+      $match: {
+        projectId: this.toObjectId(projectId), isDeleted: false
+      }
+    }, {
+      $lookup: {
+        from: DbCollection.users,
+        let: { assigneeId: '$assigneeId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
+          { $project: basicUserDetailsForAggregateQuery },
+          aggregateConvert_idToId
+        ],
+        as: 'assignee'
+      }
+    }, { $unwind: '$assignee' },
+      { $project: { createdAt: 0, updatedAt: 0, '__v': 0 } },
+      aggregateConvert_idToId]);
   }
 
   /**

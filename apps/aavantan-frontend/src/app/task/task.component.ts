@@ -106,7 +106,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public displayName: string;
   public taskData: Task;
   public taskId: string;
-  public sprintData:Sprint;
+  public sprintData: Sprint;
   public attachementHeader: any;
   public attachementUrl: string;
   public attachementIds: string[] = [];
@@ -263,6 +263,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     // get all task status from store
     this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
       this.statusDataSource = statuses;
+      this.selectedStatus = statuses.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
     });
 
     // get all task types from store
@@ -277,10 +278,12 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         if (arr && arr.length) {
           this.selectedTaskType = arr[0];
+          this.selectedAssignee = arr[0].assignee;
+          this.taskForm.get('assigneeId').patchValue(this.selectedAssignee);
+          this.modelChanged.next();
         }
 
       } else {
-        this.selectedTaskType = this.taskTypeDataSource[0];
         this.resetTaskForm();
       }
     });
@@ -288,6 +291,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     // get all task priorities from store
     this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
       this.priorityDataSource = priorities;
+      this.selectedPriority = priorities.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
     });
 
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -581,8 +585,12 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
 
     if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
-      this.selectedTaskType = this.taskTypeDataSource[0];
+      this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
       this.displayName = this.selectedTaskType.displayName;
+
+      this.selectedAssignee = this.selectedTaskType.assignee;
+      this.taskForm.get('assigneeId').patchValue(this.selectedAssignee);
+      this.modelChanged.next();
     }
 
     this.pinnedCommentsList = null;
@@ -592,9 +600,9 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     if (this.selectedTaskType) {
       this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
-    } else if(this.displayName) {
-      this.router.navigateByUrl('dashboard/task/'+this.displayName);
-    }else {
+    } else if (this.displayName) {
+      this.router.navigateByUrl('dashboard/task/' + this.displayName);
+    } else {
       this.router.navigateByUrl('dashboard/task/');
     }
 
@@ -732,7 +740,6 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.updateSidebarContentInProcess = false;
     }
   }
-
 
 
   public async removeTaskToSprint() {
@@ -999,7 +1006,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskId = data.data.id;
         this.displayName = data.data.displayName;
 
-        if(!this.taskData){
+        if (!this.taskData) {
           this.taskData = data.data;
         }
 
@@ -1018,7 +1025,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   }
 
-  async updateTask(task:Task) {
+  async updateTask(task: Task) {
 
     try {
       task.id = this.taskId;
@@ -1058,7 +1065,7 @@ export class TaskComponent implements OnInit, OnDestroy {
           overProgress: data.data.overProgress
         };
       }
-    }catch (e) {
+    } catch (e) {
       this.createTaskInProcess = false;
     }
   }
@@ -1100,6 +1107,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
+    this.selectedAssignee = item.assignee;
   }
 
   public selectPriority(item: ProjectPriority) {
@@ -1198,7 +1206,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
-     this.themeService.toggleFold(false);
+    this.themeService.toggleFold(false);
   }
 
 }

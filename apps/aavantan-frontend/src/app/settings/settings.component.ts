@@ -68,12 +68,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   };
 
   public selectedAssignee: User = {};
-  public selectedTaskType:TaskTypeModel;
+  public selectedTaskType: TaskTypeModel;
   public selectedStatus: ProjectStatus;
   public selectedPriority: ProjectPriority;
   public displayName: string;
-  public assigneeDataSource:User[] = []
-  public isSearchingDefaultAssignee:boolean;
+  public assigneeDataSource: User[] = [];
+  public isSearchingDefaultAssignee: boolean;
 
 
   public stagesList: any = [];
@@ -140,6 +140,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.createProjectForm();
+
     this.currentOrganization = this._generalService.currentOrganization;
 
     // get current project from store
@@ -151,6 +153,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
         this.totalCapacity = 0;
         this.totalCapacityPerDay = 0;
+
         if (this.projectMembersList && this.projectMembersList.length > 0) {
           this.projectCapacityMembersList = this.projectMembersList.filter((ele) => {
             if (ele.isInviteAccepted) {
@@ -163,32 +166,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           });
         }
 
-        // search default assignee
-        this.assigneeModelChanged
-          .pipe(
-            debounceTime(500))
-          .subscribe(() => {
-            const queryText = this.projectForm.get('assigneeId').value;
-            const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
-            if (!queryText || this.projectForm.get('assigneeId').value === name) {
-              return;
-            }
-            this.isSearchingDefaultAssignee = true;
-            const json: SearchProjectCollaborators = {
-              projectId: this._generalService.currentProject.id,
-              query: queryText
-            };
-            this._userService.searchProjectCollaborator(json).subscribe((data) => {
-              this.isSearchingDefaultAssignee = false;
-              this.assigneeDataSource = data.data;
-            });
-
-          });
-        // end default search assignee
-
-
-        this.createProjectForm();
-
+        this.bindProjectForm();
       }
     });
 
@@ -215,20 +193,42 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // get all task statuses from store
     this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
       this.statusList = statuses;
-      this.selectedStatus =  statuses[0];
+      this.selectedStatus = this.statusList.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
     });
 
     // get all task types from store
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
       this.typesList = types;
-      this.selectedTaskType = types[0];
+      this.selectedTaskType = this.typesList.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
     });
 
     // get all task priorities from store
     this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
       this.priorityList = priorities;
-      this.selectedPriority =  priorities[0];
+      this.selectedPriority = this.priorityList.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
     });
+
+    // search default assignee
+    this.assigneeModelChanged
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        const queryText = this.projectForm.get('assigneeId').value;
+        const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
+        if (!queryText || this.projectForm.get('assigneeId').value === name) {
+          return;
+        }
+        this.isSearchingDefaultAssignee = true;
+        const json: SearchProjectCollaborators = {
+          projectId: this._generalService.currentProject.id,
+          query: queryText
+        };
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
+          this.isSearchingDefaultAssignee = false;
+          this.assigneeDataSource = data.data;
+        });
+      });
+    // end default search assignee
 
     this.collaboratorForm = this.FB.group({
       collaborator: new FormControl(null, [Validators.required])
@@ -245,8 +245,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.workflowForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
-
-    this.createProjectForm();
 
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
@@ -338,13 +336,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public createProjectForm() {
     this.projectForm = this.FB.group({
-      id: new FormControl(this.currentProject ? this.currentProject.id : null),
-      name: new FormControl(this.currentProject ? this.currentProject.name : null, [Validators.required]),
-      organizationId: new FormControl(this._generalService.currentOrganization.id),
-      assigneeId: new FormControl( null),
-      taskTypeId: new FormControl( null),
-      statusId: new FormControl( null),
-      priorityId:new FormControl( null),
+      id: new FormControl(),
+      name: new FormControl('', [Validators.required]),
+      organizationId: new FormControl(),
+      // assigneeId: new FormControl( null),
+      defaultTaskTypeId: new FormControl(),
+      defaultTaskStatusId: new FormControl(),
+      defaultTaskPriorityId: new FormControl()
+    });
+  }
+
+  /**
+   * bind current project value in project form
+   */
+  public bindProjectForm() {
+    this.projectForm.patchValue({
+      id: this.currentProject.id,
+      name: this.currentProject.name,
+      organizationId: this.currentProject.organizationId,
+      defaultTaskTypeId: this.currentProject.settings.defaultTaskTypeId,
+      defaultTaskStatusId: this.currentProject.settings.defaultTaskStatusId,
+      defaultTaskPriorityId: this.currentProject.settings.defaultTaskPriorityId
     });
   }
 
@@ -719,7 +731,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }), (error => {
       this.updateRequestInProcess = false;
     }));
-
   }
 
   projectModalShow(): void {
