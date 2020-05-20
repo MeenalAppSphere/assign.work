@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
-import { DbCollection, Project, TaskTypeModel } from '@aavantan-app/models';
+import { DbCollection, MongooseQueryModel, Project, TaskTypeModel } from '@aavantan-app/models';
 import { ProjectService } from '../project/project.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -42,7 +42,9 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
    * @param model
    */
   async addUpdate(model: TaskTypeModel) {
-    return await this.withRetrySession(async (session: ClientSession) => {
+
+    // process add  and update task type
+    const taskTypeResult = await this.withRetrySession(async (session: ClientSession) => {
       let taskTypeDetails: TaskTypeModel = null;
       if (model.id) {
         taskTypeDetails = await this.getDetails(model.projectId, model.id);
@@ -125,6 +127,13 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         return taskType;
       }
     });
+
+    // return task type details
+    try {
+      return this.getDetails(model.projectId, taskTypeResult.id, true);
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
@@ -225,22 +234,38 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
    * get task type details by id
    * @param projectId
    * @param taskTypeId
+   * @param getFullDetails
    */
-  async getDetails(projectId: string, taskTypeId: string): Promise<TaskTypeModel> {
+  async getDetails(projectId: string, taskTypeId: string, getFullDetails: boolean = false): Promise<TaskTypeModel> {
     try {
       if (!this.isValidObjectId(taskTypeId)) {
         BadRequest('Task Type not found..');
       }
 
-      const taskTypeDetail = await this.findOne({
+      // query for get task
+      const query: MongooseQueryModel = {
         filter: { _id: taskTypeId, projectId: projectId },
         lean: true
-      });
+      };
+
+      if (getFullDetails) {
+        query.populate = [{
+          path: 'assignee',
+          select: 'emailId userName firstName lastName profilePic _id',
+          justOne: true
+        }];
+      }
+
+      // find task
+      const taskTypeDetail = await this.findOne(query);
 
       if (!taskTypeDetail) {
         BadRequest('Task Type not found...');
       } else {
         taskTypeDetail.id = taskTypeDetail._id;
+        if (taskTypeDetail.assignee) {
+          taskTypeDetail.assignee.id = taskTypeDetail.assignee._id;
+        }
       }
 
       return taskTypeDetail;

@@ -159,6 +159,6 @@ export class UpdateProjectRequestModel {
   name: string;
   description: string;
   defaultTaskTypeId: string;
-  defaultStatusId: string;
-  defaultPriorityId: string;
+  defaultTaskStatusId: string;
+  defaultTaskPriorityId: string;
 }

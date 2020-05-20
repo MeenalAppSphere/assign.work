@@ -169,6 +169,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       updatedProject.name = model.name;
       updatedProject.updatedById = this._generalService.userId;
       updatedProject.description = model.description;
+      updatedProject.settings = projectDetails.settings;
 
       // check if default task type is changed
       if (projectDetails.settings.defaultTaskTypeId.toString() !== model.defaultTaskTypeId) {
@@ -180,23 +181,22 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }
 
       // check if default status is changed
-      if (projectDetails.settings.defaultTaskStatusId.toString() !== model.defaultStatusId) {
+      if (projectDetails.settings.defaultTaskStatusId.toString() !== model.defaultTaskStatusId) {
         // get task type details
-        await this._taskStatusService.getDetails(model.id, model.defaultStatusId);
+        await this._taskStatusService.getDetails(model.id, model.defaultTaskStatusId);
 
         // set task status  id
-        updatedProject.settings.defaultTaskStatusId = model.defaultStatusId;
+        updatedProject.settings.defaultTaskStatusId = model.defaultTaskStatusId;
       }
 
       // check if default priority is changed
-      if (projectDetails.settings.defaultTaskPriorityId.toString() !== model.defaultPriorityId) {
+      if (projectDetails.settings.defaultTaskPriorityId.toString() !== model.defaultTaskPriorityId) {
         // get task priority details
-        await this._taskPriorityService.getDetails(model.id, model.defaultPriorityId);
+        await this._taskPriorityService.getDetails(model.id, model.defaultTaskPriorityId);
 
         // set task priority id
-        updatedProject.settings.defaultTaskPriorityId = model.defaultPriorityId;
+        updatedProject.settings.defaultTaskPriorityId = model.defaultTaskPriorityId;
       }
-
 
       await this.updateById(model.id, updatedProject, session);
     });

@@ -188,10 +188,6 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this.sprintData = this._generalService.currentProject.sprint;
 
-    if (this.displayName && this.displayName.split('-').length > 1) {
-      this.getTask();
-    }
-
     this.taskForm = this.FB.group({
       projectId: [null],
       name: [null, [Validators.required]],
@@ -212,7 +208,6 @@ export class TaskComponent implements OnInit, OnDestroy {
       remainingHours: [null],
       remainingMinutes: [null]
     });
-
 
     // for sidebar controls
     this.taskFormSideBar = this.FB.group({
@@ -279,7 +274,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         if (arr && arr.length) {
           this.selectedTaskType = arr[0];
           this.selectedAssignee = arr[0].assignee;
-          this.taskForm.get('assigneeId').patchValue(this.selectedAssignee);
+          this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
           this.modelChanged.next();
         }
 
@@ -300,6 +295,10 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
+    // get task details from display name
+    if (this.displayName && this.displayName.split('-').length > 1) {
+      this.getTask();
+    }
 
     // search assignee
     this.modelChanged
@@ -589,7 +588,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.displayName = this.selectedTaskType.displayName;
 
       this.selectedAssignee = this.selectedTaskType.assignee;
-      this.taskForm.get('assigneeId').patchValue(this.selectedAssignee);
+      this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
       this.modelChanged.next();
     }
 
@@ -1108,6 +1107,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
     this.selectedAssignee = item.assignee;
+    this.taskForm.get('assigneeId').patchValue(`${item.assignee.firstName} ${item.assignee.lastName}`);
   }
 
   public selectPriority(item: ProjectPriority) {

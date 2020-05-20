@@ -647,7 +647,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public toggleAddTaskTypeShow(item?: TaskTypeModel) {
     if (item) {
-      this.addEditprojectTaskTypeData = item;
+      this.addEditprojectTaskTypeData = { ...item };
     } else {
       this.addEditprojectTaskTypeData = null;
     }
@@ -739,14 +739,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
+    this.projectForm.get('defaultTaskTypeId').patchValue(item.id);
   }
 
   public selectPriority(item: ProjectPriority) {
     this.selectedPriority = item;
+    this.projectForm.get('defaultTaskPriorityId').patchValue(item.id);
   }
 
   public selectStatus(item: ProjectStatus) {
     this.selectedStatus = item;
+    this.projectForm.get('defaultTaskStatusId').patchValue(item.id);
   }
 
 

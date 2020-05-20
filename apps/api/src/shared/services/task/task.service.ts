@@ -58,7 +58,12 @@ const taskBasicPopulation: any[] = [{
 }, {
   path: 'taskType',
   select: 'name displayName color assigneeId',
-  justOne: true
+  justOne: true,
+  populate: {
+    path: 'assignee',
+    select: 'emailId userName firstName lastName profilePic _id',
+    justOne: true
+  }
 }, {
   path: 'priority',
   select: 'name color',

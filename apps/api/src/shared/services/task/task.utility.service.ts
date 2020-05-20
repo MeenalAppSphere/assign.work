@@ -223,6 +223,9 @@ export class TaskUtilityService {
 
     if (task.taskType) {
       task.taskType.id = task.taskType._id;
+      if (task.taskType.assignee) {
+        task.taskType.assignee.id = task.taskType.assignee._id;
+      }
     }
 
     if (task.status) {
