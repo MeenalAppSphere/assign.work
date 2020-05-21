@@ -78,10 +78,12 @@ export class TaskUtilityService {
     taskModel.attachments = model.attachments || [];
 
     taskModel.taskTypeId = model.taskTypeId;
-    taskModel.priorityId = model.priorityId;
 
-    // if no status found than assign project's active board first column's status as default status
-    taskModel.statusId = model.statusId || project.activeBoard.columns[0].headerStatusId;
+    // if no task priority found than assign project's default priority id
+    taskModel.priorityId = model.priorityId || project.settings.defaultTaskPriorityId;
+
+    // if no status found than assign project's default status
+    taskModel.statusId = model.statusId || project.settings.defaultTaskStatusId;
 
     taskModel.sprintId = null;
 
@@ -185,7 +187,7 @@ export class TaskUtilityService {
       };
 
 
-      const subject = EmailSubjectEnum.taskUpdated.replace(':userName', task.updatedBy.firstName +' '+task.updatedBy.lastName)
+      const subject = EmailSubjectEnum.taskUpdated.replace(':userName', task.updatedBy.firstName + ' ' + task.updatedBy.lastName)
         .replace(':displayName', task.displayName);
 
       sendEmailArrays.push({
@@ -221,6 +223,9 @@ export class TaskUtilityService {
 
     if (task.taskType) {
       task.taskType.id = task.taskType._id;
+      if (task.taskType.assignee) {
+        task.taskType.assignee.id = task.taskType.assignee._id;
+      }
     }
 
     if (task.status) {

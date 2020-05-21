@@ -1,4 +1,19 @@
 #settings-page{
+  .max-width-ddls {
+    max-width: 250px;
+  }
+
+  .assigned-user-input {
+    padding-left: 28px !important;
+  }
+
+  .assigned-user-icon {
+    position: absolute;
+    z-index: 1;
+    left: 6px;
+    top: -2px;
+  }
+
   .right-30 {
     right:30px!important;
   }

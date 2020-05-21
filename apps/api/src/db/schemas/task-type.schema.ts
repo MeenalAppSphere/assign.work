@@ -8,6 +8,11 @@ export const taskTypeSchema = new Schema({
   name: { type: String, required: [true, 'Task type name is required'], text: true },
   color: { type: String, required: [true, 'Task type color is required'] },
   displayName: { type: String, required: [true, 'Task type display name is required'] },
+  assigneeId: {
+    type: Schema.Types.ObjectId,
+    ref: DbCollection.users,
+    required: [true, 'Please choose default assignee']
+  },
   projectId: { type: Schema.Types.ObjectId, ref: DbCollection.projects, required: [true, 'Project name is required'] },
   description: { type: String },
   ...commonSchemaFields
@@ -36,6 +41,12 @@ taskTypeSchema
     foreignField: '_id'
   });
 
+taskTypeSchema
+  .virtual('assignee', {
+    ref: DbCollection.users,
+    localField: 'assigneeId',
+    foreignField: '_id'
+  });
 
 // plugins
 taskTypeSchema

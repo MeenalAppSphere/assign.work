@@ -118,15 +118,7 @@
         <section class="row">
           <aside class="col-md-4">
             <form nz-form class="register-form" [formGroup]="projectForm">
-              <nz-form-item>
-                <nz-form-label>Organization</nz-form-label>
-                <input
-                  autocomplete="Off"
-                  disabled="true"
-                  placeholder="{{currentOrganization.name}}"
-                  value="{{currentOrganization.name}}"
-                  nz-input nzSize="small">
-              </nz-form-item>
+
               <nz-form-item>
                 <nz-form-label>Project Title<span class="text-danger">*</span></nz-form-label>
                 <input
@@ -135,6 +127,111 @@
                   placeholder="Enter Project Name, eg : Food Application"
                   nz-input nzSize="small">
               </nz-form-item>
+
+
+              <!-- region default assignee -->
+<!--              <nz-form-item class="relative">-->
+<!--                <nz-form-label nzFor="taskType">Default Assignee<span class="text-danger">*</span></nz-form-label>-->
+<!--                <nz-form-control class="relative">-->
+<!--                                <span class="assigned-user-icon">-->
+<!--                              <nz-avatar [nzSize]="16" nzIcon="user"-->
+<!--                                         [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null"></nz-avatar>-->
+<!--                            </span>-->
+<!--                  <nz-input-group [nzSuffix]="suffixDefaultIconSearch">-->
+<!--                    <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input-->
+<!--                           (ngModelChange)="selectDefaultAssigneeTypeahead($event)" nzSize="small"-->
+<!--                           [nzAutocomplete]="autoAssignee"/>-->
+<!--                  </nz-input-group>-->
+<!--                  <nz-autocomplete #autoAssignee>-->
+<!--                    <nz-auto-option *ngFor="let option of assigneeDataSource"-->
+<!--                                    [nzLabel]="option && option.firstName ? option.firstName : option.emailId"-->
+<!--                                    [nzValue]="option">-->
+<!--                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"-->
+<!--                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>-->
+<!--                      <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>-->
+<!--                      <span *ngIf="option && option.lastName">&nbsp;{{ option && option.lastName }}</span>-->
+<!--                      <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small-->
+<!--                        class="text-muted">{{ option.emailId }}</small></div>-->
+<!--                    </nz-auto-option>-->
+<!--                  </nz-autocomplete>-->
+<!--                </nz-form-control>-->
+<!--                <ng-template #suffixDefaultIconSearch>-->
+<!--                  <i nz-icon nzType="search" *ngIf="!isSearchingDefaultAssignee && (projectForm.controls['assigneeId'].value?.length===0 || !projectForm.controls['assigneeId'].value)"></i>-->
+<!--                  <i nz-icon nzType="close" class="cursor-pointer" (click)="clearAssigeeSearchText()" *ngIf="!isSearchingDefaultAssignee && projectForm.controls['assigneeId'].value?.length>0"></i>-->
+<!--                  <i class="fas fa-spin fa-spinner" *ngIf="isSearchingDefaultAssignee"></i>-->
+<!--                </ng-template>-->
+<!--              </nz-form-item>-->
+              <!-- endregion -->
+
+              <!-- region default task status -->
+              <nz-form-item class="max-width-ddls">
+                <nz-form-label nzFor="taskType">Default Status <span class="text-danger">*</span></nz-form-label>
+                <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDL" nzPlacement="bottomLeft"
+                                   style="width: 100%!important;">
+                    <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
+                            style="width: 100%!important;">
+                      <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
+                      {{selectedStatus?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                    </button>
+                  </nz-button-group>
+                  <nz-dropdown-menu #statusDDL="nzDropdownMenu">
+                    <ul nz-menu>
+                      <li nz-menu-item *ngFor="let item of statusList" (click)="selectStatus(item)">
+                        <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i>{{ item.name }}
+                      </li>
+                    </ul>
+                  </nz-dropdown-menu>
+                </nz-form-control>
+              </nz-form-item>
+              <!-- endregion -->
+
+              <!-- region default task type -->
+              <nz-form-item class="max-width-ddls">
+                <nz-form-label nzFor="taskType">Default Task Type <span class="text-danger">*</span></nz-form-label>
+                <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="taskTypeDD" nzPlacement="bottomLeft"
+                                   style="width: 100%!important;">
+                    <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
+                            style="width: 100%!important;">
+                      <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
+                      {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                    </button>
+                  </nz-button-group>
+                  <nz-dropdown-menu #taskTypeDD="nzDropdownMenu">
+                    <ul nz-menu>
+                      <li nz-menu-item *ngFor="let item of typesList" (click)="selectTaskType(item)">
+                        <i class="fas fa-circle m-r-10" [ngStyle]="{'color':item.color}"></i> {{ item.displayName }}
+                      </li>
+                    </ul>
+                  </nz-dropdown-menu>
+                </nz-form-control>
+              </nz-form-item>
+              <!-- endregion -->
+
+              <!-- region default status -->
+              <nz-form-item class="max-width-ddls">
+                <nz-form-label nzFor="taskType">Default Priority <span class="text-danger">*</span></nz-form-label>
+                <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="priorityDDL" nzPlacement="bottomLeft"
+                                   style="width: 100%!important;">
+                    <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
+                            style="width: 100%!important;">
+                      <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedPriority?.color}"></span>
+                      {{selectedPriority?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                    </button>
+                  </nz-button-group>
+                  <nz-dropdown-menu #priorityDDL="nzDropdownMenu">
+                    <ul nz-menu>
+                      <li nz-menu-item *ngFor="let item of priorityList" (click)="selectPriority(item)">
+                        <i class="fas fa-square m-r-5" [ngStyle]="{'color': item.color}"></i>{{ item.name }}
+                      </li>
+                    </ul>
+                  </nz-dropdown-menu>
+                </nz-form-control>
+              </nz-form-item>
+              <!-- endregion -->
+
               <nz-form-item>
                 <button (click)="saveProject()" [disabled]="projectForm.invalid" [nzLoading]="updateRequestInProcess"
                         nz-button nzType="primary"
@@ -142,7 +239,10 @@
                 </button>
               </nz-form-item>
             </form>
+
           </aside>
+
+
         </section>
       </ng-container>
       <!-- project tab -->
@@ -660,8 +760,10 @@
                     <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
                        [ngStyle]="{'color':item.color}"></i>
                     {{item.name}}</span>
-                  <span class="float-right d-flex p-t-5">
-                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+
+                  <span class="float-right d-flex">
+                    <profile-name [user]="item.assignee" class="m-r-15"></profile-name>
+                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit p-t-5"></i>
                     <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                   </span>
                 </li>
