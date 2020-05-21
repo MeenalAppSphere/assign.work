@@ -313,7 +313,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       taskModel.taskTypeId = model.taskTypeId;
       taskModel.priorityId = model.priorityId;
-      taskModel.createdById = model.createdById;
       taskModel.dependentItemId = model.dependentItemId;
       taskModel.relatedItemId = model.relatedItemId;
 
