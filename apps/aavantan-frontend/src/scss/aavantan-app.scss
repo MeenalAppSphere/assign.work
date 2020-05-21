@@ -554,6 +554,8 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   text-overflow: ellipsis;
   position: relative;
   line-height: 13px!important;
+  min-height: 29px;
+
   i {
     float: right;
     position: absolute;

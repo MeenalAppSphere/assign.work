@@ -13,7 +13,8 @@ import {
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
-  SwitchProjectRequest
+  SwitchProjectRequest,
+  UpdateProjectRequestModel
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -36,7 +37,7 @@ export class ProjectController {
   }
 
   @Post('update')
-  async updateProject(@Body() project: Project) {
+  async updateProject(@Body() project: UpdateProjectRequestModel) {
     return await this._projectService.updateProject(project);
   }
 
@@ -53,26 +54,6 @@ export class ProjectController {
   @Post('update-template')
   async updateProjectTemplate(@Body() model: ProjectTemplateUpdateModel) {
     return await this._projectService.updateProjectTemplate(model);
-  }
-
-  @Post('update-project-default-assignee')
-  async updateProjectDefaultAssignee(@Body() model: ProjectUpdateDefaultAssigneeModel) {
-    return await this._projectService.updateProjectDefaultAssignee(model);
-  }
-
-  @Post('update-project-default-task-type')
-  async updateProjectDefaultTaskType(@Body() model: ProjectUpdateDefaultTaskTypeModel) {
-    return await this._projectService.updateProjectDefaultTaskType(model);
-  }
-
-  @Post('update-project-default-task-priority')
-  async updateProjectDefaultTaskPriority(@Body() model: ProjectUpdateDefaultPriorityModel) {
-    return await this._projectService.updateProjectDefaultPriority(model);
-  }
-
-  @Post('update-project-default-task-priority')
-  async updateProjectDefaultTaskStatus(@Body() model: ProjectUpdateDefaultTaskStatusModel) {
-    return await this._projectService.updateProjectDefaultStatus(model);
   }
 
   @Put(':id/update-working-capacity')

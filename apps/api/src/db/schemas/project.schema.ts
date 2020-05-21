@@ -48,7 +48,6 @@ export const projectSchema = new Schema({
     priorities: [],
     statuses: [{ type: Types.ObjectId }],
     tags: [projectTagsSchema],
-    defaultAssigneeId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
     defaultTaskTypeId: { type: Schema.Types.ObjectId, ref: DbCollection.taskType },
     defaultTaskStatusId: { type: Schema.Types.ObjectId, ref: DbCollection.taskStatus },
     defaultTaskPriorityId: { type: Schema.Types.ObjectId, ref: DbCollection.taskPriority },
@@ -84,15 +83,6 @@ projectSchema
     foreignField: '_id',
     justOne: true
   });
-
-projectSchema
-  .virtual('settings.defaultAssignee', {
-    ref: DbCollection.users,
-    localField: 'settings.defaultAssigneeId',
-    foreignField: '_id',
-    justOne: true
-  });
-
 
 projectSchema
   .virtual('settings.defaultTaskType', {

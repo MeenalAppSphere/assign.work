@@ -38,12 +38,23 @@ export class TaskTypeUtilityService {
     if (!taskType.color) {
       BadRequest('Please choose color');
     }
+
+    // assignee id validations
+    if (!taskType.assigneeId) {
+      BadRequest('Please select Assignee Name');
+    }
   }
 
+  /**
+   * prepare default task type model
+   * @param taskTypes
+   * @param project
+   */
   public prepareDefaultTaskTypes(taskTypes: TaskTypeModel[], project: Project): TaskTypeModel[] {
     return taskTypes.map(taskType => {
       taskType.projectId = project._id;
       taskType.createdById = project.createdById;
+      taskType.assigneeId = project.createdById;
       taskType.description = `${taskType.name} is a default task type which is provided when you create a new Project`;
       return taskType;
     });
