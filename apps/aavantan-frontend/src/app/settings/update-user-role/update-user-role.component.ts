@@ -3,12 +3,19 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AccessPermissionVM, Permissions, ProjectMembers, UserRoleModel } from '@aavantan-app/models';
+import {
+  AccessPermissionVM,
+  ChangeAccessModel,
+  Permissions,
+  ProjectMembers,
+  UserRoleModel
+} from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskStatusService } from '../../shared/services/task-status/task-status.service';
 import { PERMISSIONS } from '../../../../../../libs/models/src/lib/constants/permission';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserRoleQuery } from '../../queries/user-role/user-role.query';
+import { UserRoleService } from '../../shared/services/user-role/user-role.service';
 
 @Component({
   selector: 'update-user-role',
@@ -20,7 +27,7 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
   @Input() public updateUserRoleData: ProjectMembers;
   @Output() toggleUpdateUserRoleShow: EventEmitter<any> = new EventEmitter<any>();
 
-  public userRoleForm: FormGroup;
+  public changeAccessForm: FormGroup;
   public updateRequestInProcess: boolean;
 
   public permissionsList: AccessPermissionVM[] = [];
@@ -34,7 +41,8 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
               private _projectService: ProjectService,
               private _generalService: GeneralService,
               private _taskStatusService: TaskStatusService,
-              private FB: FormBuilder, private _userRoleQuery: UserRoleQuery) {
+              private FB: FormBuilder, private _userRoleQuery: UserRoleQuery,
+              private _userRolesService: UserRoleService) {
   }
 
   ngOnInit() {
@@ -45,16 +53,12 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
     });
 
 
-    this.userRoleForm = this.FB.group({
-      id: new FormControl(null),
-      name: new FormControl(null, [Validators.required]),
-      permission: new FormControl([], [Validators.required]),
+    this.changeAccessForm = this.FB.group({
+      roleId: new FormControl(null)
     });
 
-    console.log('updateUserRoleData :',this.updateUserRoleData);
+    console.log('updateUserRoleData :', this.updateUserRoleData);
     if (this.updateUserRoleData) {
-      // this.userRoleForm.get('name').patchValue();
-      // this.userRoleForm.get('id').patchValue();
 
       // init/prepare all permissions list from 'PERMISSIONS' const
       this.generatePermissionsList(PERMISSIONS);
@@ -109,25 +113,28 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
 
 
   //**********************//
-  // Save permission
+  // Update role of collaborator
   //**********************//
-  async save() {
+  async saveAccess() {
     try {
-      if (this.userRoleForm.invalid) {
+      if (this.changeAccessForm.invalid) {
         this.notification.error('Error', 'Please check all fields');
         return;
       }
-      const json: UserRoleModel = this.userRoleForm.value;
-      json.name = json.name.trim();
-      this.updateRequestInProcess = true;
+
+      const json: ChangeAccessModel = {...this.changeAccessForm.getRawValue()};
 
       if (this.updateUserRoleData && this.updateUserRoleData.userId) {
 
+        json.userId = this.updateUserRoleData.userId;
+        json.projectId = this._generalService.currentProject.id;
+
         this.updateRequestInProcess = true;
 
-        // await this._taskStatusService.updateTaskStatus(json).toPromise();
+        await this._userRolesService.changeAccess(json).toPromise();
 
         this.updateRequestInProcess = false;
+
         this.toggleUpdateUserRoleShow.emit();
 
       } else {

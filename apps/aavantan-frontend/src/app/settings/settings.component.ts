@@ -61,7 +61,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public selectedCollaborator: User;
   public selectedCollaborators: User[] = [];
   public defaultAssigneeDataSource: User[] = [];
-  public userDataSource: User[] = [];
   public collaboratorsDataSource: User[] = [];
   public isCollaboratorExits: boolean = false;
   public enableInviteBtn: boolean;

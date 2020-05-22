@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  Project,
   StatusDDLModel,
   Task,
   TaskFilterCondition,
@@ -38,6 +39,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public isFilterApplied: boolean;
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
+  public currentProject: Project;
 
   constructor(protected notification: NzNotificationService,
               private _generalService: GeneralService,
@@ -60,7 +62,17 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
     });
 
+    // get current project from store
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentProject = res;
+      }
+    });
+
     // get filters and the call first tab data
+
+
+
     if(this._generalService.currentProject && this._generalService.currentProject.activeBoard) {
 
       this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -74,35 +86,40 @@ export class ProjectComponent implements OnInit, OnDestroy {
   }
 
   public getFilterStatus(statusList:TaskStatusModel[]) {
-
     // ready status filter dropdown data
+    try {
+      const columns = cloneDeep(this.currentProject.activeBoard.columns);
 
-    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
+      if (columns) {
 
-    if (columns) {
+        const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
 
-      const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
 
-      if (statusList && statusList.length > 0) {
-        statusList.forEach((ele) => {
-          let checked = true;
-          if (data.headerStatus.id !== ele.id) {
-            this.selectedColumnDataSource.push(ele.id);
-          } else {
-            checked = false;
-          }
-          this.statusColumnDataSource.push({
-            label: ele.name,
-            value: ele.id,
-            checked: checked
+
+        if (statusList && statusList.length > 0) {
+          statusList.forEach((ele) => {
+            let checked = true;
+            if (data.headerStatus.id !== ele.id) {
+              this.selectedColumnDataSource.push(ele.id);
+            } else {
+              checked = false;
+            }
+            this.statusColumnDataSource.push({
+              label: ele.name,
+              value: ele.id,
+              checked: checked
+            });
           });
-        });
+        }
+
+        if (this._generalService.currentProject) {
+          this.filterStatusApplied(this.selectedColumnDataSource); // 'selectedColumnDataSource' have selected filter except 'Done/Complete'
+        }
       }
-      if (this._generalService.currentProject) {
-        this.filterStatusApplied(this.selectedColumnDataSource); // 'selectedColumnDataSource' have selected filter except 'Done/Complete'
-      }
+      //status dropdown code
+    }catch (e) {
+
     }
-    //status dropdown code
   }
 
 

@@ -1,5 +1,12 @@
 import { BaseService } from '../base.service';
-import { BoardColumns, DbCollection, DeleteStatusModel, Project, TaskStatusModel } from '@aavantan-app/models';
+import {
+  BoardColumns,
+  DbCollection,
+  DeleteStatusModel,
+  Project,
+  TaskStatusModel,
+  UserRoleModel
+} from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProjectService } from '../project/project.service';

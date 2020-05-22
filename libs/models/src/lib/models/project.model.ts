@@ -7,7 +7,7 @@ import {
   TaskPriorityModel,
   TaskStatusModel,
   TaskTypeModel,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
 
@@ -54,6 +54,7 @@ export class ProjectSettings {
   taskTypes: TaskTypeModel[];
   priorities: TaskPriorityModel[];
   statuses?: TaskStatusModel[];
+  roles?: UserRoleModel[];
   tags?: ProjectTags[];
   defaultAssigneeId?: string;
   defaultAssignee?: User;

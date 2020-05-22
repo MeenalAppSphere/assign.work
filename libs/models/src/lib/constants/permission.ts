@@ -8,6 +8,7 @@ export const PERMISSIONS: Permissions = {
     canClose: false,
   },
   task: {
+    canAdd:false,
     canAddToSprint: false,
     canUpdateEstimate: false,
   },

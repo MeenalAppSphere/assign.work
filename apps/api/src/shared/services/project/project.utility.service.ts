@@ -1,4 +1,4 @@
-import { Project, ProjectMembers, User } from '@aavantan-app/models';
+import { Project, ProjectMembers, User, UserRoleModel } from '@aavantan-app/models';
 import { BadRequest, maxLengthValidator, validOrganizationOrProjectName } from '../../helpers/helpers';
 import {
   DEFAULT_WORKING_CAPACITY,
@@ -6,7 +6,7 @@ import {
   DEFAULT_WORKING_DAYS
 } from '../../helpers/defaultValueConstant';
 import { NotFoundException } from '@nestjs/common';
-import { Types } from 'mongoose';
+import { ClientSession, Document, Types } from 'mongoose';
 
 export class ProjectUtilityService {
   constructor() {

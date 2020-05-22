@@ -2,11 +2,18 @@ import { BaseService } from '../base.service';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { catchError, map } from 'rxjs/operators';
-import { BaseResponseModel, Project, UserRoleModel } from '@aavantan-app/models';
+import {
+  BaseResponseModel,
+  ChangeAccessModel,
+  Project,
+  ProjectWorkingCapacityUpdateDto,
+  UserRoleModel
+} from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { UserRoleUrls } from './user-role.url';
 import { cloneDeep } from 'lodash';
 import { UserRoleState, UserRoleStore } from '../../../store/user-role/user-role.store';
+import { ProjectUrls } from '../project/project.url';
 
 export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
   constructor(protected notification: NzNotificationService,
@@ -18,6 +25,9 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
     });
   }
 
+  /**
+   * Get All User Roles
+   */
   getAllUserRoles(projectId: string) {
     this.updateState({ roles: [], getAllInProcess: true, getAllSuccess: false });
     return this._http.post(UserRoleUrls.getAllUserRoles, { projectId }).pipe(
@@ -31,6 +41,9 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
     );
   }
 
+  /**
+   * Create role
+   */
   createRole(role: UserRoleModel): Observable<BaseResponseModel<Project>> {
     return this._http.post(UserRoleUrls.addRole, role)
       .pipe(
@@ -46,7 +59,7 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
             };
           });
 
-          this.notification.success('Success', 'Role Created Successfully');
+          this.notification.success('Success', 'Role created successfully');
           return res;
         }),
         catchError(e => this.handleError(e))
@@ -54,9 +67,12 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
   }
 
 
-  updateRole(taskRole: UserRoleModel): Observable<BaseResponseModel<UserRoleModel>> {
+   /**
+   * Update role
+   */
+  updateRole(userRole: UserRoleModel): Observable<BaseResponseModel<UserRoleModel>> {
     this.updateState({ updateInProcess: true, updateSuccess: false });
-    return this._http.post(UserRoleUrls.updateRole, taskRole).pipe(
+    return this._http.post(UserRoleUrls.updateRole, userRole).pipe(
       map((res: BaseResponseModel<UserRoleModel>) => {
         this.updateState({ updateInProcess: false, updateSuccess: true });
 
@@ -73,11 +89,28 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
           };
         });
 
-        this.notification.success('Success', 'Role Updated Successfully');
+        this.notification.success('Success', 'Role updated successfully');
         return res;
       }),
       catchError(err => {
         this.updateState({ updateInProcess: false, updateSuccess: false });
+        return this.handleError(err);
+      })
+    );
+  }
+
+  /**
+  * Change access for collaborator
+  */
+  changeAccess(accessModel: ChangeAccessModel): Observable<BaseResponseModel<ChangeAccessModel>> {
+    return this._http.post(UserRoleUrls.changeAccess, accessModel).pipe(
+      map((res: BaseResponseModel<ChangeAccessModel>) => {
+
+        this.notification.success('Success', 'Access updated successfully');
+        return res;
+
+      }),
+      catchError(err => {
         return this.handleError(err);
       })
     );

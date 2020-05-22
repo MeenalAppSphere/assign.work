@@ -1,6 +1,6 @@
 <nz-modal [(nzVisible)]="updateUserRoleModalIsVisible" [nzTitle]="titleTemp" nzClassName="user-role-modal" nzFooter="nzModalFooter" nzWidth="800" nzClosable="false">
 
-  <form  autocomplete="off" nz-form (submit)="save()" [formGroup]="userRoleForm">
+  <form  autocomplete="off" nz-form (submit)="saveAccess()" [formGroup]="changeAccessForm">
     <div>
 
       <!--header info -->
@@ -83,8 +83,8 @@
     </div>
 
     <div *nzModalFooter>
-      <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
-      <button nz-button nzType="primary" [disabled]="userRoleForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">
+      <button nz-button type="button" nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button nz-button type="submit" nzType="primary" [disabled]="changeAccessForm.invalid" [nzLoading]="updateRequestInProcess" nzSize="small">
         {{updateUserRoleData?.userId ? 'Save' : 'Add'}}
       </button>
     </div>

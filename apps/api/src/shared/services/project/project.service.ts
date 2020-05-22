@@ -21,8 +21,8 @@ import {
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
-  SwitchProjectRequest,
-  User,
+  SwitchProjectRequest, TaskStatusModel,
+  User, UserRoleModel,
   UserStatus
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -30,6 +30,7 @@ import { BaseService } from '../base.service';
 import { UsersService } from '../users.service';
 import { GeneralService } from '../general.service';
 import {
+  DEFAULT_TASK_STATUSES, DEFAULT_USER_ROLES,
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
@@ -54,6 +55,8 @@ import { TaskTypeService } from '../task-type/task-type.service';
 import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskService } from '../task/task.service';
 import { SprintService } from '../sprint/sprint.service';
+import { PERMISSIONS } from '../../../../../../libs/models/src/lib/constants/permission';
+import { UserRoleService } from '../user-role/user-role.service';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
@@ -67,6 +70,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _taskPriorityService: TaskPriorityService;
   private _boardService: BoardService;
   private _sprintService: SprintService;
+  private _userRoleService: UserRoleService;
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
@@ -86,7 +90,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._boardService = this._moduleRef.get('BoardService');
     this._sprintService = this._moduleRef.get('SprintService');
-
+    this._userRoleService = this._moduleRef.get('UserRoleService');
     this._utilityService = new ProjectUtilityService();
   }
 
@@ -579,7 +583,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // check if valid template selected
       const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template);
       if (invalidTemplate) {
-        BadRequest('invalid project template');
+        BadRequest('Invalid project template');
       }
 
       // create default statues
@@ -612,6 +616,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create default board goes here
       const defaultBoard = await this._boardService.createDefaultBoard(project, session);
 
+      // create default roles
+      await this._userRoleService.createDefaultRoles(project, session);
+
+
       // update project's template and update default taskType, taskStatus and default taskPriority
       await this.updateById(model.projectId, {
         $set: {
@@ -631,7 +639,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     });
 
     // find project and return updated project
-    return await this.getProjectDetails(model.projectId);
+    return await this.getProjectDetails(model.projectId, true);
   }
 
   /**

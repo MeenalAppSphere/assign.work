@@ -1,6 +1,6 @@
 import { BaseService } from '../base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { DbCollection, Project, UserRoleModel } from '@aavantan-app/models';
+import { DbCollection, Project, TaskStatusModel, UserRoleModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
@@ -8,6 +8,8 @@ import { OnModuleInit } from '@nestjs/common';
 import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { UserRoleUtilityService } from './user-role.utility.service';
 import { GeneralService } from '../general.service';
+import { DEFAULT_USER_ROLES } from '../../helpers/defaultValueConstant';
+import { PERMISSIONS } from '../../../../../../libs/models/src/lib/constants/permission';
 
 export class UserRoleService extends BaseService<UserRoleModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
@@ -82,18 +84,6 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
     return this.dbModel.aggregate([{
       $match: { projectId: this.toObjectId(projectId), isDeleted: false }
     }, { $project: { createdAt: 0, updatedAt: 0, '__v': 0 } }, aggregateConvert_idToId]);
-  }
-
-  /**
-   * create default user role in respect of chosen template
-   * @param userRoles
-   * @param project
-   * @param session
-   */
-  public async createDefaultUserRoles(userRoles: UserRoleModel[], project: Project, session: ClientSession) {
-    userRoles = this._utilityService.prepareDefaultTaskPriorities(userRoles, project);
-
-    return await this.createMany(userRoles, session) as Array<Document & UserRoleModel>;
   }
 
   /**
@@ -183,6 +173,18 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
     });
 
     return !!(result && result.length);
+  }
+
+
+  /**
+   * create default roles for project
+   * @param project
+   * @param session
+   */
+  async createDefaultRoles(project: Project, session: ClientSession): Promise<Array<Document & UserRoleModel>> {
+    const defaultRoles = this._utilityService.prepareDefaultRoles(project, this._generalService.userId);
+
+    return await this.createMany(defaultRoles, session) as Array<Document & UserRoleModel>;
   }
 
 }
