@@ -1,6 +1,6 @@
 import { BaseService } from '../base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { DbCollection, Project, TaskStatusModel, UserRoleModel } from '@aavantan-app/models';
+import { DbCollection, Project, RoleTypeEnum, TaskStatusModel, UserRoleModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
@@ -93,7 +93,6 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
    */
   async getUserRoleById(projectId: string, roleId: string) {
     try {
-      await this._projectService.getProjectDetails(projectId);
 
       if (!this.isValidObjectId(roleId)) {
         BadRequest('Role not found...');
@@ -115,6 +114,32 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
       throw e;
     }
   }
+
+  /**
+   * get user role by type
+   * @param projectId
+   * @param RoleTypeEnum
+   */
+  async getUserRoleByType(projectId: string, roleType: RoleTypeEnum) {
+    try {
+
+      const userRole = await this.findOne({
+        filter: { projectId, type: roleType},
+        lean: true
+      });
+
+      if (userRole) {
+        userRole.id = userRole._id;
+      } else {
+        BadRequest('Role not found...');
+      }
+
+      return userRole;
+    } catch (e) {
+      throw e;
+    }
+  }
+
 
   /**
    * get user role details by id

@@ -1,4 +1,5 @@
 import { BaseDbModel } from './base.model';
+import { RoleTypeEnum } from '../enums/role-type.enum';
 
 export class UserRoleModel extends BaseDbModel {
   _id?:string;
@@ -7,6 +8,7 @@ export class UserRoleModel extends BaseDbModel {
   description?:string;
   projectId?:string;
   accessPermissions?: Permissions;
+  type?: RoleTypeEnum
 }
 
 

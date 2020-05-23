@@ -1,7 +1,6 @@
 import { DefaultSettingsModel, TaskStatusModel, UserRoleModel } from '@aavantan-app/models';
-import { ProjectTemplateEnum } from 'libs/models/src/lib/enums';
+import { ProjectTemplateEnum, RoleTypeEnum } from 'libs/models/src/lib/enums';
 import { ProjectWorkingDays } from 'libs/models/src/lib/models';
-import { PERMISSIONS } from '../../../../../libs/models/src/lib/constants/permission';
 
 // default query filter
 export const DEFAULT_QUERY_FILTER = {
@@ -146,8 +145,8 @@ export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
 
 // default roles for new project
 export const DEFAULT_USER_ROLES: UserRoleModel[] = [
-  { name: 'Supervisor', accessPermissions: null, description: '', projectId: '' },
-  { name: 'Team Member', accessPermissions: null, description: '', projectId: '' }
+  { name: 'Supervisor', type: RoleTypeEnum.supervisor, accessPermissions: null, description: '', projectId: '' },
+  { name: 'Team Member', type: RoleTypeEnum.teamMember, accessPermissions: null, description: '', projectId: '' }
 ];
 
 // default sal rounds for hashing the password

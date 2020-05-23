@@ -13,16 +13,18 @@ import {
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
   ProjectUpdateDefaultAssigneeModel,
-  ProjectUpdateDefaultPriorityModel, ProjectUpdateDefaultTaskStatusModel,
+  ProjectUpdateDefaultPriorityModel,
+  ProjectUpdateDefaultTaskStatusModel,
   ProjectUpdateDefaultTaskTypeModel,
   ProjectWorkingCapacityUpdateDto,
   RemoveProjectCollaborator,
   ResendProjectInvitationModel,
+  RoleTypeEnum,
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
-  SwitchProjectRequest, TaskStatusModel,
-  User, UserRoleModel,
+  SwitchProjectRequest,
+  User,
   UserStatus
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -30,7 +32,6 @@ import { BaseService } from '../base.service';
 import { UsersService } from '../users.service';
 import { GeneralService } from '../general.service';
 import {
-  DEFAULT_TASK_STATUSES, DEFAULT_USER_ROLES,
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
   DEFAULT_WORKING_DAYS
@@ -55,7 +56,6 @@ import { TaskTypeService } from '../task-type/task-type.service';
 import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskService } from '../task/task.service';
 import { SprintService } from '../sprint/sprint.service';
-import { PERMISSIONS } from '../../../../../../libs/models/src/lib/constants/permission';
 import { UserRoleService } from '../user-role/user-role.service';
 
 @Injectable()
@@ -130,6 +130,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       // create project and get project id from them
       const createdProject = await this.create([projectModel], session);
+
+      // get "Team Member" type role id and assign to all collaborators by default
+      // const roleDetails = await this._userRoleService.getUserRoleByType(createdProject[0].id, RoleTypeEnum.teamMember);
 
       // set created project as current project of user
       userDetails.currentProject = createdProject[0].id;
@@ -348,6 +351,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const collaboratorsAlreadyInDbButInviteNotAccepted: ProjectMembers[] = [];
     let finalCollaborators: ProjectMembers[] = [];
 
+
+    // get role id "Team Member" type and assign to all collaborators by default
+    const roleDetails = await this._userRoleService.getUserRoleByType(projectDetails._id, RoleTypeEnum.teamMember);
+
     try {
       collaborators.forEach(collaborator => {
         // collaborator userId exists then collaborator is available in db
@@ -437,6 +444,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         collaborator.workingCapacity = DEFAULT_WORKING_CAPACITY;
         collaborator.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
         collaborator.workingDays = DEFAULT_WORKING_DAYS;
+        collaborator.userRoleId = roleDetails._id;
         return collaborator;
       });
 
