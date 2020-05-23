@@ -1,5 +1,6 @@
 
 export enum RoleTypeEnum {
   'supervisor' = 'supervisor',
-  'teamMember' = 'teamMember'
+  'teamMember' = 'teamMember',
+  'other' = 'other'
 }

@@ -1,4 +1,4 @@
-import { Project, UserRoleModel } from '@aavantan-app/models';
+import { Project, RoleTypeEnum, UserRoleModel } from '@aavantan-app/models';
 import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
 import { DEFAULT_USER_ROLES } from '../../helpers/defaultValueConstant';
 import { PERMISSIONS } from '../../../../../../libs/models/src/lib/constants/permission';
@@ -37,10 +37,11 @@ export class UserRoleUtilityService {
     const roles: UserRoleModel[] = [];
     DEFAULT_USER_ROLES.forEach(defaultRoles => {
       const role = new UserRoleModel();
+      let roleType = null;
 
       const allowedPermissions = PERMISSIONS;
 
-      if(role.name === 'Supervisor') {
+      if(role.type === RoleTypeEnum.supervisor) {
 
         //All permissions allowed
         Object.keys(allowedPermissions).forEach(key => {
@@ -49,6 +50,8 @@ export class UserRoleUtilityService {
           });
         });
 
+        roleType = RoleTypeEnum.supervisor;
+
       } else {
 
         //only 4 permissions allowed
@@ -56,10 +59,12 @@ export class UserRoleUtilityService {
         allowedPermissions.task.canAddToSprint = true;
         allowedPermissions.task.canUpdateEstimate = true;
         allowedPermissions.task.canAdd = true;
+        roleType = RoleTypeEnum.teamMember;
 
       }
 
       role.accessPermissions = allowedPermissions;
+      role.type = roleType;
       role.name = defaultRoles.name;
       role.projectId = project.id;
       role.createdById = userId;

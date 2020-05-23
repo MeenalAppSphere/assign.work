@@ -65,41 +65,6 @@
                   nz-input nzSize="small">
               </nz-form-item>
 
-
-              <!-- region default assignee -->
-<!--              <nz-form-item class="relative">-->
-<!--                <nz-form-label nzFor="taskType">Default Assignee<span class="text-danger">*</span></nz-form-label>-->
-<!--                <nz-form-control class="relative">-->
-<!--                                <span class="assigned-user-icon">-->
-<!--                              <nz-avatar [nzSize]="16" nzIcon="user"-->
-<!--                                         [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null"></nz-avatar>-->
-<!--                            </span>-->
-<!--                  <nz-input-group [nzSuffix]="suffixDefaultIconSearch">-->
-<!--                    <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input-->
-<!--                           (ngModelChange)="selectDefaultAssigneeTypeahead($event)" nzSize="small"-->
-<!--                           [nzAutocomplete]="autoAssignee"/>-->
-<!--                  </nz-input-group>-->
-<!--                  <nz-autocomplete #autoAssignee>-->
-<!--                    <nz-auto-option *ngFor="let option of assigneeDataSource"-->
-<!--                                    [nzLabel]="option && option.firstName ? option.firstName : option.emailId"-->
-<!--                                    [nzValue]="option">-->
-<!--                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"-->
-<!--                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>-->
-<!--                      <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>-->
-<!--                      <span *ngIf="option && option.lastName">&nbsp;{{ option && option.lastName }}</span>-->
-<!--                      <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small-->
-<!--                        class="text-muted">{{ option.emailId }}</small></div>-->
-<!--                    </nz-auto-option>-->
-<!--                  </nz-autocomplete>-->
-<!--                </nz-form-control>-->
-<!--                <ng-template #suffixDefaultIconSearch>-->
-<!--                  <i nz-icon nzType="search" *ngIf="!isSearchingDefaultAssignee && (projectForm.controls['assigneeId'].value?.length===0 || !projectForm.controls['assigneeId'].value)"></i>-->
-<!--                  <i nz-icon nzType="close" class="cursor-pointer" (click)="clearAssigeeSearchText()" *ngIf="!isSearchingDefaultAssignee && projectForm.controls['assigneeId'].value?.length>0"></i>-->
-<!--                  <i class="fas fa-spin fa-spinner" *ngIf="isSearchingDefaultAssignee"></i>-->
-<!--                </ng-template>-->
-<!--              </nz-form-item>-->
-              <!-- endregion -->
-
               <!-- region default task status -->
               <nz-form-item class="max-width-ddls">
                 <nz-form-label nzFor="taskType">Default Status <span class="text-danger">*</span></nz-form-label>
@@ -615,57 +580,6 @@
 
                 <section class="row task-type-section">
 
-                    <!--          <aside class="col-md-3">-->
-
-                    <!--            <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">-->
-
-                    <!--              <nz-form-item>-->
-                    <!--                <nz-form-label class="display-name-label">Task Prefix<span class="text-danger">*</span> <small-->
-                    <!--                  style="display:block;letter-spacing: 0;">(as prefix with id eg : <b-->
-                    <!--                  class="text-info">BUG-1001</b>)</small></nz-form-label>-->
-                    <!--                <nz-form-control>-->
-                    <!--                  <input class="task-type-input" type="text" nzSize="small"-->
-                    <!--                         formControlName="displayName" nz-input placeholder="eg: BUG" maxlength="10"/>-->
-                    <!--                </nz-form-control>-->
-                    <!--              </nz-form-item>-->
-                    <!--              <nz-form-item>-->
-                    <!--                <nz-form-label>Task Type<span class="text-danger">*</span>&nbsp;<small style="letter-spacing: 0;">(color and-->
-                    <!--                  title)</small></nz-form-label>-->
-
-                    <!--                <nz-form-control>-->
-                    <!--                  <nz-input-group [nzAddOnBefore]="profixIconButton">-->
-                    <!--                    <input class="task-type-input" type="text" nzSize="small" (keyup)="copyName()" formControlName="name" maxlength="20"-->
-                    <!--                           nz-input-->
-                    <!--                           placeholder="Enter Task Name"/>-->
-                    <!--                  </nz-input-group>-->
-                    <!--                  <ng-template #profixIconButton>-->
-                    <!--                    <input type="color" nzSize="small" formControlName="color"/>-->
-                    <!--                  </ng-template>-->
-                    <!--                </nz-form-control>-->
-
-                    <!--              </nz-form-item>-->
-
-                    <!--              <nz-form-item>-->
-
-                    <!--                <nz-form-label>Description</nz-form-label>-->
-                    <!--                <nz-form-control>-->
-                    <!--                  <textarea nz-input nzSize="small" formControlName="description" maxlength="250"-->
-                    <!--                            placeholder="Enter Status Description" rows="5"></textarea>-->
-                    <!--                </nz-form-control>-->
-
-                    <!--              </nz-form-item>-->
-
-                    <!--              <nz-form-item>-->
-                    <!--                <button nz-button nzType="primary" [disabled]="taskTypeForm.invalid"-->
-                    <!--                        [nzLoading]="updateRequestInProcess" nzSize="small">Add-->
-                    <!--                </button>-->
-                    <!--              </nz-form-item>-->
-
-                    <!--            </form>-->
-
-
-                    <!--          </aside>-->
-
                     <aside class="col-md-4" *ngIf="typesList && typesList.length>0">
 
                         <nz-form-label>All Types</nz-form-label>
@@ -676,17 +590,15 @@
 
                                 <li *ngFor="let item of typesList">
                                     <span>
-                    <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
-                       [ngStyle]="{'color':item.color}"></i>
-                    {{item.name}}</span>
+                                      <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color" [ngStyle]="{'color':item.color}"></i>
+                                    {{item.name}}
+                                    </span>
 
-                  <span class="float-right d-flex">
-                    <profile-name [user]="item.assignee" class="m-r-15"></profile-name>
-                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit p-t-5"></i>
-                                    <span class="float-right d-flex p-t-5">
-                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
-                    <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
-                  </span>
+                                    <span class="float-right d-flex">
+                                      <profile-name [user]="item.assignee" class="m-r-15"></profile-name>
+                                        <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-t-5"></i>
+                                      <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
+                                    </span>
                                 </li>
 
                             </ul>

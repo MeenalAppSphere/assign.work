@@ -12,10 +12,6 @@ import {
   ProjectTags,
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
-  ProjectUpdateDefaultAssigneeModel,
-  ProjectUpdateDefaultPriorityModel,
-  ProjectUpdateDefaultTaskStatusModel,
-  ProjectUpdateDefaultTaskTypeModel,
   ProjectWorkingCapacityUpdateDto,
   RemoveProjectCollaborator,
   ResendProjectInvitationModel,
@@ -24,9 +20,9 @@ import {
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
+  UpdateProjectRequestModel,
   User,
-  UserStatus,
-  UpdateProjectRequestModel
+  UserStatus
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { BaseService } from '../base.service';
@@ -132,9 +128,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create project and get project id from them
       const createdProject = await this.create([projectModel], session);
 
-      // get "Team Member" type role id and assign to all collaborators by default
-      // const roleDetails = await this._userRoleService.getUserRoleByType(createdProject[0].id, RoleTypeEnum.teamMember);
-
       // set created project as current project of user
       userDetails.currentProject = createdProject[0].id;
       // push project to user projects array
@@ -225,7 +218,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   async addCollaborators(id: string, collaborators: ProjectMembers[]) {
     if (!Array.isArray(collaborators)) {
-      throw new BadRequestException('invalid request');
+      throw new BadRequestException('Invalid request');
     }
 
     const projectDetails: Project = await this.getProjectDetails(id);
@@ -237,9 +230,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const collaboratorsAlreadyInDbButInviteNotAccepted: ProjectMembers[] = [];
     let finalCollaborators: ProjectMembers[] = [];
 
-
-    // get role id "Team Member" type and assign to all collaborators by default
-    const roleDetails = await this._userRoleService.getUserRoleByType(projectDetails._id, RoleTypeEnum.teamMember);
+    let roleDetails = null;
+    if (projectDetails.template) {
+      // get role id "Team Member" type and assign to all collaborators by default
+      roleDetails = await this._userRoleService.getUserRoleByType(projectDetails._id, RoleTypeEnum.teamMember);
+    }
 
     try {
       collaborators.forEach(collaborator => {
@@ -330,7 +325,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         collaborator.workingCapacity = DEFAULT_WORKING_CAPACITY;
         collaborator.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
         collaborator.workingDays = DEFAULT_WORKING_DAYS;
-        collaborator.userRoleId = roleDetails._id;
+        collaborator.userRoleId = roleDetails ? roleDetails._id : null;
         return collaborator;
       });
 
@@ -510,18 +505,19 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create default board goes here
       const defaultBoard = await this._boardService.createDefaultBoard(project, session);
 
-      // create default roles
-      await this._userRoleService.createDefaultRoles(project, session);
+      // create default roles and getting first supervisor type role id and assign to project owner
+      let createdRoles = await this._userRoleService.createDefaultRoles(project, session);
+      createdRoles = createdRoles.filter(ele => ele.type === RoleTypeEnum.supervisor);
 
-
-      // update project's template and update default taskType, taskStatus and default taskPriority
+      // update project's template and update default taskType, taskStatus default taskPriority and userRoleId of project owner
       await this.updateById(model.projectId, {
         $set: {
           template: model.template,
           activeBoardId: defaultBoard[0].id,
           'settings.defaultTaskTypeId': defaultTaskTypes[0]._id,
           'settings.defaultTaskStatusId': defaultStatues[0]._id,
-          'settings.defaultTaskPriorityId': defaultTaskPriorities[0]._id
+          'settings.defaultTaskPriorityId': defaultTaskPriorities[0]._id,
+          'members.0.userRoleId':  createdRoles[0] ? createdRoles[0]._id : null
         },
         $push: {
           'settings.statuses': { $each: project.settings.statuses },

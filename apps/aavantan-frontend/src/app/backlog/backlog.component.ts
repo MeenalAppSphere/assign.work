@@ -3,7 +3,7 @@ import {
   AddTaskToSprintModel,
   CloseSprintModel,
   DraftSprint,
-  GetUnpublishedRequestModel,
+  GetUnpublishedRequestModel, Project,
   RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
@@ -97,6 +97,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
 
+  public currentProject: Project;
+
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
               private _taskQuery: TaskQuery,
@@ -146,6 +148,14 @@ export class BacklogComponent implements OnInit, OnDestroy {
     if (this._generalService.currentProject && this._generalService.currentProject.id) {
 
       this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
+
+      // get current project from store
+      this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+        if (res) {
+          this.currentProject = res;
+        }
+      });
+      // get filters and the call first tab data
 
       // create status dropdown
       this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -217,7 +227,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public getFilterStatus(statusList:TaskStatusModel[]) {
     // ready status filter dropdown data
-    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
+    const columns = cloneDeep(this.currentProject.activeBoard.columns);
+
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
 

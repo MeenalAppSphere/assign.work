@@ -131,14 +131,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public moveStatusModalIsVisible: boolean;
 
-  public assigneeModelChanged = new Subject<string>();
 
-  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
-              private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
-              private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
-              private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
-              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
-              private modal: NzModalService) {
   //security permissions
   public permissionsList: AccessPermissionVM[] = [];
   public permissionsObj: Permissions = {};
@@ -201,36 +194,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   ];
 
-  public assigneeModelChanged = new Subject<string>();
+  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
+              private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
+              private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
+              private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
+              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
+              private modal: NzModalService,
+              private _projectQuery: ProjectQuery,
+              private _userRolesService: UserRoleService,
+              private _userRoleQuery: UserRoleQuery) {
 
-  constructor(
-    protected notification: NzNotificationService,
-    private FB: FormBuilder,
-    private validationRegexService: ValidationRegexService,
-    private _generalService: GeneralService,
-    private _projectService: ProjectService,
-    private _userQuery: UserQuery,
-    private _userService: UserService,
-    private modalService: NzModalService,
-    private _taskTypeService: TaskTypeService,
-    private _taskStatusQuery: TaskStatusQuery,
-    private _taskPriorityQuery: TaskPriorityQuery,
-    private _boardQuery: BoardQuery,
-    private _taskTypeQuery: TaskTypeQuery,
-    private _boardService: BoardService,
-    private router: Router,
-    private modal: NzModalService,
-    private _projectQuery: ProjectQuery,
-    private _userRolesService: UserRoleService,
-    private _userRoleQuery: UserRoleQuery
-  ) {
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+              this.notification.config({
+                nzPlacement: 'bottomRight'
+              });
 
-    this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
-    this.getBoardListRequestModal.count = 20;
-    this.getBoardListRequestModal.page = 1;
+              this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
+              this.getBoardListRequestModal.count = 20;
+              this.getBoardListRequestModal.page = 1;
   }
 
   ngOnInit(): void {
@@ -264,12 +244,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
                 this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
             });
           }
-
+          // bind project form after data
+          this.bindProjectForm();
         }
       });
-        this.bindProjectForm();
-      }
-    });
+
+
 
     // get all boards
     this._boardQuery.boards$.pipe(untilDestroyed(this)).subscribe(boards => {
@@ -309,27 +289,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.selectedPriority = this.priorityList.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
     });
 
-    // search default assignee
-    this.assigneeModelChanged
-      .pipe(
-        debounceTime(500))
-      .subscribe(() => {
-        const queryText = this.projectForm.get('assigneeId').value;
-        const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
-        if (!queryText || this.projectForm.get('assigneeId').value === name) {
-          return;
-        }
-        this.isSearchingDefaultAssignee = true;
-        const json: SearchProjectCollaborators = {
-          projectId: this._generalService.currentProject.id,
-          query: queryText
-        };
-        this._userService.searchProjectCollaborator(json).subscribe((data) => {
-          this.isSearchingDefaultAssignee = false;
-          this.assigneeDataSource = data.data;
-        });
-      });
-    // end default search assignee
+    // get all roles from store
+    this._userRoleQuery.roles$.pipe(untilDestroyed(this)).subscribe(roles => {
+      this.roleList = roles;
+    });
 
     // Form for collaborator tab
     this.collaboratorForm = this.FB.group({
@@ -524,41 +487,20 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /*================== Project tab ==================*/
   /*=======================================================*/
 
-
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
+    this.projectForm.get('defaultTaskTypeId').patchValue(item.id);
   }
 
   public selectPriority(item: ProjectPriority) {
     this.selectedPriority = item;
+    this.projectForm.get('defaultTaskPriorityId').patchValue(item.id);
   }
 
   public selectStatus(item: ProjectStatus) {
     this.selectedStatus = item;
+    this.projectForm.get('defaultTaskStatusId').patchValue(item.id);
   }
-
-
-  public selectDefaultAssigneeTypeahead(user: User) {
-    if (user && user.emailId) {
-      this.selectedDefaultAssignee = user;
-      this.selectedAssignee = user;
-      let userName = user && user.firstName ? user.firstName : user.emailId;
-      if (user && user.firstName && user && user.lastName) {
-        userName = userName + ' ' + user.lastName;
-      }
-      this.workflowForm.get('assigneeId').patchValue(userName);
-      this.projectForm.get('assigneeId').patchValue(userName);
-    }
-    this.modelChangedSearchDefaultAssignee.next();
-    this.assigneeModelChanged.next();
-  }
-
-  public clearAssigeeSearchText() {
-    this.projectForm.get('assigneeId').patchValue('');
-    this.selectedAssignee.profilePic = null;
-  }
-
-
 
   public saveProject() {
     this.updateProjectDetails(this.projectForm.value);
@@ -882,38 +824,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /*===============================================*/
   /*================== Workflow Tab ===============*/
   /*===============================================*/
-  public selectTaskType(item: TaskTypeModel) {
-    this.selectedTaskType = item;
-    this.projectForm.get('defaultTaskTypeId').patchValue(item.id);
-  }
-
-  public selectPriority(item: ProjectPriority) {
-    this.selectedPriority = item;
-    this.projectForm.get('defaultTaskPriorityId').patchValue(item.id);
-  }
-
-  public selectStatus(item: ProjectStatus) {
-    this.selectedStatus = item;
-    this.projectForm.get('defaultTaskStatusId').patchValue(item.id);
-  }
-
-
-  public selectDefaultAssigneeTypeahead(user: User) {
-    if (user && user.emailId) {
-      this.selectedAssignee = user;
-      let userName = user && user.firstName ? user.firstName : user.emailId;
-      if (user && user.firstName && user && user.lastName) {
-        userName = userName + ' ' + user.lastName;
-      }
-      this.projectForm.get('assigneeId').patchValue(userName);
-    }
-    this.assigneeModelChanged.next();
-  }
-
-  public clearAssigeeSearchText() {
-    this.projectForm.get('assigneeId').patchValue('');
-    this.selectedAssignee.profilePic = null;
-  }
 
   //================== workflow =====================//
 
