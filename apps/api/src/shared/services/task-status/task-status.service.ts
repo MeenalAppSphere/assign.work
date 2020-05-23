@@ -53,7 +53,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       if (model.id) {
-        await this.getDetails(model.id, model.projectId);
+        await this.getDetails(model.projectId, model.id);
       }
 
       // check basic validations...
@@ -123,7 +123,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
       const projectDetails = await this._projectService.getProjectDetails(model.projectId, true);
 
       // get status details
-      const statusDetails = await this.getDetails(model.statusId, model.projectId);
+      const statusDetails = await this.getDetails(model.projectId, model.statusId);
 
       const tasksOfStatusQuery = {
         projectId: model.projectId,
@@ -142,7 +142,7 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
           return model;
         } else {
           // process delete status and update old tasks with the new status
-          const nextStatusDetails = await this.getDetails(model.nextStatusId, model.projectId);
+          const nextStatusDetails = await this.getDetails(model.projectId, model.nextStatusId);
 
           // update all tasks and update status to nextStatus
           await this._taskService.update(tasksOfStatusQuery, { $set: { statusId: model.nextStatusId } }, session);
@@ -226,10 +226,10 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
   /**
    * get status details by id
-   * @param statusId
    * @param projectId
+   * @param statusId
    */
-  async getDetails(statusId: string, projectId: string) {
+  async getDetails(projectId: string, statusId: string) {
     try {
       if (!this.isValidObjectId(statusId)) {
         BadRequest('Status not found');
@@ -254,8 +254,8 @@ export class TaskStatusService extends BaseService<TaskStatusModel & Document> i
 
   /**
    * add missing color field in status
-   * we added decided to add color feature in status
-   * so need to update existing status with default color that user can update
+   * we decided to add color feature in status
+   * so need to update existing status with default assignee that user can update later
    */
   async addMissingColorFiled() {
     return this.withRetrySession(async (session: ClientSession) => {

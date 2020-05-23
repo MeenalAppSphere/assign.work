@@ -6,7 +6,7 @@ import {
   DEFAULT_WORKING_DAYS
 } from '../../helpers/defaultValueConstant';
 import { NotFoundException } from '@nestjs/common';
-import { ClientSession, Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 export class ProjectUtilityService {
   constructor() {
@@ -16,7 +16,7 @@ export class ProjectUtilityService {
    * check add project validations
    * @param project
    */
-  checkAddUpdateProjectValidations(project: Project) {
+  checkAddUpdateProjectValidations(project: Project | UpdateProjectRequestModel) {
     if (!project) {
       BadRequest('Project name is required');
     }

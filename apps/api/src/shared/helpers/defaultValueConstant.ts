@@ -79,10 +79,10 @@ export const DEFAULT_TASK_STATUSES: TaskStatusModel[] = [
 // default settings for software development template
 export const DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'Story', displayName: 'Story', color: '#008000', isDefault: true, projectId: '' },
-    { name: 'BUG', displayName: 'BUG', color: '#FF0000', isDefault: true, projectId: '' },
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true, projectId: '' },
-    { name: 'EPIC', displayName: 'EPIC', color: '#000000', isDefault: true, projectId: '' }
+    { name: 'Story', displayName: 'Story', color: '#008000', isDefault: true, projectId: '', assigneeId: '' },
+    { name: 'BUG', displayName: 'BUG', color: '#FF0000', isDefault: true, projectId: '', assigneeId: '' },
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true, projectId: '', assigneeId: '' },
+    { name: 'EPIC', displayName: 'EPIC', color: '#000000', isDefault: true, projectId: '', assigneeId: '' }
   ],
   priorities: [
     { name: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },
@@ -95,7 +95,7 @@ export const DEFAULT_SETTINGS_FOR_SOFTWARE_DEVELOPMENT: DefaultSettingsModel = {
 // default settings for task management template
 export const DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true, projectId: '' }
+    { name: 'TASK', displayName: 'TASK', color: '#0000FF', isDefault: true, projectId: '', assigneeId: '' }
   ],
   priorities: [
     { name: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },
@@ -108,18 +108,51 @@ export const DEFAULT_SETTINGS_FOR_TASK_MANAGEMENT: DefaultSettingsModel = {
 // default settings for accounting template
 export const DEFAULT_SETTINGS_FOR_ACCOUNTING: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'GST', displayName: 'GST', color: '#0000FF', description: 'GST', isDefault: true, projectId: '' },
-    { name: 'COMP', displayName: 'COMP', color: '#008000', description: 'COMP', isDefault: true, projectId: '' },
-    { name: 'AUDIT', displayName: 'AUDIT', color: '#EE82EE', description: 'AUDIT', isDefault: true, projectId: '' },
+    {
+      name: 'GST',
+      displayName: 'GST',
+      color: '#0000FF',
+      description: 'GST',
+      isDefault: true,
+      projectId: '',
+      assigneeId: ''
+    },
+    {
+      name: 'COMP',
+      displayName: 'COMP',
+      color: '#008000',
+      description: 'COMP',
+      isDefault: true,
+      projectId: '',
+      assigneeId: ''
+    },
+    {
+      name: 'AUDIT',
+      displayName: 'AUDIT',
+      color: '#EE82EE',
+      description: 'AUDIT',
+      isDefault: true,
+      projectId: '',
+      assigneeId: ''
+    },
     {
       name: 'MEETINGS',
       displayName: 'MEETINGS',
       color: '#CD853F',
       description: 'MEETINGS',
       isDefault: true,
-      projectId: ''
+      projectId: '',
+      assigneeId: ''
     },
-    { name: 'CALLS', displayName: 'CALLS', color: '#ADFF2F', description: 'CALLS', isDefault: true, projectId: '' }
+    {
+      name: 'CALLS',
+      displayName: 'CALLS',
+      color: '#ADFF2F',
+      description: 'CALLS',
+      isDefault: true,
+      projectId: '',
+      assigneeId: ''
+    }
   ],
   priorities: [
     { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },
@@ -132,7 +165,15 @@ export const DEFAULT_SETTINGS_FOR_ACCOUNTING: DefaultSettingsModel = {
 // default settings for accounting template
 export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
   taskTypes: [
-    { name: 'STATUS', displayName: 'STATUS', color: '#0000FF', description: 'STATUS', isDefault: true, projectId: '' }
+    {
+      name: 'STATUS',
+      displayName: 'STATUS',
+      color: '#0000FF',
+      description: 'STATUS',
+      isDefault: true,
+      projectId: '',
+      assigneeId: ''
+    }
   ],
   priorities: [
     { name: 'LOW', description: 'LOW', color: '#E6E6FA', isDefault: true, projectId: '' },

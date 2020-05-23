@@ -1,4 +1,5 @@
 import { BaseDbModel } from './base.model';
+import { User } from './user.model';
 
 export class TaskTypeModel extends BaseDbModel {
   name: string;
@@ -7,4 +8,6 @@ export class TaskTypeModel extends BaseDbModel {
   projectId: string;
   description?: string;
   isDefault?: boolean;
+  assigneeId: string;
+  assignee?: User;
 }

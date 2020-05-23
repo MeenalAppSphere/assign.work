@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseService } from '../base.service';
-import { DbCollection, Project, TaskTypeModel } from '@aavantan-app/models';
+import { DbCollection, MongooseQueryModel, Project, TaskTypeModel } from '@aavantan-app/models';
 import { ProjectService } from '../project/project.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -9,12 +9,16 @@ import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { TaskTypeUtilityService } from './task-type.utility.service';
 import { GeneralService } from '../general.service';
 import { TaskService } from '../task/task.service';
+import { ProjectUtilityService } from '../project/project.utility.service';
+import { DEFAULT_TASK_STATUS_COLOR } from '../../helpers/defaultValueConstant';
+import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
 
 @Injectable()
 export class TaskTypeService extends BaseService<TaskTypeModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _taskService: TaskService;
   private _utilityService: TaskTypeUtilityService;
+  private _projectUtilityService: ProjectUtilityService;
 
   constructor(
     @InjectModel(DbCollection.taskType) private readonly _taskTypeModel: Model<TaskTypeModel & Document>,
@@ -28,6 +32,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
     this._taskService = this._moduleRef.get('TaskService');
 
     this._utilityService = new TaskTypeUtilityService();
+    this._projectUtilityService = new ProjectUtilityService();
   }
 
   /**
@@ -37,13 +42,15 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
    * @param model
    */
   async addUpdate(model: TaskTypeModel) {
-    return await this.withRetrySession(async (session: ClientSession) => {
+
+    // process add  and update task type
+    const taskTypeResult = await this.withRetrySession(async (session: ClientSession) => {
       let taskTypeDetails: TaskTypeModel = null;
       if (model.id) {
         taskTypeDetails = await this.getDetails(model.projectId, model.id);
       }
       // get project details
-      await this._projectService.getProjectDetails(model.projectId);
+      const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
       // check task type validations...
       this._utilityService.taskTypeValidations(model);
@@ -59,12 +66,19 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         }
       }
 
+      // check if new assignee is part of project
+      const isAssigneePartOfProject = this._projectUtilityService.userPartOfProject(model.assigneeId, projectDetails);
+      if (!isAssigneePartOfProject) {
+        BadRequest('This assignee is not part of this Project');
+      }
+
       // task type model
       const taskType = new TaskTypeModel();
       taskType.projectId = model.projectId;
       taskType.displayName = model.displayName;
       taskType.name = model.name;
       taskType.color = model.color;
+      taskType.assigneeId = model.assigneeId || this._generalService.userId;
       taskType.description = model.description;
       taskType.createdById = this._generalService.userId;
 
@@ -113,6 +127,13 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
         return taskType;
       }
     });
+
+    // return task type details
+    try {
+      return this.getDetails(model.projectId, taskTypeResult.id, true);
+    } catch (e) {
+      throw e;
+    }
   }
 
   /**
@@ -121,8 +142,23 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
   public async getAllTaskTypes(projectId: string) {
     await this._projectService.getProjectDetails(projectId);
     return this.dbModel.aggregate([{
-      $match: { projectId: this.toObjectId(projectId), isDeleted: false }
-    }, { $project: { createdAt: 0, updatedAt: 0, '__v': 0 } }, aggregateConvert_idToId]);
+      $match: {
+        projectId: this.toObjectId(projectId), isDeleted: false
+      }
+    }, {
+      $lookup: {
+        from: DbCollection.users,
+        let: { assigneeId: '$assigneeId' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$assigneeId'] } } },
+          { $project: basicUserDetailsForAggregateQuery },
+          aggregateConvert_idToId
+        ],
+        as: 'assignee'
+      }
+    }, { $unwind: '$assignee' },
+      { $project: { createdAt: 0, updatedAt: 0, '__v': 0 } },
+      aggregateConvert_idToId]);
   }
 
   /**
@@ -168,25 +204,68 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
   }
 
   /**
+   * add missing assignee field in task type
+   * we decided to add default assignee feature in task type
+   * so need to update existing status with default assignee ( project creator ) that user can update later
+   */
+  async addMissingAssigneeFiled() {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const typesWithNoAssigneeIdQuery = {
+        assigneeId: { $in: [undefined, null] }
+      };
+
+      // get types who has no assignee id in db
+      const typesWithNoAssigneeId = await this.find({ filter: typesWithNoAssigneeIdQuery, lean: true });
+      if (typesWithNoAssigneeId && typesWithNoAssigneeId.length) {
+
+        // loop over task types
+        for (let i = 0; i < typesWithNoAssigneeId.length; i++) {
+          const taskType = typesWithNoAssigneeId[i];
+          // update
+          await this.updateById(taskType._id, { assigneeId: taskType.createdById }, session);
+        }
+      }
+
+      return 'Default assignee added successfully';
+    });
+  }
+
+  /**
    * get task type details by id
    * @param projectId
    * @param taskTypeId
+   * @param getFullDetails
    */
-  async getDetails(projectId: string, taskTypeId: string): Promise<TaskTypeModel> {
+  async getDetails(projectId: string, taskTypeId: string, getFullDetails: boolean = false): Promise<TaskTypeModel> {
     try {
       if (!this.isValidObjectId(taskTypeId)) {
         BadRequest('Task Type not found..');
       }
 
-      const taskTypeDetail = await this.findOne({
+      // query for get task
+      const query: MongooseQueryModel = {
         filter: { _id: taskTypeId, projectId: projectId },
         lean: true
-      });
+      };
+
+      if (getFullDetails) {
+        query.populate = [{
+          path: 'assignee',
+          select: 'emailId userName firstName lastName profilePic _id',
+          justOne: true
+        }];
+      }
+
+      // find task
+      const taskTypeDetail = await this.findOne(query);
 
       if (!taskTypeDetail) {
         BadRequest('Task Type not found...');
       } else {
         taskTypeDetail.id = taskTypeDetail._id;
+        if (taskTypeDetail.assignee) {
+          taskTypeDetail.assignee.id = taskTypeDetail.assignee._id;
+        }
       }
 
       return taskTypeDetail;

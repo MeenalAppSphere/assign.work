@@ -57,10 +57,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public collaboratorForm: FormGroup;
   public workflowForm: FormGroup;
 
+
   public projectModalIsVisible: boolean;
   public selectedCollaborator: User;
   public selectedCollaborators: User[] = [];
   public defaultAssigneeDataSource: User[] = [];
+  public userDataSource: User[] = [];
   public collaboratorsDataSource: User[] = [];
   public isCollaboratorExits: boolean = false;
   public enableInviteBtn: boolean;
@@ -76,14 +78,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     view: 'project'
   };
 
-
   public selectedAssignee: User = {};
-  public selectedTaskType:TaskTypeModel;
+  public selectedTaskType: TaskTypeModel;
   public selectedStatus: ProjectStatus;
   public selectedPriority: ProjectPriority;
   public displayName: string;
-  public assigneeDataSource:User[] = []
-  public isSearchingDefaultAssignee:boolean;
+  public assigneeDataSource: User[] = [];
+  public isSearchingDefaultAssignee: boolean;
 
 
   public stagesList: any = [];
@@ -130,6 +131,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public moveStatusModalIsVisible: boolean;
 
+  public assigneeModelChanged = new Subject<string>();
+
+  constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
+              private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
+              private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
+              private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
+              private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
+              private modal: NzModalService) {
   //security permissions
   public permissionsList: AccessPermissionVM[] = [];
   public permissionsObj: Permissions = {};
@@ -225,6 +234,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.createProjectForm();
+
     this.currentOrganization = this._generalService.currentOrganization;
 
     // get current project from store
@@ -254,9 +265,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
             });
           }
 
-          this.createProjectForm();
         }
       });
+        this.bindProjectForm();
+      }
+    });
 
     // get all boards
     this._boardQuery.boards$.pipe(untilDestroyed(this)).subscribe(boards => {
@@ -264,52 +277,59 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     // get all boards in process
-    this._boardQuery.getAllInProcess$
-      .pipe(untilDestroyed(this))
-      .subscribe(inProcess => {
-        this.getAllBoardsInProcess = inProcess;
-      });
+    this._boardQuery.getAllInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.getAllBoardsInProcess = inProcess;
+    });
 
     // publish board in process
-    this._boardQuery.publishBoardInProcess$
-      .pipe(untilDestroyed(this))
-      .subscribe(inProcess => {
-        this.publishBoardInProcess = inProcess;
-      });
+    this._boardQuery.publishBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.publishBoardInProcess = inProcess;
+    });
 
     // delete board in process
-    this._boardQuery.deleteBoardInProcess$
-      .pipe(untilDestroyed(this))
-      .subscribe(inProcess => {
-        this.deleteBoardInProcess = inProcess;
-      });
+    this._boardQuery.deleteBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
+      this.deleteBoardInProcess = inProcess;
+    });
 
     // get all task statuses from store
-    this._taskStatusQuery.statuses$
-      .pipe(untilDestroyed(this))
-      .subscribe(statuses => {
-        this.statusList = statuses;
-        this.selectedStatus =  statuses[0];
-      });
+    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
+      this.statusList = statuses;
+      this.selectedStatus = this.statusList.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
+    });
 
     // get all task types from store
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
       this.typesList = types;
-      this.selectedTaskType = types[0];
+      this.selectedTaskType = this.typesList.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
     });
 
     // get all task priorities from store
-    this._taskPriorityQuery.priorities$
-      .pipe(untilDestroyed(this))
-      .subscribe(priorities => {
-        this.priorityList = priorities;
-        this.selectedPriority =  priorities[0];
-      });
-
-    // get all user roles from store
-    this._userRoleQuery.roles$.pipe(untilDestroyed(this)).subscribe(roles => {
-      this.roleList = roles;
+    this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
+      this.priorityList = priorities;
+      this.selectedPriority = this.priorityList.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
     });
+
+    // search default assignee
+    this.assigneeModelChanged
+      .pipe(
+        debounceTime(500))
+      .subscribe(() => {
+        const queryText = this.projectForm.get('assigneeId').value;
+        const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
+        if (!queryText || this.projectForm.get('assigneeId').value === name) {
+          return;
+        }
+        this.isSearchingDefaultAssignee = true;
+        const json: SearchProjectCollaborators = {
+          projectId: this._generalService.currentProject.id,
+          query: queryText
+        };
+        this._userService.searchProjectCollaborator(json).subscribe((data) => {
+          this.isSearchingDefaultAssignee = false;
+          this.assigneeDataSource = data.data;
+        });
+      });
+    // end default search assignee
 
     // Form for collaborator tab
     this.collaboratorForm = this.FB.group({
@@ -361,31 +381,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // get Projects
     this.getProjects();
-
-
-    // search default assignee
-    this.assigneeModelChanged
-      .pipe(
-        debounceTime(500))
-      .subscribe(() => {
-        const queryText = this.projectForm.get('assigneeId').value;
-        const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
-        if (!queryText || this.projectForm.get('assigneeId').value === name) {
-          return;
-        }
-        this.isSearchingDefaultAssignee = true;
-        const json: SearchProjectCollaborators = {
-          projectId: this._generalService.currentProject.id,
-          query: queryText
-        };
-        this._userService.searchProjectCollaborator(json).subscribe((data) => {
-          this.isSearchingDefaultAssignee = false;
-          this.assigneeDataSource = data.data;
-        });
-
-      });
-    // end default search assignee
-
 
     // search collaborators
     this.modelChangedSearchCollaborators
@@ -466,13 +461,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public createProjectForm() {
     this.projectForm = this.FB.group({
-      id: new FormControl(this.currentProject ? this.currentProject.id : null),
-      name: new FormControl(this.currentProject ? this.currentProject.name : null,[Validators.required]),
-      organizationId: new FormControl(this._generalService.currentOrganization.id),
-      assigneeId: new FormControl( null),
-      taskTypeId: new FormControl( null),
-      statusId: new FormControl( null),
-      priorityId:new FormControl( null),
+      id: new FormControl(),
+      name: new FormControl('', [Validators.required]),
+      organizationId: new FormControl(),
+      // assigneeId: new FormControl( null),
+      defaultTaskTypeId: new FormControl(),
+      defaultTaskStatusId: new FormControl(),
+      defaultTaskPriorityId: new FormControl()
+    });
+  }
+
+  /**
+   * bind current project value in project form
+   */
+  public bindProjectForm() {
+    this.projectForm.patchValue({
+      id: this.currentProject.id,
+      name: this.currentProject.name,
+      organizationId: this.currentProject.organizationId,
+      defaultTaskTypeId: this.currentProject.settings.defaultTaskTypeId,
+      defaultTaskStatusId: this.currentProject.settings.defaultTaskStatusId,
+      defaultTaskPriorityId: this.currentProject.settings.defaultTaskPriorityId
     });
   }
 
@@ -767,7 +776,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public toggleAddTaskTypeShow(item?: TaskTypeModel) {
     if (item) {
-      this.addEditprojectTaskTypeData = item;
+      this.addEditprojectTaskTypeData = { ...item };
     } else {
       this.addEditprojectTaskTypeData = null;
     }
@@ -859,6 +868,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.updateRequestInProcess = false;
       }
     );
+    this._projectService.updateProject(project).subscribe((res => {
+      this.updateRequestInProcess = false;
+    }), (error => {
+      this.updateRequestInProcess = false;
+    }));
   }
 
   projectModalShow(): void {
@@ -868,6 +882,40 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /*===============================================*/
   /*================== Workflow Tab ===============*/
   /*===============================================*/
+  public selectTaskType(item: TaskTypeModel) {
+    this.selectedTaskType = item;
+    this.projectForm.get('defaultTaskTypeId').patchValue(item.id);
+  }
+
+  public selectPriority(item: ProjectPriority) {
+    this.selectedPriority = item;
+    this.projectForm.get('defaultTaskPriorityId').patchValue(item.id);
+  }
+
+  public selectStatus(item: ProjectStatus) {
+    this.selectedStatus = item;
+    this.projectForm.get('defaultTaskStatusId').patchValue(item.id);
+  }
+
+
+  public selectDefaultAssigneeTypeahead(user: User) {
+    if (user && user.emailId) {
+      this.selectedAssignee = user;
+      let userName = user && user.firstName ? user.firstName : user.emailId;
+      if (user && user.firstName && user && user.lastName) {
+        userName = userName + ' ' + user.lastName;
+      }
+      this.projectForm.get('assigneeId').patchValue(userName);
+    }
+    this.assigneeModelChanged.next();
+  }
+
+  public clearAssigeeSearchText() {
+    this.projectForm.get('assigneeId').patchValue('');
+    this.selectedAssignee.profilePic = null;
+  }
+
+  //================== workflow =====================//
 
   public editBoard(boardId: string) {
     this.router.navigate(['dashboard', 'board-setting', boardId]);

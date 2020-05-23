@@ -14,8 +14,8 @@ import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskTypeService } from '../../shared/services/task-type/task-type.service';
 import { ColorEvent } from 'ngx-color';
 import { Subject } from 'rxjs';
-import { UserService } from '../../shared/services/user/user.service';
 import { debounceTime } from 'rxjs/operators';
+import { UserService } from '../../shared/services/user/user.service';
 
 @Component({
   selector: 'aavantan-task-type',
@@ -37,8 +37,8 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
   public primaryColor = '#000000';
 
   public selectedAssignee: User = {};
-  public assigneeDataSource:User[] = []
-  public isSearchingAssignee:boolean;
+  public assigneeDataSource: User[] = [];
+  public isSearchingAssignee: boolean;
   public assigneeModelChanged = new Subject<string>();
 
   constructor(protected notification: NzNotificationService,
@@ -54,7 +54,7 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
       assigneeId: new FormControl(null, [Validators.required]),
       displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
-      color: new FormControl("#000000" ),
+      color: new FormControl('#000000'),
       id: new FormControl(null),
       description: new FormControl(''),
       projectId: new FormControl(this._generalService.currentProject.id)
@@ -63,11 +63,17 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
     if (this.addEditprojectTaskTypeData) {
       this.primaryColor = this.addEditprojectTaskTypeData.color;
       this.taskTypeForm.get('name').patchValue(this.addEditprojectTaskTypeData.name);
+      //this.taskTypeForm.get('assigneeId').patchValue(this.addEditprojectTaskTypeData.name);
       this.taskTypeForm.get('color').patchValue(this.addEditprojectTaskTypeData.color);
       this.taskTypeForm.get('displayName').patchValue(this.addEditprojectTaskTypeData.displayName);
       this.taskTypeForm.get('id').patchValue(this.addEditprojectTaskTypeData.id);
       this.taskTypeForm.get('description').patchValue(this.addEditprojectTaskTypeData.description);
       this.taskTypeForm.get('projectId').patchValue(this._generalService.currentProject.id);
+
+      const userName = `${this.addEditprojectTaskTypeData.assignee.firstName} ${this.addEditprojectTaskTypeData.assignee.lastName}`;
+      this.taskTypeForm.get('assigneeId').patchValue(userName);
+      this.selectedAssignee = { ...this.addEditprojectTaskTypeData.assignee };
+      this.assigneeModelChanged.next();
     }
 
     // search default assignee
@@ -92,7 +98,6 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
 
       });
     // end default search assignee
-
   }
 
   public selectAssigneeTypeahead(user: User) {
@@ -121,10 +126,19 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
         return;
       }
 
+      if (!this.selectedAssignee) {
+        this.notification.error('Error', 'Please select assignee');
+        return;
+      }
+
       if (this.addEditprojectTaskTypeData && this.addEditprojectTaskTypeData.id) {
 
         this.updateRequestInProcess = true;
-        await this._taskTypeService.updateTaskType(this.taskTypeForm.value).toPromise();
+
+        const taskTypeValue = this.taskTypeForm.value;
+        taskTypeValue.assigneeId = this.selectedAssignee ? this.selectedAssignee.id : null;
+
+        await this._taskTypeService.updateTaskType(taskTypeValue).toPromise();
         this.updateRequestInProcess = false;
         this.toggleAddTaskTypeShow.emit();
 
@@ -141,13 +155,17 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
           return;
         }
         this.updateRequestInProcess = true;
-        await this._taskTypeService.createTaskType(this.taskTypeForm.value).toPromise();
+
+        const taskTypeValue = this.taskTypeForm.value;
+        taskTypeValue.assigneeId = this.selectedAssignee ? this.selectedAssignee.id : null;
+
+        await this._taskTypeService.createTaskType(taskTypeValue).toPromise();
         this.taskTypeForm.reset({ projectId: this._generalService.currentProject.id });
         this.updateRequestInProcess = false;
         this.toggleAddTaskTypeShow.emit();
 
       }
-    }catch (e) {
+    } catch (e) {
       this.updateRequestInProcess = false;
     }
   }
@@ -161,11 +179,13 @@ export class AddTaskTypeComponent implements OnInit, OnDestroy {
   public toggleColor() {
     this.showColorBox = !this.showColorBox;
   }
+
   public clearColor() {
     this.primaryColor = '#000000';
     this.taskTypeForm.get('color').patchValue(this.primaryColor);
     this.showColorBox = !this.showColorBox;
   }
+
   public changeComplete($event: ColorEvent) {
     this.primaryColor = $event.color.hex;
     this.taskTypeForm.get('color').patchValue($event.color.hex);
