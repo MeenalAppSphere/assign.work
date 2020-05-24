@@ -2,13 +2,12 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {
   AccessPermissionVM,
-  ChangeAccessModel,
   Permissions,
   ProjectMembers,
-  UserRoleModel
+  UserRoleModel, UserRoleUpdateRequestModel
 } from '@aavantan-app/models';
 import { ProjectService } from '../../shared/services/project/project.service';
 import { TaskStatusService } from '../../shared/services/task-status/task-status.service';
@@ -52,20 +51,15 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
       this.roleListDataSource = roles;
     });
 
-
-    this.changeAccessForm = this.FB.group({
-      roleId: new FormControl(null)
-    });
-
-    console.log('updateUserRoleData :', this.updateUserRoleData);
-    if (this.updateUserRoleData) {
-
-      // init/prepare all permissions list from 'PERMISSIONS' const
+    if (this.updateUserRoleData.roleDetails) {
+      // init/prepare all permissions list from 'roleDetails.accessPermissions' const to display
+      this.generatePermissionsList(this.updateUserRoleData.roleDetails.accessPermissions);
+    }else {
+      //default from PERMISSIONS contant
       this.generatePermissionsList(PERMISSIONS);
-
     }
 
-    this.selectedUserRole = this.roleListDataSource[0];
+    this.selectedUserRole = this.updateUserRoleData.roleDetails;
 
   }
 
@@ -105,7 +99,6 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
   //**********************//
   // Select role from dropdown
   //**********************//
-
   public selectRole(item: UserRoleModel) {
     this.selectedUserRole = item;
     this.generatePermissionsList(item.accessPermissions);
@@ -117,17 +110,16 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
   //**********************//
   async saveAccess() {
     try {
-      if (this.changeAccessForm.invalid) {
+      if (this.updateUserRoleData && !this.updateUserRoleData.userId) {
         this.notification.error('Error', 'Please check all fields');
         return;
       }
 
-      const json: ChangeAccessModel = {...this.changeAccessForm.getRawValue()};
-
-      if (this.updateUserRoleData && this.updateUserRoleData.userId) {
-
-        json.userId = this.updateUserRoleData.userId;
-        json.projectId = this._generalService.currentProject.id;
+        const json: UserRoleUpdateRequestModel = {
+          userRoleId: this.selectedUserRole.id,
+          userId:this.updateUserRoleData.userId,
+          projectId: this._generalService.currentProject.id
+        };
 
         this.updateRequestInProcess = true;
 
@@ -137,10 +129,7 @@ export class UpdateUserRoleComponent implements OnInit, OnDestroy {
 
         this.toggleUpdateUserRoleShow.emit();
 
-      } else {
-          // add api call if need here
-      }
-    }catch (e) {
+    } catch (e) {
       this.updateRequestInProcess = false;
     }
 

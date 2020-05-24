@@ -14,7 +14,7 @@ import {
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
-  UpdateProjectRequestModel
+  UpdateProjectRequestModel, UserRoleUpdateRequestModel
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -44,6 +44,11 @@ export class ProjectController {
   @Post(':id/add-collaborators')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
+  }
+
+  @Post('update-collaborators-role')
+  async updateCollaboratorRole(@Body() model: UserRoleUpdateRequestModel) {
+    return await this._projectService.updateCollaboratorRole(model);
   }
 
   @Post('resend-invitation')

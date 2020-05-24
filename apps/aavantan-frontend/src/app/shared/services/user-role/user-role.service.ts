@@ -4,20 +4,22 @@ import { HttpWrapperService } from '../httpWrapper.service';
 import { catchError, map } from 'rxjs/operators';
 import {
   BaseResponseModel,
-  ChangeAccessModel,
+  UserRoleUpdateRequestModel,
   Project,
-  ProjectWorkingCapacityUpdateDto,
-  UserRoleModel
+  UserRoleModel, ProjectMembers
 } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { UserRoleUrls } from './user-role.url';
 import { cloneDeep } from 'lodash';
 import { UserRoleState, UserRoleStore } from '../../../store/user-role/user-role.store';
 import { ProjectUrls } from '../project/project.url';
+import { UserStore } from '../../../store/user/user.store';
 
 export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
   constructor(protected notification: NzNotificationService,
-              protected userRoleStore: UserRoleStore, private _http: HttpWrapperService) {
+              protected userRoleStore: UserRoleStore,
+              protected userStore: UserStore,
+              private _http: HttpWrapperService) {
     super(userRoleStore, notification);
 
     this.notification.config({
@@ -102,18 +104,26 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
   /**
   * Change access for collaborator
   */
-  changeAccess(accessModel: ChangeAccessModel): Observable<BaseResponseModel<ChangeAccessModel>> {
-    return this._http.post(UserRoleUrls.changeAccess, accessModel).pipe(
-      map((res: BaseResponseModel<ChangeAccessModel>) => {
-
+  changeAccess(accessModel: UserRoleUpdateRequestModel): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.changeAccess, accessModel).pipe(
+      map(res => {
+        this.updateCurrentProjectState(res.data);
         this.notification.success('Success', 'Access updated successfully');
         return res;
-
       }),
-      catchError(err => {
-        return this.handleError(err);
+      catchError(e => {
+        return this.handleError(e);
       })
     );
+  }
+
+  private updateCurrentProjectState(result: Project) {
+    this.userStore.update((state => {
+      return {
+        ...state,
+        currentProject: result
+      };
+    }));
   }
 
 }

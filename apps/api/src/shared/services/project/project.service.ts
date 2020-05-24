@@ -21,7 +21,7 @@ import {
   SearchProjectTags,
   SwitchProjectRequest,
   UpdateProjectRequestModel,
-  User,
+  User, UserRoleUpdateRequestModel,
   UserStatus
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
@@ -570,6 +570,33 @@ export class ProjectService extends BaseService<Project & Document> implements O
     return await this.updateProjectHelper(id, { $set: { members: projectDetails.members } });
   }
 
+
+  /**
+   * update collaborator role
+   * @param id: project id
+   * @param userRoleId: userRoleId
+   */
+  async updateCollaboratorRole(model: UserRoleUpdateRequestModel) {
+
+    try {
+      const projectDetails: Project = await this.getProjectDetails(model.projectId);
+
+      // loop over members and set details that we got in request
+      projectDetails.members = projectDetails.members.map(pd => {
+        if (model.userId === pd.userId) {
+          pd.userRoleId = model.userRoleId;
+        }
+        return pd;
+      });
+
+      // update project
+      return await this.updateProjectHelper(model.projectId, { $set: { members: projectDetails.members } });
+    }catch(e) {
+
+    }
+  }
+
+
   /**
    * get all projects with pagination
    * @param model
@@ -811,6 +838,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
         path: 'members.userDetails',
         select: 'firstName lastName emailId userName profilePic'
       });
+
+      populate.push({
+        path: 'members.roleDetails',
+        select: 'name description accessPermissions'
+      });
     }
 
     // project details query
@@ -891,6 +923,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
     project.members = project.members.map(member => {
       member.workingCapacity = secondsToHours(member.workingCapacity);
       member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+
+      if(member.roleDetails) {
+         member.roleDetails.id = member.roleDetails._id;
+      }
+
       return member;
     });
 

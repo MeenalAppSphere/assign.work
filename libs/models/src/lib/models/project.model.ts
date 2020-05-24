@@ -46,6 +46,7 @@ export class ProjectMembers {
   workingCapacityPerDay?: number;
   workingDays?: ProjectWorkingDays[];
   userRoleId?: string;
+  roleDetails?: UserRoleModel;
   accessPermissions?: Permissions
 }
 

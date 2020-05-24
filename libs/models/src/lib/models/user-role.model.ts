@@ -31,8 +31,8 @@ export class PermissionItem {
   [key: string]: boolean
 }
 
-export class ChangeAccessModel {
+export class UserRoleUpdateRequestModel {
   projectId:string;
-  userId: string;
-  roleId:string;
+  userRoleId:string;
+  userId:string;
 }
