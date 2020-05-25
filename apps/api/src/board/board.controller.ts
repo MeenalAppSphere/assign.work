@@ -14,6 +14,7 @@ import {
   GetAllBoardsRequestModel, SaveAndPublishBoardModel
 } from '@aavantan-app/models';
 import { BoardService } from '../shared/services/board/board.service';
+import { Roles } from '../shared/guard/roles.decorators';
 
 @Controller('board')
 @UseGuards(AuthGuard('jwt'))
@@ -28,6 +29,7 @@ export class BoardController {
   }
 
   @Post('update')
+  @Roles('board', 'canAdd')
   async updateBoard(@Body() model: BoardModel) {
     return await this._boardService.createUpdateBoard(model);
   }

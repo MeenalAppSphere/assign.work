@@ -11,7 +11,7 @@ import {
   BoardModel,
   BoardShowColumnStatus, SaveAndPublishBoardModel,
   TaskStatusModel,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../../queries/user/user.query';
 import { TaskStatusQuery } from '../../queries/task-status/task-status.query';
@@ -22,6 +22,7 @@ import { DndDropEvent } from 'ngx-drag-drop/dnd-dropzone.directive';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ActivatedRoute } from '@angular/router';
 import { NzModalService } from 'ng-zorro-antd';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Component({
   selector: 'aavantan-board-design',
@@ -81,9 +82,13 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
 
   public assignUserDetails: User;
 
+  // for permission
+  public currentUserRole:UserRoleModel;
+
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
               private _boardService: BoardService, private _generalService: GeneralService, private _boardQuery: BoardQuery,
-              private _activatedRoute: ActivatedRoute, private modal: NzModalService) {
+              private _activatedRoute: ActivatedRoute, private modal: NzModalService,
+              private permissionService : NgxPermissionsService) {
   }
 
   ngOnInit() {
@@ -174,6 +179,16 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
     // merge column in process
     this._boardQuery.hiddenStatuses$.pipe(untilDestroyed(this)).subscribe(list => {
       this.hiddenStatuses = list;
+    });
+
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
+
+
+        //this.permissionService.loadPermissions(["ADMIN"]);
+      }
     });
 
   }

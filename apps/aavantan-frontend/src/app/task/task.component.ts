@@ -25,7 +25,7 @@ import {
   TaskTimeLogResponse,
   TaskTypeModel,
   UpdateCommentModel,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -123,6 +123,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public watchersQueryText: string = null;
   public progressData: TaskTimeLogResponse;
   public uploadingImage: boolean;
+
+  // for permission
+  public currentUserRole:UserRoleModel;
 
   public panels: any[] = [{
     active: false,
@@ -252,6 +255,13 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         this.currentProject = res;
         this.stagesDataSource = res.settings.stages;
+      }
+    });
+
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
       }
     });
 

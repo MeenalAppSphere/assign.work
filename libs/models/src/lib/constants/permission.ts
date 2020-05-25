@@ -1,23 +1,24 @@
 import { Permissions } from '@aavantan-app/models';
 
-// note : name always start with "can" because it in use in settings>UI
 export const PERMISSIONS: Permissions = {
   sprint: {
     canCreate: false,
-    canRemove: false,
+    canUpdate: false,
     canClose: false,
+    canRemoveTask: false,
+    canAddTask: false
   },
   task: {
     canAdd:false,
-    canAddToSprint: false,
-    canUpdateEstimate: false,
+    canRemove:false,
+    canUpdateEstimate: false, // no api
   },
   board: {
     canUpdateBoardSettings: false
   },
   member: {
     canAdd: false,
-    canDelete: false,
+    canDelete: false, // no api
   }
 }
 

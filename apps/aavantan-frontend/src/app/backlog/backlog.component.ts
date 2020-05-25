@@ -15,7 +15,7 @@ import {
   TaskFilterCondition,
   TaskFilterModel, TaskStatusModel,
   TaskTypeModel,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
@@ -98,6 +98,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public selectedColumnDataSource: string[] = [];
 
   public currentProject: Project;
+
+  // for permission
+  public currentUserRole:UserRoleModel;
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -201,6 +204,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
     if (this.backLogTasksList && this.backLogTasksList.length > 0) {
       this.countTotalDuration();
     }
+
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
+      }
+    });
 
     // Sprint wizard data
     this.unPublishedSprintData = {

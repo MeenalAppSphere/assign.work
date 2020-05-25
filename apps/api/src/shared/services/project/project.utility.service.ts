@@ -1,4 +1,4 @@
-import { Project, ProjectMembers, User, UserRoleModel } from '@aavantan-app/models';
+import { Project, ProjectMembers, UpdateProjectRequestModel, User, UserRoleModel } from '@aavantan-app/models';
 import { BadRequest, maxLengthValidator, validOrganizationOrProjectName } from '../../helpers/helpers';
 import {
   DEFAULT_WORKING_CAPACITY,

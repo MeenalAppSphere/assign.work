@@ -13,6 +13,8 @@ import {
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
+import { Roles } from '../shared/guard/roles.decorators';
+import { RolesGuard } from '../shared/guard/roles.gaurd';
 
 @Controller('sprint')
 @UseGuards(AuthGuard('jwt'))
@@ -22,21 +24,26 @@ export class SprintController {
   }
 
   @Post('create')
+  @Roles('sprint', 'canCreate')
+  @UseGuards(RolesGuard)
   async createSprint(@Body() model: CreateSprintModel) {
     return await this._sprintService.createSprint(model);
   }
 
   @Post('update')
+  @Roles('sprint', 'canUpdate')
   async updateSprint(@Body() model: UpdateSprintModel) {
     return await this._sprintService.updateSprint(model);
   }
 
   @Post('add-task')
+  @Roles('sprint', 'canAddTask')
   async addTask(@Body() model: AddTaskToSprintModel) {
     return await this._sprintService.addTaskToSprint(model);
   }
 
   @Post('remove-task')
+  @Roles('sprint', 'canRemoveTask')
   async removeTasks(@Body() model: RemoveTaskFromSprintModel) {
     return await this._sprintService.removeTaskFromSprint(model);
   }
@@ -82,6 +89,7 @@ export class SprintController {
   }
 
   @Post('close-sprint')
+  @Roles('sprint', 'canClose')
   async closeSprint(@Body() model: CloseSprintModel) {
     return await this._sprintService.closeSprint(model);
   }

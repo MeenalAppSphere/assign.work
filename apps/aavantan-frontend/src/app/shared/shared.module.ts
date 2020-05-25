@@ -20,6 +20,8 @@ import { RouterModule } from '@angular/router';
 import { ProfileNameComponent } from './components/profile-name/profile-name.component';
 import { KeysPipe } from './pipes/keys.pipe';
 
+// Import your library
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 @NgModule({
   exports: [
@@ -51,7 +53,8 @@ import { KeysPipe } from './pipes/keys.pipe';
     TypeaheadModule,
     PopoverModule,
     EditorModule,
-    RouterModule
+    RouterModule,
+    NgxPermissionsModule.forRoot()
   ],
   declarations: [
     AddProjectComponent,

@@ -5,9 +5,6 @@ import {
   Project,
   ProjectMembers,
   ProjectTemplateUpdateModel,
-  ProjectUpdateDefaultAssigneeModel,
-  ProjectUpdateDefaultPriorityModel, ProjectUpdateDefaultTaskStatusModel,
-  ProjectUpdateDefaultTaskTypeModel,
   ProjectWorkingCapacityUpdateDto,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
@@ -17,6 +14,7 @@ import {
   UpdateProjectRequestModel, UserRoleUpdateRequestModel
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../shared/guard/roles.decorators';
 
 @Controller('project')
 @UseGuards(AuthGuard('jwt'))
@@ -42,6 +40,7 @@ export class ProjectController {
   }
 
   @Post(':id/add-collaborators')
+  @Roles('member', 'canCreate')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
   }
