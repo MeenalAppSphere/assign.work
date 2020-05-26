@@ -266,7 +266,7 @@
         <div class="row floating-save-btns">
           <div class="col-md-12 text-right">
 
-            <button type="reset" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            <button type="button" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
             <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
                     nzType="primary" class="m-r-5 btn-save-task">Save

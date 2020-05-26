@@ -565,13 +565,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public resetTaskForm() {
-
-    return this.modal.confirm({
+    this.modal.confirm({
       nzTitle: 'Are you sure want create new task?',
       nzContent: 'All unsaved data will be clear',
       nzOnOk: () =>
         new Promise(async (resolve, reject) => {
-
           this.taskId = null;
           this.currentTask = null;
           this.selectedStatus = null;
@@ -590,18 +588,7 @@ export class TaskComponent implements OnInit, OnDestroy {
             this.taskFormSideBar.reset();
           }
 
-          if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
-            this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
-            this.displayName = this.selectedTaskType.displayName;
-
-            this.selectedAssignee = {...this.selectedTaskType.assignee};
-
-            setTimeout(()=>{
-              this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
-              this.modelChanged.next()
-            },100);
-
-          }
+          this.selectAssigneeFormTaskType();
 
           this.pinnedCommentsList = null;
           this.historyList = null;
@@ -614,15 +601,22 @@ export class TaskComponent implements OnInit, OnDestroy {
           } else {
             this.router.navigateByUrl('dashboard/task/');
           }
-
-          setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
-          return true;
+          resolve();//close modal on ok
         }).catch((e) => {
 
         })
     });
+  }
 
-
+  // Assignee from Task type source
+  public selectAssigneeFormTaskType () {
+    if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
+      this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
+      this.displayName = this.selectedTaskType.displayName;
+      this.selectedAssignee = {...this.selectedTaskType.assignee};
+        this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
+        this.modelChanged.next()
+    }
   }
 
   public updateCommentSuccess(data: any) {
