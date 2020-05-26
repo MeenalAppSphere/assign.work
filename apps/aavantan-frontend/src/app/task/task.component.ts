@@ -273,7 +273,13 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         if (arr && arr.length) {
           this.selectedTaskType = arr[0];
-          this.selectedAssignee = arr[0].assignee;
+
+          if(this.taskData && this.taskData.assignee) {
+            this.selectedAssignee = this.taskData.assignee;
+          }else {
+            this.selectedAssignee = {...arr[0].assignee};
+          }
+
           this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
           this.modelChanged.next();
         }
@@ -587,15 +593,14 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
       this.displayName = this.selectedTaskType.displayName;
 
-      this.selectedAssignee = this.selectedTaskType.assignee;
+      this.selectedAssignee = {...this.selectedTaskType.assignee};
       this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
-      this.modelChanged.next();
+      this.modelChanged.next()
     }
 
     this.pinnedCommentsList = null;
     this.historyList = null;
     this.progressData = null;
-    this.selectedAssignee.profilePic = null;
 
     if (this.selectedTaskType) {
       this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
@@ -1089,7 +1094,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
-      this.selectedAssignee = user;
+      this.selectedAssignee = {...user};
       let userName = user && user.firstName ? user.firstName : user.emailId;
       if (user && user.firstName && user && user.lastName) {
         userName = userName + ' ' + user.lastName;
@@ -1106,7 +1111,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
-    this.selectedAssignee = item.assignee;
+    this.selectedAssignee = {...item.assignee};
     this.taskForm.get('assigneeId').patchValue(`${item.assignee.firstName} ${item.assignee.lastName}`);
   }
 
