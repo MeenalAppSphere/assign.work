@@ -548,11 +548,6 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public assignedToMe() {
-    const user: ProjectMembers = {
-      userId: this._generalService.user.id,
-      emailId: this._generalService.user.emailId,
-      userDetails: this._generalService.user
-    };
     this.selectedAssignee.id = this._generalService.user.id;
     this.selectedAssignee.firstName = this._generalService.user.firstName;
     this.selectedAssignee.lastName = this._generalService.user.lastName ? this._generalService.user.lastName : null;
@@ -570,45 +565,63 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   public resetTaskForm() {
-    this.taskId = null;
-    this.currentTask = null;
-    this.selectedStatus = null;
-    this.selectedPriority = null;
-    this.attachementIds = [];
-    this.uploadedImages = [];
-    this.listOfSelectedWatchers = [];
-    this.listOfSelectedTags = [];
 
+    return this.modal.confirm({
+      nzTitle: 'Are you sure want create new task?',
+      nzContent: 'All unsaved data will be clear',
+      nzOnOk: () =>
+        new Promise(async (resolve, reject) => {
 
-    // reset task form if task form is already initialised
-    if (this.taskForm) {
-      this.taskForm.reset();
-    }
+          this.taskId = null;
+          this.currentTask = null;
+          this.selectedStatus = null;
+          this.selectedPriority = null;
+          this.attachementIds = [];
+          this.uploadedImages = [];
+          this.listOfSelectedWatchers = [];
+          this.listOfSelectedTags = [];
 
-    if (this.taskFormSideBar) {
-      this.taskFormSideBar.reset();
-    }
+          // reset task form if task form is already initialised
+          if (this.taskForm) {
+            this.taskForm.reset();
+          }
 
-    if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
-      this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
-      this.displayName = this.selectedTaskType.displayName;
+          if (this.taskFormSideBar) {
+            this.taskFormSideBar.reset();
+          }
 
-      this.selectedAssignee = {...this.selectedTaskType.assignee};
-      this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
-      this.modelChanged.next()
-    }
+          if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
+            this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
+            this.displayName = this.selectedTaskType.displayName;
 
-    this.pinnedCommentsList = null;
-    this.historyList = null;
-    this.progressData = null;
+            this.selectedAssignee = {...this.selectedTaskType.assignee};
 
-    if (this.selectedTaskType) {
-      this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
-    } else if (this.displayName) {
-      this.router.navigateByUrl('dashboard/task/' + this.displayName);
-    } else {
-      this.router.navigateByUrl('dashboard/task/');
-    }
+            setTimeout(()=>{
+              this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
+              this.modelChanged.next()
+            },100);
+
+          }
+
+          this.pinnedCommentsList = null;
+          this.historyList = null;
+          this.progressData = null;
+
+          if (this.selectedTaskType) {
+            this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
+          } else if (this.displayName) {
+            this.router.navigateByUrl('dashboard/task/' + this.displayName);
+          } else {
+            this.router.navigateByUrl('dashboard/task/');
+          }
+
+          setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
+          return true;
+        }).catch((e) => {
+
+        })
+    });
+
 
   }
 
