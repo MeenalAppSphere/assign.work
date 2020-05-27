@@ -124,7 +124,7 @@
                 </ng-template>
               </span>
 
-          <div class="text-right sprint-progress">
+          <div class="text-right sprint-progress board-sprint-progress">
             <nz-progress [nzPercent]="boardData?.progress"
                          [nzStrokeColor]="boardData?.progress <=100 ? '#42E3A3' : '#F82222'"
                          nzStatus="active"></nz-progress>
@@ -152,8 +152,8 @@
                *ngFor="let item of boardData.columns; let last;let columnIndex = index">
             <div class="card card-block">
 
-              <div class="card-header">{{item.status.name}} <span class="pull-right"><i
-                class="pl-3 fa fa-ellipsis-v"></i></span>
+              <div class="card-header">{{item.status.name}}
+<!--                <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>-->
                 <div class="pull-left" style="line-height: 10px;">
                   <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
                   <span class="font-size-12">{{item.totalEstimationReadable}}</span>
