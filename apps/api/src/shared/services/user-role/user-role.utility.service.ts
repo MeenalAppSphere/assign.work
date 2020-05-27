@@ -41,7 +41,7 @@ export class UserRoleUtilityService {
 
       const allowedPermissions = PERMISSIONS;
 
-      if(role.type === RoleTypeEnum.supervisor) {
+      if(defaultRoles.type === RoleTypeEnum.supervisor) {
 
         //All permissions allowed
         Object.keys(allowedPermissions).forEach(key => {

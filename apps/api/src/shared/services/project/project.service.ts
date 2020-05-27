@@ -109,21 +109,18 @@ export class ProjectService extends BaseService<Project & Document> implements O
       BadRequest('Duplicate Project Name not allowed');
     }
 
+    // get user details
+    const userDetails = await this._userService.findById(this._generalService.userId);
+    if (!userDetails) {
+      BadRequest('User not found');
+    }
+
     const newProject = await this.withRetrySession(async (session: ClientSession) => {
       // get organization details
       await this._organizationService.getOrganizationDetails(model.organizationId);
 
-      // get user details
-      const userDetails = await this._userService.findById(this._generalService.userId);
-      if (!userDetails) {
-        BadRequest('User not found');
-      }
-
       const projectModel = this._utilityService.prepareProjectModelFromRequest(model);
       projectModel.createdById = this._generalService.userId;
-
-      // add project creator as project collaborator when new project is created
-      projectModel.members.push(this._utilityService.prepareProjectMemberModel(userDetails));
 
       // create project and get project id from them
       const createdProject = await this.create([projectModel], session);
@@ -137,7 +134,26 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this._userService.updateUser(userDetails.id, userDetails, session);
       return createdProject[0];
     });
+
+
+     await this.withRetrySession(async(session: ClientSession)=>{
+
+      // create default roles and getting first supervisor type role id and assign to project owner
+      let createdRoles = await this._userRoleService.createDefaultRoles(newProject, session);
+      createdRoles = createdRoles.filter(ele => ele.type === RoleTypeEnum.supervisor);
+      const userRoleId = createdRoles[0]._id; // to assign project owner
+
+      // add project creator as project collaborator when new project is created
+      const projectOwner = this._utilityService.prepareProjectMemberModel(userDetails, userRoleId);
+
+      return this.updateById(newProject.id, {
+        $push:{
+          'members': projectOwner
+        }
+      }, session);
+    });
     // get project by id and send it
+
     return await this.getProjectDetails(newProject.id, true);
   }
 
@@ -505,19 +521,15 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create default board goes here
       const defaultBoard = await this._boardService.createDefaultBoard(project, session);
 
-      // create default roles and getting first supervisor type role id and assign to project owner
-      let createdRoles = await this._userRoleService.createDefaultRoles(project, session);
-      createdRoles = createdRoles.filter(ele => ele.type === RoleTypeEnum.supervisor);
 
-      // update project's template and update default taskType, taskStatus default taskPriority and userRoleId of project owner
+      // update project's template and update default taskType, taskStatus default taskPriority
       await this.updateById(model.projectId, {
         $set: {
           template: model.template,
           activeBoardId: defaultBoard[0].id,
           'settings.defaultTaskTypeId': defaultTaskTypes[0]._id,
           'settings.defaultTaskStatusId': defaultStatues[0]._id,
-          'settings.defaultTaskPriorityId': defaultTaskPriorities[0]._id,
-          'members.0.userRoleId':  createdRoles[0] ? createdRoles[0]._id : null
+          'settings.defaultTaskPriorityId': defaultTaskPriorities[0]._id
         },
         $push: {
           'settings.statuses': { $each: project.settings.statuses },
