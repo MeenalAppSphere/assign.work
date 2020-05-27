@@ -898,7 +898,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.permissionsList = [];
     const recur = (obj: any, group: string) => {
       Object.keys(obj).forEach(key => {
-        const name = key.match(/[A-Z][a-z]*/g).join(' '); // to format "canRemove" like " Remove"
+        const name = key.match(/[A-Z][a-z]*/g).join(' ').replace(group, ''); // to format "canRemove" like " Remove"
         this.permissionsList.push({
           name: name,
           group: group,

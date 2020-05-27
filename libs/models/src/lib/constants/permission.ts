@@ -2,23 +2,23 @@ import { Permissions } from '@aavantan-app/models';
 
 export const PERMISSIONS: Permissions = {
   sprint: {
-    canCreate: false,
-    canUpdate: false,
-    canClose: false,
-    canRemoveTask: false,
-    canAddTask: false
+    canCreate_sprint: false,
+    canUpdate_sprint: false,
+    canClose_sprint: false,
+    canRemoveTask_sprint: false,
+    canAddTask_sprint: false
   },
   task: {
-    canAdd:false,
-    canRemove:false,
-    canUpdateEstimate: false, // no api
+    canAdd_task:false,
+    canRemove_task:false,
+    canUpdateEstimate_task: false, // no api
   },
   board: {
-    canUpdateBoardSettings: false
+    canUpdateBoardSettings_board: false
   },
   member: {
-    canAdd: false,
-    canDelete: false, // no api
+    canAddMember_member: false,
+    canDelete_member: false, // no api
   }
 }
 

@@ -576,6 +576,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
+
+  
+
   public resetTaskForm() {
     this.modal.confirm({
       nzTitle: 'Are you sure want create new task?',
