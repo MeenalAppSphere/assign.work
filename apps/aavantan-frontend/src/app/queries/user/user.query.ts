@@ -21,4 +21,6 @@ export class UserQuery extends Query<UserState> {
   constructor(protected store: UserStore) {
     super(store);
   }
+
+
 }

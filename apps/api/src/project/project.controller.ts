@@ -15,9 +15,10 @@ import {
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../shared/guard/roles.decorators';
+import { RolesGuard } from '../shared/guard/roles.gaurd';
 
 @Controller('project')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class ProjectController {
 
   constructor(private readonly _projectService: ProjectService) {
@@ -40,7 +41,7 @@ export class ProjectController {
   }
 
   @Post(':id/add-collaborators')
-  @Roles('member', 'canCreate')
+  @Roles('member', 'canAdd')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
   }

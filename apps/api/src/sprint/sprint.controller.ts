@@ -17,7 +17,7 @@ import { Roles } from '../shared/guard/roles.decorators';
 import { RolesGuard } from '../shared/guard/roles.gaurd';
 
 @Controller('sprint')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class SprintController {
 
   constructor(private readonly _sprintService: SprintService) {
@@ -25,7 +25,7 @@ export class SprintController {
 
   @Post('create')
   @Roles('sprint', 'canCreate')
-  @UseGuards(RolesGuard)
+
   async createSprint(@Body() model: CreateSprintModel) {
     return await this._sprintService.createSprint(model);
   }

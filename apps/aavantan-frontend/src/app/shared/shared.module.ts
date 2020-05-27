@@ -16,11 +16,9 @@ import { OrganisationComponent } from './components/organisation/organisation.co
 import { NumericDirective } from './directives/numbers-only.directive';
 import { AddEpicComponent } from './components/add-epic/add-epic.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
-import { RouterModule } from '@angular/router';
 import { ProfileNameComponent } from './components/profile-name/profile-name.component';
 import { KeysPipe } from './pipes/keys.pipe';
-
-// Import your library
+import { RouterModule } from '@angular/router';
 import { NgxPermissionsModule } from 'ngx-permissions';
 
 @NgModule({
@@ -42,7 +40,8 @@ import { NgxPermissionsModule } from 'ngx-permissions';
     NumericDirective,
     AddEpicComponent,
     ProfileNameComponent,
-    KeysPipe
+    KeysPipe,
+    NgxPermissionsModule
   ],
   imports: [
     CommonModule,
@@ -53,8 +52,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
     TypeaheadModule,
     PopoverModule,
     EditorModule,
-    RouterModule,
-    NgxPermissionsModule.forRoot()
+    RouterModule
   ],
   declarations: [
     AddProjectComponent,

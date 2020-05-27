@@ -21,6 +21,8 @@ import { BoardService } from '../shared/services/board/board.service';
 import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
+import { UserRoleModel } from '@aavantan-app/models';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -37,13 +39,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   organizationModalIsVisible: boolean = false;
   isAcceptInvitationInProcess: boolean = false;
 
+  // for permission
+  public currentUserRole:UserRoleModel;
+
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
               private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
               private _taskTypeService: TaskTypeService, private _boardService: BoardService,
-              private _userRoleService: UserRoleService) {
+              private _userRoleService: UserRoleService, private permissionsService: NgxPermissionsService) {
   }
 
   ngOnInit() {
@@ -61,6 +66,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ).subscribe(res => {
       this._generalService.user = cloneDeep(res);
       this.initialCheck();
+    });
+
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
+        this.setPermissions();
+      }
     });
 
     // listen for current project
@@ -202,6 +215,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return this.buildBreadCrumb(route.firstChild, nextUrl, newBreadcrumbs);
     }
     return newBreadcrumbs;
+  }
+
+
+  public setPermissions() {
+    const permissionsList = [];
+    const recur = (obj: any, group: string) => {
+      Object.keys(obj).forEach(key => {
+        if(obj[key]) { permissionsList.push(key);}
+      });
+    };
+
+    Object.keys(this.currentUserRole.accessPermissions).forEach(key => {
+      if (typeof this.currentUserRole.accessPermissions[key] !== 'boolean') {
+        recur(this.currentUserRole.accessPermissions[key], key);
+      }
+    });
+
+    this._generalService.permissions = cloneDeep(permissionsList);
+
+    console.log(this._generalService.permissions);
+    
+    this.permissionsService.loadPermissions(permissionsList);
   }
 
   private async initialCheck() {

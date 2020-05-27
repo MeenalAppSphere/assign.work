@@ -126,6 +126,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   // for permission
   public currentUserRole:UserRoleModel;
+  public activePermissions:string[] = [];
 
   public panels: any[] = [{
     active: false,
@@ -139,8 +140,6 @@ export class TaskComponent implements OnInit, OnDestroy {
   public hashValues: Mention[] = [];
   public quillConfig = {};
   /* end Quill Editor */
-
-  public nzFilterOption = () => true;
 
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
@@ -178,6 +177,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
+    // get all permissions array of current user
+    this.activePermissions = this._generalService.permissions;
 
     this.themeService.toggleFold(true);
 

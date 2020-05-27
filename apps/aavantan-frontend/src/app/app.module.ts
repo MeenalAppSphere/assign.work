@@ -16,7 +16,7 @@ import { ServiceModule } from './shared/services/service.module';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 import { DndModule } from 'ngx-drag-drop';
-
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 registerLocaleData(en);
 
@@ -43,6 +43,7 @@ export function provideConfig() {
     AppRoutingModule,
     SharedModule,
     ServiceModule.forRoot(),
+    NgxPermissionsModule.forRoot(),
     environment.production ? [] : AkitaNgDevtools.forRoot(),
     EditorModule,
     SocialLoginModule,

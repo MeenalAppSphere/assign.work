@@ -99,8 +99,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public currentProject: Project;
 
-  // for permission
-  public currentUserRole:UserRoleModel;
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -205,12 +203,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.countTotalDuration();
     }
 
-    // get current user role from store
-    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.currentUserRole = res;
-      }
-    });
 
     // Sprint wizard data
     this.unPublishedSprintData = {

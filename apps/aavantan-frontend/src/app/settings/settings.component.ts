@@ -143,9 +143,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public roleList: UserRoleModel[] = [];
   public roleData: UserRoleModel;
 
-  // for permission
-  public currentUserRole:UserRoleModel;
-
   public tabs: any = [
     {
       label: 'Project',
@@ -220,13 +217,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.createProjectForm();
 
     this.currentOrganization = this._generalService.currentOrganization;
-
-    // get current user role from store
-    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.currentUserRole = res;
-      }
-    });
 
     // get current project from store
     this._userQuery.currentProject$
