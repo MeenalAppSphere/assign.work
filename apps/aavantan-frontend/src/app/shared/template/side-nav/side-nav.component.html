@@ -133,7 +133,7 @@
 </div>
 
 
-<div class="btn-floating-container {{ 'is-' + selectedHeaderColor }}"
+<div *ngxPermissionsOnly="['canAdd_task']" class="btn-floating-container {{ 'is-' + selectedHeaderColor }}"
      [ngClass]="{
         'is-folded': isFolded,
         'is-side-nav-dark' : isSideNavDark,

@@ -31,11 +31,13 @@
 
           <div class="header-btn-group">
 
-            <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="btn-add-task m-r-5 m-l-10"
-                    (click)="toggleCloseSprintShow()">Close Sprint
-            </button>
+            <span *ngxPermissionsOnly="['canClose_sprint']" >
+              <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="btn-add-task m-r-5 m-l-10"
+                      (click)="toggleCloseSprintShow()">Close Sprint
+              </button>
+            </span>
 
-            <button nzType="primary" nzSize="small" nz-button class="btn-add-task " (click)="addTaskNavigate()">+ Add
+            <button *ngxPermissionsOnly="['canAdd_task']"  nzType="primary" nzSize="small" nz-button class="btn-add-task " (click)="addTaskNavigate()">+ Add
               Task
             </button>
 
@@ -168,7 +170,7 @@
 
                 <div class="card-box" *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
 
-                  <div nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
+                  <div *ngxPermissionsOnly="['canRemoveTask_sprint']" nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
                     <i nz-icon nzType="close" nzTheme="outline"></i>
                   </div>
 

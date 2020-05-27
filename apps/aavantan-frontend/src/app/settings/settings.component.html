@@ -220,7 +220,7 @@
                     <div class="col-md-9 ant-col-md-push-3">
 
 
-                        <form nz-form class="collaborator-form" [formGroup]="collaboratorForm">
+                        <form *ngxPermissionsOnly="['canAddMember_member']" nz-form class="collaborator-form" [formGroup]="collaboratorForm">
 
                             <nz-form-item>
                                 <nz-form-label>Search or Invite Collaborator</nz-form-label>
@@ -317,7 +317,7 @@
                         <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                       </span>
                                         <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted">Change Access</span>
-<!--                                        <i (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
+<!--                                        <i *ngxPermissionsOnly="['canDelete_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
 
                                     </td>
 

@@ -97,7 +97,7 @@
 
           <div class="col-md-4 text-right">
             <span *ngIf="(unPublishedSprintData?.id)">
-              <button class="m-l-10" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
+              <button class="m-l-10" *ngxPermissionsOnly="['canUpdate_sprint']" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
                       nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
               <!--              <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button-->
               <!--                      (click)="saveSprint()">Save Sprint</button>-->
@@ -110,16 +110,18 @@
 
             <nz-dropdown-menu #menu1="nzDropdownMenu">
               <ul nz-menu>
-                <li nz-menu-item (click)="toggleAddSprint()">Edit Sprint</li>
+                <li *ngxPermissionsOnly="['canUpdate_sprint']" nz-menu-item (click)="toggleAddSprint()">Edit Sprint</li>
                 <li nz-menu-item (click)="toggleTeamCapacity()">Edit Capacity</li>
               </ul>
             </nz-dropdown-menu>
 
 
-            <button *ngIf="activeSprintData?.id"
+            <span *ngxPermissionsOnly="['canClose_sprint']">
+              <button *ngIf="activeSprintData?.id"
                     nzType="default" nzSize="small" nz-button class="btn-add-task m-l-10"
                     (click)="toggleCloseSprintShow()">Close Sprint
-            </button>
+              </button>
+            </span>
 
 
           </div>
@@ -168,7 +170,7 @@
                 <thead>
                 <tr>
 
-                  <th class="text-center td-sn" data-label="#">#</th>
+                  <th *ngxPermissionsOnly="['canRemoveTask_sprint']" class="text-center td-sn" data-label="#">#</th>
 
                   <th class="text-left td-priority">
                     <span>Priority</span>
@@ -216,7 +218,7 @@
                 <tbody>
                 <tr *ngFor="let item of sprintListViewTable.data">
 
-                  <td data-label="#" class="text-center td-sn">
+                  <td *ngxPermissionsOnly="['canRemoveTask_sprint']" data-label="#" class="text-center td-sn">
                     <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
                        class="remove-item cursor-pointer text-muted" theme="fill"></i>
                   </td>
@@ -341,9 +343,8 @@
           </ng-template>
         </div>
 
-        <div class="col text-right p-l-0" style="max-width: 120px;"
-             *ngIf="!activeSprintData?.id && !unPublishedSprintData?.id">
-          <button nz-button nzSize="small"
+        <div class="col text-right p-l-0" style="max-width: 120px;" *ngxPermissionsOnly="['canCreate_sprint']">
+          <button *ngIf="!activeSprintData?.id && !unPublishedSprintData?.id" nz-button nzSize="small"
                   nzType="{{!unPublishedSprintData?.id && backLogTasksList && backLogTasksList.length > 0 ? 'primary' : 'default'}}"
                   (click)="toggleAddSprint()">Create Sprint
           </button>
@@ -450,8 +451,10 @@
 
                 <td data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id" class="text-center">
 
-                  <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox
-                         (nzCheckedChange)="addTaskToSprint(item, $event)"></label>
+                  <span *ngxPermissionsOnly="['canAddTask_sprint']">
+                    <label *ngIf="item.assignee && item.estimatedTime"
+                           nz-checkbox (nzCheckedChange)="addTaskToSprint(item, $event)"></label>
+                  </span>
 
 
                   <i *ngIf="(!item.assignee || !item.estimatedTime)"
@@ -538,7 +541,7 @@
       <!-- backlog task list container -->
 
       <!-- create backlog button -->
-      <div ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
+      <div *ngxPermissionsOnly="['canAdd_task']" ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
         <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13"
            (click)="addTaskNavigate()">+ Create Backlog</a>
       </div>

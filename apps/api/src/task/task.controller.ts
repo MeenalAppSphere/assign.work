@@ -43,7 +43,7 @@ export class TaskController {
   }
 
   @Post('add')
-  @Roles('task', 'canAdd')
+  @Roles('task', 'canAdd_task')
   async createTask(@Body() task: Task) {
     return await this._taskService.addTask(task);
   }
@@ -54,7 +54,7 @@ export class TaskController {
   }
 
   @Post('delete-task')
-  @Roles('task', 'canRemove')
+  @Roles('task', 'canRemove_task')
   async deleteTask(@Body() model: DeleteTaskModel) {
     return await this._taskService.deleteTask(model);
   }

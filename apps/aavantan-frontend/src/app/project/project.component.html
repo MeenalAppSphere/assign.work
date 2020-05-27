@@ -74,7 +74,6 @@
 
   <ng-template #tabSwitchTemplate>
 
-
     <nz-button-group class="toggle-btn-group">
       <button (click)="changeView('listView')" nz-button [nzType]="view==='listView' ? 'link' : 'primary'" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
         <img src="../../assets/images/icons/{{ view === 'cardView' ? 'light-blue-list-view.svg' : 'blue-list-view.svg' }}">
@@ -85,6 +84,7 @@
     </nz-button-group>
 
 
+  <span *ngxPermissionsOnly="['canAdd_task']">
 
     <nz-button-group
       *ngIf="taskTypeDataSource && taskTypeDataSource.length"
@@ -104,7 +104,11 @@
         </li>
       </ul>
     </nz-dropdown-menu>
+
+  </span>
+
   </ng-template>
+
   <!--  </nz-card>-->
 </section>
 

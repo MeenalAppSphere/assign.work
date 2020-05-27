@@ -24,26 +24,25 @@ export class SprintController {
   }
 
   @Post('create')
-  @Roles('sprint', 'canCreate')
-
+  @Roles('sprint', 'canCreate_sprint')
   async createSprint(@Body() model: CreateSprintModel) {
     return await this._sprintService.createSprint(model);
   }
 
   @Post('update')
-  @Roles('sprint', 'canUpdate')
+  @Roles('sprint', 'canUpdate_sprint')
   async updateSprint(@Body() model: UpdateSprintModel) {
     return await this._sprintService.updateSprint(model);
   }
 
   @Post('add-task')
-  @Roles('sprint', 'canAddTask')
+  @Roles('sprint', 'canAddTaskToSprint_sprint')
   async addTask(@Body() model: AddTaskToSprintModel) {
     return await this._sprintService.addTaskToSprint(model);
   }
 
   @Post('remove-task')
-  @Roles('sprint', 'canRemoveTask')
+  @Roles('sprint', 'canRemoveTaskToSprint_sprint')
   async removeTasks(@Body() model: RemoveTaskFromSprintModel) {
     return await this._sprintService.removeTaskFromSprint(model);
   }
@@ -89,7 +88,7 @@ export class SprintController {
   }
 
   @Post('close-sprint')
-  @Roles('sprint', 'canClose')
+  @Roles('sprint', 'canClose_sprint')
   async closeSprint(@Body() model: CloseSprintModel) {
     return await this._sprintService.closeSprint(model);
   }

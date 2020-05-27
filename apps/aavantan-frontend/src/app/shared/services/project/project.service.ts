@@ -51,7 +51,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         this.userStore.update((state => {
           return {
             ...state,
-            currentProject: res.data,
+            //currentProject: res.data,
             user: Object.assign({}, state.user, {
               projects: [...state.user.projects, res.data]
             })

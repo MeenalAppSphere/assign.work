@@ -126,7 +126,6 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   // for permission
   public currentUserRole:UserRoleModel;
-  public activePermissions:string[] = [];
 
   public panels: any[] = [{
     active: false,
@@ -177,9 +176,6 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
-    // get all permissions array of current user
-    this.activePermissions = this._generalService.permissions;
 
     this.themeService.toggleFold(true);
 
@@ -577,7 +573,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
 
-  
+
 
   public resetTaskForm() {
     this.modal.confirm({

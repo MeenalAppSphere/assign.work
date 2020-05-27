@@ -825,8 +825,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /*================== Workflow Tab ===============*/
   /*===============================================*/
 
-  //================== workflow =====================//
-
   public editBoard(boardId: string) {
     this.router.navigate(['dashboard', 'board-setting', boardId]);
   }

@@ -41,7 +41,7 @@ export class ProjectController {
   }
 
   @Post(':id/add-collaborators')
-  @Roles('member', 'canAdd')
+  @Roles('member', 'canAddMember_member')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
   }

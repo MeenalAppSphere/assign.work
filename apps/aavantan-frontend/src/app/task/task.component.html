@@ -389,10 +389,12 @@
         <div class="col-md-11 text-right">
             <div class="d-flex float-right">
 
-              <button type="button" nz-button nzType="link" (click)="toggleNewEpicModal()" class="m-r-5"
+              <span *ngxPermissionsOnly="['canAdd_task']">
+                <button type="button" nz-button nzType="link" (click)="toggleNewEpicModal()" class="m-r-5"
                       *ngIf="!epicDataSource || (epicDataSource && epicDataSource.length===0)">
-                <i nz-icon nzType="plus" theme="outline"></i> Create New Epic
-              </button>
+                    <i nz-icon nzType="plus" theme="outline"></i> Create New Epic
+                </button>
+              </span>
 
               <button [disabled]="!taskId" nzType="link" nzSize="small" nz-button nz-tooltip nzTitle="Log your working time"
                       (click)="timeLog()">
