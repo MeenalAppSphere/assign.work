@@ -13,10 +13,18 @@
     box-shadow: 0px 0px 1px #0000000D;
   }
 }
-.porject-ddls {
-  max-height: 300px;
+.project-ddls {
+  max-height: 240px;
   overflow: auto;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
 }
+
+.search-project-box {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
 .avatar-bg{
   width: 31px;
   height: 31px;

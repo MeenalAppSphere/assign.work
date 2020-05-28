@@ -135,7 +135,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   //security permissions
   public permissionsList: AccessPermissionVM[] = [];
   public permissionsObj: Permissions = {};
-  public permissionConst = PERMISSIONS;
+  public permissionConst = cloneDeep(PERMISSIONS);
 
   public updateUserRoleModalIsVisible: boolean;
   public updateUserRoleData: ProjectMembers;
@@ -926,6 +926,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
     });
 
+    console.log('groupByName', groupByName);
     this.permissionsObj = groupByName;
   }
 
@@ -984,8 +985,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public startEditRole(item: UserRoleModel) {
     this.generatePermissionsList(item.accessPermissions);
-
-    this.roleData = item;
+    this.roleData = cloneDeep(item);
     this.userRoleForm.patchValue(item);
   }
 
@@ -994,7 +994,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   //**********************//
 
   public resetRoleForm() {
-    this.generatePermissionsList(cloneDeep(PERMISSIONS)); // reset with CONSTANT data
+    this.generatePermissionsList(this.permissionConst); // reset with CONSTANT data
 
     this.roleData = { name: '' };
     this.userRoleForm.reset();
@@ -1007,11 +1007,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public selectPermission(item: AccessPermissionVM) {
     item.checked = !item.checked;
 
-    this.permissionsObj[item.group][item.value] = item.checked;
+    this.roleData.accessPermissions[item.group][item.value] = item.checked;
 
-    this.permissionConst[item.group][item.value] = item.checked;
+    console.log('permissionsObj', this.roleData.accessPermissions);
 
-    this.userRoleForm.get('accessPermissions').patchValue(this.permissionConst);
+    this.userRoleForm.get('accessPermissions').patchValue(this.roleData.accessPermissions);
   }
 
   public ngOnDestroy(): void {}

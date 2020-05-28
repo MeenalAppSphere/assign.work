@@ -2,6 +2,7 @@ import { Project, RoleTypeEnum, UserRoleModel } from '@aavantan-app/models';
 import { BadRequest, isValidString, maxLengthValidator } from '../../helpers/helpers';
 import { DEFAULT_USER_ROLES } from '../../helpers/defaultValueConstant';
 import { PERMISSIONS } from '../../../../../../libs/models/src/lib/constants/permission';
+import { cloneDeep } from 'lodash';
 
 export class UserRoleUtilityService {
   constructor() {
@@ -39,7 +40,7 @@ export class UserRoleUtilityService {
       const role = new UserRoleModel();
       let roleType = null;
 
-      const allowedPermissions = PERMISSIONS;
+      const allowedPermissions = cloneDeep(PERMISSIONS);
 
       if(defaultRoles.type === RoleTypeEnum.supervisor) {
 
@@ -55,10 +56,10 @@ export class UserRoleUtilityService {
       } else {
 
         //only 4 permissions allowed
-        allowedPermissions.sprint.canCreate = true;
-        allowedPermissions.task.canAddToSprint = true;
-        allowedPermissions.task.canUpdateEstimate = true;
-        allowedPermissions.task.canAdd = true;
+        allowedPermissions.sprint.canCreate_sprint = true;
+        allowedPermissions.sprint.canAddTaskToSprint_sprint = true;
+        allowedPermissions.task.canUpdateEstimate_task = true;
+        allowedPermissions.task.canAdd_task = true;
         roleType = RoleTypeEnum.teamMember;
 
       }
