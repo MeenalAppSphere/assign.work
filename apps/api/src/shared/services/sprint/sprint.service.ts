@@ -168,43 +168,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * model: GetSprintByIdRequestModel
    */
   public async getSprintById(model: GetSprintByIdRequestModel, onlyPublished: boolean = false) {
-
-    // const query = [
-    //   {
-    //     $match: {
-    //       _id: this.toObjectId(model.sprintId),
-    //       projectId: this.toObjectId(model.projectId),
-    //       isDeleted: false
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: DbCollection.users,
-    //       localField: 'createdById',
-    //       foreignField: '_id',
-    //       as: 'createdBy'
-    //     }
-    //   }, { $unwind: '$createdBy' },
-    //   {
-    //     $lookup: {
-    //       from: DbCollection.users,
-    //       localField: 'membersCapacity.userId',
-    //       foreignField: '_id',
-    //       as: 'membersCapacityUser'
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: DbCollection.tasks,
-    //       localField: 'columns.tasks.taskId',
-    //       foreignField: '_id',
-    //       as: 'columns.tasks.task',
-    //     }
-    //   },
-    // ];
-    //
-    // return this.dbModel.aggregate(query).exec();
-
     const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
     const filter = {
@@ -347,7 +310,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       if (sprintDetails.sprintStatus) {
         switch (sprintDetails.sprintStatus.status) {
           case SprintStatusEnum.inProgress:
-            if (moment(sprintDetails.endAt).isBefore(moment(), 'd')) {
+            if (moment(sprintDetails.endAt).isBefore(moment().endOf('d'), 'd')) {
               BadRequest('Sprint end date is passed, so you can\'t add new task to it');
             }
             break;
