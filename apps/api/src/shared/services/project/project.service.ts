@@ -852,7 +852,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       populate.push({
         path: 'members.roleDetails',
-        select: 'name description accessPermissions'
+        select: 'name description accessPermissions type'
       });
     }
 

@@ -14,19 +14,16 @@ import {
   ProjectWorkingCapacityUpdateDto,
   ProjectWorkingDays,
   ResendProjectInvitationModel,
+  RoleTypeEnum,
   SaveAndPublishBoardModel,
   SearchProjectCollaborators,
-  SearchUserModel, TaskStatusModel,
+  SearchUserModel, SettingPageTab,
+  TaskStatusModel,
   TaskTypeModel,
   User,
   UserRoleModel
 } from '@aavantan-app/models';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
 import { GeneralService } from '../shared/services/general.service';
 import { ProjectService } from '../shared/services/project/project.service';
@@ -48,6 +45,7 @@ import { ProjectQuery } from '../queries/project/project.query';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleQuery } from '../queries/user-role/user-role.query';
 import { PERMISSIONS } from '../../../../../libs/models/src/lib/constants/permission';
+
 @Component({
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
@@ -143,7 +141,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public roleList: UserRoleModel[] = [];
   public roleData: UserRoleModel;
 
-  public tabs: any = [
+  public tabs: SettingPageTab[] = [
     {
       label: 'Project',
       id: 'project',
@@ -185,14 +183,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
       id: 'capacity',
       icon: 'team_capacity.svg',
       iconActive: 'white_team_capacity.svg'
-    },
-    {
-      label: 'Security',
-      id: 'security',
-      icon: 'security.svg',
-      iconActive: 'white_security.svg'
     }
   ];
+  // for permission
+  public currentUserRole:UserRoleModel;
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
@@ -292,6 +286,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // get all roles from store
     this._userRoleQuery.roles$.pipe(untilDestroyed(this)).subscribe(roles => {
       this.roleList = roles;
+    });
+
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
+        if(this.currentUserRole.type===RoleTypeEnum.supervisor) {
+          const tab:SettingPageTab = {
+            label: 'Security',
+              id: 'security',
+            icon: 'security.svg',
+            iconActive: 'white_security.svg'
+          }
+          this.tabs.push(tab);
+        }
+      }
     });
 
     // Form for collaborator tab

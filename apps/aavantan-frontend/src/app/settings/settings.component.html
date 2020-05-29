@@ -4,13 +4,15 @@
     <ul class="setting-tab-btn">
 
         <!-- tabs list -->
-        <li *ngFor="let item of tabs">
-            <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}" (click)="activeTab(item.id, item.label)">
-                <img *ngIf="activeView.view===item.id" src="../../assets/images/icons/{{item.iconActive}}" />
-                <img *ngIf="activeView.view!==item.id" src="../../assets/images/icons/{{item.icon}}" />
-                <div>{{item.label}}</div>
-            </a>
-        </li>
+        <ng-container >
+          <li *ngFor="let item of tabs">
+              <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}" (click)="activeTab(item.id, item.label)">
+                  <img *ngIf="activeView.view===item.id" src="../../assets/images/icons/{{item.iconActive}}" />
+                  <img *ngIf="activeView.view!==item.id" src="../../assets/images/icons/{{item.icon}}" />
+                  <div>{{item.label}}</div>
+              </a>
+          </li>
+        </ng-container>
 
     </ul>
 
@@ -316,7 +318,7 @@
                                         <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
                         <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                       </span>
-                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted">Change Access</span>
+                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && currentUserRole.type==='supervisor'">Change Access</span>
 <!--                                        <i *ngxPermissionsOnly="['canDelete_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
 
                                     </td>

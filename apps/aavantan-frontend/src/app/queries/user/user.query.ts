@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Query } from '@datorama/akita';
 import { UserState, UserStore } from '../../store/user/user.store';
+import { ProjectMembers } from '@aavantan-app/models';
 
 
 @Injectable({ providedIn: 'root' })
@@ -10,7 +11,7 @@ export class UserQuery extends Query<UserState> {
   user$ = this.select(s => s.user);
   userRole$ = this.select(s => {
     if(s.currentProject.members && s.currentProject.members.length) {
-      const role = s.currentProject.members.find(member => member.userId === s.user.id);
+      const role:ProjectMembers = s.currentProject.members.find(member => member.userId === s.user.id);
       return role.roleDetails;
     }else {
       return false;

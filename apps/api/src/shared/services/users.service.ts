@@ -190,7 +190,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
             select: 'firstName lastName emailId userName profilePic sprintId'
           }, {
             path: 'members.roleDetails',
-            select: 'name description accessPermissions'
+            select: 'name description accessPermissions type'
           }, {
             path: 'sprint',
             select: 'name goal startedAt endAt totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime reportId'

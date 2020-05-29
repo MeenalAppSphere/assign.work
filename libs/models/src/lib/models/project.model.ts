@@ -166,3 +166,10 @@ export class UpdateProjectRequestModel {
   defaultTaskStatusId: string;
   defaultTaskPriorityId: string;
 }
+
+export class SettingPageTab {
+ label:string;
+ id:string;
+ icon:string;
+ iconActive:string;
+}
