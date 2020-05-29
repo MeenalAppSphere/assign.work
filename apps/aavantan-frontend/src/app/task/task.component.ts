@@ -35,9 +35,9 @@ import { TaskService } from '../shared/services/task/task.service';
 import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { TaskQuery } from '../queries/task/task.query';
 import { TaskUrls } from '../shared/services/task/task.url';
-import { Observable, Subject } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
 import { UserService } from '../shared/services/user/user.service';
-import { debounceTime } from 'rxjs/operators';
+import { auditTime, debounceTime } from 'rxjs/operators';
 import { ProjectService } from '../shared/services/project/project.service';
 import 'quill-mention';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
@@ -255,45 +255,6 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
-    // get all task status from store
-    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
-      this.statusDataSource = statuses;
-      this.selectedStatus = statuses.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
-    });
-
-    // get all task types from store
-    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
-      this.taskTypeDataSource = types;
-
-      if (this.taskTypeDataSource && this.displayName) {
-
-        const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
-          return ele.displayName === this.displayName.split('-')[0];
-        });
-
-        if (arr && arr.length) {
-          this.selectedTaskType = arr[0];
-
-          if(this.taskData && this.taskData.assignee) {
-            this.selectedAssignee = this.taskData.assignee;
-          }else {
-            this.selectedAssignee = {...arr[0].assignee};
-          }
-
-          this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
-          this.modelChanged.next();
-        }
-
-      } else {
-        this.resetTaskForm();
-      }
-    });
-
-    // get all task priorities from store
-    this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
-      this.priorityDataSource = priorities;
-      this.selectedPriority = priorities.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
-    });
 
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -301,10 +262,55 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
-    // get task details from display name
-    if (this.displayName && this.displayName.split('-').length > 1) {
-      this.getTask();
-    }
+    // get all task type, priorities and status from store
+    combineLatest([this._taskTypeQuery.types$, this._taskPriorityQuery.priorities$, this._taskStatusQuery.statuses$])
+      .pipe(auditTime(700))
+      .subscribe(result => {
+
+        if(result[0].length===0 || result[1].length===0 && result[2].length===0) {
+          return;
+        }
+
+        // taskType list
+        this.taskTypeDataSource = result[0];
+        if (this.taskTypeDataSource && this.displayName) {
+
+          const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
+            return ele.displayName === this.displayName.split('-')[0];
+          });
+
+          if (arr && arr.length) {
+            this.selectedTaskType = arr[0];
+
+            if(this.taskData && this.taskData.assignee) {
+              this.selectedAssignee = this.taskData.assignee;
+            }else {
+              this.selectedAssignee = {...arr[0].assignee};
+            }
+
+            this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
+            this.modelChanged.next();
+          }
+
+        } else {
+          this.resetTaskForm();
+        }
+
+        // priority list
+        this.priorityDataSource = result[1];
+        this.selectedPriority = this.priorityDataSource.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
+
+        // status list
+        this.statusDataSource = result[2];
+        this.selectedStatus = this.statusDataSource.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
+
+        // get task details from display name
+        if (this.displayName && this.displayName.split('-').length > 1) {
+          this.getTask();
+        }
+
+      });
+
 
     // search assignee
     this.modelChanged
