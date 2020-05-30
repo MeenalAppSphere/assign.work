@@ -487,10 +487,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (view === 'board_settings') {
       this.getAllBoards();
     }
+    if(view === 'security') {
+      this.initPermissionData(); // init roleData object
+    }
     this.activeView = {
       title: title,
       view: view
     };
+
   }
 
   /*=======================================================*/
@@ -901,6 +905,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   //**********************//
   // Generate Permissions List from object
   //**********************//
+  public initPermissionData() {
+    this.roleData = { name: '', accessPermissions: cloneDeep(this.permissionConst), description:''};
+  }
 
   public generatePermissionsList(permissionConstantObj: Permissions) {
     this.permissionsList = [];
@@ -1006,7 +1013,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public resetRoleForm() {
     this.generatePermissionsList(this.permissionConst); // reset with CONSTANT data
 
-    this.roleData = { name: '' };
+    this.initPermissionData();
     this.userRoleForm.reset();
   }
 

@@ -23,6 +23,7 @@ import { Router } from '@angular/router';
 import { TaskStatusService } from '../../services/task-status/task-status.service';
 import { TaskPriorityService } from '../../services/task-priority/task-priority.service';
 import { TaskTypeService } from '../../services/task-type/task-type.service';
+import { UserRoleService } from '../../services/user-role/user-role.service';
 
 
 @Component({
@@ -76,7 +77,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
-              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService) {
+              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
+              private _userRoleService: UserRoleService) {
     // this.getAllUsers();
   }
 
@@ -367,6 +369,12 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
       // get all task priorities
       this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+
+      // get all user roles
+      this._userRoleService.getAllUserRoles(this._generalService.currentProject.id).subscribe();
+
+      // get all project limit 10 for header dropdown init
+      this._projectService.getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
 
       this.toggleShow.emit();
     } catch (e) {
