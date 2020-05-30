@@ -403,6 +403,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*================== Collaborators tab ==================*/
 
+  // if user is exits while search then remove button enable to clear
+  public clearCollaboratorSearchText() {
+    this.collaboratorForm.get('collaborator').patchValue('');
+    this.isCollaboratorExits = false;
+  }
+
   async removeCollaborators(user: ProjectMembers) {
     try {
 
@@ -473,11 +479,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else {
       emailData = this.selectedCollaborator.emailId;
     }
-
+    emailData= emailData.trim();
     if(this.projectMembersList && this.projectMembersList.length>0 && this.projectMembersList.find(ele => ele.emailId === emailData)){
       this.collaboratorForm.get('collaborator').patchValue('');
-      emailData = null;
-      this.notification.error('Error', 'User already invited');
+      this.notification.error('Error', 'This user already invited/added in this Project');
       return;
     }
 
