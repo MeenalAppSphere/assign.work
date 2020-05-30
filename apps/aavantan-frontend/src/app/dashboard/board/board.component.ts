@@ -282,22 +282,6 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/task/' + task.displayName);
   }
 
-  public addTaskNavigate() {
-    let displayName: string = null;
-    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
-      displayName = this.taskTypeDataSource[0].displayName;
-    }
-
-    if (!displayName) {
-      this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
-      setTimeout(() => {
-        this.router.navigateByUrl('dashboard/settings');
-      }, 1000);
-      return;
-    }
-    this.router.navigateByUrl('dashboard/task/' + displayName);
-  }
-
   public showTimeLogModal(columnIndex: number, taskIndex: number, taskItem: Task) {
     this.timelogModalIsVisible = !this.timelogModalIsVisible;
     this.selectedTask = {
