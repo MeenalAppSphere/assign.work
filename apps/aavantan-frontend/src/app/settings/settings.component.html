@@ -347,8 +347,12 @@
                   </nz-autocomplete>
                 </nz-form-control>
                 <ng-template #suffixIconSearch>
-                  <i nz-icon nzType="search" *ngIf="!isSearching"></i>
-                  <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
+
+                  <i nz-icon nzType="search" *ngIf="!isSearching && !isCollaboratorExits"></i>
+                  <i class="fas fa-spin fa-spinner" *ngIf="isSearching && !isCollaboratorExits"></i>
+
+                  <i nz-icon nzType="close" theme="outline" class="cursor-pointer" (click)="clearCollaboratorSearchText()" *ngIf="isCollaboratorExits"></i>
+
                 </ng-template>
               </nz-form-item>
 
