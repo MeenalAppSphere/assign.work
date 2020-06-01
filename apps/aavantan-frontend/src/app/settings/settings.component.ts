@@ -282,8 +282,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           organizationId: this._generalService.currentOrganization.id,
           query: queryText
         };
-
-        this.isCollaboratorExits = false;
+        
         this.projectMembersList.forEach((ele) => {
           if (ele.emailId === queryText) {
             this.isCollaboratorExits = true;
