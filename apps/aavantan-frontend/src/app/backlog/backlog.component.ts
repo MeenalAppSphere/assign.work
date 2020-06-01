@@ -151,11 +151,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
         if (res) {
           this.getFilterStatus(res);
+
+          // get all back log tasks once status filter prepared
+          this.getAllBacklogTask();
         }
       });
 
-      // get all back log tasks
-      this.getAllBacklogTask();
 
       // if project has active sprint than get all tasks of that sprint
       // if not get un-published sprint tasks

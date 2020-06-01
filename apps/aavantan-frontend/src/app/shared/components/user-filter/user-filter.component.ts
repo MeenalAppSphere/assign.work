@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { ProjectMembers, User } from '@aavantan-app/models';
+import { ProjectMembers } from '@aavantan-app/models';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'user-filter',
@@ -19,14 +20,24 @@ export class UserFilterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.projectMembers = cloneDeep(this.projectMembers);
+    // as not getting from backend so adding all user as selected
+    if(this.projectMembers && this.projectMembers.length > 0) {
+      this.projectMembers.forEach((ele)=>{
+        ele.userDetails.isSelected = true;
+        this.filterMembersId.push(ele.userId);
+      })
+    }
 
   }
 
   public selectMember(user: ProjectMembers) {
     const inFilter = this.filterMembersId.includes(user.userId);
     if (!inFilter) {
+      user.userDetails.isSelected = true;
       this.filterMembersId.push(user.userId);
     } else {
+      user.userDetails.isSelected = false;
       this.filterMembersId = this.filterMembersId.filter(assignee =>assignee !== user.userId);
     }
     //return ids array
