@@ -266,6 +266,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(500))
       .subscribe(() => {
+        this.isCollaboratorExits = false;
         const queryText = this.collaboratorForm.get('collaborator').value.trim();
         let name = '';
         if (this.selectedCollaborator) {
@@ -281,8 +282,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           organizationId: this._generalService.currentOrganization.id,
           query: queryText
         };
-
-        this.isCollaboratorExits = false;
+        
         this.projectMembersList.forEach((ele) => {
           if (ele.emailId === queryText) {
             this.isCollaboratorExits = true;
