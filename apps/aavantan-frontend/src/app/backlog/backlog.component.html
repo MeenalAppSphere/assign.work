@@ -292,8 +292,9 @@
 
       <div class="row m-b-10">
 
-        <div class="col">
-          <label class="font-size-18"><span class="text-black">Backlogs</span>
+        <div class="col d-inline-flex ant-row-flex-space-between">
+
+          <label class="font-size-18 "><span class="text-black">Backlogs</span>
 
             <span class="p-l-25 text-gray-light-2 font-size-13"
                   *ngIf="unPublishedSprintData && unPublishedSprintData.totalCapacityReadable">
@@ -302,6 +303,13 @@
             </span>
 
           </label>
+
+          <!--user filter end -->
+              <span class="user-filter-section" *ngIf="projectMembers?.length>0">
+                <user-filter [projectMembers]="projectMembers" [avatarSize]="30" (selectedMembers)="selectedMembersForFilter($event)"></user-filter>
+              </span>
+          <!--user filter end -->
+
         </div>
 
         <div class="col text-right" style="max-width: 360px;">
