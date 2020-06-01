@@ -38,6 +38,8 @@ const taskSortingKeysMapper = new Map<string, string>([
   ['name', 'name'],
   ['createdBy', 'createdBy.name'],
   ['createdById', 'createdBy.name'],
+  ['assignee', 'assignee.name'],
+  ['assigneeId', 'assignee.name'],
   ['taskType', 'taskType.name'],
   ['taskTypeId', 'taskType.name'],
   ['priority', 'priority.name'],
