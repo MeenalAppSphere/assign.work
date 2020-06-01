@@ -38,6 +38,8 @@ const taskSortingKeysMapper = new Map<string, string>([
   ['name', 'name'],
   ['createdBy', 'createdBy.name'],
   ['createdById', 'createdBy.name'],
+  ['assignee', 'assignee.name'],
+  ['assigneeId', 'assignee.name'],
   ['taskType', 'taskType.name'],
   ['taskTypeId', 'taskType.name'],
   ['priority', 'priority.name'],
@@ -350,7 +352,8 @@ export class TaskUtilityService {
 
           // check if reverse filter is set than use $nin => not in query
           // else use $in => in query
-          filter.$and[filter.$and.length - 1].$or.push({
+          const lastOrConditionIndex = filter.$and.reverse().findIndex(field => Object.keys(field)[0] === '$or');
+          filter.$and[lastOrConditionIndex].$or.push({
             [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value }
           });
         }
