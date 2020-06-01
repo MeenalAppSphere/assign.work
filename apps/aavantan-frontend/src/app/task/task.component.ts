@@ -104,6 +104,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public statusDataSource: TaskStatusModel[] = [];
   public priorityDataSource: TaskPriorityModel[] = [];
   public displayName: string;
+  public isUpdateMode: boolean;
   public taskData: Task;
   public taskId: string;
   public sprintData: Sprint;
@@ -185,6 +186,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     };
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
+    this.isUpdateMode = this.displayName.includes('-');
 
     this.sprintData = this._generalService.currentProject.sprint;
 
@@ -236,7 +238,9 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this._taskQuery.createNewTaskAction$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
-        this.resetTaskForm();
+        // if (this.displayName) {
+        //   this.createTaskConfirmation();
+        // }
         this._taskService.resetStoreFlags();
       }
     });
@@ -263,18 +267,21 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
 
     // get all task type, priorities and status from store
-    // then call get task 
+    // then call get task
     combineLatest([this._taskTypeQuery.types$, this._taskPriorityQuery.priorities$, this._taskStatusQuery.statuses$])
       .pipe(auditTime(700))
       .subscribe(result => {
 
-        if(result[0].length===0 || result[1].length===0 && result[2].length===0) {
+        if (result[0].length === 0 || result[1].length === 0 && result[2].length === 0) {
           return;
         }
 
         // taskType list
         this.taskTypeDataSource = result[0];
-        if (this.taskTypeDataSource && this.displayName) {
+        this.priorityDataSource = result[1];
+        this.statusDataSource = result[2];
+
+        if (!this.isUpdateMode) {
 
           const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
             return ele.displayName === this.displayName.split('-')[0];
@@ -282,34 +289,21 @@ export class TaskComponent implements OnInit, OnDestroy {
 
           if (arr && arr.length) {
             this.selectedTaskType = arr[0];
-
-            if(this.taskData && this.taskData.assignee) {
-              this.selectedAssignee = this.taskData.assignee;
-            }else {
-              this.selectedAssignee = {...arr[0].assignee};
-            }
-
+            this.selectedAssignee = { ...arr[0].assignee };
             this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
             this.modelChanged.next();
+
+            this.selectedPriority = this.priorityDataSource.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
+            this.selectedStatus = this.statusDataSource.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
+          } else {
+            this.notification.error('Error','The resource you are looking for does not exists');
           }
-
-        } else {
-          this.resetTaskForm();
         }
-
-        // priority list
-        this.priorityDataSource = result[1];
-        this.selectedPriority = this.priorityDataSource.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
-
-        // status list
-        this.statusDataSource = result[2];
-        this.selectedStatus = this.statusDataSource.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
 
         // get task details from display name
-        if (this.displayName && this.displayName.split('-').length > 1) {
+        if (this.isUpdateMode) {
           this.getTask();
         }
-
       });
 
 
@@ -571,43 +565,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
-  public resetTaskForm() {
+  public createTaskConfirmation() {
     this.modal.confirm({
       nzTitle: 'Are you sure want create new task?',
       nzContent: 'All unsaved data will be clear',
       nzOnOk: () =>
         new Promise(async (resolve, reject) => {
-          this.taskId = null;
-          this.currentTask = null;
-          this.selectedStatus = null;
-          this.selectedPriority = null;
-          this.attachementIds = [];
-          this.uploadedImages = [];
-          this.listOfSelectedWatchers = [];
-          this.listOfSelectedTags = [];
-
-          // reset task form if task form is already initialised
-          if (this.taskForm) {
-            this.taskForm.reset();
-          }
-
-          if (this.taskFormSideBar) {
-            this.taskFormSideBar.reset();
-          }
-
-          this.selectAssigneeFormTaskType();
-
-          this.pinnedCommentsList = null;
-          this.historyList = null;
-          this.progressData = null;
-
-          if (this.selectedTaskType) {
-            this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
-          } else if (this.displayName) {
-            this.router.navigateByUrl('dashboard/task/' + this.displayName);
-          } else {
-            this.router.navigateByUrl('dashboard/task/');
-          }
+          this.resetTaskForm();
           resolve();//close modal on ok
         }).catch((e) => {
 
@@ -615,14 +579,51 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
   }
 
+  public resetTaskForm() {
+    this.isUpdateMode = false;
+    this.taskId = null;
+    this.currentTask = null;
+    this.selectedStatus = null;
+    this.selectedPriority = null;
+    this.attachementIds = [];
+    this.uploadedImages = [];
+    this.listOfSelectedWatchers = [];
+    this.listOfSelectedTags = [];
+
+    // reset task form if task form is already initialised
+    if (this.taskForm) {
+      this.taskForm.reset();
+    }
+
+    if (this.taskFormSideBar) {
+      this.taskFormSideBar.reset();
+    }
+
+    this.selectAssigneeFormTaskType();
+    this.selectedPriority = this.priorityDataSource.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
+    this.selectedStatus = this.statusDataSource.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
+
+    this.pinnedCommentsList = null;
+    this.historyList = null;
+    this.progressData = null;
+
+    if (this.selectedTaskType) {
+      this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
+    } else if (this.displayName) {
+      this.router.navigateByUrl('dashboard/task/' + this.displayName);
+    } else {
+      this.router.navigateByUrl('dashboard/task/');
+    }
+  }
+
   // Assignee from Task type source
-  public selectAssigneeFormTaskType () {
+  public selectAssigneeFormTaskType() {
     if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
       this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
       this.displayName = this.selectedTaskType.displayName;
-      this.selectedAssignee = {...this.selectedTaskType.assignee};
-        this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
-        this.modelChanged.next()
+      this.selectedAssignee = { ...this.selectedTaskType.assignee };
+      this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
+      this.modelChanged.next();
     }
   }
 
@@ -1108,7 +1109,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
-      this.selectedAssignee = {...user};
+      this.selectedAssignee = { ...user };
       let userName = user && user.firstName ? user.firstName : user.emailId;
       if (user && user.firstName && user && user.lastName) {
         userName = userName + ' ' + user.lastName;
@@ -1125,7 +1126,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
-    this.selectedAssignee = {...item.assignee};
+    this.selectedAssignee = { ...item.assignee };
     this.taskForm.get('assigneeId').patchValue(`${item.assignee.firstName} ${item.assignee.lastName}`);
   }
 
