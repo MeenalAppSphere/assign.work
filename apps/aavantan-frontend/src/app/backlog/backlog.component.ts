@@ -47,7 +47,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public draftSprint: DraftSprint;
   public draftTaskList: Task[] = [];
   public sprintModalIsVisible: boolean;
-  public projectTeams: User[] = [];
+  public projectMembers: User[] = [];
   public unPublishedSprintData: Sprint;
   public teamCapacityModalIsVisible: boolean;
 
@@ -183,8 +183,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.projectTeams = res.members;
+      if (res && res.members.length>0) {
+        this.projectMembers = res.members.filter(ele =>ele.isInviteAccepted);
       }
     });
 
@@ -214,6 +214,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
     });
   }
 
+  //emmited selected Members Id array from 'user-filter' component
+  public selectedMembersForFilter(selectedMembersId:string[]){
+      this.backLogTaskRequest.queries.push({
+        key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.or
+      });
+      this.getAllBacklogTask();
+  }
 
   public getFilterStatus(statusList:TaskStatusModel[]) {
     // ready status filter dropdown data
@@ -623,7 +630,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
     const isAnyStatusSelected = this.backLogStatusQueryRequest.some(status => status.isSelected);
     if (isAnyStatusSelected) {
       this.backLogTaskRequest.queries.push({
-        key: 'status', condition: TaskFilterCondition.or,
+        key: 'status', condition: TaskFilterCondition.and,
         value: this.backLogStatusQueryRequest.filter(status => status.isSelected).map(status => status.value)
       });
     }
