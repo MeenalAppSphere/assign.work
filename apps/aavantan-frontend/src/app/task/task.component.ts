@@ -930,6 +930,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  // file selection handling
   handleChange({ file, fileList }): void {
     const status = file.status;
     if (status === 'uploading') {
@@ -952,11 +953,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  // file selection remove handling
   handleRemove = (file: any) => new Observable<boolean>((obs) => {
-    // console.log(file);
-
-    //this._taskService.removeAttachment(file.id).subscribe();
-
     this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
     this.uploadedImages = this.uploadedImages.filter((ele) => {
       if (ele.id !== file.id) {
@@ -964,51 +962,37 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
-
-    // console.log('this.handleRemove instanceof Observable', this.handleRemove instanceof Observable)
-    // console.log(obs)
     obs.next(false);
   });
 
 
   // save sidebar data
   async saveTaskSideBar() {
-    this.updateSidebarContentInProcess = true;
-    const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
-    const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
-    this.taskData.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
-
-    // watcher and tags in this.updateTask function
     // Calling to estimate update and sending true to hide toaster
-    await this.updateTask(this.taskData, true);
-
-    this.updateSidebarContentInProcess = false;
+    this.saveForm(true);
   }
 
   // save left side task form on click on save button
-  async saveForm() {
+  async saveForm(isUpdateFromSideBar?:boolean) {
     const task: Task = { ...this.taskForm.getRawValue() };
 
     task.projectId = this.currentProject.id;
+
     task.createdById = this._generalService.user.id;
 
-    // task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
     task.taskTypeId = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
 
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
 
-    // task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
     task.statusId = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
 
-    // task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
     task.priorityId = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
 
     task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
-    task.relatedItemId = this.listOfSelectedRelatedItems;
-    task.attachments = this.attachementIds;
 
-    // task estimate data from side bar if already filled
-    task.estimatedTimeReadable = this.taskData && this.taskData.estimatedTimeReadable ? this.taskData.estimatedTimeReadable : null;
+    task.relatedItemId = this.listOfSelectedRelatedItems;
+
+    task.attachments = this.attachementIds;
 
     if (!task.taskTypeId) {
       this.notification.error('Error', 'Please select task type');
@@ -1020,17 +1004,21 @@ export class TaskComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.createTaskInProcess = true;
     try {
-
       if (this.taskId) {
 
-        this.updateTask(task);
+        // task estimate data from side bar if already filled
+        const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
+        const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
+        task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
+
+        this.updateTask(task, isUpdateFromSideBar);
 
       } else {
 
         task.watchers = [];
         task.tags = [];
+        this.createTaskInProcess = true;
 
         const data = await this._taskService.createTask(task).toPromise();
 
@@ -1040,7 +1028,6 @@ export class TaskComponent implements OnInit, OnDestroy {
         if (!this.taskData) {
           this.taskData = data.data;
         }
-
 
         this.selectStatus(data.data.status);
         this.selectAssigneeTypeahead(data.data.assignee);
@@ -1057,7 +1044,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   //param:isEstimateUpdate, If true then hide success toaster
-  async updateTask(task: Task, isEstimateUpdate?: boolean) {
+  async updateTask(task: Task, isUpdateFromSideBar?: boolean) {
     try {
       task.id = this.taskId;
       task.displayName = this.displayName;
@@ -1079,7 +1066,15 @@ export class TaskComponent implements OnInit, OnDestroy {
       task.watchers = this.taskData.watchers;
       task.tags = this.taskData.tags;
 
-      const data = await this._taskService.updateTask(task, isEstimateUpdate).toPromise();
+      if(isUpdateFromSideBar) {
+        this.updateSidebarContentInProcess = true;
+      }else {
+        this.createTaskInProcess = true;
+      }
+      
+      const data = await this._taskService.updateTask(task, isUpdateFromSideBar).toPromise();
+
+      this.updateSidebarContentInProcess = false;
 
       this.currentTask = data.data;
       this.taskData = data.data;
@@ -1097,6 +1092,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         };
       }
     } catch (e) {
+      this.updateSidebarContentInProcess = false;
       this.createTaskInProcess = false;
     }
   }

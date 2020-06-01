@@ -3,7 +3,7 @@ import {
   AddTaskToSprintModel, BoardColumns,
   CloseSprintModel,
   DraftSprint,
-  GetUnpublishedRequestModel,
+  GetUnpublishedRequestModel, ProjectMembers,
   RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
@@ -47,7 +47,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public draftSprint: DraftSprint;
   public draftTaskList: Task[] = [];
   public sprintModalIsVisible: boolean;
-  public projectMembers: User[] = [];
+  public projectMembers: ProjectMembers[] = [];
   public unPublishedSprintData: Sprint;
   public teamCapacityModalIsVisible: boolean;
 
@@ -169,7 +169,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
           // as not getting from backend so adding all user as selected
           if(this.projectMembers && this.projectMembers.length > 0) {
             this.projectMembers.forEach((ele)=>{
-              console.log(ele.userId);
               selectedMembersId.push(ele.userId);
             })
           }
