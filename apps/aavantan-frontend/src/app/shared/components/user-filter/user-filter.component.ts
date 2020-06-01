@@ -21,14 +21,12 @@ export class UserFilterComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.projectMembers = cloneDeep(this.projectMembers);
-    // as not getting from backend so adding all user as selected
     if(this.projectMembers && this.projectMembers.length > 0) {
       this.projectMembers.forEach((ele)=>{
         ele.userDetails.isSelected = true;
         this.filterMembersId.push(ele.userId);
       })
     }
-
   }
 
   public selectMember(user: ProjectMembers) {

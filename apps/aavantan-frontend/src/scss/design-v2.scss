@@ -449,7 +449,8 @@
     line-height: 1.2;
   }
   .ant-avatar-lg-string, .ant-avatar-sm-string, .ant-avatar-string {
-    line-height: 22px!important;
+    line-height: 23px!important;
+    text-transform: uppercase;
   }
   .ant-avatar{
     cursor: pointer;

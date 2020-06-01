@@ -272,7 +272,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         // result[1]  is expecting priorities
         // result[2]  is expecting status
 
-        if (result[0].length === 0 || result[1].length === 0 && result[2].length === 0) {
+        if (result[0].length === 0 || result[1].length === 0 || result[2].length === 0) {
           return;
         }
 
