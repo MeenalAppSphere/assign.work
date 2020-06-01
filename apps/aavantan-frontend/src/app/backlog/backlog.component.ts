@@ -217,11 +217,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   // emitted selected Members Id array from 'user-filter' component
   public selectedMembersForFilter(selectedMembersId: string[]) {
+    // if exist assigneeId key in queries then update otherwise add
     const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'assigneeId');
 
     if (queryIndex === -1) {
       this.backLogTaskRequest.queries.push({
-        key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.and
+        key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.or
       });
     } else {
       this.backLogTaskRequest.queries[queryIndex].value = selectedMembersId;
@@ -251,14 +252,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
           });
         });
 
-        this.backLogTaskRequest.queries = [];
-        this.backLogTaskRequest.queries.push({
-          key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
-        });
+        // if exist statusId key in queries then update otherwise add
+        const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+        if (queryIndex === -1) {
+          this.backLogTaskRequest.queries.push({
+            key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+          });
+        } else {
+          this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+        }
       }
-
     }
-
   }
 
   public async getAllBacklogTask() {
@@ -608,62 +612,29 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  public viewTask(task: Task) {
-    this.router.navigateByUrl('dashboard/task/' + task.displayName);
-  }
-
-  public selectAllStatuses() {
-    this.allStatusesIndeterminate = false;
-    this.backLogStatusQueryRequest = this.backLogStatusQueryRequest.map(status => {
-      status.isSelected = this.allStatusesChecked;
-      return status;
-    });
-
-    this.backLogStatusChanged();
-  }
-
-  public selectSingleStatus(): void {
-    this.allStatusesChecked = this.backLogStatusQueryRequest.every(status => status.isSelected);
-    this.allStatusesIndeterminate = !this.allStatusesChecked;
-
-    this.backLogStatusChanged();
-  }
-
-  public backLogStatusChanged() {
-    this.backLogTaskRequest.page = 1;
-    this.backLogTaskRequest.sort = 'name';
-    this.backLogTaskRequest.sortBy = 'asc';
-    this.backLogTaskRequest.queries = [];
-
-    const isAnyStatusSelected = this.backLogStatusQueryRequest.some(status => status.isSelected);
-    if (isAnyStatusSelected) {
-      this.backLogTaskRequest.queries.push({
-        key: 'status', condition: TaskFilterCondition.and,
-        value: this.backLogStatusQueryRequest.filter(status => status.isSelected).map(status => status.value)
-      });
-    }
-
-    this.getAllBacklogTask();
-  }
-
-
   /** filter status **/
   public showAll() {
     this.statusColumnDataSource.forEach((ele) => {
       this.selectedColumnDataSource.push(ele.value);
     });
     this._cdr.detectChanges();
-    this.backLogTaskRequest.queries = [];
-    this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
-    });
+
+    // if exist statusId key in queries then update otherwise add
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.or
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+    }
     this.getAllBacklogTask();
   }
 
   public updateSingleChecked(item: any) {
     this.backLogTaskRequest.queries = [];
     this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: item, condition: TaskFilterCondition.and
+      key: 'statusId', value: item, condition: TaskFilterCondition.or
     });
     this.getAllBacklogTask();
   }
