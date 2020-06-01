@@ -266,6 +266,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .pipe(
         debounceTime(500))
       .subscribe(() => {
+        this.isCollaboratorExits = false;
         const queryText = this.collaboratorForm.get('collaborator').value.trim();
         let name = '';
         if (this.selectedCollaborator) {
