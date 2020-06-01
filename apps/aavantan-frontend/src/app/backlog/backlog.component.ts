@@ -666,7 +666,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
         key: 'statusId', value: item, condition: TaskFilterCondition.and
       });
     } else {
-      this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+      this.backLogTaskRequest.queries[queryIndex].value = item;
     }
     this.getAllBacklogTask();
   }
