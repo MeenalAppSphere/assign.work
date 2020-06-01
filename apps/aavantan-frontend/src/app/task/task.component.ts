@@ -138,8 +138,6 @@ export class TaskComponent implements OnInit, OnDestroy {
   public quillConfig = {};
   /* end Quill Editor */
 
-  public nzFilterOption = () => true;
-
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
               private FB: FormBuilder,
@@ -238,9 +236,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this._taskQuery.createNewTaskAction$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
-        // if (this.displayName) {
-        //   this.createTaskConfirmation();
-        // }
+        this.resetTaskForm();
         this._taskService.resetStoreFlags();
       }
     });
@@ -271,6 +267,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     combineLatest([this._taskTypeQuery.types$, this._taskPriorityQuery.priorities$, this._taskStatusQuery.statuses$])
       .pipe(auditTime(700))
       .subscribe(result => {
+        // result[0]  is expecting task types
+        // result[1]  is expecting priorities
+        // result[2]  is expecting status
 
         if (result[0].length === 0 || result[1].length === 0 && result[2].length === 0) {
           return;
@@ -278,9 +277,12 @@ export class TaskComponent implements OnInit, OnDestroy {
 
         // taskType list
         this.taskTypeDataSource = result[0];
+        // priority list
         this.priorityDataSource = result[1];
+        // status list
         this.statusDataSource = result[2];
 
+        //If task is in add mode
         if (!this.isUpdateMode) {
 
           const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
@@ -300,6 +302,7 @@ export class TaskComponent implements OnInit, OnDestroy {
           }
         }
 
+        //If task is in update model
         // get task details from display name
         if (this.isUpdateMode) {
           this.getTask();
@@ -565,6 +568,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
+  // hold till we are not applying dirtyness check
   public createTaskConfirmation() {
     this.modal.confirm({
       nzTitle: 'Are you sure want create new task?',
@@ -589,6 +593,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.uploadedImages = [];
     this.listOfSelectedWatchers = [];
     this.listOfSelectedTags = [];
+
+    this.taskData.estimatedTimeReadable = null;
 
     // reset task form if task form is already initialised
     if (this.taskForm) {
@@ -962,21 +968,21 @@ export class TaskComponent implements OnInit, OnDestroy {
   });
 
 
+  // save sidebar data
   async saveTaskSideBar() {
-
     this.updateSidebarContentInProcess = true;
     const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
     const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
     this.taskData.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
 
     // watcher and tags in this.updateTask function
-
-    await this.updateTask(this.taskData);
+    // Calling to estimate update and sending true to hide toaster
+    await this.updateTask(this.taskData, true);
 
     this.updateSidebarContentInProcess = false;
-
   }
 
+  // save left side task form on click on save button
   async saveForm() {
     const task: Task = { ...this.taskForm.getRawValue() };
 
@@ -998,6 +1004,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     task.relatedItemId = this.listOfSelectedRelatedItems;
     task.attachments = this.attachementIds;
 
+    // task estimate data from side bar if already filled
+    task.estimatedTimeReadable = this.taskData && this.taskData.estimatedTimeReadable ? this.taskData.estimatedTimeReadable : null;
 
     if (!task.taskTypeId) {
       this.notification.error('Error', 'Please select task type');
@@ -1022,6 +1030,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         task.tags = [];
 
         const data = await this._taskService.createTask(task).toPromise();
+
         this.taskId = data.data.id;
         this.displayName = data.data.displayName;
 
@@ -1044,8 +1053,8 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   }
 
-  async updateTask(task: Task) {
-
+  //param:isEstimateUpdate, If true then hide success toaster
+  async updateTask(task: Task, isEstimateUpdate?:boolean) {
     try {
       task.id = this.taskId;
       task.displayName = this.displayName;
@@ -1067,7 +1076,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       task.watchers = this.taskData.watchers;
       task.tags = this.taskData.tags;
 
-      const data = await this._taskService.updateTask(task).toPromise();
+      const data = await this._taskService.updateTask(task, isEstimateUpdate).toPromise();
 
       this.currentTask = data.data;
       this.taskData = data.data;
