@@ -149,7 +149,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       // create status dropdown
       this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
-        if(res) {
+        if (res) {
           this.getFilterStatus(res);
         }
       });
@@ -183,8 +183,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     // get current project from store
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res && res.members.length>0) {
-        this.projectMembers = res.members.filter(ele =>ele.isInviteAccepted);
+      if (res && res.members.length > 0) {
+        this.projectMembers = res.members.filter(ele => ele.isInviteAccepted);
       }
     });
 
@@ -214,21 +214,28 @@ export class BacklogComponent implements OnInit, OnDestroy {
     });
   }
 
-  //emmited selected Members Id array from 'user-filter' component
-  public selectedMembersForFilter(selectedMembersId:string[]){
+  // emitted selected Members Id array from 'user-filter' component
+  public selectedMembersForFilter(selectedMembersId: string[]) {
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'assigneeId');
+
+    if (queryIndex === -1) {
       this.backLogTaskRequest.queries.push({
-        key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.or
+        key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.and
       });
-      this.getAllBacklogTask();
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = selectedMembersId;
+    }
+
+    this.getAllBacklogTask();
   }
 
-  public getFilterStatus(statusList:TaskStatusModel[]) {
+  public getFilterStatus(statusList: TaskStatusModel[]) {
     // ready status filter dropdown data
     const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
     if (columns) {
       const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
 
-      if(statusList && statusList.length>0) {
+      if (statusList && statusList.length > 0) {
         statusList.forEach((ele) => {
           let checked = true;
           if (data.headerStatus.id !== ele.id) {
@@ -641,19 +648,19 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   /** filter status **/
   public showAll() {
-    this.statusColumnDataSource.forEach((ele)=>{
+    this.statusColumnDataSource.forEach((ele) => {
       this.selectedColumnDataSource.push(ele.value);
     });
     this._cdr.detectChanges();
-    this.backLogTaskRequest.queries= [];
+    this.backLogTaskRequest.queries = [];
     this.backLogTaskRequest.queries.push({
       key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
     });
     this.getAllBacklogTask();
   }
 
-  public updateSingleChecked(item:any) {
-    this.backLogTaskRequest.queries= [];
+  public updateSingleChecked(item: any) {
+    this.backLogTaskRequest.queries = [];
     this.backLogTaskRequest.queries.push({
       key: 'statusId', value: item, condition: TaskFilterCondition.and
     });
