@@ -136,6 +136,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public atMentionUsers: Mention[] = [];
   public hashValues: Mention[] = [];
   public quillConfig = {};
+
   /* end Quill Editor */
 
   constructor(private  _activatedRouter: ActivatedRoute,
@@ -298,7 +299,7 @@ export class TaskComponent implements OnInit, OnDestroy {
             this.selectedPriority = this.priorityDataSource.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
             this.selectedStatus = this.statusDataSource.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
           } else {
-            this.notification.error('Error','The resource you are looking for does not exists');
+            this.notification.error('Error', 'The resource you are looking for does not exists');
           }
         }
 
@@ -594,7 +595,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.listOfSelectedWatchers = [];
     this.listOfSelectedTags = [];
 
-    this.taskData.estimatedTimeReadable = null;
+    if (this.taskData) {
+      this.taskData.estimatedTimeReadable = null;
+    }
 
     // reset task form if task form is already initialised
     if (this.taskForm) {
@@ -1054,7 +1057,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   //param:isEstimateUpdate, If true then hide success toaster
-  async updateTask(task: Task, isEstimateUpdate?:boolean) {
+  async updateTask(task: Task, isEstimateUpdate?: boolean) {
     try {
       task.id = this.taskId;
       task.displayName = this.displayName;

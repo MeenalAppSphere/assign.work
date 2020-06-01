@@ -220,9 +220,9 @@ export class SprintService extends BaseService<SprintStore, SprintState> {
         let responseMsg = '';
         if (json.createAndPublishNewSprint) {
           res.data = res.data as Sprint;
-          responseMsg = `Sprint Closed Successfully and all Un Finished Task Moved to new Sprint Named :- ${res.data.name}`;
+          responseMsg = `Sprint Closed Successfully and all Un-Finished Task Moved to new Sprint Named :- ${res.data.name}`;
         } else {
-          responseMsg = `Sprint Closed Successfully and all Un Finished To Back Log`;
+          responseMsg = `Sprint Closed Successfully and all Un-Finished Task Moved To Back Log`;
         }
 
         this.notification.success('Success', responseMsg);
