@@ -38,6 +38,8 @@ const taskSortingKeysMapper = new Map<string, string>([
   ['name', 'name'],
   ['createdBy', 'createdBy.name'],
   ['createdById', 'createdBy.name'],
+  ['assignee', 'assignee.name'],
+  ['assigneeId', 'assignee.name'],
   ['taskType', 'taskType.name'],
   ['taskTypeId', 'taskType.name'],
   ['priority', 'priority.name'],
@@ -311,15 +313,6 @@ export class TaskUtilityService {
       }]
     };
 
-    // check if we have any query with or condition
-    const isAnyOrConditionQuery = model.queries.some(query => query.condition === TaskFilterCondition.or);
-    if (isAnyOrConditionQuery) {
-      // push a $or stage in $and so all the advance query will be executed in last stage of filter
-      filter.$and.push({
-        $or: []
-      });
-    }
-
     // check if advance queries are applied
     if (model.queries && model.queries.length) {
       model.queries.forEach(query => {
@@ -343,18 +336,40 @@ export class TaskUtilityService {
           filter.$and.push(
             { [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value } }
           );
-        } else {
-          // or condition
-          // find last $or stage in filter and add query to last $or stage
-          // because this is advance query and it will be executed at last
-
-          // check if reverse filter is set than use $nin => not in query
-          // else use $in => in query
-          filter.$and[filter.$and.length - 1].$or.push({
-            [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value }
-          });
         }
       });
+
+      // check if we have any query with or condition
+      const isAnyOrConditionQuery = model.queries.some(query => query.condition === TaskFilterCondition.or);
+      if (isAnyOrConditionQuery) {
+        // push a $or stage in $and so all the advance query will be executed in last stage of filter
+        filter.$and.push({
+          $or: []
+        });
+
+        model.queries.forEach(query => {
+          // convert value to object id
+          query.value = query.value.map(value => {
+            if (value) {
+              // convert to object id because mongo aggregate requires object id for matching foreign documents
+              value = toObjectId(value);
+            }
+            return value;
+          });
+
+          if (query.condition === TaskFilterCondition.or) {
+            // or condition
+            // find last $or stage in filter and add query to last $or stage
+            // because this is advance query and it will be executed at last
+
+            // check if reverse filter is set than use $nin => not in query
+            // else use $in => in query
+            filter.$and[filter.$and.length - 1].$or.push({
+              [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value }
+            });
+          }
+        });
+      }
     }
 
     return filter;

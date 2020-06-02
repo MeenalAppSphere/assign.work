@@ -448,6 +448,10 @@
   .ant-btn:not(.ant-btn-circle):not(.ant-btn-circle-outline).ant-btn-icon-only {
     line-height: 1.2;
   }
+  .ant-avatar-lg-string, .ant-avatar-sm-string, .ant-avatar-string {
+    line-height: 23px!important;
+    text-transform: uppercase;
+  }
   .ant-avatar{
     cursor: pointer;
     margin-right: 0px;

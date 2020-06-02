@@ -961,7 +961,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintPublished);
         }
 
-        return sprintDetails;
+        // return sprint vm
+        return this._sprintUtilityService.prepareSprintVm(sprintDetails);
       });
     } else {
       return 'Sprint Closed Successfully and all Un Finished To Back Log';

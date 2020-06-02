@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  AddTaskToSprintModel,
+  AddTaskToSprintModel, BoardColumns,
   CloseSprintModel,
   DraftSprint,
-  GetUnpublishedRequestModel,
+  GetUnpublishedRequestModel, ProjectMembers,
   RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
@@ -27,8 +27,8 @@ import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { combineLatest, Subject } from 'rxjs';
+import { auditTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -47,7 +47,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public draftSprint: DraftSprint;
   public draftTaskList: Task[] = [];
   public sprintModalIsVisible: boolean;
-  public projectTeams: User[] = [];
+  public projectMembers: ProjectMembers[] = [];
   public unPublishedSprintData: Sprint;
   public teamCapacityModalIsVisible: boolean;
 
@@ -96,6 +96,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   // status ddl
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
+  public lastStatus:BoardColumns;
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -148,14 +149,43 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
 
       // create status dropdown
-      this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
-        if(res) {
-          this.getFilterStatus(res);
-        }
-      });
 
-      // get all back log tasks
-      this.getAllBacklogTask();
+      combineLatest([this._userQuery.currentProject$, this._taskStatusQuery.statuses$])
+        .pipe(auditTime(700))
+        .subscribe(result => {
+
+          const currentProject = result[0]; // result[0]  is expecting current Project
+          const statues = result[1]; // result[1]  is expecting status
+
+          if (!currentProject || statues.length === 0) {
+            return;
+          }
+
+          this.getFilterStatus(statues);
+
+          // prepare all project members for initialization assignee filter
+          const selectedMembersId:string[]=[];
+          this.projectMembers = cloneDeep(currentProject.members.filter(ele => ele.isInviteAccepted));
+          // as not getting from backend so adding all user as selected
+          if(this.projectMembers && this.projectMembers.length > 0) {
+            this.projectMembers.forEach((ele)=>{
+              selectedMembersId.push(ele.userId);
+            })
+          }
+
+          const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'assigneeId');
+          if (queryIndex === -1) {
+            this.backLogTaskRequest.queries.push({
+              key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.and
+            });
+          } else {
+            this.backLogTaskRequest.queries[queryIndex].value = selectedMembersId;
+          }
+
+          // get all back log tasks once status and assignee filter prepared
+          this.getAllBacklogTask();
+
+        });
 
       // if project has active sprint than get all tasks of that sprint
       // if not get un-published sprint tasks
@@ -181,12 +211,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       this.getAllSprintTasks();
     }
 
-    // get current project from store
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.projectTeams = res.members;
-      }
-    });
+
 
     if (this.backLogTasksList && this.backLogTasksList.length > 0) {
       this.countTotalDuration();
@@ -214,17 +239,32 @@ export class BacklogComponent implements OnInit, OnDestroy {
     });
   }
 
+  // emitted selected Members Id array from 'user-filter' component
+  public selectedMembersForFilter(selectedMembersId: string[]) {
+    // if exist assigneeId key in queries then update otherwise add
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'assigneeId');
 
-  public getFilterStatus(statusList:TaskStatusModel[]) {
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = selectedMembersId;
+    }
+
+    this.getAllBacklogTask();
+  }
+
+  public getFilterStatus(statusList: TaskStatusModel[]) {
     // ready status filter dropdown data
     const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
     if (columns) {
-      const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
+      this.lastStatus = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
 
-      if(statusList && statusList.length>0) {
+      if (statusList && statusList.length > 0) {
         statusList.forEach((ele) => {
           let checked = true;
-          if (data.headerStatus.id !== ele.id) {
+          if (this.lastStatus.headerStatus.id !== ele.id) {
             this.selectedColumnDataSource.push(ele.id);
           } else {
             checked = false;
@@ -236,14 +276,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
           });
         });
 
-        this.backLogTaskRequest.queries = [];
-        this.backLogTaskRequest.queries.push({
-          key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
-        });
+        // if exist statusId key in queries then update otherwise add
+        const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+        if (queryIndex === -1) {
+          this.backLogTaskRequest.queries.push({
+            key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
+          });
+        } else {
+          this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+        }
       }
-
     }
-
   }
 
   public async getAllBacklogTask() {
@@ -593,63 +636,37 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  public viewTask(task: Task) {
-    this.router.navigateByUrl('dashboard/task/' + task.displayName);
-  }
-
-  public selectAllStatuses() {
-    this.allStatusesIndeterminate = false;
-    this.backLogStatusQueryRequest = this.backLogStatusQueryRequest.map(status => {
-      status.isSelected = this.allStatusesChecked;
-      return status;
-    });
-
-    this.backLogStatusChanged();
-  }
-
-  public selectSingleStatus(): void {
-    this.allStatusesChecked = this.backLogStatusQueryRequest.every(status => status.isSelected);
-    this.allStatusesIndeterminate = !this.allStatusesChecked;
-
-    this.backLogStatusChanged();
-  }
-
-  public backLogStatusChanged() {
-    this.backLogTaskRequest.page = 1;
-    this.backLogTaskRequest.sort = 'name';
-    this.backLogTaskRequest.sortBy = 'asc';
-    this.backLogTaskRequest.queries = [];
-
-    const isAnyStatusSelected = this.backLogStatusQueryRequest.some(status => status.isSelected);
-    if (isAnyStatusSelected) {
-      this.backLogTaskRequest.queries.push({
-        key: 'status', condition: TaskFilterCondition.or,
-        value: this.backLogStatusQueryRequest.filter(status => status.isSelected).map(status => status.value)
-      });
-    }
-
-    this.getAllBacklogTask();
-  }
-
-
   /** filter status **/
   public showAll() {
-    this.statusColumnDataSource.forEach((ele)=>{
-      this.selectedColumnDataSource.push(ele.value);
+    this.statusColumnDataSource.forEach((ele) => {
+      if(this.lastStatus.headerStatus.id !==ele.value) {
+        this.selectedColumnDataSource.push(ele.value);
+      }
     });
     this._cdr.detectChanges();
-    this.backLogTaskRequest.queries= [];
-    this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
-    });
+
+    // if exist statusId key in queries then update otherwise add
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+    }
     this.getAllBacklogTask();
   }
 
-  public updateSingleChecked(item:any) {
-    this.backLogTaskRequest.queries= [];
-    this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: item, condition: TaskFilterCondition.and
-    });
+  public updateSingleChecked(item: any) {
+    // if exist statusId key in queries then update otherwise add
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: item, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = item;
+    }
     this.getAllBacklogTask();
   }
 

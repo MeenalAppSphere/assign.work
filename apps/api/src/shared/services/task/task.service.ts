@@ -41,15 +41,15 @@ import * as moment from 'moment';
  */
 const taskBasicPopulation: any[] = [{
   path: 'createdBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: 'emailId userName firstName lastName profilePic _id',
   justOne: true
 }, {
   path: 'updatedBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: 'emailId userName firstName lastName profilePic _id',
   justOne: true
 }, {
   path: 'assignee',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: 'emailId userName firstName lastName profilePic _id',
   justOne: true
 }, {
   path: 'status',
