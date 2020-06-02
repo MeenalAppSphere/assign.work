@@ -9,7 +9,7 @@ import {
   SprintColumn,
   SprintColumnTask,
   SprintFilterTasksModel,
-  SprintTaskTimeLogResponse,
+  SprintTaskTimeLogResponse, StorageKeyEnum,
   Task,
   TaskTypeModel,
   User
@@ -50,13 +50,13 @@ export class BoardComponent implements OnInit, OnDestroy {
   public taskTypeDataSource: TaskTypeModel[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
-  public statusSprintDataSource: ProjectStatus[] = [];
   public closeSprintModalIsVisible: boolean;
   public isVisibleCloseSprint: boolean;
   public closeSprintModeSelection = 'createNewSprint';
   public dateFormat = 'MM/dd/yyyy';
   public closeSprintNewSprintForm: FormGroup;
   public filterSprintTasksRequest: SprintFilterTasksModel;
+  public isFilterApplied: boolean = false;
 
   public moveFromStage: SprintColumn;
 
@@ -91,16 +91,20 @@ export class BoardComponent implements OnInit, OnDestroy {
 
       this.filterSprintTasksRequest = new SprintFilterTasksModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
 
+      // get sprint filter from local storage
+      let availableFilter: string | SprintFilterTasksModel = localStorage.getItem(StorageKeyEnum.sprintBoardFilter);
+      if (availableFilter) {
+        availableFilter = JSON.parse(availableFilter) as SprintFilterTasksModel;
+        this.filterSprintTasksRequest.assigneeIds = availableFilter.assigneeIds;
+        this.filterSprintTasksRequest.query = availableFilter.query;
+
+        this.isFilterApplied = !!(availableFilter.assigneeIds.length || availableFilter.query.length);
+      }
+
       this.getBoardData();
     } else {
       this.notification.info('Info', 'Sprint not found');
     }
-
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.statusSprintDataSource = res.settings.statuses;
-      }
-    });
 
     this.closeSprintNewSprintForm = new FormGroup({
       projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
@@ -127,9 +131,26 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.getBoardData();
   }
 
+  /**
+   * show all items
+   * resets all filter and shows all items
+   */
+  public showAllItems() {
+    this.searchValue = '';
+    this.isFilterApplied = false;
+    this.filterSprintTasksRequest = new SprintFilterTasksModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
+
+    this.getBoardData();
+  }
+
   async getBoardData() {
+    this.isFilterApplied = !!(this.filterSprintTasksRequest.assigneeIds.length || this.filterSprintTasksRequest.query.length);
     try {
+      // set filter to storage
+      localStorage.setItem(StorageKeyEnum.sprintBoardFilter, JSON.stringify(this.filterSprintTasksRequest));
+
       this.getStageInProcess = true;
+
       const data = await this._sprintService.filterSprintTasks(this.filterSprintTasksRequest).toPromise();
       this.prepareBoardData(data);
       this.getStageInProcess = false;
@@ -191,10 +212,10 @@ export class BoardComponent implements OnInit, OnDestroy {
       // console.log('json :', json);
 
       this.getStageInProcess = true;
-      const result = await this._sprintService.moveTaskToStage(json).toPromise();
-      this.prepareBoardData(result);
+      await this._sprintService.moveTaskToStage(json).toPromise();
       this.moveFromStage = null;
-      this.getStageInProcess = false;
+
+      this.getBoardData();
     } catch (e) {
 
       // revert ui changes
@@ -304,10 +325,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
 
-
-
-
-  public async removeTaskToSprint(taskId:string) {
+  public async removeTaskToSprint(taskId: string) {
     try {
 
       return this.modal.confirm({

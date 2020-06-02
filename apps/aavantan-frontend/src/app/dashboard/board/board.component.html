@@ -88,6 +88,12 @@
               </ul>
             </nz-dropdown-menu>
 
+          <span *ngIf="isFilterApplied">
+            <a class="cursor-pointer text-primary m-r-5 m-l-10 small" (click)="showAllItems()" href="javascript: void 0">
+              Show All
+            </a>
+          </span>
+
           </span>
 
       </div>
@@ -149,7 +155,7 @@
             <div class="card card-block">
 
               <div class="card-header">{{item.status.name}}
-<!--                <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>-->
+                <!--                <span class="pull-right"><i class="pl-3 fa fa-ellipsis-v"></i></span>-->
                 <div class="pull-left" style="line-height: 10px;">
                   <small class="text-muted font-size-10">Total hours&nbsp;</small>&nbsp;
                   <span class="font-size-12">{{item.totalEstimationReadable}}</span>
@@ -164,7 +170,8 @@
 
                 <div class="card-box" *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
 
-                  <div nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint" (click)="removeTaskToSprint(task.taskId)">
+                  <div nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint"
+                       (click)="removeTaskToSprint(task.taskId)">
                     <i nz-icon nzType="close" nzTheme="outline"></i>
                   </div>
 
