@@ -559,7 +559,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // endregion
 
     // process moving
-    await this.withRetrySession(async (session: ClientSession) => {
+    return await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId);
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
@@ -649,11 +649,13 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // add task history
       await this._taskHistoryService.addHistory(history, session);
+
+      return 'Task Moved Successfully';
     });
 
-    // return whole sprint details
-    const sprint = await this.getSprintDetails(model.sprintId, model.projectId, detailedPopulationForSprint, detailedFiledSelection);
-    return this._sprintUtilityService.prepareSprintVm(sprint);
+    // // return whole sprint details
+    // const sprint = await this.getSprintDetails(model.sprintId, model.projectId, detailedPopulationForSprint, detailedFiledSelection);
+    // return this._sprintUtilityService.prepareSprintVm(sprint);
   }
 
   /**
