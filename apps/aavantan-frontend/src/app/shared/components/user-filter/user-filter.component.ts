@@ -62,8 +62,6 @@ export class UserFilterComponent implements OnInit, OnDestroy {
     }
 
     //return ids array
-    console.log('selectMember: ',this.isAssigneeFilterApplied);
-    console.log('selectMember: ',this.filterMembersId);
     this.selectedMembers.emit(this.filterMembersId);
   }
 
@@ -84,8 +82,6 @@ export class UserFilterComponent implements OnInit, OnDestroy {
       }
       this.isAssigneeFilterApplied = !this.isAssigneeFilterApplied;
       //return ids array
-      console.log('isAssigneeFilterApplied: ',this.isAssigneeFilterApplied);
-      console.log('filterMembersId: ',this.filterMembersId);
       this.selectedMembers.emit(this.filterMembersId);
     }
   }
