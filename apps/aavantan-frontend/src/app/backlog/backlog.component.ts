@@ -185,7 +185,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
           }
 
           // get all back log tasks once status and assignee filter prepared
-          this.getAllBacklogTask();
+          // this.getAllBacklogTask();
 
         });
 

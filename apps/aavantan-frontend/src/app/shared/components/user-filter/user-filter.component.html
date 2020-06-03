@@ -5,7 +5,6 @@
   <span class="collaborators-avatar" *ngFor="let user of projectMembers | slice:0:10;">
 
     <nz-avatar (click)="selectMember(user)" *ngIf="!user?.userDetails.profilePic"
-               [nzSize]="avatarSize"
                nzText="{{(user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId) | slice : 0:1}}"
                ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
                [nzSize]="avatarSize" nzTitle="{{user?.userDetails?.firstName}}" nzPlacement="top" nz-tooltip
@@ -23,9 +22,9 @@
              nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
              nzText="{{projectMembers?.length - 10}}+" class="bg-info"></nz-avatar>
 
-    <span class="show-and-clear-btn">
-      <a class="cursor-pointer text-primary m-r-5 m-l-10 small" (click)="toggleAssigneFilter()" href="javascript: void 0">
-      {{ isAssigneeFilterApplied ? 'Show All' : 'Clear'}}
+    <span class="show-and-clear-btn" *ngIf="isAssigneeFilterApplied">
+      <a class="cursor-pointer text-primary m-r-5 m-l-10 small" (click)="toggleAssigneeFilter()" href="javascript: void 0">
+      Show All
       </a>
     </span>
 
