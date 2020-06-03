@@ -306,7 +306,7 @@
 
           <!--user filter end -->
               <span class="user-filter-section" *ngIf="projectMembers?.length>0">
-                <user-filter [projectMembers]="projectMembers" [avatarSize]="30" (selectedMembers)="selectedMembersForFilter($event)"></user-filter>
+                <user-filter [avatarSize]="30" (selectedMembers)="selectedMembersForFilter($event)"></user-filter>
               </span>
           <!--user filter end -->
 

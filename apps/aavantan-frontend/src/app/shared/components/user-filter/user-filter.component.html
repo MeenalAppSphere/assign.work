@@ -1,25 +1,35 @@
 <!-- input project members -->
 <!-- 10 avatar will display front and rest will show on dropdown with + icon -->
-<span class="collaborators-avatar" *ngFor="let user of projectMembers | slice:0:10;">
+<span *ngIf="projectMembers?.length>0">
 
-  <nz-avatar (click)="selectMember(user)" *ngIf="!user?.userDetails.profilePic"
+  <span class="collaborators-avatar" *ngFor="let user of projectMembers | slice:0:10;">
+
+    <nz-avatar (click)="selectMember(user)" *ngIf="!user?.userDetails.profilePic"
+               [nzSize]="avatarSize"
+               nzText="{{(user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId) | slice : 0:1}}"
+               ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
+               [nzSize]="avatarSize" nzTitle="{{user?.userDetails?.firstName}}" nzPlacement="top" nz-tooltip
+               class="bg-info"></nz-avatar>
+
+    <nz-avatar (click)="selectMember(user)" *ngIf="user?.userDetails.profilePic" nzIcon="user" [nzSize]="avatarSize"
+               ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
+               nzTitle="{{user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId}}"
+               nzPlacement="top" nz-tooltip nzSrc="{{user?.userDetails?.profilePic}}"></nz-avatar>
+
+  </span>
+
+  <nz-avatar *ngIf="projectMembers?.length>10"
              [nzSize]="avatarSize"
-             nzText="{{(user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId) | slice : 0:1}}"
-             ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
-             [nzSize]="avatarSize" nzTitle="{{user?.userDetails?.firstName}}" nzPlacement="top" nz-tooltip
-             class="bg-info"></nz-avatar>
+             nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
+             nzText="{{projectMembers?.length - 10}}+" class="bg-info"></nz-avatar>
 
-  <nz-avatar (click)="selectMember(user)" *ngIf="user?.userDetails.profilePic" nzIcon="user?.userDetails" [nzSize]="avatarSize"
-             ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
-             nzTitle="{{user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId}}"
-             nzPlacement="top" nz-tooltip nzSrc="{{user?.userDetails?.profilePic}}"></nz-avatar>
+    <span class="show-and-clear-btn">
+      <a class="cursor-pointer text-primary m-r-5 m-l-10 small" (click)="toggleAssigneFilter()" href="javascript: void 0">
+      {{ isAssigneeFilterApplied ? 'Show All' : 'Clear'}}
+      </a>
+    </span>
 
 </span>
-
-<nz-avatar *ngIf="projectMembers?.length>10"
-           [nzSize]="avatarSize"
-           nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
-           nzText="{{projectMembers?.length - 10}}+" class="bg-info"></nz-avatar>
 
 <!-- dropdown after 10th item -->
 <nz-dropdown-menu #menu="nzDropdownMenu">
@@ -28,18 +38,18 @@
         *ngFor="let user of projectMembers | slice:11:projectMembers.length;"
         class="collaborators-avatar p-l-10 p-b-5">
 
-      <nz-avatar (click)="selectMember(user)" *ngIf="!user?.userDetails?.profilePic"
+      <nz-avatar (click)="selectMember(user)" *ngIf="!user?.userDetails.profilePic"
                  [nzSize]="avatarSize"
                  class="text-uppercase"
                  nzText="{{(user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId) | slice : 0:1}}"
                  ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"></nz-avatar>
 
-      <nz-avatar (click)="selectMember(user)" *ngIf="user?.userDetails?.profilePic" nzIcon="user?.userDetails"
+      <nz-avatar (click)="selectMember(user)" *ngIf="user?.userDetails.profilePic" nzIcon="user"
                  class="text-uppercase" [nzSize]="avatarSize"
                  ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
                  nzSrc="{{user?.userDetails?.profilePic}}"></nz-avatar>
       <span
-        class="p-l-5">{{user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId}}</span>
+        class="p-l-5">{{user?.userDetails?.firstName ? user?.userDetails.firstName : user?.userDetails?.emailId}}</span>
     </li>
   </ul>
 </nz-dropdown-menu>

@@ -163,6 +163,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
           this.getFilterStatus(statues);
 
+          // prepare assignee filter
           // prepare all project members for initialization assignee filter
           const selectedMembersId:string[]=[];
           this.projectMembers = cloneDeep(currentProject.members.filter(ele => ele.isInviteAccepted));
@@ -172,7 +173,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
               selectedMembersId.push(ele.userId);
             })
           }
-
+          // Send empty assignee array to get all assignee data
+          // and check if not assigneeId key exist in this.backLogTaskRequest.queries then add
           const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'assigneeId');
           if (queryIndex === -1) {
             this.backLogTaskRequest.queries.push({

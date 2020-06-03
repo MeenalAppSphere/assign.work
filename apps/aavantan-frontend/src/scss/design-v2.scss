@@ -445,11 +445,17 @@
   padding: 7px 0px 18px 0px;
   background: none;
   box-shadow: none;
+
+  .show-and-clear-btn {
+    min-width: 70px;
+    display: inline-block;
+  }
+
   .ant-btn:not(.ant-btn-circle):not(.ant-btn-circle-outline).ant-btn-icon-only {
     line-height: 1.2;
   }
   .ant-avatar-lg-string, .ant-avatar-sm-string, .ant-avatar-string {
-    line-height: 23px!important;
+    line-height: 26px!important;
     text-transform: uppercase;
   }
   .ant-avatar{
@@ -470,7 +476,11 @@
   .ant-avatar.selected-user{
     border: 2px solid $theme-blue!important;
     padding: 2px;
+    .ant-avatar-lg-string, .ant-avatar-sm-string, .ant-avatar-string {
+      line-height: 23px!important;
+    }
   }
+
   .ant-avatar>img {
     border-radius: 50%;
   }
