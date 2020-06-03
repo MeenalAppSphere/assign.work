@@ -3,7 +3,6 @@ import {
   AppFilterStorageKeysEnum,
   BackLogStorageFilterModel,
   ProjectMembers,
-  SprintFilterTasksModel
 } from '@aavantan-app/models';
 import { cloneDeep } from 'lodash';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -16,7 +15,6 @@ import { GeneralService } from '../../services/general.service';
   styleUrls: ['./user-filter.component.scss']
 })
 export class UserFilterComponent implements OnInit, OnDestroy {
-  //Input project members list
   public projectMembers: ProjectMembers[];
   @Input() public avatarSize: number = 32;
 
@@ -78,38 +76,18 @@ export class UserFilterComponent implements OnInit, OnDestroy {
       this.filterMembersId = this.filterMembersId.filter(assignee => assignee !== user.userId);
     }
 
-    // if (this.isAssigneeFilterApplied) {
-    //
-    // } else {
-    //   this.filterMembersId = [];
-    //   this.projectMembers.forEach((ele) => {
-    //     ele.userDetails.isSelected = false;
-    //   });
-    //   user.userDetails.isSelected = true;
-    //   this.filterMembersId.push(user.userId);
-    //   this.isAssigneeFilterApplied = true;
-    // }
-
     //return ids array
     this.emitSelectedAssignees();
   }
 
-  // filter toggle button clear and show all
-  public toggleAssigneeFilter() {
-
+  // clear filter
+  public clearAssigneeFilter() {
     if (this.projectMembers && this.projectMembers.length > 0) {
+      this.projectMembers.forEach((ele) => {
+        ele.userDetails.isSelected = false;
+      });
       this.filterMembersId = [];
-      if (this.isAssigneeFilterApplied) {
-        this.projectMembers.forEach((ele) => {
-          ele.userDetails.isSelected = true;
-          this.filterMembersId.push(ele.userId);
-        });
-      } else {
-        this.projectMembers.forEach((ele) => {
-          ele.userDetails.isSelected = false;
-        });
-      }
-      this.isAssigneeFilterApplied = !this.isAssigneeFilterApplied;
+      this.isAssigneeFilterApplied = false;
 
       //return ids array
       this.emitSelectedAssignees();
@@ -123,6 +101,9 @@ export class UserFilterComponent implements OnInit, OnDestroy {
         assigneeIds: this.filterMembersId
       }
     });
+    if(this.filterMembersId && this.filterMembersId.length>0){
+      this.isAssigneeFilterApplied = true;
+    }
     this.selectedMembers.emit(this.filterMembersId);
   }
 
