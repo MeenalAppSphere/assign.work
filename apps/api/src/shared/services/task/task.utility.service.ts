@@ -316,17 +316,24 @@ export class TaskUtilityService {
     // check if advance queries are applied
     if (model.queries && model.queries.length) {
       model.queries.forEach(query => {
-
         query.key = this.validTaskQueryKey(query.key);
 
-        // convert value to object id
-        query.value = query.value.map(value => {
-          if (value) {
-            // convert to object id because mongo aggregate requires object id for matching foreign documents
-            value = toObjectId(value);
-          }
-          return value;
-        });
+        if (query.value.length) {
+
+          // convert value to object id
+          query.value = query.value.map(value => {
+            if (value) {
+              // convert to object id because mongo aggregate requires object id for matching foreign documents
+              value = toObjectId(value);
+            }
+            return value;
+          });
+
+          query.reverseFilter = false;
+        } else {
+          query.reverseFilter = true;
+        }
+
 
         // and condition
         // add directly to the filter.$add
@@ -348,14 +355,22 @@ export class TaskUtilityService {
         });
 
         model.queries.forEach(query => {
-          // convert value to object id
-          query.value = query.value.map(value => {
-            if (value) {
-              // convert to object id because mongo aggregate requires object id for matching foreign documents
-              value = toObjectId(value);
-            }
-            return value;
-          });
+          query.key = this.validTaskQueryKey(query.key);
+
+          if (query.value.length) {
+            // convert value to object id
+            query.value = query.value.map(value => {
+              if (value) {
+                // convert to object id because mongo aggregate requires object id for matching foreign documents
+                value = toObjectId(value);
+              }
+              return value;
+            });
+            query.reverseFilter = false;
+          } else {
+            query.reverseFilter = true;
+          }
+
 
           if (query.condition === TaskFilterCondition.or) {
             // or condition
