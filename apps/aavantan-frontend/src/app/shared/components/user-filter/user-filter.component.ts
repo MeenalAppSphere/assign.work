@@ -44,7 +44,7 @@ export class UserFilterComponent implements OnInit, OnDestroy {
           availableFilter = availableFilter as BackLogStorageFilterModel;
 
           this.projectMembers = this.projectMembers.map((member) => {
-            member.userDetails.isSelected = availableFilter.assigneeIds.includes(member.userId);
+            member.userDetails.isSelected = availableFilter.assigneeIds ? availableFilter.assigneeIds.includes(member.userId) : false;
 
             if (member.userDetails.isSelected) {
               this.filterMembersId.push(member.userId);
@@ -52,7 +52,7 @@ export class UserFilterComponent implements OnInit, OnDestroy {
             return member;
           });
 
-          this.isAssigneeFilterApplied = !!(availableFilter.assigneeIds.length ||
+          this.isAssigneeFilterApplied = !!(availableFilter.assigneeIds && availableFilter.assigneeIds.length ||
             (availableFilter.statusIds ? availableFilter.statusIds.length : false));
         }
 
