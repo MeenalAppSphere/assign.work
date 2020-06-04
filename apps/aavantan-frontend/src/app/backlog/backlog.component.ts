@@ -305,20 +305,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       }
     }
-
-
-  public clearAllFilter() {
-
-  }
-
+    
   public async getAllBacklogTask() {
     this.backLogTableLoadingTip = 'Getting Backlog Tasks...';
     this.getBacklogTasksInProcess = true;
     try {
 
       this._generalService.setAppFilter(this.currentProject.id, { backLogFilter: this.backLogTaskRequest });
-
-      console.log(this.backLogTaskRequest);
 
       const result = await this._taskService.getAllBacklogTasks(this.backLogTaskRequest).toPromise();
 
