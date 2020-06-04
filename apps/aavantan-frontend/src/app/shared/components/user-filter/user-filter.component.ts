@@ -38,13 +38,18 @@ export class UserFilterComponent implements OnInit, OnDestroy {
       if (this.projectMembers && this.projectMembers.length > 0) {
 
         // get sprint filter from local storage
-        let availableFilter: any = this._generalService.getAppFilter(res.id, AppFilterStorageKeysEnum.backLogFilter);
+        const availableFilter: any = this._generalService.getAppFilter(res.id, AppFilterStorageKeysEnum.backLogFilter);
 
         if (availableFilter) {
-          availableFilter = availableFilter as BackLogStorageFilterModel;
+
+          const assigneeIndex = availableFilter.queries.findIndex((query) => query.key === 'assigneeId');
+          let assigneeIds: string[] = [];
+          if (assigneeIndex > -1) {
+            assigneeIds = availableFilter.queries[assigneeIndex].value
+          }
 
           this.projectMembers = this.projectMembers.map((member) => {
-            member.userDetails.isSelected = availableFilter.assigneeIds ? availableFilter.assigneeIds.includes(member.userId) : false;
+            member.userDetails.isSelected = assigneeIds ? assigneeIds.includes(member.userId) : false;
 
             if (member.userDetails.isSelected) {
               this.filterMembersId.push(member.userId);
@@ -52,12 +57,9 @@ export class UserFilterComponent implements OnInit, OnDestroy {
             return member;
           });
 
-          this.isAssigneeFilterApplied = !!(availableFilter.assigneeIds && availableFilter.assigneeIds.length ||
-            (availableFilter.statusIds ? availableFilter.statusIds.length : false));
+          this.isAssigneeFilterApplied = !!(assigneeIds && assigneeIds.length);
         }
 
-        //return ids array
-        this.emitSelectedAssignees();
       }
 
     });
@@ -96,11 +98,6 @@ export class UserFilterComponent implements OnInit, OnDestroy {
 
   // emits ids array
   private emitSelectedAssignees() {
-    this._generalService.setAppFilter(this.currentProjectId, {
-      backLogFilter: {
-        assigneeIds: this.filterMembersId
-      }
-    });
     if(this.filterMembersId && this.filterMembersId.length>0){
       this.isAssigneeFilterApplied = true;
     }

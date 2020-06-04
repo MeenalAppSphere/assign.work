@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  Project,
   StatusDDLModel,
   Task,
   TaskFilterCondition,
@@ -17,6 +18,8 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { cloneDeep } from 'lodash';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
+import { combineLatest } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
 
 @Component({
   templateUrl: './project.component.html',
@@ -39,6 +42,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
 
+  public currentProject:Project;
+
   constructor(protected notification: NzNotificationService,
               private _generalService: GeneralService,
               private _userQuery: UserQuery,
@@ -47,9 +52,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
               private _taskStatusQuery: TaskStatusQuery,
               private _taskService: TaskService,
               private _taskTypeQuery: TaskTypeQuery) {
-
-    this.allTaskFilterRequest = new TaskFilterModel(this._generalService.currentProject.id);
-    this.myTaskFilterRequest = new TaskFilterModel(this._generalService.currentProject.id);
 
   }
 
@@ -60,16 +62,24 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
     });
 
-    // get filters and the call first tab data
-    if(this._generalService.currentProject && this._generalService.currentProject.activeBoard) {
 
-      this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
-        if (res) {
-          this.getFilterStatus(res);
+    // call all functions which is depends on current project and statuses
+    combineLatest([this._userQuery.currentProject$, this._taskStatusQuery.statuses$])
+      .pipe(auditTime(700))
+      .subscribe(result => {
+
+        this.currentProject = result[0]; // result[0]  is expecting current Project
+        const statues = result[1]; // result[1]  is expecting status
+
+        if (!this.currentProject || statues.length === 0) {
+          return;
         }
-      });
+        // init task filter models
+        this.allTaskFilterRequest = new TaskFilterModel(this.currentProject.id);
+        this.myTaskFilterRequest = new TaskFilterModel(this.currentProject.id);
 
-    }
+        this.getFilterStatus(statues);
+      });
 
   }
 
@@ -77,7 +87,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     // ready status filter dropdown data
 
-    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
+    const columns = cloneDeep(this.currentProject.activeBoard.columns);
 
     if (columns) {
 
@@ -98,7 +108,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
           });
         });
       }
-      if (this._generalService.currentProject) {
+      if (this.currentProject) {
         this.filterStatusApplied(this.selectedColumnDataSource); // 'selectedColumnDataSource' have selected filter except 'Done/Complete'
       }
     }
