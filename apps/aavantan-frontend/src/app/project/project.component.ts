@@ -86,8 +86,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
   public getFilterStatus(statusList:TaskStatusModel[]) {
 
     // ready status filter dropdown data
-
-    const columns = cloneDeep(this.currentProject.activeBoard.columns);
+    const columns = cloneDeep(this.currentProject.activeBoard ? this.currentProject.activeBoard.columns : null);
 
     if (columns) {
 

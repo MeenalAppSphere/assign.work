@@ -305,7 +305,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       }
     }
-    
+
   public async getAllBacklogTask() {
     this.backLogTableLoadingTip = 'Getting Backlog Tasks...';
     this.getBacklogTasksInProcess = true;
