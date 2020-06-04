@@ -184,6 +184,19 @@ export class SprintReportUtilityService {
 
     // loop over report members
     report.reportMembers = report.reportMembers.map(member => {
+
+      // get total tasks count of member
+      const totalTaskCountOfMember = report.reportTasks.filter(task => {
+        return task.assigneeId.toString() === member.userId.toString();
+      }).length;
+
+      // get finished tasks count by member
+      const finishedTasksByMember = report.reportTasks.filter(task => {
+        return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
+      }).filter(task => {
+        return task.assigneeId.toString() === member.userId.toString();
+      }).length;
+
       // convert totalLoggedTimeReadable, workingCapacityReadable to readable string
       member.totalLoggedTimeReadable = secondsToString(member.totalLoggedTime);
       member.workingCapacityReadable = secondsToString(member.workingCapacity);
@@ -207,7 +220,7 @@ export class SprintReportUtilityService {
       member.totalRemainingTimeReadable = secondsToString(member.totalRemainingTime);
 
       // calculate sprint productivity
-      member.sprintProductivity = Number(((report.finishedTasksCount * 100) / report.reportTasksCount).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+      member.sprintProductivity = Number(((finishedTasksByMember * 100) / report.reportTasksCount).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
       return member;
     });
 

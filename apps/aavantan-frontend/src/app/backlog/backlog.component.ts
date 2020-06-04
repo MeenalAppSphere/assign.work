@@ -96,7 +96,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   // status ddl
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
-  public lastStatus:BoardColumns;
+  public lastStatus: BoardColumns;
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -165,13 +165,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
           // prepare assignee filter
           // prepare all project members for initialization assignee filter
-          const selectedMembersId:string[]=[];
+          const selectedMembersId: string[] = [];
           this.projectMembers = cloneDeep(currentProject.members.filter(ele => ele.isInviteAccepted));
           // as not getting from backend so adding all user as selected
-          if(this.projectMembers && this.projectMembers.length > 0) {
-            this.projectMembers.forEach((ele)=>{
+          if (this.projectMembers && this.projectMembers.length > 0) {
+            this.projectMembers.forEach((ele) => {
               selectedMembersId.push(ele.userId);
-            })
+            });
           }
           // Send empty assignee array to get all assignee data
           // and check if not assigneeId key exist in this.backLogTaskRequest.queries then add
@@ -212,7 +212,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
       this.getAllSprintTasks();
     }
-
 
 
     if (this.backLogTasksList && this.backLogTasksList.length > 0) {
@@ -641,7 +640,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   /** filter status **/
   public showAll() {
     this.statusColumnDataSource.forEach((ele) => {
-      if(this.lastStatus.headerStatus.id !==ele.value) {
+      if (this.lastStatus.headerStatus.id !== ele.value) {
         this.selectedColumnDataSource.push(ele.value);
       }
     });
@@ -671,7 +670,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
     this.getAllBacklogTask();
   }
-
 
   /** time log **/
   public timeLog(item: Task) {

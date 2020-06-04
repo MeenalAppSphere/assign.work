@@ -111,7 +111,7 @@ export class BoardComponent implements OnInit, OnDestroy {
         this.filterSprintTasksRequest.query = availableFilter.query;
         this.searchValue = availableFilter.query || '';
 
-        this.isFilterApplied = !!(availableFilter.assigneeIds.length || availableFilter.query.length);
+        this.isFilterApplied = !!(availableFilter.assigneeIds.length);
       }
 
       this.getBoardData();
@@ -149,15 +149,15 @@ export class BoardComponent implements OnInit, OnDestroy {
    * resets all filter and shows all items
    */
   public showAllItems() {
-    this.searchValue = '';
     this.isFilterApplied = false;
     this.filterSprintTasksRequest = new SprintFilterTasksModel(this.currentProject.id, this.currentProject.sprintId);
 
+    this.filterSprintTasksRequest.query = this.searchValue;
     this.getBoardData();
   }
 
   async getBoardData() {
-    this.isFilterApplied = !!(this.filterSprintTasksRequest.assigneeIds.length || this.filterSprintTasksRequest.query.length);
+    this.isFilterApplied = !!(this.filterSprintTasksRequest.assigneeIds.length);
     try {
       // set filter to storage
       this._generalService.setAppFilter(this.currentProject.id, { sprintBoardFilter: this.filterSprintTasksRequest });
@@ -170,7 +170,6 @@ export class BoardComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.getStageInProcess = false;
     }
-
   }
 
   private prepareBoardData(data: BaseResponseModel<Sprint>) {
@@ -336,7 +335,6 @@ export class BoardComponent implements OnInit, OnDestroy {
       columnIndex: null, taskIndex: null, taskItem: null
     };
   }
-
 
   public async removeTaskToSprint(taskId: string) {
     try {

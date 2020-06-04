@@ -162,13 +162,14 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
   /**
    * update task in report
    * updates report task when a task is updated ( name changed, assign changed, etc.. )
-   * @param reportId
+   * @param sprint
    * @param task
+   * @param isMissingMemberAdded
    * @param session
    */
-  async updateReportTask(reportId: string, task: Task, session: ClientSession) {
+  async updateReportTask(sprint: Sprint, task: Task, isMissingMemberAdded: boolean, session: ClientSession) {
     // get report details
-    const sprintReport: SprintReportModel = await this.getSprintReportDetails(reportId);
+    const sprintReport: SprintReportModel = await this.getSprintReportDetails(sprint.reportId);
 
     // update sprint report
     // find task in sprint report
@@ -180,25 +181,34 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     const updatedTask = this._utilityService.createSprintReportTaskFromSprintColumnTask(task);
 
     // update report task object
-    const updateReportObject = {
+    const updateReportObject: any = {
       $set: {
         [`reportTasks.${taskIndexInReport}`]: updatedTask
       }
     };
 
+    if (isMissingMemberAdded) {
+      // create sprint report members from sprint member capacity
+      const sprintReportMembers = this._utilityService.createSprintReportMembersFromSprintMembers(sprint.membersCapacity);
+
+      // update the updated doc
+      updateReportObject.$push = { reportMembers: { $each: sprintReportMembers } };
+    }
+
     // update report by id
-    return await this.updateById(reportId, updateReportObject, session);
+    return await this.updateById(sprint.reportId, updateReportObject, session);
   }
 
   /**
    * add a task in sprint report
-   * @param reportId
+   * @param sprint
    * @param task
+   * @param isMissingMemberAdded
    * @param session
    */
-  async addTaskInSprintReport(reportId: string, task: Task, session: ClientSession) {
+  async addTaskInSprintReport(sprint: Sprint, task: Task, isMissingMemberAdded: boolean, session: ClientSession) {
     // get report details
-    const sprintReportDetails: SprintReportModel = await this.getSprintReportDetails(reportId);
+    const sprintReportDetails: SprintReportModel = await this.getSprintReportDetails(sprint.reportId);
 
     // check if task is already in report
     const alreadyInReportIndex = sprintReportDetails.reportTasks.findIndex(reportTask => {
@@ -223,8 +233,21 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       };
     }
 
+    // if new member joined project after sprint is created, add that member to sprint report's reportMembers array
+    if (isMissingMemberAdded) {
+      // create sprint report members from sprint member capacity
+      const sprintReportMembers = this._utilityService.createSprintReportMembersFromSprintMembers(sprint.membersCapacity);
+
+      // update the updated doc
+      if (alreadyInReportIndex > -1) {
+        updateDoc.$set['reportMembers'] = sprintReportMembers;
+      } else {
+        updateDoc.$push['reportMembers'] = { $each: sprintReportMembers };
+      }
+    }
+
     // update report by id
-    return await this.updateById(reportId, updateDoc, session);
+    return await this.updateById(sprint.reportId, updateDoc, session);
   }
 
   /**
