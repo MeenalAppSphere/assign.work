@@ -949,7 +949,8 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
     } else if (status === 'error') {
-      this.notification.error('Error', `${file.name} file upload failed.`);
+      const message = file.error ? file.error.error.message : file.name +'file upload failed.';
+      this.notification.error('Error', message);
     }
   }
 
@@ -1071,7 +1072,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       }else {
         this.createTaskInProcess = true;
       }
-      
+
       const data = await this._taskService.updateTask(task, isUpdateFromSideBar).toPromise();
 
       this.updateSidebarContentInProcess = false;
