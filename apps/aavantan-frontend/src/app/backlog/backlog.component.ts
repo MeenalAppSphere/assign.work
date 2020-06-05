@@ -160,20 +160,31 @@ export class BacklogComponent implements OnInit, OnDestroy {
         const availableFilter: any = this._generalService.getAppFilter(this.currentProject.id, AppFilterStorageKeysEnum.backLogFilter);
         if (availableFilter) {
 
+          // default fallback
+          availableFilter.queries = availableFilter.queries || [];
+
           const assigneeIndex = availableFilter.queries.findIndex((query) => query.key === 'assigneeId');
           let assigneeIds: string[] = [];
           if (assigneeIndex > -1) {
-            assigneeIds = availableFilter.queries[assigneeIndex].value
+            assigneeIds = availableFilter.queries[assigneeIndex].value;
           }
 
           const statusIndex = availableFilter.queries.findIndex((query) => query.key === 'statusId');
           let statusIds: string[] = [];
           if (statusIndex > -1) {
-            statusIds = availableFilter.queries[statusIndex].value
+            statusIds = availableFilter.queries[statusIndex].value;
           }
 
-          this.backLogTaskRequest.queries.push({key: 'assigneeId', value: assigneeIds, condition: TaskFilterCondition.and});
-          this.backLogTaskRequest.queries.push({key: 'statusId', value: statusIds, condition: TaskFilterCondition.and});
+          this.backLogTaskRequest.queries.push({
+            key: 'assigneeId',
+            value: assigneeIds,
+            condition: TaskFilterCondition.and
+          });
+          this.backLogTaskRequest.queries.push({
+            key: 'statusId',
+            value: statusIds,
+            condition: TaskFilterCondition.and
+          });
           this.backLogTaskRequest.query = availableFilter.query;
           this.searchValue = availableFilter.query || '';
           this.isFilterApplied = !!(assigneeIds && assigneeIds.length || (statusIds ? statusIds.length : false));
@@ -199,7 +210,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       debounceTime(700),
       distinctUntilChanged()
     ).subscribe(val => {
-      if(this.backLogTaskRequest && this.currentProject.id) {
+      if (this.backLogTaskRequest && this.currentProject.id) {
         this.backLogTaskRequest.query = val;
         this.backLogTaskRequest.page = 1;
         this.backLogTaskRequest.sort = 'name';
@@ -265,46 +276,46 @@ export class BacklogComponent implements OnInit, OnDestroy {
     if (columns) {
       this.lastStatus = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
 
-        if (statusList && statusList.length > 0) {
-          statusList.forEach((ele) => {
-            let checked = true;
-            if (this.lastStatus.headerStatus.id !== ele.id) {
-              this.selectedColumnDataSource.push(ele.id);
-            } else {
-              checked = false;
-            }
-            this.statusColumnDataSource.push({
-              label: ele.name,
-              value: ele.id,
-              checked: checked
-            });
-          });
-        }
-
-        // if exist statusId key in queries then update otherwise add
-        const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
-        if (queryIndex === -1) {
-          this.backLogTaskRequest.queries.push({
-            key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
-          });
-        } else {
-          // if filter applied
-          if(this.isFilterApplied) {
-            availableStatusInStorage = this.backLogTaskRequest.queries[queryIndex].value;
-
-            this.statusColumnDataSource.forEach((ele) => {
-              ele.checked = availableStatusInStorage.includes(ele.value)
-            });
-            this.selectedColumnDataSource = availableStatusInStorage;
-
-            this.backLogTaskRequest.queries[queryIndex].value = availableStatusInStorage;
+      if (statusList && statusList.length > 0) {
+        statusList.forEach((ele) => {
+          let checked = true;
+          if (this.lastStatus.headerStatus.id !== ele.id) {
+            this.selectedColumnDataSource.push(ele.id);
           } else {
-            this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+            checked = false;
           }
-        }
-
+          this.statusColumnDataSource.push({
+            label: ele.name,
+            value: ele.id,
+            checked: checked
+          });
+        });
       }
+
+      // if exist statusId key in queries then update otherwise add
+      const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+      if (queryIndex === -1) {
+        this.backLogTaskRequest.queries.push({
+          key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
+        });
+      } else {
+        // if filter applied
+        if (this.isFilterApplied) {
+          availableStatusInStorage = this.backLogTaskRequest.queries[queryIndex].value;
+
+          this.statusColumnDataSource.forEach((ele) => {
+            ele.checked = availableStatusInStorage.includes(ele.value);
+          });
+          this.selectedColumnDataSource = availableStatusInStorage;
+
+          this.backLogTaskRequest.queries[queryIndex].value = availableStatusInStorage;
+        } else {
+          this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+        }
+      }
+
     }
+  }
 
   public async getAllBacklogTask() {
     this.backLogTableLoadingTip = 'Getting Backlog Tasks...';
