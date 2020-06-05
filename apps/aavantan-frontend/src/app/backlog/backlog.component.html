@@ -146,7 +146,7 @@
                     [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
                     [nzNotFoundContent]="contentTpl">
                     <ng-template #contentTpl>
-                      <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
+                      <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData?.name}}</strong></span>
                     </ng-template>
 
                   </nz-empty>
@@ -306,7 +306,7 @@
 
           <!--user filter end -->
               <span class="user-filter-section" *ngIf="projectMembers?.length>0">
-                <user-filter [projectMembers]="projectMembers" [avatarSize]="30" (selectedMembers)="selectedMembersForFilter($event)"></user-filter>
+                <user-filter [avatarSize]="30" (selectedMembers)="selectedMembersForFilter($event)"></user-filter>
               </span>
           <!--user filter end -->
 
@@ -356,6 +356,7 @@
                   (click)="toggleAddSprint()">Create Sprint
           </button>
         </div>
+
 
       </div>
 
@@ -598,7 +599,7 @@
 </ng-container>
 
 
-<nz-modal [(nzVisible)]="isVisibleCloseSprint" nzTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
+<nz-modal *ngIf="currentProject?.id" [(nzVisible)]="isVisibleCloseSprint" nzTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
           [nzWidth]="700" nzCancelText="Cancel" (nzOnOk)="closeSprint()" [nzOkLoading]="closeSprintInProcess"
           nzClassName="close-sprint-modal-confirm-box"
           (nzOnCancel)="cancelCloseSprintDialog()">

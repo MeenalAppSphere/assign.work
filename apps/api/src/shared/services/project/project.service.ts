@@ -516,7 +516,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     });
 
     // find project and return updated project
-    return await this.getProjectDetails(model.projectId);
+    return await this.getProjectDetails(model.projectId, true);
   }
 
   /**
@@ -881,6 +881,10 @@ export class ProjectService extends BaseService<Project & Document> implements O
       member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
       return member;
     });
+
+    if (project.activeBoard) {
+      project.activeBoard.id = project.activeBoard._id;
+    }
 
     return project;
   }

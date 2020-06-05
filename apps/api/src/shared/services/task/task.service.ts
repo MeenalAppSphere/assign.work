@@ -404,14 +404,21 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       if (taskDetails.sprintId) {
         const sprint = await this._sprintService.getSprintDetails(taskDetails.sprintId, taskDetails.projectId, []);
 
-        // check if status is updated then update task position in sprint columns
-        if (taskModel.statusId !== taskDetails.statusId) {
-          // update task position in sprint columns
-          await this.updateTaskStatusInSprint(sprint, taskDetails, taskModel.statusId, projectDetails, session);
+        // check if assignee is already sprint member
+        // if yes than don't re add them to sprint member
+        const checkIsAssigneeIsAlreadySprintMember = sprint.membersCapacity.some(member =>
+          member.userId.toString() === taskModel.assigneeId.toString());
+
+        // check if task assignee or task status is updated then update task in sprint
+        if (isStatusChanged || !checkIsAssigneeIsAlreadySprintMember) {
+          // update task in sprint
+          await this.updateTaskInSprint(sprint, taskDetails, taskModel, projectDetails, session);
         }
 
         // if sprint is published than update corresponding sprint report
         if (sprint.sprintStatus && sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
+          const isMissingMemberAdded = !checkIsAssigneeIsAlreadySprintMember;
+
           // update sprint report, convert string to objectId for not loosing references
           const reportTaskDoc: any = {
             ...taskModel,
@@ -422,7 +429,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
             taskTypeId: toObjectId(taskModel.taskTypeId),
             createdById: toObjectId(taskModel.createdById)
           };
-          await this._sprintReportService.updateReportTask(sprint.reportId, reportTaskDoc, session);
+          await this._sprintReportService.updateReportTask(sprint, reportTaskDoc, isMissingMemberAdded, session);
         }
       }
 
@@ -779,37 +786,65 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * update's task column in sprint columns using task status id
    * @param sprint
    * @param task
-   * @param newStatusId
+   * @param updatedTask
    * @param project
    * @param session
    */
-  private async updateTaskStatusInSprint(sprint: Sprint, task: Task, newStatusId: string, project: Project, session: ClientSession) {
+  private async updateTaskInSprint(sprint: Sprint, task: Task, updatedTask: Task, project: Project, session: ClientSession) {
 
-    const currentColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
-    // check if column exits in sprint
-    if (currentColumnIndex === -1) {
-      BadRequest('Task not found in sprint');
+    const isAssigneeChanged = task.assigneeId.toString() !== updatedTask.assigneeId;
+    const isStatusChanged = task.statusId.toString() !== updatedTask.statusId;
+    let updatedSprintDoc: any = {};
+
+    // if status is changed than update task position in sprint column
+    if (isStatusChanged) {
+      const currentColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
+      // check if column exits in sprint
+      if (currentColumnIndex === -1) {
+        BadRequest('Task not found in sprint');
+      }
+
+      // get new column index where task is dropped
+      const newColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, updatedTask.statusId);
+      // check if new column exits in sprint
+      if (newColumnIndex === -1) {
+        BadRequest('Column not found where to move the task');
+      }
+
+      // get task from sprint column that's going to move to new column
+      const oldSprintTask = sprint.columns[currentColumnIndex].tasks.find(
+        sprintTask => sprintTask.taskId.toString() === task.id);
+
+      // move task to new column and remove from old column
+      sprint.columns = this._sprintUtilityService.moveTaskToNewColumn(sprint, task, oldSprintTask,
+        this._generalService.userId, currentColumnIndex, newColumnIndex);
+
+      updatedSprintDoc = {
+        ...updatedSprintDoc,
+        $set: { 'columns': sprint.columns }
+      };
     }
 
-    // get new column index where task is dropped
-    const newColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, newStatusId);
-    // check if new column exits in sprint
-    if (newColumnIndex === -1) {
-      BadRequest('Column not found where to move the task');
+    // if assignee changed and assignee is not a part of sprint than add that assignee as sprint member
+    if (isAssigneeChanged) {
+      // add assignee to sprint member array
+      const newMember = this._sprintUtilityService.createSprintMember(project, updatedTask.assigneeId);
+
+      sprint.membersCapacity.push(newMember);
+      // increase sprint total capacity
+      sprint.totalCapacity += newMember.workingCapacity;
+
+      // update sprint doc and add new member to memberCapacity array
+      updatedSprintDoc = {
+        ...updatedSprintDoc,
+        $push: { membersCapacity: newMember },
+        totalCapacity: sprint.totalCapacity
+      };
     }
 
-    // get task from sprint column that's going to move to new column
-    const oldSprintTask = sprint.columns[currentColumnIndex].tasks.find(
-      sprintTask => sprintTask.taskId.toString() === task.id);
 
-    // move task to new column and remove from old column
-    sprint.columns = this._sprintUtilityService.moveTaskToNewColumn(sprint, task, oldSprintTask,
-      this._generalService.userId, currentColumnIndex, newColumnIndex);
-
-    // update sprint columns
-    await this._sprintService.updateById(sprint.id, {
-      $set: { 'columns': sprint.columns }
-    }, session);
+    // update sprint
+    await this._sprintService.updateById(sprint.id, updatedSprintDoc, session);
   }
 
   /**

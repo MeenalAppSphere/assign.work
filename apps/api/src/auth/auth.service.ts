@@ -598,7 +598,7 @@ export class AuthService implements OnModuleInit {
   private async getUserByEmailId(emailId: string) {
     const userQuery = new MongooseQueryModel();
     userQuery.filter = {
-      emailId: emailId
+      emailId: { $regex: new RegExp(`^${emailId}$`), $options: 'i' }
     };
     userQuery.select = '_id emailId';
     userQuery.lean = true;
