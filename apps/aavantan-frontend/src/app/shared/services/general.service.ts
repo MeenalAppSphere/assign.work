@@ -1,4 +1,4 @@
-import { Organization, Project, User } from '@aavantan-app/models';
+import { AppFilterModel, AppFilterStorageKeysEnum, Organization, Project, User } from '@aavantan-app/models';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -49,6 +49,26 @@ export class GeneralService {
   private _currentProject: Project;
   private _currentOrganization: Organization;
 
+  setAppFilter(projectId: string, value: any) {
+    let data: string | AppFilterModel = localStorage.getItem(projectId);
+    if (data) {
+      data = JSON.parse(data) as AppFilterModel;
+      localStorage.setItem(projectId, JSON.stringify({ ...data, ...value }));
+    } else {
+      localStorage.setItem(projectId, JSON.stringify(value));
+    }
+  }
+
+  getAppFilter(projectId: string, key?: AppFilterStorageKeysEnum): AppFilterModel {
+    let data: string | AppFilterModel = localStorage.getItem(projectId);
+    if (data) {
+      data = JSON.parse(data) as AppFilterModel;
+      return key ? data[key] : data;
+    } else {
+      return null;
+    }
+  }
+
   public secondsToReadable(seconds: number) {
     const num = seconds / 60;
     const hours = (num / 60);
@@ -58,7 +78,7 @@ export class GeneralService {
     return {
       h: rhours,
       m: rminutes,
-      readable: rhours+'h '+rminutes+'m'
+      readable: rhours + 'h ' + rminutes + 'm'
     };
   }
 

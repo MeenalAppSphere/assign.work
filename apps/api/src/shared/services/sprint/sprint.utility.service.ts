@@ -6,7 +6,7 @@ import {
   Project,
   Sprint, SprintActionEnum,
   SprintColumn, SprintColumnTask,
-  SprintErrorEnum,
+  SprintErrorEnum, SprintMembersCapacity,
   Task,
   UpdateSprintMemberWorkingCapacity,
   User
@@ -14,7 +14,7 @@ import {
 import * as moment from 'moment';
 import {
   BadRequest,
-  generateUtcDate,
+  generateUtcDate, hourToSeconds,
   secondsToHours,
   secondsToString,
   validWorkingDaysChecker
@@ -105,6 +105,23 @@ export class SprintUtilityService {
       // if task not found return error
       BadRequest(SprintErrorEnum.taskNotFound);
     }
+  }
+
+  /**
+   * create a sprint member from project members array
+   * @param {Project} project
+   * @param {string} memberId
+   * @return {SprintMembersCapacity}
+   */
+  createSprintMember(project: Project, memberId: string): SprintMembersCapacity {
+    const member = project.members.find(projectMember => projectMember.userId.toString() === memberId.toString());
+
+    return {
+      userId: memberId,
+      workingCapacity: hourToSeconds(member.workingCapacity),
+      workingCapacityPerDay: hourToSeconds(member.workingCapacityPerDay),
+      workingDays: member.workingDays
+    };
   }
 
   /**

@@ -1,15 +1,17 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
+  AppFilterStorageKeysEnum,
   BaseResponseModel,
   CloseSprintModel,
   MoveTaskToColumnModel,
+  Project,
   ProjectStatus,
   RemoveTaskFromSprintModel,
   Sprint,
   SprintColumn,
   SprintColumnTask,
   SprintFilterTasksModel,
-  SprintTaskTimeLogResponse, StorageKeyEnum,
+  SprintTaskTimeLogResponse,
   Task,
   TaskTypeModel,
   User
@@ -58,6 +60,8 @@ export class BoardComponent implements OnInit, OnDestroy {
   public filterSprintTasksRequest: SprintFilterTasksModel;
   public isFilterApplied: boolean = false;
 
+  private currentProject: Project;
+
   public moveFromStage: SprintColumn;
 
   constructor(private _generalService: GeneralService,
@@ -78,27 +82,36 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
+    this._userQuery.currentProject$
+      .pipe(untilDestroyed(this))
+      .subscribe(project => {
+        this.currentProject = project;
+      });
+
     // search sprint tasks event
     this.searchValueSubject$.pipe(
       debounceTime(700),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      untilDestroyed(this)
     ).subscribe(val => {
       this.filterSprintTasksRequest.query = val;
       this.getBoardData();
     });
 
-    if (this._generalService.currentProject.sprintId && this._generalService.currentProject.id) {
+    if (this.currentProject && this.currentProject.sprintId && this.currentProject.id) {
 
-      this.filterSprintTasksRequest = new SprintFilterTasksModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
+      this.filterSprintTasksRequest = new SprintFilterTasksModel(this.currentProject.id, this.currentProject.sprintId);
 
       // get sprint filter from local storage
-      let availableFilter: string | SprintFilterTasksModel = localStorage.getItem(StorageKeyEnum.sprintBoardFilter);
+      let availableFilter: any = this._generalService.getAppFilter(this.currentProject.id, AppFilterStorageKeysEnum.sprintBoardFilter);
+
       if (availableFilter) {
-        availableFilter = JSON.parse(availableFilter) as SprintFilterTasksModel;
+        availableFilter = availableFilter as SprintFilterTasksModel;
         this.filterSprintTasksRequest.assigneeIds = availableFilter.assigneeIds;
         this.filterSprintTasksRequest.query = availableFilter.query;
+        this.searchValue = availableFilter.query || '';
 
-        this.isFilterApplied = !!(availableFilter.assigneeIds.length || availableFilter.query.length);
+        this.isFilterApplied = !!(availableFilter.assigneeIds.length);
       }
 
       this.getBoardData();
@@ -107,7 +120,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     }
 
     this.closeSprintNewSprintForm = new FormGroup({
-      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
+      projectId: new FormControl(this.currentProject.id, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
       goal: new FormControl(null, [Validators.required]),
       duration: new FormControl(null, [Validators.required]),
@@ -136,18 +149,18 @@ export class BoardComponent implements OnInit, OnDestroy {
    * resets all filter and shows all items
    */
   public showAllItems() {
-    this.searchValue = '';
     this.isFilterApplied = false;
-    this.filterSprintTasksRequest = new SprintFilterTasksModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
+    this.filterSprintTasksRequest = new SprintFilterTasksModel(this.currentProject.id, this.currentProject.sprintId);
 
+    this.filterSprintTasksRequest.query = this.searchValue;
     this.getBoardData();
   }
 
   async getBoardData() {
-    this.isFilterApplied = !!(this.filterSprintTasksRequest.assigneeIds.length || this.filterSprintTasksRequest.query.length);
+    this.isFilterApplied = !!(this.filterSprintTasksRequest.assigneeIds.length);
     try {
       // set filter to storage
-      localStorage.setItem(StorageKeyEnum.sprintBoardFilter, JSON.stringify(this.filterSprintTasksRequest));
+      this._generalService.setAppFilter(this.currentProject.id, { sprintBoardFilter: this.filterSprintTasksRequest });
 
       this.getStageInProcess = true;
 
@@ -157,7 +170,6 @@ export class BoardComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.getStageInProcess = false;
     }
-
   }
 
   private prepareBoardData(data: BaseResponseModel<Sprint>) {
@@ -203,7 +215,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     try {
 
       const json: MoveTaskToColumnModel = {
-        projectId: this._generalService.currentProject.id,
+        projectId: this.currentProject.id,
         sprintId: this.boardData.id,
         columnId: column.id,
         taskId: task.taskId
@@ -262,7 +274,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.closeSprintInProcess = true;
 
     const closeSprintRequest = new CloseSprintModel();
-    closeSprintRequest.projectId = this._generalService.currentProject.id;
+    closeSprintRequest.projectId = this.currentProject.id;
     closeSprintRequest.sprintId = this.boardData.id;
 
     if (this.closeSprintModeSelection === 'createNewSprint') {
@@ -324,7 +336,6 @@ export class BoardComponent implements OnInit, OnDestroy {
     };
   }
 
-
   public async removeTaskToSprint(taskId: string) {
     try {
 
@@ -334,7 +345,7 @@ export class BoardComponent implements OnInit, OnDestroy {
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {
             const json: RemoveTaskFromSprintModel = {
-              projectId: this._generalService.currentProject.id,
+              projectId: this.currentProject.id,
               sprintId: this.boardData.id,
               taskId: taskId
             };

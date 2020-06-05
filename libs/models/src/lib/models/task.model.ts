@@ -101,6 +101,11 @@ export class TaskFilterModel extends MongoosePaginateQuery {
   }
 }
 
+export class BackLogStorageFilterModel {
+  assigneeIds: string[];
+  statusIds: string[];
+}
+
 export class SprintTaskFilterModel extends TaskFilterModel {
   constructor(public projectId: string, public sprintId: string) {
     super(projectId);

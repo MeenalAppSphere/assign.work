@@ -368,13 +368,17 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           let currentTaskAssigneeTotalEstimation = 0;
 
           // get task assignee details from sprint members
-          const currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
+          let currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
+          let isMissingMemberAdded = false;
 
           // check if assignee is active and part of sprint
-          if (currentAssigneeDetails.user.status !== UserStatus.Active) {
-            // throw error if assignee is not part of sprint or not an active user
-            sprintErrorResponse.tasksError.reason = SprintErrorEnum.memberNotFound;
-            return sprintErrorResponse;
+          if (!currentAssigneeDetails) {
+            // add assignee to sprint member array
+            currentAssigneeDetails = this._sprintUtilityService.createSprintMember(projectDetails, taskDetails.assigneeId);
+
+            sprintDetails.membersCapacity.push(currentAssigneeDetails);
+            sprintDetails.totalCapacity += currentAssigneeDetails.workingCapacity;
+            isMissingMemberAdded = true;
           }
 
           // get all tasks from the sprint and push it to all tasks array
@@ -401,12 +405,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
             return sprintErrorResponse;
           } else {
             // start task add process
-            return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
+            return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session, isMissingMemberAdded);
           }
         }
       } else {
         // start task add process
-        return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
+        return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session, false);
       }
     });
   }
@@ -1100,12 +1104,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // add only those members who accepted invitation of project means active collaborator of project
     projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
-      sprintModel.membersCapacity.push({
-        userId: member.userId,
-        workingCapacity: hourToSeconds(member.workingCapacity),
-        workingCapacityPerDay: hourToSeconds(member.workingCapacityPerDay),
-        workingDays: member.workingDays
-      });
+      sprintModel.membersCapacity.push(this._sprintUtilityService.createSprintMember(projectDetails, member.userId));
       sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
     });
 
@@ -1149,8 +1148,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param sprintDetails
    * @param taskDetails
    * @param session
+   * @param isMissingMemberAdded
    */
-  private async processAddTaskToSprint(project: Project, sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
+  private async processAddTaskToSprint(project: Project, sprintDetails: Sprint, taskDetails: Task, session: ClientSession, isMissingMemberAdded: boolean = false) {
 
     // adds a task to column by using task's status
     this._sprintUtilityService.addTaskToColumn(project, sprintDetails, taskDetails, this._generalService.userId);
@@ -1158,8 +1158,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // get column index where task is added
     const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, taskDetails.statusId.toString());
 
-    // update sprint by id and update sprint columns
-    await this.updateById(sprintDetails.id, {
+    // update doc
+    const updateDoc: any = {
       $set: {
         [`columns.${columnIndex}`]: sprintDetails.columns[columnIndex],
         totalEstimation: sprintDetails.totalEstimation,
@@ -1167,12 +1167,20 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         totalRemainingTime: sprintDetails.totalRemainingTime,
         totalOverLoggedTime: sprintDetails.totalRemainingTime >= 0 ? 0 : Math.abs(sprintDetails.totalRemainingTime)
       }
-    }, session);
+    };
+
+    // check if new member is created then create
+    if (isMissingMemberAdded) {
+      updateDoc.$set['membersCapacity'] = sprintDetails.membersCapacity;
+    }
+
+    // update sprint by id and update sprint columns and sprint member
+    await this.updateById(sprintDetails.id, updateDoc, session);
 
     // if sprint is published than add task to report
     if (sprintDetails.sprintStatus && sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
       // add task to sprint report
-      await this._sprintReportService.addTaskInSprintReport(sprintDetails.reportId, taskDetails, session);
+      await this._sprintReportService.addTaskInSprintReport(sprintDetails, taskDetails, isMissingMemberAdded, session);
     }
 
     // create task history
