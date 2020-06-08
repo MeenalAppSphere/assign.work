@@ -121,7 +121,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     // call all functions which is depends on current project and statuses
     combineLatest([this._userQuery.currentProject$, this._taskStatusQuery.statuses$])
-      .pipe(auditTime(700))
+      .pipe(auditTime(700), untilDestroyed(this))
       .subscribe(result => {
 
         this.currentProject = result[0]; // result[0]  is expecting current Project
@@ -208,7 +208,8 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     this.searchValueSubject$.pipe(
       debounceTime(700),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      untilDestroyed(this)
     ).subscribe(val => {
       if (this.backLogTaskRequest && this.currentProject.id) {
         this.backLogTaskRequest.query = val;

@@ -172,7 +172,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this.switchingProjectInProcess = true;
       await this._projectService.switchProject(json).toPromise();
       this.switchingProjectInProcess = false;
-      this.getTasks();
+      // this.getTasks();
       this.toggleShow.emit();
     } catch (e) {
       this.switchingProjectInProcess = false;
