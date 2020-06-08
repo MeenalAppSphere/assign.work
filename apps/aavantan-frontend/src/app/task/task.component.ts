@@ -266,7 +266,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     // get all task type, priorities and status from store
     // then call get task
     combineLatest([this._taskTypeQuery.types$, this._taskPriorityQuery.priorities$, this._taskStatusQuery.statuses$])
-      .pipe(auditTime(700))
+      .pipe(auditTime(700), untilDestroyed(this))
       .subscribe(result => {
         // result[0]  is expecting task types
         // result[1]  is expecting priorities
