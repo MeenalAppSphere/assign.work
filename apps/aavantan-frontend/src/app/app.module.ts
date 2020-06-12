@@ -16,7 +16,9 @@ import { ServiceModule } from './shared/services/service.module';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 import { DndModule } from 'ngx-drag-drop';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
+const socketConfig: SocketIoConfig = { url: environment.apiUrl.replace('/api', ''), options: {} };
 
 registerLocaleData(en);
 
@@ -46,7 +48,8 @@ export function provideConfig() {
     environment.production ? [] : AkitaNgDevtools.forRoot(),
     EditorModule,
     SocialLoginModule,
-    DndModule
+    DndModule,
+    SocketIoModule.forRoot(socketConfig)
   ],
   providers: [
     {

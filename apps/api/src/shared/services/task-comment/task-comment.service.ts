@@ -19,6 +19,7 @@ import { GeneralService } from '../general.service';
 import { TaskCommentUtilityService } from './task-comment.utility.service';
 import { TaskService } from '../task/task.service';
 import { TaskHistoryService } from '../task-history.service';
+import { TaskGateway } from '../../../task/task.gateway';
 
 /**
  * common task population object
@@ -42,6 +43,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
   private _utilityService: TaskCommentUtilityService;
+  private _taskGateWay: TaskGateway;
 
   constructor(
     @InjectModel(DbCollection.taskComments) private readonly _taskCommentModel: Model<TaskComments & Document>,
@@ -54,6 +56,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+    this._taskGateWay = this._moduleRef.get(TaskGateway.name, { strict: false });
 
     this._utilityService = new TaskCommentUtilityService();
   }
@@ -124,6 +127,8 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
       // send email for comment added
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentAdded, 'comment-added');
+
+      this._taskGateWay.taskCommentAdded(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;
@@ -186,6 +191,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       // send email
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentUpdated, 'comment-updated');
 
+      this._taskGateWay.taskCommentUpdated(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;

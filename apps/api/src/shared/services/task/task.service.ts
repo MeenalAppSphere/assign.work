@@ -15,7 +15,7 @@ import {
   TaskFilterCondition,
   TaskFilterModel,
   TaskHistory,
-  TaskHistoryActionEnum
+  TaskHistoryActionEnum, User
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -35,6 +35,7 @@ import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
 import * as moment from 'moment';
+import { TaskGateway } from '../../../task/task.gateway';
 
 /**
  * common task population object
@@ -101,6 +102,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private _taskPriorityService: TaskPriorityService;
   private _taskStatusService: TaskStatusService;
   private _taskHistoryService: TaskHistoryService;
+  private _taskGateWay: TaskGateway;
 
   private _utilityService: TaskUtilityService;
   private _projectUtilityService: ProjectUtilityService;
@@ -122,6 +124,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+    this._taskGateWay = this._moduleRef.get(TaskGateway.name, { strict: false });
 
     this._utilityService = new TaskUtilityService();
     this._projectUtilityService = new ProjectUtilityService();
@@ -276,8 +279,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // task is created now send all the mails
-      this._utilityService.sendMailForTaskCreated(task, projectDetails);
-
+      this._utilityService.sendMailForTaskCreated({ ...task }, projectDetails);
+      this._taskGateWay.taskCreated({ ...task }, projectDetails);
       return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
@@ -289,8 +292,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * if task type changed than update display name too
    * if estimate has been added after one have logged overs re calculate progress and over progress
    * @param model: Task
+   * @param loggedInUser
    */
-  async updateTask(model: Task): Promise<Task> {
+  async updateTask(model: Task, loggedInUser: Partial<User>): Promise<Task> {
     if (!model || !model.id) {
       BadRequest('Task not found');
     }
@@ -457,6 +461,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // send mail for task updated to all the task watchers
       this._utilityService.sendMailForTaskUpdated({ ...task }, projectDetails);
+      this._taskGateWay.taskUpdated({ ...task }, projectDetails);
       return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
