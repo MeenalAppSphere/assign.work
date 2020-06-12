@@ -13,6 +13,7 @@ export class ProfileNameComponent implements OnInit, OnDestroy {
   @Input() public fullName: boolean;
   @Input() public firstName: boolean;
   @Input() public emailId: boolean;
+  @Input() public avatarSize:Number;
 
   constructor() {
   }
