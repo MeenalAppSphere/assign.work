@@ -37,7 +37,7 @@ phases:
 
 artifacts:
     files:
-        - 'dist/*'
+        - 'dist/output.zip'
     discard-paths: yes
 cache:
 paths:
