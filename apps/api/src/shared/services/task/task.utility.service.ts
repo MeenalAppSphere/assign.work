@@ -11,7 +11,7 @@ import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { environment } from '../../../environments/environment';
 import { ProjectUtilityService } from '../project/project.utility.service';
-import { BadRequest, secondsToString, toObjectId } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, secondsToString, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 
 /**
@@ -80,6 +80,7 @@ export class TaskUtilityService {
     taskModel.attachments = model.attachments || [];
 
     taskModel.taskTypeId = model.taskTypeId;
+    taskModel.completionDate = model.completionDate || generateUtcDate();
 
     // if no task priority found than assign project's default priority id
     taskModel.priorityId = model.priorityId || project.settings.defaultTaskPriorityId;

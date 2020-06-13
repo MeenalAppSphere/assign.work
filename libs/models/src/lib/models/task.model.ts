@@ -53,7 +53,7 @@ export class Task {
   updatedAt?: Date;
   isSelected?: boolean;
   watchersDetails?: User[];
-  hasError?: string;
+  completionDate?: Date;
 }
 
 export class TaskComments {

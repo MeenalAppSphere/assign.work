@@ -21,7 +21,7 @@ import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
-import { BadRequest, stringToSeconds, toObjectId } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, stringToSeconds, toObjectId } from '../../helpers/helpers';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
 import { TaskTypeService } from '../task-type/task-type.service';
@@ -316,6 +316,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.description = model.description;
       taskModel.tags = model.tags;
       taskModel.watchers = model.watchers;
+      taskModel.completionDate = model.completionDate || taskDetails.completionDate || generateUtcDate();
 
       taskModel.taskTypeId = model.taskTypeId;
       taskModel.priorityId = model.priorityId;
