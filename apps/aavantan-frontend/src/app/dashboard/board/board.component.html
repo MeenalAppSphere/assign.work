@@ -69,7 +69,7 @@
               <nz-dropdown-menu #menu="nzDropdownMenu">
               <ul nz-menu>
                 <li nz-menu-item
-                    *ngFor="let item of boardData.membersCapacity | slice:11:boardData.membersCapacity.length;"
+                    *ngFor="let item of boardData.membersCapacity | slice:10:boardData.membersCapacity.length;"
                     class="collaborators-avatar p-l-10 p-b-5">
 
                   <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
