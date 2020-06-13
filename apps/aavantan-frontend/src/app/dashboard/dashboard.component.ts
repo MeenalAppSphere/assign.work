@@ -333,7 +333,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private createDesktopNotification(title: string, res: NotificationResponseModel) {
     const notification = new Notification(title, {
       body: res.msg,
-      image: 'assets/images/logo/logo.png',
+      icon: 'assets/images/logo/logo.png',
       vibrate: 1
     });
 
@@ -348,7 +348,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
    */
   private goToLink(link: string) {
     // check if assign work is opened or not in tab
-    if (location.origin === environment.APP_URL) {
+    if (`${location.origin}/` === environment.APP_URL) {
       this.ngZone.run(() => {
         this.router.navigateByUrl(link.replace(environment.APP_URL, ''));
       });

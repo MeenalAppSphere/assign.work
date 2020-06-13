@@ -694,7 +694,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.pinnedCommentsList.unshift(comment.comment);
         setTimeout(() => {
           this.showPinnedCommentsList = true;
-          this.cdr.detectChanges();
+          this.detectChanges();
         }, 10);
 
       } else {
@@ -710,7 +710,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         });
         setTimeout(() => {
           this.showPinnedCommentsList = true;
-          this.cdr.detectChanges();
+          this.detectChanges();
         }, 10);
       }
     }
@@ -1252,6 +1252,12 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     } catch (e) {
       this.getTimeLogInProcess = false;
+    }
+  }
+
+  private detectChanges() {
+    if (!this.cdr['destroyed']) {
+      this.cdr.detectChanges();
     }
   }
 

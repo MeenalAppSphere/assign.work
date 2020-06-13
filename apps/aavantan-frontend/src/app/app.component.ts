@@ -11,9 +11,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(private router: Router, private nzNotification: NzNotificationService) {
     if ('Notification' in window) {
-      if (Notification.permission !== 'granted') {
-        this.requestNotification();
-      }
+      Notification.requestPermission();
+      // if (Notification.permission !== 'granted') {
+      //   this.requestNotification();
+      // }
     } else {
       this.nzNotification.info('Assign Work', 'Your browser don\'t supports notification, please update to latest one');
     }

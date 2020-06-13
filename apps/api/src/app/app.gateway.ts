@@ -32,7 +32,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * @param {SocketIO.Socket} client
    */
   handleConnection(client: Socket) {
-    this.server.emit('connected-successfully');
+    this.server.emit(NotificationTypeEnum.connectionSuccess);
   }
 
   /**

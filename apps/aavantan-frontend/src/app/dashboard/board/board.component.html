@@ -89,7 +89,8 @@
             </nz-dropdown-menu>
 
           <span *ngIf="isFilterApplied">
-            <a class="cursor-pointer text-primary m-r-5 m-l-10 small" (click)="showAllItems()" href="javascript: void 0">
+            <a class="cursor-pointer text-primary m-r-5 m-l-10 small" (click)="showAllItems()"
+               href="javascript: void 0">
               Clear
             </a>
           </span>
@@ -179,8 +180,8 @@
                       <!-- task type, remove sprint button, Reporter -->
                       <div class="d-flex flex-row justify-content-between duration">
 
-                          <!-- task type -->
-                          <a class="cursor-pointer font-size-12 font-weight-semibold text-primary"
+                        <!-- task type -->
+                        <a class="cursor-pointer font-size-12 font-weight-semibold text-primary"
                            nz-tooltip [nzTitle]="task.task.priority.name ? task.task.priority.name : 'No Priority'"
                            routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
 
@@ -201,23 +202,27 @@
                       </div>
 
 
-
                       <!-- Task title -->
-                        <a routerLink="../task/{{task.task.displayName}}">
-                          <p class="m-0 p-0 m-b-5 task-title text-black" title="{{task.task.displayName}}" nz-paragraph nzEllipsis [nzEllipsisRows]="1">{{task.task.name}} </p>
-                        </a>
+                      <a routerLink="../task/{{task.task.displayName}}">
+                        <p class="m-0 p-0 m-b-5 task-title text-black" title="{{task.task.displayName}}" nz-paragraph
+                           nzEllipsis [nzEllipsisRows]="1">{{task.task.name}} </p>
+                      </a>
 
                       <!-- Status -->
                       <div class="d-flex flex-row justify-content-between tags-section">
-                        <nz-tag [nzColor]="task.task.status?.color ? task.task.status?.color : '#F7F8FB' " class="text-black status-tag">{{task.task.status.name}}</nz-tag>
+                        <nz-tag [nzColor]="task.task.status?.color ? task.task.status?.color : '#F7F8FB' "
+                                class="text-black status-tag">{{task.task.status.name}}</nz-tag>
                       </div>
 
                       <!-- Completion date and item age -->
                       <div class="d-flex flex-row justify-content-between duration dates-section">
 
-                        <span><span class="text-black">Target Date: </span><span class="text-gray-light-2">22 June, 2020</span></span>
+                        <span><span class="text-black">Target Date: </span><span class="text-gray-light-2">
+                          {{ task.task.completionDate ? (task.task.completionDate | date : 'MMM d yyyy') : ('Not Set') }}
+                        </span></span>
 
-                        <span><span class="text-gray-light-2">Age: </span><span class="font-size-12">{{task.task.taskAge}}</span> days</span>
+                        <span><span class="text-gray-light-2">Age: </span><span
+                          class="font-size-12">{{task.task.taskAge}}</span> days</span>
 
                       </div>
 
@@ -230,8 +235,10 @@
                       <div class="row">
 
                         <div class="col">
-                          <span nz-tooltip [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
-                            <profile-name [user]="task.task.assignee" [isTooltip]="false" [fullName]="true" class="text-dark"></profile-name>
+                          <span nz-tooltip
+                                [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
+                            <profile-name [user]="task.task.assignee" [isTooltip]="false" [fullName]="true"
+                                          class="text-dark"></profile-name>
                           </span>
                         </div>
 
