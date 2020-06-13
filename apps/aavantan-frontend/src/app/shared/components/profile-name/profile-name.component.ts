@@ -14,6 +14,7 @@ export class ProfileNameComponent implements OnInit, OnDestroy {
   @Input() public firstName: boolean;
   @Input() public emailId: boolean;
   @Input() public avatarSize:Number;
+  @Input() public isTooltip:boolean = true;
 
   constructor() {
   }

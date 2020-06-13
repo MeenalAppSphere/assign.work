@@ -6,3 +6,4 @@ export * from './sprint.enum';
 export * from './email-template.enum';
 export * from './email-subject.enum';
 export * from './storage-key.enum';
+export * from './notification.enum';

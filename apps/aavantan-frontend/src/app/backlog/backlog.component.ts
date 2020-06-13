@@ -675,7 +675,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
         this.selectedColumnDataSource.push(ele.value);
       }
     });
-    this._cdr.detectChanges();
+
+    if (!this._cdr['destroyed']) {
+      this._cdr.detectChanges();
+    }
 
     // if exist statusId key in queries then update otherwise add
     const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');

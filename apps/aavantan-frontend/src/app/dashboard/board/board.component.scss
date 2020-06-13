@@ -7,7 +7,6 @@
   color: $text-black;
   padding: 0px!important;
   box-shadow: none;
-  margin-top: 0px;
   white-space: nowrap;
   float: left;
   margin-top: -2px;
@@ -23,10 +22,11 @@
 }
 
 .status-tag {
-  border-radius: 4px;
-  font-size: 12px;
-  height: 1.25rem;
-  line-height: 1.25rem;
+  border-radius: 10px;
+  font-size: 10px;
+  height: 1rem;
+  line-height: 1rem;
+  color: #ffffff!important;
 }
 
 .dndList {
@@ -65,21 +65,17 @@
     cursor: pointer;
     text-align: center;
     width: auto;
-    padding: 0px;
-    border-radius: 4px;
-    background: transparent;
-    font-size: 12px;
-    color: #7a869a;
-    margin: auto;
-    position: absolute;
-    top: 8px;
-    right: 7px;
-    visibility: visible;
-    opacity: 1;
-    line-height: 13px;
-    transition: visibility 0s, opacity 1s ease;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #F7F8FB;
+    color: #7A869A;
+    height: 18px;
+    font-size: 10px;
+      i {
+        font-size: 9px;
+      }
       &:hover {
-
+        color: $color-black;
       }
   }
   &:hover .remove-to-sprint {
@@ -87,6 +83,15 @@
     opacity: 1;
   }
 }
+
+
+.dates-section {
+  margin-bottom: 3px;
+}
+.tags-section {
+  margin-bottom: 5px;
+}
+
 
 
 /* old design

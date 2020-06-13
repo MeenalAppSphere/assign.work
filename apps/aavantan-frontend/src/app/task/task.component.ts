@@ -29,7 +29,7 @@ import {
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { ActivatedRoute, NavigationEnd, Router, RouterEvent } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
@@ -45,6 +45,7 @@ import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query'
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { SprintService } from '../shared/services/sprint/sprint.service';
+import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -126,6 +127,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   public progressData: TaskTimeLogResponse;
   public uploadingImage: boolean;
 
+  public completionDate: Date = new Date();
+  public today:Date = new Date();
+  public dateFormat = 'MM/dd/yyyy';
+  public disabledDate: any;
+
   public panels: any[] = [{
     active: false,
     name: 'Time log history',
@@ -155,7 +161,8 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _taskTypeQuery: TaskTypeQuery,
               private themeService: ThemeConstantService,
               private _sprintService: SprintService,
-              private modal: NzModalService) {
+              private modal: NzModalService
+  ) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -174,7 +181,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     //   }
     // });
   }
-
   ngOnInit() {
 
     this.themeService.toggleFold(true);
@@ -189,6 +195,15 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.isUpdateMode = this.displayName.includes('-');
 
     this.sprintData = this._generalService.currentProject.sprint;
+
+    const minDate = this.today.setDate(this.today.getDate() - 1); // returns epoch time
+
+    this.disabledDate = (startValue: Date): boolean => {
+        if (!this.completionDate) {
+          return false;
+        }
+        return minDate >= startValue.getTime();
+      };
 
     this.taskForm = this.FB.group({
       projectId: [null],
@@ -208,7 +223,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       watchers: [null],
       estimatedTime: [null],
       remainingHours: [null],
-      remainingMinutes: [null]
+      remainingMinutes: [null],
+      completionDate: new FormControl(null, []),
     });
 
     // for sidebar controls
@@ -216,10 +232,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       projectId: [null],
       watchers: [null],
       tags: [null],
-      epic: [null],
-      estimatedTime: [null],
-      remainingHours: [null],
-      remainingMinutes: [null]
+      epic: [null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -681,7 +694,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.pinnedCommentsList.unshift(comment.comment);
         setTimeout(() => {
           this.showPinnedCommentsList = true;
-          this.cdr.detectChanges();
+          this.detectChanges();
         }, 10);
 
       } else {
@@ -697,7 +710,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         });
         setTimeout(() => {
           this.showPinnedCommentsList = true;
-          this.cdr.detectChanges();
+          this.detectChanges();
         }, 10);
       }
     }
@@ -959,7 +972,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
     } else if (status === 'error') {
-      const message = file.error ? file.error.error.message : file.name +'file upload failed.';
+      const message = file.error ? file.error.error.message : file.name + 'file upload failed.';
       this.notification.error('Error', message);
     }
   }
@@ -984,7 +997,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   // save left side task form on click on save button
-  async saveForm(isUpdateFromSideBar?:boolean) {
+  async saveForm(isUpdateFromSideBar?: boolean) {
     const task: Task = { ...this.taskForm.getRawValue() };
 
     task.projectId = this.currentProject.id;
@@ -1019,8 +1032,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       if (this.taskId) {
 
         // task estimate data from side bar if already filled
-        const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
-        const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
+        const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
+        const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
         task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
 
         this.updateTask(task, isUpdateFromSideBar);
@@ -1077,9 +1090,9 @@ export class TaskComponent implements OnInit, OnDestroy {
       task.watchers = this.taskData.watchers;
       task.tags = this.taskData.tags;
 
-      if(isUpdateFromSideBar) {
+      if (isUpdateFromSideBar) {
         this.updateSidebarContentInProcess = true;
-      }else {
+      } else {
         this.createTaskInProcess = true;
       }
 
@@ -1118,8 +1131,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     const rhours = Math.floor(hours);
     const minutes = (hours - rhours) * 60;
     const rminutes = Math.round(minutes);
-    this.taskFormSideBar.get('remainingHours').patchValue(rhours);
-    this.taskFormSideBar.get('remainingMinutes').patchValue(rminutes);
+    this.taskForm.get('remainingHours').patchValue(rhours);
+    this.taskForm.get('remainingMinutes').patchValue(rminutes);
     return {
       h: rhours,
       m: rminutes
@@ -1183,7 +1196,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     // this.selectedRelatedItem = task;
   }
 
-
   /* comment */
   async saveComment() {
     this.createCommentInProcess = true;
@@ -1226,7 +1238,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async getLogHistory(event?: any) {
     try {
       if (event) {
@@ -1244,8 +1255,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  private detectChanges() {
+    if (!this.cdr['destroyed']) {
+      this.cdr.detectChanges();
+    }
+  }
+
   public ngOnDestroy() {
     this.themeService.toggleFold(false);
   }
-
 }

@@ -34,7 +34,7 @@
 <nz-dropdown-menu #menu="nzDropdownMenu">
   <ul nz-menu>
     <li nz-menu-item
-        *ngFor="let user of projectMembers | slice:11:projectMembers.length;"
+        *ngFor="let user of projectMembers | slice:10:projectMembers.length;"
         class="collaborators-avatar p-l-10 p-b-5">
 
       <nz-avatar (click)="selectMember(user)" *ngIf="!user?.userDetails.profilePic"

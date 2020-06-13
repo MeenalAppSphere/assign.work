@@ -21,6 +21,7 @@ import { BoardModule } from '../board/board.module';
 import { TaskCommentModule } from '../task-comment/task-comment.module';
 import { environment } from '../environments/environment';
 import { SprintReportModule } from '../sprint-report/sprint-report.module';
+import { AppGateway } from './app.gateway';
 
 // set db connection string on basis of environment
 const dbConnectionString = environment.production ? process.env.DB_CONNECTION_STRING_PROD : process.env.DB_CONNECTION_STRING_DEV;
@@ -50,6 +51,9 @@ const dbConnectionString = environment.production ? process.env.DB_CONNECTION_ST
     BoardModule,
     TaskCommentModule,
     SprintReportModule
+  ],
+  providers: [
+    AppGateway
   ],
   controllers: []
 })
