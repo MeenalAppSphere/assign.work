@@ -174,32 +174,28 @@
                        [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}" [dndDraggable]="task"
                        (dndStart)="onDragStart(item)" [dndEffectAllowed]="'move'">
 
-
-
-
-
                     <div class="task-body">
 
                       <!-- task type, remove sprint button, Reporter -->
                       <div class="d-flex flex-row justify-content-between duration">
 
                           <!-- task type -->
-                          <a class="cursor-pointer font-size-12 font-weight-semibold" [ngStyle]="{'color': task.task.taskType.color}"
+                          <a class="cursor-pointer font-size-12 font-weight-semibold text-primary"
                            nz-tooltip [nzTitle]="task.task.priority.name ? task.task.priority.name : 'No Priority'"
                            routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
 
                         <span class="d-flex justify-content-between">
                           <!-- remove sprint button -->
-                          <span nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint m-r-10"
+                          <span nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint"
                                 (click)="removeTaskToSprint(task.taskId)">
                             <i nz-icon nzType="close" nzTheme="outline"></i> Remove from sprint
                           </span>
 
-                          <!-- Reporter -->
-                          <span class="profile-name inline-block text-right m-0"
+                          <!-- Reporter
+                          <span class="profile-name inline-block text-right m-0" style="margin-right: -5px!important;"
                              nz-tooltip [nzTitle]="'Reporter: '+task.task.createdBy.firstName+' '+ task.task.createdBy.lastName">
                             <profile-name [isTooltip]="false" [user]="task.task?.createdBy"></profile-name>
-                          </span>
+                          </span>-->
                         </span>
 
                       </div>
@@ -212,16 +208,16 @@
                         </a>
 
                       <!-- Status -->
-                      <div class="m-b-10 d-flex flex-row justify-content-between">
+                      <div class="d-flex flex-row justify-content-between tags-section">
                         <nz-tag [nzColor]="task.task.status?.color ? task.task.status?.color : '#F7F8FB' " class="text-black status-tag">{{task.task.status.name}}</nz-tag>
                       </div>
 
                       <!-- Completion date and item age -->
-                      <div class="m-b-10 d-flex flex-row justify-content-between duration">
+                      <div class="d-flex flex-row justify-content-between duration dates-section">
 
-                        <span><span class="text-black">Target date: </span><span class="text-gray-light-2">22 June, 2020</span></span>
+                        <span><span class="text-black">Target Date: </span><span class="text-gray-light-2">22 June, 2020</span></span>
 
-                        <span><span class="text-gray-light-2">Age:</span> 2 days</span>
+                        <span><span class="text-gray-light-2">Age:</span><span class="font-size-12"> 2</span> days</span>
 
                       </div>
 
@@ -231,20 +227,19 @@
                     <div class="task-footer">
 
                       <!-- Assignee and Time log -->
-                      <div class="d-flex flex-row justify-content-between">
+                      <div class="row">
 
-                          <span nz-tooltip
-                                [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
-                            <nz-avatar class="m-r-5" nzIcon="user"
-                                       nzSrc="{{task.task.assignee.profilePic}}"
-                                       nzShape="circle"></nz-avatar>
-                            <span class="profile-name text-dark">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span>
+                        <div class="col">
+                          <span nz-tooltip [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
+                            <profile-name [user]="task.task.assignee" [isTooltip]="false" [fullName]="true" class="text-dark"></profile-name>
                           </span>
+                        </div>
 
+                        <div class="col">
                           <span class="pull-right">
 
                             <span class="p-r-10">
-                               <span class="float-right duration">
+                               <span class="duration">
                                   <span nz-tooltip [nzTitle]="'Logged time'"
                                         class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
                                   <span nz-tooltip [nzTitle]="'Estimated time'"
@@ -254,10 +249,11 @@
 
                             <a (click)="showTimeLogModal(columnIndex, i, task.task)"
                                href="javascript:void(0);"
-                               class="text-primary">
+                               class="text-primary" nz-tooltip [nzTitle]="'Time Log'">
                             <i nz-icon nzType="clock-circle" theme="outline"></i></a>
 
                           </span>
+                        </div>
 
                       </div>
 

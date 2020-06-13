@@ -10,9 +10,9 @@ $red:                       #de4436 !default;
 $orange:                    #fa8c16 !default;
 $gold:                      #ffc107 !default;
 $green:                     #52c41a !default;
-$blue:                      #3f87f5 !default; 
+$blue:                      #3f87f5 !default;
 $cyan:                      #00c9a7 !default;
-$purple:                    #886cff  !default; 
+$purple:                    #886cff  !default;
 $magenta:                   #eb2f96 !default;
 $volcano:                   #fa541c !default;
 $lime:                      #a0d911 !default;
@@ -22,42 +22,42 @@ $geekblue:                  #2f54eb !default;
 // Create grayscale
 $gray-dark:                 #2a2a2a !default;
 $gray:                      #53535f !default;
-$gray-light:                #72849a  !default; 
+$gray-light:                #72849a  !default;
 $gray-lighter:              #ededed !default;
 $gray-lightest:             #f1f2f3 !default;
 
 // Two Tones
-$tone-magenta:              $magenta !default;  
-$tone-magenta-light:        rgba($magenta, 0.05) !default; 
+$tone-magenta:              $magenta !default;
+$tone-magenta-light:        rgba($magenta, 0.05) !default;
 
-$tone-red:                  $red !default;  
-$tone-red-light:            rgba($red, 0.05) !default;    
+$tone-red:                  $red !default;
+$tone-red-light:            rgba($red, 0.05) !default;
 
-$tone-volcano:              $volcano !default;  
-$tone-volcano-light:        rgba($volcano, 0.05) !default; 
+$tone-volcano:              $volcano !default;
+$tone-volcano-light:        rgba($volcano, 0.05) !default;
 
-$tone-orange:               $orange !default;  
-$tone-orange-light:         rgba($orange, 0.1) !default; 
+$tone-orange:               $orange !default;
+$tone-orange-light:         rgba($orange, 0.1) !default;
 
-$tone-gold:                 $gold !default;  
+$tone-gold:                 $gold !default;
 $tone-gold-light:           rgba($gold, 0.1) !default;
 
-$tone-lime:                 $lime !default;  
+$tone-lime:                 $lime !default;
 $tone-lime-light:           rgba($lime, 0.1) !default;
 
-$tone-green:                $green !default;  
+$tone-green:                $green !default;
 $tone-green-light:          rgba($green, 0.1) !default;
 
-$tone-cyan:                 $cyan !default;  
+$tone-cyan:                 $cyan !default;
 $tone-cyan-light:           rgba($cyan, 0.1) !default;
 
-$tone-blue:                 $blue !default;  
+$tone-blue:                 $blue !default;
 $tone-blue-light:           rgba($blue, 0.1) !default;
 
-$tone-geekblue:             $geekblue !default;  
+$tone-geekblue:             $geekblue !default;
 $tone-geekblue-light:       rgba($geekblue, 0.1) !default;
 
-$tone-purple:               $purple !default;  
+$tone-purple:               $purple !default;
 $tone-purple-light:         rgba($purple, 0.1) !default;
 
 
@@ -201,7 +201,8 @@ $spacers: map-merge(
 //
 // Font-weight, line-height, font-size
 // $font-family-sans-serif:    'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-$font-family-sans-serif:    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+// $font-family-sans-serif:    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-sans-serif:    'Avenir';
 $font-family-base:          $font-family-sans-serif !default;
 
 $font-weight-light:         300 !default;
@@ -361,10 +362,10 @@ $alert-padding-x:                .9375rem !default;
 $alert-padding-y:                .5rem !default;
 $alert-padding-w-icon:           2.3125rem !default;
 $alert-border-radius:            $border-radius !default;
-$alert-text-color:               $body-color !default;           
+$alert-text-color:               $body-color !default;
 
 $alert-loop: (
-    alert-success   $state-success-bg   $state-success-text   $state-success-border,  
+    alert-success   $state-success-bg   $state-success-text   $state-success-border,
     alert-info      $state-info-bg      $state-info-text      $state-info-border,
     alert-warning   $state-warning-bg   $state-warning-text   $state-warning-border,
     alert-error     $state-danger-bg    $state-danger-text    $state-danger-border
@@ -410,10 +411,10 @@ $input-error-color:              $state-danger-text !default;
 $input-warning-color:            $state-warning-text !default;
 $input-success-color:            $state-success-text !default;
 
-$textarea-min-height:            32px !default; 
+$textarea-min-height:            32px !default;
 
 $checkbox-theme-color:           $brand-primary !default;
-$checkbox-width-height:          1.25rem !default;      
+$checkbox-width-height:          1.25rem !default;
 $checkbox-line-height:           1 !default;
 $checkbox-top-adjust:            -.09em !default;
 $checkbox-position-left:         0.325rem !default;
@@ -421,7 +422,7 @@ $checkbox-position-top:          0.535rem !default;
 $checkbox-disable-bg:            $gray-lighter !default;
 
 $radio-theme-color:              $brand-primary !default;
-$radio-width-height:             1.25rem !default;   
+$radio-width-height:             1.25rem !default;
 $radio-gutter:                   0.625rem !default;
 $radio-dot-size:                 0.625rem !default;
 $radio-position-left:            0.1875rem !default;
@@ -506,12 +507,12 @@ $card-img-overlay-padding:    1.25rem !default;
 // List
 //
 //
-$list-spacer-x:               1.5rem !default;  
-$list-spacer-y:               0.9375rem !default;  
-$list-spacer-x-sm:            1rem !default; 
-$list-spacer-y-sm:            .5rem !default; 
-$list-spacer-x-lg:            1.5rem !default; 
-$list-spacer-y-lg:            1rem !default; 
+$list-spacer-x:               1.5rem !default;
+$list-spacer-y:               0.9375rem !default;
+$list-spacer-x-sm:            1rem !default;
+$list-spacer-y-sm:            .5rem !default;
+$list-spacer-x-lg:            1.5rem !default;
+$list-spacer-y-lg:            1rem !default;
 $list-item-hover:             $select-item-hover !default;
 $list-item-title-color:       $gray-dark !default;
 $list-item-title-hover:       $brand-primary !default;
@@ -522,9 +523,9 @@ $list-item-title-hover:       $brand-primary !default;
 //
 //
 $timeline-theme-color:          $brand-primary !default;
-$timeline-gutter:               1.25rem !default;  
-$timeline-line-color:           #ececec !default;  
-$timeline-dot-size:             .625rem !default; 
+$timeline-gutter:               1.25rem !default;
+$timeline-line-color:           #ececec !default;
+$timeline-dot-size:             .625rem !default;
 $timeline-dot-bg:               $white !default;
 
 
@@ -532,9 +533,9 @@ $timeline-dot-bg:               $white !default;
 //
 // Define Calendar Spacing
 $calendar-date-theme-color:      $brand-primary !default;
-$calendar-date-x:                2rem !default;  
-$calendar-date-y:                2rem !default;  
-$calendar-date-line-height:      2rem - 0.125rem !default; 
+$calendar-date-x:                2rem !default;
+$calendar-date-y:                2rem !default;
+$calendar-date-line-height:      2rem - 0.125rem !default;
 $calendar-date-text-color:       $body-color !default;
 $calendar-year-month-height:     1.875rem !default;
 
@@ -591,15 +592,15 @@ $menu-dark-text:                #99abb4 !default;
 
 //Pagination
 $pagination-theme-color:        $brand-primary !default;
-$pagination-size:               2rem !default;   
-$pagination-size-sm:            1.5rem !default;   
+$pagination-size:               2rem !default;
+$pagination-size-sm:            1.5rem !default;
 
 
 
 // Collapse
 //
-// 
-$collapse-border:               $border-color !default;    
+//
+$collapse-border:               $border-color !default;
 $collapse-bg:                   #fafafa !default;
 $collapse-header-spacing:       0.75rem 2.5rem 0.75rem 2.5rem !default;
 $collapse-header-color:         $gray-dark !default;
@@ -609,13 +610,13 @@ $collapse-content-spacing:      1rem !default;
 
 // Tabs
 //
-// 
+//
 $tabs-theme-color:             $brand-primary !default;
 $tabs-border:                  $border-color !default;
 $tabs-gap:                     1.25rem !default;
 $tabs-arrow-color:             $body-color !default;
 $tabs-arrow-color-hover:       $gray-dark !default;
-$tabs-arrow-width:             2rem !default;  
+$tabs-arrow-width:             2rem !default;
 $tabs-toggler-padding-x:       1.25rem !default;
 $tabs-toggler-padding-y:       .75rem !default;
 $tabs-toggler-sm:              0.8125rem !default;
@@ -628,7 +629,7 @@ $tabs-card-toggler-bg:         $gray-lightest !default;
 
 // Tag
 //
-// 
+//
 $tag-theme-color:              $brand-primary !default;
 $tag-bg:                       $white !default;
 $tag-height:                   1.7rem !default;
@@ -639,7 +640,7 @@ $tag-line-height:              2.1 !default;
 
 // Popover & Tooltips
 //
-// 
+//
 $popover-placement-gutter:     .625rem !default;
 $tooltip-placement-gutter:     .5rem !default;
 $tooltip-bg:                   #404040 !default;
@@ -660,7 +661,7 @@ $modal-footer-padding:         0.625rem 1rem !default;
 
 // Notification
 //
-// 
+//
 $notification-width:           385px !default;
 
 
@@ -668,8 +669,8 @@ $notification-width:           385px !default;
 // Avatar
 //
 // Define avatar size & default background
-$avatar-bg:                        $gray-lightest !default;                  
-$avatar-size:                      2.5rem !default;  
+$avatar-bg:                        $gray-lightest !default;
+$avatar-size:                      2.5rem !default;
 $avatar-size-sm:                   1.5rem !default;
 $avatar-size-lg:                   3rem !default;
 $avatar-icon:                      1rem !default;
@@ -680,7 +681,7 @@ $avatar-icon-lg:                   1.5rem !default;
 
 // Loading
 //
-// 
+//
 $loading-color:                    $brand-primary !default;
 
 

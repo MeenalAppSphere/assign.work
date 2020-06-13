@@ -24,8 +24,8 @@
 .status-tag {
   border-radius: 10px;
   font-size: 10px;
-  height: 1.25rem;
-  line-height: 1.25rem;
+  height: 1rem;
+  line-height: 1rem;
   color: #ffffff!important;
 }
 
@@ -65,7 +65,7 @@
     cursor: pointer;
     text-align: center;
     width: auto;
-    padding: 1px 7px;
+    padding: 2px 7px;
     border-radius: 10px;
     background: #F7F8FB;
     color: #7A869A;
@@ -83,6 +83,15 @@
     opacity: 1;
   }
 }
+
+
+.dates-section {
+  margin-bottom: 3px;
+}
+.tags-section {
+  margin-bottom: 5px;
+}
+
 
 
 /* old design

@@ -547,7 +547,7 @@
       border-top-left-radius: 0px;
       border-top-right-radius: 0px;
       .task-card {
-        padding: 8px 0px 0px 0px;
+        padding: 12px 0px 0px 0px;
         box-shadow: 1px 1px 3px -2px #a19e9e;
         margin-bottom: 10px;
         border-radius: 4px;
@@ -564,17 +564,17 @@
         }
       }
       .task-body {
-        padding: 0px 12px;
+        padding: 0px 7px;
 
         .task-title{
           height: 21px;
-          font-size: 14px;
+          font-size: 13px;
           color: $theme-blue;
           line-height: 21px;
         }
       }
       .task-footer {
-        padding: 9px 13px;
+        padding: 7px 7px;
         margin-top: 3px;
         font-size: 12px;
         font-weight: 300;
