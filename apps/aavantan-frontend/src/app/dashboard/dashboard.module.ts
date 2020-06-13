@@ -23,7 +23,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
 
-const socketConfig: SocketIoConfig = { url: environment.apiUrl.replace('/api', ''), options: {} };
+const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
 @NgModule({
   imports: [
