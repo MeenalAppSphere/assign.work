@@ -107,6 +107,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public displayName: string;
   public isUpdateMode: boolean;
   public taskData: Task;
+  public taskAge:number;
   public taskId: string;
   public sprintData: Sprint;
   public attachementHeader: any;
@@ -830,6 +831,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.currentTask = res.data;
       this.taskData = res.data;
 
+      this.calculateTaskAge();
+
       this.taskForm.patchValue(this.taskData);
 
       //sidebar form
@@ -884,6 +887,13 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
       this.getTaskInProcess = false;
     }
+  }
+
+  // calculate task age = today - created at
+  public calculateTaskAge() {
+    const date1:any = new Date(this.taskData.createdAt);
+    const date2:any = new Date();
+    this.taskAge = Math.ceil(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
   }
 
   async getMessage(hideLoader?: boolean) {

@@ -27,7 +27,18 @@
       <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
         <h5>{{taskId ? displayName : 'Create Task'}}
           <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText"
-               class="p-l-10"/>
+               class="p-l-10 m-r-20"/>
+
+          <span *ngIf="taskId && taskData?.createdBy" class="font-size-12 d-inline-flex">
+            <span class="font-weight-semibold">Reporter:&nbsp;</span>
+            <profile-name class="text-gray-light-2" [avatarSize]="18" [fullName]="true" [user]="taskData?.createdBy"></profile-name>
+          </span>
+
+          <span class="font-size-12 p-l-20" *ngIf="taskId && taskAge">
+               <span class="font-weight-semibold">Item Age: </span>
+                <span class="text-gray-light-2">{{taskAge}} days</span>
+          </span>
+
           <ng-template #templateTitleText>
             About create and update task
           </ng-template>
