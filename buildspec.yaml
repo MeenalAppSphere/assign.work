@@ -2,7 +2,7 @@ version: 0.2
 
 env:
     variables:
-        S3_BUCKET: "assign-work"
+        S3_BUCKET: "assign-work-staging"
         S3_APP_BUCKET: "app"
         BUILD_ENV : "prod"
 
