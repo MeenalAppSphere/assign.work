@@ -51,6 +51,7 @@ export class Task {
   updatedBy?: User;
   createdAt?: Date;
   updatedAt?: Date;
+  completionDate?: Date;
   isSelected?: boolean;
   watchersDetails?: User[];
   completionDate?: Date;

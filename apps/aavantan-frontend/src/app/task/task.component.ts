@@ -29,7 +29,7 @@ import {
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { ActivatedRoute, NavigationEnd, Router, RouterEvent } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
@@ -127,6 +127,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   public progressData: TaskTimeLogResponse;
   public uploadingImage: boolean;
 
+  public completionDate: Date = new Date();
+  public today:Date = new Date();
+  public dateFormat = 'MM/dd/yyyy';
+  public disabledDate: any;
+
   public panels: any[] = [{
     active: false,
     name: 'Time log history',
@@ -191,6 +196,15 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     this.sprintData = this._generalService.currentProject.sprint;
 
+    const minDate = this.today.setDate(this.today.getDate() - 1); // returns epoch time
+
+    this.disabledDate = (startValue: Date): boolean => {
+        if (!this.completionDate) {
+          return false;
+        }
+        return minDate >= startValue.getTime();
+      };
+
     this.taskForm = this.FB.group({
       projectId: [null],
       name: [null, [Validators.required]],
@@ -209,7 +223,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       watchers: [null],
       estimatedTime: [null],
       remainingHours: [null],
-      remainingMinutes: [null]
+      remainingMinutes: [null],
+      completionDate: new FormControl(null, []),
     });
 
     // for sidebar controls
@@ -217,10 +232,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       projectId: [null],
       watchers: [null],
       tags: [null],
-      epic: [null],
-      estimatedTime: [null],
-      remainingHours: [null],
-      remainingMinutes: [null]
+      epic: [null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -1020,8 +1032,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       if (this.taskId) {
 
         // task estimate data from side bar if already filled
-        const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
-        const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
+        const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
+        const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
         task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
 
         this.updateTask(task, isUpdateFromSideBar);
@@ -1119,8 +1131,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     const rhours = Math.floor(hours);
     const minutes = (hours - rhours) * 60;
     const rminutes = Math.round(minutes);
-    this.taskFormSideBar.get('remainingHours').patchValue(rhours);
-    this.taskFormSideBar.get('remainingMinutes').patchValue(rminutes);
+    this.taskForm.get('remainingHours').patchValue(rhours);
+    this.taskForm.get('remainingMinutes').patchValue(rminutes);
     return {
       h: rhours,
       m: rminutes

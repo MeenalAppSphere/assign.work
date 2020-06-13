@@ -1,3 +1,5 @@
+@import "../../scss/custom_variable";
+
 #row-main {
   /* necessary to hide collapsed sidebar */
   overflow-x: hidden;
@@ -89,11 +91,27 @@
 }
 
 .add-task-to-sprint {
-  padding-top: 23px;
+  padding-top: 15px;
+  margin-bottom: 15px;
   button {
     padding-bottom: 7px!important;
     padding-top: 7px!important;
+    border-radius: 44px;
+    span {
+      text-shadow: none!important;
+    }
   }
+
+  button.add{
+    background: #F7F8FB;
+    color:$color-gray-light-3!important;
+  }
+
+  button.remove{
+    background: #FFF2F2;
+    color:$color-red!important;
+  }
+
 }
 #sidebar {
   height: calc(100vh);
