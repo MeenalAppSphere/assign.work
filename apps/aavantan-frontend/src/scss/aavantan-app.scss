@@ -191,6 +191,9 @@ nz-modal {
   font-size: 13px!important;
   border-radius: 3px;
 }
+.ant-btn>.anticon+span, .ant-btn>span+.anticon {
+  text-shadow: none!important;
+}
 .ant-form-item-label{
   line-height: 22px;
 }
@@ -528,6 +531,16 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     }
     .ant-input{
       padding: 5px;
+    }
+  }
+}
+
+.task-completion-date {
+  .ant-calendar-picker {
+    width: 100%;
+
+    .ant-input {
+      padding: 0.27rem 10px;
     }
   }
 }

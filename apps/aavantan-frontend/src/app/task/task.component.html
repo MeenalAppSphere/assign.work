@@ -34,7 +34,12 @@
             <profile-name class="text-gray-light-2" [avatarSize]="18" [fullName]="true" [user]="taskData?.createdBy"></profile-name>
           </span>
 
-          <span class="font-size-12 p-l-20" *ngIf="taskId && taskAge">
+          <span class="font-size-12 p-l-10" *ngIf="taskId && taskData.createdAt">
+               <span class="font-weight-semibold">Created At: </span>
+                <span class="text-gray-light-2">{{taskData.createdAt | date : 'mediumDate' }}</span>
+          </span>
+
+          <span class="font-size-12 p-l-10" *ngIf="taskId && taskAge">
                <span class="font-weight-semibold">Item Age: </span>
                 <span class="text-gray-light-2">{{taskAge}} days</span>
           </span>
@@ -132,7 +137,6 @@
             </nz-form-item>
           </div>
 
-
           <div class="col-md-2">
             <nz-form-item>
               <nz-form-label>Priority</nz-form-label>
@@ -165,6 +169,42 @@
         </div>
         <!-- row 1-->
 
+        <!-- row 2-->
+        <div class="row row-2">
+
+          <div class="col-md-3">
+
+            <nz-form-item class="task-completion-date">
+              <nz-form-label nzFor="taskType">Completion Date</nz-form-label>
+              <nz-form-control>
+                <nz-date-picker [(ngModel)]="completionDate" placeholder="Select Date" [nzDisabledDate]="disabledDate" formControlName="completionDate" [nzFormat]="dateFormat"></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+
+          </div>
+
+          <div class="col-md-3">
+
+            <nz-form-item class="m-b-5">
+              <nz-form-label>Estimate Time</nz-form-label>
+              <nz-form-control class="estimate-box">
+                <div>
+                  <input nz-input [disabled]="!taskId" numeric numericType="number" maxlength="2" formControlName="remainingHours"
+                         nzSize="small" type="text" placeholder="3"/>
+                  <span>Hrs</span>
+                </div>
+                <div>
+                  <input nz-input [disabled]="!taskId" numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes"
+                         nzSize="small" type="text" placeholder="30"/>
+                  <span>Mins</span>
+                </div>
+              </nz-form-control>
+            </nz-form-item>
+
+          </div>
+
+        </div>
+        <!-- row 2-->
 
         <!-- row 4-->
         <div class="row">
@@ -283,22 +323,22 @@
                     nzType="primary" class="m-r-5 btn-save-task">Save
             </button>
 
-            <ng-container>
-              <button nz-dropdown type="button" [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomRight"
-                      nzType="link" nzSize="small" class="float-right btn-ellipsis" nz-button>
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
-              <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
-                <ul nz-menu>
-                  <li nz-menu-item>
-                    Create Sub Task
-                  </li>
-                  <li nz-menu-item>
-                    Delete
-                  </li>
-                </ul>
-              </nz-dropdown-menu>
-            </ng-container>
+<!--            <ng-container>-->
+<!--              <button nz-dropdown type="button" [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomRight"-->
+<!--                      nzType="link" nzSize="small" class="float-right btn-ellipsis" nz-button>-->
+<!--                <i class="fas fa-ellipsis-v"></i>-->
+<!--              </button>-->
+<!--              <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">-->
+<!--                <ul nz-menu>-->
+<!--                  <li nz-menu-item>-->
+<!--                    Create Sub Task-->
+<!--                  </li>-->
+<!--                  <li nz-menu-item>-->
+<!--                    Delete-->
+<!--                  </li>-->
+<!--                </ul>-->
+<!--              </nz-dropdown-menu>-->
+<!--            </ng-container>-->
           </div>
         </div>
         <div class="row" style="padding-top: 10px; border-top: 2px solid #e1e3e5; margin-top: 10px;">
@@ -435,35 +475,16 @@
           </div>
 
 
-          <div class="col-md-6">
-            <nz-form-item *ngIf="taskId" class="m-b-5">
-              <nz-form-label>Estimate Time</nz-form-label>
-              <nz-form-control class="estimate-box">
-                <div>
-                  <input nz-input numeric numericType="number" maxlength="2" formControlName="remainingHours"
-                         nzSize="small" type="text" placeholder="3" (blur)="saveTaskSideBar()"/>
-                  <span>Hrs</span>
-                </div>
-                <div>
-                  <input nz-input numeric numericType="minutes" maxlength="2" formControlName="remainingMinutes"
-                         nzSize="small" type="text" placeholder="30" (blur)="saveTaskSideBar()"/>
-                  <span>Mins</span>
-                </div>
-              </nz-form-control>
-            </nz-form-item>
-          </div>
+          <div class="col-md-12 add-task-to-sprint">
 
-
-          <div class="col-md-6 text-right add-task-to-sprint">
-
-              <button *ngIf="taskData?.sprintId" nzType="primary" nzSize="small" nz-button nz-tooltip nzTitle="Remove from running sprint"
+              <button *ngIf="taskData?.sprintId" nzType="primary" class="remove" nzSize="small" nz-button nz-tooltip nzTitle="Remove from running sprint"
                       (click)="removeTaskToSprint()">
-                Remove From Sprint
+                <i nz-icon nzType="close" nzTheme="outline"></i>Remove From Sprint
               </button>
 
-              <button *ngIf="sprintData?.id && !taskData?.sprintId" nzType="primary" nzSize="small"  nz-button nz-tooltip nzTitle="Add to running sprint"
+              <button *ngIf="sprintData?.id && !taskData?.sprintId" class="add" nzType="primary" nzSize="small"  nz-button nz-tooltip nzTitle="Add to running sprint"
                       (click)="addTaskToSprint()">
-                Add to Sprint
+                <i nz-icon nzType="plus" nzTheme="outline"></i>Add to Sprint
               </button>
 
           </div>
