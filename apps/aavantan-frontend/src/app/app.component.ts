@@ -11,57 +11,10 @@ import { GeneralService } from './shared/services/general.service';
 export class AppComponent implements OnInit, OnDestroy {
   public isLoading: boolean = false;
 
-  constructor(private router: Router, private socket: Socket, private generalService: GeneralService) {
+  constructor(private router: Router) {
   }
 
   ngOnInit(): void {
-    Notification.requestPermission();
-
-    this.socket.emit('connect-task', this.generalService.user._id);
-
-    // task created
-    this.socket.on('task-created', (res: { msg: string, link: string }) => {
-      const notification = new Notification('Task Created', {
-        body: res.msg
-      });
-
-      notification.onclick = ((ev: Event) => {
-        this.router.navigateByUrl(res.link);
-      });
-    });
-
-    // task updated
-    this.socket.on('task-updated', (res: { msg: string, link: string }) => {
-      const notification = new Notification('Task Updated', {
-        body: res.msg
-      });
-
-      notification.onclick = ((ev: Event) => {
-        this.router.navigateByUrl(res.link);
-      });
-    });
-
-    // comment added
-    this.socket.on('comment-added', (res: { msg: string, link: string }) => {
-      const notification = new Notification('Comment Added', {
-        body: res.msg
-      });
-
-      notification.onclick = ((ev: Event) => {
-        this.router.navigateByUrl(res.link);
-      });
-    });
-
-    // comment updated
-    this.socket.on('comment-updated', (res: { msg: string, link: string }) => {
-      const notification = new Notification('Comment Updated', {
-        body: res.msg
-      });
-
-      notification.onclick = ((ev: Event) => {
-        this.router.navigateByUrl(res.link);
-      });
-    });
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
@@ -73,7 +26,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.socket.emit('disconnect');
   }
 
 }

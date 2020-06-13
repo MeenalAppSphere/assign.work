@@ -72,6 +72,8 @@ export class TaskComments {
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
   isPinned: boolean;
+  pinnedById: string;
+  pinnedBy?: User;
 }
 
 export class TaskHistory {

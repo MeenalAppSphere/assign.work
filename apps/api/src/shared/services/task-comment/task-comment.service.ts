@@ -24,7 +24,7 @@ import { TaskGateway } from '../../../task/task.gateway';
 /**
  * common task population object
  */
-const taskBasicPopulation: any[] = [{
+const commentFullPopulation: any[] = [{
   path: 'createdBy',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
@@ -128,7 +128,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       // send email for comment added
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentAdded, 'comment-added');
 
-      this._taskGateWay.taskCommentAdded(commentDetails, taskDetails, projectDetails);
+      this._taskGateWay.commentAdded(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;
@@ -191,7 +191,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       // send email
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentUpdated, 'comment-updated');
 
-      this._taskGateWay.taskCommentUpdated(commentDetails, taskDetails, projectDetails);
+      this._taskGateWay.commentUpdated(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;
@@ -254,8 +254,8 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       await this.updateById(commentDetails.id, {
         $set: {
           updatedAt: generateUtcDate(), updatedById: this._generalService.userId,
-          isPinned: requestModel.isPinned, pinnedById: requestModel.isPinned ? this._generalService.userId : null,
-          pinnedAt: requestModel.isPinned ? generateUtcDate() : null
+          isPinned: requestModel.isPinned, pinnedById: this._generalService.userId,
+          pinnedAt: generateUtcDate()
         }
       }, session);
 
@@ -272,6 +272,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
         requestModel.isPinned ? EmailSubjectEnum.taskCommentPinned : EmailSubjectEnum.taskCommentUnPinned,
         requestModel.isPinned ? 'pinned-comment' : 'un-pinned-comment');
 
+      this._taskGateWay.commentPinned(commentDetails, taskDetails, projectDetails);
       // return message
       return `Comment ${requestModel.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
     } catch (e) {
@@ -287,7 +288,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
     const comments = await this.find({
       filter: { taskId },
-      populate: taskBasicPopulation,
+      populate: commentFullPopulation,
       lean: true
     });
 
@@ -313,7 +314,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
         BadRequest('Task Comment not found..');
       }
 
-      const populate = getFullDetails ? taskBasicPopulation : [];
+      const populate = getFullDetails ? commentFullPopulation : [];
       const taskCommentDetail = await this.findOne({
         filter: { _id: commentId, taskId },
         lean: true, populate

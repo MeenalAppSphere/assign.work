@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
@@ -20,6 +20,8 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardService } from '../shared/services/board/board.service';
 import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
+import { Socket } from 'ngx-socket-io';
+import { environment } from '../../environments/environment';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -41,10 +43,55 @@ export class DashboardComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
-              private _taskTypeService: TaskTypeService, private _boardService: BoardService) {
+              private _taskTypeService: TaskTypeService, private _boardService: BoardService, private socket: Socket,
+              private ngZone: NgZone) {
   }
 
   ngOnInit() {
+
+    Notification.requestPermission();
+
+    this.socket.on('connection', () => {
+      // console.log('connection');
+    });
+
+    this.socket.on('disconnect', () => {
+      // console.log('disconnect');
+    });
+
+    this.socket.on('connected-successfully', () => {
+      this.socket.emit('connect-tasks', this._generalService.user._id);
+    });
+
+    // task created
+    this.socket.on('task-created', (res: { msg: string, link: string }) => {
+      this.createNotification('Task Created', res);
+    });
+
+    // task updated
+    this.socket.on('task-updated', (res: { msg: string, link: string }) => {
+      this.createNotification('Task Updated', res);
+    });
+
+    // comment added
+    this.socket.on('comment-added', (res: { msg: string, link: string }) => {
+      this.createNotification('Comment Added', res);
+    });
+
+    // comment updated
+    this.socket.on('comment-updated', (res: { msg: string, link: string }) => {
+      this.createNotification('Comment Updated', res);
+    });
+
+    // comment pinned
+    this.socket.on('comment-pinned', (res: { msg: string, link: string }) => {
+      this.createNotification('Comment Pinned', res);
+    });
+
+    // comment un pinned
+    this.socket.on('comment-unpinned', (res: { msg: string, link: string }) => {
+      this.createNotification('Comment UnPinned', res);
+    });
 
     // listen for user from store
     this._userQuery.user$.pipe(
@@ -278,7 +325,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
   }
 
+  private createNotification(title: string, res: { msg: string, link: string }) {
+    const notification = new Notification(title, {
+      body: res.msg,
+      icon: 'assets/images/logo/logo.png',
+      vibrate: 1
+    });
+
+    notification.onclick = ((ev: Event) => {
+      this.goToLink(res.link);
+    });
+  }
+
+  private goToLink(link: string) {
+    if (location.host === 'localhost:4200' || location.host === 'assign.work') {
+      this.ngZone.run(() => {
+        this.router.navigateByUrl(link.replace(environment.APP_URL, ''));
+      });
+    } else {
+      window.open(link, '_blank');
+    }
+  }
+
   ngOnDestroy(): void {
     this._projectService.unsetStoreFlags();
+    this.socket.emit('disconnect');
   }
 }
