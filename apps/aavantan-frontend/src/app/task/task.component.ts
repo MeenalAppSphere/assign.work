@@ -45,6 +45,7 @@ import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query'
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { SprintService } from '../shared/services/sprint/sprint.service';
+import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -160,7 +161,8 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _taskTypeQuery: TaskTypeQuery,
               private themeService: ThemeConstantService,
               private _sprintService: SprintService,
-              private modal: NzModalService) {
+              private modal: NzModalService
+  ) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -179,7 +181,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     //   }
     // });
   }
-
   ngOnInit() {
 
     this.themeService.toggleFold(true);
@@ -971,7 +972,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
     } else if (status === 'error') {
-      const message = file.error ? file.error.error.message : file.name +'file upload failed.';
+      const message = file.error ? file.error.error.message : file.name + 'file upload failed.';
       this.notification.error('Error', message);
     }
   }
@@ -996,7 +997,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   }
 
   // save left side task form on click on save button
-  async saveForm(isUpdateFromSideBar?:boolean) {
+  async saveForm(isUpdateFromSideBar?: boolean) {
     const task: Task = { ...this.taskForm.getRawValue() };
 
     task.projectId = this.currentProject.id;
@@ -1089,9 +1090,9 @@ export class TaskComponent implements OnInit, OnDestroy {
       task.watchers = this.taskData.watchers;
       task.tags = this.taskData.tags;
 
-      if(isUpdateFromSideBar) {
+      if (isUpdateFromSideBar) {
         this.updateSidebarContentInProcess = true;
-      }else {
+      } else {
         this.createTaskInProcess = true;
       }
 
@@ -1195,7 +1196,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     // this.selectedRelatedItem = task;
   }
 
-
   /* comment */
   async saveComment() {
     this.createCommentInProcess = true;
@@ -1238,7 +1238,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async getLogHistory(event?: any) {
     try {
       if (event) {
@@ -1259,5 +1258,4 @@ export class TaskComponent implements OnInit, OnDestroy {
   public ngOnDestroy() {
     this.themeService.toggleFold(false);
   }
-
 }

@@ -17,7 +17,6 @@ import { EditorModule } from '@tinymce/tinymce-angular';
 import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 import { DndModule } from 'ngx-drag-drop';
 
-
 registerLocaleData(en);
 
 // const googleLoginOptions: LoginOpt = {

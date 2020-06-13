@@ -50,6 +50,7 @@ import { EmailService } from '../email.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportUtilityService } from '../sprint-report/sprint-report.utility.service';
+import { AppGateway } from '../../../app/app.gateway';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -75,7 +76,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'columns.tasks.task',
-  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime createdById createdAt',
+  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime createdById createdAt completionDate',
   justOne: true,
   populate: [{
     path: 'assignee',
@@ -110,6 +111,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
   private _sprintReportService: SprintReportService;
+  private _appGateWay: AppGateway;
 
   private _sprintUtilityService: SprintUtilityService;
   private _boardUtilityService: BoardUtilityService;
@@ -127,6 +129,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
     this._sprintReportService = this._moduleRef.get('SprintReportService');
+    this._appGateWay = this._moduleRef.get(AppGateway.name, { strict: false });
 
     this._boardUtilityService = new BoardUtilityService();
     this._sprintUtilityService = new SprintUtilityService();
@@ -197,10 +200,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model: CreateSprintModel
    */
   public async createSprint(model: CreateSprintModel) {
+    // get project details and check if current user is member of project
+    const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
+
     // create sprint
     const newSprint = await this.withRetrySession(async (session: ClientSession) => {
-      // get project details and check if current user is member of project
-      const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
 
       // create sprint common process
       const createdSprint = await this.createSprintCommonProcess(model, projectDetails, session);
@@ -211,6 +215,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // get sprint details and return response
     const sprint = await this.getSprintDetails(newSprint.id, model.sprint.projectId, commonPopulationForSprint, commonFieldSelection);
+
+    // send notification
+    this._appGateWay.sprintCreated({ ...sprint }, projectDetails);
+
+    // return sprint vm
     return this._sprintUtilityService.prepareSprintVm(sprint);
   }
 
@@ -656,10 +665,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       return 'Task Moved Successfully';
     });
-
-    // // return whole sprint details
-    // const sprint = await this.getSprintDetails(model.sprintId, model.projectId, detailedPopulationForSprint, detailedFiledSelection);
-    // return this._sprintUtilityService.prepareSprintVm(sprint);
   }
 
   /**

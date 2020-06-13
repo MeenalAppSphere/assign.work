@@ -51,10 +51,10 @@ export class Task {
   updatedBy?: User;
   createdAt?: Date;
   updatedAt?: Date;
-  completionDate?: Date;
   isSelected?: boolean;
   watchersDetails?: User[];
-  hasError?: string;
+  completionDate?: Date;
+  taskAge?: number;
 }
 
 export class TaskComments {
@@ -73,6 +73,8 @@ export class TaskComments {
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
   isPinned: boolean;
+  pinnedById: string;
+  pinnedBy?: User;
 }
 
 export class TaskHistory {

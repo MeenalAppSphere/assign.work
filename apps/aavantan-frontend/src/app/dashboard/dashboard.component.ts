@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
@@ -20,6 +20,9 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardService } from '../shared/services/board/board.service';
 import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
+import { Socket } from 'ngx-socket-io';
+import { environment } from '../../environments/environment';
+import { NotificationResponseModel, NotificationTypeEnum } from '@aavantan-app/models';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -41,10 +44,53 @@ export class DashboardComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
-              private _taskTypeService: TaskTypeService, private _boardService: BoardService) {
+              private _taskTypeService: TaskTypeService, private _boardService: BoardService, private socket: Socket,
+              private ngZone: NgZone) {
   }
 
   ngOnInit() {
+
+    this.socket.on('connection', () => {
+      // console.log('connection');
+    });
+
+    this.socket.on('disconnect', () => {
+      // console.log('disconnect');
+    });
+
+    this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
+      this.socket.emit(NotificationTypeEnum.userConnected, this._generalService.user._id);
+    });
+
+    // task created
+    this.socket.on(NotificationTypeEnum.taskAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Created', res);
+    });
+
+    // task updated
+    this.socket.on(NotificationTypeEnum.taskUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Updated', res);
+    });
+
+    // comment added
+    this.socket.on(NotificationTypeEnum.commentAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Added', res);
+    });
+
+    // comment updated
+    this.socket.on(NotificationTypeEnum.commentUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Updated', res);
+    });
+
+    // comment pinned
+    this.socket.on(NotificationTypeEnum.commentPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Pinned', res);
+    });
+
+    // comment un pinned
+    this.socket.on(NotificationTypeEnum.commentUnPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment UnPinned', res);
+    });
 
     // listen for user from store
     this._userQuery.user$.pipe(
@@ -278,7 +324,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
   }
 
+
+  /**
+   * create desktop notification
+   * @param {string} title
+   * @param {NotificationResponseModel} res
+   */
+  private createDesktopNotification(title: string, res: NotificationResponseModel) {
+    const notification = new Notification(title, {
+      body: res.msg,
+      image: 'assets/images/logo/logo.png',
+      vibrate: 1
+    });
+
+    notification.onclick = ((ev: Event) => {
+      this.goToLink(res.link);
+    });
+  }
+
+  /**
+   * go to link when an notification is clicked
+   * @param {string} link
+   */
+  private goToLink(link: string) {
+    // check if assign work is opened or not in tab
+    if (location.origin === environment.APP_URL) {
+      this.ngZone.run(() => {
+        this.router.navigateByUrl(link.replace(environment.APP_URL, ''));
+      });
+    } else {
+      window.open(link, '_blank');
+    }
+  }
+
   ngOnDestroy(): void {
     this._projectService.unsetStoreFlags();
+    this.socket.emit('disconnect');
   }
 }

@@ -39,9 +39,9 @@
                 <span class="text-gray-light-2">{{taskData.createdAt | date : 'mediumDate' }}</span>
           </span>
 
-          <span class="font-size-12 p-l-10" *ngIf="taskId && taskAge">
+          <span class="font-size-12 p-l-10" *ngIf="taskId && taskData">
                <span class="font-weight-semibold">Age: </span>
-                <span class="text-gray-light-2">{{taskAge}} days</span>
+                <span class="text-gray-light-2">{{taskData.taskAge}} days</span>
           </span>
 
           <ng-template #templateTitleText>

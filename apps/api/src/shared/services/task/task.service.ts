@@ -15,13 +15,14 @@ import {
   TaskFilterCondition,
   TaskFilterModel,
   TaskHistory,
-  TaskHistoryActionEnum
+  TaskHistoryActionEnum,
+  User
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
-import { BadRequest, stringToSeconds, toObjectId } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, stringToSeconds, toObjectId } from '../../helpers/helpers';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
 import { TaskTypeService } from '../task-type/task-type.service';
@@ -35,6 +36,7 @@ import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
 import * as moment from 'moment';
+import { AppGateway } from '../../../app/app.gateway';
 
 /**
  * common task population object
@@ -101,6 +103,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private _taskPriorityService: TaskPriorityService;
   private _taskStatusService: TaskStatusService;
   private _taskHistoryService: TaskHistoryService;
+  private _appGateway: AppGateway;
 
   private _utilityService: TaskUtilityService;
   private _projectUtilityService: ProjectUtilityService;
@@ -122,6 +125,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+    this._appGateway = this._moduleRef.get(AppGateway.name, { strict: false });
 
     this._utilityService = new TaskUtilityService();
     this._projectUtilityService = new ProjectUtilityService();
@@ -161,7 +165,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }];
 
     // set selection fields
-    model.select = '_id name taskTypeId priorityId statusId sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName';
+    model.select = '_id name taskTypeId priorityId statusId sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName completionDate';
 
     let filter = {};
     if (onlyMyTask) {
@@ -204,6 +208,11 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // prepare task model
       const taskModel = this._utilityService.prepareTaskObjectFromRequest(model, projectDetails);
+
+      // completion date check
+      if (moment(taskModel.completionDate).startOf('d').isBefore(moment(), 'd')) {
+        BadRequest('Completion date can not be before today');
+      }
 
       // get last task
       const lastTask = await this._taskModel.find({
@@ -276,8 +285,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // task is created now send all the mails
-      this._utilityService.sendMailForTaskCreated(task, projectDetails);
-
+      this._utilityService.sendMailForTaskCreated({ ...task }, projectDetails);
+      this._appGateway.taskAssigned({ ...task }, projectDetails);
       return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
@@ -289,8 +298,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * if task type changed than update display name too
    * if estimate has been added after one have logged overs re calculate progress and over progress
    * @param model: Task
+   * @param loggedInUser
    */
-  async updateTask(model: Task): Promise<Task> {
+  async updateTask(model: Task, loggedInUser: Partial<User>): Promise<Task> {
     if (!model || !model.id) {
       BadRequest('Task not found');
     }
@@ -312,6 +322,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.description = model.description;
       taskModel.tags = model.tags;
       taskModel.watchers = model.watchers;
+      taskModel.attachments = model.attachments;
+      taskModel.completionDate = model.completionDate || taskDetails.completionDate || generateUtcDate();
 
       taskModel.taskTypeId = model.taskTypeId;
       taskModel.priorityId = model.priorityId;
@@ -371,6 +383,11 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.progress = model.progress || 0;
       taskModel.overProgress = model.overProgress || 0;
       taskModel.updatedById = this._generalService.userId;
+
+      // completion date check
+      if (moment(taskModel.completionDate).startOf('d').isBefore(moment(taskDetails.createdAt), 'd')) {
+        BadRequest('Completion date can not be before task created date');
+      }
 
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
@@ -457,6 +474,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // send mail for task updated to all the task watchers
       this._utilityService.sendMailForTaskUpdated({ ...task }, projectDetails);
+      this._appGateway.taskUpdated({ ...task }, projectDetails);
       return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
