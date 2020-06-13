@@ -171,7 +171,7 @@
                 <div class="card-box" *ngFor="let task of item.tasks;let i = index" id="{{ i }}">
 
                   <div id="{{task.taskId}}" class="task-card"
-                       [ngStyle]="{'border-top': '4px solid '+ task.task.priority.color}" [dndDraggable]="task"
+                       [ngStyle]="{'border-left': '4px solid '+ task.task.priority.color}" [dndDraggable]="task"
                        (dndStart)="onDragStart(item)" [dndEffectAllowed]="'move'">
 
 
@@ -219,20 +219,11 @@
                       <!-- Completion date and item age -->
                       <div class="m-b-10 d-flex flex-row justify-content-between duration">
 
-                        <span class="text-gray-light-2">22 June, 2020</span>
+                        <span><span class="text-black">Target date: </span><span class="text-gray-light-2">22 June, 2020</span></span>
 
                         <span><span class="text-gray-light-2">Age:</span> 2 days</span>
 
-                        <span>
-                           <span class="float-right duration">
-                              <span nz-tooltip [nzTitle]="'Logged time'"
-                                    class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
-                              <span nz-tooltip [nzTitle]="'Estimated time'"
-                                    class="text-gray-light-2"> / {{task.task.estimatedTimeReadable}}</span>
-                           </span>
-                        </span>
                       </div>
-
 
                     </div>
 
@@ -240,9 +231,9 @@
                     <div class="task-footer">
 
                       <!-- Assignee and Time log -->
-                      <div>
+                      <div class="d-flex flex-row justify-content-between">
 
-                        <span nz-tooltip
+                          <span nz-tooltip
                                 [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
                             <nz-avatar class="m-r-5" nzIcon="user"
                                        nzSrc="{{task.task.assignee.profilePic}}"
@@ -250,12 +241,23 @@
                             <span class="profile-name text-dark">{{task.task.assignee.firstName}} {{task.task.assignee.lastName}}</span>
                           </span>
 
-                            <span class="pull-right">
-                              <a (click)="showTimeLogModal(columnIndex, i, task.task)"
-                                 href="javascript:void(0);"
-                                 class="text-primary">
-                              <i nz-icon nzType="clock-circle" theme="outline"></i>&nbsp;Log Time</a>
+                          <span class="pull-right">
+
+                            <span class="p-r-10">
+                               <span class="float-right duration">
+                                  <span nz-tooltip [nzTitle]="'Logged time'"
+                                        class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
+                                  <span nz-tooltip [nzTitle]="'Estimated time'"
+                                        class="text-gray-light-2"> / {{task.task.estimatedTimeReadable}}</span>
+                               </span>
                             </span>
+
+                            <a (click)="showTimeLogModal(columnIndex, i, task.task)"
+                               href="javascript:void(0);"
+                               class="text-primary">
+                            <i nz-icon nzType="clock-circle" theme="outline"></i></a>
+
+                          </span>
 
                       </div>
 
