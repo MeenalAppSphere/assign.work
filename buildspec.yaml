@@ -24,6 +24,8 @@ phases:
         - echo Build started on `date`
         - ng build --prod
         - ls -l -F
+        - mkdir build-output
+        - cp dist/apps/UI/ build-output
 
     post_build:
         commands:
@@ -31,9 +33,15 @@ phases:
         - aws s3 rm s3://${S3_BUCKET} --recursive
         - echo S3 bucket is cleared.
         # Copy dist folder to S3 bucket, As of Angular 6, builds are stored inside an app folder in distribution and not at the root of the dist folder
-        # - zip -r output.zip dist/apps/UI/*
-        - aws dist/apps/UI/* s3://${S3_BUCKET} --recursive
-        - echo Build completed on `date`
+        - mv build-output/**/* ./
+        - mv build-output/* ./
+        - rm -R build-output
+        # - aws s3 output.zip s3://${S3_BUCKET} --recursive
+        # - echo Build completed on `date`
+
+artifacts:
+    files:
+        - '**/*'
 cache:
 paths:
     - node_modules/
