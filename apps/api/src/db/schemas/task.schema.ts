@@ -31,7 +31,7 @@ export const taskSchema = new Schema({
   dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
   relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false }],
   completionDate: { type: Date },
-  ...commonSchemaFields,
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options

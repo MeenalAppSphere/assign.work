@@ -75,7 +75,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'columns.tasks.task',
-  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime createdById createdAt',
+  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime createdById createdAt completionDate',
   justOne: true,
   populate: [{
     path: 'assignee',

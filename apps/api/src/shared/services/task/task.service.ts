@@ -164,7 +164,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }];
 
     // set selection fields
-    model.select = '_id name taskTypeId priorityId statusId sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName';
+    model.select = '_id name taskTypeId priorityId statusId sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName completionDate';
 
     let filter = {};
     if (onlyMyTask) {
@@ -207,6 +207,11 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // prepare task model
       const taskModel = this._utilityService.prepareTaskObjectFromRequest(model, projectDetails);
+
+      // completion date check
+      if (moment(taskModel.completionDate).startOf('d').isBefore(moment(), 'd')) {
+        BadRequest('Completion date can not be before today');
+      }
 
       // get last task
       const lastTask = await this._taskModel.find({
@@ -376,6 +381,11 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.progress = model.progress || 0;
       taskModel.overProgress = model.overProgress || 0;
       taskModel.updatedById = this._generalService.userId;
+
+      // completion date check
+      if (moment(taskModel.completionDate).startOf('d').isBefore(moment(taskDetails.createdAt), 'd')) {
+        BadRequest('Completion date can not be before task created date');
+      }
 
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
