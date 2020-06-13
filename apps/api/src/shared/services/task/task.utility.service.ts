@@ -13,6 +13,7 @@ import { environment } from '../../../environments/environment';
 import { ProjectUtilityService } from '../project/project.utility.service';
 import { BadRequest, generateUtcDate, secondsToString, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import * as moment from 'moment';
 
 /**
  * task schema keys mapper for filter query
@@ -246,6 +247,7 @@ export class TaskUtilityService {
     task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
     task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
     task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
+    task.taskAge = moment().diff(moment(task.createdAt), 'd');
 
     if (task.attachmentsDetails) {
       task.attachmentsDetails.forEach(attachment => {

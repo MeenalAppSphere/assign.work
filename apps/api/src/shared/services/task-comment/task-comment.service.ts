@@ -19,7 +19,7 @@ import { GeneralService } from '../general.service';
 import { TaskCommentUtilityService } from './task-comment.utility.service';
 import { TaskService } from '../task/task.service';
 import { TaskHistoryService } from '../task-history.service';
-import { TaskGateway } from '../../../task/task.gateway';
+import { AppGateway } from '../../../app/app.gateway';
 
 /**
  * common task population object
@@ -43,7 +43,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
   private _utilityService: TaskCommentUtilityService;
-  private _taskGateWay: TaskGateway;
+  private _appGateWay: AppGateway;
 
   constructor(
     @InjectModel(DbCollection.taskComments) private readonly _taskCommentModel: Model<TaskComments & Document>,
@@ -56,7 +56,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
-    this._taskGateWay = this._moduleRef.get(TaskGateway.name, { strict: false });
+    this._appGateWay = this._moduleRef.get(AppGateway.name, { strict: false });
 
     this._utilityService = new TaskCommentUtilityService();
   }
@@ -128,7 +128,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       // send email for comment added
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentAdded, 'comment-added');
 
-      this._taskGateWay.commentAdded(commentDetails, taskDetails, projectDetails);
+      this._appGateWay.commentAdded(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;
@@ -191,7 +191,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       // send email
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentUpdated, 'comment-updated');
 
-      this._taskGateWay.commentUpdated(commentDetails, taskDetails, projectDetails);
+      this._appGateWay.commentUpdated(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;
@@ -272,7 +272,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
         requestModel.isPinned ? EmailSubjectEnum.taskCommentPinned : EmailSubjectEnum.taskCommentUnPinned,
         requestModel.isPinned ? 'pinned-comment' : 'un-pinned-comment');
 
-      this._taskGateWay.commentPinned(commentDetails, taskDetails, projectDetails);
+      this._appGateWay.commentPinned(commentDetails, taskDetails, projectDetails);
       // return message
       return `Comment ${requestModel.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
     } catch (e) {

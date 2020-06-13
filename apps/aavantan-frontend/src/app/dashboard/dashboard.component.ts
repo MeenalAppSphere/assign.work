@@ -22,6 +22,7 @@ import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
 import { Socket } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
+import { NotificationResponseModel, NotificationTypeEnum } from '@aavantan-app/models';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -49,8 +50,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    Notification.requestPermission();
-
     this.socket.on('connection', () => {
       // console.log('connection');
     });
@@ -59,38 +58,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
       // console.log('disconnect');
     });
 
-    this.socket.on('connected-successfully', () => {
-      this.socket.emit('connect-tasks', this._generalService.user._id);
+    this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
+      this.socket.emit(NotificationTypeEnum.userConnected, this._generalService.user._id);
     });
 
     // task created
-    this.socket.on('task-created', (res: { msg: string, link: string }) => {
-      this.createNotification('Task Created', res);
+    this.socket.on(NotificationTypeEnum.taskAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Created', res);
     });
 
     // task updated
-    this.socket.on('task-updated', (res: { msg: string, link: string }) => {
-      this.createNotification('Task Updated', res);
+    this.socket.on(NotificationTypeEnum.taskUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Updated', res);
     });
 
     // comment added
-    this.socket.on('comment-added', (res: { msg: string, link: string }) => {
-      this.createNotification('Comment Added', res);
+    this.socket.on(NotificationTypeEnum.commentAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Added', res);
     });
 
     // comment updated
-    this.socket.on('comment-updated', (res: { msg: string, link: string }) => {
-      this.createNotification('Comment Updated', res);
+    this.socket.on(NotificationTypeEnum.commentUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Updated', res);
     });
 
     // comment pinned
-    this.socket.on('comment-pinned', (res: { msg: string, link: string }) => {
-      this.createNotification('Comment Pinned', res);
+    this.socket.on(NotificationTypeEnum.commentPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Pinned', res);
     });
 
     // comment un pinned
-    this.socket.on('comment-unpinned', (res: { msg: string, link: string }) => {
-      this.createNotification('Comment UnPinned', res);
+    this.socket.on(NotificationTypeEnum.commentUnPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment UnPinned', res);
     });
 
     // listen for user from store
@@ -325,10 +324,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
   }
 
-  private createNotification(title: string, res: { msg: string, link: string }) {
+
+  /**
+   * create desktop notification
+   * @param {string} title
+   * @param {NotificationResponseModel} res
+   */
+  private createDesktopNotification(title: string, res: NotificationResponseModel) {
     const notification = new Notification(title, {
       body: res.msg,
-      icon: 'assets/images/logo/logo.png',
+      image: 'assets/images/logo/logo.png',
       vibrate: 1
     });
 
@@ -337,8 +342,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * go to link when an notification is clicked
+   * @param {string} link
+   */
   private goToLink(link: string) {
-    if (location.host === 'localhost:4200' || location.host === 'assign.work') {
+    // check if assign work is opened or not in tab
+    if (location.origin === environment.APP_URL) {
       this.ngZone.run(() => {
         this.router.navigateByUrl(link.replace(environment.APP_URL, ''));
       });
