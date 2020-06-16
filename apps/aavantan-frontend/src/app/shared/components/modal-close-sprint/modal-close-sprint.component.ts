@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { CloseSprintModel, Project, Sprint } from '@aavantan-app/models';
-import { GeneralService } from '../../../shared/services/general.service';
-import { SprintService } from '../../../shared/services/sprint/sprint.service';
+import { GeneralService } from '../../services/general.service';
+import { SprintService } from '../../services/sprint/sprint.service';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { UserQuery } from '../../../queries/user/user.query';
 import { Router } from '@angular/router';
@@ -66,6 +66,7 @@ export class CloseSprintComponent implements OnInit, OnDestroy {
       // if update member capacity is true then get replace default member capacity with user updated member capacity
       if (sprintForm.updateMemberCapacity) {
         closeSprintRequest.sprint.membersCapacity = this.activeSprintData.membersCapacity;
+        closeSprintRequest.updateMemberCapacity = true;
       }
 
       closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
@@ -90,7 +91,6 @@ export class CloseSprintComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-
   }
 }
 

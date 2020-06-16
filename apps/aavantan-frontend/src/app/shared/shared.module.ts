@@ -21,6 +21,7 @@ import { ProfileNameComponent } from './components/profile-name/profile-name.com
 import { UserFilterComponent } from './components/user-filter/user-filter.component';
 import { TeamCapacityComponent } from './components/team-capacity/team-capacity.component';
 import { TeamCapacityModelComponent } from './components/team-capacity-model/team-capacity.model.component';
+import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
 
 
 @NgModule({
@@ -44,7 +45,8 @@ import { TeamCapacityModelComponent } from './components/team-capacity-model/tea
     ProfileNameComponent,
     UserFilterComponent,
     TeamCapacityComponent,
-    TeamCapacityModelComponent
+    TeamCapacityModelComponent,
+    CloseSprintComponent
   ],
   imports: [
     CommonModule,
@@ -71,7 +73,8 @@ import { TeamCapacityModelComponent } from './components/team-capacity-model/tea
     ProfileNameComponent,
     UserFilterComponent,
     TeamCapacityComponent,
-    TeamCapacityModelComponent
+    TeamCapacityModelComponent,
+    CloseSprintComponent
   ]
 })
 export class SharedModule {

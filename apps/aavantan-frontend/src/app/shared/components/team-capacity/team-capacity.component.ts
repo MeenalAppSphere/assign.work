@@ -35,7 +35,7 @@ export class TeamCapacityComponent implements OnInit {
 
     if (this.sprintData.membersCapacity && this.sprintData.membersCapacity.length > 0) {
       this.sprintData.membersCapacity.forEach((ele) => {
-
+        ele.workingCapacityPerDay = Number(ele.workingCapacityPerDay);
         const countSelected = ele.workingDays.filter((ele1) => {
           if (ele1.selected) {
             return ele1;
@@ -57,6 +57,7 @@ export class TeamCapacityComponent implements OnInit {
   public onChangeSearch(value: any): void {
     this.sprintData.membersCapacity = this.allMembersList;
     if (value) {
+      value = value.toLowerCase();
       this.sprintData.membersCapacity = this.sprintData.membersCapacity.filter((ele) => {
         let profileName = '';
 

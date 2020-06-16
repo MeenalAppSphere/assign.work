@@ -2,7 +2,6 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/cor
 import {
   AppFilterStorageKeysEnum,
   BaseResponseModel,
-  CloseSprintModel,
   MoveTaskToColumnModel,
   Project,
   ProjectStatus,
@@ -267,41 +266,6 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   toggleCloseSprintShow(): void {
     this.isVisibleCloseSprint = !this.isVisibleCloseSprint;
-  }
-
-  async closeSprint() {
-    this.closeSprintInProcess = true;
-
-    const closeSprintRequest = new CloseSprintModel();
-    closeSprintRequest.projectId = this.currentProject.id;
-    closeSprintRequest.sprintId = this.boardData.id;
-
-    if (this.closeSprintModeSelection === 'createNewSprint') {
-      closeSprintRequest.createNewSprint = true;
-
-      const sprintForm = this.closeSprintNewSprintForm.getRawValue();
-      if (sprintForm.duration) {
-        sprintForm.startedAt = sprintForm.duration[0];
-        sprintForm.endAt = sprintForm.duration[1];
-        delete sprintForm.duration;
-      }
-
-      closeSprintRequest.sprint = sprintForm;
-      closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
-    } else {
-      closeSprintRequest.createNewSprint = false;
-    }
-
-    try {
-      await this._sprintService.closeSprint(closeSprintRequest).toPromise();
-      this.closeSprintInProcess = false;
-
-      this.isVisibleCloseSprint = false;
-      this.router.navigate(['dashboard']);
-    } catch (e) {
-      this.closeSprintInProcess = false;
-      console.log(e);
-    }
   }
 
   cancelCloseSprintDialog(): void {

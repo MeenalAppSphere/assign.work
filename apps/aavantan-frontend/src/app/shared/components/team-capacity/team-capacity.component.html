@@ -35,11 +35,11 @@
                    nzSrc="{{item.user.profilePic}}"></nz-avatar>
         {{item.user.firstName}} {{item.user.lastName}}</td>
 
-      <td class="text-right"><input disabled nz-input numeric numericType="number" maxlength="3" placeholder="Hours"
+      <td class="text-right"><input disabled nz-input numeric numericType="number" placeholder="Hours"
                                     class="team-list-input" [(ngModel)]="item.workingCapacity"
                                     (keyup)="calculateTotalCapacity()" nzSize="small" maxlength="3"/></td>
 
-      <td class="text-right"><input nz-input numeric numericType="number" maxlength="3" placeholder="Hours"
+      <td class="text-right"><input nz-input numeric numericType="number" placeholder="Hours"
                                     class="team-list-input" [(ngModel)]="item.workingCapacityPerDay"
                                     (keyup)="calculateTotalCapacity()" nzSize="small" maxlength="2"/></td>
 

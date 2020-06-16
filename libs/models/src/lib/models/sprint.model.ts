@@ -130,6 +130,7 @@ export class CreateSprintModel {
 export class CreateSprintCloseSprintCommonModel {
   sprint: Sprint;
   doPublishSprint?: boolean;
+  updateSprintMemberCapacity?: boolean;
   unFinishedTasks?: Task[];
 }
 
@@ -185,6 +186,7 @@ export class PublishSprintModel extends SprintBaseRequest {
 export class CloseSprintModel extends SprintBaseRequest {
   createNewSprint: boolean;
   createAndPublishNewSprint: boolean;
+  updateMemberCapacity: boolean;
   sprint?: Sprint;
 }
 
