@@ -39,6 +39,7 @@ export class Sprint {
   progress?: number;
   overProgress?: number;
   reportId?: string;
+  totalItems?: number;
 }
 
 export class SprintColumn {

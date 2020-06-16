@@ -439,6 +439,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       model.query = model.query ? model.query.toLowerCase() : '';
 
+      // sprint total items count before filter
+      sprintDetails.totalItems = sprintDetails.columns.reduce((count, column) => {
+        return count + column.tasks.length;
+      }, 0);
+
       // filter sprint columns with query model we got from request
       sprintDetails.columns = sprintDetails.columns.map(column => {
 

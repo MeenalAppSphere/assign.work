@@ -1,5 +1,8 @@
 @import '../../../scss/custom_variable';
 
+.total-estimates-section {
+  margin-top:-8px;
+}
 .sprint-name-button {
   background: none!important;
   height: 40px;
@@ -8,7 +11,6 @@
   padding: 0px!important;
   box-shadow: none;
   white-space: nowrap;
-  float: left;
   margin-top: -2px;
   &:hover{
     background: none!important;
