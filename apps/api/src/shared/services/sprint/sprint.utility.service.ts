@@ -186,6 +186,7 @@ export class SprintUtilityService {
       return sprint;
     }
     sprint.id = sprint['_id'];
+    sprint.totalItems = 0;
 
     // calculate sprint totals
     this.calculateSprintEstimates(sprint);
@@ -194,6 +195,7 @@ export class SprintUtilityService {
     // convert total estimation time to readable format
     if (sprint.columns) {
 
+      // filter out hidden columns
       sprint.columns = sprint.columns.filter(column => !column.isHidden).map(column => {
         column.tasks = column.tasks.filter(task => !task.removedById);
         column.tasks = column.tasks.map(task => {
@@ -204,9 +206,12 @@ export class SprintUtilityService {
         return column;
       });
 
+      // calculate total estimates
       this.calculateTotalEstimateForColumns(sprint);
 
+      // loop over sprint columns
       sprint.columns.forEach(column => {
+        sprint.totalItems += column.tasks.length;
         column.totalEstimationReadable = secondsToString(column.totalEstimation);
       });
     }
