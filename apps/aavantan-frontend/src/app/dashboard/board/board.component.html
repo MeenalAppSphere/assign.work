@@ -5,7 +5,37 @@
 
       <div class="col-md-6 user-filter-section">
 
-        <span class="p-l-10 sprint-name-button">{{boardData && boardData.name ? boardData.name : 'Sprint'}}</span>
+        <div class="p-l-10 sprint-name-button">{{boardData && boardData.name ? boardData.name : 'Sprint'}}</div>
+
+
+        <div *ngIf="boardData && boardData.name" class="total-estimates-section">
+                <span class="m-r-10 text-gray-light-2 font-size-13"
+                      *ngIf="boardData?.totalEstimationReadable">
+                  <span class="font-weight-semibold">{{boardData?.totalEstimationReadable}}</span>
+                  <span class="font-weight-light">  Sprint Hours </span>
+                </span>
+
+          <span class="m-r-10 text-gray-light-2 font-size-13">
+                  <span class="font-weight-semibold">{{boardData?.totalCapacityReadable}}</span>
+                  <span class="font-weight-light"> Sprint Capacity</span>
+                </span>
+
+
+          <span class="font-size-13 m-r-10"
+                [ngClass]="{'text-gray-light-2 font-weight-semibold': boardData?.totalRemainingCapacity>0,
+                      'text-red font-weight-semibold': boardData?.totalRemainingCapacity<0}"
+                *ngIf="boardData?.totalRemainingCapacityReadable">
+                  <span
+                    class="p-l-5 font-weight-semibold">{{boardData?.totalRemainingCapacityReadable}}</span>
+                  <span class="font-weight-light"> Remains</span>
+                </span>
+
+          <span class="text-gray-light-2" *ngIf="boardData?.totalItems">
+              <span class="text-gray-light-2 font-weight-semibold">{{boardData?.totalItems}}&nbsp;</span>
+              <span class="font-weight-light">{{boardData?.totalItems === 1 ? 'Item' : 'Items'}} in Sprint</span>
+          </span>
+
+        </div>
 
 
       </div>

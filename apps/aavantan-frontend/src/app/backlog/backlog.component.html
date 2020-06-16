@@ -296,7 +296,11 @@
 
           <label class="font-size-18 "><span class="text-black">Backlogs</span>
 
-            <span class="p-l-25 text-gray-light-2 font-size-13"
+            <span class="p-l-25 text-gray-light-2 font-size-13 font-weight-semibold"
+                  *ngIf="backLogTaskRequest?.totalPages">{{backLogTaskRequest?.totalPages}}
+              <span class="font-weight-light"> Total Item(s)</span></span>
+
+            <span class="p-l-25 text-gray-light-2 font-size-13 font-weight-semibold"
                   *ngIf="unPublishedSprintData && unPublishedSprintData.totalCapacityReadable">
               <span>{{unPublishedSprintData?.totalCapacityReadable}}</span>
               <span class="font-weight-light"> Total Estimates</span>
