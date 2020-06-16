@@ -102,6 +102,12 @@ export class SideNavComponent implements OnInit, OnDestroy {
   }
 
 
+  // close side nav on menu click
+  public closeSideNav() {
+    this.themeService.toggleFold(true);
+  }
+
+
   public ngOnDestroy() {
   }
 }
