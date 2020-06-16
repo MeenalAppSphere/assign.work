@@ -241,7 +241,7 @@ export class SprintUtilityService {
     task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
     task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
     task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
-    task.taskAge = moment().diff(moment(task.createdAt), 'd');
+    task.taskAge = moment().utc().diff(moment(task.completionDate ? task.completionDate : task.createdAt), 'd');
 
     if (task.attachmentsDetails) {
       task.attachmentsDetails.forEach(attachment => {
@@ -365,7 +365,7 @@ export class SprintUtilityService {
    */
   calculateSprintEstimates(sprint: Sprint) {
     // count how many days left for sprint completion
-    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment(), 'd');
+    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment().utc(), 'd');
 
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);

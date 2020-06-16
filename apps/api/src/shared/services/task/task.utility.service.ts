@@ -247,7 +247,7 @@ export class TaskUtilityService {
     task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
     task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
     task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
-    task.taskAge = moment().diff(moment(task.createdAt), 'd');
+    task.taskAge = moment().utc().diff(moment(task.completionDate ? task.completionDate : task.createdAt), 'd');
 
     if (task.attachmentsDetails) {
       task.attachmentsDetails.forEach(attachment => {
