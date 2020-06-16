@@ -1112,10 +1112,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // else get default member capacity from project
     if (model.updateSprintMemberCapacity) {
       model.sprint.membersCapacity = model.sprint.membersCapacity.map(capacity => {
-        capacity.workingCapacity = +capacity.workingCapacity;
-        capacity.workingCapacityPerDay = +capacity.workingCapacityPerDay;
+        capacity.workingCapacity = +hourToSeconds(capacity.workingCapacity);
+        capacity.workingCapacityPerDay = +hourToSeconds(capacity.workingCapacityPerDay);
 
-        sprintModel.totalCapacity += Number(hourToSeconds(capacity.workingCapacity));
+        sprintModel.totalCapacity += Number(capacity.workingCapacity);
         return capacity;
       });
       sprintModel.membersCapacity = model.sprint.membersCapacity;

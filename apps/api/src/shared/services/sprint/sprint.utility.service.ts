@@ -362,7 +362,7 @@ export class SprintUtilityService {
    */
   calculateSprintEstimates(sprint: Sprint) {
     // count how many days left for sprint completion
-    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment(), 'd');
+    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment().utc(), 'd');
 
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);
