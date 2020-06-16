@@ -186,7 +186,6 @@ export class SprintUtilityService {
       return sprint;
     }
     sprint.id = sprint['_id'];
-    sprint.totalItems = 0;
 
     // calculate sprint totals
     this.calculateSprintEstimates(sprint);
@@ -211,7 +210,6 @@ export class SprintUtilityService {
 
       // loop over sprint columns
       sprint.columns.forEach(column => {
-        sprint.totalItems += column.tasks.length;
         column.totalEstimationReadable = secondsToString(column.totalEstimation);
       });
     }
