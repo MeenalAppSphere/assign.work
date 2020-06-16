@@ -1049,9 +1049,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.taskId = data.data.id;
         this.displayName = data.data.displayName;
 
-        if (!this.taskData) {
-          this.taskData = data.data;
-        }
+        this.taskData = data.data;
 
         this.selectStatus(data.data.status);
         this.selectAssigneeTypeahead(data.data.assignee);
