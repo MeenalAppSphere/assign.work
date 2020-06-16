@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  Project,
   StatusDDLModel,
   Task,
   TaskFilterCondition,
@@ -17,6 +18,8 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { cloneDeep } from 'lodash';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
+import { combineLatest } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
 
 @Component({
   templateUrl: './project.component.html',
@@ -33,11 +36,13 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public allTaskFilterRequest: TaskFilterModel;
   public myTaskFilterRequest: TaskFilterModel;
-  public activeTab: string= 'my';
+  public activeTab: string = 'my';
 
   public isFilterApplied: boolean;
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
+
+  public currentProject: Project;
 
   constructor(protected notification: NzNotificationService,
               private _generalService: GeneralService,
@@ -48,9 +53,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
               private _taskService: TaskService,
               private _taskTypeQuery: TaskTypeQuery) {
 
-    this.allTaskFilterRequest = new TaskFilterModel(this._generalService.currentProject.id);
-    this.myTaskFilterRequest = new TaskFilterModel(this._generalService.currentProject.id);
-
   }
 
   ngOnInit(): void {
@@ -60,24 +62,31 @@ export class ProjectComponent implements OnInit, OnDestroy {
       }
     });
 
-    // get filters and the call first tab data
-    if(this._generalService.currentProject && this._generalService.currentProject.activeBoard) {
 
-      this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
-        if (res) {
-          this.getFilterStatus(res);
+    // call all functions which is depends on current project and statuses
+    combineLatest([this._userQuery.currentProject$, this._taskStatusQuery.statuses$])
+      .pipe(auditTime(700), untilDestroyed(this))
+      .subscribe(result => {
+
+        this.currentProject = result[0]; // result[0]  is expecting current Project
+        const statues = result[1]; // result[1]  is expecting status
+
+        if (!this.currentProject || statues.length === 0) {
+          return;
         }
-      });
+        // init task filter models
+        this.allTaskFilterRequest = new TaskFilterModel(this.currentProject.id);
+        this.myTaskFilterRequest = new TaskFilterModel(this.currentProject.id);
 
-    }
+        this.getFilterStatus(statues);
+      });
 
   }
 
-  public getFilterStatus(statusList:TaskStatusModel[]) {
+  public getFilterStatus(statusList: TaskStatusModel[]) {
 
     // ready status filter dropdown data
-
-    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
+    const columns = cloneDeep(this.currentProject.activeBoard ? this.currentProject.activeBoard.columns : null);
 
     if (columns) {
 
@@ -98,7 +107,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
           });
         });
       }
-      if (this._generalService.currentProject) {
+      if (this.currentProject) {
         this.filterStatusApplied(this.selectedColumnDataSource); // 'selectedColumnDataSource' have selected filter except 'Done/Complete'
       }
     }
@@ -175,16 +184,16 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   public changeTab(tab?: string) {
     this.activeTab = tab;
-    if(this.activeTab ==='my'){
+    if (this.activeTab === 'my') {
       this.myTaskFilterRequest.page = 1;
-      this.myTaskFilterRequest.queries= [];
+      this.myTaskFilterRequest.queries = [];
       this.myTaskFilterRequest.queries.push({
         key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
       });
       this.getMyTasks();
     } else {
       this.allTaskFilterRequest.page = 1;
-      this.allTaskFilterRequest.queries= [];
+      this.allTaskFilterRequest.queries = [];
       this.allTaskFilterRequest.queries.push({
         key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
       });
@@ -195,20 +204,20 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
   // this function also calling from emitter from task list component
   public filterStatusApplied(query: string[]) {
-    if(this.activeTab==='my') {
-      if(query.length===this.statusColumnDataSource.length) {
+    if (this.activeTab === 'my') {
+      if (query.length === this.statusColumnDataSource.length) {
         this.myTaskFilterRequest.page = 1;
       }
-      this.myTaskFilterRequest.queries= [];
+      this.myTaskFilterRequest.queries = [];
       this.myTaskFilterRequest.queries.push({
         key: 'statusId', value: query, condition: TaskFilterCondition.and
       });
       this.getMyTasks();
-    }else {
-      if(query.length===this.statusColumnDataSource.length) {
+    } else {
+      if (query.length === this.statusColumnDataSource.length) {
         this.allTaskFilterRequest.page = 1;
       }
-      this.allTaskFilterRequest.queries= [];
+      this.allTaskFilterRequest.queries = [];
       this.allTaskFilterRequest.queries.push({
         key: 'statusId', value: query, condition: TaskFilterCondition.and
       });
@@ -222,7 +231,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.myTaskFilterRequest.sort = 'name';
     this.myTaskFilterRequest.sortBy = 'asc';
 
-    if(term){
+    if (term) {
       this.isFilterApplied = true;
     }
 
@@ -247,7 +256,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     this.allTaskFilterRequest.sort = 'name';
     this.allTaskFilterRequest.sortBy = 'asc';
 
-    if(term){
+    if (term) {
       this.isFilterApplied = true;
     }
 

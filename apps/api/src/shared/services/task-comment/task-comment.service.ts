@@ -19,11 +19,12 @@ import { GeneralService } from '../general.service';
 import { TaskCommentUtilityService } from './task-comment.utility.service';
 import { TaskService } from '../task/task.service';
 import { TaskHistoryService } from '../task-history.service';
+import { AppGateway } from '../../../app/app.gateway';
 
 /**
  * common task population object
  */
-const taskBasicPopulation: any[] = [{
+const commentFullPopulation: any[] = [{
   path: 'createdBy',
   select: 'emailId userName firstName lastName profilePic -_id',
   justOne: true
@@ -42,6 +43,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
   private _utilityService: TaskCommentUtilityService;
+  private _appGateWay: AppGateway;
 
   constructor(
     @InjectModel(DbCollection.taskComments) private readonly _taskCommentModel: Model<TaskComments & Document>,
@@ -54,6 +56,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
     this._projectService = this._moduleRef.get('ProjectService');
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+    this._appGateWay = this._moduleRef.get(AppGateway.name, { strict: false });
 
     this._utilityService = new TaskCommentUtilityService();
   }
@@ -124,6 +127,8 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
       // send email for comment added
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentAdded, 'comment-added');
+
+      this._appGateWay.commentAdded(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;
@@ -186,6 +191,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       // send email
       this._utilityService.sendMailForComments(taskDetails, projectDetails, commentDetails, EmailSubjectEnum.taskCommentUpdated, 'comment-updated');
 
+      this._appGateWay.commentUpdated(commentDetails, taskDetails, projectDetails);
       return commentDetails;
     } catch (e) {
       throw e;
@@ -248,8 +254,8 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
       await this.updateById(commentDetails.id, {
         $set: {
           updatedAt: generateUtcDate(), updatedById: this._generalService.userId,
-          isPinned: requestModel.isPinned, pinnedById: requestModel.isPinned ? this._generalService.userId : null,
-          pinnedAt: requestModel.isPinned ? generateUtcDate() : null
+          isPinned: requestModel.isPinned, pinnedById: this._generalService.userId,
+          pinnedAt: generateUtcDate()
         }
       }, session);
 
@@ -266,6 +272,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
         requestModel.isPinned ? EmailSubjectEnum.taskCommentPinned : EmailSubjectEnum.taskCommentUnPinned,
         requestModel.isPinned ? 'pinned-comment' : 'un-pinned-comment');
 
+      this._appGateWay.commentPinned(commentDetails, taskDetails, projectDetails);
       // return message
       return `Comment ${requestModel.isPinned ? 'Pinned' : 'Un Pinned'} Successfully`;
     } catch (e) {
@@ -281,7 +288,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
     const comments = await this.find({
       filter: { taskId },
-      populate: taskBasicPopulation,
+      populate: commentFullPopulation,
       lean: true
     });
 
@@ -307,7 +314,7 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
         BadRequest('Task Comment not found..');
       }
 
-      const populate = getFullDetails ? taskBasicPopulation : [];
+      const populate = getFullDetails ? commentFullPopulation : [];
       const taskCommentDetail = await this.findOne({
         filter: { _id: commentId, taskId },
         lean: true, populate

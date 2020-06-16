@@ -1,8 +1,9 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
+  AppFilterStorageKeysEnum,
   BaseResponseModel,
-  CloseSprintModel,
   MoveTaskToColumnModel,
+  Project,
   ProjectStatus,
   RemoveTaskFromSprintModel,
   Sprint,
@@ -50,13 +51,14 @@ export class BoardComponent implements OnInit, OnDestroy {
   public taskTypeDataSource: TaskTypeModel[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
-  public statusSprintDataSource: ProjectStatus[] = [];
-  public closeSprintModalIsVisible: boolean;
   public isVisibleCloseSprint: boolean;
   public closeSprintModeSelection = 'createNewSprint';
   public dateFormat = 'MM/dd/yyyy';
   public closeSprintNewSprintForm: FormGroup;
   public filterSprintTasksRequest: SprintFilterTasksModel;
+  public isFilterApplied: boolean = false;
+
+  public currentProject: Project;
 
   public moveFromStage: SprintColumn;
 
@@ -78,32 +80,45 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
+    this._userQuery.currentProject$
+      .pipe(untilDestroyed(this))
+      .subscribe(project => {
+        this.currentProject = project;
+      });
+
     // search sprint tasks event
     this.searchValueSubject$.pipe(
       debounceTime(700),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      untilDestroyed(this)
     ).subscribe(val => {
       this.filterSprintTasksRequest.query = val;
       this.getBoardData();
     });
 
-    if (this._generalService.currentProject.sprintId && this._generalService.currentProject.id) {
+    if (this.currentProject && this.currentProject.sprintId && this.currentProject.id) {
 
-      this.filterSprintTasksRequest = new SprintFilterTasksModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
+      this.filterSprintTasksRequest = new SprintFilterTasksModel(this.currentProject.id, this.currentProject.sprintId);
+
+      // get sprint filter from local storage
+      let availableFilter: any = this._generalService.getAppFilter(this.currentProject.id, AppFilterStorageKeysEnum.sprintBoardFilter);
+
+      if (availableFilter) {
+        availableFilter = availableFilter as SprintFilterTasksModel;
+        this.filterSprintTasksRequest.assigneeIds = availableFilter.assigneeIds;
+        this.filterSprintTasksRequest.query = availableFilter.query;
+        this.searchValue = availableFilter.query || '';
+
+        this.isFilterApplied = !!(availableFilter.assigneeIds.length);
+      }
 
       this.getBoardData();
     } else {
       this.notification.info('Info', 'Sprint not found');
     }
 
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.statusSprintDataSource = res.settings.statuses;
-      }
-    });
-
     this.closeSprintNewSprintForm = new FormGroup({
-      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
+      projectId: new FormControl(this.currentProject.id, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
       goal: new FormControl(null, [Validators.required]),
       duration: new FormControl(null, [Validators.required]),
@@ -127,16 +142,32 @@ export class BoardComponent implements OnInit, OnDestroy {
     this.getBoardData();
   }
 
+  /**
+   * show all items
+   * resets all filter and shows all items
+   */
+  public showAllItems() {
+    this.isFilterApplied = false;
+    this.filterSprintTasksRequest = new SprintFilterTasksModel(this.currentProject.id, this.currentProject.sprintId);
+
+    this.filterSprintTasksRequest.query = this.searchValue;
+    this.getBoardData();
+  }
+
   async getBoardData() {
+    this.isFilterApplied = !!(this.filterSprintTasksRequest.assigneeIds.length);
     try {
+      // set filter to storage
+      this._generalService.setAppFilter(this.currentProject.id, { sprintBoardFilter: this.filterSprintTasksRequest });
+
       this.getStageInProcess = true;
+
       const data = await this._sprintService.filterSprintTasks(this.filterSprintTasksRequest).toPromise();
       this.prepareBoardData(data);
       this.getStageInProcess = false;
     } catch (e) {
       this.getStageInProcess = false;
     }
-
   }
 
   private prepareBoardData(data: BaseResponseModel<Sprint>) {
@@ -182,7 +213,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     try {
 
       const json: MoveTaskToColumnModel = {
-        projectId: this._generalService.currentProject.id,
+        projectId: this.currentProject.id,
         sprintId: this.boardData.id,
         columnId: column.id,
         taskId: task.taskId
@@ -191,10 +222,10 @@ export class BoardComponent implements OnInit, OnDestroy {
       // console.log('json :', json);
 
       this.getStageInProcess = true;
-      const result = await this._sprintService.moveTaskToStage(json).toPromise();
-      this.prepareBoardData(result);
+      await this._sprintService.moveTaskToStage(json).toPromise();
       this.moveFromStage = null;
-      this.getStageInProcess = false;
+
+      this.getBoardData();
     } catch (e) {
 
       // revert ui changes
@@ -234,42 +265,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   toggleCloseSprintShow(): void {
-    this.isVisibleCloseSprint = true;
-  }
-
-  async closeSprint() {
-    this.closeSprintInProcess = true;
-
-    const closeSprintRequest = new CloseSprintModel();
-    closeSprintRequest.projectId = this._generalService.currentProject.id;
-    closeSprintRequest.sprintId = this.boardData.id;
-
-    if (this.closeSprintModeSelection === 'createNewSprint') {
-      closeSprintRequest.createNewSprint = true;
-
-      const sprintForm = this.closeSprintNewSprintForm.getRawValue();
-      if (sprintForm.duration) {
-        sprintForm.startedAt = sprintForm.duration[0];
-        sprintForm.endAt = sprintForm.duration[1];
-        delete sprintForm.duration;
-      }
-
-      closeSprintRequest.sprint = sprintForm;
-      closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
-    } else {
-      closeSprintRequest.createNewSprint = false;
-    }
-
-    try {
-      await this._sprintService.closeSprint(closeSprintRequest).toPromise();
-      this.closeSprintInProcess = false;
-
-      this.isVisibleCloseSprint = false;
-      this.router.navigate(['dashboard']);
-    } catch (e) {
-      this.closeSprintInProcess = false;
-      console.log(e);
-    }
+    this.isVisibleCloseSprint = !this.isVisibleCloseSprint;
   }
 
   cancelCloseSprintDialog(): void {
@@ -280,22 +276,6 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   public viewTask(task: Task) {
     this.router.navigateByUrl('dashboard/task/' + task.displayName);
-  }
-
-  public addTaskNavigate() {
-    let displayName: string = null;
-    if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
-      displayName = this.taskTypeDataSource[0].displayName;
-    }
-
-    if (!displayName) {
-      this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
-      setTimeout(() => {
-        this.router.navigateByUrl('dashboard/settings');
-      }, 1000);
-      return;
-    }
-    this.router.navigateByUrl('dashboard/task/' + displayName);
   }
 
   public showTimeLogModal(columnIndex: number, taskIndex: number, taskItem: Task) {
@@ -319,11 +299,7 @@ export class BoardComponent implements OnInit, OnDestroy {
     };
   }
 
-
-
-
-
-  public async removeTaskToSprint(taskId:string) {
+  public async removeTaskToSprint(taskId: string) {
     try {
 
       return this.modal.confirm({
@@ -332,7 +308,7 @@ export class BoardComponent implements OnInit, OnDestroy {
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {
             const json: RemoveTaskFromSprintModel = {
-              projectId: this._generalService.currentProject.id,
+              projectId: this.currentProject.id,
               sprintId: this.boardData.id,
               taskId: taskId
             };

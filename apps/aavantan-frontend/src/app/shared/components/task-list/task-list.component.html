@@ -168,8 +168,8 @@
 
     <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'"
               nzSize="small" [ngClass]="{'draft-table':isDraftTable}"
-              [nzFrontPagination]="false" [nzTotal]="requestModel.totalItems"
-              [nzPageIndex]="requestModel.page" [nzPageSize]="requestModel.count"
+              [nzFrontPagination]="false" [nzTotal]="requestModel?.totalItems"
+              [nzPageIndex]="requestModel?.page" [nzPageSize]="requestModel?.count"
               [nzShowPagination]="true"
               [nzNoResult]="noResult"
               (nzPageIndexChange)="pageChangedEvent.emit($event)">
@@ -322,17 +322,17 @@
 <!-- sorting icon template -->
 <ng-template #sortTemplate let-column="column">
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel.sort !== column"
+  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel?.sort !== column"
      (click)="sortingChangedEvent.emit({type: 'asc', columnName: column})"
-     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'asc'}"></i>
+     [ngClass]="{'text-info': requestModel?.sort === column && requestModel?.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel.sort === column && requestModel.sortBy === 'asc'"
+  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel?.sort === column && requestModel?.sortBy === 'asc'"
      (click)="sortingChangedEvent.emit({type: 'desc', columnName: column})"
-     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'asc'}"></i>
+     [ngClass]="{'text-info': requestModel?.sort === column && requestModel?.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-down" *ngIf="requestModel.sort === column && requestModel.sortBy === 'desc'"
+  <i class="fas fa-long-arrow-alt-down" *ngIf="requestModel?.sort === column && requestModel?.sortBy === 'desc'"
      (click)="sortingChangedEvent.emit({type: 'asc', columnName: column})"
-     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'desc'}"></i>
+     [ngClass]="{'text-info': requestModel?.sort === column && requestModel?.sortBy === 'desc'}"></i>
 
 </ng-template>
 <!-- sorting -->

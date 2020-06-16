@@ -1,21 +1,26 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
   AddTaskToSprintModel,
+  AppFilterStorageKeysEnum,
+  BoardColumns,
   CloseSprintModel,
   DraftSprint,
   GetUnpublishedRequestModel,
+  Project,
+  ProjectMembers,
   RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
   SprintDurationsModel,
   SprintErrorEnum,
-  SprintErrorResponse,
-  SprintTaskFilterModel, StatusDDLModel,
+  SprintErrorResponse, SprintFilterTasksModel,
+  SprintTaskFilterModel,
+  StatusDDLModel,
   Task,
   TaskFilterCondition,
-  TaskFilterModel, TaskStatusModel,
-  TaskTypeModel,
-  User
+  TaskFilterModel,
+  TaskStatusModel,
+  TaskTypeModel
 } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
@@ -27,8 +32,8 @@ import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { combineLatest, Subject } from 'rxjs';
+import { auditTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -47,7 +52,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public draftSprint: DraftSprint;
   public draftTaskList: Task[] = [];
   public sprintModalIsVisible: boolean;
-  public projectTeams: User[] = [];
+  public projectMembers: ProjectMembers[] = [];
   public unPublishedSprintData: Sprint;
   public teamCapacityModalIsVisible: boolean;
 
@@ -62,7 +67,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public gettingUnpublishedInProcess: boolean;
   public createdSprintId: string = null;
   public publishSprintInProcess: boolean;
-  public saveSprintInProcess: boolean;
   public activeSprintData: Sprint;
   public haveUnpublishedTasks: boolean;
   public taskTypeDataSource: TaskTypeModel[] = [];
@@ -77,8 +81,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   public backLogTaskRequest: TaskFilterModel;
   public backLogStatusQueryRequest: Array<{ name: string, value: string, isSelected: boolean }> = [];
-  public allStatusesChecked: boolean = true;
-  public allStatusesIndeterminate = true;
 
   public sprintTasksRequest: SprintTaskFilterModel;
 
@@ -96,6 +98,10 @@ export class BacklogComponent implements OnInit, OnDestroy {
   // status ddl
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
+  public lastStatus: BoardColumns;
+
+  public currentProject: Project;
+  public isFilterApplied: boolean;
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -119,92 +125,116 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
     });
 
-    // subscribe for al task statuses
-    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
-      const backLogStatusQueryRequest = [];
-      if (statuses) {
-        statuses.forEach(status => {
-          backLogStatusQueryRequest.push({ name: status.name, value: status.id, isSelectd: false });
-        });
-      }
+    // call all functions which is depends on current project and statuses
+    combineLatest([this._userQuery.currentProject$, this._taskStatusQuery.statuses$])
+      .pipe(auditTime(700), untilDestroyed(this))
+      .subscribe(result => {
 
-      this.backLogStatusQueryRequest = backLogStatusQueryRequest;
-    });
+        this.currentProject = result[0]; // result[0]  is expecting current Project
+        const statues = result[1]; // result[1]  is expecting status
+
+        if (!this.currentProject || statues.length === 0) {
+          return;
+        }
+
+        this.projectMembers = cloneDeep(this.currentProject.members.filter(ele => ele.isInviteAccepted));
+
+        // init backLogTaskRequest request model
+        this.backLogTaskRequest = new TaskFilterModel(this.currentProject.id);
+
+        // if project has active sprint than get all tasks of that sprint
+        // if not get un-published sprint tasks
+        if (this.currentProject.sprintId) {
+          this.getActiveSprintData();
+          this.sprintTasksRequest = new SprintTaskFilterModel(this.currentProject.id, this.currentProject.sprintId);
+
+          // get active sprint tasks
+          this.activeSprintData = cloneDeep(this.currentProject.sprint);
+          this.sprintId = this.activeSprintData.id;
+          this.setSprintDurations(this.activeSprintData);
+        } else {
+          // get unpublished sprint data
+          this.getUnpublishedSprint();
+
+          // get unpublished sprint tasks
+          this.sprintTasksRequest = new SprintTaskFilterModel(this.currentProject.id, null);
+        }
+
+        // get all tasks which is already in sprint
+        this.getAllSprintTasks();
+
+        // get sprint filter from local storage
+        const availableFilter: any = this._generalService.getAppFilter(this.currentProject.id, AppFilterStorageKeysEnum.backLogFilter);
+        if (availableFilter) {
+
+          // default fallback
+          availableFilter.queries = availableFilter.queries || [];
+
+          const assigneeIndex = availableFilter.queries.findIndex((query) => query.key === 'assigneeId');
+          let assigneeIds: string[] = [];
+          if (assigneeIndex > -1) {
+            assigneeIds = availableFilter.queries[assigneeIndex].value;
+          }
+
+          const statusIndex = availableFilter.queries.findIndex((query) => query.key === 'statusId');
+          let statusIds: string[] = [];
+          if (statusIndex > -1) {
+            statusIds = availableFilter.queries[statusIndex].value;
+          }
+
+          this.backLogTaskRequest.queries.push({
+            key: 'assigneeId',
+            value: assigneeIds,
+            condition: TaskFilterCondition.and
+          });
+          this.backLogTaskRequest.queries.push({
+            key: 'statusId',
+            value: statusIds,
+            condition: TaskFilterCondition.and
+          });
+          this.backLogTaskRequest.query = availableFilter.query;
+          this.searchValue = availableFilter.query || '';
+          this.isFilterApplied = !!(assigneeIds && assigneeIds.length || (statusIds ? statusIds.length : false));
+
+        } else {
+
+        } // else close for storage check
+
+
+        // prepare status filter dropdown, with checked or uncheck
+        this.getFilterStatus(statues);
+
+        this.getAllBacklogTask();
+
+        // init after current Project
+        this.initSprintForm();
+
+      });
+    // end combineLatest
 
 
     this.searchValueSubject$.pipe(
       debounceTime(700),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      untilDestroyed(this)
     ).subscribe(val => {
-      this.backLogTaskRequest.query = val;
-      this.backLogTaskRequest.page = 1;
-      this.backLogTaskRequest.sort = 'name';
-      this.backLogTaskRequest.sortBy = 'asc';
-      this.getAllBacklogTask();
-    });
-
-    if (this._generalService.currentProject && this._generalService.currentProject.id) {
-
-      this.backLogTaskRequest = new TaskFilterModel(this._generalService.currentProject.id);
-
-      // create status dropdown
-      this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(res => {
-        if(res) {
-          this.getFilterStatus(res);
-        }
-      });
-
-      // get all back log tasks
-      this.getAllBacklogTask();
-
-      // if project has active sprint than get all tasks of that sprint
-      // if not get un-published sprint tasks
-
-      if (this._generalService.currentProject.sprintId) {
-
-        this.sprintTasksRequest = new SprintTaskFilterModel(this._generalService.currentProject.id, this._generalService.currentProject.sprintId);
-
-        // get active sprint tasks
-        this.activeSprintData = this._generalService.currentProject.sprint;
-        this.sprintId = this.activeSprintData.id;
-
-        this.setSprintDurations(this.activeSprintData);
-
-      } else {
-        // get unpublished sprint data
-        this.getUnpublishedSprint();
-
-        // get unpublished sprint tasks
-        this.sprintTasksRequest = new SprintTaskFilterModel(this._generalService.currentProject.id, null);
-      }
-
-      this.getAllSprintTasks();
-    }
-
-    // get current project from store
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.projectTeams = res.members;
+      if (this.backLogTaskRequest && this.currentProject.id) {
+        this.backLogTaskRequest.query = val;
+        this.backLogTaskRequest.page = 1;
+        this.backLogTaskRequest.sort = 'name';
+        this.backLogTaskRequest.sortBy = 'asc';
+        this.getAllBacklogTask();
       }
     });
+
 
     if (this.backLogTasksList && this.backLogTasksList.length > 0) {
       this.countTotalDuration();
     }
 
-    // Sprint wizard data
-    this.unPublishedSprintData = {
-      name: null,
-      projectId: this._generalService.currentProject.id,
-      createdById: this._generalService.user.id,
-      goal: null,
-      startedAt: null,
-      endAt: null,
-      sprintStatus: null
-    };
-
+    // close sprint form
     this.closeSprintNewSprintForm = new FormGroup({
-      projectId: new FormControl(this._generalService.currentProject.id, [Validators.required]),
+      projectId: new FormControl(null),
       name: new FormControl(null, [Validators.required]),
       goal: new FormControl(null, [Validators.required]),
       duration: new FormControl(null, [Validators.required]),
@@ -214,17 +244,49 @@ export class BacklogComponent implements OnInit, OnDestroy {
     });
   }
 
+  // init after current Project
+  public initSprintForm() {
+    // Sprint wizard data
+    this.unPublishedSprintData = {
+      name: null,
+      projectId: this.currentProject.id,
+      createdById: this._generalService.user.id,
+      goal: null,
+      startedAt: null,
+      endAt: null,
+      sprintStatus: null
+    };
 
-  public getFilterStatus(statusList:TaskStatusModel[]) {
+  }
+
+  // emitted selected Members Id array from 'user-filter' component
+  public selectedMembersForFilter(selectedMembersId: string[]) {
+    // if exist assigneeId key in queries then update otherwise add
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'assigneeId');
+
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'assigneeId', value: selectedMembersId, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = selectedMembersId;
+    }
+
+    this.getAllBacklogTask();
+  }
+
+  public getFilterStatus(statusList: TaskStatusModel[]) {
     // ready status filter dropdown data
-    const columns = cloneDeep(this._generalService.currentProject.activeBoard.columns);
-    if (columns) {
-      const data = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
+    let availableStatusInStorage: string[] = [];
 
-      if(statusList && statusList.length>0) {
+    const columns = cloneDeep(this.currentProject.activeBoard.columns);
+    if (columns) {
+      this.lastStatus = columns.reverse().find(column => !column.isHidden); // last column object find like 'Done/Complete' using 'isHidden'
+
+      if (statusList && statusList.length > 0) {
         statusList.forEach((ele) => {
           let checked = true;
-          if (data.headerStatus.id !== ele.id) {
+          if (this.lastStatus.headerStatus.id !== ele.id) {
             this.selectedColumnDataSource.push(ele.id);
           } else {
             checked = false;
@@ -235,21 +297,40 @@ export class BacklogComponent implements OnInit, OnDestroy {
             checked: checked
           });
         });
+      }
 
-        this.backLogTaskRequest.queries = [];
+      // if exist statusId key in queries then update otherwise add
+      const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+      if (queryIndex === -1) {
         this.backLogTaskRequest.queries.push({
           key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
         });
+      } else {
+        // if filter applied
+        if (this.isFilterApplied) {
+          availableStatusInStorage = this.backLogTaskRequest.queries[queryIndex].value;
+
+          this.statusColumnDataSource.forEach((ele) => {
+            ele.checked = availableStatusInStorage.includes(ele.value);
+          });
+          this.selectedColumnDataSource = availableStatusInStorage;
+
+          this.backLogTaskRequest.queries[queryIndex].value = availableStatusInStorage;
+        } else {
+          this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+        }
       }
 
     }
-
   }
 
   public async getAllBacklogTask() {
     this.backLogTableLoadingTip = 'Getting Backlog Tasks...';
     this.getBacklogTasksInProcess = true;
     try {
+
+      this._generalService.setAppFilter(this.currentProject.id, { backLogFilter: this.backLogTaskRequest });
+
       const result = await this._taskService.getAllBacklogTasks(this.backLogTaskRequest).toPromise();
 
       if (result.data) {
@@ -305,7 +386,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
     try {
       const json: GetUnpublishedRequestModel = {
-        projectId: this._generalService.currentProject.id
+        projectId: this.currentProject.id
       };
 
       this._sprintService.getUnpublishedSprint(json).subscribe(data => {
@@ -410,7 +491,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public async publishSprint() {
     try {
       const sprintData: SprintBaseRequest = {
-        projectId: this._generalService.currentProject.id,
+        projectId: this.currentProject.id,
         sprintId: this.unPublishedSprintData.id
       };
 
@@ -457,7 +538,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
 
       const json: AddTaskToSprintModel = {
-        projectId: this._generalService.currentProject.id,
+        projectId: this.currentProject.id,
         sprintId: this.sprintId,
         taskId: task.id,
         adjustHoursAllowed: adjustHoursAllowed
@@ -525,7 +606,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
   public async removeTaskFromSprint(task: Task) {
     try {
       const json: RemoveTaskFromSprintModel = {
-        projectId: this._generalService.currentProject.id,
+        projectId: this.currentProject.id,
         sprintId: this.sprintId,
         taskId: task.id
       };
@@ -593,66 +674,44 @@ export class BacklogComponent implements OnInit, OnDestroy {
     }
   }
 
-  public viewTask(task: Task) {
-    this.router.navigateByUrl('dashboard/task/' + task.displayName);
-  }
-
-  public selectAllStatuses() {
-    this.allStatusesIndeterminate = false;
-    this.backLogStatusQueryRequest = this.backLogStatusQueryRequest.map(status => {
-      status.isSelected = this.allStatusesChecked;
-      return status;
-    });
-
-    this.backLogStatusChanged();
-  }
-
-  public selectSingleStatus(): void {
-    this.allStatusesChecked = this.backLogStatusQueryRequest.every(status => status.isSelected);
-    this.allStatusesIndeterminate = !this.allStatusesChecked;
-
-    this.backLogStatusChanged();
-  }
-
-  public backLogStatusChanged() {
-    this.backLogTaskRequest.page = 1;
-    this.backLogTaskRequest.sort = 'name';
-    this.backLogTaskRequest.sortBy = 'asc';
-    this.backLogTaskRequest.queries = [];
-
-    const isAnyStatusSelected = this.backLogStatusQueryRequest.some(status => status.isSelected);
-    if (isAnyStatusSelected) {
-      this.backLogTaskRequest.queries.push({
-        key: 'status', condition: TaskFilterCondition.or,
-        value: this.backLogStatusQueryRequest.filter(status => status.isSelected).map(status => status.value)
-      });
-    }
-
-    this.getAllBacklogTask();
-  }
-
-
   /** filter status **/
   public showAll() {
-    this.statusColumnDataSource.forEach((ele)=>{
-      this.selectedColumnDataSource.push(ele.value);
+    this.statusColumnDataSource.forEach((ele) => {
+      if (this.lastStatus.headerStatus.id !== ele.value) {
+        this.selectedColumnDataSource.push(ele.value);
+      }
     });
-    this._cdr.detectChanges();
-    this.backLogTaskRequest.queries= [];
-    this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
-    });
+
+    if (!this._cdr['destroyed']) {
+      this._cdr.detectChanges();
+    }
+
+    // if exist statusId key in queries then update otherwise add
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: this.selectedColumnDataSource, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = this.selectedColumnDataSource;
+    }
     this.getAllBacklogTask();
   }
 
-  public updateSingleChecked(item:any) {
-    this.backLogTaskRequest.queries= [];
-    this.backLogTaskRequest.queries.push({
-      key: 'statusId', value: item, condition: TaskFilterCondition.and
-    });
+  public updateSingleChecked(item: any) {
+
+
+    // if exist statusId key in queries then update otherwise add
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: item, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = item;
+    }
     this.getAllBacklogTask();
   }
-
 
   /** time log **/
   public timeLog(item: Task) {
@@ -677,11 +736,17 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.isVisibleCloseSprint = true;
   }
 
+  getActiveSprintData() {
+    this._sprintService.filterSprintTasks(new SprintFilterTasksModel(this.currentProject.id, this.currentProject.sprintId)).subscribe(res => {
+      this.activeSprintData = res.data;
+    });
+  }
+
   async closeSprint() {
     this.closeSprintInProcess = true;
 
     const closeSprintRequest = new CloseSprintModel();
-    closeSprintRequest.projectId = this._generalService.currentProject.id;
+    closeSprintRequest.projectId = this.currentProject.id;
     closeSprintRequest.sprintId = this.sprintId;
 
     if (this.closeSprintModeSelection === 'createNewSprint') {
@@ -695,6 +760,7 @@ export class BacklogComponent implements OnInit, OnDestroy {
       }
 
       closeSprintRequest.sprint = sprintForm;
+      closeSprintRequest.sprint.projectId = this.currentProject.id;
       closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
     } else {
       closeSprintRequest.createNewSprint = false;

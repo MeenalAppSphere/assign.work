@@ -29,15 +29,15 @@ import {
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { ActivatedRoute, NavigationEnd, Router, RouterEvent } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { TaskQuery } from '../queries/task/task.query';
 import { TaskUrls } from '../shared/services/task/task.url';
-import { Observable, Subject } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
 import { UserService } from '../shared/services/user/user.service';
-import { debounceTime } from 'rxjs/operators';
+import { auditTime, debounceTime } from 'rxjs/operators';
 import { ProjectService } from '../shared/services/project/project.service';
 import 'quill-mention';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
@@ -45,6 +45,7 @@ import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query'
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { SprintService } from '../shared/services/sprint/sprint.service';
+import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -104,7 +105,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public statusDataSource: TaskStatusModel[] = [];
   public priorityDataSource: TaskPriorityModel[] = [];
   public displayName: string;
+  public isUpdateMode: boolean;
   public taskData: Task;
+  public taskAge:number;
   public taskId: string;
   public sprintData: Sprint;
   public attachementHeader: any;
@@ -124,6 +127,11 @@ export class TaskComponent implements OnInit, OnDestroy {
   public progressData: TaskTimeLogResponse;
   public uploadingImage: boolean;
 
+  public completionDate: Date = new Date();
+  public today:Date = new Date();
+  public dateFormat = 'MM/dd/yyyy';
+  public disabledDate: any;
+
   public panels: any[] = [{
     active: false,
     name: 'Time log history',
@@ -135,9 +143,8 @@ export class TaskComponent implements OnInit, OnDestroy {
   public atMentionUsers: Mention[] = [];
   public hashValues: Mention[] = [];
   public quillConfig = {};
-  /* end Quill Editor */
 
-  public nzFilterOption = () => true;
+  /* end Quill Editor */
 
   constructor(private  _activatedRouter: ActivatedRoute,
               protected notification: NzNotificationService,
@@ -154,7 +161,8 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _taskTypeQuery: TaskTypeQuery,
               private themeService: ThemeConstantService,
               private _sprintService: SprintService,
-              private modal: NzModalService) {
+              private modal: NzModalService
+  ) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -173,7 +181,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     //   }
     // });
   }
-
   ngOnInit() {
 
     this.themeService.toggleFold(true);
@@ -185,8 +192,18 @@ export class TaskComponent implements OnInit, OnDestroy {
     };
 
     this.displayName = this._activatedRouter.snapshot.params.displayName;
+    this.isUpdateMode = this.displayName.includes('-');
 
     this.sprintData = this._generalService.currentProject.sprint;
+
+    const minDate = this.today.setDate(this.today.getDate() - 1); // returns epoch time
+
+    this.disabledDate = (startValue: Date): boolean => {
+        if (!this.completionDate) {
+          return false;
+        }
+        return minDate >= startValue.getTime();
+      };
 
     this.taskForm = this.FB.group({
       projectId: [null],
@@ -206,7 +223,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       watchers: [null],
       estimatedTime: [null],
       remainingHours: [null],
-      remainingMinutes: [null]
+      remainingMinutes: [null],
+      completionDate: new FormControl(null, []),
     });
 
     // for sidebar controls
@@ -214,10 +232,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       projectId: [null],
       watchers: [null],
       tags: [null],
-      epic: [null],
-      estimatedTime: [null],
-      remainingHours: [null],
-      remainingMinutes: [null]
+      epic: [null]
     });
 
     this._taskQuery.tasks$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -255,45 +270,6 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
-    // get all task status from store
-    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
-      this.statusDataSource = statuses;
-      this.selectedStatus = statuses.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
-    });
-
-    // get all task types from store
-    this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
-      this.taskTypeDataSource = types;
-
-      if (this.taskTypeDataSource && this.displayName) {
-
-        const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
-          return ele.displayName === this.displayName.split('-')[0];
-        });
-
-        if (arr && arr.length) {
-          this.selectedTaskType = arr[0];
-
-          if(this.taskData && this.taskData.assignee) {
-            this.selectedAssignee = this.taskData.assignee;
-          }else {
-            this.selectedAssignee = {...arr[0].assignee};
-          }
-
-          this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
-          this.modelChanged.next();
-        }
-
-      } else {
-        this.resetTaskForm();
-      }
-    });
-
-    // get all task priorities from store
-    this._taskPriorityQuery.priorities$.pipe(untilDestroyed(this)).subscribe(priorities => {
-      this.priorityDataSource = priorities;
-      this.selectedPriority = priorities.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
-    });
 
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -301,10 +277,53 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
-    // get task details from display name
-    if (this.displayName && this.displayName.split('-').length > 1) {
-      this.getTask();
-    }
+    // get all task type, priorities and status from store
+    // then call get task
+    combineLatest([this._taskTypeQuery.types$, this._taskPriorityQuery.priorities$, this._taskStatusQuery.statuses$])
+      .pipe(auditTime(700), untilDestroyed(this))
+      .subscribe(result => {
+        // result[0]  is expecting task types
+        // result[1]  is expecting priorities
+        // result[2]  is expecting status
+
+        if (result[0].length === 0 || result[1].length === 0 || result[2].length === 0) {
+          return;
+        }
+
+        // taskType list
+        this.taskTypeDataSource = result[0];
+        // priority list
+        this.priorityDataSource = result[1];
+        // status list
+        this.statusDataSource = result[2];
+
+        //If task is in add mode
+        if (!this.isUpdateMode) {
+
+          const arr: TaskTypeModel[] = this.taskTypeDataSource.filter((ele) => {
+            return ele.displayName === this.displayName.split('-')[0];
+          });
+
+          if (arr && arr.length) {
+            this.selectedTaskType = arr[0];
+            this.selectedAssignee = { ...arr[0].assignee };
+            this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
+            this.modelChanged.next();
+
+            this.selectedPriority = this.priorityDataSource.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
+            this.selectedStatus = this.statusDataSource.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
+          } else {
+            this.notification.error('Error', 'The resource you are looking for does not exists');
+          }
+        }
+
+        //If task is in update model
+        // get task details from display name
+        if (this.isUpdateMode) {
+          this.getTask();
+        }
+      });
+
 
     // search assignee
     this.modelChanged
@@ -564,43 +583,14 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.epicModalIsVisible = !this.epicModalIsVisible;
   }
 
-  public resetTaskForm() {
+  // hold till we are not applying dirtyness check
+  public createTaskConfirmation() {
     this.modal.confirm({
       nzTitle: 'Are you sure want create new task?',
       nzContent: 'All unsaved data will be clear',
       nzOnOk: () =>
         new Promise(async (resolve, reject) => {
-          this.taskId = null;
-          this.currentTask = null;
-          this.selectedStatus = null;
-          this.selectedPriority = null;
-          this.attachementIds = [];
-          this.uploadedImages = [];
-          this.listOfSelectedWatchers = [];
-          this.listOfSelectedTags = [];
-
-          // reset task form if task form is already initialised
-          if (this.taskForm) {
-            this.taskForm.reset();
-          }
-
-          if (this.taskFormSideBar) {
-            this.taskFormSideBar.reset();
-          }
-
-          this.selectAssigneeFormTaskType();
-
-          this.pinnedCommentsList = null;
-          this.historyList = null;
-          this.progressData = null;
-
-          if (this.selectedTaskType) {
-            this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
-          } else if (this.displayName) {
-            this.router.navigateByUrl('dashboard/task/' + this.displayName);
-          } else {
-            this.router.navigateByUrl('dashboard/task/');
-          }
+          this.resetTaskForm();
           resolve();//close modal on ok
         }).catch((e) => {
 
@@ -608,14 +598,55 @@ export class TaskComponent implements OnInit, OnDestroy {
     });
   }
 
+  public resetTaskForm() {
+    this.isUpdateMode = false;
+    this.taskId = null;
+    this.currentTask = null;
+    this.selectedStatus = null;
+    this.selectedPriority = null;
+    this.attachementIds = [];
+    this.uploadedImages = [];
+    this.listOfSelectedWatchers = [];
+    this.listOfSelectedTags = [];
+
+    if (this.taskData) {
+      this.taskData.estimatedTimeReadable = null;
+    }
+
+    // reset task form if task form is already initialised
+    if (this.taskForm) {
+      this.taskForm.reset();
+    }
+
+    if (this.taskFormSideBar) {
+      this.taskFormSideBar.reset();
+    }
+
+    this.selectAssigneeFormTaskType();
+    this.selectedPriority = this.priorityDataSource.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
+    this.selectedStatus = this.statusDataSource.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
+
+    this.pinnedCommentsList = null;
+    this.historyList = null;
+    this.progressData = null;
+
+    if (this.selectedTaskType) {
+      this.router.navigateByUrl('dashboard/task/' + this.selectedTaskType.displayName);
+    } else if (this.displayName) {
+      this.router.navigateByUrl('dashboard/task/' + this.displayName);
+    } else {
+      this.router.navigateByUrl('dashboard/task/');
+    }
+  }
+
   // Assignee from Task type source
-  public selectAssigneeFormTaskType () {
+  public selectAssigneeFormTaskType() {
     if (this.taskTypeDataSource && this.taskTypeDataSource.length > 0) {
       this.selectedTaskType = this.taskTypeDataSource.find(taskType => taskType.id === this.currentProject.settings.defaultTaskTypeId);
       this.displayName = this.selectedTaskType.displayName;
-      this.selectedAssignee = {...this.selectedTaskType.assignee};
-        this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
-        this.modelChanged.next()
+      this.selectedAssignee = { ...this.selectedTaskType.assignee };
+      this.taskForm.get('assigneeId').patchValue(`${this.selectedAssignee.firstName} ${this.selectedAssignee.lastName}`);
+      this.modelChanged.next();
     }
   }
 
@@ -663,7 +694,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.pinnedCommentsList.unshift(comment.comment);
         setTimeout(() => {
           this.showPinnedCommentsList = true;
-          this.cdr.detectChanges();
+          this.detectChanges();
         }, 10);
 
       } else {
@@ -679,7 +710,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         });
         setTimeout(() => {
           this.showPinnedCommentsList = true;
-          this.cdr.detectChanges();
+          this.detectChanges();
         }, 10);
       }
     }
@@ -812,6 +843,8 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.currentTask = res.data;
       this.taskData = res.data;
 
+      this.calculateTaskAge();
+
       this.taskForm.patchValue(this.taskData);
 
       //sidebar form
@@ -868,6 +901,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  // calculate task age = today - created at
+  public calculateTaskAge() {
+    const date1:any = new Date(this.taskData.createdAt);
+    const date2:any = new Date();
+    this.taskAge = Math.ceil(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+  }
+
   async getMessage(hideLoader?: boolean) {
     this.showCommentsList = true;
     this.showPinnedCommentsList = true;
@@ -913,6 +953,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  // file selection handling
   handleChange({ file, fileList }): void {
     const status = file.status;
     if (status === 'uploading') {
@@ -931,15 +972,13 @@ export class TaskComponent implements OnInit, OnDestroy {
 
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
     } else if (status === 'error') {
-      this.notification.error('Error', `${file.name} file upload failed.`);
+      const message = file.error ? file.error.error.message : file.name + 'file upload failed.';
+      this.notification.error('Error', message);
     }
   }
 
+  // file selection remove handling
   handleRemove = (file: any) => new Observable<boolean>((obs) => {
-    // console.log(file);
-
-    //this._taskService.removeAttachment(file.id).subscribe();
-
     this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
     this.uploadedImages = this.uploadedImages.filter((ele) => {
       if (ele.id !== file.id) {
@@ -947,49 +986,37 @@ export class TaskComponent implements OnInit, OnDestroy {
       }
     });
 
-
-    // console.log('this.handleRemove instanceof Observable', this.handleRemove instanceof Observable)
-    // console.log(obs)
     obs.next(false);
   });
 
 
+  // save sidebar data
   async saveTaskSideBar() {
-
-    this.updateSidebarContentInProcess = true;
-    const hours = this.taskFormSideBar.get('remainingHours').value ? this.taskFormSideBar.get('remainingHours').value : 0;
-    const minutes = this.taskFormSideBar.get('remainingMinutes').value ? this.taskFormSideBar.get('remainingMinutes').value : 0;
-    this.taskData.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
-
-    // watcher and tags in this.updateTask function
-
-    await this.updateTask(this.taskData);
-
-    this.updateSidebarContentInProcess = false;
-
+    // Calling to estimate update and sending true to hide toaster
+    this.saveForm(true);
   }
 
-  async saveForm() {
+  // save left side task form on click on save button
+  async saveForm(isUpdateFromSideBar?: boolean) {
     const task: Task = { ...this.taskForm.getRawValue() };
 
     task.projectId = this.currentProject.id;
+
     task.createdById = this._generalService.user.id;
 
-    // task.taskType = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
     task.taskTypeId = this.selectedTaskType && this.selectedTaskType.id ? this.selectedTaskType.id : null;
 
     task.assigneeId = this.selectedAssignee && this.selectedAssignee.id ? this.selectedAssignee.id : null;
 
-    // task.status = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
     task.statusId = this.selectedStatus && this.selectedStatus.id ? this.selectedStatus.id : null;
 
-    // task.priority = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
     task.priorityId = this.selectedPriority && this.selectedPriority.id ? this.selectedPriority.id : null;
 
     task.dependentItemId = this.selectedDependentItem && this.selectedDependentItem.id ? this.selectedDependentItem.id : null;
-    task.relatedItemId = this.listOfSelectedRelatedItems;
-    task.attachments = this.attachementIds;
 
+    task.relatedItemId = this.listOfSelectedRelatedItems;
+
+    task.attachments = this.attachementIds;
 
     if (!task.taskTypeId) {
       this.notification.error('Error', 'Please select task type');
@@ -1001,26 +1028,28 @@ export class TaskComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.createTaskInProcess = true;
     try {
-
       if (this.taskId) {
 
-        this.updateTask(task);
+        // task estimate data from side bar if already filled
+        const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
+        const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
+        task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
+
+        this.updateTask(task, isUpdateFromSideBar);
 
       } else {
 
         task.watchers = [];
         task.tags = [];
+        this.createTaskInProcess = true;
 
         const data = await this._taskService.createTask(task).toPromise();
+
         this.taskId = data.data.id;
         this.displayName = data.data.displayName;
 
-        if (!this.taskData) {
-          this.taskData = data.data;
-        }
-
+        this.taskData = data.data;
 
         this.selectStatus(data.data.status);
         this.selectAssigneeTypeahead(data.data.assignee);
@@ -1036,8 +1065,8 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   }
 
-  async updateTask(task: Task) {
-
+  //param:isEstimateUpdate, If true then hide success toaster
+  async updateTask(task: Task, isUpdateFromSideBar?: boolean) {
     try {
       task.id = this.taskId;
       task.displayName = this.displayName;
@@ -1059,7 +1088,15 @@ export class TaskComponent implements OnInit, OnDestroy {
       task.watchers = this.taskData.watchers;
       task.tags = this.taskData.tags;
 
-      const data = await this._taskService.updateTask(task).toPromise();
+      if (isUpdateFromSideBar) {
+        this.updateSidebarContentInProcess = true;
+      } else {
+        this.createTaskInProcess = true;
+      }
+
+      const data = await this._taskService.updateTask(task, isUpdateFromSideBar).toPromise();
+
+      this.updateSidebarContentInProcess = false;
 
       this.currentTask = data.data;
       this.taskData = data.data;
@@ -1077,6 +1114,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         };
       }
     } catch (e) {
+      this.updateSidebarContentInProcess = false;
       this.createTaskInProcess = false;
     }
   }
@@ -1091,8 +1129,8 @@ export class TaskComponent implements OnInit, OnDestroy {
     const rhours = Math.floor(hours);
     const minutes = (hours - rhours) * 60;
     const rminutes = Math.round(minutes);
-    this.taskFormSideBar.get('remainingHours').patchValue(rhours);
-    this.taskFormSideBar.get('remainingMinutes').patchValue(rminutes);
+    this.taskForm.get('remainingHours').patchValue(rhours);
+    this.taskForm.get('remainingMinutes').patchValue(rminutes);
     return {
       h: rhours,
       m: rminutes
@@ -1101,7 +1139,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
-      this.selectedAssignee = {...user};
+      this.selectedAssignee = { ...user };
       let userName = user && user.firstName ? user.firstName : user.emailId;
       if (user && user.firstName && user && user.lastName) {
         userName = userName + ' ' + user.lastName;
@@ -1118,7 +1156,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   public selectTaskType(item: TaskTypeModel) {
     this.selectedTaskType = item;
-    this.selectedAssignee = {...item.assignee};
+    this.selectedAssignee = { ...item.assignee };
     this.taskForm.get('assigneeId').patchValue(`${item.assignee.firstName} ${item.assignee.lastName}`);
   }
 
@@ -1155,7 +1193,6 @@ export class TaskComponent implements OnInit, OnDestroy {
   public selectRelatedItemTypeahead(task: Task) {
     // this.selectedRelatedItem = task;
   }
-
 
   /* comment */
   async saveComment() {
@@ -1199,7 +1236,6 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async getLogHistory(event?: any) {
     try {
       if (event) {
@@ -1217,8 +1253,13 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
   }
 
+  private detectChanges() {
+    if (!this.cdr['destroyed']) {
+      this.cdr.detectChanges();
+    }
+  }
+
   public ngOnDestroy() {
     this.themeService.toggleFold(false);
   }
-
 }

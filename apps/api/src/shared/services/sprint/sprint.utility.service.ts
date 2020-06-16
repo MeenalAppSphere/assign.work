@@ -6,7 +6,7 @@ import {
   Project,
   Sprint, SprintActionEnum,
   SprintColumn, SprintColumnTask,
-  SprintErrorEnum,
+  SprintErrorEnum, SprintMembersCapacity,
   Task,
   UpdateSprintMemberWorkingCapacity,
   User
@@ -14,7 +14,7 @@ import {
 import * as moment from 'moment';
 import {
   BadRequest,
-  generateUtcDate,
+  generateUtcDate, hourToSeconds,
   secondsToHours,
   secondsToString,
   validWorkingDaysChecker
@@ -108,6 +108,23 @@ export class SprintUtilityService {
   }
 
   /**
+   * create a sprint member from project members array
+   * @param {Project} project
+   * @param {string} memberId
+   * @return {SprintMembersCapacity}
+   */
+  createSprintMember(project: Project, memberId: string): SprintMembersCapacity {
+    const member = project.members.find(projectMember => projectMember.userId.toString() === memberId.toString());
+
+    return {
+      userId: memberId,
+      workingCapacity: hourToSeconds(member.workingCapacity),
+      workingCapacityPerDay: hourToSeconds(member.workingCapacityPerDay),
+      workingDays: member.workingDays
+    };
+  }
+
+  /**
    * add task to column
    * adds a task to a column by task status
    * if task is deleted than it will re add task to sprint by setting removedAt to null
@@ -177,6 +194,7 @@ export class SprintUtilityService {
     // convert total estimation time to readable format
     if (sprint.columns) {
 
+      // filter out hidden columns
       sprint.columns = sprint.columns.filter(column => !column.isHidden).map(column => {
         column.tasks = column.tasks.filter(task => !task.removedById);
         column.tasks = column.tasks.map(task => {
@@ -187,8 +205,10 @@ export class SprintUtilityService {
         return column;
       });
 
+      // calculate total estimates
       this.calculateTotalEstimateForColumns(sprint);
 
+      // loop over sprint columns
       sprint.columns.forEach(column => {
         column.totalEstimationReadable = secondsToString(column.totalEstimation);
       });
@@ -221,6 +241,7 @@ export class SprintUtilityService {
     task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
     task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
     task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
+    task.taskAge = moment().utc().diff(moment(task.completionDate ? task.completionDate : task.createdAt), 'd');
 
     if (task.attachmentsDetails) {
       task.attachmentsDetails.forEach(attachment => {
@@ -344,7 +365,7 @@ export class SprintUtilityService {
    */
   calculateSprintEstimates(sprint: Sprint) {
     // count how many days left for sprint completion
-    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment(), 'd');
+    sprint.sprintDaysLeft = moment(sprint.endAt).diff(moment().utc(), 'd');
 
     // convert total capacity in readable format
     sprint.totalCapacityReadable = secondsToString(sprint.totalCapacity);

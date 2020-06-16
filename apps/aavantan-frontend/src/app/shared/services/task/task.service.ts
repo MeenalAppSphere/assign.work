@@ -116,10 +116,12 @@ export class TaskService extends BaseService<TaskStore, TaskState> {
     );
   }
 
-  updateTask(task: Task): Observable<BaseResponseModel<Task>> {
+  updateTask(task: Task, isEstimateUpdate?:boolean): Observable<BaseResponseModel<Task>> {
     return this._http.post(TaskUrls.update, task).pipe(
       map((res: BaseResponseModel<Task>) => {
-        this.notification.success('Success', 'Task Updated Successfully');
+        if(!isEstimateUpdate) {
+          this.notification.success('Success', 'Task Updated Successfully');
+        }
         return res;
       }),
       catchError(err => {

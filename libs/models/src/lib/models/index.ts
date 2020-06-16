@@ -15,3 +15,5 @@ export * from './task-status.model';
 export * from './task-priority.model';
 export * from './board.model';
 export * from './email.model';
+export * from './app-filter.model';
+export * from './notification.model';

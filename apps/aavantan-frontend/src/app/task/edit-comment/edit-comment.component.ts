@@ -82,15 +82,13 @@ export class EditCommentComponent implements OnInit {
         container: [
           ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
           ['code-block'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
           [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          //[{ 'font': [] }],
+          [{ 'color': ['#333333', '#000000', 'red', 'green'] }],
           ['clean'],                                         // remove formatting button
           ['link', 'image', 'video']
-            ['emoji'],
         ],
-        handlers: {'emoji': function() {}}
       },
       mention: {
         allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
@@ -114,9 +112,6 @@ export class EditCommentComponent implements OnInit {
           }
         },
       },
-      "emoji-toolbar": true,
-      "emoji-textarea": false,
-      "emoji-shortname": true,
       keyboard: {
         bindings: {
           shiftEnter: {

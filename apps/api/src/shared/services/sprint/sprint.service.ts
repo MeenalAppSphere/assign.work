@@ -50,6 +50,7 @@ import { EmailService } from '../email.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportUtilityService } from '../sprint-report/sprint-report.utility.service';
+import { AppGateway } from '../../../app/app.gateway';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
@@ -75,7 +76,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'columns.tasks.task',
-  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime createdById createdAt',
+  select: 'name displayName description tags sprintId priorityId taskTypeId statusId assigneeId estimatedTime remainingTime overLoggedTime totalLoggedTime createdById createdAt completionDate',
   justOne: true,
   populate: [{
     path: 'assignee',
@@ -110,6 +111,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
   private _taskService: TaskService;
   private _taskHistoryService: TaskHistoryService;
   private _sprintReportService: SprintReportService;
+  private _appGateWay: AppGateway;
 
   private _sprintUtilityService: SprintUtilityService;
   private _boardUtilityService: BoardUtilityService;
@@ -127,6 +129,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     this._taskService = this._moduleRef.get('TaskService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
     this._sprintReportService = this._moduleRef.get('SprintReportService');
+    this._appGateWay = this._moduleRef.get(AppGateway.name, { strict: false });
 
     this._boardUtilityService = new BoardUtilityService();
     this._sprintUtilityService = new SprintUtilityService();
@@ -168,43 +171,6 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * model: GetSprintByIdRequestModel
    */
   public async getSprintById(model: GetSprintByIdRequestModel, onlyPublished: boolean = false) {
-
-    // const query = [
-    //   {
-    //     $match: {
-    //       _id: this.toObjectId(model.sprintId),
-    //       projectId: this.toObjectId(model.projectId),
-    //       isDeleted: false
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: DbCollection.users,
-    //       localField: 'createdById',
-    //       foreignField: '_id',
-    //       as: 'createdBy'
-    //     }
-    //   }, { $unwind: '$createdBy' },
-    //   {
-    //     $lookup: {
-    //       from: DbCollection.users,
-    //       localField: 'membersCapacity.userId',
-    //       foreignField: '_id',
-    //       as: 'membersCapacityUser'
-    //     }
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: DbCollection.tasks,
-    //       localField: 'columns.tasks.taskId',
-    //       foreignField: '_id',
-    //       as: 'columns.tasks.task',
-    //     }
-    //   },
-    // ];
-    //
-    // return this.dbModel.aggregate(query).exec();
-
     const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
     const filter = {
@@ -234,10 +200,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param model: CreateSprintModel
    */
   public async createSprint(model: CreateSprintModel) {
+    // get project details and check if current user is member of project
+    const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
+
     // create sprint
     const newSprint = await this.withRetrySession(async (session: ClientSession) => {
-      // get project details and check if current user is member of project
-      const projectDetails = await this._projectService.getProjectDetails(model.sprint.projectId, true);
 
       // create sprint common process
       const createdSprint = await this.createSprintCommonProcess(model, projectDetails, session);
@@ -248,6 +215,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
     // get sprint details and return response
     const sprint = await this.getSprintDetails(newSprint.id, model.sprint.projectId, commonPopulationForSprint, commonFieldSelection);
+
+    // send notification
+    this._appGateWay.sprintCreated({ ...sprint }, projectDetails);
+
+    // return sprint vm
     return this._sprintUtilityService.prepareSprintVm(sprint);
   }
 
@@ -347,7 +319,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       if (sprintDetails.sprintStatus) {
         switch (sprintDetails.sprintStatus.status) {
           case SprintStatusEnum.inProgress:
-            if (moment(sprintDetails.endAt).isBefore(moment(), 'd')) {
+            if (moment(sprintDetails.endAt).isBefore(moment().endOf('d'), 'd')) {
               BadRequest('Sprint end date is passed, so you can\'t add new task to it');
             }
             break;
@@ -405,13 +377,17 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           let currentTaskAssigneeTotalEstimation = 0;
 
           // get task assignee details from sprint members
-          const currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
+          let currentAssigneeDetails = sprintDetails.membersCapacity.find(member => member.userId.toString() === taskDetails.assigneeId.toString());
+          let isMissingMemberAdded = false;
 
           // check if assignee is active and part of sprint
-          if (currentAssigneeDetails.user.status !== UserStatus.Active) {
-            // throw error if assignee is not part of sprint or not an active user
-            sprintErrorResponse.tasksError.reason = SprintErrorEnum.memberNotFound;
-            return sprintErrorResponse;
+          if (!currentAssigneeDetails) {
+            // add assignee to sprint member array
+            currentAssigneeDetails = this._sprintUtilityService.createSprintMember(projectDetails, taskDetails.assigneeId);
+
+            sprintDetails.membersCapacity.push(currentAssigneeDetails);
+            sprintDetails.totalCapacity += currentAssigneeDetails.workingCapacity;
+            isMissingMemberAdded = true;
           }
 
           // get all tasks from the sprint and push it to all tasks array
@@ -438,12 +414,12 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
             return sprintErrorResponse;
           } else {
             // start task add process
-            return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
+            return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session, isMissingMemberAdded);
           }
         }
       } else {
         // start task add process
-        return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session);
+        return await this.processAddTaskToSprint(projectDetails, sprintDetails, taskDetails, session, false);
       }
     });
   }
@@ -462,6 +438,11 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId);
 
       model.query = model.query ? model.query.toLowerCase() : '';
+
+      // sprint total items count before filter
+      sprintDetails.totalItems = sprintDetails.columns.reduce((count, column) => {
+        return count + column.tasks.length;
+      }, 0);
 
       // filter sprint columns with query model we got from request
       sprintDetails.columns = sprintDetails.columns.map(column => {
@@ -596,7 +577,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // endregion
 
     // process moving
-    await this.withRetrySession(async (session: ClientSession) => {
+    return await this.withRetrySession(async (session: ClientSession) => {
       await this._projectService.getProjectDetails(model.projectId);
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
@@ -686,11 +667,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // add task history
       await this._taskHistoryService.addHistory(history, session);
-    });
 
-    // return whole sprint details
-    const sprint = await this.getSprintDetails(model.sprintId, model.projectId, detailedPopulationForSprint, detailedFiledSelection);
-    return this._sprintUtilityService.prepareSprintVm(sprint);
+      return 'Task Moved Successfully';
+    });
   }
 
   /**
@@ -946,7 +925,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
         // new sprint process
         newSprint = await this.createSprintCommonProcess({
-          sprint: model.sprint, doPublishSprint: model.createAndPublishNewSprint, unFinishedTasks
+          sprint: model.sprint, doPublishSprint: model.createAndPublishNewSprint,
+          unFinishedTasks, updateSprintMemberCapacity: model.updateMemberCapacity
         }, projectDetails, session);
 
         // close current sprint and set new sprint id to unfinished tasks
@@ -998,7 +978,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
           this._sprintUtilityService.sendSprintEmails(sprintDetails, EmailSubjectEnum.sprintPublished);
         }
 
-        return sprintDetails;
+        // return sprint vm
+        return this._sprintUtilityService.prepareSprintVm(sprintDetails);
       });
     } else {
       return 'Sprint Closed Successfully and all Un Finished To Back Log';
@@ -1132,16 +1113,24 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     sprintModel.membersCapacity = [];
     sprintModel.totalCapacity = 0;
 
-    // add only those members who accepted invitation of project means active collaborator of project
-    projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
-      sprintModel.membersCapacity.push({
-        userId: member.userId,
-        workingCapacity: hourToSeconds(member.workingCapacity),
-        workingCapacityPerDay: hourToSeconds(member.workingCapacityPerDay),
-        workingDays: member.workingDays
+    // check if update sprint member capacity is selected then set member capacity that user selected,
+    // else get default member capacity from project
+    if (model.updateSprintMemberCapacity) {
+      model.sprint.membersCapacity = model.sprint.membersCapacity.map(capacity => {
+        capacity.workingCapacity = +hourToSeconds(capacity.workingCapacity);
+        capacity.workingCapacityPerDay = +hourToSeconds(capacity.workingCapacityPerDay);
+
+        sprintModel.totalCapacity += Number(capacity.workingCapacity);
+        return capacity;
       });
-      sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
-    });
+      sprintModel.membersCapacity = model.sprint.membersCapacity;
+    } else {
+      // add only those members who accepted invitation of project means active collaborator of project
+      projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
+        sprintModel.membersCapacity.push(this._sprintUtilityService.createSprintMember(projectDetails, member.userId));
+        sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
+      });
+    }
 
     // create columns array for sprint from project
     sprintModel.columns = [];
@@ -1183,8 +1172,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
    * @param sprintDetails
    * @param taskDetails
    * @param session
+   * @param isMissingMemberAdded
    */
-  private async processAddTaskToSprint(project: Project, sprintDetails: Sprint, taskDetails: Task, session: ClientSession) {
+  private async processAddTaskToSprint(project: Project, sprintDetails: Sprint, taskDetails: Task, session: ClientSession, isMissingMemberAdded: boolean = false) {
 
     // adds a task to column by using task's status
     this._sprintUtilityService.addTaskToColumn(project, sprintDetails, taskDetails, this._generalService.userId);
@@ -1192,8 +1182,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // get column index where task is added
     const columnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, taskDetails.statusId.toString());
 
-    // update sprint by id and update sprint columns
-    await this.updateById(sprintDetails.id, {
+    // update doc
+    const updateDoc: any = {
       $set: {
         [`columns.${columnIndex}`]: sprintDetails.columns[columnIndex],
         totalEstimation: sprintDetails.totalEstimation,
@@ -1201,12 +1191,20 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
         totalRemainingTime: sprintDetails.totalRemainingTime,
         totalOverLoggedTime: sprintDetails.totalRemainingTime >= 0 ? 0 : Math.abs(sprintDetails.totalRemainingTime)
       }
-    }, session);
+    };
+
+    // check if new member is created then create
+    if (isMissingMemberAdded) {
+      updateDoc.$set['membersCapacity'] = sprintDetails.membersCapacity;
+    }
+
+    // update sprint by id and update sprint columns and sprint member
+    await this.updateById(sprintDetails.id, updateDoc, session);
 
     // if sprint is published than add task to report
     if (sprintDetails.sprintStatus && sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
       // add task to sprint report
-      await this._sprintReportService.addTaskInSprintReport(sprintDetails.reportId, taskDetails, session);
+      await this._sprintReportService.addTaskInSprintReport(sprintDetails, taskDetails, isMissingMemberAdded, session);
     }
 
     // create task history
