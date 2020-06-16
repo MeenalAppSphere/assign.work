@@ -1,34 +1,40 @@
 <div class="capacity-table">
-  <table>
-    <thead>
 
-    <tr>
-      <th class="border-0">
+  <!-- filter and switch -->
+  <div class="row m-t-10 m-b-10 m-0 filter-section">
+    <div class="col p-0">
+      <div class="relative" style="text-align: left;max-width:100%; width:220px;">
         <nz-input-group [nzSuffix]="suffixIcon">
           <input [(ngModel)]="searchUserInput" (ngModelChange)="onChangeSearch($event)" nz-input
-                 placeholder="Search User" style="text-align: left;max-width:100%; width:150px;"/>
+                 placeholder="Search User" style="text-align: left;max-width:100%; width:220px;"/>
         </nz-input-group>
         <ng-template #suffixIcon>
           <i nz-icon nzType="search"></i>
         </ng-template>
-      </th>
-      <th class="text-right border-0" colspan="9">
-        <small *ngIf="switchShow0Capacity">Hide <b class="text-success">0h Only</b></small>
-        <small *ngIf="!switchShow0Capacity">Show <b class="text-success">0h Only</b></small>
-        <nz-switch nzSize="small" [(ngModel)]="switchShow0Capacity" (ngModelChange)="onChangeSwitchCapacity()"
-                   class="m-l-5"></nz-switch>
-      </th>
-    </tr>
+      </div>
+    </div>
+    <div class="col p-0 text-right">
+      <small *ngIf="switchShow0Capacity">Hide <b class="text-success">0h Only</b></small>
+      <small *ngIf="!switchShow0Capacity">Show <b class="text-success">0h Only</b></small>
+      <nz-switch nzSize="small" [(ngModel)]="switchShow0Capacity" (ngModelChange)="onChangeSwitchCapacity()"
+                 class="m-l-5"></nz-switch>
+    </div>
+  </div>
+
+
+  <!-- users list -->
+  <table>
+    <thead>
 
     <tr *ngIf="sprintData?.membersCapacity.length>0">
-      <th class="">Name</th>
-      <th class="text-right" width="200">Working hours</th>
-      <th class="text-right" width="100">Per day</th>
+      <th width="220">Name</th>
+      <th class="text-right" width="95">Working hours</th>
+      <th class="text-right" width="60">Per day</th>
       <th class="text-center" colspan="7">Working Days</th>
     </tr>
     </thead>
-    <tbody>
 
+    <tbody>
     <tr *ngFor="let item of sprintData.membersCapacity">
       <td>
         <nz-avatar nzSize="small" nzIcon="user" nzText="{{ item.user.firstName | slice : 0:1 }}"
@@ -52,7 +58,7 @@
 
     </tr>
     <tr *ngIf="sprintData?.membersCapacity.length>0">
-      <td class="text-right" colspan="3">
+      <td class="text-right" colspan="2">
         <nz-tag [nzColor]="'#F8F8F8'" class="text-gray-light">Total Capacity : <strong
           class="text-body">{{sprintData.totalCapacityReadable ? sprintData.totalCapacityReadable : '0h'}}</strong>
         </nz-tag>
