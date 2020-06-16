@@ -3,11 +3,11 @@
   [nzBordered]="false"
   [nzTitle]="titleTemplateRef"
   [nzExtra]="createSprintBtnTemplate"
-  class="backlog-page">
+  id="sprint-report-page" #sprintreportpage>
 
   <ng-template #titleTemplateRef>
 
-    <span class="p-r-30">
+    <span class="p-r-30" *ngIf="!isDownloadInProgress">
       <span class="p-r-15 font-size-18 text-black">Sprint Report</span>
        <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText"
             class="p-l-10"/>
@@ -19,32 +19,37 @@
   </ng-template>
 
   <ng-template #createSprintBtnTemplate>
+      <div class="d-flex" >
 
-    <div class="text-gray-light-2 font-size-12 p-t-5 font-weight-light inline-block">
-      <span>{{ currentDate | date: 'dd-MMM-yyyy' }} </span>
-      <span class="p-r-5 p-l-5">|</span>
-      <span #currentTime> {{ currentDate | date: 'hh:mm:ss A' }} </span>
-    </div>
+          <div class="text-gray-light-2 font-size-12 p-t-5 font-weight-light inline-block">
+            <span>{{ currentDate | date: 'dd-MMM-yyyy' }} </span>
+            <span class="p-r-5 p-l-5">|</span>
+            <span #currentTime> {{ currentDate | date: 'hh:mm:ss A' }} </span>
+          </div>
 
 
-    <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
-      <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-        <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
-        <i nz-icon nzType="caret-down" theme="outline"></i>
-      </button>
-    </nz-button-group>
-    <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
-      <ul nz-menu>
-        <li nz-menu-item *ngFor="let sprint of closedSprintsList"
-            (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
-      </ul>
-    </nz-dropdown-menu>
+          <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
+            <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
+              <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
+              <i nz-icon nzType="caret-down" theme="outline"></i>
+            </button>
+          </nz-button-group>
+          <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
+            <ul nz-menu>
+              <li nz-menu-item *ngFor="let sprint of closedSprintsList"
+                  (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
+            </ul>
+          </nz-dropdown-menu>
 
+          <button *ngIf="isReportAvailable" [nzLoading]="isDownloadInProgress" type="button"
+                  nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download PDF</button>
+
+      </div>
   </ng-template>
 
   <nz-spin [nzSpinning]="getReportInProcess" nzTip="Getting Report...">
 
-    <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
+  <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
     <nz-empty
       [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
       [nzNotFoundContent]="contentTpl"
@@ -369,8 +374,309 @@
   </section>
 
 
+  <!-- all task of the sprint -->
+  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
-  </div >
+    <label class="text-black-dark">Sprint Items</label>
+
+    <div class="sprint-items">
+
+      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
+
+        <thead>
+
+        <tr>
+
+          <th>Item ID</th>
+          <th>Status</th>
+          <th>Item Name</th>
+          <!--          <th>Start Date</th>-->
+          <th>Assignee</th>
+          <!--          <th class="text-right">Effort Deviation</th>-->
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr *ngFor="let data of sprintReport.reportTasks">
+          <td data-label="Item ID">{{ data.displayName }}</td>
+          <td data-label="Status">
+            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+          </td>
+          <td data-label="Item Description">{{ data.name }}</td>
+          <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
+          <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
+          <!--          <td data-label="Effort Deviation" class="text-right"-->
+          <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
+        </tr>
+
+        </tbody>
+
+
+      </nz-table>
+
+
+    </div>
+
+
+  </section>
+
+
+  <!-- all task of the sprint -->
+  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+
+    <label class="text-black-dark">Sprint Items</label>
+
+    <div class="sprint-items">
+
+      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
+
+        <thead>
+
+        <tr>
+
+          <th>Item ID</th>
+          <th>Status</th>
+          <th>Item Name</th>
+          <!--          <th>Start Date</th>-->
+          <th>Assignee</th>
+          <!--          <th class="text-right">Effort Deviation</th>-->
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr *ngFor="let data of sprintReport.reportTasks">
+          <td data-label="Item ID">{{ data.displayName }}</td>
+          <td data-label="Status">
+            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+          </td>
+          <td data-label="Item Description">{{ data.name }}</td>
+          <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
+          <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
+          <!--          <td data-label="Effort Deviation" class="text-right"-->
+          <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
+        </tr>
+
+        </tbody>
+
+
+      </nz-table>
+
+
+    </div>
+
+
+  </section>
+
+
+  <!-- all task of the sprint -->
+  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+
+    <label class="text-black-dark">Sprint Items</label>
+
+    <div class="sprint-items">
+
+      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
+
+        <thead>
+
+        <tr>
+
+          <th>Item ID</th>
+          <th>Status</th>
+          <th>Item Name</th>
+          <!--          <th>Start Date</th>-->
+          <th>Assignee</th>
+          <!--          <th class="text-right">Effort Deviation</th>-->
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr *ngFor="let data of sprintReport.reportTasks">
+          <td data-label="Item ID">{{ data.displayName }}</td>
+          <td data-label="Status">
+            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+          </td>
+          <td data-label="Item Description">{{ data.name }}</td>
+          <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
+          <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
+          <!--          <td data-label="Effort Deviation" class="text-right"-->
+          <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
+        </tr>
+
+        </tbody>
+
+
+      </nz-table>
+
+
+    </div>
+
+
+  </section>
+
+
+
+    <!-- all task of the sprint -->
+    <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+
+      <label class="text-black-dark">Sprint Items</label>
+
+      <div class="sprint-items">
+
+        <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
+
+          <thead>
+
+          <tr>
+
+            <th>Item ID</th>
+            <th>Status</th>
+            <th>Item Name</th>
+            <!--          <th>Start Date</th>-->
+            <th>Assignee</th>
+            <!--          <th class="text-right">Effort Deviation</th>-->
+
+          </tr>
+
+          </thead>
+
+          <tbody>
+
+          <tr *ngFor="let data of sprintReport.reportTasks">
+            <td data-label="Item ID">{{ data.displayName }}</td>
+            <td data-label="Status">
+              <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+            </td>
+            <td data-label="Item Description">{{ data.name }}</td>
+            <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
+            <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
+            <!--          <td data-label="Effort Deviation" class="text-right"-->
+            <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
+          </tr>
+
+          </tbody>
+
+
+        </nz-table>
+
+
+      </div>
+
+
+    </section>
+
+
+    <!-- all task of the sprint -->
+    <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+
+      <label class="text-black-dark">Sprint Items</label>
+
+      <div class="sprint-items">
+
+        <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
+
+          <thead>
+
+          <tr>
+
+            <th>Item ID</th>
+            <th>Status</th>
+            <th>Item Name</th>
+            <!--          <th>Start Date</th>-->
+            <th>Assignee</th>
+            <!--          <th class="text-right">Effort Deviation</th>-->
+
+          </tr>
+
+          </thead>
+
+          <tbody>
+
+          <tr *ngFor="let data of sprintReport.reportTasks">
+            <td data-label="Item ID">{{ data.displayName }}</td>
+            <td data-label="Status">
+              <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+            </td>
+            <td data-label="Item Description">{{ data.name }}</td>
+            <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
+            <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
+            <!--          <td data-label="Effort Deviation" class="text-right"-->
+            <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
+          </tr>
+
+          </tbody>
+
+
+        </nz-table>
+
+
+      </div>
+
+
+    </section>
+
+
+    <!-- all task of the sprint -->
+    <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+
+      <label class="text-black-dark">Sprint Items</label>
+
+      <div class="sprint-items">
+
+        <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
+
+          <thead>
+
+          <tr>
+
+            <th>Item ID</th>
+            <th>Status</th>
+            <th>Item Name</th>
+            <!--          <th>Start Date</th>-->
+            <th>Assignee</th>
+            <!--          <th class="text-right">Effort Deviation</th>-->
+
+          </tr>
+
+          </thead>
+
+          <tbody>
+
+          <tr *ngFor="let data of sprintReport.reportTasks">
+            <td data-label="Item ID">{{ data.displayName }}</td>
+            <td data-label="Status">
+              <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+            </td>
+            <td data-label="Item Description">{{ data.name }}</td>
+            <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
+            <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
+            <!--          <td data-label="Effort Deviation" class="text-right"-->
+            <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
+          </tr>
+
+          </tbody>
+
+
+        </nz-table>
+
+
+      </div>
+
+
+    </section>
+
+
+
+    </div >
 
   </nz-spin>
 
