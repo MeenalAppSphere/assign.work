@@ -70,6 +70,7 @@
     "highcharts-angular": "^2.4.0",
     "humanize-duration": "^3.21.0",
     "jquery": "3.4.1",
+    "jspdf": "^1.5.3",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "mongoose": "5.8.9",
