@@ -578,12 +578,12 @@
 </ng-template>
 <!-- sorting -->
 
-<aavantan-team-capacity
+<aavantan-team-capacity-model
   *ngIf="teamCapacityModalIsVisible"
   [sprintData]="unPublishedSprintData"
   [teamCapacityModalIsVisible]="teamCapacityModalIsVisible"
   (toggleShow)="toggleTeamCapacity($event)">
-</aavantan-team-capacity>
+</aavantan-team-capacity-model>
 
 <aavantan-app-add-sprint
   *ngIf="sprintModalIsVisible"

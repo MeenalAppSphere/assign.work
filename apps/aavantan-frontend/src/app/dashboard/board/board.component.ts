@@ -52,7 +52,6 @@ export class BoardComponent implements OnInit, OnDestroy {
   public taskTypeDataSource: TaskTypeModel[] = [];
   // close sprint modal
   public selectedSprintStatus: ProjectStatus;
-  public closeSprintModalIsVisible: boolean;
   public isVisibleCloseSprint: boolean;
   public closeSprintModeSelection = 'createNewSprint';
   public dateFormat = 'MM/dd/yyyy';
@@ -60,7 +59,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   public filterSprintTasksRequest: SprintFilterTasksModel;
   public isFilterApplied: boolean = false;
 
-  private currentProject: Project;
+  public currentProject: Project;
 
   public moveFromStage: SprintColumn;
 
@@ -267,7 +266,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   toggleCloseSprintShow(): void {
-    this.isVisibleCloseSprint = true;
+    this.isVisibleCloseSprint = !this.isVisibleCloseSprint;
   }
 
   async closeSprint() {

@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { CloseSprintModel, ProjectStages, ProjectStatus, Sprint } from '@aavantan-app/models';
+import { CloseSprintModel, Project, Sprint } from '@aavantan-app/models';
 import { GeneralService } from '../../../shared/services/general.service';
 import { SprintService } from '../../../shared/services/sprint/sprint.service';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../../queries/user/user.query';
+import { Router } from '@angular/router';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-close-sprint',
@@ -13,53 +14,75 @@ import { UserQuery } from '../../../queries/user/user.query';
 })
 export class CloseSprintComponent implements OnInit, OnDestroy {
   @Input() public closeSprintModalIsVisible;
-  @Input() public activeSprintData;
-  @Input() public boardData;
+  @Input() public activeSprintData: Sprint;
+  @Input() public currentProject: Project;
 
   @Output() toggleCloseSprintShow: EventEmitter<Sprint> = new EventEmitter<Sprint>();
 
-  public selectedStage: ProjectStages;
-  public stagesDataSource: ProjectStages[] = [];
-  public sprintCloseInProcess:boolean;
+  public closeSprintNewSprintForm: FormGroup;
+  public sprintCloseInProcess: boolean;
+  public closeSprintModeSelection = 'createNewSprint';
+  public dateFormat = 'MM/dd/yyyy';
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
-              private _userQuery:UserQuery,
-              protected notification: NzNotificationService) { }
+              private _userQuery: UserQuery,
+              private notification: NzNotificationService,
+              private router: Router) {
+  }
 
   ngOnInit() {
-    // get current project from store
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.stagesDataSource = res.settings.stages;
+    this.closeSprintNewSprintForm = new FormGroup({
+      projectId: new FormControl(this.currentProject.id, [Validators.required]),
+      name: new FormControl(null, [Validators.required]),
+      goal: new FormControl(null, [Validators.required]),
+      duration: new FormControl(null, [Validators.required]),
+      startedAt: new FormControl(null, []),
+      endAt: new FormControl(null, []),
+      createAndPublishNewSprint: new FormControl(true),
+      updateMemberCapacity: new FormControl(false)
+    });
+  }
+
+  async closeSprint() {
+    this.sprintCloseInProcess = true;
+
+    const closeSprintRequest = new CloseSprintModel();
+    closeSprintRequest.projectId = this.currentProject.id;
+    closeSprintRequest.sprintId = this.activeSprintData.id;
+
+    if (this.closeSprintModeSelection === 'createNewSprint') {
+      closeSprintRequest.createNewSprint = true;
+
+      const sprintForm = this.closeSprintNewSprintForm.getRawValue();
+      if (sprintForm.duration) {
+        sprintForm.startedAt = sprintForm.duration[0];
+        sprintForm.endAt = sprintForm.duration[1];
+        delete sprintForm.duration;
       }
-    })
-  }
 
+      closeSprintRequest.sprint = sprintForm;
 
-  public selectStage(item: ProjectStatus) {
-    this.selectedStage = item;
-  }
+      // if update member capacity is true then get replace default member capacity with user updated member capacity
+      if (sprintForm.updateMemberCapacity) {
+        closeSprintRequest.sprint.membersCapacity = this.activeSprintData.membersCapacity;
+      }
 
-  async closeSprint(){
-
-    try{
-
-      // this.sprintCloseInProcess = true;
-      // const json :CloseSprintModel ={
-      //   projectId: this._generalService.currentProject.id,
-      //   sprintId: this._generalService.currentProject.sprintId,
-      // }
-      //
-      // const data = await this._sprintService.closeSprint(json).toPromise();
-      // console.log('Sprint close', data);
-      // this.toggleCloseSprintShow.emit(data.data);
-      // this.sprintCloseInProcess = false;
-
-    }catch (e) {
-      this.sprintCloseInProcess = false;
+      closeSprintRequest.createAndPublishNewSprint = sprintForm.createAndPublishNewSprint;
+    } else {
+      closeSprintRequest.createNewSprint = false;
     }
 
+    try {
+      await this._sprintService.closeSprint(closeSprintRequest).toPromise();
+      this.sprintCloseInProcess = false;
+
+      this.closeSprintModalIsVisible = false;
+      this.router.navigate(['dashboard']);
+    } catch (e) {
+      this.sprintCloseInProcess = false;
+      console.log(e);
+    }
   }
 
   handleCancel(): void {

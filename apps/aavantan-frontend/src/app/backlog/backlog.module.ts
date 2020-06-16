@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { BacklogComponent } from './backlog.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
-import { TeamCapacityComponent } from './components/team-capacity.component';
 import { AddSprintComponent } from './components/add-sprint/add-sprint.component';
 
 const routes: Routes = [
@@ -19,7 +18,6 @@ const routes: Routes = [
   exports: [],
   declarations: [
     BacklogComponent,
-    TeamCapacityComponent,
     AddSprintComponent
   ]
 })

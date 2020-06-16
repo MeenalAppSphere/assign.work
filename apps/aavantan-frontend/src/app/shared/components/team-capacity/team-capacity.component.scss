@@ -1,9 +1,9 @@
 .capacity-table {
   margin-top: -16px;
-  padding: 0px 4px;
+  padding: 0 4px;
   overflow: auto;
   .ant-modal-body {
-    padding: 0px !important;
+    padding: 0 !important;
   }
 
   .ant-btn {
@@ -22,7 +22,7 @@
   }
   .ant-btn > .anticon + span,
   .ant-btn > span + .anticon {
-    margin-left: 0px !important;
+    margin-left: 0 !important;
   }
   th,
   td {
@@ -34,10 +34,10 @@
     line-height: initial;
   }
   .p-r-0{
-    padding-right: 0px !important;
+    padding-right: 0 !important;
   }
   .ant-table-tbody > tr:last-child > td {
-    border-bottom: 0px;
+    border-bottom: 0;
   }
   input {
     max-width: 50px;
