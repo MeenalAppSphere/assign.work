@@ -7,8 +7,6 @@ import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/
 import { SprintReportService } from '../../shared/services/sprint-report/sprint-report.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
 import * as moment from 'moment';
-import * as jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import html2pdf from 'html2pdf.js';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../../queries/user/user.query';
