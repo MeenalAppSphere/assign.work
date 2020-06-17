@@ -10,6 +10,8 @@ import * as moment from 'moment';
 import * as jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import html2pdf from 'html2pdf.js';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserQuery } from '../../queries/user/user.query';
 
 let timeInterval;
 
@@ -36,23 +38,34 @@ export class HomeComponent implements OnInit, OnDestroy {
   public isReportAvailable:boolean;
   public isSprintAvailable:boolean;
   public isDownloadInProgress:boolean;
-  public sprintreportpage:ElementRef;
+  public currentProject:Project;
 
   constructor(
     private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService,
-    private readonly _sprintService: SprintService, private zone: NgZone, private renderer: Renderer2
+    private readonly _sprintService: SprintService, private zone: NgZone, private renderer: Renderer2,
+    private _userQuery: UserQuery
   ) {
     this.currentDate = new Date();
   }
 
   ngOnInit(): void {
-    if (this._generalService.currentProject && this._generalService.currentProject.sprintId) {
-      this.isSprintAvailable = true;
-      this.getSprintReport(this._generalService.currentProject.sprint.id, this._generalService.currentProject.sprint.name);
-    } else {
-      this.isSprintAvailable = false;
-      this.setCurrentTimer();
-    }
+
+    this._userQuery.currentProject$
+      .pipe(untilDestroyed(this))
+      .subscribe(project => {
+        this.currentProject = project;
+
+        if (this.currentProject && this.currentProject.sprintId) {
+          this.isSprintAvailable = true;
+          this.getSprintReport(this.currentProject.sprint.id, this.currentProject.sprint.name);
+        } else {
+          this.isSprintAvailable = false;
+          this.setCurrentTimer();
+        }
+
+      });
+
+
 
     this.getAllClosedSprints();
 

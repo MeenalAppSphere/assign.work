@@ -47,7 +47,7 @@
       </div>
   </ng-template>
 
-  <nz-spin id="report-page-content" [ngClass]="isDownloadInProgress ? 'p-15 p-t-5': ''" [nzSpinning]="getReportInProcess" nzTip="Getting Report...">
+  <nz-spin id="report-page-content" [ngClass]="isDownloadInProgress ? 'p-15 p-l-10  p-t-5': ''" [nzSpinning]="getReportInProcess" nzTip="Getting Report...">
 
   <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
     <nz-empty
@@ -72,8 +72,18 @@
   <!-- sprint summary -->
 
   <div class="row report-title" *ngIf="isDownloadInProgress">
-    <div class="col">SPRINT REPORT  <small class="text-gray-light-2 font-size-13">As on : {{ currentDate | date: 'dd-MMM-yyyy' }} </small></div>
-    <div class="col text-right"><img src="../../../assets/images/logo/logo.svg" /></div>
+
+    <div class="col-md-3 border-right">
+      <div class="font-size-15 text-black">SPRINT REPORT</div>
+      <div class="text-gray-light-2 font-size-11 font-weight-normal">As on : {{ currentDate | date: 'dd-MMM-yyyy' }} </div>
+    </div>
+
+    <div class="col-md-6 p-l-20">
+      <div class="font-size-11 text-gray-light-2 font-weight-normal">Project</div>
+      <div class="font-size-15 text-black">{{currentProject.name}}</div>
+    </div>
+
+    <div class="col-md-3 text-right"><img src="../../../assets/images/logo/logo.svg" /></div>
 
   </div>
 
