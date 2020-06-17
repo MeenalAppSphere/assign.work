@@ -1,19 +1,25 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import {
-  AddTaskToSprintModel, AppFilterStorageKeysEnum, BackLogStorageFilterModel, BoardColumns,
+  AddTaskToSprintModel,
+  AppFilterStorageKeysEnum,
+  BoardColumns,
   CloseSprintModel,
   DraftSprint,
-  GetUnpublishedRequestModel, Project, ProjectMembers,
+  GetUnpublishedRequestModel,
+  Project,
+  ProjectMembers,
   RemoveTaskFromSprintModel,
   Sprint,
   SprintBaseRequest,
   SprintDurationsModel,
   SprintErrorEnum,
   SprintErrorResponse, SprintFilterTasksModel,
-  SprintTaskFilterModel, StatusDDLModel,
+  SprintTaskFilterModel,
+  StatusDDLModel,
   Task,
   TaskFilterCondition,
-  TaskFilterModel, TaskStatusModel,
+  TaskFilterModel,
+  TaskStatusModel,
   TaskTypeModel
 } from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -139,12 +145,13 @@ export class BacklogComponent implements OnInit, OnDestroy {
         // if project has active sprint than get all tasks of that sprint
         // if not get un-published sprint tasks
         if (this.currentProject.sprintId) {
+          this.getActiveSprintData();
           this.sprintTasksRequest = new SprintTaskFilterModel(this.currentProject.id, this.currentProject.sprintId);
+
           // get active sprint tasks
-          this.activeSprintData = this.currentProject.sprint;
+          this.activeSprintData = cloneDeep(this.currentProject.sprint);
           this.sprintId = this.activeSprintData.id;
           this.setSprintDurations(this.activeSprintData);
-
         } else {
           // get unpublished sprint data
           this.getUnpublishedSprint();
@@ -235,7 +242,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
       endAt: new FormControl(null, []),
       createAndPublishNewSprint: new FormControl(true)
     });
-
   }
 
   // init after current Project
@@ -728,6 +734,12 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   toggleCloseSprintShow(): void {
     this.isVisibleCloseSprint = true;
+  }
+
+  getActiveSprintData() {
+    this._sprintService.filterSprintTasks(new SprintFilterTasksModel(this.currentProject.id, this.currentProject.sprintId)).subscribe(res => {
+      this.activeSprintData = res.data;
+    });
   }
 
   async closeSprint() {

@@ -13,7 +13,6 @@ import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 import { JoyrideModule } from 'ngx-joyride';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { CloseSprintComponent } from './board/modal-close-sprint/modal-close-sprint.component';
 import { DndModule } from 'ngx-drag-drop';
 import { BoardDesignComponent } from './board-design/board-design.component';
 import { SettingsModule } from '../settings/settings.module';
@@ -49,7 +48,6 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} }
     ActivesprintComponent,
     PermissionsComponent,
     CollaboratorsComponent,
-    CloseSprintComponent,
     BoardDesignComponent,
     AssignUserComponent,
     HiddenStatusComponent

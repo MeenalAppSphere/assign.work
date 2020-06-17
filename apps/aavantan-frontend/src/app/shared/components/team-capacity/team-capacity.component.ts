@@ -6,8 +6,8 @@ import {
   SprintMembersCapacity,
   UpdateSprintMemberWorkingCapacity
 } from '@aavantan-app/models';
-import { GeneralService } from '../../shared/services/general.service';
-import { SprintService } from '../../shared/services/sprint/sprint.service';
+import { GeneralService } from '../../services/general.service';
+import { SprintService } from '../../services/sprint/sprint.service';
 
 @Component({
   selector: 'aavantan-team-capacity',
@@ -15,12 +15,10 @@ import { SprintService } from '../../shared/services/sprint/sprint.service';
   styleUrls: ['./team-capacity.component.scss']
 })
 export class TeamCapacityComponent implements OnInit {
-  @Input() public teamCapacityModalIsVisible: boolean;
   @Input() public sprintData: Sprint;
-  @Output() toggleShow: EventEmitter<SprintDurationsModel> = new EventEmitter<any>();
+
   public response: any;
   public organizations: Organization[];
-  public isCapacityUpdateInProgress: boolean;
   public switchShow0Capacity: boolean;
   public searchUserInput: boolean;
   public allMembersList: SprintMembersCapacity[] = [];
@@ -33,42 +31,11 @@ export class TeamCapacityComponent implements OnInit {
     this.allMembersList = this.sprintData.membersCapacity;
   }
 
-  async saveForm() {
-
-    try {
-      this.isCapacityUpdateInProgress = true;
-      const json: UpdateSprintMemberWorkingCapacity = {
-        capacity: [],
-        sprintId: this.sprintData.id,
-        projectId: this._generalService.currentProject.id
-      };
-
-      if (this.sprintData.membersCapacity && this.sprintData.membersCapacity.length > 0) {
-        for (let i = 0; i < this.sprintData.membersCapacity.length; i++) {
-          const capacityReqObject = {
-            memberId: this.sprintData.membersCapacity[i].userId.toString(),
-            workingCapacityPerDayReadable: this.sprintData.membersCapacity[i].workingCapacity.toString(),
-            workingCapacityPerDay: this.sprintData.membersCapacity[i].workingCapacityPerDay,
-            workingCapacity: this.sprintData.membersCapacity[i].workingCapacity,
-            workingDays: this.sprintData.membersCapacity[i].workingDays
-          };
-          json.capacity.push(capacityReqObject);
-        }
-      }
-
-      const result = await this._sprintService.updateSprintWorkingCapacity(json).toPromise();
-      this.isCapacityUpdateInProgress = false;
-      this.toggleShow.emit(result.data);
-    } catch (e) {
-      this.isCapacityUpdateInProgress = false;
-    }
-  }
-
   public calculateTotalCapacity() {
 
     if (this.sprintData.membersCapacity && this.sprintData.membersCapacity.length > 0) {
       this.sprintData.membersCapacity.forEach((ele) => {
-
+        ele.workingCapacityPerDay = Number(ele.workingCapacityPerDay);
         const countSelected = ele.workingDays.filter((ele1) => {
           if (ele1.selected) {
             return ele1;
@@ -87,10 +54,10 @@ export class TeamCapacityComponent implements OnInit {
     }
   }
 
-
   public onChangeSearch(value: any): void {
     this.sprintData.membersCapacity = this.allMembersList;
     if (value) {
+      value = value.toLowerCase();
       this.sprintData.membersCapacity = this.sprintData.membersCapacity.filter((ele) => {
         let profileName = '';
 
@@ -119,11 +86,7 @@ export class TeamCapacityComponent implements OnInit {
   }
 
   public selectDay(wd: ProjectWorkingDays, userRow: SprintMembersCapacity) {
-    if (wd.selected) {
-      wd.selected = false;
-    } else {
-      wd.selected = true;
-    }
+    wd.selected = !wd.selected;
     const countSelected = userRow.workingDays.filter((ele) => {
       if (ele.selected) {
         return ele;
@@ -131,9 +94,5 @@ export class TeamCapacityComponent implements OnInit {
     });
     userRow.workingCapacity = userRow.workingCapacityPerDay * countSelected.length;
     this.calculateTotalCapacity();
-  }
-
-  public basicModalHandleCancel() {
-    this.toggleShow.emit();
   }
 }

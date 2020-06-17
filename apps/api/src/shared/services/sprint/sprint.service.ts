@@ -925,7 +925,8 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
         // new sprint process
         newSprint = await this.createSprintCommonProcess({
-          sprint: model.sprint, doPublishSprint: model.createAndPublishNewSprint, unFinishedTasks
+          sprint: model.sprint, doPublishSprint: model.createAndPublishNewSprint,
+          unFinishedTasks, updateSprintMemberCapacity: model.updateMemberCapacity
         }, projectDetails, session);
 
         // close current sprint and set new sprint id to unfinished tasks
@@ -1112,11 +1113,24 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     sprintModel.membersCapacity = [];
     sprintModel.totalCapacity = 0;
 
-    // add only those members who accepted invitation of project means active collaborator of project
-    projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
-      sprintModel.membersCapacity.push(this._sprintUtilityService.createSprintMember(projectDetails, member.userId));
-      sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
-    });
+    // check if update sprint member capacity is selected then set member capacity that user selected,
+    // else get default member capacity from project
+    if (model.updateSprintMemberCapacity) {
+      model.sprint.membersCapacity = model.sprint.membersCapacity.map(capacity => {
+        capacity.workingCapacity = +hourToSeconds(capacity.workingCapacity);
+        capacity.workingCapacityPerDay = +hourToSeconds(capacity.workingCapacityPerDay);
+
+        sprintModel.totalCapacity += Number(capacity.workingCapacity);
+        return capacity;
+      });
+      sprintModel.membersCapacity = model.sprint.membersCapacity;
+    } else {
+      // add only those members who accepted invitation of project means active collaborator of project
+      projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
+        sprintModel.membersCapacity.push(this._sprintUtilityService.createSprintMember(projectDetails, member.userId));
+        sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
+      });
+    }
 
     // create columns array for sprint from project
     sprintModel.columns = [];
