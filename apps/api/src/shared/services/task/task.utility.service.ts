@@ -11,7 +11,7 @@ import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { environment } from '../../../environments/environment';
 import { ProjectUtilityService } from '../project/project.utility.service';
-import { BadRequest, generateUtcDate, secondsToString, toObjectId } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, secondsToString, stringToSeconds, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import * as moment from 'moment';
 
@@ -95,7 +95,7 @@ export class TaskUtilityService {
     taskModel.relatedItemId = model.relatedItemId || [];
     taskModel.assigneeId = model.assigneeId;
 
-    taskModel.estimatedTime = 0;
+    taskModel.estimatedTime = model.estimatedTimeReadable ? stringToSeconds(model.estimatedTimeReadable) : 0;
     taskModel.remainingTime = 0;
     taskModel.overLoggedTime = 0;
     taskModel.totalLoggedTime = 0;

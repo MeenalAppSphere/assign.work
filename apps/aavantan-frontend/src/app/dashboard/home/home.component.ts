@@ -7,6 +7,9 @@ import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/
 import { SprintReportService } from '../../shared/services/sprint-report/sprint-report.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
 import * as moment from 'moment';
+import html2pdf from 'html2pdf.js';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserQuery } from '../../queries/user/user.query';
 
 let timeInterval;
 
@@ -32,22 +35,35 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   public isReportAvailable:boolean;
   public isSprintAvailable:boolean;
+  public isDownloadInProgress:boolean;
+  public currentProject:Project;
 
   constructor(
     private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService,
-    private readonly _sprintService: SprintService, private zone: NgZone, private renderer: Renderer2
+    private readonly _sprintService: SprintService, private zone: NgZone, private renderer: Renderer2,
+    private _userQuery: UserQuery
   ) {
     this.currentDate = new Date();
   }
 
   ngOnInit(): void {
-    if (this._generalService.currentProject && this._generalService.currentProject.sprintId) {
-      this.isSprintAvailable = true;
-      this.getSprintReport(this._generalService.currentProject.sprint.id, this._generalService.currentProject.sprint.name);
-    } else {
-      this.isSprintAvailable = false;
-      this.setCurrentTimer();
-    }
+
+    this._userQuery.currentProject$
+      .pipe(untilDestroyed(this))
+      .subscribe(project => {
+        this.currentProject = project;
+
+        if (this.currentProject && this.currentProject.sprintId) {
+          this.isSprintAvailable = true;
+          this.getSprintReport(this.currentProject.sprint.id, this.currentProject.sprint.name);
+        } else {
+          this.isSprintAvailable = false;
+          this.setCurrentTimer();
+        }
+
+      });
+
+
 
     this.getAllClosedSprints();
 
@@ -186,6 +202,34 @@ export class HomeComponent implements OnInit, OnDestroy {
   public selectSprint(item: Sprint) {
     this.selectedSprint = item;
   }
+
+  public getPDF() {
+    try {
+      this.isDownloadInProgress = true;
+
+      const element = document.getElementById('report-page-content');
+
+      //const format = [842, 595]; // width, height
+      const format = 'a4';
+
+      const option = {
+        margin: 1,
+        filename:this.sprintReport.sprint.name,
+        image : {type:'png', quality: 1},
+        html2canvas : {scale:1},
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        jsPDF : { unit: 'pt', format: format, orientation:'p' }
+      }
+
+      html2pdf().set(option).from(element).save().then(()=>{
+        this.isDownloadInProgress = false;
+      });
+    }catch (e) {
+      this.isDownloadInProgress = false;
+    }
+
+  }
+
 
   public ngOnDestroy(): void {
     clearInterval(timeInterval);
