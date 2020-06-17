@@ -244,14 +244,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   public getPDF() {
     try {
       this.isDownloadInProgress = true;
-      const element = document.getElementById('sprint-report-page');
+
+      const element = document.getElementById('report-page-content');
+
+      //const format = [842, 595]; // width, height
+      const format = 'a4';
 
       const option = {
-        margin:0.25,
+        margin: 1,
         filename:this.sprintReport.sprint.name,
-        image : {type:'jpeg', quality: 1},
+        image : {type:'png', quality: 1},
         html2canvas : {scale:1},
-        jsPDF : { unit: 'pt', format: 'a4', orientation:'p' }
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        jsPDF : { unit: 'pt', format: format, orientation:'p' }
       }
 
       html2pdf().set(option).from(element).save().then(()=>{
