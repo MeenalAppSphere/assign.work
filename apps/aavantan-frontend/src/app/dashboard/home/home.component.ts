@@ -191,7 +191,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public selectSprint(item: Sprint) {
     this.selectedSprint = item;
   }
-  
+
   public getPDF() {
     try {
       this.isDownloadInProgress = true;
