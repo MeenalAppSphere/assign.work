@@ -107,7 +107,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public displayName: string;
   public isUpdateMode: boolean;
   public taskData: Task;
-  public taskAge:number;
+  public taskAge: number;
   public taskId: string;
   public sprintData: Sprint;
   public attachementHeader: any;
@@ -128,7 +128,7 @@ export class TaskComponent implements OnInit, OnDestroy {
   public uploadingImage: boolean;
 
   public completionDate: Date = new Date();
-  public today:Date = new Date();
+  public today: Date = new Date();
   public dateFormat = 'MM/dd/yyyy';
   public disabledDate: any;
 
@@ -181,6 +181,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     //   }
     // });
   }
+
   ngOnInit() {
 
     this.themeService.toggleFold(true);
@@ -199,11 +200,11 @@ export class TaskComponent implements OnInit, OnDestroy {
     const minDate = this.today.setDate(this.today.getDate() - 1); // returns epoch time
 
     this.disabledDate = (startValue: Date): boolean => {
-        if (!this.completionDate) {
-          return false;
-        }
-        return minDate >= startValue.getTime();
-      };
+      if (!this.completionDate) {
+        return false;
+      }
+      return minDate >= startValue.getTime();
+    };
 
     this.taskForm = this.FB.group({
       projectId: [null],
@@ -224,7 +225,7 @@ export class TaskComponent implements OnInit, OnDestroy {
       estimatedTime: [null],
       remainingHours: [null],
       remainingMinutes: [null],
-      completionDate: new FormControl(null, []),
+      completionDate: new FormControl(null, [])
     });
 
     // for sidebar controls
@@ -903,8 +904,8 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   // calculate task age = today - created at
   public calculateTaskAge() {
-    const date1:any = new Date(this.taskData.createdAt);
-    const date2:any = new Date();
+    const date1: any = new Date(this.taskData.createdAt);
+    const date2: any = new Date();
     this.taskAge = Math.ceil(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
   }
 
@@ -1028,16 +1029,14 @@ export class TaskComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // get task estimate data from side bar if already filled
+    const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
+    const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
+    task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
+
     try {
       if (this.taskId) {
-
-        // task estimate data from side bar if already filled
-        const hours = this.taskForm.get('remainingHours').value ? this.taskForm.get('remainingHours').value : 0;
-        const minutes = this.taskForm.get('remainingMinutes').value ? this.taskForm.get('remainingMinutes').value : 0;
-        task.estimatedTimeReadable = hours + 'h ' + +minutes + 'm';
-
         this.updateTask(task, isUpdateFromSideBar);
-
       } else {
 
         task.watchers = [];
