@@ -215,7 +215,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const option = {
         margin: 1,
         filename:this.sprintReport.sprint.name,
-        image : {type:'png', quality: 1},
+        image : {type:'jpeg', quality: 1},
         html2canvas : {scale:1},
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
         jsPDF : { unit: 'pt', format: format, orientation:'p' }
