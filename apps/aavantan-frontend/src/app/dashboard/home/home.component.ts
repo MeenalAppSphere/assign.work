@@ -210,7 +210,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const element = document.getElementById('report-page-content');
 
       //const format = [842, 595]; // width, height
-      const format = 'a4';
+      const format = 'a3';
 
       const option = {
         margin: 1,
