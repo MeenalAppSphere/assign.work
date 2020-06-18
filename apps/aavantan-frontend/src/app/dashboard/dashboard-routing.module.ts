@@ -22,11 +22,12 @@ const routes: Routes = [
       {
         path: 'dashboard', component: HomeComponent
       },
-      { path: 'project', loadChildren: () => import('../project/project.module').then(p => p.ProjectModule) },
-      { path: 'board', component: BoardComponent },
+      { path: 'my-tasks', loadChildren: () => import('../my-tasks/my-tasks.module').then(p => p.MyTasksModule) },
+      { path: 'running-sprint', component: BoardComponent },
       { path: 'board-setting', component: BoardDesignComponent },
       { path: 'board-setting/:boardId', component: BoardDesignComponent },
       { path: 'active_sprint', component: ActivesprintComponent },
+      { path: 'plan-sprint', loadChildren: () => import('../plan-sprint/plan-sprint.module').then(p => p.PlanSprintModule) },
       { path: 'backlog', loadChildren: () => import('../backlog/backlog.module').then(p => p.BacklogModule) },
       { path: 'task', loadChildren: () => import('../task/task.module').then(p => p.TaskModule) },
       { path: 'settings', loadChildren: () => import('../settings/settings.module').then(p => p.SettingsModule) },

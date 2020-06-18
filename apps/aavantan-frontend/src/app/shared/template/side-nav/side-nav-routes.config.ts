@@ -10,8 +10,8 @@ export const ROUTES: SideNavInterface[] = [
     submenu: []
   },
   {
-    path: 'project',
-    title: 'Project',
+    path: 'my-tasks',
+    title: 'My Tasks',
     iconType: '',
     iconTheme: 'outline',
     icon: 'border',
@@ -19,23 +19,23 @@ export const ROUTES: SideNavInterface[] = [
     submenu: []
   },
   {
-    path: 'board',
-    title: 'Board',
+    path: 'running-sprint',
+    title: 'Running Sprint',
     iconType: '',
     iconTheme: 'outline',
     icon: 'appstore',
-    img: 'menu-board',
+    img: 'menu-active-sprint',
     submenu: []
   },
-  // {
-  //   path: 'active_sprint',
-  //   title: 'Active Sprint',
-  //   iconType: '',
-  //   iconTheme: 'outline',
-  //   icon: 'line-chart',
-  //   img: 'menu-active-sprint',
-  //   submenu: []
-  // },
+  {
+    path: 'plan-sprint',
+    title: 'Plan Work/Sprint',
+    iconType: '',
+    iconTheme: 'outline',
+    icon: 'snippets',
+    img: 'menu-backlogs',
+    submenu: []
+  },
   {
     path: 'backlog',
     title: 'Backlog',

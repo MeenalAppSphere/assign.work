@@ -22,11 +22,11 @@ import { combineLatest } from 'rxjs';
 import { auditTime } from 'rxjs/operators';
 
 @Component({
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+  templateUrl: './my-tasks.component.html',
+  styleUrls: ['./my-tasks.component.scss']
 })
 
-export class ProjectComponent implements OnInit, OnDestroy {
+export class MyTasksComponent implements OnInit, OnDestroy {
   public myTaskList: Task[] = [];
   public allTaskList: Task[] = [];
   public view: String = 'listView';

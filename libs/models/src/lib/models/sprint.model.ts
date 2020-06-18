@@ -214,3 +214,9 @@ export class SprintFilterTasksModel extends SprintBaseRequest {
     this.query = '';
   }
 }
+
+export class SprintPanel {
+  active:boolean;
+  name:string;
+  disabled:boolean;
+}
