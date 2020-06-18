@@ -168,52 +168,48 @@
 
     <label class="text-black-dark">Item Summary</label>
 
-    <div class="items-summary">
+    <div class="items-summary custom-table">
 
-      <nz-table [nzFrontPagination]="false" [nzData]="sprintReport.allTasks">
+      <nz-empty
+        *ngIf="!sprintReport?.reportMembers || sprintReport?.reportMembers.length===0"
+        [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+        [nzNotFoundContent]="contentTpl">
+        <ng-template #contentTpl>
+          <div class="m-b-20"><span>No Data Available</span></div>
+        </ng-template>
+      </nz-empty>
 
-        <thead>
+      <div class="thead" *ngIf="sprintReport?.allTasks.length>0">
+          <div class="tr">
+            <div class="th">Status</div>
+            <div class="th text-right p-l-0">Items</div>
+            <div class="th text-right">Estimation</div>
+            <div class="th text-right">Logged</div>
+            <div class="th text-right">Remaining</div>
+          </div>
+        </div>
 
-        <tr>
+        <div class="tbody"  *ngIf="sprintReport?.allTasks.length>0">
+          <div class="tr" *ngFor="let data of sprintReport.allTasks">
+            <div data-label="Status" class="td p-l-0">
+              <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+            </div>
+            <div data-label="Items" class="td text-right">{{ data?.count }}</div>
+            <div data-label="Estimation" class="td text-right">{{ data.totalEstimatedTimeReadable }}</div>
+            <div data-label="Logged" class="td text-right">{{ data.totalLoggedTimeReadable }}</div>
+            <div data-label="Remaining" class="td text-right">{{ data.totalRemainingTimeReadable }}</div>
+          </div>
+        </div>
 
-          <th>Status</th>
-          <th class="text-right p-l-0">Items</th>
-          <th class="text-right">Estimation</th>
-          <th class="text-right">Logged</th>
-          <th class="text-right">Remaining</th>
-
-        </tr>
-        </thead>
-
-        <tbody>
-
-        <tr *ngFor="let data of sprintReport.allTasks">
-          <td data-label="Status" class="p-l-0">
-            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
-          </td>
-          <td data-label="Items" class="text-right">{{ data?.count }}</td>
-          <td data-label="Estimation" class="text-right">{{ data.totalEstimatedTimeReadable }}</td>
-          <td data-label="Logged" class="text-right">{{ data.totalLoggedTimeReadable }}</td>
-          <td data-label="Remaining" class="text-right">{{ data.totalRemainingTimeReadable }}</td>
-        </tr>
-
-        </tbody>
-
-
-      </nz-table>
-
-      <table class="w-100 items-summary-footer">
-        <thead>
-        <tr>
-          <th>Total</th>
-          <th class="text-right">{{ sprintReport.allTasksCount }}</th>
-          <th class="text-right">{{ sprintReport.allTaskTotalEstimatedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.allTaskTotalLoggedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.allTaskTotalRemainingTimeReadable }}</th>
-        </tr>
-        </thead>
-      </table>
-
+      <div class="tfoot"  *ngIf="sprintReport?.allTasks.length>0">
+        <div class="tr">
+          <div class="th">Total</div>
+          <div class="th text-right">{{ sprintReport.allTasksCount }}</div>
+          <div class="th text-right">{{ sprintReport.allTaskTotalEstimatedTimeReadable }}</div>
+          <div class="th text-right">{{ sprintReport.allTaskTotalLoggedTimeReadable }}</div>
+          <div class="th text-right">{{ sprintReport.allTaskTotalRemainingTimeReadable }}</div>
+        </div>
+      </div>
 
     </div>
 
@@ -286,55 +282,52 @@
 
     <label class="text-black-dark">Sprint Members</label>
 
-    <div class="items-summary">
+    <div class="items-summary custom-table">
 
-      <nz-table [nzFrontPagination]="false" [nzData]="sprintReport.reportMembers">
+      <nz-empty
+        *ngIf="!sprintReport?.reportMembers || sprintReport?.reportMembers.length===0"
+        [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+        [nzNotFoundContent]="contentTpl">
+        <ng-template #contentTpl>
+          <div class="m-b-20"><span>No Data Available</span></div>
+        </ng-template>
+      </nz-empty>
 
-        <thead>
+      <div class="thead" *ngIf="sprintReport?.reportMembers.length>0">
+        <div class="tr">
+          <div class="th">Name</div>
+          <div class="th text-right">Capacity</div>
+          <div class="th text-right">Assigned Time</div>
+          <div class="th text-right">Worked</div>
+          <div class="th text-right">Remaining Work</div>
+          <div class="th text-right">Remaining Capacity</div>
+          <div class="th text-right">Productivity</div>
+        </div>
+      </div>
 
-        <tr>
+      <div class="tbody" *ngIf="sprintReport?.reportMembers.length>0">
+        <div class="tr" *ngFor="let item of sprintReport.reportMembers">
+          <div class="td" data-label="Name">{{ item.user.firstName }} {{ item.user.lastName }}</div>
+          <div class="td text-right" data-label="Capacity">{{ item.workingCapacityReadable }}</div>
+          <div class="td text-right" data-label="Assigned Time">{{ item.totalAssignedTimeReadable }}</div>
+          <div class="td text-right" data-label="Worked">{{ item.totalLoggedTimeReadable }}</div>
+          <div class="td text-right" data-label="Remaining Work">{{ item.totalRemainingTimeReadable }}</div>
+          <div class="td text-right" data-label="Remaining Capacity">{{ item.totalRemainingWorkingCapacityReadable }}</div>
+          <div class="td text-right" data-label="Productivity">{{ item.sprintProductivity }} %</div>
+        </div>
+      </div>
 
-          <th>Name</th>
-          <th class="text-right">Capacity</th>
-          <th class="text-right">Assigned Time</th>
-          <th class="text-right">Worked</th>
-          <th class="text-right">Remaining Work</th>
-          <th class="text-right">Remaining Capacity</th>
-          <th class="text-right">Productivity</th>
-
-        </tr>
-
-        </thead>
-
-        <tbody>
-
-        <tr *ngFor="let item of sprintReport.reportMembers">
-          <td data-label="Name">{{ item.user.firstName }} {{ item.user.lastName }}</td>
-          <td class="text-right" data-label="Capacity">{{ item.workingCapacityReadable }}</td>
-          <td class="text-right" data-label="Assigned Time">{{ item.totalAssignedTimeReadable }}</td>
-          <td class="text-right" data-label="Worked">{{ item.totalLoggedTimeReadable }}</td>
-          <td class="text-right" data-label="Remaining Work">{{ item.totalRemainingTimeReadable }}</td>
-          <td class="text-right" data-label="Remaining Capacity">{{ item.totalRemainingWorkingCapacityReadable }}</td>
-          <td class="text-right" data-label="Productivity">{{ item.sprintProductivity }} %</td>
-        </tr>
-
-        </tbody>
-
-      </nz-table>
-
-      <table class="w-100 items-summary-footer">
-        <thead>
-        <tr>
-          <th>Total</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalWorkingCapacityReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalAssignedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalLoggedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalRemainingTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalRemainingWorkingCapacityReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalSprintProductivity }} %</th>
-        </tr>
-        </thead>
-      </table>
+      <div class="tfoot" *ngIf="sprintReport?.reportMembers.length>0">
+        <div class="tr">
+          <div class="th">Total</div>
+          <div class="th text-right">{{ sprintReport.reportMembersTotalWorkingCapacityReadable }}</div>
+          <div class="th text-right">{{ sprintReport.reportMembersTotalAssignedTimeReadable }}</div>
+          <div class="th text-right">{{ sprintReport.reportMembersTotalLoggedTimeReadable }}</div>
+          <div class="th text-right">{{ sprintReport.reportMembersTotalRemainingTimeReadable }}</div>
+          <div class="th text-right">{{ sprintReport.reportMembersTotalRemainingWorkingCapacityReadable }}</div>
+          <div class="th text-right">{{ sprintReport.reportMembersTotalSprintProductivity }} %</div>
+        </div>
+      </div>
 
     </div>
 
@@ -346,51 +339,42 @@
 
     <label class="text-black-dark">Sprint Items</label>
 
-    <div class="sprint-items">
+    <div class="sprint-items custom-table">
 
-      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
+      <nz-empty
+        *ngIf="!sprintReport?.reportTasks || sprintReport?.reportTasks.length===0"
+        [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+        [nzNotFoundContent]="contentTpl">
+        <ng-template #contentTpl>
+          <div class="m-b-20"><span>No Data Available</span></div>
+        </ng-template>
+      </nz-empty>
 
-        <thead>
+      <div class="thead" *ngIf="sprintReport?.reportTasks.length>0">
+          <div class="tr">
+          <div class="th">Item ID</div>
+          <div class="th">Status</div>
+          <div class="th">Item Name</div>
+          <div class="th">Assignee</div>
+          </div>
+        </div>
 
-        <tr>
-
-          <th>Item ID</th>
-          <th>Status</th>
-          <th>Item Name</th>
-          <!--          <th>Start Date</th>-->
-          <th>Assignee</th>
-          <!--          <th class="text-right">Effort Deviation</th>-->
-
-        </tr>
-
-        </thead>
-
-        <tbody>
-
-        <tr *ngFor="let data of sprintReport.reportTasks">
-          <td data-label="Item ID">{{ data.displayName }}</td>
-          <td data-label="Status">
+      <div class="tbody" *ngIf="sprintReport?.reportTasks.length>0">
+        <div class="tr" *ngFor="let data of sprintReport.reportTasks">
+          <div class="td" data-label="Item ID">{{ data.displayName }}</div>
+          <div class="td" data-label="Status">
             <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
-          </td>
-          <td data-label="Item Description">{{ data.name }}</td>
-          <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
-          <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
-          <!--          <td data-label="Effort Deviation" class="text-right"-->
-          <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
-        </tr>
-
-        </tbody>
-
-
-      </nz-table>
-
+          </div>
+          <div class="td" data-label="Item Description">{{ data.name }}</div>
+          <div class="td" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
+        </div>
+      </div>
 
     </div>
 
-
   </section>
 
-    </div >
+  </div >
 
   </nz-spin>
 

@@ -210,12 +210,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       const element = document.getElementById('report-page-content');
 
       //const format = [842, 595]; // width, height
-      const format = 'a4';
+      const format = 'a3';
 
       const option = {
         margin: 1,
         filename:this.sprintReport.sprint.name,
-        image : {type:'png', quality: 1},
+        image : {type:'jpeg', quality: 1},
         html2canvas : {scale:1},
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
         jsPDF : { unit: 'pt', format: format, orientation:'p' }
