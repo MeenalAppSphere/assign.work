@@ -1,3 +1,5 @@
+@import "../../../scss/custom_variable";
+
 .switch-btns{
   margin-top: 0px!important;
 }
@@ -31,7 +33,7 @@
 }
 
 .ant-tag {
-  border-radius: 4px;
+  border-radius: 15px;
   font-size: 11px;
   background-color: rgb(255, 17, 66);
   height: 1.4rem;
@@ -49,7 +51,7 @@ p {
   .items-summary {
     border: 1px solid #DEDFE2;
     border-radius: 4px;
-    padding: 5px 15px;
+    padding: 5px 15px 8px;
 
     table {
       table-layout: fixed;
@@ -108,5 +110,44 @@ p {
   margin-bottom: 15px;
   img {
     height:30px;
+  }
+}
+
+.custom-table {
+  display:table;
+  width:100%;
+  .thead {
+    display: table-header-group;
+  }
+  .tr {
+    display: table-row;
+    &:hover {
+      background: #f8fafd;
+    }
+  }
+  .tbody {
+    display: table-row-group;
+  }
+  .tfoot {
+    display: table-footer-group;
+    background: $brand-default-btn 0% 0% no-repeat padding-box;
+    border-radius: 4px;
+  }
+  .td,
+  .th {
+    display: table-cell;
+    border-bottom: 1px solid $brand-default-btn;
+    padding: 5px 5px;
+    color: $color-black;
+  }
+  .tr:last-child {
+    .td {
+      border-bottom: 0px;
+    }
+  }
+  .th {
+    padding: 5px 5px;
+    color: $color-gray-light;
+    font-weight: 500;
   }
 }
