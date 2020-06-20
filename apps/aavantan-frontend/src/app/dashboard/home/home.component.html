@@ -28,21 +28,21 @@
           </div>
 
 
-          <nz-button-group *ngIf="selectedSprint?.name" nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
+          <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
             <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
               <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
               <i nz-icon nzType="caret-down" theme="outline"></i>
             </button>
           </nz-button-group>
           <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
-            <ul nz-menu>
+            <ul nz-menu style="max-height: 300px;overflow: auto">
               <li nz-menu-item *ngFor="let sprint of closedSprintsList"
                   (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
             </ul>
           </nz-dropdown-menu>
 
           <button *ngIf="isReportAvailable" [nzLoading]="isDownloadInProgress" type="button"
-                  nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download PDF</button>
+                  nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download</button>
 
       </div>
   </ng-template>
