@@ -1,10 +1,8 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { TaskService } from '../../shared/services/task/task.service';
 import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProjectPriority, TaskPriorityModel } from '@aavantan-app/models';
-import { ProjectService } from '../../shared/services/project/project.service';
 import { ColorEvent } from 'ngx-color';
 import { TaskPriorityService } from '../../shared/services/task-priority/task-priority.service';
 

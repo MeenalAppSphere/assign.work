@@ -144,7 +144,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.showLogoutWarning('Project');
     } else {
       this.projectModalIsVisible = !this.projectModalIsVisible;
-      this.router.navigate(['dashboard', 'project']);
+      this.router.navigate(['dashboard', 'my-tasks']);
     }
   }
 
@@ -171,7 +171,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   startTour() {
     const options = {
-      steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/board'],
+      steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/running-sprint'],
       startWith: 'tour1',
       // waitingTime: 2000,
       stepDefaultPosition: 'top',

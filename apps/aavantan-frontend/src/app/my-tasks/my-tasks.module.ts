@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ProjectComponent } from './project.component';
+import { MyTasksComponent } from './my-tasks.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 
 const routes: Routes = [
-  { path: '', component: ProjectComponent }
+  { path: '', component: MyTasksComponent }
 ];
 
 @NgModule({
@@ -16,8 +16,8 @@ const routes: Routes = [
   ],
   exports: [],
   declarations: [
-    ProjectComponent
+    MyTasksComponent
   ]
 })
-export class ProjectModule {
+export class MyTasksModule {
 }
