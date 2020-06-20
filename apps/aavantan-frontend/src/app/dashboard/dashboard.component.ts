@@ -309,6 +309,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     notification.onclick = ((ev: Event) => {
       this.goToLink(res.link);
+      notification.close();
     });
   }
 

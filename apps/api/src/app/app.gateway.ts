@@ -60,7 +60,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         has been created by ${task.createdBy.firstName} ${task.createdBy.lastName}`;
     const link = this.getTaskLink(task);
 
-    this.sendTaskRelatedUpdate(task, { name: NotificationTypeEnum.taskAdded, arg: { msg, link } }, task.createdById, project);
+    this.sendTaskRelatedUpdate(task, {
+      name: NotificationTypeEnum.taskAdded,
+      arg: { msg, link }
+    }, task.createdById, project);
   }
 
   /**
@@ -73,7 +76,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         is assigned to you by ${task.createdBy.firstName} ${task.createdBy.lastName}`;
     const link = this.getTaskLink(task);
 
-    this.sendTaskRelatedUpdate(task, { name: NotificationTypeEnum.taskAssigned, arg: { msg, link } }, task.createdById, project);
+    this.sendTaskRelatedUpdate(task, {
+      name: NotificationTypeEnum.taskAssigned,
+      arg: { msg, link }
+    }, task.createdById, project);
   }
 
   /**
@@ -86,7 +92,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         has been updated by ${task.updatedBy.firstName} ${task.updatedBy.lastName}`;
     const link = this.getTaskLink(task);
 
-    this.sendTaskRelatedUpdate(task, { name: NotificationTypeEnum.taskUpdated, arg: { msg, link } }, task.updatedById, project);
+    this.sendTaskRelatedUpdate(task, {
+      name: NotificationTypeEnum.taskUpdated,
+      arg: { msg, link }
+    }, task.updatedById, project);
   }
 
   /**
@@ -205,7 +214,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
                                 project: Project) {
 
     this.filterOutNonProjectClients(project, exceptThisId).forEach((value, socketId) => {
-      this.server.to(socketId).emit(event.name, event.arg);
+      this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
     });
   }
 
