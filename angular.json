@@ -28,9 +28,7 @@
                 "glob": "**/*",
                 "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
                 "output": "/assets/"
-              },
-              "apps/aavantan-frontend/src/manifest.webmanifest",
-              "apps/aavantan-frontend/src/manifest.webmanifest"
+              }
             ],
             "styles": [
               "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
@@ -40,7 +38,7 @@
               "apps/aavantan-frontend/src/styles.scss"
             ],
             "scripts": [
-              "node_modules/jquery/dist/jquery.js",
+              "node_modules/jquery/dist/jquery.js"
             ]
           },
           "copy": "cp package.json dist/apps/UI",
@@ -67,9 +65,7 @@
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
                 }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "apps/aavantan-frontend/ngsw-config.json"
+              ]
             }
           }
         },

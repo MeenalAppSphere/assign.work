@@ -191,7 +191,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * @return {string}
    */
   private getTaskLink(task: Task) {
-    return `${environment.APP_URL}dashboard/task/${task.displayName}`;
+    return `dashboard/task/${task.displayName}`;
   }
 
   /**
