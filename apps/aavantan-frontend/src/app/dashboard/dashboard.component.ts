@@ -67,6 +67,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.createDesktopNotification('Task Created', res);
     });
 
+    // task assigned
+    this.socket.on(NotificationTypeEnum.taskAssigned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Assigned', res);
+    });
+
     // task updated
     this.socket.on(NotificationTypeEnum.taskUpdated, (res: { msg: string, link: string }) => {
       this.createDesktopNotification('Task Updated', res);
