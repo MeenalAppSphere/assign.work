@@ -140,6 +140,13 @@
       background: url("../../../../assets/images/icons/white-active-sprint.svg")no-repeat center center;
     }
   }
+  .menu-plan-sprint{
+    background: url("../../../../assets/images/icons/plan-sprint.svg")no-repeat center center;
+    background-size: 20px;
+    &:hover{
+      background: url("../../../../assets/images/icons/white-plan-sprint.svg")no-repeat center center;
+    }
+  }
   .menu-backlogs{
     background: url("../../../../assets/images/icons/backlogs.svg")no-repeat center center;
     background-size: 20px;
@@ -171,6 +178,10 @@
   }
   .menu-active-sprint{
     background: url("../../../../assets/images/icons/white-active-sprint.svg")no-repeat center center;
+    background-size: 20px;
+  }
+  .menu-plan-sprint{
+    background: url("../../../../assets/images/icons/white-plan-sprint.svg")no-repeat center center;
     background-size: 20px;
   }
   .menu-backlogs{

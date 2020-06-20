@@ -4,7 +4,7 @@ import { SharedModule } from '../shared/shared.module';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { HomeComponent } from './home/home.component';
-import { BoardComponent } from './board/board.component';
+import { RunningSprintComponent } from './running-sprint/running-sprint.component';
 import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { PermissionsComponent } from './settings/permissions/permissions.component';
 import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
@@ -44,7 +44,7 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} }
   declarations: [
     DashboardComponent,
     HomeComponent,
-    BoardComponent,
+    RunningSprintComponent,
     ActivesprintComponent,
     PermissionsComponent,
     CollaboratorsComponent,

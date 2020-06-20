@@ -29,10 +29,10 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'aavantan-app-board',
-  templateUrl: './board.component.html',
-  styleUrls: ['./board.component.scss']
+  templateUrl: './running-sprint.component.html',
+  styleUrls: ['./running-sprint.component.scss']
 })
-export class BoardComponent implements OnInit, OnDestroy {
+export class RunningSprintComponent implements OnInit, OnDestroy {
 
   public boardData: Sprint;
   public boardDataClone: Sprint;

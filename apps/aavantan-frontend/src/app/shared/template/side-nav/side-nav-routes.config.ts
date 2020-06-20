@@ -33,7 +33,7 @@ export const ROUTES: SideNavInterface[] = [
     iconType: '',
     iconTheme: 'outline',
     icon: 'snippets',
-    img: 'menu-backlogs',
+    img: 'menu-plan-sprint',
     submenu: []
   },
   {

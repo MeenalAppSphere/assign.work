@@ -218,5 +218,5 @@ export class SprintFilterTasksModel extends SprintBaseRequest {
 export class SprintPanel {
   active:boolean;
   name:string;
-  disabled:boolean;
+  disabled?:boolean;
 }

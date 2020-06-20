@@ -3,7 +3,6 @@ import {
   AddTaskToSprintModel,
   AppFilterStorageKeysEnum,
   BoardColumns,
-  CloseSprintModel,
   DraftSprint,
   GetUnpublishedRequestModel,
   Project,
@@ -80,8 +79,6 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
   public selectedTimeLogTask: Task;
 
   public backLogTaskRequest: TaskFilterModel;
-  public backLogStatusQueryRequest: Array<{ name: string, value: string, isSelected: boolean }> = [];
-
   public sprintTasksRequest: SprintTaskFilterModel;
 
   public totalItemsInSprint: Number;
@@ -90,8 +87,6 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   public timelogModalIsVisible: boolean;
   public isVisibleCloseSprint: boolean;
-  public closeSprintInProcess: boolean;
-  public closeSprintModeSelection = 'createNewSprint';
   public dateFormat = 'MM/dd/yyyy';
   public closeSprintNewSprintForm: FormGroup;
 
@@ -103,7 +98,10 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
   public currentProject: Project;
   public isFilterApplied: boolean;
 
-  public sprintPanels: SprintPanel[] = [];
+  public sprintPanels: SprintPanel[] = [{
+    name:'Getting Sprint...',
+    active:false
+  }];
 
   constructor(private _generalService: GeneralService,
               private _taskService: TaskService,
@@ -130,7 +128,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
     // call all functions which is depends on current project and statuses
     combineLatest([this._userQuery.currentProject$, this._taskStatusQuery.statuses$])
       .pipe(auditTime(700), untilDestroyed(this))
-      .subscribe(async result => {
+      .subscribe( result => {
 
         this.currentProject = result[0]; // result[0]  is expecting current Project
         const statues = result[1]; // result[1]  is expecting status
@@ -163,7 +161,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
         }
 
         // get all tasks which is already in sprint
-        await this.getAllSprintTasks();
+        this.getAllSprintTasks();
 
         // get sprint filter from local storage
         const availableFilter: any = this._generalService.getAppFilter(this.currentProject.id, AppFilterStorageKeysEnum.backLogFilter);

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { BoardComponent } from './board/board.component';
+import { RunningSprintComponent } from './running-sprint/running-sprint.component';
 import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardDataResolver } from '../resolver/dashboardData.resolver';
@@ -23,7 +23,7 @@ const routes: Routes = [
         path: 'dashboard', component: HomeComponent
       },
       { path: 'my-tasks', loadChildren: () => import('../my-tasks/my-tasks.module').then(p => p.MyTasksModule) },
-      { path: 'running-sprint', component: BoardComponent },
+      { path: 'running-sprint', component: RunningSprintComponent },
       { path: 'board-setting', component: BoardDesignComponent },
       { path: 'board-setting/:boardId', component: BoardDesignComponent },
       { path: 'active_sprint', component: ActivesprintComponent },
