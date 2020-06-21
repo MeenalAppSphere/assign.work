@@ -847,7 +847,9 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       // get all closed sprints query
       const sprints = await this.find({
         filter: { [`sprintStatus.status`]: SprintStatusEnum.closed, projectId },
-        select: 'name goal'
+        select: 'name goal',
+        sort: 'createdAt',
+        sortBy: 'desc'
       });
 
       // check if sprint found

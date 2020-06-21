@@ -277,7 +277,7 @@ p {
 /* layout */
 .common-layout .page-container .main-content {
   padding: calc(64px + 10px) 10px 10px 10px;
-  min-height: calc(100vh - 65px);
+  min-height: calc(100vh - 25px);
 }
 
 /* logo modified */
@@ -648,7 +648,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 
 /* footer */
 .footer .footer-content {
-  height: 40px;
+  height: 25px;
 }
 
 /* task table columns */
