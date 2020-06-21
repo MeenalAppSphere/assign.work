@@ -57,10 +57,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
    */
   taskCreated(task: Task, project: Project) {
     const msg = `a task named ${task.displayName} in project named ${project.name}
-        has been updated by ${task.createdBy.firstName} ${task.createdBy.lastName}`;
+        has been created by ${task.createdBy.firstName} ${task.createdBy.lastName}`;
     const link = this.getTaskLink(task);
 
-    this.sendTaskRelatedUpdate(task, { name: NotificationTypeEnum.taskAdded, arg: { msg, link } }, task.createdById);
+    this.sendTaskRelatedUpdate(task, {
+      name: NotificationTypeEnum.taskAdded,
+      arg: { msg, link }
+    }, task.createdById, project);
   }
 
   /**
@@ -73,7 +76,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         is assigned to you by ${task.createdBy.firstName} ${task.createdBy.lastName}`;
     const link = this.getTaskLink(task);
 
-    this.sendTaskRelatedUpdate(task, { name: NotificationTypeEnum.taskAdded, arg: { msg, link } }, task.createdById);
+    this.sendTaskRelatedUpdate(task, {
+      name: NotificationTypeEnum.taskAssigned,
+      arg: { msg, link }
+    }, task.createdById, project);
   }
 
   /**
@@ -86,7 +92,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         has been updated by ${task.updatedBy.firstName} ${task.updatedBy.lastName}`;
     const link = this.getTaskLink(task);
 
-    this.sendTaskRelatedUpdate(task, { name: NotificationTypeEnum.taskUpdated, arg: { msg, link } }, task.updatedById);
+    this.sendTaskRelatedUpdate(task, {
+      name: NotificationTypeEnum.taskUpdated,
+      arg: { msg, link }
+    }, task.updatedById, project);
   }
 
   /**
@@ -103,7 +112,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.sendTaskRelatedUpdate(task, {
       name: NotificationTypeEnum.commentAdded,
       arg: { msg, link }
-    }, comment.createdById);
+    }, comment.createdById, project);
   }
 
   /**
@@ -120,7 +129,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.sendTaskRelatedUpdate(task, {
       name: NotificationTypeEnum.commentUpdated,
       arg: { msg, link }
-    }, comment.updatedById);
+    }, comment.updatedById, project);
   }
 
   /**
@@ -138,7 +147,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.sendTaskRelatedUpdate(task, {
       name: comment.isPinned ? NotificationTypeEnum.commentPinned : NotificationTypeEnum.commentUnPinned,
       arg: { msg, link }
-    }, comment.pinnedById);
+    }, comment.pinnedById, project);
   }
 
   /**
@@ -191,7 +200,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * @return {string}
    */
   private getTaskLink(task: Task) {
-    return `${environment.APP_URL}dashboard/task/${task.displayName}`;
+    return `dashboard/task/${task.displayName}`;
   }
 
   /**
@@ -199,13 +208,28 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * @param {Task} task
    * @param event
    * @param {string} exceptThisId
+   * @param project
    */
-  private sendTaskRelatedUpdate(task: Task, event: { name: NotificationTypeEnum, arg: NotificationResponseModel }, exceptThisId: string) {
-    this.connectedClients.forEach((value, socketId) => {
-      const currentUser = this.connectedClients.get(socketId);
-      if (currentUser !== exceptThisId.toString()) {
-        this.server.to(socketId).emit(event.name, event.arg);
-      }
+  private sendTaskRelatedUpdate(task: Task, event: { name: NotificationTypeEnum, arg: NotificationResponseModel }, exceptThisId: string,
+                                project: Project) {
+
+    this.filterOutNonProjectClients(project, exceptThisId).forEach((value, socketId) => {
+      this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
     });
+  }
+
+  /**
+   * filter out non project clients
+   * @param {Project} project
+   * @param {string} exceptThisId
+   * @return {Map<string, string>}
+   */
+  private filterOutNonProjectClients(project: Project, exceptThisId: string): Map<string, string> {
+    return new Map<string, string>([
+        ...this.connectedClients
+      ].filter(([key, value]) => {
+        return project.members.some(member => member.userId.toString() === value && (member.userId !== exceptThisId));
+      })
+    );
   }
 }

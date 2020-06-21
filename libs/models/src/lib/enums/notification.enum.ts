@@ -2,6 +2,7 @@ export enum NotificationTypeEnum {
   connectionSuccess = 'connection-success',
   userConnected = 'user-connected',
   taskAdded = 'task-added',
+  taskAssigned = 'task-assigned',
   taskUpdated = 'task-updated',
   commentAdded = 'comment-added',
   commentUpdated = 'comment-updated',

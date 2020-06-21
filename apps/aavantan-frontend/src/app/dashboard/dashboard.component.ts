@@ -49,15 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
-    this.socket.on('connection', () => {
-      // console.log('connection');
-    });
-
-    this.socket.on('disconnect', () => {
-      // console.log('disconnect');
-    });
-
+    // socket connection success
     this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
       this.socket.emit(NotificationTypeEnum.userConnected, this._generalService.user._id);
     });
@@ -65,6 +57,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // task created
     this.socket.on(NotificationTypeEnum.taskAdded, (res: { msg: string, link: string }) => {
       this.createDesktopNotification('Task Created', res);
+    });
+
+    // task assigned
+    this.socket.on(NotificationTypeEnum.taskAssigned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Assigned', res);
     });
 
     // task updated
@@ -222,32 +219,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildBreadCrumb(route: ActivatedRoute, url: string = '', breadcrumbs: IBreadcrumb[] = []): IBreadcrumb[] {
-    let label = '', path = '/';
-    const display = null;
-
-    if (route.routeConfig) {
-      if (route.routeConfig.data) {
-        label = route.routeConfig.data['title'];
-        path += route.routeConfig.path;
-      }
-    } else {
-      label = 'Dashboard';
-      path += 'dashboard';
-    }
-
-    const nextUrl = path && path !== '/dashboard' ? `${url}${path}` : url;
-    const breadcrumb = <IBreadcrumb>{
-      label: label, url: nextUrl
-    };
-
-    const newBreadcrumbs = label ? [...breadcrumbs, breadcrumb] : [...breadcrumbs];
-    if (route.firstChild) {
-      return this.buildBreadCrumb(route.firstChild, nextUrl, newBreadcrumbs);
-    }
-    return newBreadcrumbs;
-  }
-
   private async initialCheck() {
 
     try {
@@ -324,7 +295,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
   }
 
-
   /**
    * create desktop notification
    * @param {string} title
@@ -339,6 +309,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     notification.onclick = ((ev: Event) => {
       this.goToLink(res.link);
+      notification.close();
     });
   }
 
@@ -347,14 +318,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * @param {string} link
    */
   private goToLink(link: string) {
-    // check if assign work is opened or not in tab
-    if (`${location.origin}/` === environment.APP_URL) {
-      this.ngZone.run(() => {
-        this.router.navigateByUrl(link.replace(environment.APP_URL, ''));
-      });
-    } else {
-      window.open(link, '_blank');
-    }
+    this.ngZone.run(() => {
+      this.router.navigateByUrl(link);
+    });
   }
 
   ngOnDestroy(): void {
