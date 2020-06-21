@@ -51,18 +51,21 @@
 
   <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
     <nz-empty
+      height="150px"
       [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
       [nzNotFoundContent]="contentTpl"
       [nzNotFoundFooter]="footerTpl">
       <ng-template #contentTpl>
-        <div class="m-b-20">
-          <span *ngIf="isSprintAvailable">Report Not Available</span>
-          <span *ngIf="!isSprintAvailable">No Running Sprint Available</span>
+        <div class="m-b-40">
+          <div class="m-b-5 font-size-20">
+            <span *ngIf="isSprintAvailable">Report Not Available</span>
+            <span *ngIf="!isSprintAvailable">No Running Sprint Available</span>
+          </div>
+          <span class="font-weight-light font-size-15" *ngIf="!isSprintAvailable">Choose exiting Sprint to view report</span>
         </div>
-        <span class="font-weight-normal font-size-15" *ngIf="!isSprintAvailable">Choose exiting Sprint to view report</span>
       </ng-template>
       <ng-template #footerTpl>
-        <a routerLink="backlog" nz-button nzType="link">Backlogs</a>
+        <a routerLink="plan-sprint" nz-button nzType="primary">Plan Work/Sprint</a>
       </ng-template>
     </nz-empty>
   </div>

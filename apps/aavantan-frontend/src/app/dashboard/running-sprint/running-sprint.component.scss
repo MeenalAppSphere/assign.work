@@ -6,7 +6,8 @@
 .sprint-name-button {
   background: none!important;
   height: 40px;
-  font-size: 24px!important;
+  font-size: 20px!important;
+  font-weight: 500;
   color: $text-black;
   padding: 0px!important;
   box-shadow: none;
@@ -69,7 +70,7 @@
     width: auto;
     padding: 2px 7px;
     border-radius: 10px;
-    background: #F7F8FB;
+    background: $lighter-blue;
     color: #7A869A;
     height: 18px;
     font-size: 10px;
