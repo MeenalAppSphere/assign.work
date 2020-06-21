@@ -213,9 +213,24 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private sendTaskRelatedUpdate(task: Task, event: { name: NotificationTypeEnum, arg: NotificationResponseModel }, exceptThisId: string,
                                 project: Project) {
 
-    this.filterOutNonProjectClients(project, exceptThisId).forEach((value, socketId) => {
+    this.filterOutNonTaskWatchers(task, exceptThisId).forEach((value, socketId) => {
       this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
     });
+  }
+
+  /**
+   * filter out non task watchers from clients list
+   * @param {Task} task
+   * @param {string} exceptThisId
+   * @return {Map<string, string>}
+   */
+  private filterOutNonTaskWatchers(task: Task, exceptThisId: string): Map<string, string> {
+    return new Map<string, string>([
+        ...this.connectedClients
+      ].filter(([key, value]) => {
+        return task.watchers.some(member => member.toString() === value && (member.toString() !== exceptThisId.toString()));
+      })
+    );
   }
 
   /**
@@ -228,7 +243,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return new Map<string, string>([
         ...this.connectedClients
       ].filter(([key, value]) => {
-        return project.members.some(member => member.userId.toString() === value && (member.userId !== exceptThisId));
+        return project.members.some(member => member.userId.toString() === value && (member.userId.toString() !== exceptThisId.toString()));
       })
     );
   }
