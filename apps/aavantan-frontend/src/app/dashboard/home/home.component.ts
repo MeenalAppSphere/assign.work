@@ -33,10 +33,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   public closedSprintsListBackup: Partial<Sprint[]> = [];
   public currentDate: Date;
 
-  public isReportAvailable:boolean;
-  public isSprintAvailable:boolean;
-  public isDownloadInProgress:boolean;
-  public currentProject:Project;
+  public isReportAvailable: boolean;
+  public isSprintAvailable: boolean;
+  public isDownloadInProgress: boolean;
+  public currentProject: Project;
 
   constructor(
     private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService,
@@ -64,7 +64,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
 
 
-
     this.getAllClosedSprints();
 
     this.projectList = this._generalService.user.projects as Project[];
@@ -80,21 +79,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  public async getSprintReport(sprintId:string, sprintName:string) {
+  public async getSprintReport(sprintId: string, sprintName: string) {
 
     this.getReportInProcess = true;
     try {
       this.selectedSprint = {
         id: sprintId,
-        name : sprintName
-      }
+        name: sprintName
+      };
 
-      this.closedSprintsList = this.closedSprintsListBackup.filter(sprint => sprint.id!==sprintId);
+      this.closedSprintsList = this.closedSprintsListBackup.filter(sprint => sprint.id !== sprintId);
 
       const report = await this._sprintReportService.getSprintReport(sprintId, this._generalService.currentProject.id).toPromise();
       this.sprintReport = report.data;
       this.isReportAvailable = true;
-        this.getReportInProcess = false;
+      this.getReportInProcess = false;
 
       if (this.sprintReport.sprint.sprintStatus.status === SprintStatusEnum.closed) {
         this.currentDate = this.sprintReport.sprint.sprintStatus.updatedAt;
@@ -113,8 +112,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   public async getAllClosedSprints() {
     try {
       const report = await this._sprintService.getAllClosedSprints(this._generalService.currentProject.id).toPromise();
-      this.closedSprintsList = report.data;
-      this.closedSprintsListBackup = report.data;
+      const sprintData = this.currentProject.sprint ? [this.currentProject.sprint, ...report.data] : report.data;
+      this.closedSprintsList = sprintData;
+      this.closedSprintsListBackup = sprintData;
     } catch (e) {
       this.closedSprintsList = [];
     }
@@ -214,17 +214,17 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       const option = {
         margin: 1,
-        filename:this.sprintReport.sprint.name,
-        image : {type:'jpeg', quality: 1},
-        html2canvas : {scale:1},
+        filename: this.sprintReport.sprint.name,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 1 },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-        jsPDF : { unit: 'pt', format: format, orientation:'p' }
-      }
+        jsPDF: { unit: 'pt', format: format, orientation: 'p' }
+      };
 
-      html2pdf().set(option).from(element).save().then(()=>{
+      html2pdf().set(option).from(element).save().then(() => {
         this.isDownloadInProgress = false;
       });
-    }catch (e) {
+    } catch (e) {
       this.isDownloadInProgress = false;
     }
 

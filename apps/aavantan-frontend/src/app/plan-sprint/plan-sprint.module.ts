@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { BacklogComponent } from './backlog.component';
+import { PlanSprintComponent } from './plan-sprint.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
+import { AddSprintComponent } from './components/add-sprint/add-sprint.component';
 
 const routes: Routes = [
-  { path: '', component: BacklogComponent }
+  { path: '', component: PlanSprintComponent }
 ];
 
 @NgModule({
@@ -16,8 +17,9 @@ const routes: Routes = [
   ],
   exports: [],
   declarations: [
-    BacklogComponent
+    PlanSprintComponent,
+    AddSprintComponent
   ]
 })
-export class BacklogModule {
+export class PlanSprintModule {
 }

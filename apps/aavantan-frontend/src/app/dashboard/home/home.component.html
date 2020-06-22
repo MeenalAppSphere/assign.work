@@ -28,21 +28,21 @@
           </div>
 
 
-          <nz-button-group *ngIf="selectedSprint?.name" nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
+          <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
             <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
               <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
               <i nz-icon nzType="caret-down" theme="outline"></i>
             </button>
           </nz-button-group>
           <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
-            <ul nz-menu>
+            <ul nz-menu style="max-height: 300px;overflow: auto">
               <li nz-menu-item *ngFor="let sprint of closedSprintsList"
                   (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
             </ul>
           </nz-dropdown-menu>
 
           <button *ngIf="isReportAvailable" [nzLoading]="isDownloadInProgress" type="button"
-                  nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download PDF</button>
+                  nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download</button>
 
       </div>
   </ng-template>
@@ -51,18 +51,21 @@
 
   <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
     <nz-empty
+      height="150px"
       [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
       [nzNotFoundContent]="contentTpl"
       [nzNotFoundFooter]="footerTpl">
       <ng-template #contentTpl>
-        <div class="m-b-20">
-          <span *ngIf="isSprintAvailable">Report Not Available</span>
-          <span *ngIf="!isSprintAvailable">No Running Sprint Available</span>
+        <div class="m-b-40">
+          <div class="m-b-5 font-size-20">
+            <span *ngIf="isSprintAvailable">Report Not Available</span>
+            <span *ngIf="!isSprintAvailable">No Running Sprint Available</span>
+          </div>
+          <span class="font-weight-light font-size-15" *ngIf="!isSprintAvailable">Choose exiting Sprint to view report</span>
         </div>
-        <span class="font-weight-normal font-size-15" *ngIf="!isSprintAvailable">Choose exiting Sprint to view report</span>
       </ng-template>
       <ng-template #footerTpl>
-        <a routerLink="backlog" nz-button nzType="link">Backlogs</a>
+        <a routerLink="plan-sprint" nz-button nzType="primary">Plan Work/Sprint</a>
       </ng-template>
     </nz-empty>
   </div>

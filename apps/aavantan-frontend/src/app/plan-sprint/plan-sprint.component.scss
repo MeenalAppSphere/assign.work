@@ -1,0 +1,89 @@
+.draft-sprint-box{
+  padding: 15px;
+  border: 2px dashed #DEDFE2;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  .steps-content{
+    min-height: 60px;
+  }
+
+  .ant-input-sm.team-list-input {
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .ant-list-item{
+    background: #ffffff;
+    display: block;
+    padding: 5px;
+  }
+}
+
+.btn-create-backlog{
+  margin-top: -40px;
+  position: absolute;
+}
+
+.backlog-badge {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 400;
+  border-radius: 15px;
+  background: #FFF0DF;
+  color: #EF1B1B;
+}
+
+
+/* task lists */
+.ellipsis{
+  display: block;
+  display: -webkit-box;
+  max-width: 100%;
+  height: 35px;
+  margin: 0 auto;
+  font-size: 13px;
+  line-height: 1.3;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ant-avatar-sm {
+  width: 1.3rem;
+  height: 1.3rem;
+  line-height: 1.3rem;
+}
+.assignee-name{
+  max-width: 70px;
+  display: inline-block;
+  margin: 0px;
+  line-height: 15px;
+  margin-bottom: -4px;
+  font-size: 14px;
+  color: #000;
+}
+.status-tag-label{
+  max-width: 58px;
+  min-width: 58px;
+  line-height: 24px;
+  font-size: 12px;
+}
+.user-name{
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-has-error{
+  box-shadow: 0px 0px 0px 1px inset red;
+}
+
+.progress-box-section{
+  height: 25px;border-top: 1px solid #ddd;margin-top: 8px;padding-top: 6px;font-size: 13px;
+}
+.remove-item {
+  &:hover {
+    color: red!important;
+  }
+}

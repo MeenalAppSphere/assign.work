@@ -100,7 +100,7 @@
   }
 
   button.add{
-    background: #F7F8FB;
+    background: $lighter-blue;
     color:$color-gray-light-3!important;
   }
 
@@ -111,10 +111,12 @@
 
 }
 #sidebar {
-  height: calc(100vh);
+  height: 100%;
+  min-height: 750px;
   transition: margin 0.3s ease;
   background: #FFFFFF 0% 0% no-repeat padding-box;
   box-shadow: 0px 4px 10px #0000001A;
+  padding-bottom: 15px;
 }
 
 .btn-double-arrow{
