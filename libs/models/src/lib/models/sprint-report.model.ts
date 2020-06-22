@@ -23,6 +23,7 @@ export class SprintReportModel extends BaseDbModel {
   reportMembersTotalSprintProductivity: number;
 
   reportTasks: SprintReportTasksModel[];
+  reportTasksCompleted:SprintReportTasksModel[];
   reportTasksCount: number;
   finishedTasksCount: number;
   finalStatusIds: string[];

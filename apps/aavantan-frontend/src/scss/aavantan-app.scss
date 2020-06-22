@@ -24,6 +24,9 @@ body{
 .cursor-pointer{
   cursor: pointer;
 }
+.cursor-default {
+  cursor: default;
+}
 
 .ant-tooltip-placement-top .ant-tooltip-arrow, .ant-tooltip-placement-topLeft .ant-tooltip-arrow, .ant-tooltip-placement-topRight .ant-tooltip-arrow {
   bottom: 7px;

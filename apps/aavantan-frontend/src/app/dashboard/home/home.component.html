@@ -337,10 +337,10 @@
 
   </section>
 
-  <!-- all task of the sprint -->
+  <!-- all task of the sprint not completed -->
   <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
-    <label class="text-black-dark">Sprint Items</label>
+    <label class="text-black-dark">Sprint Items (Not Completed)</label>
 
     <div class="sprint-items custom-table">
 
@@ -354,17 +354,17 @@
       </nz-empty>
 
       <div class="thead" *ngIf="sprintReport?.reportTasks.length>0">
-          <div class="tr">
+        <div class="tr">
           <div class="th">Item ID</div>
           <div class="th">Status</div>
           <div class="th">Item Name</div>
           <div class="th">Assignee</div>
-          </div>
         </div>
+      </div>
 
       <div class="tbody" *ngIf="sprintReport?.reportTasks.length>0">
         <div class="tr" *ngFor="let data of sprintReport.reportTasks">
-          <div class="td" data-label="Item ID">{{ data.displayName }}</div>
+          <div class="td" data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a></div>
           <div class="td" data-label="Status">
             <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
           </div>
@@ -376,6 +376,46 @@
     </div>
 
   </section>
+
+  <!-- all task of the sprint completed
+  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+
+    <label class="text-black-dark">Sprint Items (Completed)</label>
+
+    <div class="sprint-items custom-table">
+
+      <nz-empty
+        *ngIf="!sprintReport?.reportTasksCompleted || sprintReport?.reportTasksCompleted.length===0"
+        [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+        [nzNotFoundContent]="contentTpl">
+        <ng-template #contentTpl>
+          <div class="m-b-20"><span>No Data Available</span></div>
+        </ng-template>
+      </nz-empty>
+
+      <div class="thead" *ngIf="sprintReport?.reportTasksCompleted.length>0">
+          <div class="tr">
+          <div class="th">Item ID</div>
+          <div class="th">Status</div>
+          <div class="th">Item Name</div>
+          <div class="th">Assignee</div>
+          </div>
+        </div>
+
+      <div class="tbody" *ngIf="sprintReport?.reportTasksCompleted.length>0">
+        <div class="tr" *ngFor="let data of sprintReport.reportTasksCompleted">
+          <div class="td" data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a></div>
+          <div class="td" data-label="Status">
+            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+          </div>
+          <div class="td" data-label="Item Description">{{ data.name }}</div>
+          <div class="td" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>  -->
 
   </div >
 

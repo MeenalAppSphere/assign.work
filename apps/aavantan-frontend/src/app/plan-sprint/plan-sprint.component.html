@@ -525,14 +525,14 @@
 
 <!-- sprint duration -->
 <ng-template #durations let-name="name">
-  <div class="row clearfix m-b-10 m-t-10" (click)="$event.stopPropagation()">
+  <div class="row clearfix m-b-10 m-t-10 cursor-default" >
     <div class="col-md-8 font-size-14"
          *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
 
-      <div class="font-size-18 m-r-10 text-black font-weight-normal"
-           *ngIf="name">{{name}}</div>
+      <span class="font-size-18 m-r-10 text-black font-weight-normal cursor-pointer"
+           *ngIf="name">{{name}}</span>
 
-      <div [ngClass]="name ? '' : 'p-t-10'">
+      <div [ngClass]="name ? '' : 'p-t-10'" (click)="$event.stopPropagation()">
           <span class="m-r-25 text-gray-light-2 font-size-13" *ngIf="sprintDurations?.totalEstimationReadable">
             <span class="font-weight-semibold">{{sprintDurations?.totalEstimationReadable}}</span>
             <span class="font-weight-light">  Sprint Hours </span>
@@ -562,7 +562,7 @@
     </div>
 
 
-    <div class="col-md-4 text-right">
+    <div class="col-md-4 text-right" (click)="$event.stopPropagation()">
       <span *ngIf="(unPublishedSprintData?.id)">
         <button class="m-l-10" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
                 nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
