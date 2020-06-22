@@ -48,7 +48,7 @@
                     <span>{{item.title}}</span>
                     <i class="ant-menu-submenu-arrow"></i>
                 </a>
-                <a [routerLink]="item.path" *ngIf="!item.submenu.length > 0">
+                <a [routerLink]="item.path" nz-tooltip nzPlacement="bottom" n [nzTitle]="isFolded ? item.title : ''" *ngIf="!item.submenu.length > 0">
                     <span class="img-menu-svg"><span *ngIf="item.iconType == ''" ngClass="{{item.img}}"></span></span>
                     <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [theme]="item.iconTheme"></i>
                     <i *ngIf="item.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[item.iconTheme , item.icon]"></i>

@@ -2,7 +2,6 @@ import { Component, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, ViewChild 
 import { NzModalService } from 'ng-zorro-antd';
 import { Project, Sprint, SprintStatusEnum } from '@aavantan-app/models';
 import { GeneralService } from '../../shared/services/general.service';
-import * as Highcharts from 'highcharts';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportService } from '../../shared/services/sprint-report/sprint-report.service';
 import { SprintService } from '../../shared/services/sprint/sprint.service';
@@ -23,10 +22,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   public view: string = 'listView';
   public projectList: Project[];
   public selectedSprint: Partial<Sprint>;
-  Highcharts: typeof Highcharts = Highcharts;
-  lineChartOptions: Highcharts.Options = {};
-  columnChartOptions: Highcharts.Options = {};
-
   public getReportInProcess: boolean;
   public sprintReport: SprintReportModel = null;
   public closedSprintsList: Partial<Sprint[]> = [];
@@ -67,8 +62,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getAllClosedSprints();
 
     this.projectList = this._generalService.user.projects as Project[];
-    this.showLineChart();
-    this.showColumnChart();
   }
 
   private setCurrentTimer() {
@@ -118,85 +111,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.closedSprintsList = [];
     }
-  }
-
-  public showLineChart() {
-    this.lineChartOptions = {
-      chart: {
-        width: 550,
-        height: 330
-      },
-      legend: {
-        enabled: false
-      },
-      credits: {
-        enabled: false
-      },
-      title: {
-        text: ''
-      },
-      yAxis: {
-        title: {
-          text: 'Hours'
-        }
-      },
-      xAxis: {
-        title: {
-          text: 'Days'
-        }
-      },
-
-      series: [
-        {
-          color: '#0667FB',
-          data: [10, 4, 7, 7, 8, 1, 2, 23, 24, 10, 3],
-          type: 'line'
-        }
-      ]
-    };
-  }
-
-  public showColumnChart() {
-    this.columnChartOptions = {
-      chart: {
-        width: 550,
-        height: 380
-      },
-      legend: {
-        enabled: true
-      },
-      credits: {
-        enabled: false
-      },
-      title: {
-        text: ''
-      },
-      yAxis: {
-        title: {
-          text: 'Hours'
-        }
-      },
-      xAxis: {
-        title: {
-          text: 'Days'
-        }
-      },
-
-      series: [
-        {
-          name: 'Sprint 1',
-          color: '#0667FB',
-          data: [10, 4, 7, 7, 8, 1, 2, 23, 24, 10, 3],
-          type: 'column'
-        },
-        {
-          name: 'Sprint 2',
-          color: '#FF1142',
-          data: [9, 3, 6, 7, 8, 1, 2, 23, 24, 10, 3],
-          type: 'column'
-        }
-      ]
-    };
   }
 
   public selectSprint(item: Sprint) {

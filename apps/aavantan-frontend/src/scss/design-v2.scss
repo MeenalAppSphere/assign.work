@@ -704,6 +704,13 @@
   .ant-collapse-borderless>.ant-collapse-item>.ant-collapse-content {
     padding-top: 0px;
   }
+
+  .ant-collapse-item {
+    background: #fcfcfc;
+    border: 1px solid $border;
+    padding: 0px 10px;
+  }
+
 }
 
 
