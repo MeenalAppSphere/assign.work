@@ -203,11 +203,21 @@
         <th class="text-center td-status">
           <span>Status</span>
         </th>
-        <th class="text-center td-reporter">Reporter</th>
 
-        <!-- <th class="text-center" width="110">Progress</th>-->
 
-        <th class="text-center td-assignee">Assignee</th>
+        <th class="text-center td-reporter">
+          <span>Reporter</span>
+          <span class="p-l-10">
+              <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'createdBy'}"></ng-container>
+          </span>
+        </th>
+
+        <th class="text-center td-assignee">
+          <span>Assignee</span>
+          <span class="p-l-10">
+              <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'assignee'}"></ng-container>
+          </span>
+        </th>
 
         <th class="text-right td-estimates">
           <span>Estimates</span>

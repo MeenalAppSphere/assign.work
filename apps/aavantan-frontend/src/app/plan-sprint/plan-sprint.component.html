@@ -126,9 +126,21 @@
                     </span>
                     </th>
 
-                    <th class="text-center td-reporter">Reporter</th>
+                    <th class="text-center td-reporter">
+                      <span>Reporter</span>
+                      <span class="p-l-10">
+                        <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                        column: 'createdBy', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
+                      </span>
+                    </th>
 
-                    <th class="text-center td-assignee">Assignee</th>
+                    <th class="text-center td-assignee">
+                      <span>Assignee</span>
+                      <span class="p-l-10">
+                        <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                        column: 'assignee', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
+                      </span>
+                    </th>
 
                     <th class="text-right td-estimates">
                       <span>Estimates</span>
@@ -263,7 +275,7 @@
           <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()"
                   *ngIf="selectedColumnDataSource?.length===0">
 
-            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status
+          <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status
           </button>
 
           <nz-select
@@ -381,9 +393,21 @@
                     </span>
                 </th>
 
-                <th class="text-center td-reporter">Reporter</th>
+                <th class="text-center td-reporter">
+                  <span>Reporter</span>
+                  <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'createdBy', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
+                  </span>
+                </th>
 
-                <th class="text-center td-assignee">Assignee</th>
+                <th class="text-center td-assignee">
+                  <span>Assignee</span>
+                  <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'assignee', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
+                  </span>
+                </th>
 
                 <th class="text-right td-estimates">
                   <span>Estimates</span>
