@@ -22,6 +22,7 @@ import { UserFilterComponent } from './components/user-filter/user-filter.compon
 import { TeamCapacityComponent } from './components/team-capacity/team-capacity.component';
 import { TeamCapacityModelComponent } from './components/team-capacity-model/team-capacity.model.component';
 import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
+import { StatusDropdownComponent } from './components/status-dropdown/status-dropdown.component';
 
 
 @NgModule({
@@ -46,7 +47,8 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
+    StatusDropdownComponent
   ],
   imports: [
     CommonModule,
@@ -74,7 +76,8 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
+    StatusDropdownComponent
   ]
 })
 export class SharedModule {
