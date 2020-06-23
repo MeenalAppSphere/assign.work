@@ -289,17 +289,11 @@
         </td>
 
         <td data-label="Reporter" class="text-center">
-          <span *ngIf="!item.createdBy">-</span>
-          <span *ngIf="item.createdBy" nz-tooltip
-                [nzTitle]="item.assignee && item.createdBy.firstName ? item.createdBy.firstName +' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
-            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+          <profile-name [user]="item.createdBy" class="flex-profile-name"></profile-name>
         </td>
 
         <td data-label="Assignee" class="text-center">
-          <span *ngIf="!item.assignee">-</span>
-          <span *ngIf="item.assignee" nz-tooltip
-                [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.createdBy.lastName : item.assignee.emailId"> <nz-avatar
-            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>  </span>
+           <profile-name [user]="item.assignee" class="flex-profile-name"></profile-name>
         </td>
 
         <td data-label="Estimate" class="text-right">
