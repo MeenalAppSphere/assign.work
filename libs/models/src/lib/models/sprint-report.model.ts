@@ -1,5 +1,6 @@
 import { BaseDbModel } from './base.model';
-import { Sprint, SprintMembersCapacity, TaskPriorityModel, TaskStatusModel, User } from '@aavantan-app/models';
+import { Sprint, TaskPriorityModel, TaskStatusModel, User } from '@aavantan-app/models';
+import { SprintMembersCapacity } from './sprint.model';
 
 export class SprintReportModel extends BaseDbModel {
   projectId: string;
@@ -23,11 +24,11 @@ export class SprintReportModel extends BaseDbModel {
   reportMembersTotalSprintProductivity: number;
 
   reportTasks: SprintReportTasksModel[];
-  reportTasksCompleted:SprintReportTasksModel[];
+  reportTasksCompleted: SprintReportTasksModel[];
+  reportTasksNotCompleted: SprintReportTasksModel[];
   reportTasksCount: number;
   finishedTasksCount: number;
   finalStatusIds: string[];
-  finalStatuses?: TaskStatusModel[];
 
   allTasks?: SprintReportTaskReportModel[];
   allTasksCount: number;
