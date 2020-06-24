@@ -126,9 +126,21 @@
                     </span>
                     </th>
 
-                    <th class="text-center td-reporter">Reporter</th>
+                    <th class="text-center td-reporter">
+                      <span>Reporter</span>
+                      <span class="p-l-10">
+                        <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                        column: 'createdBy', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
+                      </span>
+                    </th>
 
-                    <th class="text-center td-assignee">Assignee</th>
+                    <th class="text-center td-assignee">
+                      <span>Assignee</span>
+                      <span class="p-l-10">
+                        <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                        column: 'assignee', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
+                      </span>
+                    </th>
 
                     <th class="text-right td-estimates">
                       <span>Estimates</span>
@@ -263,7 +275,7 @@
           <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()"
                   *ngIf="selectedColumnDataSource?.length===0">
 
-            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status
+          <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status
           </button>
 
           <nz-select
@@ -381,9 +393,21 @@
                     </span>
                 </th>
 
-                <th class="text-center td-reporter">Reporter</th>
+                <th class="text-center td-reporter">
+                  <span>Reporter</span>
+                  <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'createdBy', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
+                  </span>
+                </th>
 
-                <th class="text-center td-assignee">Assignee</th>
+                <th class="text-center td-assignee">
+                  <span>Assignee</span>
+                  <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'assignee', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
+                  </span>
+                </th>
 
                 <th class="text-right td-estimates">
                   <span>Estimates</span>
@@ -459,11 +483,11 @@
                 </td>
 
                 <td data-label="Reporter" class="text-center">
-                  <profile-name [user]="item.createdBy"></profile-name>
+                  <profile-name [user]="item.createdBy" class="flex-profile-name"></profile-name>
                 </td>
 
                 <td data-label="Assignee" class="text-center">
-                  <profile-name [user]="item.assignee"></profile-name>
+                  <profile-name [user]="item.assignee" class="flex-profile-name"></profile-name>
                 </td>
 
                 <td data-label="Estimate" class="text-right">
@@ -525,14 +549,14 @@
 
 <!-- sprint duration -->
 <ng-template #durations let-name="name">
-  <div class="row clearfix m-b-10 m-t-10" (click)="$event.stopPropagation()">
+  <div class="row clearfix m-b-10 m-t-10 cursor-default" >
     <div class="col-md-8 font-size-14"
          *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
 
-      <div class="font-size-18 m-r-10 text-black font-weight-normal"
-           *ngIf="name">{{name}}</div>
+      <span class="font-size-18 m-r-10 text-black font-weight-normal cursor-pointer"
+           *ngIf="name">{{name}}</span>
 
-      <div [ngClass]="name ? '' : 'p-t-10'">
+      <div [ngClass]="name ? '' : 'p-t-10'" (click)="$event.stopPropagation()">
           <span class="m-r-25 text-gray-light-2 font-size-13" *ngIf="sprintDurations?.totalEstimationReadable">
             <span class="font-weight-semibold">{{sprintDurations?.totalEstimationReadable}}</span>
             <span class="font-weight-light">  Sprint Hours </span>
@@ -562,7 +586,7 @@
     </div>
 
 
-    <div class="col-md-4 text-right">
+    <div class="col-md-4 text-right" (click)="$event.stopPropagation()">
       <span *ngIf="(unPublishedSprintData?.id)">
         <button class="m-l-10" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
                 nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>

@@ -24,6 +24,9 @@ body{
 .cursor-pointer{
   cursor: pointer;
 }
+.cursor-default {
+  cursor: default;
+}
 
 .ant-tooltip-placement-top .ant-tooltip-arrow, .ant-tooltip-placement-topLeft .ant-tooltip-arrow, .ant-tooltip-placement-topRight .ant-tooltip-arrow {
   bottom: 7px;
@@ -308,6 +311,7 @@ p {
     padding: 0.3em 0.5em 0.2em 0.2em;
     font-size: 0.75rem;
     border-radius: 12px!important;
+    margin-bottom: 3px;
 
     i.fa-times {
       margin: 3px 3px 3px 10px;
@@ -680,14 +684,14 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   min-width:140px; max-width:140px;width:140px;
 }
 .td-reporter {
-  width: 60px;
-  max-width: 60px;
-  min-width: 60px;
+  width: 80px;
+  max-width: 80px;
+  min-width: 80px;
 }
 .td-assignee {
-  width: 60px;
-  max-width: 60px;
-  min-width: 60px;
+  width: 80px;
+  max-width: 80px;
+  min-width: 80px;
 }
 .td-estimates {
   min-width: 90px;

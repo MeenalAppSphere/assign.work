@@ -203,11 +203,21 @@
         <th class="text-center td-status">
           <span>Status</span>
         </th>
-        <th class="text-center td-reporter">Reporter</th>
 
-        <!-- <th class="text-center" width="110">Progress</th>-->
 
-        <th class="text-center td-assignee">Assignee</th>
+        <th class="text-center td-reporter">
+          <span>Reporter</span>
+          <span class="p-l-10">
+              <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'createdBy'}"></ng-container>
+          </span>
+        </th>
+
+        <th class="text-center td-assignee">
+          <span>Assignee</span>
+          <span class="p-l-10">
+              <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'assignee'}"></ng-container>
+          </span>
+        </th>
 
         <th class="text-right td-estimates">
           <span>Estimates</span>
@@ -289,17 +299,11 @@
         </td>
 
         <td data-label="Reporter" class="text-center">
-          <span *ngIf="!item.createdBy">-</span>
-          <span *ngIf="item.createdBy" nz-tooltip
-                [nzTitle]="item.assignee && item.createdBy.firstName ? item.createdBy.firstName +' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
-            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+          <profile-name [user]="item.createdBy" class="flex-profile-name"></profile-name>
         </td>
 
         <td data-label="Assignee" class="text-center">
-          <span *ngIf="!item.assignee">-</span>
-          <span *ngIf="item.assignee" nz-tooltip
-                [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.createdBy.lastName : item.assignee.emailId"> <nz-avatar
-            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>  </span>
+           <profile-name [user]="item.assignee" class="flex-profile-name"></profile-name>
         </td>
 
         <td data-label="Estimate" class="text-right">

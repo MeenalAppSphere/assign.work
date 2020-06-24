@@ -236,11 +236,11 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       } else {
         // if not a column then move the status which is already merged
         // check if status is already merged in a column
-        const columnIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.statusId);
+        const columnStatusIndex = this._utilityService.getColumnIndexFromStatus(boardDetails, requestModel.statusId);
 
-        if (columnIndex > -1) {
+        if (columnStatusIndex > -1) {
           // if already merged in column than un-merge / remove it from that column
-          this._utilityService.unMergeStatusFromAColumn(boardDetails, columnIndex, requestModel.statusId);
+          this._utilityService.unMergeStatusFromAColumn(boardDetails, columnStatusIndex, requestModel.statusId);
         }
 
         // create new column object
