@@ -361,23 +361,23 @@
 
           <div class="thead" *ngIf="sprintReport?.reportTasksNotCompleted.length>0">
             <div class="tr">
-              <div class="th">Item ID</div>
-              <div class="th">Status</div>
-              <div class="th">Item Name</div>
-              <div class="th">Assignee</div>
+              <div class="th td-item-id">Item ID</div>
+              <div class="th td-item-status">Status</div>
+              <div class="th td-item-name">Item Name</div>
+              <div class="th td-item-assignee">Assignee</div>
             </div>
           </div>
 
           <div class="tbody" *ngIf="sprintReport?.reportTasksNotCompleted.length>0">
             <div class="tr" *ngFor="let data of sprintReport.reportTasksNotCompleted">
-              <div class="td" data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a>
+              <div class="td td-item-id" data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a>
               </div>
-              <div class="td" data-label="Status">
+              <div class="td td-item-status" data-label="Status">
                 <nz-tag [nzColor]="data.status?.color"
                         class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
               </div>
-              <div class="td" data-label="Item Description">{{ data.name }}</div>
-              <div class="td" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
+              <div class="td td-item-name" data-label="Item Description">{{ data.name }}</div>
+              <div class="td td-item-assignee" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
             </div>
           </div>
 
@@ -403,23 +403,23 @@
 
           <div class="thead" *ngIf="sprintReport?.reportTasksCompleted.length>0">
             <div class="tr">
-              <div class="th">Item ID</div>
-              <div class="th">Status</div>
-              <div class="th">Item Name</div>
-              <div class="th">Assignee</div>
+              <div class="th td-item-id">Item ID</div>
+              <div class="th td-item-id">Status</div>
+              <div class="th td-item-name">Item Name</div>
+              <div class="th td-item-assignee">Assignee</div>
             </div>
           </div>
 
           <div class="tbody" *ngIf="sprintReport?.reportTasksCompleted.length>0">
             <div class="tr" *ngFor="let data of sprintReport.reportTasksCompleted">
-              <div class="td" data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a>
+              <div class="td td-item-id"data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a>
               </div>
-              <div class="td" data-label="Status">
+              <div class="td td-item-status" data-label="Status">
                 <nz-tag [nzColor]="data.status?.color"
                         class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
               </div>
-              <div class="td" data-label="Item Description">{{ data.name }}</div>
-              <div class="td" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
+              <div class="td td-item-name" data-label="Item Description">{{ data.name }}</div>
+              <div class="td td-item-assignee" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
             </div>
           </div>
 
