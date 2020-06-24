@@ -14,6 +14,7 @@ import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import * as moment from 'moment';
 import { BadRequest, generateUtcDate } from '../../helpers/helpers';
+import { BoardUtilityService } from '../board/board.utility.service';
 
 @Injectable()
 export class SprintReportService extends BaseService<SprintReportModel & Document> {
@@ -23,6 +24,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
   private _utilityService: SprintReportUtilityService;
   private _sprintUtilityService: SprintUtilityService;
+  private _boardUtilityService: BoardUtilityService;
 
   constructor(
     @InjectModel(DbCollection.sprintReports) protected readonly _sprintReportModel: Model<SprintReportModel & Document>,
@@ -38,6 +40,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
     this._utilityService = new SprintReportUtilityService();
     this._sprintUtilityService = new SprintUtilityService();
+    this._boardUtilityService = new BoardUtilityService();
   }
 
   /**
@@ -50,8 +53,31 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     const projectDetails = await this._projectService.getProjectDetails(projectId, true);
 
     // get all statuses
-    const taskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
+    let taskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
       filter: { projectId }, lean: true, select: 'name _id color'
+    });
+
+    // filter task statuses
+    taskStatuses = taskStatuses.filter(status => {
+      return projectDetails.activeBoard.columns.some(column => {
+        return (
+          column.headerStatusId.toString() === status._id.toString() ||
+          column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === status._id.toString()))
+          && !column.isHidden;
+      });
+    });
+
+    // arrange task statuses order as board columns order
+    const orderedTasksStatuses = [];
+    projectDetails.activeBoard.columns.forEach(column => {
+      if (!column.isHidden) {
+        const statuses = taskStatuses.filter(taskStatus =>
+          column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === taskStatus._id.toString()));
+
+        statuses.forEach(status => {
+          orderedTasksStatuses.push(status);
+        });
+      }
     });
 
     // sprint details
@@ -135,7 +161,26 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       this._utilityService.prepareSprintReportUserProductivity(report);
 
       // prepare task count report
-      this._utilityService.prepareSprintReportTasksCounts(report, taskStatuses);
+      this._utilityService.prepareSprintReportTasksCounts(report, orderedTasksStatuses);
+
+      // calculate report task count
+      report.reportTasksCount = report.reportTasks.length;
+
+      // calculate all finished tasks count
+      report.finishedTasksCount = report.reportTasks.filter(task => {
+        return report.finalStatusIds.some(statusId => statusId.toString() === task.statusId.toString());
+      }).length;
+
+      // filter completed tasks
+      report.reportTasksCompleted = report.reportTasks.filter(reportTask => {
+        return report.finalStatusIds.some(statusId => statusId.toString() === reportTask.statusId.toString());
+      });
+
+      // filter non completed tasks
+      report.reportTasksNotCompleted = report.reportTasks.filter(reportTask => {
+        return !report.finalStatusIds.some(statusId => statusId.toString() === reportTask.statusId.toString());
+      });
+
       return report;
     } else {
       throw new NotFoundException('Report Not Found');
