@@ -4,54 +4,90 @@
 .assigned-user-input {
   height: 36px;
 }
-.horizontal-list {
-    .ant-list-item {
-        padding: 0px;
-        border-radius: 4px;
-        border: 0px solid #fff!important;
-        margin-bottom: 5px;
-        display: inline-flex!important;
-        margin-right: 1%;
-        margin-left: 1%;
-        width: 48%;
-        box-shadow: 0px 0px 4px 0px #ddd;
-        margin-bottom: 10px;
-        &:hover {
-            cursor: pointer;
-            border: 0px solid #2196F3!important;
-            box-shadow: 0px 3px 4px -2px #b5b5b5;
-        }
-        .project-header-title {
-            border-top-left-radius: 3px;
-            border-top-right-radius: 3px;
-            background: linear-gradient(to bottom right, #2a9af3 0%, #d4d4d4 100%);
-            color: #fff;
-            font-weight: 400;
-            font-size: 16px;
-            box-shadow: 0px 2px 4px -2px #c4c4c4;
-            margin-bottom: 8px;
-        }
+
+.switch-project-view {
+  margin: -16px;
+  margin-bottom: 0px;
+
+  .switch-search-box {
+
+    .ant-input {
+      font-size: 22px;
+      padding: 1.2rem 75px;
+      background: #F7F8FB;
+      border: 0px!important;
+      border-radius: 12px 12px 0px 0px;
     }
+  }
+  .horizontal-list {
+    padding: 0px 32px;
+
+    .recent-item {
+      margin-right: 42px;
+      display: inline-block;
+      cursor: pointer;
+      
+      .project-box {
+        width: 102px;
+        height: 93px;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 21px;
+        line-height: 93px;
+        background: #2c7df6;
+        text-align: center;
+      }
+
+      .project-box.add-project {
+        border: 1px dashed #7A869A;
+        background: #fff;
+      }
+
+      .project-name-truncated {
+        text-align: center;
+        width: 102px;
+        min-width: 102px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 1rem;
+        margin-top: 12px;
+      }
+    }
+
+    .recent-item:last-child {
+      margin-right: 0px;
+    }
+
+  }
+}
+
+.all-search-projects {
+  padding: 45px 32px 0px 32px;
+  .all-project-title {
+    border-bottom: 1px solid #DEDFE2;
+  }
 }
 
 .search-list {
     overflow: auto;
-    max-height: 240px;
-    min-height: 180px;
+    max-height: 191px;
+    min-height: 191px;
   .ant-list-item{
     &:hover{
       cursor: pointer;
       box-shadow: 0px 0px 4px 0px #ddd;
     }
   }
+  .ant-list-item-meta-title {
+    margin-bottom: 0px!important;
+  }
+  .ant-list-split .ant-list-item {
+    padding: 8px 0px;
+    border-bottom: 1px solid #DEDFE2;
+  }
 }
 
-.search-list .ant-list-split .ant-list-item {
-    padding: 3px;
-    border: 1px #ddd solid;
-    margin-bottom: 4px;
-    border-radius: 4px;
-}
 
 .project-templates{
   width: 100%;
