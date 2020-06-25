@@ -96,13 +96,21 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  getAllProject(json: GetAllProjectsModel): Observable<BaseResponseModel<Project[]>> {
+  getAllProject(json: GetAllProjectsModel): Observable<BaseResponseModel<BasePaginatedResponse<Project>>> {
+    this.updateState({ getAllProjectInProcess: true, projects:null });
     return this._http.post(ProjectUrls.getAllProject, json).pipe(
-      map((res: BaseResponseModel<Project[]>) => {
-        //this.notification.success('Success', 'Found');
+      map((res: BaseResponseModel<BasePaginatedResponse<Project>>) => {
+        this.updateState({
+          projects: res.data.items,
+          getAllProjectInProcess: false
+        });
         return res;
       }),
       catchError(err => {
+        this.updateState({
+          projects : null,
+          getAllProjectInProcess: false
+        });
         return this.handleError(err);
       })
     );
