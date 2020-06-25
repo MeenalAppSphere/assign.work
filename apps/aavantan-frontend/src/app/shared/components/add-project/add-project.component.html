@@ -17,7 +17,7 @@
                 <input placeholder="Search Project" (ngModelChange)="changed()" [(ngModel)]="searchProjectText" nz-input nzSize="small" />
               </nz-input-group>
               <ng-template #prefixIconSearch>
-                <img class="m-l-15" src="../../../../assets/images/icons/search_switch_project.svg"  *ngIf="!isSearching">
+                <img class="m-l-15" style="padding-bottom:2px;" src="../../../../assets/images/icons/search_switch_project.svg"  *ngIf="!isSearching">
                 <span class="p-l-15"><i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i></span>
               </ng-template>
               <ng-template #suffixIconSearch>
@@ -44,8 +44,8 @@
                   <ng-template #projectTooltip>
                     <span>
                       <div>{{item.name}}</div>
-                      <div class="font-size-12 text-white">Created : {{item.createdAt | dateAgo}}</div>
-                      <div class="text-white"><span>by {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span></div>
+                      <div class="font-size-12 text-white">Created at {{item.createdAt | dateAgo}}</div>
+                      <div class="font-size-12 text-white"><span>by {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span></div>
                     </span>
                   </ng-template>
                 </div>
@@ -82,7 +82,7 @@
                                               <nz-avatar [nzSize]="44" nzShape="square" class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
 
                                               <div >
-                                                <div>{{item.name}}</div>
+                                                <div class="text-black">{{item.name}}</div>
                                                 <span class="font-size-12">
                                                 <span class="text-gray-light-2 font-weight-light">by </span>
                                                 <span class="text-gray-light-2 font-weight-semibold">{{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : item.createdBy.emailId }}</span>
