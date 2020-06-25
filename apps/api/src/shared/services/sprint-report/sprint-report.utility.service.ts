@@ -172,6 +172,14 @@ export class SprintReportUtilityService {
    * @param report
    */
   prepareSprintReportUserProductivity(report: SprintReportModel) {
+    // calculate report task count
+    report.reportTasksCount = report.reportTasks.length;
+
+    // calculate all finished tasks count
+    report.finishedTasksCount = report.reportTasks.filter(task => {
+      return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
+    }).length;
+
     // loop over report members
     report.reportMembers = report.reportMembers.map(member => {
 
