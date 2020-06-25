@@ -282,7 +282,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           organizationId: this._generalService.currentOrganization.id,
           query: queryText
         };
-        
+
         this.projectMembersList.forEach((ele) => {
           if (ele.emailId === queryText) {
             this.isCollaboratorExits = true;
@@ -366,7 +366,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         organizationId: this._generalService.currentOrganization.id
       };
       this._projectService.getAllProject(json).subscribe((data) => {
-        this.projectListData = data.data;
+        this.projectListData = data.data.items;
         this.getProjectsInProcess = false;
       });
     } catch (e) {

@@ -293,6 +293,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // get all task priorities
     this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+
+    // get all project limit 10 for header dropdown init
+    this._projectService
+      .getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
+
   }
 
   /**

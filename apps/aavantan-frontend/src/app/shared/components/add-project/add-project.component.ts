@@ -93,7 +93,11 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
-        this.projectList = res;
+        // this.projectListSearch = res;
+      } else {
+        // get all project limit 10 store in 'projects' store
+        this._projectService
+          .getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
       }
     });
 
@@ -117,8 +121,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         });
 
       });
-
-    this.projectListSearch = this.projectListData;
 
 
     // search collaborators
@@ -243,7 +245,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   basicModalHandleCancel() {
     this.toggleShow.emit();
-    this.router.navigate(['dashboard']);
+    if(this.showCreateProject) {
+      this.router.navigate(['dashboard']);
+    }
   }
 
   async saveProject() {
