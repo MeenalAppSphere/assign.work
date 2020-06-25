@@ -53,31 +53,8 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     const projectDetails = await this._projectService.getProjectDetails(projectId, true);
 
     // get all statuses
-    let taskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
+    let allTaskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
       filter: { projectId }, lean: true, select: 'name _id color'
-    });
-
-    // filter task statuses
-    taskStatuses = taskStatuses.filter(status => {
-      return projectDetails.activeBoard.columns.some(column => {
-        return (
-          column.headerStatusId.toString() === status._id.toString() ||
-          column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === status._id.toString()))
-          && !column.isHidden;
-      });
-    });
-
-    // arrange task statuses order as board columns order
-    const orderedTasksStatuses = [];
-    projectDetails.activeBoard.columns.forEach(column => {
-      if (!column.isHidden) {
-        const statuses = taskStatuses.filter(taskStatus =>
-          column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === taskStatus._id.toString()));
-
-        statuses.forEach(status => {
-          orderedTasksStatuses.push(status);
-        });
-      }
     });
 
     // sprint details
@@ -145,6 +122,34 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       report = result[0];
       report.id = report._id;
 
+      // filter task statuses
+      allTaskStatuses = allTaskStatuses.filter(status => {
+        return projectDetails.activeBoard.columns.some(column => {
+          return (
+            column.headerStatusId.toString() === status._id.toString() ||
+            column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === status._id.toString()))
+            && !column.isHidden;
+        });
+      });
+
+      // arrange task statuses order as board columns order
+      const boardWiseTasksStatuses = [];
+      projectDetails.activeBoard.columns.forEach(column => {
+        if (!column.isHidden) {
+          const statuses = allTaskStatuses.filter(taskStatus =>
+            column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === taskStatus._id.toString()));
+
+          statuses.forEach(status => {
+            boardWiseTasksStatuses.push(status);
+          });
+        }
+      });
+
+      // filter out tasks whose status is not included in boardWiseTasksStatuses
+      report.reportTasks = report.reportTasks.filter(reportTask => {
+        return boardWiseTasksStatuses.some(boardWise => reportTask.statusId.toString() === boardWise._id.toString());
+      });
+
       // assign sprint details to report sprint
       report.sprint = sprintDetails;
 
@@ -161,15 +166,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       this._utilityService.prepareSprintReportUserProductivity(report);
 
       // prepare task count report
-      this._utilityService.prepareSprintReportTasksCounts(report, orderedTasksStatuses);
-
-      // calculate report task count
-      report.reportTasksCount = report.reportTasks.length;
-
-      // calculate all finished tasks count
-      report.finishedTasksCount = report.reportTasks.filter(task => {
-        return report.finalStatusIds.some(statusId => statusId.toString() === task.statusId.toString());
-      }).length;
+      this._utilityService.prepareSprintReportTasksCounts(report, boardWiseTasksStatuses);
 
       // filter completed tasks
       report.reportTasksCompleted = report.reportTasks.filter(reportTask => {
