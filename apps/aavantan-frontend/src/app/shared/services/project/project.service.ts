@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { ProjectUrls } from './project.url';
 import {
+  BasePaginatedResponse,
   BaseResponseModel,
   GetAllProjectsModel,
   Project,

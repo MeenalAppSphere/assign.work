@@ -23,6 +23,8 @@ import { Router } from '@angular/router';
 import { TaskStatusService } from '../../services/task-status/task-status.service';
 import { TaskPriorityService } from '../../services/task-priority/task-priority.service';
 import { TaskTypeService } from '../../services/task-type/task-type.service';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { ProjectQuery } from '../../../queries/project/project.query';
 
 
 @Component({
@@ -76,7 +78,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
-              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService) {
+              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
+              private _projectQuery: ProjectQuery) {
     // this.getAllUsers();
   }
 
@@ -87,6 +90,12 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.projectList = this._generalService.user.projects as Project[];
 
     this.showCreateProject = !(this.projectList && this.projectList.length > 0);
+
+    this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.projectList = res;
+      }
+    });
 
     this.createFrom();
 
