@@ -141,7 +141,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.showLogoutWarning('Project');
     } else {
       this.projectModalIsVisible = !this.projectModalIsVisible;
-      this.router.navigate(['dashboard', 'my-tasks']);
+      //this.router.navigate(['dashboard', 'my-tasks']);
     }
   }
 

@@ -27,7 +27,7 @@
           </nz-form-item>
 
             <div class="horizontal-list">
-              <h4 class="font-size-14 text-gray-light m-b-20">Recent Project</h4>
+              <h4 class="font-size-14 text-gray-light m-b-15">Recent Project</h4>
 
               <div class="recent-item" (click)="addNewProject()">
                 <div class="project-box add-project">
@@ -37,12 +37,12 @@
               </div>
 
               <div class="recent-item" (click)="switchProject(item)"
-                   *ngFor="let item of projectList" nz-tooltip
-                   [nzTitle]="projectTooltip">
+                   *ngFor="let item of projectList"
+                   [ngStyle]="{'border': (currentProject && currentProject.id === item.id) ? '2px solid '+item.color+'' : '2px solid #fff'}"
+                   nz-tooltip [nzTitle]="projectTooltip">
 
                   <div class="project-box text-uppercase"
                        [ngStyle]="{'background': item.color}"
-                       [ngClass]="{'active-project': (currentProject && currentProject.id === item.id)}"
                   >{{item.name | slice : 0:2}}</div>
 
                   <div class="project-name-truncated text-black">{{item.name}}</div>
@@ -66,6 +66,7 @@
 
                   <ng-template #noResult>
                     <nz-empty
+                      *ngIf="isProjectNotFound"
                       style="height:70px"
                       [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
                       [nzNotFoundContent]="contentActivity"></nz-empty>
@@ -284,7 +285,7 @@
                   <div class="col text-right">
 
                     <!-- cancel -->
-                    <button *ngIf="!createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess"><span>Cancel</span></button>
+                    <button *ngIf="!createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess"><span>{{showCreateProject ? 'Cancel' : 'Close'}}</span></button>
 
                     <!-- <button *ngIf="createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"><span>Close</span></button>-->
                     <!-- cancel btn end -->

@@ -71,6 +71,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public modelChanged = new Subject<string>();
   public isSearching: boolean;
   public searchSatarted: boolean;
+  public isProjectNotFound: boolean;
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
@@ -92,9 +93,18 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this.showCreateProject = !(this.projectList && this.projectList.length > 0);
 
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(project => {
+      this.currentProject = project;
+    });
+
     this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.projectListSearch = res;
+        this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
+
+        if(this.projectListSearch.length >0 ){
+          this.isProjectNotFound = true;
+        }
       } else {
         // get all project limit 10 store in 'projects' store
         this._projectService
@@ -102,9 +112,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       }
     });
 
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(project => {
-      this.currentProject = project;
-    });
 
     this.createFrom();
 
@@ -122,6 +129,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.isSearching = true;
         this._projectService.searchProject(this.searchProjectText).subscribe((data) => {
           this.projectListSearch = data.data;
+          this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
+          if(this.projectListSearch.length >0 ){
+            this.isProjectNotFound = true;
+          }
           this.isSearching = false;
         });
 
@@ -253,9 +264,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   basicModalHandleCancel() {
     this.toggleShow.emit();
-    if (this.showCreateProject) {
-      this.router.navigate(['dashboard']);
-    }
   }
 
   async saveProject() {
