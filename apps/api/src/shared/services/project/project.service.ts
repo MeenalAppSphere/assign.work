@@ -651,9 +651,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
     query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
     query.sort = 'updatedAt';
     query.sortBy = 'desc';
+    query.lean = true;
 
-    return this.find(query);
-
+    const projects = await this.find(query);
+    return projects.map(project => {
+      project.id = project._id.toString();
+      project.color = this._generalService.generateRandomColor();
+      return project;
+    });
   }
 
   /**
