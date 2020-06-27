@@ -75,11 +75,11 @@
   <ng-template #tabSwitchTemplate>
 
     <nz-button-group class="toggle-btn-group">
-      <button (click)="changeView('listView')" nz-button [nzType]="view==='listView' ? 'link' : 'primary'" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
-        <img src="../../assets/images/icons/{{ view === 'cardView' ? 'light-blue-list-view.svg' : 'blue-list-view.svg' }}">
+      <button (click)="changeView('listView')" nz-button [nzType]="view==='listView' ? 'link' : 'default'" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
+        <img src="../../assets/images/icons/{{ view === 'cardView' ? 'gray-list-view.svg' : 'blue-list-view.svg' }}"> {{ view === 'listView' ? 'List' : ''}}
       </button>
-      <button (click)="changeView('cardView')" nz-button [nzType]="view==='cardView' ? 'link' : 'primary'" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>
-        <img src="../../assets/images/icons/{{ view === 'listView' ? 'light-blue-card-view.svg' : 'blue-card-view.svg' }}">
+      <button (click)="changeView('cardView')" nz-button [nzType]="view==='cardView' ? 'link' : 'default'" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>
+        <img src="../../assets/images/icons/{{ view === 'listView' ? 'gray-card-view.svg' : 'blue-card-view.svg' }}"> {{ view === 'cardView' ? 'Card' : ''}}
       </button>
     </nz-button-group>
 

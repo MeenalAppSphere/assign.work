@@ -177,9 +177,9 @@ export class SprintService extends BaseService<SprintStore, SprintState> {
     );
   }
 
-  moveTaskToStage(json: MoveTaskToColumnModel): Observable<BaseResponseModel<Sprint>> {
+  moveTaskToStage(json: MoveTaskToColumnModel): Observable<BaseResponseModel<string>> {
     return this._http.post(SprintUrls.moveTaskToStage, json).pipe(
-      map((res: BaseResponseModel<Sprint>) => {
+      map((res: BaseResponseModel<string>) => {
         this.notification.success('Success', 'Task Moved Successfully');
         return res;
       }),
@@ -220,9 +220,9 @@ export class SprintService extends BaseService<SprintStore, SprintState> {
         let responseMsg = '';
         if (json.createAndPublishNewSprint) {
           res.data = res.data as Sprint;
-          responseMsg = `Sprint Closed Successfully and all Un Finished Task Moved to new Sprint Named :- ${res.data.name}`;
+          responseMsg = `Sprint Closed Successfully and all Un-Finished Task Moved to new Sprint Named :- ${res.data.name}`;
         } else {
-          responseMsg = `Sprint Closed Successfully and all Un Finished To Back Log`;
+          responseMsg = `Sprint Closed Successfully and all Un-Finished Task Moved To Back Log`;
         }
 
         this.notification.success('Success', responseMsg);

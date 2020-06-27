@@ -1,391 +1,120 @@
+<nz-card
+  nzSize="small"
+  [nzBordered]="false"
+  [nzTitle]="titleTemplateRef"
+  class="backlog-page">
 
-  <nz-card
-    nzSize="small"
-    [nzBordered]="false"
-    [nzTitle]="titleTemplateRef"
-    [nzExtra]="createSprintBtnTemplate"
-    class="backlog-page">
-
-    <ng-template #titleTemplateRef>
+  <ng-template #titleTemplateRef>
 
       <span class="p-r-30">
-        <span class="p-r-15 font-size-18 text-black">Active Sprint</span>
+        <span class="p-r-15 font-size-18 text-black">Backlogs</span>
         <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Backlog page..."/>
       </span>
 
-      <!--      <span class="badge backlog-badge" *ngIf="sprintData && sprintData?.totalEstimationReadable">-->
-      <!--        <span class="text-red">Total Backlogs</span><span class="p-l-5 text-black">{{sprintData?.totalEstimationReadable}}</span>-->
-      <!--      </span>-->
+  </ng-template>
 
-    </ng-template>
+  <section ngClass="{{unPublishedSprintData && unPublishedSprintData.id ? 'm-t-30' : 'm-t-10'}}">
 
-    <!-- create sprint button and active sprint data -->
-    <ng-template #createSprintBtnTemplate>
+    <div class="row m-b-10">
 
-      <span class="sprint-date" *ngIf="activeSprintData">
-            <span class="font-size-12 text-gray-light-2 p-l-20 p-r-10">
+      <div class="col d-inline-flex ant-row-flex-space-between">
 
-              <span *ngIf="activeSprintData && activeSprintData.name"
-                    class="text-gray-light font-size-16">{{activeSprintData.name}}</span>
-              <span class="text-gray-light-2 font-weight-light font-size-14">&nbsp;is running, </span>
+        <label class="font-size-18 ">
 
-              <span class="font-size-14">
-                <span class="font-weight-bold"
-                      [ngClass]="activeSprintData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{activeSprintData.sprintDaysLeft}}
-                  days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
-              </span>
+            <span class="text-gray-light-2 font-size-13 font-weight-semibold"
+                  *ngIf="backLogTaskRequest?.totalItems">{{backLogTaskRequest?.totalItems}}
+              <span class="font-weight-light"> Total Item(s)</span></span>
 
-              <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                   class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
-
-            </span>
-          <ng-template #titleTemplate>
-              <div><span class="d-inline-block w-45px">Goal</span>: {{activeSprintData?.goal}}</div>
-              <div><span
-                class="d-inline-block w-45px">Starts</span>: {{activeSprintData?.startedAt | date : 'MMM d yyyy'}}</div>
-              <div><span
-                class="d-inline-block w-45px">End</span>: {{activeSprintData?.endAt | date : 'MMM d yyyy'}}</div>
-          </ng-template>
-          </span>
-    </ng-template>
-    <!-- create sprint button and active sprint data -->
-
-    <section class="m-b-10">
-      <nz-spin nzTip="Checking Unpublished Sprint..." [nzSpinning]="gettingUnpublishedInProcess">
-
-        <!-- sprint duration -->
-        <div class="row clearfix m-b-10 m-t-10">
-
-          <div class="col-md-8 font-size-14" *ngIf="(unPublishedSprintData && unPublishedSprintData.id) || sprintDurations">
-
-
-              <div class="font-size-18 m-r-10 text-black font-weight-normal"
-                    *ngIf="unPublishedSprintData?.name">{{unPublishedSprintData?.name}}</div>
-
-
-              <div [ngClass]="unPublishedSprintData?.name ? '' : 'p-t-10'">
-                <span class="m-r-25 text-gray-light-2 font-size-13"
-                      *ngIf="sprintDurations?.totalEstimationReadable">
-                  <span class="font-weight-semibold">{{sprintDurations?.totalEstimationReadable}}</span>
-                  <span class="font-weight-light">  Sprint Hours </span>
-                </span>
-
-                <span class="m-r-10 text-gray-light-2 font-size-13">
-                  <span class="font-weight-semibold">{{sprintDurations?.totalCapacityReadable}}</span>
-                  <span class="m-r-25 font-weight-light"> Sprint Capacity</span>
-                </span>
-
-
-                <span class="font-size-13 m-r-25"
-                      [ngClass]="{'text-gray-light-2 font-weight-semibold': sprintDurations?.totalRemainingCapacity>0,
-                      'text-red font-weight-semibold': sprintDurations?.totalRemainingCapacity<0}"
-                      *ngIf="sprintDurations?.totalRemainingCapacityReadable">
-                  <span
-                    class="p-l-5">{{sprintDurations?.totalRemainingCapacityReadable}}</span>
-                  <span class="font-weight-light"> Remains</span>
-                </span>
-
-                <span class="text-gray-light-2" *ngIf="totalItemsInSprint>0">
-                  <span class="text-gray-light-2 font-weight-semibold">{{totalItemsInSprint}}&nbsp;</span>
-                  <span class="font-weight-light">{{totalItemsInSprint === 1 ? 'Item' : 'Items'}} in Sprint</span>
-                </span>
-              </div>
-
-
-          </div>
-
-
-          <div class="col-md-4 text-right">
-            <span *ngIf="(unPublishedSprintData?.id)">
-              <button class="m-l-10" *ngxPermissionsOnly="['canUpdate_sprint']" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
-                      nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
-              <!--              <button class="m-l-10" [nzLoading]="saveSprintInProcess" nzType="link" nzSize="small" nz-button-->
-              <!--                      (click)="saveSprint()">Save Sprint</button>-->
-            </span>
-
-            <button *ngIf="unPublishedSprintData?.id" nzSize="32" class="m-l-10" nz-button
-                    nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">
-              <i class="fas fa-ellipsis-v"></i>
-            </button>
-
-            <nz-dropdown-menu #menu1="nzDropdownMenu">
-              <ul nz-menu>
-                <li *ngxPermissionsOnly="['canUpdate_sprint']" nz-menu-item (click)="toggleAddSprint()">Edit Sprint</li>
-                <li nz-menu-item (click)="toggleTeamCapacity()">Edit Capacity</li>
-              </ul>
-            </nz-dropdown-menu>
-
-
-            <span *ngxPermissionsOnly="['canClose_sprint']">
-              <button *ngIf="activeSprintData?.id"
-                    nzType="default" nzSize="small" nz-button class="btn-add-task m-l-10"
-                    (click)="toggleCloseSprintShow()">Close Sprint
-              </button>
-            </span>
-
-
-          </div>
-        </div>
-        <!-- sprint duration -->
-
-
-
-        <!-- sprint task list -->
-        <ng-container>
-
-          <div *ngIf="sprintId || activeSprintData?.id || unPublishedSprintData?.id">
-
-            <nz-spin
-              [nzSpinning]="getAllActiveSprintTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
-              [nzTip]="sprintTableLoadingTip">
-
-
-              <!-- sprint tasks not found/ empty task list -->
-              <div class="draft-sprint-box"
-                   *ngIf="(sprintId && !draftTaskList) || (activeSprintData?.id && draftTaskList?.length==0) || (unPublishedSprintData && unPublishedSprintData.id && draftTaskList && draftTaskList.length===0)">
-
-                  <nz-empty
-                    [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-                    [nzNotFoundContent]="contentTpl">
-                    <ng-template #contentTpl>
-                      <span class="font-weight-normal font-size-13 text-gray-light-2">Select your backlogs to assign to the sprint <strong>{{unPublishedSprintData.name}}</strong></span>
-                    </ng-template>
-
-                  </nz-empty>
-
-              </div>
-              <!-- sprint tasks not found/ empty task list -->
-
-
-              <nz-table *ngIf="draftTaskList?.length>0"
-                        #sprintListViewTable
-                        [nzData]="draftTaskList"
-                        [nzFrontPagination]="false"
-                        [nzTotal]="sprintTasksRequest.totalItems"
-                        [nzPageIndex]="sprintTasksRequest.page"
-                        [nzPageSize]="sprintTasksRequest.count"
-                        [nzShowPagination]="true" (nzPageIndexChange)="pageChanged($event, 'activeSprint')"
-                        nzSize="small"
-                        class="draft-table" [nzScroll]="{ y: '265px' }">
-                <thead>
-                <tr>
-
-                  <th *ngxPermissionsOnly="['canRemoveTask_sprint']" class="text-center td-sn" data-label="#">#</th>
-
-                  <th class="text-left td-priority">
-                    <span>Priority</span>
-                        <span class="p-l-10">
-                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
-                      column: 'priority', sortingRequest: sprintTasksRequest, requestType:'activeSprint' }"></ng-container>
-                    </span>
-                    </th>
-
-                  <th class="text-left td-type">
-                    <span>Type</span>
-                    <span class="p-l-10">
-                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
-                      column: 'taskType', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
-                    </span>
-                  </th>
-
-                  <th class="td-title">
-                    <span>Title</span>
-                  </th>
-
-                  <th class="text-center td-status">
-                    <span>Status</span>
-                    <span class="p-l-10">
-                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
-                      column: 'status', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
-                    </span>
-                  </th>
-
-                  <th class="text-center td-reporter">Reporter</th>
-
-                  <th class="text-center td-assignee">Assignee</th>
-
-                  <th class="text-right td-estimates">
-                    <span>Estimates</span>
-                    <span class="p-l-10">
-                    <ng-container *ngTemplateOutlet="sortTemplate;context: {
-                    column: 'estimatedTime', sortingRequest: sprintTasksRequest, requestType:'activeSprint'}"></ng-container>
-                  </span>
-                  </th>
-
-                </tr>
-                </thead>
-
-                <tbody>
-                <tr *ngFor="let item of sprintListViewTable.data">
-
-                  <td *ngxPermissionsOnly="['canRemoveTask_sprint']" data-label="#" class="text-center td-sn">
-                    <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
-                       class="remove-item cursor-pointer text-muted" theme="fill"></i>
-                  </td>
-
-                  <td data-label="Priority" class="text-left td-priority">
-                  <span *ngIf="item && item.priority">
-                    <i [ngStyle]="{'border-left':'solid 3px '+item.priority.color+'', 'height':'15px' }"></i>
-                  </span>
-                    <i *ngIf="!item.priority" [ngStyle]="{'border-left':'solid 3px #ffffff', 'height':'15px' }"></i>
-                    <span class="p-l-5">{{item.priority && item.priority.name ? item.priority.name : '-'}}</span>
-                  </td>
-
-                  <td data-label="Type" class="text-left td-type">
-                    <span *ngIf="!item.taskType">-</span>
-                    <a routerLink="../../task/{{item.displayName}}" class="text-primary"
-                       *ngIf="item.taskType && item.taskType.name">{{item.displayName}}</a>
-                  </td>
-
-                  <td data-label="Title" class="td-title">
-                    <div class="media align-items-center">
-
-                      <div class="">
-
-                        <h6 class="m-b-0">
-                          <p class="m-0" style="max-width: 400px;" nz-paragraph nzEllipsis [nzEllipsisRows]="1">
-                            <a routerLink="../../task/{{item.displayName}}"
-                               class="text-black font-weight-semibold">
-                              {{item.name}}
-                            </a>
-                          </p>
-                        </h6>
-
-                      </div>
-                    </div>
-                  </td>
-
-                  <td data-label="Status" class="text-center td-status">
-                    <span *ngIf="!item.status">-</span>
-                    <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#00255B'">
-                      <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
-                         [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
-                    </nz-tag>
-                  </td>
-
-                  <td data-label="Reporter" class="text-center td-reporter">
-                    <profile-name [user]="item.createdBy"></profile-name>
-                  </td>
-
-                  <td data-label="Assignee" class="text-center td-assignee">
-
-                    <profile-name [user]="item.assignee"></profile-name>
-
-                  </td>
-
-                  <td data-label="Estimate" class="text-right td-estimates">
-                    <span class="text-black display-block">{{item.estimatedTimeReadable}}</span>
-                  </td>
-
-                </tr>
-                </tbody>
-              </nz-table>
-            </nz-spin>
-
-          </div>
-        </ng-container>
-        <!-- sprint task list -->
-
-      </nz-spin>
-
-    </section>
-
-    <section ngClass="{{unPublishedSprintData && unPublishedSprintData.id ? 'm-t-30' : 'm-t-10'}}">
-
-      <div class="row m-b-10">
-
-        <div class="col">
-          <label class="font-size-18"><span class="text-black">Backlogs</span>
-
-            <span class="p-l-25 text-gray-light-2 font-size-13"
+            <span class="p-l-25 text-gray-light-2 font-size-13 font-weight-semibold"
                   *ngIf="unPublishedSprintData && unPublishedSprintData.totalCapacityReadable">
               <span>{{unPublishedSprintData?.totalCapacityReadable}}</span>
               <span class="font-weight-light"> Total Estimates</span>
             </span>
 
-          </label>
-        </div>
+        </label>
 
-        <div class="col text-right" style="max-width: 360px;">
+        <!--user filter end -->
+        <span class="user-filter-section" *ngIf="projectMembers?.length>0">
+                <user-filter [avatarSize]="30" (selectedMembers)="selectedMembersForFilter($event)"></user-filter>
+              </span>
+        <!--user filter end -->
 
-          <div class="ng-select-content">
+      </div>
 
-            <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()" *ngIf="selectedColumnDataSource?.length===0">
+      <div class="col text-right" style="max-width: 360px;">
 
-              <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status</button>
+        <div class="ng-select-content">
 
-            <nz-select
-              *ngIf="selectedColumnDataSource?.length>0"
-              class="ng-select"
-              [nzMaxTagCount]="2"
-              (ngModelChange)="updateSingleChecked($event)"
-              [nzMaxTagPlaceholder]="tagPlaceHolder"
-              nzMode="multiple"
-              nzPlaceHolder="Please select"
-              [(ngModel)]="selectedColumnDataSource">
-              <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
-            </nz-select>
-            <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more</ng-template>
+          <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()"
+                  *ngIf="selectedColumnDataSource?.length===0">
 
-          </div>
-
-        </div>
-
-        <div class="col" style="max-width: 290px;">
-          <nz-input-group [nzSuffix]="suffixIcon">
-            <input placeholder="Search Backlogs" nzSize="small" nz-input
-                   [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"
-                   style="height:32px;"/>
-          </nz-input-group>
-          <ng-template #suffixIcon>
-            <i nz-icon nzType="search"></i>
-            <!--            <i class="fas fa-spin fa-spinner"></i>-->
-          </ng-template>
-        </div>
-
-        <div class="col text-right p-l-0" style="max-width: 120px;" *ngxPermissionsOnly="['canCreate_sprint']">
-          <button *ngIf="!activeSprintData?.id && !unPublishedSprintData?.id" nz-button nzSize="small"
-                  nzType="{{!unPublishedSprintData?.id && backLogTasksList && backLogTasksList.length > 0 ? 'primary' : 'default'}}"
-                  (click)="toggleAddSprint()">Create Sprint
+            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status
           </button>
+
+          <nz-select
+            *ngIf="selectedColumnDataSource?.length>0"
+            class="ng-select"
+            [nzMaxTagCount]="2"
+            (ngModelChange)="updateSingleChecked($event)"
+            [nzMaxTagPlaceholder]="tagPlaceHolder"
+            nzMode="multiple"
+            nzPlaceHolder="Please select"
+            [(ngModel)]="selectedColumnDataSource">
+            <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label"
+                       [nzValue]="item.value"></nz-option>
+          </nz-select>
+          <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more
+          </ng-template>
+
         </div>
 
       </div>
 
+      <div class="col" style="max-width: 290px;">
+        <nz-input-group [nzSuffix]="suffixIcon">
+          <input placeholder="Search Backlogs" nzSize="small" nz-input
+                 [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"
+                 style="height:32px;"/>
+        </nz-input-group>
+        <ng-template #suffixIcon>
+          <i nz-icon nzType="search"></i>
+          <!--            <i class="fas fa-spin fa-spinner"></i>-->
+        </ng-template>
+      </div>
+
+    </div>
 
 
+    <!-- backlog task list container -->
+    <ng-container>
 
-      <!-- backlog task list container -->
-      <ng-container>
+      <div>
 
-        <div>
-
-          <!-- backlogs -->
-          <nz-spin
-            [nzSpinning]="getBacklogTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
-            [nzTip]="backLogTableLoadingTip">
-
+        <!-- backlogs -->
+        <nz-spin
+          [nzSpinning]="getBacklogTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
+          [nzTip]="backLogTableLoadingTip">
 
 
-            <!-- empty backlog tasks container -->
-            <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
+          <!-- empty backlog tasks container -->
+          <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
 
 
-              <div class="backlog-sprint-box">
-                <nz-empty
-                  [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
-                  [nzNotFoundContent]="footerTpl">
-                  <ng-template #footerTpl>
-                    No Backlogs!
-                  </ng-template>
-                </nz-empty>
-              </div>
+            <div class="backlog-sprint-box">
+              <nz-empty
+                [nzNotFoundImage]="'../../../assets/images/not-found/no-backlog.svg'"
+                [nzNotFoundContent]="footerTpl">
+                <ng-template #footerTpl>
+                  No Backlogs!
+                </ng-template>
+              </nz-empty>
+            </div>
 
-            </ng-container>
-            <!-- empty backlog tasks container -->
+          </ng-container>
+          <!-- empty backlog tasks container -->
 
-            <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
-              <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
+          <ng-container *ngIf="backLogTasksList && backLogTasksList.length > 0">
+            <nz-table *ngIf="backLogTasksList?.length>0" #listViewTable
                       [nzData]="backLogTasksList"
                       [nzFrontPagination]="false"
                       [nzTotal]="backLogTaskRequest.totalItems"
@@ -395,8 +124,6 @@
                       nzSize="small">
               <thead>
               <tr>
-
-                <th class="text-center td-sn" data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id">#</th>
 
                 <th class="text-left td-priority">
                   <span>Priority</span>
@@ -426,9 +153,21 @@
                     </span>
                 </th>
 
-                <th class="text-center td-reporter">Reporter</th>
+                <th class="text-center td-reporter">
+                  <span>Reporter</span>
+                  <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'createdBy', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
+                  </span>
+                </th>
 
-                <th class="text-center td-assignee">Assignee</th>
+                <th class="text-center td-assignee">
+                  <span>Assignee</span>
+                  <span class="p-l-10">
+                      <ng-container *ngTemplateOutlet="sortTemplate;context: {
+                      column: 'assignee', sortingRequest: backLogTaskRequest, requestType:'backlog'}"></ng-container>
+                  </span>
+                </th>
 
                 <th class="text-right td-estimates">
                   <span>Estimates</span>
@@ -447,22 +186,6 @@
               <!--(tasksSelected && tasksSelected.sprintId) && -->
               <tr *ngFor="let item of listViewTable.data"
                   [ngClass]="{'has-missing-data':(!item.assignee || !item.estimatedTime) }">
-
-
-                <td data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id" class="text-center">
-
-                  <span *ngxPermissionsOnly="['canAddTask_sprint']">
-                    <label *ngIf="item.assignee && item.estimatedTime"
-                           nz-checkbox (nzCheckedChange)="addTaskToSprint(item, $event)"></label>
-                  </span>
-
-
-                  <i *ngIf="(!item.assignee || !item.estimatedTime)"
-                     class="text-red"
-                     nz-icon nz-tooltip nzTitle="Assignee or Estimated time is missing" nzType="exclamation-circle"
-                     style="margin-left: -8px;" theme="fill"></i>
-
-                </td>
 
                 <td data-label="Priority" class="text-left">
                   <span *ngIf="item && item.priority">
@@ -498,7 +221,8 @@
 
                 <td data-label="Status" class="text-center">
                   <span *ngIf="!item.status">-</span>
-                  <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#00255B'">
+                  <nz-tag *ngIf="item.status && item.status.name"
+                          [nzColor]="item.status.color ? item.status.color : '#00255B'">
                     <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
                        [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                   </nz-tag>
@@ -518,40 +242,37 @@
 
                 <td data-label="Estimate" class="text-center td-log-hours">
                   <a href="javascript:void(0);"
-                    class="text-primary"
-                    (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i></a>
+                     class="text-primary"
+                     (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i></a>
                 </td>
 
               </tr>
               </tbody>
             </nz-table>
-            </ng-container>
+          </ng-container>
 
 
-          </nz-spin>
-          <!-- backlogs -->
+        </nz-spin>
+        <!-- backlogs -->
 
 
-
-
-        </div>
-
-
-      </ng-container>
-      <!-- backlog task list container -->
-
-      <!-- create backlog button -->
-      <div *ngxPermissionsOnly="['canAdd_task']" ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
-        <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13"
-           (click)="addTaskNavigate()">+ Create Backlog</a>
       </div>
-      <!-- create backlog button -->
 
 
+    </ng-container>
+    <!-- backlog task list container -->
 
-    </section>
+    <!-- create backlog button -->
+    <div ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
+      <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13"
+         (click)="addTaskNavigate()">+ Create Backlog</a>
+    </div>
+    <!-- create backlog button -->
 
-  </nz-card>
+
+  </section>
+
+</nz-card>
 
 
 <!-- sorting icon template -->
@@ -572,101 +293,9 @@
 </ng-template>
 <!-- sorting -->
 
-<aavantan-team-capacity
-  *ngIf="teamCapacityModalIsVisible"
-  [sprintData]="unPublishedSprintData"
-  [teamCapacityModalIsVisible]="teamCapacityModalIsVisible"
-  (toggleShow)="toggleTeamCapacity($event)">
-</aavantan-team-capacity>
-
-<aavantan-app-add-sprint
-  *ngIf="sprintModalIsVisible"
-  [sprintData]="unPublishedSprintData"
-  [sprintModalIsVisible]="sprintModalIsVisible"
-  (toggleShow)="toggleAddSprint($event)">
-</aavantan-app-add-sprint>
-
 
 <ng-container *ngIf="timelogModalIsVisible && selectedTimeLogTask">
   <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTimeLogTask"
                (toggleTimeLogShow)="timeLog(selectedTimeLogTask)"></app-timelog>
 </ng-container>
 
-
-<nz-modal [(nzVisible)]="isVisibleCloseSprint" nzTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
-          [nzWidth]="700" nzCancelText="Cancel" (nzOnOk)="closeSprint()" [nzOkLoading]="closeSprintInProcess"
-          nzClassName="close-sprint-modal-confirm-box"
-          (nzOnCancel)="cancelCloseSprintDialog()">
-
-  <div>
-    <nz-radio-group [(ngModel)]="closeSprintModeSelection" style="width: 100%;">
-      <div class="row m-b-10">
-        <div class="col-md-9">
-          <label nz-radio nzValue="createNewSprint">Create new sprint and move all open items into it</label>
-        </div>
-        <div class="col-md-3">
-
-        </div>
-      </div>
-
-      <form *ngIf="closeSprintModeSelection === 'createNewSprint'" [formGroup]="closeSprintNewSprintForm"
-            autocomplete="off" nz-form>
-        <ng-container>
-          <section class="draft-sprint-box">
-
-            <div class="steps-content row">
-
-              <div class="col-md-7 col-sm-12">
-                <nz-form-item>
-                  <nz-form-label>Title<span class="text-danger">*</span></nz-form-label>
-                  <input nz-input formControlName="name" placeholder="Enter Sprint Title" nzSize="small"
-                         maxlength="50"/>
-                </nz-form-item>
-              </div>
-
-              <div class="col-md-5 col-sm-12">
-                <nz-form-item>
-                  <nz-form-label>Duration (Start - End Date)<span class="text-danger">*</span></nz-form-label>
-                  <div class="sprint-duration-datepicker">
-                    <nz-range-picker formControlName="duration" [nzFormat]="dateFormat"></nz-range-picker>
-                  </div>
-                </nz-form-item>
-              </div>
-
-
-              <div class="col-md-12">
-                <nz-form-item class="m-0">
-                  <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
-                  <textarea formControlName="goal" nz-input [rows]="3"
-                            placeholder="Enter Sprint Goal (max 250 character)" nzSize="small"
-                            maxlength="250"></textarea>
-                </nz-form-item>
-              </div>
-
-              <div class="col-md-12">
-                <nz-form-item class="m-0">
-                  <label nz-checkbox formControlName="createAndPublishNewSprint">Publish New Sprint ?</label>
-                </nz-form-item>
-              </div>
-
-            </div>
-
-          </section>
-        </ng-container>
-
-      </form>
-
-      <hr class="m-t-15 m-b-0">
-
-      <div class="row">
-        <div class="col-md-9 col-sm-7 p-t-20">
-          <label nz-radio nzValue="moveToBacklog">Move all open items of this sprint to Backlog!</label>
-        </div>
-      </div>
-
-    </nz-radio-group>
-
-  </div>
-
-
-</nz-modal>

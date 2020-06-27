@@ -266,7 +266,7 @@ export class AuthService implements OnModuleInit {
           // update user with model and set organization
           await this._userService.updateById(userDetails._id.toString(), {
             $set: {
-              password: user.password,
+              password: await bcrypt.hash(user.password, HASH_PASSWORD_SALT_ROUNDS),
               firstName: user.firstName,
               lastName: user.lastName,
               locale: user.locale,
@@ -298,7 +298,7 @@ export class AuthService implements OnModuleInit {
             // prepare update user doc
             let updateUserDoc: any = {
               $set: {
-                password: user.password,
+                password: await bcrypt.hash(user.password, HASH_PASSWORD_SALT_ROUNDS),
                 firstName: user.firstName,
                 lastName: user.lastName,
                 locale: user.locale,
@@ -598,7 +598,7 @@ export class AuthService implements OnModuleInit {
   private async getUserByEmailId(emailId: string) {
     const userQuery = new MongooseQueryModel();
     userQuery.filter = {
-      emailId: emailId
+      emailId: { $regex: new RegExp(`^${emailId}$`), $options: 'i' }
     };
     userQuery.select = '_id emailId';
     userQuery.lean = true;

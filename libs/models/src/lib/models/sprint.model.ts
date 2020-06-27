@@ -39,6 +39,7 @@ export class Sprint {
   progress?: number;
   overProgress?: number;
   reportId?: string;
+  totalItems?: number;
 }
 
 export class SprintColumn {
@@ -130,6 +131,7 @@ export class CreateSprintModel {
 export class CreateSprintCloseSprintCommonModel {
   sprint: Sprint;
   doPublishSprint?: boolean;
+  updateSprintMemberCapacity?: boolean;
   unFinishedTasks?: Task[];
 }
 
@@ -185,6 +187,7 @@ export class PublishSprintModel extends SprintBaseRequest {
 export class CloseSprintModel extends SprintBaseRequest {
   createNewSprint: boolean;
   createAndPublishNewSprint: boolean;
+  updateMemberCapacity: boolean;
   sprint?: Sprint;
 }
 
@@ -210,4 +213,10 @@ export class SprintFilterTasksModel extends SprintBaseRequest {
     this.assigneeIds = [];
     this.query = '';
   }
+}
+
+export class SprintPanel {
+  active:boolean;
+  name:string;
+  disabled?:boolean;
 }

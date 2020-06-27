@@ -57,7 +57,7 @@
           [nzNotFoundContent]="contentTpl">
           <ng-template #contentTpl>
 
-            <div class="m-b-20"><span>Task Not Found</span></div>
+            <div class="m-b-40"><span>Task Not Found</span></div>
 
             <span>
               <button
@@ -154,7 +154,7 @@
           [nzNotFoundContent]="contentTpl">
           <ng-template #contentTpl>
 
-            <div class="m-b-20"><span>Task Not Found</span></div>
+            <div class="m-b-40"><span>Task Not Found</span></div>
 
               <button
                 nz-button
@@ -170,8 +170,8 @@
 
     <nz-table #listViewTable [nzData]="taskList" *ngIf="view == 'listView'"
               nzSize="small" [ngClass]="{'draft-table':isDraftTable}"
-              [nzFrontPagination]="false" [nzTotal]="requestModel.totalItems"
-              [nzPageIndex]="requestModel.page" [nzPageSize]="requestModel.count"
+              [nzFrontPagination]="false" [nzTotal]="requestModel?.totalItems"
+              [nzPageIndex]="requestModel?.page" [nzPageSize]="requestModel?.count"
               [nzShowPagination]="true"
               [nzNoResult]="noResult"
               (nzPageIndexChange)="pageChangedEvent.emit($event)">
@@ -205,11 +205,21 @@
         <th class="text-center td-status">
           <span>Status</span>
         </th>
-        <th class="text-center td-reporter">Reporter</th>
 
-        <!-- <th class="text-center" width="110">Progress</th>-->
 
-        <th class="text-center td-assignee">Assignee</th>
+        <th class="text-center td-reporter">
+          <span>Reporter</span>
+          <span class="p-l-10">
+              <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'createdBy'}"></ng-container>
+          </span>
+        </th>
+
+        <th class="text-center td-assignee">
+          <span>Assignee</span>
+          <span class="p-l-10">
+              <ng-container *ngTemplateOutlet="sortTemplate;context: {column: 'assignee'}"></ng-container>
+          </span>
+        </th>
 
         <th class="text-right td-estimates">
           <span>Estimates</span>
@@ -291,17 +301,11 @@
         </td>
 
         <td data-label="Reporter" class="text-center">
-          <span *ngIf="!item.createdBy">-</span>
-          <span *ngIf="item.createdBy" nz-tooltip
-                [nzTitle]="item.assignee && item.createdBy.firstName ? item.createdBy.firstName +' '+item.createdBy.lastName : item.createdBy.emailId"> <nz-avatar
-            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.createdBy.profilePic"></nz-avatar></span>
+          <profile-name [user]="item.createdBy" class="flex-profile-name"></profile-name>
         </td>
 
         <td data-label="Assignee" class="text-center">
-          <span *ngIf="!item.assignee">-</span>
-          <span *ngIf="item.assignee" nz-tooltip
-                [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName+' '+item.createdBy.lastName : item.assignee.emailId"> <nz-avatar
-            nzSize="small" nzIcon="user" class="m-r-5" [nzSrc]="item.assignee.profilePic"></nz-avatar>  </span>
+           <profile-name [user]="item.assignee" class="flex-profile-name"></profile-name>
         </td>
 
         <td data-label="Estimate" class="text-right">
@@ -324,17 +328,17 @@
 <!-- sorting icon template -->
 <ng-template #sortTemplate let-column="column">
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel.sort !== column"
+  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel?.sort !== column"
      (click)="sortingChangedEvent.emit({type: 'asc', columnName: column})"
-     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'asc'}"></i>
+     [ngClass]="{'text-info': requestModel?.sort === column && requestModel?.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel.sort === column && requestModel.sortBy === 'asc'"
+  <i class="fas fa-long-arrow-alt-up" *ngIf="requestModel?.sort === column && requestModel?.sortBy === 'asc'"
      (click)="sortingChangedEvent.emit({type: 'desc', columnName: column})"
-     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'asc'}"></i>
+     [ngClass]="{'text-info': requestModel?.sort === column && requestModel?.sortBy === 'asc'}"></i>
 
-  <i class="fas fa-long-arrow-alt-down" *ngIf="requestModel.sort === column && requestModel.sortBy === 'desc'"
+  <i class="fas fa-long-arrow-alt-down" *ngIf="requestModel?.sort === column && requestModel?.sortBy === 'desc'"
      (click)="sortingChangedEvent.emit({type: 'asc', columnName: column})"
-     [ngClass]="{'text-info': requestModel.sort === column && requestModel.sortBy === 'desc'}"></i>
+     [ngClass]="{'text-info': requestModel?.sort === column && requestModel?.sortBy === 'desc'}"></i>
 
 </ng-template>
 <!-- sorting -->

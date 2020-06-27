@@ -1,7 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { UserQuery } from '../queries/user/user.query';
-import { ChangePasswordModel, GetAllProjectsModel, Project, User, UserLoginProviderEnum } from '@aavantan-app/models';
+import {
+  BaseResponseModel,
+  ChangePasswordModel,
+  GetAllProjectsModel,
+  Project,
+  User,
+  UserLoginProviderEnum
+} from '@aavantan-app/models';
 import { ProjectService } from '../shared/services/project/project.service';
 import { GeneralService } from '../shared/services/general.service';
 import { NzNotificationService } from 'ng-zorro-antd';
@@ -48,7 +55,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
       const json:GetAllProjectsModel= {
         organizationId : this._generalService.currentOrganization.id
       }
-
+      this._projectService.getAllProject(json).subscribe((data)=>{
+        this.projectListData = data.data.items;
+      });
 
       this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {
         if (res) {
@@ -82,7 +91,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
     } else if (status === 'error') {
-      this.notification.error('Error', `${file.name} file upload failed.`);
+      const message = file.error ? file.error.error.message : file.name +'file upload failed.';
+      this.notification.error('Error', message);
     }
   }
 

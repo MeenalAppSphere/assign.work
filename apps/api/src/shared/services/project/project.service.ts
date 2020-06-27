@@ -618,9 +618,19 @@ export class ProjectService extends BaseService<Project & Document> implements O
     };
 
     // populate
-    model.populate = ['members.userDetails'];
+    model.populate = [{
+      path: 'createdBy',
+      select: 'emailId userName firstName lastName profilePic'
+    }];
 
-    return await this.getAllPaginatedData(filter, model);
+    // get result
+    const result = await this.getAllPaginatedData(filter, model);
+    // assign color to project
+    result.items.forEach(project => {
+      project.color = this._generalService.generateRandomColor();
+    });
+
+    return result;
   }
 
   async deleteProject(id: string) {
@@ -691,9 +701,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
     query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
     query.sort = 'updatedAt';
     query.sortBy = 'desc';
+    query.lean = true;
 
-    return this.find(query);
-
+    const projects = await this.find(query);
+    return projects.map(project => {
+      project.id = project._id.toString();
+      project.color = this._generalService.generateRandomColor();
+      return project;
+    });
   }
 
   /**
@@ -942,6 +957,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
       return member;
     });
 
+    if (project.activeBoard) {
+      project.activeBoard.id = project.activeBoard._id;
+    }
+
+    // generate color for project
+    project.color = this._generalService.generateRandomColor();
     return project;
   }
 

@@ -12,8 +12,8 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { QuillModule } from 'ngx-quill';
 
 const routes: Routes = [
-  { path: '', component: TaskComponent},
-  { path: ':displayName', component: TaskComponent}
+  { path: '', component: TaskComponent },
+  { path: ':displayName', component: TaskComponent }
 ];
 
 @NgModule({
@@ -37,4 +37,5 @@ const routes: Routes = [
   ]
 })
 export class TaskModule {
+
 }

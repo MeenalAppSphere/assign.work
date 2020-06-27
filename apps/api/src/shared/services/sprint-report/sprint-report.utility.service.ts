@@ -5,7 +5,7 @@ import {
   SprintReportModel,
   SprintReportTaskReportModel,
   SprintReportTasksModel
-} from '../../../../../../libs/models/src/lib/models/sprint-report.model';
+} from '@aavantan-app/models';
 import { secondsToString, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
 import { BoardUtilityService } from '../board/board.utility.service';
@@ -110,7 +110,7 @@ export class SprintReportUtilityService {
   prepareSprintReportTasksCounts(report: SprintReportModel, taskStatuses: TaskStatusModel[]) {
     const allTasks: SprintReportTaskReportModel[] = [];
 
-    // loop over project task statuses for grouping all taks status wise
+    // loop over project task statuses for grouping all task status wise
     taskStatuses.forEach(status => {
       const groupedTasks = [];
 
@@ -120,7 +120,6 @@ export class SprintReportUtilityService {
           reportTask.status = status;
           groupedTasks.push(reportTask);
         }
-        return reportTask;
       });
 
       // new report task model
@@ -166,7 +165,6 @@ export class SprintReportUtilityService {
     report.allTaskTotalEstimatedTimeReadable = secondsToString(report.allTaskTotalEstimatedTime);
     report.allTaskTotalLoggedTimeReadable = secondsToString(report.allTaskTotalLoggedTime);
     report.allTaskTotalRemainingTimeReadable = secondsToString(report.allTaskTotalRemainingTime);
-
   }
 
   /**
@@ -184,6 +182,19 @@ export class SprintReportUtilityService {
 
     // loop over report members
     report.reportMembers = report.reportMembers.map(member => {
+
+      // get total tasks count of member
+      const totalTaskCountOfMember = report.reportTasks.filter(task => {
+        return task.assigneeId.toString() === member.userId.toString();
+      }).length;
+
+      // get finished tasks count by member
+      const finishedTasksByMember = report.reportTasks.filter(task => {
+        return report.finalStatusIds.some(reportTask => reportTask.toString() === task.statusId.toString());
+      }).filter(task => {
+        return task.assigneeId.toString() === member.userId.toString();
+      }).length;
+
       // convert totalLoggedTimeReadable, workingCapacityReadable to readable string
       member.totalLoggedTimeReadable = secondsToString(member.totalLoggedTime);
       member.workingCapacityReadable = secondsToString(member.workingCapacity);
@@ -207,7 +218,7 @@ export class SprintReportUtilityService {
       member.totalRemainingTimeReadable = secondsToString(member.totalRemainingTime);
 
       // calculate sprint productivity
-      member.sprintProductivity = Number(((report.finishedTasksCount * 100) / report.reportTasksCount).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
+      member.sprintProductivity = Number(((finishedTasksByMember * 100) / report.reportTasksCount).toFixed(DEFAULT_DECIMAL_PLACES)) || 0;
       return member;
     });
 

@@ -5,7 +5,9 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api/',
-  googleApi: '768411236596-gpfmj78vq5latkc7gi7b8digjd66ngi2.apps.googleusercontent.com'
+  googleApi: '768411236596-gpfmj78vq5latkc7gi7b8digjd66ngi2.apps.googleusercontent.com',
+  APP_URL: 'http://localhost:4200/',
+  socketUrl: 'http://localhost:3000'
 };
 
 /*

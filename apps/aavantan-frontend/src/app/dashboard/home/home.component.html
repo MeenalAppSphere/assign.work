@@ -3,11 +3,11 @@
   [nzBordered]="false"
   [nzTitle]="titleTemplateRef"
   [nzExtra]="createSprintBtnTemplate"
-  class="backlog-page">
+  id="sprint-report-page" #sprintreportpage>
 
   <ng-template #titleTemplateRef>
 
-    <span class="p-r-30">
+    <span class="p-r-30" *ngIf="!isDownloadInProgress">
       <span class="p-r-15 font-size-18 text-black">Sprint Report</span>
        <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText"
             class="p-l-10"/>
@@ -19,358 +19,415 @@
   </ng-template>
 
   <ng-template #createSprintBtnTemplate>
+    <div class="d-flex">
 
-    <div class="text-gray-light-2 font-size-12 p-t-5 font-weight-light inline-block">
-      <span>{{ currentDate | date: 'dd-MMM-yyyy' }} </span>
-      <span class="p-r-5 p-l-5">|</span>
-      <span #currentTime> {{ currentDate | date: 'hh:mm:ss A' }} </span>
+      <div class="text-gray-light-2 font-size-12 p-t-5 font-weight-light inline-block">
+        <span>{{ currentDate | date: 'dd-MMM-yyyy' }} </span>
+        <span class="p-r-5 p-l-5">|</span>
+        <span #currentTime> {{ currentDate | date: 'hh:mm:ss A' }} </span>
+      </div>
+
+
+      <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
+        <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
+          <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
+          <i nz-icon nzType="caret-down" theme="outline"></i>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
+        <ul nz-menu style="max-height: 300px;overflow: auto">
+          <li nz-menu-item *ngFor="let sprint of closedSprintsList"
+              (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
+        </ul>
+      </nz-dropdown-menu>
+
+      <button *ngIf="isReportAvailable" [nzLoading]="isDownloadInProgress" type="button"
+              nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download
+      </button>
+
+    </div>
+  </ng-template>
+
+  <nz-spin id="report-page-content" [ngClass]="isDownloadInProgress ? 'p-15 p-l-10  p-t-5': ''"
+           [nzSpinning]="getReportInProcess" nzTip="Getting Report...">
+
+    <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
+      <nz-empty
+        height="150px"
+        [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+        [nzNotFoundContent]="contentTpl"
+        [nzNotFoundFooter]="footerTpl">
+        <ng-template #contentTpl>
+          <div class="m-b-40">
+            <div class="m-b-5 font-size-20">
+              <span *ngIf="isSprintAvailable">Report Not Available</span>
+              <span *ngIf="!isSprintAvailable">No Running Sprint Available</span>
+            </div>
+            <span class="font-weight-light font-size-15"
+                  *ngIf="!isSprintAvailable">Choose exiting Sprint to view report</span>
+          </div>
+        </ng-template>
+        <ng-template #footerTpl>
+          <a routerLink="plan-sprint" nz-button nzType="primary">Plan Work/Sprint</a>
+        </ng-template>
+      </nz-empty>
     </div>
 
 
-    <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
-      <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-        <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
-        <i nz-icon nzType="caret-down" theme="outline"></i>
-      </button>
-    </nz-button-group>
-    <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
-      <ul nz-menu>
-        <li nz-menu-item *ngFor="let sprint of closedSprintsList"
-            (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
-      </ul>
-    </nz-dropdown-menu>
-
-  </ng-template>
-
-  <nz-spin [nzSpinning]="getReportInProcess" nzTip="Getting Report...">
-
-    <div class="report-not-available p-t-70" *ngIf="!isReportAvailable">
-    <nz-empty
-      [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
-      [nzNotFoundContent]="contentTpl"
-      [nzNotFoundFooter]="footerTpl">
-      <ng-template #contentTpl>
-        <div class="m-b-20">
-          <span *ngIf="isSprintAvailable">Report Not Available</span>
-          <span *ngIf="!isSprintAvailable">No Running Sprint Available</span>
-        </div>
-        <span class="font-weight-normal font-size-15" *ngIf="!isSprintAvailable">Choose exiting Sprint to view report</span>
-      </ng-template>
-      <ng-template #footerTpl>
-        <a routerLink="backlog" nz-button nzType="link">Backlogs</a>
-      </ng-template>
-    </nz-empty>
-  </div>
-
-
     <div *ngIf="isReportAvailable" class="report-available">
-  <!-- sprint summary -->
-  <section class="m-b-30" *ngIf="sprintReport && sprintReport.sprint">
+      <!-- sprint summary -->
 
-    <label class="text-black-dark font-weight-semibold">Sprint Summary</label>
+      <div class="row report-title" *ngIf="isDownloadInProgress">
 
-    <div class="box-summary">
-
-      <div class="row">
-
-        <div class="col-md-5">
-          <label class="text-gray-light font-weight-semibold">{{ sprintReport.sprint.name }}</label>
-          <p class="p-r-40 text-black">{{ sprintReport.sprint.goal }}</p>
+        <div class="col-md-3 border-right">
+          <div class="font-size-15 text-black">SPRINT REPORT</div>
+          <div class="text-gray-light-2 font-size-11 font-weight-normal">As on
+            : {{ currentDate | date: 'dd-MMM-yyyy | hh:mm:ss a' }} </div>
         </div>
 
-        <div class="col-md-7">
+        <div class="col-md-6 p-l-20">
+          <div class="font-size-11 text-gray-light-2 font-weight-normal">Project</div>
+          <div class="font-size-15 text-black">{{currentProject.name}}</div>
+        </div>
+
+        <div class="col-md-3 text-right"><img src="../../../assets/images/logo/logo.svg"/></div>
+
+      </div>
+
+      <section class="m-b-30" *ngIf="sprintReport && sprintReport.sprint">
+
+        <label class="text-black-dark font-weight-semibold">Sprint Summary</label>
+
+        <div class="box-summary" [ngClass]="isDownloadInProgress ? 'width100percet' : ''">
 
           <div class="row">
+
             <div class="col-md-5">
-              <label class="text-gray-light font-weight-semibold">Duration</label>
-              <p class="text-black">{{ sprintReport.sprint.startedAt | date: 'dd-MMM-yyyy' }} to
-                {{ sprintReport.sprint.endAt | date: 'dd-MMM-yyyy' }}</p>
-              <p class="text-gray-light-2 m-t-5">{{ sprintReport.sprintDuration }} Sprint</p>
+              <label class="text-gray-light font-weight-semibold">{{ sprintReport.sprint.name }}</label>
+              <p class="p-r-40 text-black">{{ sprintReport.sprint.goal }}</p>
             </div>
 
-            <!--            <div class="col-md-4">-->
-            <!--              <label class="text-gray-light font-weight-semibold">Velocity</label>-->
-            <!--              <p class="text-black">28</p>-->
-            <!--            </div>-->
+            <div class="col-md-7">
 
-            <div class="col-md-3">
-              <label class="text-gray-light font-weight-semibold">Status</label>
-              <div>
-                <nz-tag [nzColor]="'#3f87f5'"
-                        *ngIf="sprintReport.status === 'Closed'">{{ sprintReport.status }}</nz-tag>
-                <nz-tag [nzColor]="'#42e3a3'"
-                        *ngIf="sprintReport.status === 'In Progress'">{{ sprintReport.status }}</nz-tag>
+              <div class="row">
+                <div class="col-md-7">
+                  <label class="text-gray-light font-weight-semibold">Duration</label>
+                  <p class="text-black">{{ sprintReport.sprint.startedAt | date: 'dd-MMM-yyyy' }} to
+                    {{ sprintReport.sprint.endAt | date: 'dd-MMM-yyyy' }}</p>
+                  <p class="text-gray-light-2 m-t-5">{{ sprintReport.sprintDuration }} Sprint</p>
+                </div>
+
+                <!--            <div class="col-md-4">-->
+                <!--              <label class="text-gray-light font-weight-semibold">Velocity</label>-->
+                <!--              <p class="text-black">28</p>-->
+                <!--            </div>-->
+
+                <div class="col-md-3">
+                  <label class="text-gray-light font-weight-semibold">Status</label>
+                  <div>
+                    <nz-tag [nzColor]="'#3f87f5'"
+                            *ngIf="sprintReport.status === 'Closed'">{{ sprintReport.status }}</nz-tag>
+                    <nz-tag [nzColor]="'#42e3a3'"
+                            *ngIf="sprintReport.status === 'In Progress'">{{ sprintReport.status }}</nz-tag>
+                  </div>
+                </div>
               </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- sprint progress -->
+      <section class="m-t-30 m-b-30 sprint-progress" *ngIf="sprintReport && sprintReport.sprint">
+
+        <label class="text-gray-light">Sprint Progress</label>
+
+        <div class="row">
+
+          <div class="col-md-6">
+            <span class="text-green">{{ sprintReport.sprint.progress }}% Completed</span>
+            <span class="float-right">
+          <span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of
+              {{ sprintReport.reportTasksCount }} items done
+        </span>
+            <nz-progress [nzPercent]="sprintReport.sprint.progress" nzStrokeColor="#42E3A3" nzStrokeLinecap="square"
+                         nzStrokeWidth="14"
+                         [nzShowInfo]="false"></nz-progress>
+            <!--        <div class="row font-size-12 m-t-5">-->
+            <!--          <div class="col-md-6">-->
+            <!--            <span><span class="font-weight-bold">28</span> of 49 points gained</span>-->
+            <!--          </div>-->
+            <!--          <div class="col-md-6 text-right">-->
+            <!--            <span><span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of-->
+            <!--              {{ sprintReport.reportTasksCount }} items done</span>-->
+            <!--          </div>-->
+            <!--        </div>-->
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- sprint items all items/ unfinished items -->
+      <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+
+        <label class="text-black-dark">Item Summary</label>
+
+        <div class="items-summary custom-table">
+
+          <nz-empty
+            *ngIf="!sprintReport?.reportMembers || sprintReport?.reportMembers.length===0"
+            [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+            [nzNotFoundContent]="contentTpl">
+            <ng-template #contentTpl>
+              <div class="m-b-20"><span>No Data Available</span></div>
+            </ng-template>
+          </nz-empty>
+
+          <div class="thead" *ngIf="sprintReport?.allTasks.length>0">
+            <div class="tr">
+              <div class="th">Status</div>
+              <div class="th text-right p-l-0">Items</div>
+              <div class="th text-right">Estimation</div>
+              <div class="th text-right">Logged</div>
+              <div class="th text-right">Remaining</div>
+            </div>
+          </div>
+
+          <div class="tbody" *ngIf="sprintReport?.allTasks.length>0">
+            <div class="tr" *ngFor="let data of sprintReport.allTasks">
+              <div data-label="Status" class="td p-l-0">
+                <nz-tag [nzColor]="data.status?.color"
+                        class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+              </div>
+              <div data-label="Items" class="td text-right">{{ data?.count }}</div>
+              <div data-label="Estimation" class="td text-right">{{ data.totalEstimatedTimeReadable }}</div>
+              <div data-label="Logged" class="td text-right">{{ data.totalLoggedTimeReadable }}</div>
+              <div data-label="Remaining" class="td text-right">{{ data.totalRemainingTimeReadable }}</div>
+            </div>
+          </div>
+
+          <div class="tfoot" *ngIf="sprintReport?.allTasks.length>0">
+            <div class="tr">
+              <div class="th">Total</div>
+              <div class="th text-right">{{ sprintReport.allTasksCount }}</div>
+              <div class="th text-right">{{ sprintReport.allTaskTotalEstimatedTimeReadable }}</div>
+              <div class="th text-right">{{ sprintReport.allTaskTotalLoggedTimeReadable }}</div>
+              <div class="th text-right">{{ sprintReport.allTaskTotalRemainingTimeReadable }}</div>
             </div>
           </div>
 
         </div>
 
-      </div>
-    </div>
-  </section>
+        <!-- budget -->
+        <!--    <div class="m-t-20">-->
+        <!--      <div class="w-btn inline-block">-->
+        <!--        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Budget</nz-tag>-->
+        <!--      </div>-->
+        <!--      <div class="inline-block text-red">Overrun by approximately : 22.45%</div>-->
+        <!--    </div>-->
+        <!--    <div class="m-t-5">-->
+        <!--      <div class="w-btn inline-block">-->
+        <!--        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Schedule</nz-tag>-->
+        <!--      </div>-->
+        <!--      <div class="inline-block text-red">Need more : 2.35 days</div>-->
+        <!--    </div>-->
 
-  <!-- sprint progress -->
-  <section class="m-t-30 m-b-30 sprint-progress" *ngIf="sprintReport && sprintReport.sprint">
+      </section>
 
-    <label class="text-gray-light">Sprint Progress</label>
+      <!-- recommended actions and charts -->
+      <!--  <section class="m-t-30 m-b-30">-->
 
-    <div class="row">
+      <!--    <label class="text-black-dark">Recommended Actions</label>-->
 
-      <div class="col-md-6">
-        <span class="text-green">{{ sprintReport.sprint.progress }}% Completed</span>
-        <span class="float-right">
-          <span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of
-          {{ sprintReport.reportTasksCount }} items done
-        </span>
-        <nz-progress [nzPercent]="sprintReport.sprint.progress" nzStrokeColor="#42E3A3" nzStrokeLinecap="square"
-                     nzStrokeWidth="14"
-                     [nzShowInfo]="false"></nz-progress>
-<!--        <div class="row font-size-12 m-t-5">-->
-<!--          <div class="col-md-6">-->
-<!--            <span><span class="font-weight-bold">28</span> of 49 points gained</span>-->
-<!--          </div>-->
-<!--          <div class="col-md-6 text-right">-->
-<!--            <span><span class="font-weight-bold">{{ sprintReport.finishedTasksCount }}</span> of-->
-<!--              {{ sprintReport.reportTasksCount }} items done</span>-->
-<!--          </div>-->
-<!--        </div>-->
-      </div>
+      <!--    <div class="recommended-actions p-l-20 m-b-30 text-black font-weight-normal">-->
+      <!--      <ul>-->
+      <!--        <li>Review items ST1, ST2, ST7. Huge effort deviation should be analysed.</li>-->
+      <!--        <li>13 - Dec is holiday, Increase capacity on 11 - Dec and 12 - Dec to meet the schedule.</li>-->
+      <!--        <li>Moving "Not Started" items in next sprint can be helpful.</li>-->
+      <!--      </ul>-->
+      <!--    </div>-->
 
-    </div>
+      <!--    <div class="row">-->
+      <!--      <div class="col-md-6">-->
 
-  </section>
+      <!--        <div class="chart-box w-100">-->
+      <!--          <div class="text-black font-size-16">Efforts spent in hours per day</div>-->
+      <!--          <div class="text-gray-light-2 font-size-12">Day 10 is in progress</div>-->
 
-  <!-- sprint items all items/ unfinished items -->
-  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
+      <!--          <div id="line-chart" class="m-t-10">-->
+      <!--            <highcharts-chart-->
+      <!--              [Highcharts]="Highcharts"-->
+      <!--              [options]="lineChartOptions"-->
+      <!--            ></highcharts-chart>-->
+      <!--          </div>-->
 
-    <label class="text-black-dark">Item Summary</label>
+      <!--        </div>-->
 
-    <div class="items-summary">
+      <!--      </div>-->
+      <!--      <div class="col-md-6">-->
 
-      <nz-table [nzFrontPagination]="false" [nzData]="sprintReport.allTasks">
+      <!--        <div class="chart-box w-100">-->
 
-        <thead>
+      <!--          <div id="column-chart">-->
+      <!--            <highcharts-chart-->
+      <!--              [Highcharts]="Highcharts"-->
+      <!--              [options]="columnChartOptions"-->
+      <!--            ></highcharts-chart>-->
+      <!--          </div>-->
 
-        <tr>
+      <!--        </div>-->
 
-          <th>Status</th>
-          <th class="text-right p-l-0">Items</th>
-          <th class="text-right">Estimation</th>
-          <th class="text-right">Logged</th>
-          <th class="text-right">Remaining</th>
+      <!--      </div>-->
+      <!--    </div>-->
 
-        </tr>
-        </thead>
+      <!--  </section>-->
 
-        <tbody>
+      <!-- sprint members -->
+      <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
-        <tr *ngFor="let data of sprintReport.allTasks">
-          <td data-label="Status" class="p-l-0">
-            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
-          </td>
-          <td data-label="Items" class="text-right">{{ data?.count }}</td>
-          <td data-label="Estimation" class="text-right">{{ data.totalEstimatedTimeReadable }}</td>
-          <td data-label="Logged" class="text-right">{{ data.totalLoggedTimeReadable }}</td>
-          <td data-label="Remaining" class="text-right">{{ data.totalRemainingTimeReadable }}</td>
-        </tr>
+        <label class="text-black-dark">Sprint Members</label>
 
-        </tbody>
+        <div class="items-summary custom-table">
+
+          <nz-empty
+            *ngIf="!sprintReport?.reportMembers || sprintReport?.reportMembers.length===0"
+            [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+            [nzNotFoundContent]="contentTpl">
+            <ng-template #contentTpl>
+              <div class="m-b-20"><span>No Data Available</span></div>
+            </ng-template>
+          </nz-empty>
+
+          <div class="thead" *ngIf="sprintReport?.reportMembers.length>0">
+            <div class="tr">
+              <div class="th">Name</div>
+              <div class="th text-right">Capacity</div>
+              <div class="th text-right">Assigned Time</div>
+              <div class="th text-right">Worked</div>
+              <div class="th text-right">Remaining Work</div>
+              <div class="th text-right">Remaining Capacity</div>
+              <div class="th text-right">Productivity</div>
+            </div>
+          </div>
+
+          <div class="tbody" *ngIf="sprintReport?.reportMembers.length>0">
+            <div class="tr" *ngFor="let item of sprintReport.reportMembers">
+              <div class="td" data-label="Name">{{ item.user.firstName }} {{ item.user.lastName }}</div>
+              <div class="td text-right" data-label="Capacity">{{ item.workingCapacityReadable }}</div>
+              <div class="td text-right" data-label="Assigned Time">{{ item.totalAssignedTimeReadable }}</div>
+              <div class="td text-right" data-label="Worked">{{ item.totalLoggedTimeReadable }}</div>
+              <div class="td text-right" data-label="Remaining Work">{{ item.totalRemainingTimeReadable }}</div>
+              <div class="td text-right"
+                   data-label="Remaining Capacity">{{ item.totalRemainingWorkingCapacityReadable }}</div>
+              <div class="td text-right" data-label="Productivity">{{ item.sprintProductivity }} %</div>
+            </div>
+          </div>
+
+          <div class="tfoot" *ngIf="sprintReport?.reportMembers.length>0">
+            <div class="tr">
+              <div class="th">Total</div>
+              <div class="th text-right">{{ sprintReport.reportMembersTotalWorkingCapacityReadable }}</div>
+              <div class="th text-right">{{ sprintReport.reportMembersTotalAssignedTimeReadable }}</div>
+              <div class="th text-right">{{ sprintReport.reportMembersTotalLoggedTimeReadable }}</div>
+              <div class="th text-right">{{ sprintReport.reportMembersTotalRemainingTimeReadable }}</div>
+              <div class="th text-right">{{ sprintReport.reportMembersTotalRemainingWorkingCapacityReadable }}</div>
+              <div class="th text-right">{{ sprintReport.reportMembersTotalSprintProductivity }} %</div>
+            </div>
+          </div>
+
+        </div>
 
 
-      </nz-table>
+      </section>
 
-      <table class="w-100 items-summary-footer">
-        <thead>
-        <tr>
-          <th>Total</th>
-          <th class="text-right">{{ sprintReport.allTasksCount }}</th>
-          <th class="text-right">{{ sprintReport.allTaskTotalEstimatedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.allTaskTotalLoggedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.allTaskTotalRemainingTimeReadable }}</th>
-        </tr>
-        </thead>
-      </table>
+      <!-- all task of the sprint not completed -->
+      <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
+        <label class="text-black-dark">Sprint Items (Not Completed)</label>
 
-    </div>
+        <div class="sprint-items custom-table">
 
-    <!-- budget -->
-<!--    <div class="m-t-20">-->
-<!--      <div class="w-btn inline-block">-->
-<!--        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Budget</nz-tag>-->
-<!--      </div>-->
-<!--      <div class="inline-block text-red">Overrun by approximately : 22.45%</div>-->
-<!--    </div>-->
-<!--    <div class="m-t-5">-->
-<!--      <div class="w-btn inline-block">-->
-<!--        <nz-tag [nzColor]="'#FFEFEF'" class="font-size-13 font-weight-semibold text-red">Schedule</nz-tag>-->
-<!--      </div>-->
-<!--      <div class="inline-block text-red">Need more : 2.35 days</div>-->
-<!--    </div>-->
+          <nz-empty
+            *ngIf="!sprintReport?.reportTasksNotCompleted || sprintReport?.reportTasksNotCompleted.length===0"
+            [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+            [nzNotFoundContent]="contentTpl">
+            <ng-template #contentTpl>
+              <div class="m-b-20"><span>No Data Available</span></div>
+            </ng-template>
+          </nz-empty>
 
-  </section>
+          <div class="thead" *ngIf="sprintReport?.reportTasksNotCompleted.length>0">
+            <div class="tr">
+              <div class="th td-item-id">Item ID</div>
+              <div class="th td-item-status">Status</div>
+              <div class="th td-item-name">Item Name</div>
+              <div class="th td-item-assignee">Assignee</div>
+            </div>
+          </div>
 
-  <!-- recommended actions and charts -->
-<!--  <section class="m-t-30 m-b-30">-->
+          <div class="tbody" *ngIf="sprintReport?.reportTasksNotCompleted.length>0">
+            <div class="tr" *ngFor="let data of sprintReport.reportTasksNotCompleted">
+              <div class="td td-item-id" data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a>
+              </div>
+              <div class="td td-item-status" data-label="Status">
+                <nz-tag [nzColor]="data.status?.color"
+                        class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+              </div>
+              <div class="td td-item-name" data-label="Item Description">{{ data.name }}</div>
+              <div class="td td-item-assignee" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
+            </div>
+          </div>
 
-<!--    <label class="text-black-dark">Recommended Actions</label>-->
+        </div>
 
-<!--    <div class="recommended-actions p-l-20 m-b-30 text-black font-weight-normal">-->
-<!--      <ul>-->
-<!--        <li>Review items ST1, ST2, ST7. Huge effort deviation should be analysed.</li>-->
-<!--        <li>13 - Dec is holiday, Increase capacity on 11 - Dec and 12 - Dec to meet the schedule.</li>-->
-<!--        <li>Moving "Not Started" items in next sprint can be helpful.</li>-->
-<!--      </ul>-->
-<!--    </div>-->
+      </section>
 
-<!--    <div class="row">-->
-<!--      <div class="col-md-6">-->
+      <!--   all task of the sprint completed-->
+      <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
 
-<!--        <div class="chart-box w-100">-->
-<!--          <div class="text-black font-size-16">Efforts spent in hours per day</div>-->
-<!--          <div class="text-gray-light-2 font-size-12">Day 10 is in progress</div>-->
+        <label class="text-black-dark">Sprint Items (Completed)</label>
 
-<!--          <div id="line-chart" class="m-t-10">-->
-<!--            <highcharts-chart-->
-<!--              [Highcharts]="Highcharts"-->
-<!--              [options]="lineChartOptions"-->
-<!--            ></highcharts-chart>-->
-<!--          </div>-->
+        <div class="sprint-items custom-table">
 
-<!--        </div>-->
+          <nz-empty
+            *ngIf="!sprintReport?.reportTasksCompleted || sprintReport?.reportTasksCompleted.length===0"
+            [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'"
+            [nzNotFoundContent]="contentTpl">
+            <ng-template #contentTpl>
+              <div class="m-b-20"><span>No Data Available</span></div>
+            </ng-template>
+          </nz-empty>
 
-<!--      </div>-->
-<!--      <div class="col-md-6">-->
+          <div class="thead" *ngIf="sprintReport?.reportTasksCompleted.length>0">
+            <div class="tr">
+              <div class="th td-item-id">Item ID</div>
+              <div class="th td-item-id">Status</div>
+              <div class="th td-item-name">Item Name</div>
+              <div class="th td-item-assignee">Assignee</div>
+            </div>
+          </div>
 
-<!--        <div class="chart-box w-100">-->
+          <div class="tbody" *ngIf="sprintReport?.reportTasksCompleted.length>0">
+            <div class="tr" *ngFor="let data of sprintReport.reportTasksCompleted">
+              <div class="td td-item-id"data-label="Item ID"><a routerLink="task/{{data.displayName}}">{{ data.displayName }}</a>
+              </div>
+              <div class="td td-item-status" data-label="Status">
+                <nz-tag [nzColor]="data.status?.color"
+                        class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
+              </div>
+              <div class="td td-item-name" data-label="Item Description">{{ data.name }}</div>
+              <div class="td td-item-assignee" data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</div>
+            </div>
+          </div>
 
-<!--          <div id="column-chart">-->
-<!--            <highcharts-chart-->
-<!--              [Highcharts]="Highcharts"-->
-<!--              [options]="columnChartOptions"-->
-<!--            ></highcharts-chart>-->
-<!--          </div>-->
+        </div>
 
-<!--        </div>-->
-
-<!--      </div>-->
-<!--    </div>-->
-
-<!--  </section>-->
-
-  <!-- sprint members -->
-  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
-
-    <label class="text-black-dark">Sprint Members</label>
-
-    <div class="items-summary">
-
-      <nz-table [nzFrontPagination]="false" [nzData]="sprintReport.reportMembers">
-
-        <thead>
-
-        <tr>
-
-          <th>Name</th>
-          <th class="text-right">Capacity</th>
-          <th class="text-right">Assigned Time</th>
-          <th class="text-right">Worked</th>
-          <th class="text-right">Remaining Work</th>
-          <th class="text-right">Remaining Capacity</th>
-          <th class="text-right">Productivity</th>
-
-        </tr>
-
-        </thead>
-
-        <tbody>
-
-        <tr *ngFor="let item of sprintReport.reportMembers">
-          <td data-label="Name">{{ item.user.firstName }} {{ item.user.lastName }}</td>
-          <td class="text-right" data-label="Capacity">{{ item.workingCapacityReadable }}</td>
-          <td class="text-right" data-label="Assigned Time">{{ item.totalAssignedTimeReadable }}</td>
-          <td class="text-right" data-label="Worked">{{ item.totalLoggedTimeReadable }}</td>
-          <td class="text-right" data-label="Remaining Work">{{ item.totalRemainingTimeReadable }}</td>
-          <td class="text-right" data-label="Remaining Capacity">{{ item.totalRemainingWorkingCapacityReadable }}</td>
-          <td class="text-right" data-label="Productivity">{{ item.sprintProductivity }} %</td>
-        </tr>
-
-        </tbody>
-
-      </nz-table>
-
-      <table class="w-100 items-summary-footer">
-        <thead>
-        <tr>
-          <th>Total</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalWorkingCapacityReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalAssignedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalLoggedTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalRemainingTimeReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalRemainingWorkingCapacityReadable }}</th>
-          <th class="text-right">{{ sprintReport.reportMembersTotalSprintProductivity }} %</th>
-        </tr>
-        </thead>
-      </table>
+      </section>
 
     </div>
-
-
-  </section>
-
-  <!-- all task of the sprint -->
-  <section class="m-t-30 m-b-30 items-summary-section" *ngIf="sprintReport">
-
-    <label class="text-black-dark">Sprint Items</label>
-
-    <div class="sprint-items">
-
-      <nz-table #sprintItemsTable [nzFrontPagination]="false" [nzData]="sprintReport.reportTasks">
-
-        <thead>
-
-        <tr>
-
-          <th>Item ID</th>
-          <th>Status</th>
-          <th>Item Name</th>
-          <!--          <th>Start Date</th>-->
-          <th>Assignee</th>
-          <!--          <th class="text-right">Effort Deviation</th>-->
-
-        </tr>
-
-        </thead>
-
-        <tbody>
-
-        <tr *ngFor="let data of sprintReport.reportTasks">
-          <td data-label="Item ID">{{ data.displayName }}</td>
-          <td data-label="Status">
-            <nz-tag [nzColor]="data.status?.color" class="text-white font-weight-semibold">{{ data.status?.name }}</nz-tag>
-          </td>
-          <td data-label="Item Description">{{ data.name }}</td>
-          <!--          <td data-label="Start Date">{{ data.createdAt }}</td>-->
-          <td data-label="Assignee">{{ data.assignee.firstName }} {{ data.assignee.lastName }}</td>
-          <!--          <td data-label="Effort Deviation" class="text-right"-->
-          <!--              [ngClass]="60 >=50 ? 'text-red' : ''">80</td>-->
-        </tr>
-
-        </tbody>
-
-
-      </nz-table>
-
-
-    </div>
-
-
-  </section>
-
-
-
-  </div >
 
   </nz-spin>
 

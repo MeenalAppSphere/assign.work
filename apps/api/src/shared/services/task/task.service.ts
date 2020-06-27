@@ -15,13 +15,14 @@ import {
   TaskFilterCondition,
   TaskFilterModel,
   TaskHistory,
-  TaskHistoryActionEnum
+  TaskHistoryActionEnum,
+  User
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskHistoryService } from '../task-history.service';
 import { GeneralService } from '../general.service';
-import { BadRequest, stringToSeconds, toObjectId } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, stringToSeconds, toObjectId } from '../../helpers/helpers';
 import { SprintService } from '../sprint/sprint.service';
 import { ModuleRef } from '@nestjs/core';
 import { TaskTypeService } from '../task-type/task-type.service';
@@ -35,21 +36,22 @@ import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
 import * as moment from 'moment';
+import { AppGateway } from '../../../app/app.gateway';
 
 /**
  * common task population object
  */
 const taskBasicPopulation: any[] = [{
   path: 'createdBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: 'emailId userName firstName lastName profilePic _id',
   justOne: true
 }, {
   path: 'updatedBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: 'emailId userName firstName lastName profilePic _id',
   justOne: true
 }, {
   path: 'assignee',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: 'emailId userName firstName lastName profilePic _id',
   justOne: true
 }, {
   path: 'status',
@@ -101,6 +103,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
   private _taskPriorityService: TaskPriorityService;
   private _taskStatusService: TaskStatusService;
   private _taskHistoryService: TaskHistoryService;
+  private _appGateway: AppGateway;
 
   private _utilityService: TaskUtilityService;
   private _projectUtilityService: ProjectUtilityService;
@@ -122,6 +125,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._taskStatusService = this._moduleRef.get('TaskStatusService');
     this._taskHistoryService = this._moduleRef.get('TaskHistoryService');
+    this._appGateway = this._moduleRef.get(AppGateway.name, { strict: false });
 
     this._utilityService = new TaskUtilityService();
     this._projectUtilityService = new ProjectUtilityService();
@@ -161,7 +165,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     }];
 
     // set selection fields
-    model.select = '_id name taskTypeId priorityId statusId sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName';
+    model.select = '_id name taskTypeId priorityId statusId sprintId createdById assigneeId progress overProgress totalLoggedTime estimatedTime remainingTime overLoggedTime displayName completionDate';
 
     let filter = {};
     if (onlyMyTask) {
@@ -204,6 +208,11 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // prepare task model
       const taskModel = this._utilityService.prepareTaskObjectFromRequest(model, projectDetails);
+
+      // completion date check
+      if (moment(taskModel.completionDate).startOf('d').isBefore(moment(), 'd')) {
+        BadRequest('Completion date can not be before today');
+      }
 
       // get last task
       const lastTask = await this._taskModel.find({
@@ -276,8 +285,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       }
 
       // task is created now send all the mails
-      this._utilityService.sendMailForTaskCreated(task, projectDetails);
-
+      this._utilityService.sendMailForTaskCreated({ ...task }, projectDetails);
+      this._appGateway.taskAssigned({ ...task }, projectDetails);
       return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
@@ -289,8 +298,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * if task type changed than update display name too
    * if estimate has been added after one have logged overs re calculate progress and over progress
    * @param model: Task
+   * @param loggedInUser
    */
-  async updateTask(model: Task): Promise<Task> {
+  async updateTask(model: Task, loggedInUser: Partial<User>): Promise<Task> {
     if (!model || !model.id) {
       BadRequest('Task not found');
     }
@@ -312,6 +322,8 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.description = model.description;
       taskModel.tags = model.tags;
       taskModel.watchers = model.watchers;
+      taskModel.attachments = model.attachments;
+      taskModel.completionDate = model.completionDate || taskDetails.completionDate || generateUtcDate();
 
       taskModel.taskTypeId = model.taskTypeId;
       taskModel.priorityId = model.priorityId;
@@ -372,6 +384,11 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.overProgress = model.overProgress || 0;
       taskModel.updatedById = this._generalService.userId;
 
+      // completion date check
+      if (moment(taskModel.completionDate).startOf('d').isBefore(moment(taskDetails.createdAt), 'd')) {
+        BadRequest('Completion date can not be before task created date');
+      }
+
       // check if tags is undefined assign blank array to that, this is the check for old data
       projectDetails.settings.tags = projectDetails.settings.tags ? projectDetails.settings.tags : [];
 
@@ -404,14 +421,21 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       if (taskDetails.sprintId) {
         const sprint = await this._sprintService.getSprintDetails(taskDetails.sprintId, taskDetails.projectId, []);
 
-        // check if status is updated then update task position in sprint columns
-        if (taskModel.statusId !== taskDetails.statusId) {
-          // update task position in sprint columns
-          await this.updateTaskStatusInSprint(sprint, taskDetails, taskModel.statusId, projectDetails, session);
+        // check if assignee is already sprint member
+        // if yes than don't re add them to sprint member
+        const checkIsAssigneeIsAlreadySprintMember = sprint.membersCapacity.some(member =>
+          member.userId.toString() === taskModel.assigneeId.toString());
+
+        // check if task assignee or task status is updated then update task in sprint
+        if (isStatusChanged || !checkIsAssigneeIsAlreadySprintMember) {
+          // update task in sprint
+          await this.updateTaskInSprint(sprint, taskDetails, taskModel, projectDetails, session);
         }
 
         // if sprint is published than update corresponding sprint report
         if (sprint.sprintStatus && sprint.sprintStatus.status === SprintStatusEnum.inProgress) {
+          const isMissingMemberAdded = !checkIsAssigneeIsAlreadySprintMember;
+
           // update sprint report, convert string to objectId for not loosing references
           const reportTaskDoc: any = {
             ...taskModel,
@@ -422,7 +446,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
             taskTypeId: toObjectId(taskModel.taskTypeId),
             createdById: toObjectId(taskModel.createdById)
           };
-          await this._sprintReportService.updateReportTask(sprint.reportId, reportTaskDoc, session);
+          await this._sprintReportService.updateReportTask(sprint, reportTaskDoc, isMissingMemberAdded, session);
         }
       }
 
@@ -450,6 +474,7 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
 
       // send mail for task updated to all the task watchers
       this._utilityService.sendMailForTaskUpdated({ ...task }, projectDetails);
+      this._appGateway.taskUpdated({ ...task }, projectDetails);
       return this._utilityService.prepareTaskVm(task);
     } catch (e) {
       throw e;
@@ -779,37 +804,65 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
    * update's task column in sprint columns using task status id
    * @param sprint
    * @param task
-   * @param newStatusId
+   * @param updatedTask
    * @param project
    * @param session
    */
-  private async updateTaskStatusInSprint(sprint: Sprint, task: Task, newStatusId: string, project: Project, session: ClientSession) {
+  private async updateTaskInSprint(sprint: Sprint, task: Task, updatedTask: Task, project: Project, session: ClientSession) {
 
-    const currentColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
-    // check if column exits in sprint
-    if (currentColumnIndex === -1) {
-      BadRequest('Task not found in sprint');
+    const isAssigneeChanged = task.assigneeId.toString() !== updatedTask.assigneeId;
+    const isStatusChanged = task.statusId.toString() !== updatedTask.statusId;
+    let updatedSprintDoc: any = {};
+
+    // if status is changed than update task position in sprint column
+    if (isStatusChanged) {
+      const currentColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, task.statusId);
+      // check if column exits in sprint
+      if (currentColumnIndex === -1) {
+        BadRequest('Task not found in sprint');
+      }
+
+      // get new column index where task is dropped
+      const newColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, updatedTask.statusId);
+      // check if new column exits in sprint
+      if (newColumnIndex === -1) {
+        BadRequest('Column not found where to move the task');
+      }
+
+      // get task from sprint column that's going to move to new column
+      const oldSprintTask = sprint.columns[currentColumnIndex].tasks.find(
+        sprintTask => sprintTask.taskId.toString() === task.id);
+
+      // move task to new column and remove from old column
+      sprint.columns = this._sprintUtilityService.moveTaskToNewColumn(sprint, task, oldSprintTask,
+        this._generalService.userId, currentColumnIndex, newColumnIndex);
+
+      updatedSprintDoc = {
+        ...updatedSprintDoc,
+        $set: { 'columns': sprint.columns }
+      };
     }
 
-    // get new column index where task is dropped
-    const newColumnIndex = this._boardUtilityService.getColumnIndexFromStatus(project.activeBoard, newStatusId);
-    // check if new column exits in sprint
-    if (newColumnIndex === -1) {
-      BadRequest('Column not found where to move the task');
+    // if assignee changed and assignee is not a part of sprint than add that assignee as sprint member
+    if (isAssigneeChanged) {
+      // add assignee to sprint member array
+      const newMember = this._sprintUtilityService.createSprintMember(project, updatedTask.assigneeId);
+
+      sprint.membersCapacity.push(newMember);
+      // increase sprint total capacity
+      sprint.totalCapacity += newMember.workingCapacity;
+
+      // update sprint doc and add new member to memberCapacity array
+      updatedSprintDoc = {
+        ...updatedSprintDoc,
+        $push: { membersCapacity: newMember },
+        totalCapacity: sprint.totalCapacity
+      };
     }
 
-    // get task from sprint column that's going to move to new column
-    const oldSprintTask = sprint.columns[currentColumnIndex].tasks.find(
-      sprintTask => sprintTask.taskId.toString() === task.id);
 
-    // move task to new column and remove from old column
-    sprint.columns = this._sprintUtilityService.moveTaskToNewColumn(sprint, task, oldSprintTask,
-      this._generalService.userId, currentColumnIndex, newColumnIndex);
-
-    // update sprint columns
-    await this._sprintService.updateById(sprint.id, {
-      $set: { 'columns': sprint.columns }
-    }, session);
+    // update sprint
+    await this._sprintService.updateById(sprint.id, updatedSprintDoc, session);
   }
 
   /**

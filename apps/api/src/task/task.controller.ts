@@ -7,8 +7,10 @@ import {
   GetTaskByIdOrDisplayNameModel, SprintTaskFilterModel,
   Task,
   TaskFilterModel,
+  UpdateCommentModel, User
 } from '@aavantan-app/models';
 import { Roles } from '../shared/guard/roles.decorators';
+import { LoggedInUser } from '../shared/decorators/loggedin-user.decorator';
 
 @Controller('task')
 @UseGuards(AuthGuard('jwt'))
@@ -49,8 +51,8 @@ export class TaskController {
   }
 
   @Post('update')
-  async updateTask(@Body() model: Task) {
-    return await this._taskService.updateTask(model);
+  async updateTask(@Body() model: Task, @LoggedInUser() user: Partial<User>) {
+    return await this._taskService.updateTask(model, user);
   }
 
   @Post('delete-task')

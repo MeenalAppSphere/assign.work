@@ -53,7 +53,8 @@ export class Task {
   updatedAt?: Date;
   isSelected?: boolean;
   watchersDetails?: User[];
-  hasError?: string;
+  completionDate?: Date;
+  taskAge?: number;
 }
 
 export class TaskComments {
@@ -72,6 +73,8 @@ export class TaskComments {
   attachments?: string[];
   attachmentsDetails?: AttachmentModel[];
   isPinned: boolean;
+  pinnedById: string;
+  pinnedBy?: User;
 }
 
 export class TaskHistory {
@@ -99,6 +102,11 @@ export class TaskFilterModel extends MongoosePaginateQuery {
     super();
     this.queries = [];
   }
+}
+
+export class BackLogStorageFilterModel {
+  assigneeIds: string[];
+  statusIds: string[];
 }
 
 export class SprintTaskFilterModel extends TaskFilterModel {

@@ -80,7 +80,6 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
   };
 
 
-
   constructor(protected notification: NzNotificationService,
               private router: Router,
               private _generalService: GeneralService,
@@ -127,14 +126,18 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
 
   // filter status
   public showAll() {
-    this.statusColumnDataSource.forEach((ele)=>{
+    this.statusColumnDataSource.forEach((ele) => {
       this.selectedColumnDataSource.push(ele.value);
     });
-    this._cdr.detectChanges();
+
+    if (!this._cdr['destroyed']) {
+      this._cdr.detectChanges();
+    }
+
     this.filterEvent.emit(this.selectedColumnDataSource);
   }
 
-  public updateSingleChecked(item:any) {
+  public updateSingleChecked(item: any) {
     this.filterEvent.emit(item);
   }
 

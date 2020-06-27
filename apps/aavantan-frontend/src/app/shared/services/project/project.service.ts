@@ -53,7 +53,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
             ...state,
             //currentProject: res.data,
             user: Object.assign({}, state.user, {
-              projects: [...state.user.projects, res.data]
+              projects: [res.data, ...state.user.projects.slice(0, state.user.projects.length - 1)]
             })
           };
         }));
@@ -61,7 +61,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         this._generalService.user.currentProject = res.data;
 
         this.updateState({ createProjectInProcess: false, createProjectSuccess: true });
-        this.notification.success('Success', 'Project Created Successfully');
+        // this.notification.success('Success', 'Project Created Successfully');
         return res;
       }),
       catchError(err => {
@@ -138,7 +138,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     return this._http.post(ProjectUrls.updateProject, model).pipe(
       map(res => {
         this.updateCurrentProjectState(res.data);
-        this.notification.success('Project Updated', 'Project Settings Updated');
+        this.notification.success('Success', 'Project Settings Updated');
         return res;
       }),
       catchError(err => {
@@ -151,8 +151,8 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     return this._http.post(ProjectUrls.updateTemplate, model).pipe(
       map(res => {
         this.updateCurrentProjectState(res.data);
-        this.notification.success('Project Updated', 'Project Template Updated');
-        this.router.navigate(['dashboard']);
+        this.notification.success('Success', 'Project Created Successfully');
+        this.router.navigate(['dashboard','settings']);
         return res;
       }),
       catchError(err => {

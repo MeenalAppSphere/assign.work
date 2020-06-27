@@ -359,7 +359,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.modelChangedSearchCollaborators
       .pipe(debounceTime(500))
       .subscribe(() => {
-        const queryText = this.collaboratorForm.get('collaborator').value;
+        this.isCollaboratorExits = false;
+        const queryText = this.collaboratorForm.get('collaborator').value.trim();
         let name = '';
         if (this.selectedCollaborator) {
           name =
@@ -381,8 +382,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           query: queryText
         };
 
-        this.isCollaboratorExits = false;
-        this.projectMembersList.forEach(ele => {
+        this.projectMembersList.forEach((ele) => {
           if (ele.emailId === queryText) {
             this.isCollaboratorExits = true;
           }
@@ -411,11 +411,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.modelChangedSearchDefaultAssignee
       .pipe(debounceTime(500))
       .subscribe(() => {
-        const queryText = this.workflowForm.get('assigneeId').value;
-        const name =
-          this.selectedDefaultAssignee.firstName +
-          ' ' +
-          this.selectedDefaultAssignee.lastName;
+        const queryText = this.workflowForm.get('assigneeId').value.trim();
+        const name = this.selectedDefaultAssignee.firstName + ' ' + this.selectedDefaultAssignee.lastName;
         if (!queryText || this.workflowForm.get('assigneeId').value === name) {
           return;
         }
@@ -524,6 +521,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   /*================== Collaborators tab ==================*/
   /*=======================================================*/
 
+  // if user is exits while search then remove button enable to clear
+  public clearCollaboratorSearchText() {
+    this.collaboratorForm.get('collaborator').patchValue('');
+    this.isCollaboratorExits = false;
+  }
+
   //**********************//
   // Remove Collaborators
   //**********************//
@@ -606,6 +609,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
       emailData = this.collaboratorForm.get('collaborator').value;
     } else {
       emailData = this.selectedCollaborator.emailId;
+    }
+    emailData= emailData.trim();
+    if(this.projectMembersList && this.projectMembersList.length>0 && this.projectMembersList.find(ele => ele.emailId === emailData)){
+      this.collaboratorForm.get('collaborator').patchValue('');
+      this.notification.error('Error', 'This user already invited/added in this Project');
+      return;
     }
 
     const user: User = {

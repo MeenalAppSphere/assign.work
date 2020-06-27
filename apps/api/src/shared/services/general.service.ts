@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as randomcolor from 'randomcolor';
 
 @Injectable()
 export class GeneralService {
@@ -20,4 +21,11 @@ export class GeneralService {
 
   private _userId: string;
   private _locale: string;
+
+  /**
+   * generates a random color
+   */
+  generateRandomColor() {
+    return randomcolor({ luminosity: 'bright' });
+  }
 }

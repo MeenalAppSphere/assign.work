@@ -1,3 +1,5 @@
+@import "../../scss/custom_variable";
+
 #row-main {
   /* necessary to hide collapsed sidebar */
   overflow-x: hidden;
@@ -89,17 +91,32 @@
 }
 
 .add-task-to-sprint {
-  padding-top: 23px;
   button {
     padding-bottom: 7px!important;
     padding-top: 7px!important;
+    span {
+      text-shadow: none!important;
+    }
   }
+
+  button.add{
+    background: $lighter-blue;
+    color:$color-gray-light-3!important;
+  }
+
+  button.remove{
+    background: #FFF2F2;
+    color:$color-red!important;
+  }
+
 }
 #sidebar {
-  height: calc(100vh);
+  height: 100%;
+  min-height: 750px;
   transition: margin 0.3s ease;
   background: #FFFFFF 0% 0% no-repeat padding-box;
   box-shadow: 0px 4px 10px #0000001A;
+  padding-bottom: 15px;
 }
 
 .btn-double-arrow{

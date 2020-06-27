@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { DbCollection } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
+import { commonSchemaFields, mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
 
 const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
 
@@ -30,9 +30,8 @@ export const taskSchema = new Schema({
   sprintId: { type: Schema.Types.ObjectId, ref: DbCollection.sprint },
   dependentItemId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false },
   relatedItemId: [{ type: Schema.Types.ObjectId, ref: DbCollection.tasks, required: false }],
-  createdById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: true },
-  updatedById: { type: Schema.Types.ObjectId, ref: DbCollection.users, required: false },
-  isDeleted: { type: Boolean, default: false }
+  completionDate: { type: Date },
+  ...commonSchemaFields
 }, schemaOptions);
 
 // options

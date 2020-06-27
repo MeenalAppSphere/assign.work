@@ -14,6 +14,7 @@ import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import * as moment from 'moment';
 import { BadRequest, generateUtcDate } from '../../helpers/helpers';
+import { BoardUtilityService } from '../board/board.utility.service';
 
 @Injectable()
 export class SprintReportService extends BaseService<SprintReportModel & Document> {
@@ -23,6 +24,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
   private _utilityService: SprintReportUtilityService;
   private _sprintUtilityService: SprintUtilityService;
+  private _boardUtilityService: BoardUtilityService;
 
   constructor(
     @InjectModel(DbCollection.sprintReports) protected readonly _sprintReportModel: Model<SprintReportModel & Document>,
@@ -38,6 +40,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
 
     this._utilityService = new SprintReportUtilityService();
     this._sprintUtilityService = new SprintUtilityService();
+    this._boardUtilityService = new BoardUtilityService();
   }
 
   /**
@@ -50,7 +53,7 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     const projectDetails = await this._projectService.getProjectDetails(projectId, true);
 
     // get all statuses
-    const taskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
+    let allTaskStatuses: TaskStatusModel[] = await this._taskStatusService.find({
       filter: { projectId }, lean: true, select: 'name _id color'
     });
 
@@ -119,6 +122,34 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       report = result[0];
       report.id = report._id;
 
+      // filter task statuses
+      allTaskStatuses = allTaskStatuses.filter(status => {
+        return projectDetails.activeBoard.columns.some(column => {
+          return (
+            column.headerStatusId.toString() === status._id.toString() ||
+            column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === status._id.toString()))
+            && !column.isHidden;
+        });
+      });
+
+      // arrange task statuses order as board columns order
+      const boardWiseTasksStatuses = [];
+      projectDetails.activeBoard.columns.forEach(column => {
+        if (!column.isHidden) {
+          const statuses = allTaskStatuses.filter(taskStatus =>
+            column.includedStatuses.some(columnStatus => columnStatus.statusId.toString() === taskStatus._id.toString()));
+
+          statuses.forEach(status => {
+            boardWiseTasksStatuses.push(status);
+          });
+        }
+      });
+
+      // filter out tasks whose status is not included in boardWiseTasksStatuses
+      report.reportTasks = report.reportTasks.filter(reportTask => {
+        return boardWiseTasksStatuses.some(boardWise => reportTask.statusId.toString() === boardWise._id.toString());
+      });
+
       // assign sprint details to report sprint
       report.sprint = sprintDetails;
 
@@ -135,7 +166,18 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       this._utilityService.prepareSprintReportUserProductivity(report);
 
       // prepare task count report
-      this._utilityService.prepareSprintReportTasksCounts(report, taskStatuses);
+      this._utilityService.prepareSprintReportTasksCounts(report, boardWiseTasksStatuses);
+
+      // filter completed tasks
+      report.reportTasksCompleted = report.reportTasks.filter(reportTask => {
+        return report.finalStatusIds.some(statusId => statusId.toString() === reportTask.statusId.toString());
+      });
+
+      // filter non completed tasks
+      report.reportTasksNotCompleted = report.reportTasks.filter(reportTask => {
+        return !report.finalStatusIds.some(statusId => statusId.toString() === reportTask.statusId.toString());
+      });
+
       return report;
     } else {
       throw new NotFoundException('Report Not Found');
@@ -162,13 +204,14 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
   /**
    * update task in report
    * updates report task when a task is updated ( name changed, assign changed, etc.. )
-   * @param reportId
+   * @param sprint
    * @param task
+   * @param isMissingMemberAdded
    * @param session
    */
-  async updateReportTask(reportId: string, task: Task, session: ClientSession) {
+  async updateReportTask(sprint: Sprint, task: Task, isMissingMemberAdded: boolean, session: ClientSession) {
     // get report details
-    const sprintReport: SprintReportModel = await this.getSprintReportDetails(reportId);
+    const sprintReport: SprintReportModel = await this.getSprintReportDetails(sprint.reportId);
 
     // update sprint report
     // find task in sprint report
@@ -180,25 +223,34 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
     const updatedTask = this._utilityService.createSprintReportTaskFromSprintColumnTask(task);
 
     // update report task object
-    const updateReportObject = {
+    const updateReportObject: any = {
       $set: {
         [`reportTasks.${taskIndexInReport}`]: updatedTask
       }
     };
 
+    if (isMissingMemberAdded) {
+      // create sprint report members from sprint member capacity
+      const sprintReportMembers = this._utilityService.createSprintReportMembersFromSprintMembers(sprint.membersCapacity);
+
+      // update the updated doc
+      updateReportObject.$push = { reportMembers: { $each: sprintReportMembers } };
+    }
+
     // update report by id
-    return await this.updateById(reportId, updateReportObject, session);
+    return await this.updateById(sprint.reportId, updateReportObject, session);
   }
 
   /**
    * add a task in sprint report
-   * @param reportId
+   * @param sprint
    * @param task
+   * @param isMissingMemberAdded
    * @param session
    */
-  async addTaskInSprintReport(reportId: string, task: Task, session: ClientSession) {
+  async addTaskInSprintReport(sprint: Sprint, task: Task, isMissingMemberAdded: boolean, session: ClientSession) {
     // get report details
-    const sprintReportDetails: SprintReportModel = await this.getSprintReportDetails(reportId);
+    const sprintReportDetails: SprintReportModel = await this.getSprintReportDetails(sprint.reportId);
 
     // check if task is already in report
     const alreadyInReportIndex = sprintReportDetails.reportTasks.findIndex(reportTask => {
@@ -223,8 +275,21 @@ export class SprintReportService extends BaseService<SprintReportModel & Documen
       };
     }
 
+    // if new member joined project after sprint is created, add that member to sprint report's reportMembers array
+    if (isMissingMemberAdded) {
+      // create sprint report members from sprint member capacity
+      const sprintReportMembers = this._utilityService.createSprintReportMembersFromSprintMembers(sprint.membersCapacity);
+
+      // update the updated doc
+      if (alreadyInReportIndex > -1) {
+        updateDoc.$set['reportMembers'] = sprintReportMembers;
+      } else {
+        updateDoc.$push['reportMembers'] = { $each: sprintReportMembers };
+      }
+    }
+
     // update report by id
-    return await this.updateById(reportId, updateDoc, session);
+    return await this.updateById(sprint.reportId, updateDoc, session);
   }
 
   /**

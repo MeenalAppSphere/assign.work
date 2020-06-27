@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
@@ -20,6 +20,9 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardService } from '../shared/services/board/board.service';
 import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
+import { Socket } from 'ngx-socket-io';
+import { environment } from '../../environments/environment';
+import { NotificationResponseModel, NotificationTypeEnum } from '@aavantan-app/models';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleModel } from '@aavantan-app/models';
 import { NgxPermissionsService } from 'ngx-permissions';
@@ -47,11 +50,50 @@ export class DashboardComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
-              private _taskTypeService: TaskTypeService, private _boardService: BoardService,
-              private _userRoleService: UserRoleService, private permissionsService: NgxPermissionsService) {
+              private _taskTypeService: TaskTypeService, private _boardService: BoardService, private socket: Socket,
+              private ngZone: NgZone, private _userRoleService: UserRoleService, private permissionsService: NgxPermissionsService) {
   }
 
   ngOnInit() {
+    // socket connection success
+    this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
+      this.socket.emit(NotificationTypeEnum.userConnected, this._generalService.user._id);
+    });
+
+    // task created
+    this.socket.on(NotificationTypeEnum.taskAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Created', res);
+    });
+
+    // task assigned
+    this.socket.on(NotificationTypeEnum.taskAssigned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Assigned', res);
+    });
+
+    // task updated
+    this.socket.on(NotificationTypeEnum.taskUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Updated', res);
+    });
+
+    // comment added
+    this.socket.on(NotificationTypeEnum.commentAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Added', res);
+    });
+
+    // comment updated
+    this.socket.on(NotificationTypeEnum.commentUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Updated', res);
+    });
+
+    // comment pinned
+    this.socket.on(NotificationTypeEnum.commentPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Pinned', res);
+    });
+
+    // comment un pinned
+    this.socket.on(NotificationTypeEnum.commentUnPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment UnPinned', res);
+    });
 
     // listen for user from store
     this._userQuery.user$.pipe(
@@ -113,7 +155,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.showLogoutWarning('Project');
     } else {
       this.projectModalIsVisible = !this.projectModalIsVisible;
-      this.router.navigate(['dashboard', 'project']);
+      //this.router.navigate(['dashboard', 'my-tasks']);
     }
   }
 
@@ -140,7 +182,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   startTour() {
     const options = {
-      steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/board'],
+      steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/running-sprint'],
       startWith: 'tour1',
       // waitingTime: 2000,
       stepDefaultPosition: 'top',
@@ -190,33 +232,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.router.navigateByUrl('dashboard/task');
     }
   }
-
-  private buildBreadCrumb(route: ActivatedRoute, url: string = '', breadcrumbs: IBreadcrumb[] = []): IBreadcrumb[] {
-    let label = '', path = '/';
-    const display = null;
-
-    if (route.routeConfig) {
-      if (route.routeConfig.data) {
-        label = route.routeConfig.data['title'];
-        path += route.routeConfig.path;
-      }
-    } else {
-      label = 'Dashboard';
-      path += 'dashboard';
-    }
-
-    const nextUrl = path && path !== '/dashboard' ? `${url}${path}` : url;
-    const breadcrumb = <IBreadcrumb>{
-      label: label, url: nextUrl
-    };
-
-    const newBreadcrumbs = label ? [...breadcrumbs, breadcrumb] : [...breadcrumbs];
-    if (route.firstChild) {
-      return this.buildBreadCrumb(route.firstChild, nextUrl, newBreadcrumbs);
-    }
-    return newBreadcrumbs;
-  }
-
 
   public setPermissions() {
     const permissionsList = [];
@@ -317,10 +332,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // get all project limit 10 for header dropdown init
     this._projectService.getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
+  }
 
+  /**
+   * create desktop notification
+   * @param {string} title
+   * @param {NotificationResponseModel} res
+   */
+  private createDesktopNotification(title: string, res: NotificationResponseModel) {
+    const notification = new Notification(title, {
+      body: res.msg,
+      icon: 'assets/images/logo/logo.png',
+      vibrate: 1
+    });
+
+    notification.onclick = ((ev: Event) => {
+      this.goToLink(res.link);
+      notification.close();
+    });
+  }
+
+  /**
+   * go to link when an notification is clicked
+   * @param {string} link
+   */
+  private goToLink(link: string) {
+    this.ngZone.run(() => {
+      this.router.navigateByUrl(link);
+    });
   }
 
   ngOnDestroy(): void {
     this._projectService.unsetStoreFlags();
+    this.socket.emit('disconnect');
   }
 }

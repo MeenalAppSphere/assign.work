@@ -20,6 +20,11 @@ import { ProfileNameComponent } from './components/profile-name/profile-name.com
 import { KeysPipe } from './pipes/keys.pipe';
 import { RouterModule } from '@angular/router';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { UserFilterComponent } from './components/user-filter/user-filter.component';
+import { TeamCapacityComponent } from './components/team-capacity/team-capacity.component';
+import { TeamCapacityModelComponent } from './components/team-capacity-model/team-capacity.model.component';
+import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
+
 
 @NgModule({
   exports: [
@@ -40,6 +45,10 @@ import { NgxPermissionsModule } from 'ngx-permissions';
     NumericDirective,
     AddEpicComponent,
     ProfileNameComponent,
+    UserFilterComponent,
+    TeamCapacityComponent,
+    TeamCapacityModelComponent,
+    CloseSprintComponent
     KeysPipe,
     NgxPermissionsModule
   ],
@@ -67,6 +76,10 @@ import { NgxPermissionsModule } from 'ngx-permissions';
     AddEpicComponent,
     ProfileNameComponent,
     KeysPipe
+    UserFilterComponent,
+    TeamCapacityComponent,
+    TeamCapacityModelComponent,
+    CloseSprintComponent
   ]
 })
 export class SharedModule {

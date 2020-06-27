@@ -26,7 +26,7 @@ import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { TaskUtilityService } from '../task/task.utility.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
-import { SprintReportMembersTaskLoggingModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
+import { SprintReportMembersTaskLoggingModel } from '@aavantan-app/models';
 
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> implements OnModuleInit {
@@ -316,24 +316,19 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
       const timeLogHistory: TaskTimeLogHistoryResponseModel[] = await this._taskTimeLogModel.aggregate([{
         $match: { 'taskId': this.toObjectId(model.taskId) }
       }, {
-        $group: {
-          _id: '$createdById',
-          totalLoggedTime: { $sum: '$loggedTime' }
-        }
-      }, {
         $lookup: {
           from: DbCollection.users,
-          localField: '_id',
+          localField: 'createdById',
           foreignField: '_id',
           as: 'loggedBy'
         }
-      }, { $unwind: '$loggedBy' }, {
+      }, { $unwind: { path: '$loggedBy', preserveNullAndEmptyArrays: true } }, {
         $project: {
           _id: 0,
           user: { $concat: ['$loggedBy.firstName', ' ', '$loggedBy.lastName'] },
           emailId: '$loggedBy.emailId',
           profilePic: '$loggedBy.profilePic',
-          totalLoggedTime: '$totalLoggedTime'
+          totalLoggedTime: '$loggedTime'
         }
       }]).exec();
 

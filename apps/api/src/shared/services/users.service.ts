@@ -1,6 +1,13 @@
 import { BadRequestException, Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ChangePasswordModel, DbCollection, SearchUserModel, User, UserLoginProviderEnum } from '@aavantan-app/models';
+import {
+  ChangePasswordModel,
+  DbCollection, Organization,
+  Project,
+  SearchUserModel,
+  User,
+  UserLoginProviderEnum
+} from '@aavantan-app/models';
 import { ClientSession, Document, Model, Types } from 'mongoose';
 import { BaseService } from './base.service';
 import { ProjectService } from './project/project.service';
@@ -12,12 +19,14 @@ import { ModuleRef } from '@nestjs/core';
 import * as bcrypt from 'bcrypt';
 import { HASH_PASSWORD_SALT_ROUNDS } from '../helpers/defaultValueConstant';
 import { BoardUtilityService } from './board/board.utility.service';
+import { ProjectUtilityService } from './project/project.utility.service';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> implements OnModuleInit {
   private _projectService: ProjectService;
   private _sprintUtilityService: SprintUtilityService;
   private _boardUtilityService: BoardUtilityService;
+  private _projectUtilityService: ProjectUtilityService;
 
   constructor(@InjectModel(DbCollection.users) protected readonly _userModel: Model<User & Document>,
               private _generalService: GeneralService, private _moduleRef: ModuleRef) {
@@ -29,6 +38,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
 
     this._sprintUtilityService = new SprintUtilityService();
     this._boardUtilityService = new BoardUtilityService();
+    this._projectUtilityService = new ProjectUtilityService();
   }
 
   /**
@@ -165,7 +175,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         select: 'name description organizationId createdAt createdById updatedAt',
         populate: [{
           path: 'createdBy',
-          select: 'firstName lastName'
+          select: 'emailId userName firstName lastName profilePic'
         }, {
           path: 'organization',
           select: 'name description displayName logoUrl'
@@ -252,10 +262,11 @@ export class UsersService extends BaseService<User & Document> implements OnModu
           userDetails.projects
             .filter(f => f.organizationId.toString() === userDetails.currentOrganizationId)
             .filter(f => f._id.toString() !== userDetails.currentProject.id.toString()),
-          0, 1
-        ).map((pro: any) => {
-          pro.id = pro._id.toString();
-          return pro;
+          0, 3
+        ).map((project: Project) => {
+          project.id = project._id.toString();
+          project.color = this._generalService.generateRandomColor();
+          return project;
         });
 
       // add current project at first index of recent project list
@@ -272,7 +283,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
       const userOrganizations =
         userDetails.organizations
           .filter(f => f._id.toString() !== userDetails.currentOrganizationId.toString())
-          .map((org: any) => {
+          .map((org: Organization) => {
             org.id = org._id.toString();
             return org;
           });
@@ -284,7 +295,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
       userDetails.organizations = userOrganizations;
     } else {
       /*
-      * check if user have projects and organizations
+      * check if user don't current project or organization but he is member of some projects and organizations
       * this will be only possible when user have pending invitations
       */
 

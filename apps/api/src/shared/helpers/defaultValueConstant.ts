@@ -46,7 +46,7 @@ export const DEFAULT_DECIMAL_PLACES = 2;
 export const MAX_FILE_UPLOAD_SIZE = 5;
 
 // max profile pic upload size in mb
-export const MAX_PROFILE_PIC_UPLOAD_SIZE = 2;
+export const MAX_PROFILE_PIC_UPLOAD_SIZE = 4;
 
 // default email address for sending email
 export const DEFAULT_EMAIL_ADDRESS = 'support@assign.work';
@@ -192,3 +192,6 @@ export const DEFAULT_USER_ROLES: UserRoleModel[] = [
 
 // default sal rounds for hashing the password
 export const HASH_PASSWORD_SALT_ROUNDS = 10;
+//
+// // default project colors
+// export const RANDOM_PROJECTS_COLORS = ['#0667FB','#AC5DE3', '#F11E79', '#6E829C', '#45D98A'];

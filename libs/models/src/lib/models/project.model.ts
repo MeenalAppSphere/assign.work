@@ -10,10 +10,9 @@ import {
   User, UserRoleModel
 } from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
+import { BaseDbModel } from './base.model';
 
-export class Project {
-  id?: string;
-  _id?: string;
+export class Project extends BaseDbModel {
   name: string;
   access?: string;
   version?: string;
@@ -34,6 +33,7 @@ export class Project {
   sprint?: Sprint;
   activeBoardId?: string;
   activeBoard?: BoardModel;
+  color?: string;
 }
 
 export class ProjectMembers {

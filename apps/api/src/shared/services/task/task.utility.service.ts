@@ -11,8 +11,9 @@ import { BoardUtilityService } from '../board/board.utility.service';
 import { EmailService } from '../email.service';
 import { environment } from '../../../environments/environment';
 import { ProjectUtilityService } from '../project/project.utility.service';
-import { BadRequest, secondsToString, toObjectId } from '../../helpers/helpers';
+import { BadRequest, generateUtcDate, secondsToString, stringToSeconds, toObjectId } from '../../helpers/helpers';
 import { DEFAULT_DECIMAL_PLACES } from '../../helpers/defaultValueConstant';
+import * as moment from 'moment';
 
 /**
  * task schema keys mapper for filter query
@@ -36,8 +37,10 @@ const taskSchemaKeysMapper = new Map<string, string>([
  */
 const taskSortingKeysMapper = new Map<string, string>([
   ['name', 'name'],
-  ['createdBy', 'createdBy.name'],
-  ['createdById', 'createdBy.name'],
+  ['createdBy', 'createdBy.firstName'],
+  ['createdById', 'createdBy.firstName'],
+  ['assignee', 'assignee.firstName'],
+  ['assigneeId', 'assignee.firstName'],
   ['taskType', 'taskType.name'],
   ['taskTypeId', 'taskType.name'],
   ['priority', 'priority.name'],
@@ -78,6 +81,7 @@ export class TaskUtilityService {
     taskModel.attachments = model.attachments || [];
 
     taskModel.taskTypeId = model.taskTypeId;
+    taskModel.completionDate = model.completionDate || generateUtcDate();
 
     // if no task priority found than assign project's default priority id
     taskModel.priorityId = model.priorityId || project.settings.defaultTaskPriorityId;
@@ -91,7 +95,7 @@ export class TaskUtilityService {
     taskModel.relatedItemId = model.relatedItemId || [];
     taskModel.assigneeId = model.assigneeId;
 
-    taskModel.estimatedTime = 0;
+    taskModel.estimatedTime = model.estimatedTimeReadable ? stringToSeconds(model.estimatedTimeReadable) : 0;
     taskModel.remainingTime = 0;
     taskModel.overLoggedTime = 0;
     taskModel.totalLoggedTime = 0;
@@ -243,6 +247,7 @@ export class TaskUtilityService {
     task.estimatedTimeReadable = secondsToString(task.estimatedTime || 0);
     task.remainingTimeReadable = secondsToString(task.remainingTime || 0);
     task.overLoggedTimeReadable = secondsToString(task.overLoggedTime || 0);
+    task.taskAge = moment().utc().diff(moment(task.createdAt, 'YYYY-MM-DD'), 'd');
 
     if (task.attachmentsDetails) {
       task.attachmentsDetails.forEach(attachment => {
@@ -311,29 +316,27 @@ export class TaskUtilityService {
       }]
     };
 
-    // check if we have any query with or condition
-    const isAnyOrConditionQuery = model.queries.some(query => query.condition === TaskFilterCondition.or);
-    if (isAnyOrConditionQuery) {
-      // push a $or stage in $and so all the advance query will be executed in last stage of filter
-      filter.$and.push({
-        $or: []
-      });
-    }
-
     // check if advance queries are applied
     if (model.queries && model.queries.length) {
       model.queries.forEach(query => {
-
         query.key = this.validTaskQueryKey(query.key);
 
-        // convert value to object id
-        query.value = query.value.map(value => {
-          if (value) {
-            // convert to object id because mongo aggregate requires object id for matching foreign documents
-            value = toObjectId(value);
-          }
-          return value;
-        });
+        if (query.value.length) {
+
+          // convert value to object id
+          query.value = query.value.map(value => {
+            if (value) {
+              // convert to object id because mongo aggregate requires object id for matching foreign documents
+              value = toObjectId(value);
+            }
+            return value;
+          });
+
+          query.reverseFilter = false;
+        } else {
+          query.reverseFilter = true;
+        }
+
 
         // and condition
         // add directly to the filter.$add
@@ -343,18 +346,48 @@ export class TaskUtilityService {
           filter.$and.push(
             { [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value } }
           );
-        } else {
-          // or condition
-          // find last $or stage in filter and add query to last $or stage
-          // because this is advance query and it will be executed at last
-
-          // check if reverse filter is set than use $nin => not in query
-          // else use $in => in query
-          filter.$and[filter.$and.length - 1].$or.push({
-            [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value }
-          });
         }
       });
+
+      // check if we have any query with or condition
+      const isAnyOrConditionQuery = model.queries.some(query => query.condition === TaskFilterCondition.or);
+      if (isAnyOrConditionQuery) {
+        // push a $or stage in $and so all the advance query will be executed in last stage of filter
+        filter.$and.push({
+          $or: []
+        });
+
+        model.queries.forEach(query => {
+          query.key = this.validTaskQueryKey(query.key);
+
+          if (query.value.length) {
+            // convert value to object id
+            query.value = query.value.map(value => {
+              if (value) {
+                // convert to object id because mongo aggregate requires object id for matching foreign documents
+                value = toObjectId(value);
+              }
+              return value;
+            });
+            query.reverseFilter = false;
+          } else {
+            query.reverseFilter = true;
+          }
+
+
+          if (query.condition === TaskFilterCondition.or) {
+            // or condition
+            // find last $or stage in filter and add query to last $or stage
+            // because this is advance query and it will be executed at last
+
+            // check if reverse filter is set than use $nin => not in query
+            // else use $in => in query
+            filter.$and[filter.$and.length - 1].$or.push({
+              [query.key]: { [!query.reverseFilter ? '$in' : '$nin']: query.value }
+            });
+          }
+        });
+      }
     }
 
     return filter;
