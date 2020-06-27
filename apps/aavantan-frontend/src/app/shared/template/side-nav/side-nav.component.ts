@@ -10,6 +10,7 @@ import { GeneralService } from '../../services/general.service';
 import { OrganizationService } from '../../services/organization/organization.service';
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
 import { TaskService } from '../../services/task/task.service';
+import { ProjectService } from '../../services/project/project.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -35,7 +36,8 @@ export class SideNavComponent implements OnInit, OnDestroy {
               private _userQuery: UserQuery,
               private _organizationService: OrganizationService,
               private _generalService: GeneralService, private _taskService: TaskService,
-              private router: Router, private _taskTypeQuery: TaskTypeQuery) {
+              private router: Router, private _taskTypeQuery: TaskTypeQuery,
+              private _projectService: ProjectService) {
 
 
     this.organizations = this._generalService.user.organizations;
@@ -92,6 +94,10 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
       this._organizationService.switchOrganization(organizationId).subscribe((res => {
         this.switchOrganizationInProcess = false;
+        // get all project limit 10 store in 'projects' store
+        this._projectService
+          .getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
+
       }), (error => {
         this.switchOrganizationInProcess = false;
       }));

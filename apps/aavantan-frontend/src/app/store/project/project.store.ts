@@ -8,6 +8,7 @@ export interface ProjectState {
   createProjectSuccess: boolean;
   projectSwitchInProcess: boolean;
   projectSwitchedSuccessfully: boolean;
+  getAllProjectInProcess:boolean;
 }
 
 const initialState: ProjectState = {
@@ -15,7 +16,8 @@ const initialState: ProjectState = {
   createProjectInProcess: false,
   createProjectSuccess: false,
   projectSwitchInProcess: false,
-  projectSwitchedSuccessfully: false
+  projectSwitchedSuccessfully: false,
+  getAllProjectInProcess:false,
 };
 
 @Injectable({ providedIn: 'root' })

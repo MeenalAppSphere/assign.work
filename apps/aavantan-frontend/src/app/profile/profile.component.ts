@@ -56,7 +56,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         organizationId : this._generalService.currentOrganization.id
       }
       this._projectService.getAllProject(json).subscribe((data)=>{
-        this.projectListData = data.data;
+        this.projectListData = data.data.items;
       });
 
       this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {

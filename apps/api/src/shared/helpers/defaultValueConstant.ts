@@ -185,3 +185,6 @@ export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
 
 // default sal rounds for hashing the password
 export const HASH_PASSWORD_SALT_ROUNDS = 10;
+//
+// // default project colors
+// export const RANDOM_PROJECTS_COLORS = ['#0667FB','#AC5DE3', '#F11E79', '#6E829C', '#45D98A'];

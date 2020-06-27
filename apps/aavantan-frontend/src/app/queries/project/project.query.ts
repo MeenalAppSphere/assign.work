@@ -9,6 +9,7 @@ export class ProjectQuery extends Query<ProjectState> {
   createProjectSuccess$ = this.select(s => s.createProjectSuccess);
   projectSwitchInProcess$ = this.select(s => s.projectSwitchInProcess);
   projectSwitchedSuccessfully$ = this.select(s => s.projectSwitchedSuccessfully);
+  projects$ = this.select(s => s.projects);
 
   constructor(protected store: ProjectStore) {
     super(store);

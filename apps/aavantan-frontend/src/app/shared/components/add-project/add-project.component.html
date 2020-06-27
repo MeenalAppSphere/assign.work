@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="projectModalIsVisible" nzClassName="project-modal" nzFooter="#nzModalFooter" nzWidth="700" nzClosable="false">
+<nz-modal [(nzVisible)]="projectModalIsVisible" nzClassName="project-modal" nzFooter="#nzModalFooter" nzWidth="755" nzClosable="false">
 
 
     <nz-spin nzTip="Setting up..." [nzSpinning]="switchingProjectInProcess">
@@ -7,53 +7,67 @@
 
       <ng-container>
 
-        <div *ngIf="!showCreateProject && projectList && projectList.length>0" style="min-height:500px;">
-            <h5 class="m-b-10">Switch Project</h5>
+        <!-- Search and Switch Project -->
+        <div *ngIf="!showCreateProject && projectList && projectList.length>0" class="switch-project-view">
+
+          <!-- search project -->
+          <nz-form-item class="m-b-15 switch-search-box">
+            <nz-form-control>
+              <nz-input-group [nzPrefix]="prefixIconSearch" [nzSuffix]="suffixIconSearch">
+                <input placeholder="Search Project" (ngModelChange)="changed()" [(ngModel)]="searchProjectText" nz-input nzSize="small" />
+              </nz-input-group>
+              <ng-template #prefixIconSearch>
+                <img class="m-l-15" style="padding-bottom:2px;" src="../../../../assets/images/icons/search_switch_project.svg"  *ngIf="!isSearching">
+                <span class="p-l-15"><i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i></span>
+              </ng-template>
+              <ng-template #suffixIconSearch>
+                <span class="text-gray-light-2 font-size-16 p-r-20">Ctrl / Cmd + j</span>
+              </ng-template>
+            </nz-form-control>
+          </nz-form-item>
+
             <div class="horizontal-list">
-                <h4>Recent Project</h4>
-                <nz-list [nzDataSource]="projectList" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
-                    <ng-template #item let-item>
+              <h4 class="font-size-14 text-gray-light m-b-15">Recent Project</h4>
 
-                        <nz-list-item (click)="switchProject(item)" class="horizontal-list">
+              <div class="recent-item" (click)="addNewProject()">
+                <div class="project-box add-project">
+                  <img src="../../../../assets/images/icons/icon_add_project.svg">
+                </div>
+                <div class="project-name-truncated text-black">Add New</div>
+              </div>
 
-                            <nz-list-item-meta [nzTitle]="nzTitle">
-                                <ng-template #nzTitle>
-                                    <div class="project-header-title p-10 p-t-15 p-b-15">
-                                        <nz-avatar class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
-                                        <span>{{item.name}}</span>
-                                    </div>
-                                    <div class="font-size-13 p-10">
-                                        <span>
-                                      <span class="font-size-12 text-muted">Created : {{item.createdAt | dateAgo}}</span>
-                                        <span class="float-right"><nz-avatar class="m-r-5 text-uppercase" nzSize="small" nzText="{{(item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'AW') | slice : 0:1}}"></nz-avatar>By : {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span>
-                                        </span>
-                                        <!-- <p nz-paragraph nzEllipsis nzExpandable [nzEllipsisRows]="3">{{item.description}}</p> -->
-                                    </div>
-                                </ng-template>
-                            </nz-list-item-meta>
+              <div class="recent-item" (click)="switchProject(item)"
+                   *ngFor="let item of projectList"
+                   [ngStyle]="{'border': (currentProject && currentProject.id === item.id) ? '2px solid '+item.color+'' : '2px solid #fff'}"
+                   nz-tooltip [nzTitle]="projectTooltip">
 
-                        </nz-list-item>
+                  <div class="project-box text-uppercase"
+                       [ngStyle]="{'background': item.color}"
+                  >{{item.name | slice : 0:2}}</div>
 
-                    </ng-template>
-                </nz-list>
+                  <div class="project-name-truncated text-black">{{item.name}}</div>
+                  <ng-template #projectTooltip>
+                    <span>
+                      <div>{{item.name}}</div>
+                      <div class="font-size-12 text-white">Created at {{item.createdAt | dateAgo}}</div>
+                      <div class="font-size-12 text-white"><span>by {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span></div>
+                    </span>
+                  </ng-template>
+                </div>
+
+
             </div>
-            <div class="p-r-10 p-l-10 p-t-10">
-                <nz-form-item class="m-b-5">
-                    <nz-form-control>
-                        <nz-input-group [nzSuffix]="suffixIconSearch">
-                            <input placeholder="Search Project" (ngModelChange)="changed()" [(ngModel)]="searchProjectText" nz-input nzSize="small" />
-                        </nz-input-group>
-                        <ng-template #suffixIconSearch>
-                            <i nz-icon nzType="search" *ngIf="!isSearching"></i>
-                          <i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i>
-                        </ng-template>
-                    </nz-form-control>
-                </nz-form-item>
+
+            <div class="all-search-projects">
+
+                <h4 class="font-size-14 text-gray-light p-b-5 all-project-title m-0">All Projects</h4>
+
                 <div class="search-list">
 
                   <ng-template #noResult>
                     <nz-empty
-                      style="height:120px"
+                      *ngIf="isProjectNotFound"
+                      style="height:70px"
                       [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
                       [nzNotFoundContent]="contentActivity"></nz-empty>
                     <ng-template #contentActivity>
@@ -68,14 +82,27 @@
 
                                 <nz-list-item-meta [nzTitle]="nzTitle">
                                     <ng-template #nzTitle>
-                                        <div class="project-header-title p-10">
-                                            <nz-avatar class="m-r-10 text-uppercase" nzText="{{item.name | slice : 0:2}}"></nz-avatar>
-                                            <span>{{item.name}}</span>
-                                            <div class="font-size-12 float-right" style="display: inline-block;">
-                                                <span>
-                                                  <span class="float-right font-size-12 text-muted">Created : {{item.createdAt | dateAgo}}</span><br/>
-                                                  <span class="float-right"><nz-avatar class="m-r-5 text-uppercase" [nzSrc]="item.createdBy.profilePic" nzSize="small" nzText="{{(item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'AW') | slice : 0:1}}"></nz-avatar>By : {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span>
+                                        <div class="project-header-title d-flex justify-content-between">
+
+                                            <div class="d-flex">
+                                              <nz-avatar [nzSize]="44" nzShape="square" class="m-r-10 text-uppercase"
+                                                         nzText="{{item.name | slice : 0:2}}"
+                                                         [ngStyle]="{'background': item.color}"
+                                              ></nz-avatar>
+
+                                              <div >
+                                                <div class="text-black">{{item.name}}</div>
+                                                <span class="font-size-12">
+                                                <span class="text-gray-light-2 font-weight-light">by </span>
+                                                <span class="text-gray-light-2 font-weight-semibold">{{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : item.createdBy.emailId }}</span>
                                                 </span>
+                                              </div>
+
+                                            </div>
+
+
+                                            <div class="font-size-12 float-right" style="display: inline-block; padding-top:12px;">
+                                              <span class="float-right font-size-12 text-gray-light-2 font-weight-light">Created <span class="font-weight-semibold">{{item.createdAt | dateAgo}}</span></span><br/>
                                             </div>
                                         </div>
                                     </ng-template>
@@ -87,7 +114,11 @@
                 </div>
             </div>
         </div>
+        <!-- Search and Switch Project -->
 
+
+
+        <!-- show Create Project form -->
         <div class="steps-action" *ngIf="showCreateProject">
 
             <div class="text-center m-t-20 text-black">
@@ -254,9 +285,9 @@
                   <div class="col text-right">
 
                     <!-- cancel -->
-                    <button *ngIf="!createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess"><span>Cancel</span></button>
+                    <button *ngIf="!createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()" [disabled]="organizationCreationInProcess"><span>{{showCreateProject ? 'Cancel' : 'Close'}}</span></button>
 
-<!--                    <button *ngIf="createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"><span>Close</span></button>-->
+                    <!-- <button *ngIf="createdProjectId" nz-button nzType="default" nzSize="small" (click)="basicModalHandleCancel()"><span>Close</span></button>-->
                     <!-- cancel btn end -->
 
 
@@ -268,7 +299,7 @@
 
                       <button nz-button nzType="primary" nzSize="small" (click)="addTemplate()" *ngIf="showCreateProject && switchStepCurrent === 2" [nzLoading]="selectTemplateInProcess"><span>Done</span></button>
 
-                      <button *ngIf="!showCreateProject" nz-button nzShape="round" type="button" nzType="link" class="float-right" (click)="addNewProject()">+ Add New Project</button>
+                    <!-- <button *ngIf="!showCreateProject" nz-button nzShape="round" type="button" nzType="link" class="float-right" (click)="addNewProject()">+ Add New Project</button>-->
 
                   </div>
               </div>
