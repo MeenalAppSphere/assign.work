@@ -118,13 +118,13 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
   /**
    * get user role by type
    * @param projectId
-   * @param RoleTypeEnum
+   * @param roleType
    */
   async getUserRoleByType(projectId: string, roleType: RoleTypeEnum) {
     try {
 
       const userRole = await this.findOne({
-        filter: { projectId, type: roleType},
+        filter: { projectId, type: roleType },
         lean: true
       });
 
@@ -139,7 +139,6 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
       throw e;
     }
   }
-
 
   /**
    * get user role details by id
@@ -182,7 +181,7 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
         { projectId: userRole.projectId },
         {
           $or: [
-            { name: { $regex: `^${userRole.name.trim()}$`, $options: 'i' } },
+            { name: { $regex: `^${userRole.name.trim()}$`, $options: 'i' } }
           ]
         }
       ]
@@ -200,6 +199,36 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
     return !!(result && result.length);
   }
 
+  public async addMissingUserRoles() {
+    return this.withRetrySession(async (session: ClientSession) => {
+      const projects = await this._projectService.find({
+        filter: {}
+      });
+
+      if (projects && projects.length) {
+        for (const project of projects) {
+          project.id = project._id;
+          const userRoles = await this.createDefaultRoles(project, session);
+
+          if (userRoles && userRoles.length) {
+            const supervisorRole = userRoles[0];
+            const teamMemberRole = userRoles[1];
+
+            project.members = project.members.map((member, index) => {
+              if (index === 0) {
+                member.userRoleId = supervisorRole._id;
+              } else {
+                member.userRoleId = teamMemberRole._id;
+              }
+              return member;
+            });
+
+            await this._projectService.updateById(project._id, { $set: { members: project.members } }, session);
+          }
+        }
+      }
+    });
+  }
 
   /**
    * create default roles for project
@@ -207,7 +236,7 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
    * @param session
    */
   async createDefaultRoles(project: Project, session: ClientSession): Promise<Array<Document & UserRoleModel>> {
-    const defaultRoles = this._utilityService.prepareDefaultRoles(project, this._generalService.userId);
+    const defaultRoles = this._utilityService.prepareDefaultRoles(project);
 
     return await this.createMany(defaultRoles, session) as Array<Document & UserRoleModel>;
   }

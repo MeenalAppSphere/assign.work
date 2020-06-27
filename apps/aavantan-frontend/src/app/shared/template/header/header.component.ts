@@ -30,9 +30,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 export class HeaderComponent implements OnInit, OnDestroy {
   public currentProject: Project = null;
   public currentUser: User = null;
-  public projectDataSource:Project[] = [];
-  public projects:Project[] = [];
-  public isProjectSearching:boolean;
+  public projectDataSource: Project[] = [];
+  public projects: Project[] = [];
+  public isProjectSearching: boolean;
   public projectSearchKey: string;
 
   public searchProjectSubject$: Subject<string> = new Subject<string>();
@@ -148,8 +148,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
 
   public clearProjectSearchText() {
-   this.projectSearchKey = null;
-   this.projectDataSource = this.projects;
+    this.projectSearchKey = null;
+    this.projectDataSource = this.projects;
   }
 
   async switchProject(project: Project) {
@@ -162,10 +162,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     try {
       this.switchingProjectInProcess = true;
       await this._projectService.switchProject(json).toPromise();
-      this.router.navigate([''])
+      this.router.navigate(['']);
       this.switchingProjectInProcess = false;
       this.projectSearchKey = null;
-      this.router.navigate(['dashboard', 'project']);
+      this.router.navigate(['dashboard']);
     } catch (e) {
       this.switchingProjectInProcess = false;
     }

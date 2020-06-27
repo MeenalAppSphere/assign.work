@@ -183,11 +183,11 @@ export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
   ]
 };
 
-
 // default roles for new project
 export const DEFAULT_USER_ROLES: UserRoleModel[] = [
   { name: 'Supervisor', type: RoleTypeEnum.supervisor, accessPermissions: null, description: '', projectId: '' },
-  { name: 'Team Member', type: RoleTypeEnum.teamMember, accessPermissions: null, description: '', projectId: '' }
+  { name: 'Team Member', type: RoleTypeEnum.teamMember, accessPermissions: null, description: '', projectId: '' },
+  { name: 'Financier', type: RoleTypeEnum.financier, accessPermissions: null, description: '', projectId: '' },
 ];
 
 // default sal rounds for hashing the password

@@ -136,7 +136,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     });
 
 
-     await this.withRetrySession(async(session: ClientSession)=>{
+    await this.withRetrySession(async (session: ClientSession) => {
 
       // create default roles and getting first supervisor type role id and assign to project owner
       let createdRoles = await this._userRoleService.createDefaultRoles(newProject, session);
@@ -147,13 +147,14 @@ export class ProjectService extends BaseService<Project & Document> implements O
       const projectOwner = this._utilityService.prepareProjectMemberModel(userDetails, userRoleId);
 
       return this.updateById(newProject.id, {
-        $push:{
+        $push: {
           'members': projectOwner
         }
       }, session);
     });
     // get project by id and send it
-    return await this.getProjectDetails(newProject.id, true);;
+    return await this.getProjectDetails(newProject.id, true);
+    ;
   }
 
   /**
@@ -602,7 +603,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       // update project
       return await this.updateProjectHelper(model.projectId, { $set: { members: projectDetails.members } });
-    }catch(e) {
+    } catch (e) {
 
     }
   }
@@ -950,8 +951,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
       member.workingCapacity = secondsToHours(member.workingCapacity);
       member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
 
-      if(member.roleDetails) {
-         member.roleDetails.id = member.roleDetails._id;
+      if (member.roleDetails) {
+        member.roleDetails.id = member.roleDetails._id;
       }
 
       return member;

@@ -48,7 +48,7 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
     KeysPipe,
     NgxPermissionsModule
   ],
@@ -75,7 +75,7 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     NumericDirective,
     AddEpicComponent,
     ProfileNameComponent,
-    KeysPipe
+    KeysPipe,
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,

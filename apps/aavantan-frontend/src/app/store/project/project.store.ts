@@ -4,7 +4,6 @@ import { Store, StoreConfig } from '@datorama/akita';
 
 export interface ProjectState {
   projects: Project[];
-  getAllProjectInProcess: boolean;
   createProjectInProcess: boolean;
   createProjectSuccess: boolean;
   projectSwitchInProcess: boolean;
@@ -19,7 +18,6 @@ const initialState: ProjectState = {
   createProjectSuccess: false,
   projectSwitchInProcess: false,
   projectSwitchedSuccessfully: false,
-  getAllProjectInProcess:false,
 };
 
 @Injectable({ providedIn: 'root' })

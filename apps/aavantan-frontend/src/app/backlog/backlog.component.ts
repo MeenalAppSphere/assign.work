@@ -1,35 +1,10 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import {
-  AddTaskToSprintModel,
-  AppFilterStorageKeysEnum,
-  BoardColumns,
-  CloseSprintModel,
-  DraftSprint,
-  GetUnpublishedRequestModel,
-  Project,
-  ProjectMembers,
-  GetUnpublishedRequestModel, Project,
-  RemoveTaskFromSprintModel,
-  Sprint,
-  SprintBaseRequest,
-  SprintDurationsModel,
-  SprintErrorEnum,
-  SprintErrorResponse, SprintFilterTasksModel,
-  SprintTaskFilterModel,
-  StatusDDLModel,
-  Task,
-  TaskFilterCondition,
-  TaskTypeModel
-  TaskFilterModel, TaskStatusModel,
-  TaskTypeModel,
-  User, UserRoleModel
-} from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
-import { cloneDeep, uniqBy } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
@@ -38,6 +13,26 @@ import { combineLatest, Subject } from 'rxjs';
 import { auditTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AddTaskToSprintModel,
+  AppFilterStorageKeysEnum,
+  BoardColumns,
+  DraftSprint,
+  Project,
+  ProjectMembers,
+  Sprint,
+  SprintDurationsModel,
+  SprintErrorEnum,
+  SprintErrorResponse,
+  SprintFilterTasksModel,
+  SprintTaskFilterModel,
+  StatusDDLModel,
+  Task,
+  TaskFilterCondition,
+  TaskFilterModel,
+  TaskStatusModel,
+  TaskTypeModel
+} from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-backlog',

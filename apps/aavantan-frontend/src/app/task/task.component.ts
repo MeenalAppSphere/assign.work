@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {
-  AddCommentModel, AddTaskToSprintModel,
+  AddCommentModel,
+  AddTaskToSprintModel,
   BasePaginatedResponse,
   BaseResponseModel,
   CommentPinModel,
@@ -10,11 +11,14 @@ import {
   GetTaskHistoryModel,
   Mention,
   Project,
-  ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectTags, RemoveTaskFromSprintModel,
+  ProjectStages,
+  ProjectTags,
+  RemoveTaskFromSprintModel,
   SearchProjectCollaborators,
-  Sprint, SprintDurationsModel, SprintErrorEnum, SprintErrorResponse,
+  Sprint,
+  SprintErrorEnum,
+  SprintErrorResponse,
   Task,
   TaskComments,
   TaskHistory,
@@ -25,7 +29,8 @@ import {
   TaskTimeLogResponse,
   TaskTypeModel,
   UpdateCommentModel,
-  User, UserRoleModel
+  User,
+  UserRoleModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -45,7 +50,6 @@ import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query'
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { SprintService } from '../shared/services/sprint/sprint.service';
-import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'aavantan-app-task',

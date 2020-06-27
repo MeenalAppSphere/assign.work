@@ -29,12 +29,12 @@ export class UserRoleUtilityService {
 
   }
 
-
   /**
    * prepare default role model for new project
    * @param project
+   * @param userId
    */
-  public prepareDefaultRoles(project: Project, userId:string): UserRoleModel[] {
+  public prepareDefaultRoles(project: Project): UserRoleModel[] {
     const roles: UserRoleModel[] = [];
     DEFAULT_USER_ROLES.forEach(defaultRoles => {
       const role = new UserRoleModel();
@@ -42,33 +42,29 @@ export class UserRoleUtilityService {
 
       const allowedPermissions = cloneDeep(PERMISSIONS);
 
-      if(defaultRoles.type === RoleTypeEnum.supervisor) {
-
+      if (defaultRoles.type === RoleTypeEnum.supervisor) {
         //All permissions allowed
         Object.keys(allowedPermissions).forEach(key => {
           Object.keys(allowedPermissions[key]).forEach(childKey => {
-            allowedPermissions[key][childKey]=true
+            allowedPermissions[key][childKey] = true;
           });
         });
 
         roleType = RoleTypeEnum.supervisor;
-
       } else {
-
         //only 4 permissions allowed
         allowedPermissions.sprint.canCreate_sprint = true;
         allowedPermissions.sprint.canAddTaskToSprint_sprint = true;
         allowedPermissions.task.canUpdateEstimate_task = true;
         allowedPermissions.task.canAdd_task = true;
         roleType = RoleTypeEnum.teamMember;
-
       }
 
       role.accessPermissions = allowedPermissions;
       role.type = roleType;
       role.name = defaultRoles.name;
       role.projectId = project.id;
-      role.createdById = userId;
+      role.createdById = project.createdById;
       role.description = `${defaultRoles.name} is a default role which is provided with new Project`;
 
       roles.push(role);
@@ -76,5 +72,4 @@ export class UserRoleUtilityService {
 
     return roles;
   }
-
 }
