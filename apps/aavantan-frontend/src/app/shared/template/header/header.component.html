@@ -27,7 +27,7 @@
       </li>
 
       <li>
-        <span class="d-block font-size-12 m-l-10">Project</span>
+        <span class="d-block font-size-12 m-l-10">Project<span class="text-gray-light-2 font-size-11 p-l-10">Ctrl/Cmd + j</span></span>
         <a href="javascript:void(0);" nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomLeft'" class="project-name-btn dark-blue-black">
           <span class="p-r-10">{{ currentProject?.name }}</span> <i nz-icon nzType="down" class="font-size-10"></i>
         </a>
@@ -51,7 +51,7 @@
           <ul nz-menu class="project-ddls">
 
             <li *ngFor="let item of projectDataSource" nz-menu-item (click)="switchProject(item)">
-              <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
+              <nz-avatar [nzShape]="'square'"  [ngStyle]="{'background': item.color}" [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
               <span>{{item.name}}</span>
             </li>
             <li class="text-center p-t-30 p-b-30 text-muted" *ngIf="projectDataSource?.length===0">
