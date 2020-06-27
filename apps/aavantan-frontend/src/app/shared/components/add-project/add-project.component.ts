@@ -26,6 +26,7 @@ import { TaskTypeService } from '../../services/task-type/task-type.service';
 import { UserRoleService } from '../../services/user-role/user-role.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ProjectQuery } from '../../../queries/project/project.query';
+import { COLORS } from '../../../shared/constant/color.constant'
 
 
 @Component({
@@ -95,6 +96,14 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
     this.showCreateProject = !(this.projectList && this.projectList.length > 0);
 
+    // assign color to each projects
+    if(this.projectList && this.projectList.length > 0) {
+        this.projectList.map((project, index) => {
+          const colorIndex = index % COLORS.length; // return remainder
+          project.color = COLORS[colorIndex];
+        });
+    }
+
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(project => {
       this.currentProject = project;
     });
@@ -104,7 +113,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.projectListSearch = res;
         this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
 
-        if(this.projectListSearch.length >0 ){
+        if(this.projectListSearch.length === 0 ) {
           this.isProjectNotFound = true;
         }
       } else {
@@ -132,7 +141,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this._projectService.searchProject(this.searchProjectText).subscribe((data) => {
           this.projectListSearch = data.data;
           this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
-          if(this.projectListSearch.length >0 ){
+          if(this.projectListSearch.length === 0 ){
             this.isProjectNotFound = true;
           }
           this.isSearching = false;

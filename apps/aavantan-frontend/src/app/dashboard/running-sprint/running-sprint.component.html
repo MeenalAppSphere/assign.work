@@ -59,7 +59,7 @@
           </div>
 
 
-          <div class="header-btn-group">
+          <div class="header-btn-group" *ngxPermissionsOnly="['canClose_sprint']">
 
             <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="btn-add-task m-r-5 m-l-10"
                     (click)="toggleCloseSprintShow()">Close Sprint

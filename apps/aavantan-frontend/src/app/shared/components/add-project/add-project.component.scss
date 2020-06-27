@@ -24,7 +24,7 @@
     padding: 0px 32px;
 
     .recent-item {
-      margin-right: 15px;
+      margin-right: 22px;
       display: inline-block;
       cursor: pointer;
       padding: 10px;
@@ -73,7 +73,7 @@
     }
 
     .recent-item:last-child {
-      margin-right: 0px;
+      margin-right: -12px;
     }
 
   }

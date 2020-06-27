@@ -54,7 +54,7 @@
               <nz-avatar [nzShape]="'square'"  [ngStyle]="{'background': item.color}" [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
               <span>{{item.name}}</span>
             </li>
-            <li class="text-center p-t-30 p-b-30 text-muted" *ngIf="projectDataSource?.length===0">
+            <li class="text-center p-t-30 p-b-30 text-muted" *ngIf="isProjectNotFound">
               <img src="../../../../assets/images/not-found/no-data.svg" height="80px" class="m-b-10"/>
               <p>Not Found</p>
             </li>

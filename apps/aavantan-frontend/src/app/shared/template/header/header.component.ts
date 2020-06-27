@@ -51,6 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public isExpand: boolean;
   public selectedOrgId: string = null;
   public switchingProjectInProcess: boolean;
+  public isProjectNotFound: boolean;
 
   notificationList = [
     // {
@@ -96,6 +97,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       if (res) {
         this.projects = res;
         this.projectDataSource = res;
+        this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
+        if(this.projectDataSource.length === 0 ){
+          this.isProjectNotFound = true;
+        }
       }
     });
 
@@ -111,6 +116,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.isProjectSearching = true;
       this._projectService.searchProject(val).subscribe((data) => {
         this.projectDataSource = data.data;
+        this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
+        if(this.projectDataSource.length === 0 ){
+          this.isProjectNotFound = true;
+        }
         this.isProjectSearching = false;
       });
 

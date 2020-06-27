@@ -96,7 +96,7 @@
                   <thead>
                   <tr>
 
-                    <th class="text-center td-sn" data-label="#">#</th>
+                    <th *ngxPermissionsOnly="['canRemoveTaskToSprint_sprint']" class="text-center td-sn" data-label="#">#</th>
 
                     <th class="text-left td-priority">
                       <span>Priority</span>
@@ -156,8 +156,8 @@
                   <tbody>
                   <tr *ngFor="let item of sprintListViewTable.data">
 
-                    <td data-label="#" class="text-center td-sn">
-                      <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
+                    <td *ngxPermissionsOnly="['canRemoveTaskToSprint_sprint']" data-label="#" class="text-center td-sn">
+                        <i (click)="removeTaskFromSprint(item)" nz-icon nzType="close-circle"
                          class="remove-item cursor-pointer text-muted" theme="fill"></i>
                     </td>
 
@@ -242,7 +242,7 @@
   <!-- backlog section -->
   <section ngClass="{{unPublishedSprintData && unPublishedSprintData.id ? 'm-t-30' : 'm-t-10'}}">
 
-    <div class="row m-b-10">
+  <div class="row m-b-10">
 
       <div class="col d-inline-flex ant-row-flex-space-between">
 
@@ -311,7 +311,7 @@
 
       <div class="col text-right p-l-0" style="max-width: 120px;"
            *ngIf="!activeSprintData?.id && !unPublishedSprintData?.id">
-        <button nz-button nzSize="small"
+        <button *ngxPermissionsOnly="['canCreate_sprint']" nz-button nzSize="small"
                 nzType="{{!unPublishedSprintData?.id && backLogTasksList && backLogTasksList.length > 0 ? 'primary' : 'default'}}"
                 (click)="toggleAddSprint()">Create Sprint
         </button>
@@ -331,10 +331,8 @@
           [nzSpinning]="getBacklogTasksInProcess || addTaskToSprintInProgress || removeTaskFromSprintInProgress"
           [nzTip]="backLogTableLoadingTip">
 
-
           <!-- empty backlog tasks container -->
           <ng-container *ngIf="backLogTasksList && backLogTasksList.length === 0">
-
 
             <div class="backlog-sprint-box">
               <nz-empty
@@ -430,8 +428,10 @@
 
                 <td data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id" class="text-center">
 
-                  <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox
-                         (nzCheckedChange)="addTaskToSprint(item, $event)"></label>
+                  <span *ngxPermissionsOnly="['canAddTaskToSprint_sprint']">
+                    <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox
+                               (nzCheckedChange)="addTaskToSprint(item, $event)"></label>
+                  </span>
 
 
                   <i *ngIf="(!item.assignee || !item.estimatedTime)"
@@ -517,7 +517,7 @@
     <!-- backlog task list container -->
 
     <!-- create backlog button -->
-    <div ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
+    <div *ngxPermissionsOnly="['canAdd_task']" ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
       <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13"
          (click)="addTaskNavigate()">+ Create Backlog</a>
     </div>
@@ -587,9 +587,12 @@
 
 
     <div class="col-md-4 text-right" (click)="$event.stopPropagation()">
-      <span *ngIf="(unPublishedSprintData?.id)">
-        <button class="m-l-10" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
-                nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
+
+      <span *ngxPermissionsOnly="['canCreate_sprint']">
+        <span *ngIf="(unPublishedSprintData?.id)">
+          <button class="m-l-10" [disabled]="!draftTaskList?.length" [nzLoading]="publishSprintInProcess"
+                  nzType="primary" nzSize="small" nz-button (click)="publishSprint()">Publish Sprint</button>
+        </span>
       </span>
 
       <button *ngIf="unPublishedSprintData?.id" nzSize="32" class="m-l-10" nz-button
@@ -599,16 +602,17 @@
 
       <nz-dropdown-menu #menu1="nzDropdownMenu">
         <ul nz-menu>
-          <li nz-menu-item (click)="toggleAddSprint()">Edit Sprint</li>
+          <li *ngxPermissionsOnly="['canUpdate_sprint']" nz-menu-item (click)="toggleAddSprint()">Edit Sprint</li>
           <li nz-menu-item (click)="toggleTeamCapacity()">Edit Capacity</li>
         </ul>
       </nz-dropdown-menu>
 
-      <button *ngIf="activeSprintData?.id"
-              nzType="default" nzSize="small" nz-button class="btn-add-task m-l-10"
-              (click)="toggleCloseSprintShow()">Close Sprint
-      </button>
-
+      <span *ngxPermissionsOnly="['canClose_sprint']">
+        <button *ngIf="activeSprintData?.id"
+                nzType="default" nzSize="small" nz-button class="btn-add-task m-l-10"
+                (click)="toggleCloseSprintShow()">Close Sprint
+        </button>
+      </span>
     </div>
 
   </div>
