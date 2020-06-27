@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="projectModalIsVisible" nzClassName="project-modal" nzFooter="#nzModalFooter" nzWidth="755" nzClosable="false">
+<nz-modal [(nzVisible)]="projectModalIsVisible" nzClassName="project-modal" nzFooter="#nzModalFooter" nzWidth="700" nzClosable="false">
 
 
     <nz-spin nzTip="Setting up..." [nzSpinning]="switchingProjectInProcess">
@@ -21,7 +21,7 @@
                 <span class="p-l-15"><i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i></span>
               </ng-template>
               <ng-template #suffixIconSearch>
-                <span class="text-gray-light-2 font-size-16 p-r-20">Ctrl / Cmd + j</span>
+                <span class="text-gray-light-2 font-size-14 p-r-20">Ctrl / Cmd + j</span>
               </ng-template>
             </nz-form-control>
           </nz-form-item>
@@ -29,7 +29,7 @@
             <div class="horizontal-list">
               <h4 class="font-size-14 text-gray-light m-b-15">Recent Project</h4>
 
-              <div class="recent-item" (click)="addNewProject()">
+              <div class="recent-item" (click)="addNewProject()" style="margin-left:-12px;">
                 <div class="project-box add-project">
                   <img src="../../../../assets/images/icons/icon_add_project.svg">
                 </div>
@@ -49,8 +49,8 @@
                   <ng-template #projectTooltip>
                     <span>
                       <div>{{item.name}}</div>
-                      <div class="font-size-12 text-white">Created at {{item.createdAt | dateAgo}}</div>
-                      <div class="font-size-12 text-white"><span>by {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span></div>
+                      <div class="font-size-11 text-white">Created at {{item.createdAt | dateAgo}}</div>
+                      <div class="font-size-11 text-white"><span>by {{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : 'NA'}}</span></div>
                     </span>
                   </ng-template>
                 </div>
@@ -85,24 +85,24 @@
                                         <div class="project-header-title d-flex justify-content-between">
 
                                             <div class="d-flex">
-                                              <nz-avatar [nzSize]="44" nzShape="square" class="m-r-10 text-uppercase"
+                                              <nz-avatar [nzSize]="34" nzShape="square" class="m-r-10 text-uppercase"
                                                          nzText="{{item.name | slice : 0:2}}"
                                                          [ngStyle]="{'background': item.color}"
                                               ></nz-avatar>
 
                                               <div >
-                                                <div class="text-black">{{item.name}}</div>
-                                                <span class="font-size-12">
-                                                <span class="text-gray-light-2 font-weight-light">by </span>
-                                                <span class="text-gray-light-2 font-weight-semibold">{{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : item.createdBy.emailId }}</span>
+                                                <div class="text-black font-size-13" style="line-height: 15px;">{{item.name}}</div>
+                                                <span class="font-size-10">
+                                                  <span class="text-gray-light-2 font-weight-light">by </span>
+                                                  <span class="text-gray-light-2 font-weight-semibold">{{item.createdBy && item.createdBy.firstName ? item.createdBy.firstName : item.createdBy.emailId }}</span>
                                                 </span>
                                               </div>
 
                                             </div>
 
 
-                                            <div class="font-size-12 float-right" style="display: inline-block; padding-top:12px;">
-                                              <span class="float-right font-size-12 text-gray-light-2 font-weight-light">Created <span class="font-weight-semibold">{{item.createdAt | dateAgo}}</span></span><br/>
+                                            <div class="float-right" style="display: inline-block; padding-top:6px;">
+                                              <span class="font-size-11 text-gray-light-2 font-weight-light">Created <span class="font-weight-semibold">{{item.createdAt | dateAgo}}</span></span><br/>
                                             </div>
                                         </div>
                                     </ng-template>
