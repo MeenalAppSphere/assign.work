@@ -17,8 +17,8 @@
                 <input placeholder="Search Project" (ngModelChange)="changed()" [(ngModel)]="searchProjectText" nz-input nzSize="small" />
               </nz-input-group>
               <ng-template #prefixIconSearch>
-                <img class="m-l-15" style="padding-bottom:2px;" src="../../../../assets/images/icons/search_switch_project.svg"  *ngIf="!isSearching">
-                <span class="p-l-15"><i class="fas fa-spin fa-spinner" *ngIf="isSearching"></i></span>
+                <img class="m-l-15" style="padding-bottom:2px;" src="../../../../assets/images/icons/search_switch_project.svg" style="width: 16px;" *ngIf="!isSearching">
+                <span class="p-l-15"><i class="fas fa-spin fa-spinner font-size-16" *ngIf="isSearching"></i></span>
               </ng-template>
               <ng-template #suffixIconSearch>
                 <span class="text-gray-light-2 font-size-14 p-r-20">Ctrl / Cmd + j</span>
