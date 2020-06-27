@@ -582,16 +582,46 @@ export class ProjectService extends BaseService<Project & Document> implements O
     return await this.updateProjectHelper(id, { $set: { members: projectDetails.members } });
   }
 
-
   /**
    * update collaborator role
-   * @param id: project id
-   * @param userRoleId: userRoleId
+   * @param model
    */
   async updateCollaboratorRole(model: UserRoleUpdateRequestModel) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // project details
+      const projectDetails: Project = await this.findById(model.projectId);
 
-    try {
-      const projectDetails: Project = await this.getProjectDetails(model.projectId);
+      // if there's only one member in project than don't allow him/her to change his/her role
+      if (projectDetails.members.length === 1) {
+        BadRequest('At least one supervisor is needed in Project');
+      }
+
+      // get project members details
+      const projectMemberRolesDetails = await this._userRoleService.getAllUserRoles(model.projectId);
+
+      // get current member details
+      const memberDetails = projectDetails.members.find(member => member.userId.toString() === model.userId);
+      // get current role details for a member
+      const memberCurrentRoleDetails = projectMemberRolesDetails.find(memberRole => {
+        return memberRole._id.toString() === memberDetails.userRoleId.toString();
+      });
+
+      // check if member is supervisor and he/she changing his/her role from supervisor then assure that project have at-least one supervisor
+      if (memberCurrentRoleDetails.type === RoleTypeEnum.supervisor) {
+        const isThereOtherSuperVisor: boolean = projectDetails.members
+          .filter(member => member.userId.toString() !== memberDetails.userId.toString())
+          .some(member => {
+            const roleDetails = projectMemberRolesDetails.find(memberRole => {
+              return memberRole._id.toString() === member.userRoleId.toString();
+            });
+            return roleDetails.type === RoleTypeEnum.supervisor;
+          });
+
+        // if no supervisor than throw error
+        if (!isThereOtherSuperVisor) {
+          BadRequest('At least one supervisor is needed in Project');
+        }
+      }
 
       // loop over members and set details that we got in request
       projectDetails.members = projectDetails.members.map(pd => {
@@ -602,12 +632,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
       });
 
       // update project
-      return await this.updateProjectHelper(model.projectId, { $set: { members: projectDetails.members } });
-    } catch (e) {
+      return await this.updateById(model.projectId, { $set: { members: projectDetails.members } }, session);
+    });
 
-    }
+    // return updated project details
+    return await this.getProjectDetails(model.projectId, true);
   }
-
 
   /**
    * get all projects with pagination

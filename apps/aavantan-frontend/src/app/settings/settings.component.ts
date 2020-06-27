@@ -186,7 +186,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   ];
   // for permission
-  public currentUserRole:UserRoleModel;
+  public currentUserRole: UserRoleModel;
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
@@ -198,13 +198,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
               private _userRolesService: UserRoleService,
               private _userRoleQuery: UserRoleQuery) {
 
-              this.notification.config({
-                nzPlacement: 'bottomRight'
-              });
+    this.notification.config({
+      nzPlacement: 'bottomRight'
+    });
 
-              this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
-              this.getBoardListRequestModal.count = 20;
-              this.getBoardListRequestModal.page = 1;
+    this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
+    this.getBoardListRequestModal.count = 20;
+    this.getBoardListRequestModal.page = 1;
   }
 
   ngOnInit(): void {
@@ -242,7 +242,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
           this.bindProjectForm();
         }
       });
-
 
 
     // get all boards
@@ -292,14 +291,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentUserRole = res;
-        if(this.currentUserRole.type===RoleTypeEnum.supervisor) {
-          const tab:SettingPageTab = {
-            label: 'Security',
+        const securityTabIndex = this.tabs.findIndex(tab => tab.id === 'security');
+
+        if (this.currentUserRole.type === RoleTypeEnum.supervisor) {
+          if (securityTabIndex === -1) {
+            const tab: SettingPageTab = {
+              label: 'Security',
               id: 'security',
-            icon: 'security.svg',
-            iconActive: 'white_security.svg'
+              icon: 'security.svg',
+              iconActive: 'white_security.svg'
+            };
+            this.tabs.push(tab);
           }
-          this.tabs.push(tab);
+        } else {
+          if (securityTabIndex > -1) {
+            this.tabs.splice(securityTabIndex, 1);
+          }
         }
       }
     });
@@ -476,7 +483,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.getBoardListRequestModal.count = result.data.count;
       this.getBoardListRequestModal.totalItems = result.data.totalItems;
       this.getBoardListRequestModal.totalPages = result.data.totalPages;
-    } catch (e) {}
+    } catch (e) {
+    }
   }
 
   public activeTab(view: string, title: string) {
@@ -484,7 +492,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (view === 'board_settings') {
       this.getAllBoards();
     }
-    if(view === 'security') {
+    if (view === 'security') {
       this.initPermissionData(); // init roleData object
     }
     this.activeView = {
@@ -496,6 +504,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*=======================================================*/
   /*================== Project tab ==================*/
+
   /*=======================================================*/
 
   public selectTaskType(item: TaskTypeModel) {
@@ -610,8 +619,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else {
       emailData = this.selectedCollaborator.emailId;
     }
-    emailData= emailData.trim();
-    if(this.projectMembersList && this.projectMembersList.length>0 && this.projectMembersList.find(ele => ele.emailId === emailData)){
+    emailData = emailData.trim();
+    if (this.projectMembersList && this.projectMembersList.length > 0 && this.projectMembersList.find(ele => ele.emailId === emailData)) {
       this.collaboratorForm.get('collaborator').patchValue('');
       this.notification.error('Error', 'This user already invited/added in this Project');
       return;
@@ -665,6 +674,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================== Stage tab ==================*/
+
   /*===============================================*/
 
   public addStage() {
@@ -707,6 +717,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================== Status tab =================*/
+
   /*===============================================*/
 
   public toggleMoveStatusShow(data: any) {
@@ -724,6 +735,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================== Priority tab ===============*/
+
   /*===============================================*/
 
   public toggleAddPriorityShow(item?: ProjectPriority) {
@@ -737,6 +749,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================= Task Type tab ===============*/
+
   /*===============================================*/
 
   public toggleAddTaskTypeShow(item?: TaskTypeModel) {
@@ -750,6 +763,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*==================== Capacity =================*/
+
   /*===============================================*/
 
   public selectDay(wd: ProjectWorkingDays, userRow: ProjectMembers) {
@@ -821,6 +835,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================== Project Tab ================*/
+
   /*===============================================*/
 
   public updateProjectDetails(project: Partial<Project>) {
@@ -846,6 +861,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================== Workflow Tab ===============*/
+
   /*===============================================*/
 
   public editBoard(boardId: string) {
@@ -915,7 +931,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   // Generate Permissions List from object
   //**********************//
   public initPermissionData() {
-    this.roleData = { name: '', accessPermissions: cloneDeep(this.permissionConst), description:''};
+    this.roleData = { name: '', accessPermissions: cloneDeep(this.permissionConst), description: '' };
   }
 
   public generatePermissionsList(permissionConstantObj: Permissions) {
@@ -1040,5 +1056,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.userRoleForm.get('accessPermissions').patchValue(this.roleData.accessPermissions);
   }
 
-  public ngOnDestroy(): void {}
+  public ngOnDestroy(): void {
+  }
 }

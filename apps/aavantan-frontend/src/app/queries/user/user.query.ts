@@ -10,10 +10,10 @@ export class UserQuery extends Query<UserState> {
   currentOrganization$ = this.select(s => s.currentOrganization);
   user$ = this.select(s => s.user);
   userRole$ = this.select(s => {
-    if(s.currentProject.members && s.currentProject.members.length) {
-      const role:ProjectMembers = s.currentProject.members.find(member => member.userId === s.user.id);
+    if (s.currentProject.members && s.currentProject.members.length) {
+      const role: ProjectMembers = s.currentProject.members.find(member => member.userId === s.user.id);
       return role.roleDetails;
-    }else {
+    } else {
       return false;
     }
   });

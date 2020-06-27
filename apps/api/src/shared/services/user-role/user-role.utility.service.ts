@@ -51,6 +51,10 @@ export class UserRoleUtilityService {
         });
 
         roleType = RoleTypeEnum.supervisor;
+      } else if (defaultRoles.type === RoleTypeEnum.financier) {
+        allowedPermissions.task.canUpdateEstimate_task = true;
+        allowedPermissions.task.canAdd_task = true;
+        roleType = RoleTypeEnum.financier;
       } else {
         //only 4 permissions allowed
         allowedPermissions.sprint.canCreate_sprint = true;
