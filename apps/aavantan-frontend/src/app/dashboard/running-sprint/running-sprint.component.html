@@ -332,3 +332,9 @@
 <app-close-sprint *ngIf="isVisibleCloseSprint" [closeSprintModalIsVisible]="isVisibleCloseSprint"
                   [activeSprintData]="boardData" [currentProject]="currentProject"
                   (toggleCloseSprintShow)="toggleCloseSprintShow()"></app-close-sprint>
+
+
+<ng-template #boardUpdatedNotificationTemplate>
+  Board updated, please refresh to see changes
+  <button nz-button nzSize="small" (click)="getBoardData()">Refresh</button>
+</ng-template>

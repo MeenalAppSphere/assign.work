@@ -1,8 +1,8 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild, TemplateRef } from '@angular/core';
 import {
   AppFilterStorageKeysEnum,
   BaseResponseModel,
-  MoveTaskToColumnModel,
+  MoveTaskToColumnModel, NotificationTypeEnum,
   Project,
   ProjectStatus,
   RemoveTaskFromSprintModel,
@@ -26,6 +26,7 @@ import { cloneDeep } from 'lodash';
 import { TaskTypeQuery } from '../../queries/task-type/task-type.query';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'aavantan-app-board',
@@ -33,6 +34,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   styleUrls: ['./running-sprint.component.scss']
 })
 export class RunningSprintComponent implements OnInit, OnDestroy {
+  @ViewChild('boardUpdatedNotificationTemplate', { static: false }) boardUpdatedNotificationTemplate: TemplateRef<{}>;
 
   public boardData: Sprint;
   public boardDataClone: Sprint;
@@ -66,9 +68,8 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
               private _sprintService: SprintService,
               private _taskTypeQuery: TaskTypeQuery,
               protected notification: NzNotificationService,
-              private modalService: NzModalService,
               private _userQuery: UserQuery, private router: Router,
-              private modal: NzModalService) {
+              private modal: NzModalService, private socket: Socket) {
 
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -127,6 +128,11 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
       createAndPublishNewSprint: new FormControl(true)
     });
 
+    // board updated
+    this.socket.on(NotificationTypeEnum.boardUpdated, () => {
+      this.notification.template(this.boardUpdatedNotificationTemplate)
+    });
+
   }
 
   public filterTask(user: User) {
@@ -155,6 +161,7 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
   }
 
   async getBoardData() {
+    this.notification.remove();
     this.isFilterApplied = !!(this.filterSprintTasksRequest.assigneeIds.length);
     try {
       // set filter to storage

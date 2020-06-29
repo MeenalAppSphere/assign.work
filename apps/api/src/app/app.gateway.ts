@@ -191,7 +191,18 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   sprintBoardUpdated(sprint: Sprint, project: Project) {
-    const msg = ``;
+    const msg = `Board Updated`;
+    const link = `${environment.APP_URL}dashboard/running-sprint`;
+
+
+    this.filterOutNonSprintMembers(sprint, this._generalService.userId).forEach((value, socketId) => {
+      this.server.to(socketId).emit(NotificationTypeEnum.boardUpdated, {
+        msg,
+        link,
+        projectId: project._id,
+        projectName: project.name
+      });
+    });
   }
 
   /**
@@ -229,6 +240,21 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ...this.connectedClients
       ].filter(([key, value]) => {
         return task.watchers.some(member => member.toString() === value && (member.toString() !== exceptThisId.toString()));
+      })
+    );
+  }
+
+  /**
+   * filter out non sprint members from clients list
+   * @param sprint
+   * @param {string} exceptThisId
+   * @return {Map<string, string>}
+   */
+  private filterOutNonSprintMembers(sprint: Sprint, exceptThisId: string): Map<string, string> {
+    return new Map<string, string>([
+        ...this.connectedClients
+      ].filter(([key, value]) => {
+        return sprint.membersCapacity.some(member => member.userId.toString() === value && (member.userId.toString() !== exceptThisId.toString()));
       })
     );
   }

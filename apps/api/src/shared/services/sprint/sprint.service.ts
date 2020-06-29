@@ -1210,18 +1210,14 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     }
 
     // create task history
-    const taskHistory = new TaskHistory();
-    taskHistory.desc = TaskHistoryActionEnum.addedToSprint;
-    taskHistory.action = TaskHistoryActionEnum.addedToSprint;
-    taskHistory.createdAt = generateUtcDate();
-    taskHistory.createdById = this._generalService.userId;
-    taskHistory.taskId = taskDetails.id;
-    taskHistory.sprintId = sprintDetails.id;
-
+    const taskHistory = this._taskHistoryService.createHistoryObject(TaskHistoryActionEnum.addedToSprint, taskDetails.id, taskDetails, sprintDetails.id);
     await this._taskHistoryService.addHistory(taskHistory, session);
 
     // update task by id and set sprint id
     await this._taskService.updateById(taskDetails.id, { $set: { sprintId: sprintDetails.id } }, session);
+
+    // send notification for board updated
+    this._appGateWay.sprintBoardUpdated(sprintDetails, project);
 
     return {
       totalCapacity: sprintDetails.totalCapacity,
