@@ -338,7 +338,7 @@
                                     [nzLabel]="option && option.firstName ? option.firstName : option.emailId"
                                     [nzValue]="option">
                       <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"
-                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                                 [nzShape]="'circle'" [nzSize]="22" [nzIcon]="'user'"></nz-avatar>
                       <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
                       <span *ngIf="option && option.lastName">{{ option && option.lastName }}</span>
                       <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small
@@ -815,8 +815,8 @@
 
               <div class="col-md-4 col-lg-3">
                 <span class="sn">{{i + 1}}.</span>
-                <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''"
-                           [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+                <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" style="font-size: 10px!important;"
+                           [nzShape]="'circle'" [nzSize]="22" [nzText]="item.userDetails.firstName | slice : 0:1" class="text-black"></nz-avatar>
 
                 <span class="p-l-5"
                       *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>

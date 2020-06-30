@@ -150,4 +150,11 @@ p {
     color: $color-gray-light;
     font-weight: 500;
   }
+
+  .td-item-id, .td-item-status {
+    width:15%;
+  }
+  .td-item-assignee {
+    width:20%;
+  }
 }

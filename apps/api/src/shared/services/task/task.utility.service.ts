@@ -37,10 +37,10 @@ const taskSchemaKeysMapper = new Map<string, string>([
  */
 const taskSortingKeysMapper = new Map<string, string>([
   ['name', 'name'],
-  ['createdBy', 'createdBy.name'],
-  ['createdById', 'createdBy.name'],
-  ['assignee', 'assignee.name'],
-  ['assigneeId', 'assignee.name'],
+  ['createdBy', 'createdBy.firstName'],
+  ['createdById', 'createdBy.firstName'],
+  ['assignee', 'assignee.firstName'],
+  ['assigneeId', 'assignee.firstName'],
   ['taskType', 'taskType.name'],
   ['taskTypeId', 'taskType.name'],
   ['priority', 'priority.name'],

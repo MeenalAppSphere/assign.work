@@ -23,6 +23,8 @@ import { Router } from '@angular/router';
 import { TaskStatusService } from '../../services/task-status/task-status.service';
 import { TaskPriorityService } from '../../services/task-priority/task-priority.service';
 import { TaskTypeService } from '../../services/task-type/task-type.service';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { ProjectQuery } from '../../../queries/project/project.query';
 
 
 @Component({
@@ -50,6 +52,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public response: any;
   public currentOrganization: Organization;
+  public currentProject: Project;
   public organizations: Organization[];
   public organizationCreationInProcess: boolean = false;
 
@@ -67,7 +70,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public searchProjectText: string;
   public modelChanged = new Subject<string>();
   public isSearching: boolean;
-  public searchSatarted:boolean;
+  public searchSatarted: boolean;
+  public isProjectNotFound: boolean;
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
@@ -76,7 +80,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
-              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService) {
+              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
+              private _projectQuery: ProjectQuery) {
     // this.getAllUsers();
   }
 
@@ -87,6 +92,26 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this.projectList = this._generalService.user.projects as Project[];
 
     this.showCreateProject = !(this.projectList && this.projectList.length > 0);
+
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(project => {
+      this.currentProject = project;
+    });
+
+    this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.projectListSearch = res;
+        this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
+
+        if(this.projectListSearch.length >0 ){
+          this.isProjectNotFound = true;
+        }
+      } else {
+        // get all project limit 10 store in 'projects' store
+        this._projectService
+          .getAllProject({ organizationId: this._generalService.currentOrganization.id }).subscribe();
+      }
+    });
+
 
     this.createFrom();
 
@@ -104,12 +129,14 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.isSearching = true;
         this._projectService.searchProject(this.searchProjectText).subscribe((data) => {
           this.projectListSearch = data.data;
+          this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
+          if(this.projectListSearch.length >0 ){
+            this.isProjectNotFound = true;
+          }
           this.isSearching = false;
         });
 
       });
-
-    this.projectListSearch = this.projectListData;
 
 
     // search collaborators
@@ -162,6 +189,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
 
   async switchProject(project: Project) {
+    if (project.id === this.currentProject.id) {
+      return;
+    }
 
     const json: SwitchProjectRequest = {
       organizationId: this._generalService.currentOrganization.id,
@@ -234,7 +264,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   basicModalHandleCancel() {
     this.toggleShow.emit();
-    this.router.navigate(['dashboard']);
   }
 
   async saveProject() {

@@ -7,7 +7,7 @@
 <div class="side-nav" sideNav joyrideStep="main-menu">
 
 
-    <nz-avatar *ngIf="isFolded" [nzShape]="'square'"  [nzSize]="38" class="icon-org text-uppercase cursor-pointer" nz-dropdown [nzDropdownMenu]="menu" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
+    <nz-avatar *ngIf="isFolded" [nzShape]="'square'"  [nzSize]="38" class="icon-org text-uppercase cursor-pointer" [nzClickHide]="true" nzTrigger="click"  nz-dropdown [nzDropdownMenu]="menu" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
 
 
     <div class="cursor-pointer p-15 p-l-20 m-b-10 org-name" *ngIf="!isFolded">
