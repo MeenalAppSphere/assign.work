@@ -38,14 +38,22 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      width: 45px;
+      min-width: 25px;
       display: inline-block;
       line-height: 12px;
+      max-width: 45px;
     }
 
     .aw-badge-close {
       padding: 0px 10px 0px 5px;
       line-height: 12px;
+      cursor: pointer;
+      img {
+        transition: transform .2s;
+        &:hover {
+          transform: scale(1.35);
+        }
+      }
     }
   }
 

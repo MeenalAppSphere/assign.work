@@ -1,18 +1,24 @@
 <div class="aw-status-dropdown">
-  <nz-button-group nzTrigger="click" nz-dropdown [nzDropdownMenu]="awStatusDDL" nzPlacement="bottomLeft" >
-    <button nz-button class="d-inline-flex">
+  <nz-button-group >
+    <button nz-button class="d-inline-flex" nzTrigger="click" nz-dropdown [nzDropdownMenu]="awStatusDDL" nzPlacement="bottomLeft" >
       <img src="../../../../assets/images/icons/filter.svg" /> <span class="text-black1 font-size-12 font-weight-bold p-l-5">Status</span>
     </button>
     <div class="badges">
-        <span class="aw-badge"><span class="aw-badge-text">In Developmemt</span><span class="aw-badge-close"><img src="../../../../assets/images/icons/close-small.svg" /></span></span>
-        <span class="aw-badge"><span class="aw-badge-text">In Developmemt</span><span class="aw-badge-close"><img src="../../../../assets/images/icons/close-small.svg" /></span></span>
-        <span class="aw-badge aw-badge-count">+14</span>
+        <span *ngFor="let item of selectedStatusList | slice:0:2;" class="aw-badge">
+          <span class="aw-badge-text">{{item.label}}</span>
+          <span class="aw-badge-close">
+            <img src="../../../../assets/images/icons/close-small.svg" (click)="toggleStatus(item)"/>
+          </span>
+        </span>
+
+        <span *ngIf="selectedStatusList?.length>2" class="aw-badge aw-badge-count">+{{(selectedStatusList.length-2)}}</span>
+
     </div>
   </nz-button-group>
 
   <nz-dropdown-menu #awStatusDDL="nzDropdownMenu">
     <ul nz-menu class="aw-status-dropdown-list" style="width:165px; margin-top: 12px; margin-left: -10px; max-height: 250px!important;overflow: auto!important;padding-bottom: 35px">
-      <li *ngFor="let item of statusList;" nz-menu-item class="d-flex justify-content-between">
+      <li *ngFor="let item of statusList;" (click)="toggleStatus(item)" nz-menu-item class="d-flex justify-content-between">
         <span class="font-size-12">{{item.label}}</span>
         <span *ngIf="item.checked"><img src="../../../../assets/images/icons/blue-check.svg" /></span>
       </li>
