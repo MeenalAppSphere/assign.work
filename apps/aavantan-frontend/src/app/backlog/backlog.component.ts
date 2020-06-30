@@ -476,7 +476,6 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
   // emit handler from status-dropdown component
   public handleStatusEmmiter(statusIds:string[]){
-    console.log('statusIds',statusIds);
     const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
     if (queryIndex === -1) {
       this.backLogTaskRequest.queries.push({

@@ -19,7 +19,6 @@ export class StatusDropdownComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-      console.log(this.statusList);
       this.prepareStatusIdsSelection();
   }
 
