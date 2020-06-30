@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { StatusDDLModel } from '@aavantan-app/models';
 import { cloneDeep } from 'lodash';
+import { ChangeDetection } from '@angular/cli/lib/config/schema';
 
 @Component({
   selector: 'status-dropdown',
@@ -15,7 +16,7 @@ export class StatusDropdownComponent implements OnInit, OnDestroy {
   public cloneStatusList:StatusDDLModel[] = [];
   public selectedStatusList: StatusDDLModel[];
 
-  constructor() {
+  constructor(private cdRef:ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -56,7 +57,6 @@ export class StatusDropdownComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-
+    this.cdRef.detach();
   }
-
 }
