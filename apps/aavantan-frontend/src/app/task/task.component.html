@@ -347,7 +347,7 @@
         <div class="row" style="padding-top: 10px; border-top: 2px solid #e1e3e5; margin-top: 10px;">
           <div class="col-md-12 text-right">
             <button type="button" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
-            <button type="button" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            <button type="button" *ngxPermissionsOnly="['canAdd_task']" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
             <button *ngxPermissionsOnly="['canAdd_task']" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" type="submit" nz-button nzSize="small"
                     nzType="primary">Save
