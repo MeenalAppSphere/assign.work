@@ -30,7 +30,7 @@ export class SprintController {
   }
 
   @Post('update')
-  @Roles('sprint', 'canUpdate_sprint')
+  @Roles('sprint', 'canModify_sprint')
   async updateSprint(@Body() model: UpdateSprintModel) {
     return await this._sprintService.updateSprint(model);
   }

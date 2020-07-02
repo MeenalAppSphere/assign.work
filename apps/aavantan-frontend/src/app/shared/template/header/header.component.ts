@@ -94,12 +94,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
 
     this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
+      if (res && res.length>0 && this.currentProject) {
         this.projects = res;
         this.projectDataSource = res;
         this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
         if(this.projectDataSource.length === 0 ){
           this.isProjectNotFound = true;
+        }else {
+          this.isProjectNotFound = false;
         }
       }
     });
@@ -119,6 +121,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
         if(this.projectDataSource.length === 0 ){
           this.isProjectNotFound = true;
+        }else {
+          this.isProjectNotFound = false;
         }
         this.isProjectSearching = false;
       });
@@ -159,6 +163,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public clearProjectSearchText() {
     this.projectSearchKey = null;
     this.projectDataSource = this.projects;
+    this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
+    if(this.projectDataSource.length === 0 ){
+      this.isProjectNotFound = true;
+    }else {
+      this.isProjectNotFound = false;
+    }
   }
 
   async switchProject(project: Project) {

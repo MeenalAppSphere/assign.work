@@ -20,16 +20,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    let roleDetails = null;
     const userDetails = await this._userModel.findById(payload.id).select('_id currentProject').populate('currentProject');
     if (!userDetails) {
       this._generalService.userId = null;
       throw new UnauthorizedException();
     }
 
-    const ownerDetails = userDetails.currentProject.members.find(member => member.userId.toString() === payload.id);
+    if(userDetails.currentProject && userDetails.currentProject.members) {
+      const ownerDetails = userDetails.currentProject.members.find(member => member.userId.toString() === payload.id);
 
-    const roleDetails = await this._userRoleService.getUserRoleById(userDetails.currentProject._id, ownerDetails.userRoleId);
-
+      roleDetails = await this._userRoleService.getUserRoleById(userDetails.currentProject._id, ownerDetails.userRoleId);
+    }
 
 
     this._generalService.userId = payload.id;

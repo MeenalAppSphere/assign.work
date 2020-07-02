@@ -63,11 +63,11 @@
 
       <!-- permission list binding -->
         <nz-form-item class="collapse-panel">
-          <nz-form-label>Permissions</nz-form-label>
+          <nz-form-label>Access</nz-form-label>
 
           <nz-collapse nzAccordion>
 
-            <nz-collapse-panel *ngFor="let key of permissionsObj | keys"  [nzHeader]="key" [nzShowArrow]="true" [nzActive]="true">
+            <nz-collapse-panel *ngFor="let key of permissionsObj | keys; let ind = index;"  [nzHeader]="key" [nzShowArrow]="true" [nzActive]="(ind === 0 ? true : false)">
 
               <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
                 <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" [nzDisabled]="true" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
@@ -90,7 +90,7 @@
     </div>
 
     <ng-template #titleTemp>
-      <span>{{updateUserRoleData?.userId ? 'Change Access' : 'Add Access'}}</span>
+      <span>{{updateUserRoleData?.userId ? 'Change Role' : 'Add Role'}}</span>
     </ng-template>
 
   </form>

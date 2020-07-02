@@ -296,7 +296,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (this.currentUserRole.type === RoleTypeEnum.supervisor) {
           if (securityTabIndex === -1) {
             const tab: SettingPageTab = {
-              label: 'Security',
+              label: 'Access control',
               id: 'security',
               icon: 'security.svg',
               iconActive: 'white_security.svg'
@@ -452,20 +452,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * bind current project value in project form
    */
   public bindProjectForm() {
-    this.projectForm.patchValue({
-      id: this.currentProject.id,
-      name: this.currentProject.name,
-      organizationId: this.currentProject.organizationId,
-      defaultTaskTypeId: this.currentProject.settings.defaultTaskTypeId,
-      defaultTaskStatusId: this.currentProject.settings.defaultTaskStatusId,
-      defaultTaskPriorityId: this.currentProject.settings.defaultTaskPriorityId
-    });
+    setTimeout(()=>{
+      this.projectForm.patchValue({
+        id: this.currentProject.id,
+        name: this.currentProject.name,
+        organizationId: this.currentProject.organizationId,
+        defaultTaskTypeId: this.currentProject.settings.defaultTaskTypeId,
+        defaultTaskStatusId: this.currentProject.settings.defaultTaskStatusId,
+        defaultTaskPriorityId: this.currentProject.settings.defaultTaskPriorityId
+      });
+    },200);
   }
 
   public getProjects() {
     try {
       this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
-        if (res) {
+        if (res && res.length>0) {
           this.projectListData = res;
         }
       });
@@ -968,7 +970,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
     });
 
-    console.log('groupByName', groupByName);
     this.permissionsObj = groupByName;
   }
 

@@ -51,15 +51,15 @@ export class UserRoleUtilityService {
         });
 
         roleType = RoleTypeEnum.supervisor;
-      } else if (defaultRoles.type === RoleTypeEnum.financier) {
-        allowedPermissions.task.canUpdateEstimate_task = true;
+      } else if (defaultRoles.type === RoleTypeEnum.sponsor) {
+        allowedPermissions.task.canModifyEstimate_task = true;
         allowedPermissions.task.canAdd_task = true;
-        roleType = RoleTypeEnum.financier;
+        roleType = RoleTypeEnum.sponsor;
       } else {
         //only 4 permissions allowed
         allowedPermissions.sprint.canCreate_sprint = true;
         allowedPermissions.sprint.canAddTaskToSprint_sprint = true;
-        allowedPermissions.task.canUpdateEstimate_task = true;
+        allowedPermissions.task.canModifyEstimate_task = true;
         allowedPermissions.task.canAdd_task = true;
         roleType = RoleTypeEnum.teamMember;
       }

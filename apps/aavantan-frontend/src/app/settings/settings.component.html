@@ -68,7 +68,7 @@
               </nz-form-item>
 
               <!-- region default task status -->
-              <nz-form-item class="max-width-ddls">
+              <nz-form-item class="max-width-ddls" *ngIf="statusList?.length>0">
                 <nz-form-label nzFor="taskType">Default Status <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
                   <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDL" nzPlacement="bottomLeft"
@@ -91,7 +91,7 @@
               <!-- endregion -->
 
               <!-- region default task type -->
-              <nz-form-item class="max-width-ddls">
+              <nz-form-item class="max-width-ddls" *ngIf="typesList?.length>0">
                 <nz-form-label nzFor="taskType">Default Task Type <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
                   <nz-button-group nz-dropdown [nzDropdownMenu]="taskTypeDD" nzPlacement="bottomLeft"
@@ -114,7 +114,7 @@
               <!-- endregion -->
 
               <!-- region default status -->
-              <nz-form-item class="max-width-ddls">
+              <nz-form-item class="max-width-ddls" *ngIf="priorityList?.length>0">
                 <nz-form-label nzFor="taskType">Default Priority <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
                   <nz-button-group nz-dropdown [nzDropdownMenu]="priorityDDL" nzPlacement="bottomLeft"
@@ -318,7 +318,7 @@
                                         <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
                         <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                       </span>
-                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && currentUserRole.type==='supervisor'">Change Access</span>
+                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && currentUserRole.type==='supervisor'">Change Role</span>
 <!--                                        <i *ngxPermissionsOnly="['canDelete_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
 
                                     </td>
@@ -691,7 +691,7 @@
                             <div *ngIf="roleList?.length>0">
                                 <nz-form-label>Roles</nz-form-label>
                                 <ul class="stages-list">
-                                    <li *ngFor="let item of roleList">
+                                    <li *ngFor="let item of roleList" [ngClass]="item.id===roleData?.id ? 'modifiying-role' : ''">
 
                                         <span>{{item.name}}</span>
 
@@ -725,6 +725,8 @@
                             <div class="row">
 
                                 <div class="col-md-5">
+
+                                  <p class="m-b-10 font-size-18 text-gray-light">{{ roleData?.id ? 'Modify' : 'Create' }} Role</p>
 
                                     <nz-form-item>
                                         <nz-form-label>User Role<span class="text-danger">*</span></nz-form-label>

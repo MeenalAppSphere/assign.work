@@ -109,17 +109,13 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     });
 
     this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
+      if (res && res.length>0 && this.currentProject) {
         this.projectListSearch = res;
         this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
 
         if(this.projectListSearch.length === 0 ) {
           this.isProjectNotFound = true;
         }
-      } else {
-        // get all project limit 10 store in 'projects' store
-        this._projectService
-          .getAllProject({ organizationId: this._generalService.currentOrganization.id }).subscribe();
       }
     });
 

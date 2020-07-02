@@ -602,7 +602,7 @@
 
       <nz-dropdown-menu #menu1="nzDropdownMenu">
         <ul nz-menu>
-          <li *ngxPermissionsOnly="['canUpdate_sprint']" nz-menu-item (click)="toggleAddSprint()">Edit Sprint</li>
+          <li *ngxPermissionsOnly="['canModify_sprint']" nz-menu-item (click)="toggleAddSprint()">Edit Sprint</li>
           <li nz-menu-item (click)="toggleTeamCapacity()">Edit Capacity</li>
         </ul>
       </nz-dropdown-menu>
