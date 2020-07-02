@@ -41,15 +41,24 @@ export class UserRoleUtilityService {
       let roleType = null;
 
       const allowedPermissions = cloneDeep(PERMISSIONS);
-
-      if (defaultRoles.type === RoleTypeEnum.supervisor) {
+      if (defaultRoles.type === RoleTypeEnum.owner) {
         //All permissions allowed
         Object.keys(allowedPermissions).forEach(key => {
           Object.keys(allowedPermissions[key]).forEach(childKey => {
             allowedPermissions[key][childKey] = true;
           });
         });
-
+        roleType = RoleTypeEnum.owner;
+      } else if (defaultRoles.type === RoleTypeEnum.supervisor) {
+        //All permissions allowed
+        Object.keys(allowedPermissions).forEach(key => {
+          Object.keys(allowedPermissions[key]).forEach(childKey => {
+            allowedPermissions[key][childKey] = true;
+            if(childKey === 'canRemove_settings') {
+              allowedPermissions[key][childKey] = false;
+            }
+          });
+        });
         roleType = RoleTypeEnum.supervisor;
       } else if (defaultRoles.type === RoleTypeEnum.sponsor) {
         allowedPermissions.task.canModifyEstimate_task = true;

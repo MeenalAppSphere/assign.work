@@ -293,7 +293,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.currentUserRole = res;
         const securityTabIndex = this.tabs.findIndex(tab => tab.id === 'security');
 
-        if (this.currentUserRole.type === RoleTypeEnum.supervisor) {
+        if (this.currentUserRole.type === RoleTypeEnum.owner || this.currentUserRole.type === RoleTypeEnum.supervisor) {
           if (securityTabIndex === -1) {
             const tab: SettingPageTab = {
               label: 'Access control',
@@ -1051,8 +1051,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     item.checked = !item.checked;
 
     this.roleData.accessPermissions[item.group][item.value] = item.checked;
-
-    console.log('permissionsObj', this.roleData.accessPermissions);
 
     this.userRoleForm.get('accessPermissions').patchValue(this.roleData.accessPermissions);
   }

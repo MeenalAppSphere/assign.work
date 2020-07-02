@@ -1,6 +1,6 @@
 import { BaseService } from '../base.service';
 import { ClientSession, Document, Model } from 'mongoose';
-import { DbCollection, Project, RoleTypeEnum, TaskStatusModel, UserRoleModel } from '@aavantan-app/models';
+import { DbCollection, Project, RoleTypeEnum, UserRoleModel } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from '../project/project.service';
@@ -8,8 +8,6 @@ import { OnModuleInit } from '@nestjs/common';
 import { aggregateConvert_idToId, BadRequest } from '../../helpers/helpers';
 import { UserRoleUtilityService } from './user-role.utility.service';
 import { GeneralService } from '../general.service';
-import { DEFAULT_USER_ROLES } from '../../helpers/defaultValueConstant';
-import { PERMISSIONS } from '../../../../../../libs/models/src/lib/constants/permission';
 
 export class UserRoleService extends BaseService<UserRoleModel & Document> implements OnModuleInit {
   private _projectService: ProjectService;
@@ -69,6 +67,14 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
       } else {
         // update
         userRole.id = model.id;
+
+
+        // Trying to modify Owner role the restrict
+        const roleDetails = await this.findOne({ filter: { projectId : userRole.projectId, _id: userRole.id }, lean: true });
+        if (roleDetails && roleDetails.type === RoleTypeEnum.owner) {
+          BadRequest('Can not modify Owner role');
+        }
+
         userRole.updatedById = this._generalService.userId;
         await this.updateById(model.id, userRole, session);
         return userRole;

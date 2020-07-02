@@ -25,6 +25,7 @@ export class Permissions {
   task?: PermissionItem;
   board?: PermissionItem;
   member?: PermissionItem;
+  settings?: PermissionItem;
 }
 
 export class PermissionItem {

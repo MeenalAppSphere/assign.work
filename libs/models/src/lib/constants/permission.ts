@@ -1,6 +1,11 @@
 import { Permissions } from '@aavantan-app/models';
 
 export const PERMISSIONS: Permissions = {
+  settings: {
+    canView_settings: false,
+    canModify_settings: false,
+    canRemove_settings: false,
+  },
   sprint: {
     canCreate_sprint: false,
     canModify_sprint: false, // update and publish used as same

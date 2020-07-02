@@ -691,14 +691,14 @@
                             <div *ngIf="roleList?.length>0">
                                 <nz-form-label>Roles</nz-form-label>
                                 <ul class="stages-list">
-                                    <li *ngFor="let item of roleList" [ngClass]="item.id===roleData?.id ? 'modifiying-role' : ''">
+                                    <li nz-tooltip [nzTitle]="item.type==='owner' ? 'Owner have all permissions' : item.description" *ngFor="let item of roleList" [ngClass]="item.id===roleData?.id ? 'modifiying-role' : ''">
 
                                         <span>{{item.name}}</span>
 
                                         <span class="float-right m-t-5 d-flex">
-                        <i (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
-<!--                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      </span>
+                                          <i *ngIf="item.type!=='owner'" (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+                  <!--                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
+                                        </span>
 
                                     </li>
                                 </ul>
@@ -748,7 +748,7 @@
                                 <!-- permission list binding -->
                                 <div class="col-md-12">
                                     <nz-form-item class="collapse-panel">
-                                        <nz-form-label>Permissions<span class="text-danger">*</span></nz-form-label>
+                                        <nz-form-label>Access<span class="text-danger">*</span></nz-form-label>
 
                                         <nz-collapse nzAccordion>
 
@@ -790,7 +790,7 @@
     </section>
 
     <!-- region add project -->
-    <ng-container *ngIf="projectModalIsVisible && !getProjectsInProcess">
+    <ng-container *ngIf="projectModalIsVisible">
         <aavantan-app-add-project [projectListData]="projectListData" [projectModalIsVisible]="projectModalIsVisible" (toggleShow)="projectModalShow()">
         </aavantan-app-add-project>
     </ng-container>

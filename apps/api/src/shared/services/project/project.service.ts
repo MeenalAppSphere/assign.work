@@ -138,9 +138,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     await this.withRetrySession(async (session: ClientSession) => {
 
-      // create default roles and getting first supervisor type role id and assign to project owner
+      // create default roles and getting first owner type role id and assign to project owner
       let createdRoles = await this._userRoleService.createDefaultRoles(newProject, session);
-      createdRoles = createdRoles.filter(ele => ele.type === RoleTypeEnum.supervisor);
+      createdRoles = createdRoles.filter(ele => ele.type === RoleTypeEnum.owner);
       const userRoleId = createdRoles[0]._id; // to assign project owner
 
       // add project creator as project collaborator when new project is created

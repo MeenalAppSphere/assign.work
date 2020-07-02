@@ -167,6 +167,9 @@
     }
     .modifiying-role {
       background: $light-gray;
+      &:hover {
+        background: $light-gray;
+      }
     }
   }
 
