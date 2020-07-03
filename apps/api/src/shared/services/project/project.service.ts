@@ -593,7 +593,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       // if there's only one member in project than don't allow him/her to change his/her role
       if (projectDetails.members.length === 1) {
-        BadRequest('At least one supervisor is needed in Project');
+        BadRequest('At least one owner is needed in Project');
       }
 
       // get project members details
@@ -606,20 +606,20 @@ export class ProjectService extends BaseService<Project & Document> implements O
         return memberRole._id.toString() === memberDetails.userRoleId.toString();
       });
 
-      // check if member is supervisor and he/she changing his/her role from supervisor then assure that project have at-least one supervisor
-      if (memberCurrentRoleDetails.type === RoleTypeEnum.supervisor) {
+      // check if member is owner and he/she changing his/her role from supervisor then assure that project have at-least one owner
+      if (memberCurrentRoleDetails.type === RoleTypeEnum.owner) {
         const isThereOtherSuperVisor: boolean = projectDetails.members
           .filter(member => member.userId.toString() !== memberDetails.userId.toString())
           .some(member => {
             const roleDetails = projectMemberRolesDetails.find(memberRole => {
               return memberRole._id.toString() === member.userRoleId.toString();
             });
-            return roleDetails.type === RoleTypeEnum.supervisor;
+            return roleDetails.type === RoleTypeEnum.owner;
           });
 
         // if no supervisor than throw error
         if (!isThereOtherSuperVisor) {
-          BadRequest('At least one supervisor is needed in Project');
+          BadRequest('At least one owner is needed in Project');
         }
       }
 

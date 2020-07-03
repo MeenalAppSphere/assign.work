@@ -28,7 +28,7 @@
           <div class="row m-b-20">
             <div class="col-sm-4 text-black-dark">Status</div>
             <div class="col-sm-8">
-              <a class="text-primary m-r-30 btn-block" (click)="toggleAddStatusShow()">+ Add New Status</a>
+              <a class="text-primary m-r-30 btn-block" *ngxPermissionsOnly="['canModify_settings']" (click)="toggleAddStatusShow()">+ Add New Status</a>
             </div>
           </div>
           <aside class="status-list status-box-scrollable">
@@ -85,11 +85,11 @@
           </div>
 
           <div class="col-md-8" [ngClass]="activeBoard ? 'text-right' : 'text-left'">
-            <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+            <button *ngxPermissionsOnly="['canModify_settings']" nz-button nzType="primary" [disabled]="!boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
                    || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
                     (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
             </button>
-            <button class="m-l-5" nz-button nzType="primary" (click)="saveAndPublish()"
+            <button *ngxPermissionsOnly="['canModify_settings']" class="m-l-5" nz-button nzType="primary" (click)="saveAndPublish()"
                     [disabled]="!activeBoard?.id || !boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
                    || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess">Save &amp; Publish</button>
             <!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
@@ -131,7 +131,7 @@
 
                     <div class="card-header d-flex justify-content-between">{{column.headerStatus?.name}}
 
-                      <div class="pull-left">
+                      <div class="pull-left" *ngxPermissionsOnly="['canModify_settings']">
                         <i nz-icon nzType="close" nzTheme="outline" nz-tooltip
                            *ngIf="!column.headerStatus?.isDefault" (click)="hideColumn(column.headerStatusId)"
                            [nzTitle]="'Remove Column'"></i>

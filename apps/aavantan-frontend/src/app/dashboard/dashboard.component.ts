@@ -318,7 +318,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private getInitialData() {
-    if(this._generalService.currentProject && this._generalService.currentProject.id) {
+    if(this._generalService.currentProject && this._generalService.currentProject && this._generalService.currentProject.id) {
       // get all task statuses
       this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
 

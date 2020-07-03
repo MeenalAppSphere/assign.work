@@ -29,22 +29,31 @@
             </ng-template>
             <ng-template #templateExtra>
 
-        <span *ngIf="activeView.view==='board_settings'">
-          <a nz-button nzType="primary" size="small" routerLink="/dashboard/board-setting">
-             + New Board Setting
-          </a>
+
+        <span *ngxPermissionsOnly="['canModify_settings']">
+          <span *ngIf="activeView.view==='board_settings'">
+            <a nz-button nzType="primary" size="small" routerLink="/dashboard/board-setting">
+               + New Board Setting
+            </a>
+          </span>
         </span>
 
-        <span *ngIf="activeView.view==='status'">
-          <button nz-button nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>
+        <span *ngxPermissionsOnly="['canModify_settings']">
+              <span *ngIf="activeView.view==='status'">
+                <button nz-button nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>
+              </span>
         </span>
 
-        <span *ngIf="activeView.view==='priority'">
-          <button nz-button nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>
+        <span *ngxPermissionsOnly="['canModify_settings']">
+            <span *ngIf="activeView.view==='priority'">
+              <button nz-button nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>
+            </span>
         </span>
 
-        <span *ngIf="activeView.view==='taskType'">
-          <button nz-button nzType="primary" (click)="toggleAddTaskTypeShow()">+ Add Task Type</button>
+        <span *ngxPermissionsOnly="['canModify_settings']">
+          <span *ngIf="activeView.view==='taskType'">
+            <button nz-button nzType="primary" (click)="toggleAddTaskTypeShow()">+ Add Task Type</button>
+          </span>
         </span>
 
         <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
@@ -136,8 +145,8 @@
               </nz-form-item>
               <!-- endregion -->
 
-              <nz-form-item>
-                <button (click)="saveProject()" [disabled]="projectForm.invalid" [nzLoading]="updateRequestInProcess"
+              <nz-form-item *ngxPermissionsOnly="['canModify_settings']">
+                <button type="button" (click)="saveProject()" [disabled]="projectForm.invalid" [nzLoading]="updateRequestInProcess"
                         nz-button nzType="primary"
                         nzSize="small"> Save
                 </button>
@@ -176,7 +185,9 @@
                             <tbody>
                                 <tr *ngFor="let data of smallTable.data; let index = index;">
                                     <td data-label="SN">{{(index + 1)}}</td>
-                                    <td data-label="Name"><a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a></td>
+                                    <td data-label="Name">
+                                      <a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a>
+                                    </td>
                                     <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                                     <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
 
@@ -196,9 +207,13 @@
 
                                     <td data-label="Action">
 
+                                      <span *ngxPermissionsOnly="['canModify_settings']">
                                         <span *ngIf="!data.isPublished" (click)="publishBoard(data.id)" class="text-primary cursor-pointer">Publish</span>
+                                      </span>
 
+                                      <span *ngxPermissionsOnly="['canRemove_settings']">
                                         <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)" class="text-red m-l-15" nzTheme="outline"></i>
+                                      </span>
 
                                     </td>
                                 </tr>
@@ -247,7 +262,7 @@
 
                                 <ng-template #suffixIconSearch>
                                     <button (click)="addCollaborators(true)" [nzLoading]="addCollaboratorsInProcess" [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary" nzSize="small" class="btn-collaborator-search-invite">
-                    <i nz-icon nzType="mail" theme="outline"></i> Invite
+                    <i nz-icon nzType="mail" theme="outline" style="margin-top: 2px;display: inline-block;"></i> Invite
                   </button>
                                 </ng-template>
 
@@ -318,7 +333,7 @@
                                         <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
                         <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                       </span>
-                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && currentUserRole.type==='supervisor'">Change Role</span>
+                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && (currentUserRole.type==='owner' || currentUserRole.type==='supervisor')">Change Role</span>
 <!--                                        <i *ngxPermissionsOnly="['canDelete_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
 
                                     </td>
@@ -467,7 +482,7 @@
 
                                     <span class="float-right">
 <!--                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline"
+                      <i *ngxPermissionsOnly="['canModify_settings']" (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline"
                          class="edit m-l-10"></i>
                     </span>
 
@@ -548,7 +563,7 @@
 
                                     <span class="float-right">
 <!--                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
+                      <i *ngxPermissionsOnly="['canModify_settings']" (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
                          class="edit m-l-10"></i>
                   </span>
 
@@ -597,8 +612,8 @@
                                     </span>
 
                                     <span class="float-right d-flex">
-                                      <profile-name [user]="item.assignee" class="m-r-15"></profile-name>
-                                        <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-t-5"></i>
+                                      <profile-name [user]="item.assignee"></profile-name>
+                                        <i *ngxPermissionsOnly="['canModify_settings']" (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-l-15 m-t-5"></i>
                                       <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                                     </span>
                                 </li>
@@ -673,7 +688,7 @@
                             <div class="col-md-5 col-lg-7"></div>
                         </div>
 
-                        <button (click)="saveCapacity()" [nzLoading]="updateRequestInProcess" nz-button nzSize="small" nzType="primary">Save
+                        <button *ngxPermissionsOnly="['canModify_settings']" type="button" (click)="saveCapacity()" [nzLoading]="updateRequestInProcess" nz-button nzSize="small" nzType="primary">Save
             </button>
                     </div>
                 </aside>
@@ -696,7 +711,7 @@
                                         <span>{{item.name}}</span>
 
                                         <span class="float-right m-t-5 d-flex">
-                                          <i *ngIf="item.type!=='owner'" (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i>
+                                          <span *ngxPermissionsOnly="['canModify_settings']"><i *ngIf="item.type!=='owner'" (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i></span>
                   <!--                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
                                         </span>
 
@@ -718,7 +733,7 @@
 
                     </aside>
 
-                    <aside class="col-md-8">
+                    <aside class="col-md-8" *ngxPermissionsOnly="['canModify_settings','canView_settings']">
 
                         <form nz-form class="" (ngSubmit)="saveUserRole()" [formGroup]="userRoleForm">
 
@@ -765,7 +780,7 @@
                                     </nz-form-item>
                                     <nz-form-item>
                                         <nz-form-control>
-                                            <button nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
+                                            <button *ngxPermissionsOnly="['canModify_settings']" nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
                             {{roleData?.id ? 'Save' : 'Add'}}
                           </button>
                                             <button type="button" nz-button nzType="default" *ngIf="roleData?.id" (click)="resetRoleForm()" nzSize="small">Cancel</button>
