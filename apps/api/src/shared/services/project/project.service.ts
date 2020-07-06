@@ -249,7 +249,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     let roleDetails = null;
     if (projectDetails.template) {
       // get role id "Team Member" type and assign to all collaborators by default
-      roleDetails = await this._userRoleService.getUserRoleByType(projectDetails._id, RoleTypeEnum.teamMember);
+      roleDetails = await this._userRoleService.getUserRoleByType(projectDetails._id, RoleTypeEnum.collaborator);
     }
 
     try {

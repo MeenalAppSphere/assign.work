@@ -293,7 +293,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.currentUserRole = res;
         const securityTabIndex = this.tabs.findIndex(tab => tab.id === 'security');
 
-        if (this.currentUserRole.type === RoleTypeEnum.owner || this.currentUserRole.type === RoleTypeEnum.supervisor) {
+        if (this.currentUserRole.type === RoleTypeEnum.owner) {
           if (securityTabIndex === -1) {
             const tab: SettingPageTab = {
               label: 'Access Control',

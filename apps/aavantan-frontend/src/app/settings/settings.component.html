@@ -7,8 +7,8 @@
         <ng-container >
           <li *ngFor="let item of tabs">
               <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}" (click)="activeTab(item.id, item.label)">
-                  <img *ngIf="activeView.view===item.id" src="../../assets/images/icons/{{item.iconActive}}" />
-                  <img *ngIf="activeView.view!==item.id" src="../../assets/images/icons/{{item.icon}}" />
+                  <img class="active-img" [ngClass]="activeView.view===item.id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{item.iconActive}}" />
+                  <img class="inactive-img" src="../../assets/images/icons/{{item.icon}}" />
                   <div>{{item.label}}</div>
               </a>
           </li>
@@ -333,7 +333,7 @@
                                         <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
                         <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                       </span>
-                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && (currentUserRole.type==='owner' || currentUserRole.type==='supervisor')">Change Role</span>
+                                        <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && (currentUserRole.type==='owner')">Change Role</span>
 <!--                                        <i *ngxPermissionsOnly="['canDelete_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
 
                                     </td>
@@ -747,7 +747,6 @@
                                         <nz-form-label>User Role<span class="text-danger">*</span></nz-form-label>
                                         <nz-form-control>
                                             <input nz-input formControlName="name" placeholder="eg: Project Manager" nzSize="default" maxlength="30" />
-                                            <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified.</span></p>
                                         </nz-form-control>
                                     </nz-form-item>
 

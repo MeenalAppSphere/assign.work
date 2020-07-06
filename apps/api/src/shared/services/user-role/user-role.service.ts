@@ -218,13 +218,13 @@ export class UserRoleService extends BaseService<UserRoleModel & Document> imple
 
           if (userRoles && userRoles.length) {
             const supervisorRole = userRoles[0];
-            const teamMemberRole = userRoles[1];
+            const collaboratorRole = userRoles[1];
 
             project.members = project.members.map((member, index) => {
               if (index === 0) {
                 member.userRoleId = supervisorRole._id;
               } else {
-                member.userRoleId = teamMemberRole._id;
+                member.userRoleId = collaboratorRole._id;
               }
               return member;
             });

@@ -185,9 +185,8 @@ export const DEFAULT_SETTINGS_FOR_PRODUCTION: DefaultSettingsModel = {
 
 // default roles for new project
 export const DEFAULT_USER_ROLES: UserRoleModel[] = [
-  { name: 'Owner', type: RoleTypeEnum.owner, accessPermissions: null, description: '', projectId: '' },
-  { name: 'Supervisor', type: RoleTypeEnum.supervisor, accessPermissions: null, description: '', projectId: '' },
-  { name: 'Team Member', type: RoleTypeEnum.teamMember, accessPermissions: null, description: '', projectId: '' },
+  { name: 'Project Owner', type: RoleTypeEnum.owner, accessPermissions: null, description: '', projectId: '' },
+  { name: 'Team Member', type: RoleTypeEnum.collaborator, accessPermissions: null, description: '', projectId: '' },
   { name: 'Sponsor', type: RoleTypeEnum.sponsor, accessPermissions: null, description: '', projectId: '' },
 ];
 

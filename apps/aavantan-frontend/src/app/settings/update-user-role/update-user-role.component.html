@@ -51,7 +51,7 @@
                     </li>
                   </ul>
                 </nz-dropdown-menu>
-                <p class="m-t-10 m-b-0 font-weight-bold font-size-12">Note: <span class="font-weight-light">This user is a organization administrator, and their privileges cannot be modified.</span></p>
+                <p *ngIf="selectedUserRole?.description" class="m-t-10 m-b-0 font-weight-bold font-size-12"><span class="font-weight-light">{{selectedUserRole.description}}</span></p>
               </nz-form-control>
 
             </nz-form-item>
