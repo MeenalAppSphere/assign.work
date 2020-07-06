@@ -22,6 +22,11 @@ export class ResendProjectInvitationModel {
   invitationToEmailId: string;
 }
 
+export class RecallProjectInvitationModel {
+  projectId: string;
+  invitationToEmailId: string;
+}
+
 export class RemoveProjectCollaborator {
   collaboratorId: string;
   projectId: string;
