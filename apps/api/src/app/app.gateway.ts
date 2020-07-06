@@ -18,13 +18,21 @@ import {
 } from '@aavantan-app/models';
 import { environment } from '../environments/environment';
 import { GeneralService } from '../shared/services/general.service';
+import { ModuleRef } from '@nestjs/core';
+import { OnModuleInit } from '@nestjs/common';
+import { NotificationService } from '../shared/services/notification/notification.service';
 
 @WebSocketGateway()
-export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
+  private _notificationService: NotificationService;
   @WebSocketServer() server: Server;
   public connectedClients: Map<string, string> = new Map<string, string>();
 
-  constructor(private _generalService: GeneralService) {
+  constructor(private _generalService: GeneralService, private _moduleRef: ModuleRef) {
+  }
+
+  onModuleInit(): any {
+    this._notificationService = this._moduleRef.get(NotificationService.name, { strict: false });
   }
 
   /**

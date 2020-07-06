@@ -15,5 +15,6 @@ export enum DbCollection {
   invitations = 'invitations',
   resetPassword = 'reset-password',
   workflow = 'workflow',
-  board = 'board'
+  board = 'board',
+  notification = 'notification'
 }

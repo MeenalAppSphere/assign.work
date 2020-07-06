@@ -18,6 +18,7 @@ import { taskTypeSchema } from './schemas/task-type.schema';
 import { boardSchema } from './schemas/board.schema';
 import { taskCommentSchema } from './schemas/task-comment.schema';
 import { sprintReportSchema } from './schemas/sprint-report.schema';
+import { notificationSchema } from './schemas/notification.schema';
 
 @Module({
   imports: [
@@ -89,6 +90,10 @@ import { sprintReportSchema } from './schemas/sprint-report.schema';
       name: DbCollection.sprintReports,
       schema: sprintReportSchema,
       collection: DbCollection.sprintReports
+    }, {
+      name: DbCollection.notification,
+      schema: notificationSchema,
+      collection: DbCollection.notification
     }])
   ],
   exports: [
