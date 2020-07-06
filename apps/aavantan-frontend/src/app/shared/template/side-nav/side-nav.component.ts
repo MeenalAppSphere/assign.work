@@ -20,7 +20,7 @@ import { ProjectService } from '../../services/project/project.service';
 
 export class SideNavComponent implements OnInit, OnDestroy {
 
-  public selectedHeaderColor:string;
+  public selectedHeaderColor: string;
   public isExpand: boolean;
   public menuItems: any[];
   public adminMenuItems: any[];
@@ -94,10 +94,6 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
       this._organizationService.switchOrganization(organizationId).subscribe((res => {
         this.switchOrganizationInProcess = false;
-        // get all project limit 10 store in 'projects' store
-        this._projectService
-          .getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
-
       }), (error => {
         this.switchOrganizationInProcess = false;
       }));
