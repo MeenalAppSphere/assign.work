@@ -11,7 +11,7 @@ import {
   ProjectStages,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
-  ProjectWorkingDays,
+  ProjectWorkingDays, RecallProjectInvitationModel,
   ResendProjectInvitationModel, SaveAndPublishBoardModel,
   SearchProjectCollaborators,
   SearchUserModel, TaskStatusModel,
@@ -506,6 +506,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.addMembers();
       }
     }
+  }
+
+  public recallInvitation(invitationToEmailId: string) {
+    const requestModel = new RecallProjectInvitationModel();
+    requestModel.projectId = this.currentProject.id;
+    requestModel.invitationToEmailId = invitationToEmailId;
+
+    this._projectService.recallInvitation(requestModel).subscribe();
   }
 
   public selectAssigneeTypeahead(user: User) {

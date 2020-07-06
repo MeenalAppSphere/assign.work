@@ -9,9 +9,11 @@ export const ProjectUrls = {
   searchProject: `${createUrl('project/search')}`,
 
   addCollaborators: `${createUrl('project/:projectId/add-collaborators')}`,
+  getCollaborators: `${createUrl('project/get-collaborators')}`,
 
   removeCollaborators: `${createUrl('project/:projectId/remove-collaborators')}`,
   resendInvitation: `${createUrl('project/resend-invitation')}`,
+  recallInvitation: `${createUrl('project/recall-invitation')}`,
 
   addStage: `${createUrl('project/:projectId/add-stage')}`,
   removeStage: `${createUrl('project/:projectId/remove-stage/:stageId')}`,
