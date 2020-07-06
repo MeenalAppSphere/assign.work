@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ROUTES } from './side-nav-routes.config';
 import { ThemeConstantService } from '../../services/theme-constant.service';
 import { Organization, TaskTypeModel } from '@aavantan-app/models';
@@ -30,6 +30,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
   public currentOrganization: Organization;
   public organizations: string[] | Organization[] = [];
   public switchOrganizationInProcess: boolean;
+  public displayName:string= null;
 
   constructor(private themeService: ThemeConstantService,
               protected notification: NzNotificationService,
@@ -44,7 +45,10 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
     // get all task types from store
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
-      this.taskTypeDataSource = types;
+      if(types && types.length>0) {
+        this.taskTypeDataSource = types;
+        this.displayName = this.taskTypeDataSource[0].displayName;
+      }
     });
 
     this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
@@ -66,13 +70,24 @@ export class SideNavComponent implements OnInit, OnDestroy {
     this.themeService.selectedHeaderColor.pipe(untilDestroyed(this)).subscribe(color => this.selectedHeaderColor = color);
   }
 
+  // Ctrl + j functionality
+  @HostListener('document:keydown', ['$event'])
+  public handleKeyboardUpEvent(event: KeyboardEvent) {
+    if (((event.shiftKey || event.metaKey) && event.which === 114) && this.displayName) { // SHIFT+F3 = Task modal
+      event.preventDefault();
+      event.stopPropagation();
+      this._taskService.createNewTaskAction();
+      this.router.navigateByUrl('dashboard/task/' + this.displayName);
+    }
+  }
+
   public createNewTask(item?: TaskTypeModel) {
-    let displayName: string = null;
+
     if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
-      displayName = this.taskTypeDataSource[0].displayName;
+      this.displayName = this.taskTypeDataSource[0].displayName;
     }
 
-    if (!displayName) {
+    if (!this.displayName) {
       this.notification.error('Info', 'Please create Task Types, Status, Priority from settings');
       setTimeout(() => {
         this.router.navigateByUrl('dashboard/settings');
@@ -80,7 +95,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
       return;
     }
     this._taskService.createNewTaskAction();
-    this.router.navigateByUrl('dashboard/task/' + displayName);
+    this.router.navigateByUrl('dashboard/task/' + this.displayName);
   }
 
   public switchOrganization(organizationId: string) {

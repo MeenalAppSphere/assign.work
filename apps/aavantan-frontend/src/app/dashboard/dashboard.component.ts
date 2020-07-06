@@ -204,11 +204,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       event.stopPropagation();
       this.projectModalShow();
     }
-    if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
-      event.preventDefault();
-      event.stopPropagation();
-      this.router.navigateByUrl('dashboard/task');
-    }
   }
 
   private async initialCheck() {

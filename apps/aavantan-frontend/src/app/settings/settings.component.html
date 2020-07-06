@@ -411,17 +411,17 @@
                     <span class="p-l-50 float-right" style="position: absolute;right: 10px;top: 10px;">
 
 
-                      <div>
-                        <span class="text-gray-light-2 d-block font-weight-light"
-                              *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>
+                      <div class="d-flex">
+<!--                        <span class="text-gray-light-2 d-block font-weight-light"-->
+<!--                              *ngIf="item.isEmailSent && !item.isInviteAccepted">Invitation Sent</span>-->
 
                         <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)"
-                              class="d-block text-primary p-r-10 font-size-12 font-weight-light">
+                              class="d-block text-primary p-l-10 font-size-12 font-weight-light">
                           <i nz-icon nzType="mail" theme="outline"></i> Resend Invite</span>
 
                         <span *ngIf="!item.isInviteAccepted" (click)="recallInvitation(item.emailId)"
-                              class="d-block text-primary p-r-10 font-size-12 font-weight-light">
-                          <i nz-icon nzType="mail" theme="outline"></i> Recall Invite</span>
+                              class="d-block text-danger p-l-10 font-size-12 font-weight-light">
+                          <i nz-icon nzType="close" theme="outline"></i> Recall Invite</span>
                       </div>
 
                       <span *ngIf="item.isInviteAccepted">
