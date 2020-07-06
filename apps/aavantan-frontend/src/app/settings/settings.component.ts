@@ -296,7 +296,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (this.currentUserRole.type === RoleTypeEnum.owner || this.currentUserRole.type === RoleTypeEnum.supervisor) {
           if (securityTabIndex === -1) {
             const tab: SettingPageTab = {
-              label: 'Access control',
+              label: 'Access Control',
               id: 'security',
               icon: 'security.svg',
               iconActive: 'white_security.svg'
