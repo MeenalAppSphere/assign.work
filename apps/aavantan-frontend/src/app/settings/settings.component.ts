@@ -90,6 +90,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public isSearchingDefaultUser: boolean = false;
   public addCollaboratorsInProcess: boolean = false;
   public resendInviteInProcess: boolean = false;
+  public recallInviteInProcess: boolean = false;
   public removeCollaboratorInProcess: boolean = false;
   public modelChangedSearchCollaborators = new Subject<string>();
   public modelChangedSearchDefaultAssignee = new Subject<string>();
@@ -479,8 +480,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else {
       emailData = this.selectedCollaborator.emailId;
     }
-    emailData= emailData.trim();
-    if(this.projectMembersList && this.projectMembersList.length>0 && this.projectMembersList.find(ele => ele.emailId === emailData)){
+    emailData = emailData.trim();
+    if (this.projectMembersList && this.projectMembersList.length > 0 && this.projectMembersList.find(ele => ele.emailId === emailData)) {
       this.collaboratorForm.get('collaborator').patchValue('');
       this.notification.error('Error', 'This user already invited/added in this Project');
       return;
@@ -508,12 +509,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  public recallInvitation(invitationToEmailId: string) {
-    const requestModel = new RecallProjectInvitationModel();
-    requestModel.projectId = this.currentProject.id;
-    requestModel.invitationToEmailId = invitationToEmailId;
+  /**
+   * recall invitation
+   * @param {string} invitationToEmailId
+   */
+  public async recallInvitation(invitationToEmailId: string) {
+    this.recallInviteInProcess = true;
+    try {
+      const requestModel = new RecallProjectInvitationModel();
+      requestModel.projectId = this.currentProject.id;
+      requestModel.invitationToEmailId = invitationToEmailId;
 
-    this._projectService.recallInvitation(requestModel).subscribe();
+      await this._projectService.recallInvitation(requestModel).toPromise();
+      this.recallInviteInProcess = false;
+    } catch (e) {
+      this.recallInviteInProcess = false;
+    }
   }
 
   public selectAssigneeTypeahead(user: User) {

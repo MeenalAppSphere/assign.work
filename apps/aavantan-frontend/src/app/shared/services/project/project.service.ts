@@ -228,7 +228,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
             }
           };
         }));
-        this.notification.success('Invitation', 'Invitation recalled successfully');
+        this.notification.success('Invitation', 'Invitation canceled successfully');
         return res;
       }),
       catchError(err => {
