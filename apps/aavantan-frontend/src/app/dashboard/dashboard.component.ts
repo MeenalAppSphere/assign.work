@@ -49,45 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // socket connection success
-    this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
-      this.socket.emit(NotificationTypeEnum.userConnected, this._generalService.user._id);
-    });
-
-    // task created
-    this.socket.on(NotificationTypeEnum.taskAdded, (res: { msg: string, link: string }) => {
-      this.createDesktopNotification('Task Created', res);
-    });
-
-    // task assigned
-    this.socket.on(NotificationTypeEnum.taskAssigned, (res: { msg: string, link: string }) => {
-      this.createDesktopNotification('Task Assigned', res);
-    });
-
-    // task updated
-    this.socket.on(NotificationTypeEnum.taskUpdated, (res: { msg: string, link: string }) => {
-      this.createDesktopNotification('Task Updated', res);
-    });
-
-    // comment added
-    this.socket.on(NotificationTypeEnum.commentAdded, (res: { msg: string, link: string }) => {
-      this.createDesktopNotification('Comment Added', res);
-    });
-
-    // comment updated
-    this.socket.on(NotificationTypeEnum.commentUpdated, (res: { msg: string, link: string }) => {
-      this.createDesktopNotification('Comment Updated', res);
-    });
-
-    // comment pinned
-    this.socket.on(NotificationTypeEnum.commentPinned, (res: { msg: string, link: string }) => {
-      this.createDesktopNotification('Comment Pinned', res);
-    });
-
-    // comment un pinned
-    this.socket.on(NotificationTypeEnum.commentUnPinned, (res: { msg: string, link: string }) => {
-      this.createDesktopNotification('Comment UnPinned', res);
-    });
+    this.initializeSocketListeners();
 
     // listen for user from store
     this._userQuery.user$.pipe(
@@ -128,6 +90,48 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.themeService.isExpandChanges.pipe(untilDestroyed(this)).subscribe(isExpand => this.isExpand = isExpand);
   }
 
+  private initializeSocketListeners() {
+    // socket connection success
+    this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
+      this.socket.emit(NotificationTypeEnum.userConnected, this._generalService.user._id);
+    });
+
+    // task created
+    this.socket.on(NotificationTypeEnum.taskAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Created', res);
+    });
+
+    // task assigned
+    this.socket.on(NotificationTypeEnum.taskAssigned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Assigned', res);
+    });
+
+    // task updated
+    this.socket.on(NotificationTypeEnum.taskUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Task Updated', res);
+    });
+
+    // comment added
+    this.socket.on(NotificationTypeEnum.commentAdded, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Added', res);
+    });
+
+    // comment updated
+    this.socket.on(NotificationTypeEnum.commentUpdated, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Updated', res);
+    });
+
+    // comment pinned
+    this.socket.on(NotificationTypeEnum.commentPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment Pinned', res);
+    });
+
+    // comment un pinned
+    this.socket.on(NotificationTypeEnum.commentUnPinned, (res: { msg: string, link: string }) => {
+      this.createDesktopNotification('Comment UnPinned', res);
+    });
+  }
+
   projectModalShow(): void {
     if (!this._generalService.currentProject) {
       this.showLogoutWarning('Project');
@@ -144,11 +148,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       this.organizationModalIsVisible = !this.organizationModalIsVisible;
 
-      if (this._generalService.user.organizations.length === 1 && !this._generalService.user.currentProject) {
-        this.projectModalIsVisible = true;
-      } else {
-        return;
-      }
+      // if (this._generalService.user.organizations.length === 1 && !this._generalService.user.currentProject) {
+      this.projectModalIsVisible = true;
+      // } else {
+      //   return;
+      // }
     }
   }
 
@@ -204,6 +208,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       event.stopPropagation();
       this.projectModalShow();
     }
+
+    if ((event.ctrlKey || event.metaKey) && event.which === 75 && !this.organizationModalIsVisible) { // CMD+k= Organization modal
+      event.preventDefault();
+      event.stopPropagation();
+      this.organizationModalShow();
+    }
   }
 
   private async initialCheck() {
@@ -250,7 +260,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.organizationModalIsVisible = true;
             } else {
               // check if user have project
-              if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
+              if (!this._generalService.user.projects.length || !this._generalService.user.currentProject) {
                 this.projectModalIsVisible = true;
               } else {
                 // now every thing seems good now get initial data
@@ -272,18 +282,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private getInitialData() {
-    // get all task statuses
-    this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
+    if (this._generalService.currentProject) {
 
-    // get all task types
-    this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
+      // get all task statuses
+      this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
 
-    // get all task priorities
-    this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+      // get all task types
+      this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
+
+      // get all task priorities
+      this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+
+    }
 
     // get all project limit 10 for header dropdown init
     this._projectService
-      .getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
+      .getAllProject({ organizationId: this._generalService.currentOrganization.id }).subscribe();
 
   }
 

@@ -40,7 +40,8 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
             currentOrganization: res.data,
             user: Object.assign({}, state.user, {
               organizations: [...state.user.organizations, res.data],
-              currentOrganization: !state.user.organizations.length ? res.data : state.user.organizations
+              currentOrganization: !state.user.organizations.length ? res.data : state.user.organizations,
+              currentProject: null
             })
           };
         });
