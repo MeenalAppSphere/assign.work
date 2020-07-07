@@ -183,6 +183,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
       id: 'capacity',
       icon: 'team_capacity.svg',
       iconActive: 'white_team_capacity.svg'
+    },
+    {
+      label: 'Access Control',
+      id: 'security',
+      icon: 'security.svg',
+      iconActive: 'white_security.svg'
     }
   ];
   // for permission
@@ -291,23 +297,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentUserRole = res;
-        const securityTabIndex = this.tabs.findIndex(tab => tab.id === 'security');
-
-        if (this.currentUserRole.type === RoleTypeEnum.owner) {
-          if (securityTabIndex === -1) {
-            const tab: SettingPageTab = {
-              label: 'Access Control',
-              id: 'security',
-              icon: 'security.svg',
-              iconActive: 'white_security.svg'
-            };
-            this.tabs.push(tab);
-          }
-        } else {
-          if (securityTabIndex > -1) {
-            this.tabs.splice(securityTabIndex, 1);
-          }
-        }
+        // const securityTabIndex = this.tabs.findIndex(tab => tab.id === 'security');
+        //
+        // if (this.currentUserRole.type === RoleTypeEnum.owner) {
+        //   if (securityTabIndex === -1) {
+        //     const tab: SettingPageTab = {
+        //       label: 'Access Control',
+        //       id: 'security',
+        //       icon: 'security.svg',
+        //       iconActive: 'white_security.svg'
+        //     };
+        //     this.tabs.push(tab);
+        //   }
+        // } else {
+        //   if (securityTabIndex > -1) {
+        //     this.tabs.splice(securityTabIndex, 1);
+        //   }
+        // }
       }
     });
 
@@ -932,6 +938,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   //**********************//
   // Generate Permissions List from object
   //**********************//
+  public formatGroupText(text) {
+    return text.replace(/([A-Z])/g, ' $1').trim();
+  }
+
   public initPermissionData() {
     this.roleData = { name: '', accessPermissions: cloneDeep(this.permissionConst), description: '' };
   }
@@ -1049,8 +1059,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public selectPermission(item: AccessPermissionVM) {
     item.checked = !item.checked;
-
-    this.roleData.accessPermissions[item.group][item.value] = item.checked;
+    let group = item.group;
+    if(group==='Task Type'){group='taskType'};
+    if(group==='Team Capacity'){group='taskType'};
+    this.roleData.accessPermissions[group][item.value] = item.checked;
 
     this.userRoleForm.get('accessPermissions').patchValue(this.roleData.accessPermissions);
   }

@@ -57,6 +57,10 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin');
+
+
+
+
     this.adminMenuItems = ROUTES.filter(menuItem => menuItem.type === 'admin');
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);

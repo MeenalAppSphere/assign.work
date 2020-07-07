@@ -248,7 +248,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     this._generalService.permissions = cloneDeep(permissionsList);
-
+    console.log(permissionsList);
     this.permissionsService.loadPermissions(permissionsList);
   }
 

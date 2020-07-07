@@ -3,16 +3,93 @@
 
     <ul class="setting-tab-btn">
 
-        <!-- tabs list -->
-        <ng-container >
-          <li *ngFor="let item of tabs">
-              <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}" (click)="activeTab(item.id, item.label)">
-                  <img class="active-img" [ngClass]="activeView.view===item.id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{item.iconActive}}" />
-                  <img class="inactive-img" src="../../assets/images/icons/{{item.icon}}" />
-                  <div>{{item.label}}</div>
-              </a>
-          </li>
-        </ng-container>
+      <!-- tabs list -->
+
+<!--        <ng-container *ngFor="let item of tabs">-->
+<!--            <li *ngxPermissionsOnly="['canModifyBoardSettings_board','canViewList_member','canView_status']">-->
+<!--                <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===item.id}" (click)="activeTab(item.id, item.label)">-->
+<!--                    <img class="active-img" [ngClass]="activeView.view===item.id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{item.iconActive}}" />-->
+<!--                    <img class="inactive-img" src="../../assets/images/icons/{{item.icon}}" />-->
+<!--                    <div>{{item.label}}</div>-->
+<!--                </a>-->
+<!--            </li>-->
+<!--        </ng-container>-->
+
+
+
+      <!-- Project -->
+      <li *ngxPermissionsOnly="['canAdd_project','canModify_project']">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[0].id}" (click)="activeTab(tabs[0].id, tabs[0].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[0].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[0].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[0].icon}}" />
+          <div>{{tabs[0].label}}</div>
+        </a>
+      </li>
+
+      <!-- Board -->
+      <li *ngxPermissionsOnly="['canViewBoardSettings_board','canAddBoardSettings_board','canModifyBoardSettings_board','canRemoveBoardSettings_board']">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[1].id}" (click)="activeTab(tabs[1].id, tabs[1].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[1].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[1].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[1].icon}}" />
+          <div>{{tabs[1].label}}</div>
+        </a>
+      </li>
+
+      <!-- Collaborators -->
+      <li *ngxPermissionsOnly="['canViewList_member', 'canModifyList_member', 'canAddList_member']">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[2].id}" (click)="activeTab(tabs[2].id, tabs[2].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[2].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[2].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[2].icon}}" />
+          <div>{{tabs[2].label}}</div>
+        </a>
+      </li>
+
+      <!-- Status -->
+      <li *ngxPermissionsOnly="['canView_status','canModify_status','canAdd_status']">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[3].id}" (click)="activeTab(tabs[3].id, tabs[3].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[3].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[3].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[3].icon}}" />
+          <div>{{tabs[3].label}}</div>
+        </a>
+      </li>
+
+      <!-- Priority -->
+      <li *ngxPermissionsOnly="['canView_priority','canModify_priority','canAdd_priority']">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[4].id}" (click)="activeTab(tabs[4].id, tabs[4].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[4].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[4].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[4].icon}}" />
+          <div>{{tabs[4].label}}</div>
+        </a>
+      </li>
+
+      <!-- Task Type -->
+      <li *ngxPermissionsOnly="['canView_tasktype','canModify_tasktype','canAdd_tasktype']">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[5].id}" (click)="activeTab(tabs[5].id, tabs[5].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[5].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[5].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[5].icon}}" />
+          <div>{{tabs[5].label}}</div>
+        </a>
+      </li>
+
+      <!-- Team capacity -->
+      <li *ngxPermissionsOnly="['canView_teamcapacity','canModify_teamcapacity','canAdd_teamcapacity']">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[6].id}" (click)="activeTab(tabs[6].id, tabs[6].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[6].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[6].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[6].icon}}" />
+          <div>{{tabs[6].label}}</div>
+        </a>
+      </li>
+
+      <!-- Security -->
+      <li *ngIf="currentUserRole?.type==='owner'">
+        <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[7].id}" (click)="activeTab(tabs[7].id, tabs[7].label)">
+          <img class="active-img" [ngClass]="activeView.view===tabs[7].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[7].iconActive}}" />
+          <img class="inactive-img" src="../../assets/images/icons/{{tabs[7].icon}}" />
+          <div>{{tabs[7].label}}</div>
+        </a>
+      </li>
+
+
 
     </ul>
 
@@ -30,7 +107,7 @@
             <ng-template #templateExtra>
 
 
-        <span *ngxPermissionsOnly="['canModify_settings']">
+        <span *ngxPermissionsOnly="['canAddBoardSettings_board']">
           <span *ngIf="activeView.view==='board_settings'">
             <a nz-button nzType="primary" size="small" routerLink="/dashboard/board-setting">
                + New Board Setting
@@ -38,25 +115,25 @@
           </span>
         </span>
 
-        <span *ngxPermissionsOnly="['canModify_settings']">
+        <span *ngxPermissionsOnly="['canAdd_status']">
               <span *ngIf="activeView.view==='status'">
                 <button nz-button nzType="primary" (click)="toggleAddStatusShow()">+ Add Status</button>
               </span>
         </span>
 
-        <span *ngxPermissionsOnly="['canModify_settings']">
+        <span *ngxPermissionsOnly="['canAdd_priority']">
             <span *ngIf="activeView.view==='priority'">
               <button nz-button nzType="primary" (click)="toggleAddPriorityShow()">+ Add Priority</button>
             </span>
         </span>
 
-        <span *ngxPermissionsOnly="['canModify_settings']">
+        <span *ngxPermissionsOnly="['canAdd_tasktype']">
           <span *ngIf="activeView.view==='taskType'">
             <button nz-button nzType="primary" (click)="toggleAddTaskTypeShow()">+ Add Task Type</button>
           </span>
         </span>
 
-        <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
+        <button *ngxPermissionsOnly="['canAdd_project']" class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
         </button>
 
       </ng-template>
@@ -145,7 +222,7 @@
               </nz-form-item>
               <!-- endregion -->
 
-              <nz-form-item *ngxPermissionsOnly="['canModify_settings']">
+              <nz-form-item *ngxPermissionsOnly="['canModify_project']">
                 <button type="button" (click)="saveProject()" [disabled]="projectForm.invalid" [nzLoading]="updateRequestInProcess"
                         nz-button nzType="primary"
                         nzSize="small"> Save
@@ -186,7 +263,11 @@
                                 <tr *ngFor="let data of smallTable.data; let index = index;">
                                     <td data-label="SN">{{(index + 1)}}</td>
                                     <td data-label="Name">
-                                      <a class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a>
+
+                                      <span *ngxPermissionsExcept="['canModifyBoardSettings_board']" class="cursor-pointer font-weight-semibold text-black">{{data.name}}</span>
+
+                                      <a *ngxPermissionsOnly="['canModifyBoardSettings_board']" class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a>
+
                                     </td>
                                     <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>
                                     <td data-label="Created On">{{data.createdAt | date :'mediumDate'}}</td>
@@ -194,10 +275,10 @@
                                     <td data-label="Published">
 
                                         <span *ngIf="data.isPublished">
-                    <nz-tag [nzColor]="'#42E3A3'">
-                      <i nz-icon nzType="check" class="text-white" nzTheme="outline"></i>
-                      <span class="text-white font-size-12">&ensp;Published</span>
-                                        </nz-tag>
+                                          <nz-tag [nzColor]="'#42E3A3'">
+                                            <i nz-icon nzType="check" class="text-white" nzTheme="outline"></i>
+                                            <span class="text-white font-size-12">&ensp;Published</span>
+                                          </nz-tag>
 
                                         </span>
 
@@ -207,11 +288,11 @@
 
                                     <td data-label="Action">
 
-                                      <span *ngxPermissionsOnly="['canModify_settings']">
+                                      <span *ngxPermissionsOnly="['canModifyBoardSettings_board']">
                                         <span *ngIf="!data.isPublished" (click)="publishBoard(data.id)" class="text-primary cursor-pointer">Publish</span>
                                       </span>
 
-                                      <span *ngxPermissionsOnly="['canRemove_settings']">
+                                      <span *ngxPermissionsOnly="['canRemoveBoardSettings_board']">
                                         <i nz-icon nzType="delete" *ngIf="!data.isPublished" (click)="deleteBoard(data.id)" class="text-red m-l-15" nzTheme="outline"></i>
                                       </span>
 
@@ -278,7 +359,7 @@
                         </form>
 
 
-                        <nz-table class="collaborator-table" #projectMembersTable [nzData]="projectMembersList">
+                        <nz-table *ngxPermissionsOnly="['canViewList_member']" class="collaborator-table" #projectMembersTable [nzData]="projectMembersList">
 
                             <thead>
                                 <tr>
@@ -299,13 +380,13 @@
 
                                             <div class="d-inline-block">
                                                 <!-- if first name not available -->
-                                                <a href="mailto:{{item.emailId}}" *ngIf="!item.userDetails?.firstName" class="text-primary user-email-on-collaborator">{{item.emailId}}</a>
+                                              <span *ngIf="this.currentUserRole.type==='owner'"><a href="mailto:{{item.emailId}}" *ngIf="!item.userDetails?.firstName" class="text-primary user-email-on-collaborator">{{item.emailId}}</a></span>
 
 
                                                 <!-- if first name available -->
                                                 <span *ngIf="item.userDetails?.firstName">
-                          <span class="d-block text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
-                                                <span class="d-block text-primary user-email-on-collaborator font-weight-light" style="line-height:1.1" *ngIf="item.userDetails?.firstName">{{item.emailId}}</span>
+                                                  <span class="d-block text-black-dark">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
+                                                  <span *ngIf="this.currentUserRole.type==='owner'"><span class="d-block text-primary user-email-on-collaborator font-weight-light" style="line-height:1.1" *ngIf="item.userDetails?.firstName">{{item.emailId}}</span></span>
                                                 </span>
                                             </div>
 
@@ -330,11 +411,11 @@
 
                                     <td class="relative">
 
-                                        <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="text-primary p-r-10 font-size-12 font-weight-light">
-                        <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
-                      </span>
+                                        <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="cursor-pointer text-primary p-r-10 font-size-12 font-weight-light">
+                                          <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
+                                        </span>
                                         <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && (currentUserRole.type==='owner')">Change Role</span>
-<!--                                        <i *ngxPermissionsOnly="['canDelete_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
+<!--                                        <i *ngxPermissionsOnly="['canRemove_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
 
                                     </td>
 
@@ -482,7 +563,7 @@
 
                                     <span class="float-right">
 <!--                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i *ngxPermissionsOnly="['canModify_settings']" (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline"
+                      <i *ngxPermissionsOnly="['canModify_status']" (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline"
                          class="edit m-l-10"></i>
                     </span>
 
@@ -562,8 +643,8 @@
                   </span>
 
                                     <span class="float-right">
-<!--                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i *ngxPermissionsOnly="['canModify_settings']" (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
+<!--                      <i (click)="removePriority(item)" *ngxPermissionsOnly="['canRemove_priority']" nz-icon nzType="close" theme="outline" class="close"></i>-->
+                      <i *ngxPermissionsOnly="['canModify_priority']" (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
                          class="edit m-l-10"></i>
                   </span>
 
@@ -613,8 +694,8 @@
 
                                     <span class="float-right d-flex">
                                       <profile-name [user]="item.assignee"></profile-name>
-                                        <i *ngxPermissionsOnly="['canModify_settings']" (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-l-15 m-t-5"></i>
-                                      <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
+                                        <i *ngxPermissionsOnly="['canModify_tasktype']" (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-l-15 m-t-5"></i>
+                                      <!--                    <i (click)="removeTaskType(item)" *ngxPermissionsOnly="['canRemove_tasktype']" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                                     </span>
                                 </li>
 
@@ -688,7 +769,7 @@
                             <div class="col-md-5 col-lg-7"></div>
                         </div>
 
-                        <button *ngxPermissionsOnly="['canModify_settings']" type="button" (click)="saveCapacity()" [nzLoading]="updateRequestInProcess" nz-button nzSize="small" nzType="primary">Save
+                        <button *ngxPermissionsOnly="['canModify_teamcapacity']" type="button" (click)="saveCapacity()" [nzLoading]="updateRequestInProcess" nz-button nzSize="small" nzType="primary">Save
             </button>
                     </div>
                 </aside>
@@ -710,8 +791,8 @@
 
                                         <span>{{item.name}}</span>
 
-                                        <span class="float-right m-t-5 d-flex">
-                                          <span *ngxPermissionsOnly="['canModify_settings']"><i *ngIf="item.type!=='owner'" (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i></span>
+                                        <span *ngIf="item.type!=='owner'"  class="float-right m-t-5 d-flex">
+                                          <span><i (click)="startEditRole(item)" nz-icon nzType="edit" theme="outline" class="edit"></i></span>
                   <!--                        <i (click)="removeRole(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
                                         </span>
 
@@ -733,7 +814,7 @@
 
                     </aside>
 
-                    <aside class="col-md-8" *ngxPermissionsOnly="['canModify_settings','canView_settings']">
+                    <aside class="col-md-8">
 
                         <form nz-form class="" (ngSubmit)="saveUserRole()" [formGroup]="userRoleForm">
 
@@ -766,7 +847,7 @@
 
                                         <nz-collapse nzAccordion>
 
-                                            <nz-collapse-panel *ngFor="let key of permissionsObj | keys" [nzHeader]="key" [nzShowArrow]="true" [nzActive]="true">
+                                            <nz-collapse-panel *ngFor="let key of permissionsObj | keys" [nzHeader]="formatGroupText(key)" [nzShowArrow]="true" [nzActive]="true">
 
                                                 <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
                                                     <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" (ngModelChange)="selectPermission(item)" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
@@ -779,7 +860,7 @@
                                     </nz-form-item>
                                     <nz-form-item>
                                         <nz-form-control>
-                                            <button *ngxPermissionsOnly="['canModify_settings']" nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
+                                            <button nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
                             {{roleData?.id ? 'Save' : 'Add'}}
                           </button>
                                             <button type="button" nz-button nzType="default" *ngIf="roleData?.id" (click)="resetRoleForm()" nzSize="small">Cancel</button>

@@ -23,9 +23,13 @@ export class AccessPermissionVM {
 export class Permissions {
   sprint?: PermissionItem;
   task?: PermissionItem;
-  board?: PermissionItem;
-  member?: PermissionItem;
-  settings?: PermissionItem;
+  boardSettings?: PermissionItem;
+  collaborators?: PermissionItem;
+  project?: PermissionItem;
+  status?: PermissionItem;
+  priority?: PermissionItem;
+  taskType?: PermissionItem;
+  teamCapacity?:PermissionItem;
 }
 
 export class PermissionItem {
