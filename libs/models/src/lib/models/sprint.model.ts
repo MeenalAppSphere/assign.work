@@ -168,6 +168,7 @@ export class SprintDurationsModel {
 export class MoveTaskToColumnModel extends SprintBaseRequest {
   columnId: string;
   taskId: string;
+  dropIndex: number;
 }
 
 export class GetAllSprintRequestModel extends MongoosePaginateQuery {

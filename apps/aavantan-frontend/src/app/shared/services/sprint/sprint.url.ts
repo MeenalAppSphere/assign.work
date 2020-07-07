@@ -17,7 +17,7 @@ export const SprintUrls = {
   removeTaskToSprint: createUrl('sprint/remove-tasks'),
   filterTasksInSprint: createUrl('sprint/filter-sprint-tasks'),
 
-  moveTaskToStage: createUrl('sprint/move-task'),
+  moveTaskToColumn: createUrl('sprint/move-task'),
   updateWorkingCapacity: createUrl('sprint/update-working-capacity'),
 
   getBoardData: createUrl('sprint/get-sprint'),

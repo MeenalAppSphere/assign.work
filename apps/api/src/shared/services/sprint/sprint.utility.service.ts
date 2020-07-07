@@ -434,9 +434,10 @@ export class SprintUtilityService {
    * @param addedById
    * @param currentColumnIndex
    * @param newColumnIndex
+   * @param taskDropIndex
    */
   moveTaskToNewColumn(sprintDetails: Sprint, taskDetail: Task, oldSprintTask: SprintColumnTask,
-                      addedById: string, currentColumnIndex: number, newColumnIndex: number): SprintColumn[] {
+                      addedById: string, currentColumnIndex: number, newColumnIndex: number, taskDropIndex: number = -1): SprintColumn[] {
     return sprintDetails.columns.map((column, index) => {
       // remove from current column and minus estimation time from total column estimation time
       if (index === currentColumnIndex) {
@@ -447,13 +448,26 @@ export class SprintUtilityService {
       // add task to new column and also add task estimation to column total estimation
       if (index === newColumnIndex) {
         column.totalEstimation += taskDetail.estimatedTime;
-        column.tasks.push({
-          taskId: taskDetail.id,
-          addedAt: generateUtcDate(),
-          addedById: addedById,
-          description: SprintActionEnum.taskMovedToColumn,
-          totalLoggedTime: oldSprintTask.totalLoggedTime
-        });
+
+        // check if task drop index > -1 then put this task at that index
+        if (taskDropIndex > -1) {
+          column.tasks.splice(taskDropIndex, 0, {
+            taskId: taskDetail.id,
+            addedAt: generateUtcDate(),
+            addedById: addedById,
+            description: SprintActionEnum.taskMovedToColumn,
+            totalLoggedTime: oldSprintTask.totalLoggedTime
+          });
+        } else {
+          // check if task drop index === -1 then push this task at last
+          column.tasks.push({
+            taskId: taskDetail.id,
+            addedAt: generateUtcDate(),
+            addedById: addedById,
+            description: SprintActionEnum.taskMovedToColumn,
+            totalLoggedTime: oldSprintTask.totalLoggedTime
+          });
+        }
       }
 
       return column;

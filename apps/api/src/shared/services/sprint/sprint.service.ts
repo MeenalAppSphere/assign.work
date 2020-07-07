@@ -581,18 +581,20 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this._projectService.getProjectDetails(model.projectId);
       const sprintDetails = await this.getSprintDetails(model.sprintId, model.projectId, [], '');
 
+      // check is sprint is ended
+      if (moment(sprintDetails.endAt).isBefore(moment().startOf('d'))) {
+        BadRequest('Sprint Passed end date, so task can\'t be moved');
+      }
+
       // get task details
       const taskDetail: Task = await this._taskService.getTaskDetails(model.taskId, model.projectId);
-
-      // get report details
-      const sprintReport: SprintReportModel = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
 
       // check task is in given sprint
       if (taskDetail.sprintId.toString() !== model.sprintId) {
         BadRequest('Task is not part of this sprint');
       }
 
-      // gte column index where task is currently placed
+      // gee column index where task is currently placed
       const currentColumnIndex = this._sprintUtilityService.getColumnIndexFromTask(sprintDetails, model.taskId);
       // check if column exits in sprint
       if (currentColumnIndex === -1) {
@@ -624,7 +626,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
 
       // move task to new column and remove from old column
       sprintDetails.columns = this._sprintUtilityService.moveTaskToNewColumn(sprintDetails, taskDetail, oldSprintTask,
-        this._generalService.userId, currentColumnIndex, newColumnIndex);
+        this._generalService.userId, currentColumnIndex, newColumnIndex, model.dropIndex);
 
       // update sprint columns
       await this.updateById(model.sprintId, {
@@ -634,6 +636,10 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       }, session);
 
       // update sprint report
+
+      // get report details
+      const sprintReport: SprintReportModel = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
+
       // find task in sprint report
       const taskIndexInReport = sprintReport.reportTasks.findIndex(task => {
         return task.taskId.toString() === taskDetail.id.toString();

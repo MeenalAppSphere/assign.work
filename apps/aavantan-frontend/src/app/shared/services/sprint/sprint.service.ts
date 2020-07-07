@@ -177,8 +177,8 @@ export class SprintService extends BaseService<SprintStore, SprintState> {
     );
   }
 
-  moveTaskToStage(json: MoveTaskToColumnModel): Observable<BaseResponseModel<string>> {
-    return this._http.post(SprintUrls.moveTaskToStage, json).pipe(
+  moveTaskToColumn(json: MoveTaskToColumnModel): Observable<BaseResponseModel<string>> {
+    return this._http.post(SprintUrls.moveTaskToColumn, json).pipe(
       map((res: BaseResponseModel<string>) => {
         this.notification.success('Success', 'Task Moved Successfully');
         return res;
