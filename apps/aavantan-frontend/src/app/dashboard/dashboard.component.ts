@@ -94,7 +94,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       untilDestroyed(this),
       distinctUntilChanged((a, b) => {
         if (a && b) {
-          return a.currentProject !== b.currentProject;
+          return a.currentProject === b.currentProject;
         } else {
           return true;
         }
@@ -113,14 +113,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this._projectQuery.createProjectSuccess$.pipe(untilDestroyed(this)).subscribe(projectCreated => {
       if (projectCreated) {
         // get initial data when new project created
-        this.getInitialData();
-      }
-    });
-
-    // listen for project switched successfully
-    this._projectQuery.projectSwitchedSuccessfully$.pipe(untilDestroyed(this)).subscribe(projectSwitched => {
-      if (projectSwitched) {
-        // get initial data when project switched
         this.getInitialData();
       }
     });
@@ -211,11 +203,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
       this.projectModalShow();
-    }
-    if ((event.shiftKey || event.metaKey) && event.which === 114 && !this.projectModalIsVisible) { // SHIFT+F3 = Task modal
-      event.preventDefault();
-      event.stopPropagation();
-      this.router.navigateByUrl('dashboard/task');
     }
   }
 
