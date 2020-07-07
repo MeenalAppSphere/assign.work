@@ -60,6 +60,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public switchingProjectInProcess: boolean;
   public members: User[] = [];
   public showCreateProject: boolean;
+  public isCreatingNewProject: boolean = false;
   public projectList: Project[] = [];
   public projectSource: Project[] = [];
   public projectListSearch: Project[] = [];
@@ -90,7 +91,12 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.projectList = [];
       }
 
-      this.showCreateProject = !(this.projectList && this.projectList.length > 0);
+      this.showCreateProject = !this.projectList.length;
+
+      // case for the first time when user creates a project just after creation of organization
+      if (this.organizations.length && !this.projectList.length) {
+        this.isCreatingNewProject = true;
+      }
     });
 
     this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(organization => {
@@ -218,6 +224,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public addNewProject() {
     this.showCreateProject = true;
+    this.isCreatingNewProject = true;
   }
 
   public createFrom() {
@@ -393,6 +400,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       // get all task priorities
       this._taskPriorityService.getAllTaskPriorities(this.currentProject.id).subscribe();
 
+      this.isCreatingNewProject = false;
       this.toggleShow.emit();
     } catch (e) {
       this.selectTemplateInProcess = false;
