@@ -437,11 +437,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
         BadRequest('Invalid invitation');
       }
 
-      // check if invitation is expired
-      if (invitationDetails.isExpired) {
-        BadRequest('This invitation is already expired, you can\'t recall this invitation');
-      }
-
       // check if invitation is already accepted
       if (invitationDetails.isInviteAccepted) {
         BadRequest('This user already accepted invitation, so you can\'t recall this invitation');
