@@ -251,13 +251,14 @@ export class UsersService extends BaseService<User & Document> implements OnModu
       limit only recent 1 project
      */
 
-    // check if current project and current organization is available
-    if (userDetails.currentProject && userDetails.currentOrganization) {
-      const userProjects =
+    // check if current organization is available
+    if (userDetails.currentOrganization) {
+      userDetails.projects =
         slice(
           userDetails.projects
             .filter(f => f.organizationId.toString() === userDetails.currentOrganizationId)
-            .filter(f => f._id.toString() !== userDetails.currentProject.id.toString()),
+            // .filter(f => f._id.toString() !== userDetails.currentProject.id.toString())
+          ,
           0, 3
         ).map((project: Project) => {
           project.id = project._id.toString();
@@ -266,10 +267,10 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         });
 
       // add current project at first index of recent project list
-      if (userDetails.currentProject) {
-        userProjects.splice(0, 0, userDetails.currentProject);
-      }
-      userDetails.projects = userProjects;
+      // if (userDetails.currentProject) {
+      //   userProjects.splice(0, 0, userDetails.currentProject);
+      // }
+      // userDetails.projects = userProjects;
 
       // get only current user organization
       // filter current project

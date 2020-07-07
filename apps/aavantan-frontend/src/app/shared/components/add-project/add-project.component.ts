@@ -106,13 +106,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.projectListSearch = res;
         this.projectListSearch = this.projectListSearch.filter((project) => project.id !== this.currentProject.id);
 
-        if (this.projectListSearch.length > 0) {
-          this.isProjectNotFound = true;
-        }
-      } else {
-        // get all project limit 10 store in 'projects' store
-        this._projectService
-          .getAllProject({ organizationId: this.currentOrganization.id }).subscribe();
+        this.isProjectNotFound = this.projectListSearch.length >= 0;
       }
     });
 
@@ -134,9 +128,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this._projectService.searchProject(this.searchProjectText).subscribe((data) => {
           this.projectListSearch = data.data;
           this.projectListSearch = this.projectListSearch.filter((project) => project.id !== this.currentProject.id);
-          if (this.projectListSearch.length > 0) {
-            this.isProjectNotFound = true;
-          }
+          this.isProjectNotFound = this.projectListSearch.length >= 0;
           this.isSearching = false;
         });
 

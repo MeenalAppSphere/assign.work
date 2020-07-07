@@ -689,12 +689,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param model
    */
   async searchProject(model: SearchProjectRequest) {
-    const organizationDetails = await this._organizationService.getOrganizationDetails(model.organizationId);
+    await this._organizationService.getOrganizationDetails(model.organizationId);
 
     const query = new MongooseQueryModel();
 
     query.filter = {
-      // organization: model.organizationId,
+      organizationId: model.organizationId,
       isDeleted: false,
       $and: [{
         $or: [
