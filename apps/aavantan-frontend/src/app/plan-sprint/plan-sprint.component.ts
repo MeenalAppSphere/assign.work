@@ -99,8 +99,8 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
   public isFilterApplied: boolean;
 
   public sprintPanels: SprintPanel[] = [{
-    name:'Getting Sprint...',
-    active:false
+    name: 'Getting Sprint...',
+    active: false
   }];
 
   constructor(private _generalService: GeneralService,
@@ -128,7 +128,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
     // call all functions which is depends on current project and statuses
     combineLatest([this._userQuery.currentProject$, this._taskStatusQuery.statuses$])
       .pipe(auditTime(700), untilDestroyed(this))
-      .subscribe( result => {
+      .subscribe(result => {
 
         this.currentProject = result[0]; // result[0]  is expecting current Project
         const statues = result[1]; // result[1]  is expecting status
@@ -561,45 +561,37 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
           // check if error is related to tasks error or members error
           if (errorResponse.tasksError) {
-            // if sprint capacity is exceeding show confirm box to allow to exceed sprint capacity
-            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
+            // if sprint capacity or member capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed ||
+              errorResponse.tasksError.reason === SprintErrorEnum.memberCapacityExceed) {
 
               // uncheck item code here
-
               this.addTaskToSprintInProgress = false;
               await this.addTaskConfirmAfterError(task);
               return;
             } else {
+              // set task selected as false
+              task.isSelected = false;
               // show error toaster
               this.notification.error('Error', errorResponse.tasksError.reason);
-            }
-          } else {
-            // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
-            if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
-
-              // uncheck item code here
-
               this.addTaskToSprintInProgress = false;
-              await this.addTaskConfirmAfterError(task);
               return;
-            } else {
-              // show error toaster
-              this.notification.error('Error', errorResponse.tasksError.reason);
             }
           }
         } else {
           this.sprintDurations = data.data as SprintDurationsModel;
+
+          this.draftTaskList = [...this.draftTaskList, task];
+          this.sprintTasksRequest.totalItems++;
+
+          this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
+          this.backLogTaskRequest.totalItems--;
+
           this.notification.success('Success', 'Task successfully added to this Sprint');
+          this.addTaskToSprintInProgress = false;
         }
       }
 
-      this.draftTaskList = [...this.draftTaskList, task];
-      this.sprintTasksRequest.totalItems++;
-
-      this.backLogTasksList = this.backLogTasksList.filter(backLog => backLog.id !== task.id);
-      this.backLogTaskRequest.totalItems--;
-
-      this.addTaskToSprintInProgress = false;
     } catch (e) {
       console.log(e);
       this.addTaskToSprintInProgress = false;
@@ -639,14 +631,17 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   async addTaskConfirmAfterError(task: Task) {
     return this.modal.confirm({
-      nzTitle: 'Still Want to add task?',
-      nzContent: 'May be this will effect your current Sprint',
+      nzTitle: 'Still Want to add the task?',
+      nzContent: 'May be this will effect your current Sprint Or Member Capacity!',
       nzOnOk: () =>
         new Promise((resolve, reject) => {
           this.addTaskToSprint(task, true, true);
           setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
           return true;
-        }).catch(() => console.log('Oops errors!'))
+        }).catch(() => console.log('Oops errors!')),
+      nzOnCancel: () => {
+        task.isSelected = false;
+      }
     });
 
   }
@@ -749,7 +744,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
   // Create Sprint Collapsible Panel
   // calling from getActiveSprintData() or getUnpublishedSprint()
   public initSprintPanels() {
-    if(this.activeSprintData && this.activeSprintData.name || this.unPublishedSprintData && this.unPublishedSprintData.name) {
+    if (this.activeSprintData && this.activeSprintData.name || this.unPublishedSprintData && this.unPublishedSprintData.name) {
       this.sprintPanels = [];
       const sprintName = (this.activeSprintData && this.activeSprintData.name) ? this.activeSprintData.name : (this.unPublishedSprintData && this.unPublishedSprintData.name);
       this.sprintPanels.push({
