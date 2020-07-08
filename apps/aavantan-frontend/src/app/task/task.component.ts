@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {
-  AddCommentModel, AddTaskToSprintModel,
+  AddCommentModel,
+  AddTaskToSprintModel,
   BasePaginatedResponse,
   BaseResponseModel,
   CommentPinModel,
@@ -10,11 +11,14 @@ import {
   GetTaskHistoryModel,
   Mention,
   Project,
-  ProjectMembers,
   ProjectPriority,
-  ProjectStages, ProjectTags, RemoveTaskFromSprintModel,
+  ProjectStages,
+  ProjectTags,
+  RemoveTaskFromSprintModel,
   SearchProjectCollaborators,
-  Sprint, SprintDurationsModel, SprintErrorEnum, SprintErrorResponse,
+  Sprint,
+  SprintErrorEnum,
+  SprintErrorResponse,
   Task,
   TaskComments,
   TaskHistory,
@@ -45,7 +49,6 @@ import { TaskPriorityQuery } from '../queries/task-priority/task-priority.query'
 import { TaskTypeQuery } from '../queries/task-type/task-type.query';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { SprintService } from '../shared/services/sprint/sprint.service';
-import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'aavantan-app-task',
@@ -1049,6 +1052,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.displayName = data.data.displayName;
 
         this.taskData = data.data;
+        this.currentTask = data.data;
 
         this.selectStatus(data.data.status);
         this.selectAssigneeTypeahead(data.data.assignee);
