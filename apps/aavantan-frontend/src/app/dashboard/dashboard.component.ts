@@ -201,11 +201,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.projectModalShow();
     }
 
-    if ((event.ctrlKey || event.metaKey) && event.which === 75 && !this.organizationModalIsVisible) { // CMD+k= Organization modal
-      event.preventDefault();
-      this.organizationModalIsVisible = true;
-      event.stopPropagation();
-    }
+    // if ((event.ctrlKey || event.metaKey) && event.which === 75 && !this.organizationModalIsVisible) { // CMD+k= Organization modal
+    //   event.preventDefault();
+    //   this.organizationModalIsVisible = true;
+    //   event.stopPropagation();
+    // }
   }
 
   private async initialCheck() {
@@ -274,7 +274,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private getInitialData() {
-    if (this.currentProject && this.currentProject.template) {
+    if (this.currentProject) {
 
       // get all task statuses
       this._taskStatusService.getAllTaskStatuses(this.currentProject.id).subscribe();
