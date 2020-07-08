@@ -21,6 +21,7 @@ import { HiddenStatusComponent } from './board-design/hidden-status/hidden-statu
 import { HighchartsChartModule } from 'highcharts-angular';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
+import { NoAccessComponent } from './not-found/no-access.component';
 
 const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -50,7 +51,8 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} }
     CollaboratorsComponent,
     BoardDesignComponent,
     AssignUserComponent,
-    HiddenStatusComponent
+    HiddenStatusComponent,
+    NoAccessComponent
   ],
   providers: [
     ThemeConstantService

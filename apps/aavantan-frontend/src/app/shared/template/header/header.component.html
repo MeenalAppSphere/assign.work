@@ -163,7 +163,7 @@
                 </div>
               </a>
             </li>
-            <li nz-menu-item>
+            <li nz-menu-item *ngxPermissionsOnly="['canView_settingsMenu']">
               <a class="p-v-5 d-flex align-items-center justify-content-between" routerLink="settings">
                 <div>
                   <img src="../../assets/images/icons/header_menu_settings.svg"/>

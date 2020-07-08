@@ -6,6 +6,7 @@ import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardDataResolver } from '../resolver/dashboardData.resolver';
 import { BoardDesignComponent } from './board-design/board-design.component';
+import { NoAccessComponent } from './not-found/no-access.component';
 
 const routes: Routes = [
   {
@@ -27,6 +28,7 @@ const routes: Routes = [
       { path: 'board-setting', component: BoardDesignComponent },
       { path: 'board-setting/:boardId', component: BoardDesignComponent },
       { path: 'active_sprint', component: ActivesprintComponent },
+      { path: 'no-access', component: NoAccessComponent },
       { path: 'plan-sprint', loadChildren: () => import('../plan-sprint/plan-sprint.module').then(p => p.PlanSprintModule) },
       { path: 'backlog', loadChildren: () => import('../backlog/backlog.module').then(p => p.BacklogModule) },
       { path: 'task', loadChildren: () => import('../task/task.module').then(p => p.TaskModule) },
