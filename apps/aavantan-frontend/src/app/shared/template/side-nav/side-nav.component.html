@@ -11,7 +11,7 @@
 
 
     <div class="cursor-pointer p-15 p-l-20 m-b-10 org-name" *ngIf="!isFolded">
-        <div nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="true" nzTrigger="click" [nzPlacement]="'bottomLeft'">
+        <div *ngxPermissionsOnly="['canView_settingsMenu']" nz-dropdown [nzDropdownMenu]="menu" [nzClickHide]="true" nzTrigger="click" [nzPlacement]="'bottomLeft'">
             <p class="text-white font-size-14 d-inline-block text-left m-b-0" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="width: 150px;">
                 <nz-avatar [nzShape]="'square'" [nzSize]="38" class="icon-org text-uppercase m-0 m-r-10" nzText="{{currentOrganization?.name | slice : 0:2 }}"></nz-avatar>
                 <span>{{ currentOrganization?.name }}</span>

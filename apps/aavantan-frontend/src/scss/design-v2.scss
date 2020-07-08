@@ -997,6 +997,11 @@
   }
 }
 
+.collaborator-table {
+  .ant-avatar-string  {
+    color: $color-gray-light!important;
+  }
+}
 
 /* board-design */
 .assigne-user-modal {

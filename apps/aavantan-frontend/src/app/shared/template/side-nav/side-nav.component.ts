@@ -11,6 +11,7 @@ import { OrganizationService } from '../../services/organization/organization.se
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
 import { TaskService } from '../../services/task/task.service';
 import { ProjectService } from '../../services/project/project.service';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Component({
   selector: 'app-sidenav',
@@ -37,7 +38,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
               private _organizationService: OrganizationService,
               private _generalService: GeneralService, private _taskService: TaskService,
               private router: Router, private _taskTypeQuery: TaskTypeQuery,
-              private _projectService: ProjectService) {
+              private _projectService: ProjectService, private permissionsService: NgxPermissionsService) {
 
 
     this.organizations = this._generalService.user.organizations;
@@ -56,10 +57,15 @@ export class SideNavComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin');
 
-
-
+    // Get all access which is loaded from dashboard component from userRoles
+    this.permissionsService.permissions$.subscribe((permission) => {
+      if(permission.canView_settingsMenu){
+        this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin');
+      }else {
+        this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin' && menuItem.path!=='settings');
+      }
+    });
 
     this.adminMenuItems = ROUTES.filter(menuItem => menuItem.type === 'admin');
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);

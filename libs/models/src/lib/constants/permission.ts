@@ -1,5 +1,7 @@
 import { Permissions } from '@aavantan-app/models';
 
+
+// Note : If you changed any object key then update 'AccessRoleGroupEnum' and settings tabs
 export const PERMISSIONS: Permissions = {
   project: {
     canAdd_project: false,

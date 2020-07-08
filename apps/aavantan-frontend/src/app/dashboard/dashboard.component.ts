@@ -22,7 +22,7 @@ import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
 import { Socket } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
-import { NotificationResponseModel, NotificationTypeEnum } from '@aavantan-app/models';
+import { AccessRoleGroupEnum, NotificationResponseModel, NotificationTypeEnum } from '@aavantan-app/models';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleModel } from '@aavantan-app/models';
 import { NgxPermissionsService } from 'ngx-permissions';
@@ -44,6 +44,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // for permission
   public currentUserRole:UserRoleModel;
+  public haveSettingsRelatedAccess:boolean;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
               private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
@@ -237,7 +238,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const permissionsList = [];
     const recur = (obj: any, group: string) => {
       Object.keys(obj).forEach(key => {
-        if(obj[key]) { permissionsList.push(key);}
+        if(obj[key]) {
+          permissionsList.push(key);
+
+          // if group related to setting and access is true then haveSettingsRelatedAccess
+          if(group===AccessRoleGroupEnum.project || group===AccessRoleGroupEnum.boardSettings || group===AccessRoleGroupEnum.collaborators
+            || group===AccessRoleGroupEnum.status || group===AccessRoleGroupEnum.priority ||
+            group===AccessRoleGroupEnum.taskType || group===AccessRoleGroupEnum.teamCapacity){
+            permissionsList.push('canView_settingsMenu'); // 'canView_settingsMenu' is not is Permission.ts
+          }
+        }
       });
     };
 
@@ -248,7 +258,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     this._generalService.permissions = cloneDeep(permissionsList);
-    console.log(permissionsList);
     this.permissionsService.loadPermissions(permissionsList);
   }
 

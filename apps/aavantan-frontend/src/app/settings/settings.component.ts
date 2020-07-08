@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  AccessPermissionVM,
+  AccessPermissionVM, AccessRoleGroupEnum,
   BoardModel,
   BoardModelBaseRequest,
   GetAllBoardsRequestModel,
@@ -14,7 +14,6 @@ import {
   ProjectWorkingCapacityUpdateDto,
   ProjectWorkingDays,
   ResendProjectInvitationModel,
-  RoleTypeEnum,
   SaveAndPublishBoardModel,
   SearchProjectCollaborators,
   SearchUserModel, SettingPageTab,
@@ -45,6 +44,7 @@ import { ProjectQuery } from '../queries/project/project.query';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleQuery } from '../queries/user-role/user-role.query';
 import { PERMISSIONS } from '../../../../../libs/models/src/lib/constants/permission';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -144,43 +144,43 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public tabs: SettingPageTab[] = [
     {
       label: 'Project',
-      id: 'project',
+      id: AccessRoleGroupEnum.project,
       icon: 'project_setting.svg',
       iconActive: 'white_project_setting.svg'
     },
     {
       label: 'Board Settings',
-      id: 'board_settings',
+      id: AccessRoleGroupEnum.boardSettings,
       icon: 'board_settings.svg',
       iconActive: 'white_board_settings.svg'
     },
     {
       label: 'Collaborators',
-      id: 'collaborators',
+      id: AccessRoleGroupEnum.collaborators,
       icon: 'collaborator.svg',
       iconActive: 'white_collaborator.svg'
     },
     {
       label: 'Status',
-      id: 'status',
+      id: AccessRoleGroupEnum.status,
       icon: 'status.svg',
       iconActive: 'white_status.svg'
     },
     {
       label: 'Priority',
-      id: 'priority',
+      id: AccessRoleGroupEnum.priority,
       icon: 'priority.svg',
       iconActive: 'white_priority.svg'
     },
     {
       label: 'Task Type',
-      id: 'taskType',
+      id: AccessRoleGroupEnum.taskType,
       icon: 'task_type.svg',
       iconActive: 'white_task_type.svg'
     },
     {
       label: 'Team Capacity',
-      id: 'capacity',
+      id: AccessRoleGroupEnum.teamCapacity,
       icon: 'team_capacity.svg',
       iconActive: 'white_team_capacity.svg'
     },
@@ -202,7 +202,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
               private modal: NzModalService,
               private _projectQuery: ProjectQuery,
               private _userRolesService: UserRoleService,
-              private _userRoleQuery: UserRoleQuery) {
+              private _userRoleQuery: UserRoleQuery,
+              private permissionsService: NgxPermissionsService) {
 
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -217,6 +218,34 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.createProjectForm();
 
     this.currentOrganization = this._generalService.currentOrganization;
+
+
+    // Get all access which is loaded from dashboard component from userRoles
+    this.permissionsService.permissions$.subscribe((permission) => {
+      const havePermissions = [];
+      let foundActive:boolean = false;
+
+      Object.keys(permission).forEach(key => {
+        havePermissions.push(permission[key].name);
+      });
+
+      const recur = (obj: any, group: string) => {
+        Object.keys(obj).forEach(key => {
+          if(havePermissions.includes(key) && !foundActive) {
+            this.activeView.view = group;
+            foundActive = true;
+          }
+        });
+      };
+
+      Object.keys(this.permissionConst).forEach(key => {
+        if (typeof this.permissionConst[key] !== 'boolean') {
+          recur(this.permissionConst[key], key);
+        }
+      });
+
+
+    });
 
     // get current project from store
     this._userQuery.currentProject$
@@ -297,23 +326,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentUserRole = res;
-        // const securityTabIndex = this.tabs.findIndex(tab => tab.id === 'security');
-        //
-        // if (this.currentUserRole.type === RoleTypeEnum.owner) {
-        //   if (securityTabIndex === -1) {
-        //     const tab: SettingPageTab = {
-        //       label: 'Access Control',
-        //       id: 'security',
-        //       icon: 'security.svg',
-        //       iconActive: 'white_security.svg'
-        //     };
-        //     this.tabs.push(tab);
-        //   }
-        // } else {
-        //   if (securityTabIndex > -1) {
-        //     this.tabs.splice(securityTabIndex, 1);
-        //   }
-        // }
       }
     });
 
@@ -497,7 +509,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public activeTab(view: string, title: string) {
     // get all boards list when board settings tab get's activate
-    if (view === 'board_settings') {
+    if (view === 'boardSettings') {
       this.getAllBoards();
     }
     if (view === 'security') {

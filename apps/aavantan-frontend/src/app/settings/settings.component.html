@@ -108,7 +108,7 @@
 
 
         <span *ngxPermissionsOnly="['canAddBoardSettings_board']">
-          <span *ngIf="activeView.view==='board_settings'">
+          <span *ngIf="activeView.view==='boardSettings'">
             <a nz-button nzType="primary" size="small" routerLink="/dashboard/board-setting">
                + New Board Setting
             </a>
@@ -237,8 +237,8 @@
       </ng-container>
       <!-- project tab -->
 
-            <!-- board_settings tab -->
-            <ng-container *ngIf="activeView.view==='board_settings'">
+            <!-- boardSettings tab -->
+            <ng-container *ngIf="activeView.view==='boardSettings'">
 
                 <section class="row">
 
@@ -306,7 +306,7 @@
                 </section>
 
             </ng-container>
-            <!-- board_settings tab -->
+            <!-- boardSettings tab -->
 
             <!-- collaborators tab -->
             <ng-container *ngIf="activeView.view==='collaborators'">
@@ -376,7 +376,7 @@
                                     <td>
                                         <div class="d-flex">
 
-                                            <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="32" [nzIcon]="'user'"></nz-avatar>
+                                            <nz-avatar class="m-r-10" [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" [nzShape]="'circle'" [nzSize]="32" [nzText]="item.userDetails?.firstName | slice : 0:1"></nz-avatar>
 
                                             <div class="d-inline-block">
                                                 <!-- if first name not available -->
@@ -709,8 +709,8 @@
             </ng-container>
             <!-- taskType tab -->
 
-            <!-- capacity tab -->
-            <ng-container *ngIf="activeView.view==='capacity'">
+            <!-- teamCapacity tab -->
+            <ng-container *ngIf="activeView.view==='teamCapacity'">
                 <aside class="col-md-12">
                     <div *ngIf="!projectCapacityMembersList || projectCapacityMembersList.length===0">
                         <nz-empty [nzNotFoundImage]="'../../../assets/images/not-found/no-data.svg'" [nzNotFoundContent]="contentTpl" [nzNotFoundFooter]="footerTpl">
@@ -774,7 +774,7 @@
                     </div>
                 </aside>
             </ng-container>
-            <!-- capacity tab -->
+            <!-- teamCapacity tab -->
 
             <!-- security tab -->
             <ng-container *ngIf="activeView.view==='security'">
