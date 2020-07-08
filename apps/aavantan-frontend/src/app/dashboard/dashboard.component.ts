@@ -21,8 +21,7 @@ import { BoardService } from '../shared/services/board/board.service';
 import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
 import { Socket } from 'ngx-socket-io';
-import { environment } from '../../environments/environment';
-import { NotificationResponseModel, NotificationTypeEnum } from '@aavantan-app/models';
+import { NotificationResponseModel, NotificationTypeEnum, Organization, Project, User } from '@aavantan-app/models';
 
 @Component({
   templateUrl: './dashboard.component.html'
@@ -38,6 +37,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   projectModalIsVisible: boolean = false;
   organizationModalIsVisible: boolean = false;
   isAcceptInvitationInProcess: boolean = false;
+  user: User;
+  currentProject: Project;
+  currentOrganization: Organization;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
               private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
@@ -49,9 +51,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.initializeSocketListeners();
+
+    // listen for user from store
+    this._userQuery.user$.pipe(
+      untilDestroyed(this)
+    ).subscribe(res => {
+      this._generalService.user = cloneDeep(res);
+      this.user = cloneDeep(res);
+      this.initialCheck();
+    });
+
+    // listen for current project
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      this._generalService.currentProject = cloneDeep(res);
+      this.currentProject = cloneDeep(res);
+    });
+
+    // listen for new project created successfully
+    this._projectQuery.createProjectSuccess$.pipe(untilDestroyed(this)).subscribe(projectCreated => {
+      if (projectCreated) {
+        // get initial data when new project created
+        this.getInitialData();
+      }
+    });
+
+    // listen for current organization
+    this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
+      this._generalService.currentOrganization = cloneDeep(res);
+      this.currentOrganization = cloneDeep(res);
+    });
+
+    this.themeService.isMenuFoldedChanges.pipe(untilDestroyed(this)).subscribe(isFolded => this.isFolded = isFolded);
+    this.themeService.isSideNavDarkChanges.pipe(untilDestroyed(this)).subscribe(isDark => this.isSideNavDark = isDark);
+    this.themeService.selectedHeaderColor.pipe(untilDestroyed(this)).subscribe(color => this.selectedHeaderColor = color);
+    this.themeService.isExpandChanges.pipe(untilDestroyed(this)).subscribe(isExpand => this.isExpand = isExpand);
+  }
+
+  private initializeSocketListeners() {
     // socket connection success
     this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
-      this.socket.emit(NotificationTypeEnum.userConnected, this._generalService.user._id);
+      this.socket.emit(NotificationTypeEnum.userConnected, this.user._id);
     });
 
     // task created
@@ -88,67 +128,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.socket.on(NotificationTypeEnum.commentUnPinned, (res: { msg: string, link: string }) => {
       this.createDesktopNotification('Comment UnPinned', res);
     });
-
-    // listen for user from store
-    this._userQuery.user$.pipe(
-      untilDestroyed(this),
-      distinctUntilChanged((a, b) => {
-        if (a && b) {
-          return a.currentProject === b.currentProject;
-        } else {
-          return true;
-        }
-      })
-    ).subscribe(res => {
-      this._generalService.user = cloneDeep(res);
-      this.initialCheck();
-    });
-
-    // listen for current project
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      this._generalService.currentProject = cloneDeep(res);
-    });
-
-    // listen for new project created successfully
-    this._projectQuery.createProjectSuccess$.pipe(untilDestroyed(this)).subscribe(projectCreated => {
-      if (projectCreated) {
-        // get initial data when new project created
-        this.getInitialData();
-      }
-    });
-
-    // listen for current organization
-    this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
-      this._generalService.currentOrganization = cloneDeep(res);
-    });
-
-    this.themeService.isMenuFoldedChanges.pipe(untilDestroyed(this)).subscribe(isFolded => this.isFolded = isFolded);
-    this.themeService.isSideNavDarkChanges.pipe(untilDestroyed(this)).subscribe(isDark => this.isSideNavDark = isDark);
-    this.themeService.selectedHeaderColor.pipe(untilDestroyed(this)).subscribe(color => this.selectedHeaderColor = color);
-    this.themeService.isExpandChanges.pipe(untilDestroyed(this)).subscribe(isExpand => this.isExpand = isExpand);
   }
 
   projectModalShow(): void {
-    if (!this._generalService.currentProject) {
+    if (!this.currentProject) {
       this.showLogoutWarning('Project');
     } else {
       this.projectModalIsVisible = !this.projectModalIsVisible;
-      //this.router.navigate(['dashboard', 'my-tasks']);
     }
   }
 
   organizationModalShow(): void {
-    if (!this._generalService.user.organizations.length || !this._generalService.user.currentOrganization) {
+    if (!this.user.organizations.length || !this.user.currentOrganization) {
       // show logout popup
       this.showLogoutWarning('Organization');
     } else {
       this.organizationModalIsVisible = !this.organizationModalIsVisible;
-
-      if (this._generalService.user.organizations.length === 1 && !this._generalService.user.currentProject) {
-        this.projectModalIsVisible = true;
-      } else {
-        return;
-      }
+      this.projectModalIsVisible = true;
     }
   }
 
@@ -204,12 +200,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
       event.stopPropagation();
       this.projectModalShow();
     }
+
+    // if ((event.ctrlKey || event.metaKey) && event.which === 75 && !this.organizationModalIsVisible) { // CMD+k= Organization modal
+    //   event.preventDefault();
+    //   this.organizationModalIsVisible = true;
+    //   event.stopPropagation();
+    // }
   }
 
   private async initialCheck() {
 
     try {
-      if (this._generalService.user) {
+      if (this.user) {
         // get query params from url
         const queryParams = this.activatedRoute.snapshot.queryParams;
 
@@ -246,11 +248,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           } else {
 
             // check if user have organization
-            if (!this._generalService.user.currentOrganization) {
+            if (!this.user.currentOrganization) {
               this.organizationModalIsVisible = true;
             } else {
               // check if user have project
-              if (!this._generalService.user.projects.length && !this._generalService.user.currentProject) {
+              if (!this.user.projects.length || !this.user.currentProject) {
                 this.projectModalIsVisible = true;
               } else {
                 // now every thing seems good now get initial data
@@ -272,18 +274,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private getInitialData() {
-    // get all task statuses
-    this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
+    if (this.currentProject) {
 
-    // get all task types
-    this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
+      // get all task statuses
+      this._taskStatusService.getAllTaskStatuses(this.currentProject.id).subscribe();
 
-    // get all task priorities
-    this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+      // get all task types
+      this._taskTypeService.getAllTaskTypes(this.currentProject.id).subscribe();
+
+      // get all task priorities
+      this._taskPriorityService.getAllTaskPriorities(this.currentProject.id).subscribe();
+
+    }
 
     // get all project limit 10 for header dropdown init
     this._projectService
-      .getAllProject({organizationId: this._generalService.currentOrganization.id}).subscribe();
+      .getAllProject({ organizationId: this.currentOrganization.id }).subscribe();
 
   }
 

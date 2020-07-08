@@ -11,7 +11,6 @@ import {
   SwitchProjectRequest,
   User
 } from '@aavantan-app/models';
-import { GeneralService } from '../../services/general.service';
 import { UserService } from '../../services/user/user.service';
 import { ProjectService } from '../../services/project/project.service';
 import { UserQuery } from '../../../queries/user/user.query';
@@ -40,12 +39,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public projectForm: FormGroup;
   public collaboratorForm: FormGroup;
   public switchStepCurrent = 0;
-  public modalTitle = 'Project Details';
   public selectedCollaborators: User[] = [];
   public isCollaboratorExits: boolean = false;
   public enableInviteBtn: boolean = false;
   public selectedCollaborator: User;
-  public userDataSource: User[] = [];
   public collaboratorsDataSource: User[] = [];
   public modelChangedSearchCollaborators = new Subject<string>();
 
@@ -63,8 +60,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public switchingProjectInProcess: boolean;
   public members: User[] = [];
   public showCreateProject: boolean;
+  public isCreatingNewProject: boolean = false;
   public projectList: Project[] = [];
-  public loadingProjects: boolean;
   public projectSource: Project[] = [];
   public projectListSearch: Project[] = [];
   public searchProjectText: string;
@@ -75,23 +72,36 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
-  constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService,
-              private _generalService: GeneralService, private _userQuery: UserQuery,
+  constructor(private FB: FormBuilder, private validationRegexService: ValidationRegexService, private _userQuery: UserQuery,
               private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
               private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
               private _projectQuery: ProjectQuery) {
-    // this.getAllUsers();
   }
 
   ngOnInit() {
-    this.organizations = this._generalService.user && this._generalService.user.organizations as Organization[] || [];
-    this.currentOrganization = this._generalService.currentOrganization;
 
-    this.projectList = this._generalService.user.projects as Project[];
+    this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+      if (user) {
+        this.organizations = user.organizations as Organization[] || [];
+        this.projectList = user.projects as Project[] || [];
+      } else {
+        this.organizations = [];
+        this.projectList = [];
+      }
 
-    this.showCreateProject = !(this.projectList && this.projectList.length > 0);
+      this.showCreateProject = !this.projectList.length;
+
+      // case for the first time when user creates a project just after creation of organization
+      if (this.organizations.length && !this.projectList.length) {
+        this.isCreatingNewProject = true;
+      }
+    });
+
+    this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(organization => {
+      this.currentOrganization = organization;
+    });
 
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(project => {
       this.currentProject = project;
@@ -100,15 +110,9 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.projectListSearch = res;
-        this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
+        this.projectListSearch = this.projectListSearch.filter((project) => project.id !== this.currentProject.id);
 
-        if(this.projectListSearch.length >0 ){
-          this.isProjectNotFound = true;
-        }
-      } else {
-        // get all project limit 10 store in 'projects' store
-        this._projectService
-          .getAllProject({ organizationId: this._generalService.currentOrganization.id }).subscribe();
+        this.isProjectNotFound = this.projectListSearch.length >= 0;
       }
     });
 
@@ -129,10 +133,8 @@ export class AddProjectComponent implements OnInit, OnDestroy {
         this.isSearching = true;
         this._projectService.searchProject(this.searchProjectText).subscribe((data) => {
           this.projectListSearch = data.data;
-          this.projectListSearch = this.projectListSearch.filter((project) => project.id!==this.currentProject.id);
-          if(this.projectListSearch.length >0 ){
-            this.isProjectNotFound = true;
-          }
+          this.projectListSearch = this.projectListSearch.filter((project) => project.id !== this.currentProject.id);
+          this.isProjectNotFound = this.projectListSearch.length >= 0;
           this.isSearching = false;
         });
 
@@ -157,7 +159,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
         this.isSearching = true;
         const json: SearchUserModel = {
-          organizationId: this._generalService.currentOrganization.id,
+          organizationId: this.currentOrganization.id,
           query: queryText
         };
 
@@ -194,7 +196,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     }
 
     const json: SwitchProjectRequest = {
-      organizationId: this._generalService.currentOrganization.id,
+      organizationId: this.currentOrganization.id,
       projectId: project.id
     };
 
@@ -222,6 +224,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public addNewProject() {
     this.showCreateProject = true;
+    this.isCreatingNewProject = true;
   }
 
   public createFrom() {
@@ -383,20 +386,21 @@ export class AddProjectComponent implements OnInit, OnDestroy {
     try {
       await this._projectService.updateTemplate({
         template: this.selectedTemplate,
-        projectId: this._generalService.currentProject.id
+        projectId: this.currentProject.id
       }).toPromise();
       this.selectTemplateInProcess = false;
       this.getTasks();
 
       // get all task statuses
-      this._taskStatusService.getAllTaskStatuses(this._generalService.currentProject.id).subscribe();
+      this._taskStatusService.getAllTaskStatuses(this.currentProject.id).subscribe();
 
       // get all task types
-      this._taskTypeService.getAllTaskTypes(this._generalService.currentProject.id).subscribe();
+      this._taskTypeService.getAllTaskTypes(this.currentProject.id).subscribe();
 
       // get all task priorities
-      this._taskPriorityService.getAllTaskPriorities(this._generalService.currentProject.id).subscribe();
+      this._taskPriorityService.getAllTaskPriorities(this.currentProject.id).subscribe();
 
+      this.isCreatingNewProject = false;
       this.toggleShow.emit();
     } catch (e) {
       this.selectTemplateInProcess = false;
@@ -405,7 +409,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   public getTasks() {
     const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
+      projectId: this.currentProject.id,
       sort: 'createdAt',
       sortBy: 'desc'
     };
