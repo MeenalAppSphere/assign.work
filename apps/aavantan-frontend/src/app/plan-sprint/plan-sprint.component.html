@@ -430,7 +430,7 @@
 
                 <td data-label="#" *ngIf="activeSprintData?.id || unPublishedSprintData?.id" class="text-center">
 
-                  <label *ngIf="item.assignee && item.estimatedTime" nz-checkbox
+                  <label *ngIf="item.assignee && item.estimatedTime" [(nzChecked)]="item.isSelected" nz-checkbox
                          (nzCheckedChange)="addTaskToSprint(item, $event)"></label>
 
 
