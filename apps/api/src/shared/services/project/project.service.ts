@@ -437,11 +437,6 @@ export class ProjectService extends BaseService<Project & Document> implements O
         BadRequest('Invalid invitation');
       }
 
-      // check if invitation is expired
-      if (invitationDetails.isExpired) {
-        BadRequest('This invitation is already expired, you can\'t recall this invitation');
-      }
-
       // check if invitation is already accepted
       if (invitationDetails.isInviteAccepted) {
         BadRequest('This user already accepted invitation, so you can\'t recall this invitation');
@@ -694,12 +689,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param model
    */
   async searchProject(model: SearchProjectRequest) {
-    const organizationDetails = await this._organizationService.getOrganizationDetails(model.organizationId);
+    await this._organizationService.getOrganizationDetails(model.organizationId);
 
     const query = new MongooseQueryModel();
 
     query.filter = {
-      // organization: model.organizationId,
+      organizationId: model.organizationId,
       isDeleted: false,
       $and: [{
         $or: [

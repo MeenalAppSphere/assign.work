@@ -135,7 +135,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       nzPlacement: 'bottomRight'
     });
 
-    this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
     this.getBoardListRequestModal.count = 20;
     this.getBoardListRequestModal.page = 1;
   }
@@ -390,6 +389,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public activeTab(view: string, title: string) {
     // get all boards list when board settings tab get's activate
     if (view === 'board_settings') {
+      this.getBoardListRequestModal.projectId = this.currentProject.id;
       this.getAllBoards();
     }
     this.activeView = {

@@ -6,7 +6,6 @@ import { UserQuery } from '../../../queries/user/user.query';
 import { Router } from '@angular/router';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { GeneralService } from '../../services/general.service';
 import { OrganizationService } from '../../services/organization/organization.service';
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
 import { TaskService } from '../../services/task/task.service';
@@ -31,17 +30,23 @@ export class SideNavComponent implements OnInit, OnDestroy {
   public organizations: string[] | Organization[] = [];
   public switchOrganizationInProcess: boolean;
   public displayName:string= null;
+  public organizationModalIsVisible:boolean;
 
   constructor(private themeService: ThemeConstantService,
               protected notification: NzNotificationService,
               private _userQuery: UserQuery,
               private _organizationService: OrganizationService,
-              private _generalService: GeneralService, private _taskService: TaskService,
+              private _taskService: TaskService,
               private router: Router, private _taskTypeQuery: TaskTypeQuery,
               private _projectService: ProjectService) {
 
-
-    this.organizations = this._generalService.user.organizations;
+    this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+      if (user) {
+        this.organizations = user.organizations;
+      } else {
+        this.organizations = [];
+      }
+    })
 
     // get all task types from store
     this._taskTypeQuery.types$.pipe(untilDestroyed(this)).subscribe(types => {
@@ -101,7 +106,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
   public switchOrganization(organizationId: string) {
     try {
 
-      if (this._generalService.currentOrganization.id === organizationId) {
+      if (this.currentOrganization.id === organizationId) {
         return;
       }
 
@@ -118,6 +123,9 @@ export class SideNavComponent implements OnInit, OnDestroy {
     }
   }
 
+  organizationModalShow(): void {
+    this.organizationModalIsVisible = !this.organizationModalIsVisible;
+  }
 
   // close side nav on menu click
   public closeSideNav() {
