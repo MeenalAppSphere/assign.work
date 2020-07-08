@@ -91,7 +91,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private initializeSocketListeners() {
     // socket connection success
     this.socket.on(NotificationTypeEnum.connectionSuccess, () => {
-      this.socket.emit(NotificationTypeEnum.userConnected, this.user._id);
+      if (this.user) {
+        this.socket.emit(NotificationTypeEnum.userConnected, this.user._id);
+      }
     });
 
     // task created
