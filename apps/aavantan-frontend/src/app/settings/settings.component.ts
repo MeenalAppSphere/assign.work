@@ -1071,11 +1071,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public selectPermission(item: AccessPermissionVM) {
     item.checked = !item.checked;
-    let group = item.group;
-    if(group==='Task Type'){group='taskType'};
-    if(group==='Team Capacity'){group='taskType'};
-    this.roleData.accessPermissions[group][item.value] = item.checked;
+    const group = item.group;
 
+    if(item.value.includes('Modify')) {
+      const addValue = item.value.replace('Modify','View');
+
+      if(this.roleData.accessPermissions[group][addValue]!==undefined) {
+
+        if(!this.roleData.accessPermissions[group][addValue]) {
+          this.roleData.accessPermissions[group][addValue] = item.checked;
+        }
+
+      }
+    }
+
+    this.roleData.accessPermissions[group][item.value] = item.checked;
+    this.generatePermissionsList(this.roleData.accessPermissions);
     this.userRoleForm.get('accessPermissions').patchValue(this.roleData.accessPermissions);
   }
 

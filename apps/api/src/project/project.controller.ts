@@ -31,17 +31,19 @@ export class ProjectController {
   }
 
   @Post()
+  @Roles('project','canAdd_project')
   async createProject(@Body() model: Project) {
     return await this._projectService.createProject(model);
   }
 
   @Post('update')
+  @Roles('project','canModify_project')
   async updateProject(@Body() project: UpdateProjectRequestModel) {
     return await this._projectService.updateProject(project);
   }
 
   @Post(':id/add-collaborators')
-  @Roles('member', 'canAddMember_member')
+  @Roles('collaborators', 'canAddMember_member')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
   }
@@ -62,6 +64,7 @@ export class ProjectController {
   }
 
   @Put(':id/update-working-capacity')
+  @Roles('project','canModify_teamcapacity')
   async updateCollaboratorWorkingCapacity(@Param('id') id: string, @Body() dto: ProjectWorkingCapacityUpdateDto[]) {
     return await this._projectService.updateCollaboratorWorkingCapacity(id, dto);
   }
