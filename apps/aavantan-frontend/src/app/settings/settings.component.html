@@ -263,10 +263,8 @@
                                 <tr *ngFor="let data of smallTable.data; let index = index;">
                                     <td data-label="SN">{{(index + 1)}}</td>
                                     <td data-label="Name">
-
-                                      <span *ngxPermissionsExcept="['canModifyBoardSettings_board']" class="cursor-pointer font-weight-semibold text-black">{{data.name}}</span>
-
-                                      <a *ngxPermissionsOnly="['canModifyBoardSettings_board']" class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a>
+                                      
+                                      <a *ngxPermissionsOnly="['canViewBoardSettings_board', 'canModifyBoardSettings_board']" class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a>
 
                                     </td>
                                     <td data-label="Created By">{{data?.createdBy?.firstName}} {{data?.createdBy?.lastName}}</td>

@@ -27,6 +27,8 @@ import { UserRoleService } from '../../services/user-role/user-role.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ProjectQuery } from '../../../queries/project/project.query';
 import { COLORS } from '../../../shared/constant/color.constant'
+import { ROUTES } from '../../template/side-nav/side-nav-routes.config';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 
 @Component({
@@ -74,6 +76,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public isSearching: boolean;
   public searchSatarted: boolean;
   public isProjectNotFound: boolean;
+  public canAdd_project:boolean;
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
@@ -84,11 +87,20 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               private router: Router, private _taskStatusService: TaskStatusService,
               private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
               private _projectQuery: ProjectQuery,
-              private _userRoleService: UserRoleService) {
+              private _userRoleService: UserRoleService, private permissionsService: NgxPermissionsService) {
     // this.getAllUsers();
   }
 
   ngOnInit() {
+
+    // Get all access which is loading from dashboard component from userRoles
+    this.permissionsService.permissions$.subscribe((permission) => {
+      if(permission.canAdd_project) {
+        this.canAdd_project = true;
+      }
+    });
+
+
     this.organizations = this._generalService.user && this._generalService.user.organizations as Organization[] || [];
     this.currentOrganization = this._generalService.currentOrganization;
 

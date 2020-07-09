@@ -12,13 +12,13 @@ export class TaskPriorityController {
   }
 
   @Post('create')
-  @Roles('task-priority','canAdd_priority')
+  @Roles('taskPriority','canAdd_priority')
   async createTaskPriority(@Body() model: TaskPriorityModel) {
     return await this._taskPriorityService.addUpdate(model);
   }
 
   @Post('update')
-  @Roles('task-priority','canAdd_priority')
+  @Roles('taskPriority','canAdd_priority')
   async updateTaskPriorit(@Body() model: TaskPriorityModel) {
     return await this._taskPriorityService.addUpdate(model);
   }

@@ -12,13 +12,13 @@ export class TaskTypeController {
   }
 
   @Post('create')
-  @Roles('task-type','canAdd_tasktype')
+  @Roles('taskType','canAdd_tasktype')
   async createTaskType(@Body() model: TaskTypeModel) {
     return await this._taskTypeService.addUpdate(model);
   }
 
   @Post('update')
-  @Roles('task-type','canModify_tasktype')
+  @Roles('taskType','canModify_tasktype')
   async updateTaskType(@Body() model: TaskTypeModel) {
     return await this._taskTypeService.addUpdate(model);
   }

@@ -64,7 +64,7 @@ export class ProjectController {
   }
 
   @Put(':id/update-working-capacity')
-  @Roles('project','canModify_teamcapacity')
+  @Roles('teamCapacity','canModify_teamcapacity')
   async updateCollaboratorWorkingCapacity(@Param('id') id: string, @Body() dto: ProjectWorkingCapacityUpdateDto[]) {
     return await this._projectService.updateCollaboratorWorkingCapacity(id, dto);
   }

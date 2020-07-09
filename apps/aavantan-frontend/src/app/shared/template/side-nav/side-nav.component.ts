@@ -58,7 +58,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    // Get all access which is loaded from dashboard component from userRoles
+    // Get all access which is loading from dashboard component from userRoles
     this.permissionsService.permissions$.subscribe((permission) => {
       if(permission.canView_settingsMenu){
         this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin');

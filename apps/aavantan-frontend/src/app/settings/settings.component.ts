@@ -513,7 +513,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.getAllBoards();
     }
     if (view === 'security') {
-      this.initPermissionData(); // init roleData object
+      this.resetRoleForm(); // init roleData object
     }
     this.activeView = {
       title: title,

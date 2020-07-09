@@ -31,25 +31,25 @@ export class BoardController {
   }
 
   @Post('update')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async updateBoard(@Body() model: BoardModel) {
     return await this._boardService.createUpdateBoard(model);
   }
 
   @Post('publish')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async publishBoard(@Body() model: SaveAndPublishBoardModel) {
     return await this._boardService.saveAndPublishBoard(model);
   }
 
   @Post('save-publish')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async saveAndPublishBoard(@Body() model: SaveAndPublishBoardModel) {
     return await this._boardService.saveAndPublishBoard(model);
   }
 
   @Post('delete')
-  @Roles('board', 'canRemoveBoardSettings_board')
+  @Roles('boardSettings', 'canRemoveBoardSettings_board')
   async deleteBoard(@Body() model: BoardModelBaseRequest) {
     return await this._boardService.deleteBoard(model);
   }
@@ -60,49 +60,49 @@ export class BoardController {
   }
 
   @Post('get-active-board')
-  @Roles('board', 'canViewBoardSettings_board')
+  @Roles('boardSettings', 'canViewBoardSettings_board')
   async getActiveBoard(@Body() model: GetActiveBoardRequestModel) {
     return await this._boardService.getBoardById(model);
   }
 
   @Post('add-column')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async addColumn(@Body() model: BoardAddNewColumnModel) {
     return await this._boardService.addNewColumn(model);
   }
 
   @Post('merge-status-to-column')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async mergeStatusToColumn(@Body() model: BoardMergeStatusToColumn) {
     return await this._boardService.mergeStatusToColumn(model);
   }
 
   @Post('merge-column-to-column')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async mergeColumnToColumn(@Body() model: BoardMergeColumnToColumn) {
     return await this._boardService.mergeColumnToColumn(model);
   }
 
   @Post('hide-board-column')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async hideBoardColumn(@Body() model: BoardHideColumnModel) {
     return await this._boardService.hideColumn(model);
   }
 
   @Post('show-column-status')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async showColumnStatus(@Body() model: BoardShowColumnStatus) {
     return await this._boardService.showColumnStatus(model);
   }
 
   @Post('hide-column-status')
-  @Roles('board', 'canModifyBoardSettings_board')
+  @Roles('boardSettings', 'canModifyBoardSettings_board')
   async hideColumnStatus(@Body() model: BoardHideColumnStatus) {
     return await this._boardService.hideColumnStatus(model);
   }
 
   @Post('get-hidden-statuses')
-  @Roles('board', 'canViewBoardSettings_board')
+  @Roles('boardSettings', 'canViewBoardSettings_board')
   async getAllHiddenStatuses(@Body() model: BoardModelBaseRequest) {
     return await this._boardService.getAllHiddenStatusesOfABoard(model);
   }

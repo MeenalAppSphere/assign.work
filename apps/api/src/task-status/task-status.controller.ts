@@ -13,13 +13,13 @@ export class TaskStatusController {
   }
 
   @Post('create')
-  @Roles('task-status','canAdd_status')
+  @Roles('status','canAdd_status')
   async createTaskStatus(@Body() model: TaskStatusModel) {
     return await this._taskStatusService.addUpdate(model);
   }
 
   @Post('update')
-  @Roles('task-status','canModify_status')
+  @Roles('status','canModify_status')
   async updateTaskStatus(@Body() model: TaskStatusModel) {
     return await this._taskStatusService.addUpdate(model);
   }
