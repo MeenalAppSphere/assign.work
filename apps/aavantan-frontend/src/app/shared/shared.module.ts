@@ -16,7 +16,6 @@ import { Safe } from './pipes/safehtml.pipe';
 import { OrganisationComponent } from './components/organisation/organisation.component';
 import { NumericDirective } from './directives/numbers-only.directive';
 import { AddEpicComponent } from './components/add-epic/add-epic.component';
-import { EditorModule } from '@tinymce/tinymce-angular';
 import { RouterModule } from '@angular/router';
 import { ProfileNameComponent } from './components/profile-name/profile-name.component';
 import { UserFilterComponent } from './components/user-filter/user-filter.component';
@@ -57,7 +56,6 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     PerfectScrollbarModule,
     TypeaheadModule,
     PopoverModule,
-    EditorModule,
     RouterModule
   ],
   declarations: [

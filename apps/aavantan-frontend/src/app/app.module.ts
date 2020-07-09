@@ -13,7 +13,6 @@ import { environment } from '../environments/environment';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
 import { ServiceModule } from './shared/services/service.module';
-import { EditorModule } from '@tinymce/tinymce-angular';
 import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 import { DndModule } from 'ngx-drag-drop';
 
@@ -43,7 +42,6 @@ export function provideConfig() {
     SharedModule,
     ServiceModule.forRoot(),
     environment.production ? [] : AkitaNgDevtools.forRoot(),
-    EditorModule,
     SocialLoginModule,
     DndModule
   ],
