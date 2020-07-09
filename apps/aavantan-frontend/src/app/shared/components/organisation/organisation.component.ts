@@ -7,6 +7,7 @@ import { OrganizationQuery } from '../../../queries/organization/organization.qu
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ProjectService } from '../../services/project/project.service';
 import { TaskService } from '../../services/task/task.service';
+import { UserQuery } from '../../../queries/user/user.query';
 
 @Component({
   selector: 'aavantan-app-organisation',
@@ -20,7 +21,8 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public modalTitle = 'Organization';
-  public organizations: Organization[];
+  public organizations: Organization[] = [];
+  public currentProject: Project;
   public showCreateOrg: boolean = true;
   public havePendingInvitations: boolean = true;
   public pendingProjectList: Project[] = [];
@@ -30,9 +32,8 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   public organizationCreationInProcess: boolean = false;
 
   constructor(private FB: FormBuilder, private _organizationService: OrganizationService,
-              private _generalService: GeneralService,
-              private _taskService: TaskService,
-              private _projectService: ProjectService, private _organizationQuery: OrganizationQuery) {
+              private _generalService: GeneralService, private _taskService: TaskService,
+              private _projectService: ProjectService, private _organizationQuery: OrganizationQuery, private _userQuery: UserQuery) {
   }
 
   ngOnInit() {
@@ -41,13 +42,25 @@ export class OrganisationComponent implements OnInit, OnDestroy {
       description: [null, '']
     });
 
-    this.havePendingInvitations = (!this._generalService.user.currentOrganization && !this._generalService.user.currentProject) &&
-      this._generalService.user.projects.length > 0;
-    this.pendingProjectList = this._generalService.user.projects as Project[];
+    this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+      if (user) {
+        this.havePendingInvitations = (!user.currentOrganization && !user.currentProject) &&
+          user.projects.length > 0;
+        this.pendingProjectList = user.projects as Project[];
 
-    this.organizations = this._generalService.user.projects as Organization[];
+        this.organizations = user.organizations as Organization[];
+        this.showCreateOrg = this.havePendingInvitations ? false : !(this.organizations.length > 0);
+      } else {
+        this.havePendingInvitations = false;
+        this.pendingProjectList = [];
+        this.organizations = [];
+        this.showCreateOrg = false;
+      }
+    });
 
-    this.showCreateOrg = this.havePendingInvitations ? false : !(this.organizations && this.organizations.length > 0);
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(project => {
+      this.currentProject = project;
+    });
 
     this.modalTitle = this.havePendingInvitations ? 'Pending Invitation(s)' : 'Create Organization';
 
@@ -101,7 +114,7 @@ export class OrganisationComponent implements OnInit, OnDestroy {
 
   public getTasks() {
     const json: GetAllTaskRequestModel = {
-      projectId: this._generalService.currentProject.id,
+      projectId: this.currentProject.id,
       sort: 'createdAt',
       sortBy: 'desc'
     };

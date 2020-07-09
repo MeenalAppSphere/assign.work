@@ -10,13 +10,23 @@ import { GeneralService } from '../general.service';
 import { Observable, of } from 'rxjs';
 import { NzNotificationService } from 'ng-zorro-antd';
 import { Router } from '@angular/router';
+import { TaskTypeStore } from '../../../store/task-type/task-type.store';
+import { TaskStatusStore } from '../../../store/task-status/task-status.store';
+import { TaskPriorityStore } from '../../../store/task-priority/task-priority.store';
+import { BoardStore } from '../../../store/board/board.store';
+import { ProjectStore } from '../../../store/project/project.store';
+import { TaskStore } from '../../../store/task/task.store';
+import { SprintStore } from '../../../store/sprint/sprint.store';
+import { SprintReportStore } from '../../../store/sprint-report/sprint-report.store';
 
 @Injectable()
 export class OrganizationService extends BaseService<OrganizationStore, OrganizationState> {
 
   constructor(private readonly _organizationStore: OrganizationStore, private _httpWrapper: HttpWrapperService,
               private _userStore: UserStore, private _generalService: GeneralService, protected notification: NzNotificationService,
-              private _router: Router) {
+              private _router: Router, private taskTypeStore: TaskTypeStore, private taskStatusStore: TaskStatusStore, private taskPriorityStore: TaskPriorityStore,
+              private boardStore: BoardStore, private projectStore: ProjectStore, private taskStore: TaskStore,
+              private organizationStore: OrganizationStore, private sprintStore: SprintStore, private sprintReportStore: SprintReportStore) {
     super(_organizationStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -40,12 +50,25 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
             currentOrganization: res.data,
             user: Object.assign({}, state.user, {
               organizations: [...state.user.organizations, res.data],
-              currentOrganization: !state.user.organizations.length ? res.data : state.user.organizations
-            })
+              currentOrganization: res.data,
+              currentOrganizationId: res.data._id,
+              currentProject: null,
+              projects: []
+            }),
+            currentProject: null
           };
         });
 
         this.updateState({ createOrganizationInProcess: false, createOrganizationSuccess: true });
+
+        this.projectStore.reset();
+        this.boardStore.reset();
+        this.sprintStore.reset();
+        this.sprintReportStore.reset();
+        this.taskStore.reset();
+        this.taskTypeStore.reset();
+        this.taskStatusStore.reset();
+        this.taskPriorityStore.reset();
         return res;
       }),
       catchError(err => {

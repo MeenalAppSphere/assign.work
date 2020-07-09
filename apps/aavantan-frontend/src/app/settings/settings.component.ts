@@ -11,7 +11,7 @@ import {
   ProjectStages,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
-  ProjectWorkingDays,
+  ProjectWorkingDays, RecallProjectInvitationModel,
   ResendProjectInvitationModel, SaveAndPublishBoardModel,
   SearchProjectCollaborators,
   SearchUserModel, TaskStatusModel,
@@ -90,6 +90,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public isSearchingDefaultUser: boolean = false;
   public addCollaboratorsInProcess: boolean = false;
   public resendInviteInProcess: boolean = false;
+  public recallInviteInProcess: boolean = false;
   public removeCollaboratorInProcess: boolean = false;
   public modelChangedSearchCollaborators = new Subject<string>();
   public modelChangedSearchDefaultAssignee = new Subject<string>();
@@ -134,7 +135,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       nzPlacement: 'bottomRight'
     });
 
-    this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
     this.getBoardListRequestModal.count = 20;
     this.getBoardListRequestModal.page = 1;
   }
@@ -389,6 +389,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public activeTab(view: string, title: string) {
     // get all boards list when board settings tab get's activate
     if (view === 'board_settings') {
+      this.getBoardListRequestModal.projectId = this.currentProject.id;
       this.getAllBoards();
     }
     this.activeView = {
@@ -479,8 +480,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else {
       emailData = this.selectedCollaborator.emailId;
     }
-    emailData= emailData.trim();
-    if(this.projectMembersList && this.projectMembersList.length>0 && this.projectMembersList.find(ele => ele.emailId === emailData)){
+    emailData = emailData.trim();
+    if (this.projectMembersList && this.projectMembersList.length > 0 && this.projectMembersList.find(ele => ele.emailId === emailData)) {
       this.collaboratorForm.get('collaborator').patchValue('');
       this.notification.error('Error', 'This user already invited/added in this Project');
       return;
@@ -505,6 +506,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.enableInviteBtn = false;
         this.addMembers();
       }
+    }
+  }
+
+  /**
+   * recall invitation
+   * @param {string} invitationToEmailId
+   */
+  public async recallInvitation(invitationToEmailId: string) {
+    this.recallInviteInProcess = true;
+    try {
+      const requestModel = new RecallProjectInvitationModel();
+      requestModel.projectId = this.currentProject.id;
+      requestModel.invitationToEmailId = invitationToEmailId;
+
+      await this._projectService.recallInvitation(requestModel).toPromise();
+      this.recallInviteInProcess = false;
+    } catch (e) {
+      this.recallInviteInProcess = false;
     }
   }
 

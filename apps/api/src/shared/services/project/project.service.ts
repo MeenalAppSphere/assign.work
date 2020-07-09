@@ -24,7 +24,7 @@ import {
   SwitchProjectRequest,
   User,
   UserStatus,
-  UpdateProjectRequestModel
+  UpdateProjectRequestModel, RecallProjectInvitationModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { BaseService } from '../base.service';
@@ -333,6 +333,17 @@ export class ProjectService extends BaseService<Project & Document> implements O
   }
 
   /**
+   * get project collaborators
+   * return project collaborators details
+   * @return {Promise<void>}
+   */
+  async getCollaborators(projectId: string): Promise<ProjectMembers[]> {
+    const projectDetails = await this.getProjectDetails(projectId, true);
+
+    return projectDetails.members;
+  }
+
+  /**
    * resend project invitation
    * check basic validations
    * find and expire already sent invitations to that user
@@ -400,6 +411,57 @@ export class ProjectService extends BaseService<Project & Document> implements O
       this.abortTransaction(session);
       throw e;
     }
+  }
+
+  /**
+   * recall invitation
+   * recalls invitation which are not expired or not accepted
+   * recalls means mark as expired
+   * @param {RecallProjectInvitationModel} dto
+   * @return {Promise<any>}
+   */
+  async recallProjectInvitation(dto: RecallProjectInvitationModel) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // get project details
+      const projectDetails = await this.getProjectDetails(dto.projectId);
+
+      // get invitation details
+      const invitationFindQuery: MongooseQueryModel = {
+        filter: {
+          invitationToEmailId: dto.invitationToEmailId,
+        },
+        lean: true
+      };
+      const invitationDetails = await this._invitationService.findOne(invitationFindQuery);
+      if (!invitationDetails) {
+        BadRequest('Invalid invitation');
+      }
+
+      // check if invitation is already accepted
+      if (invitationDetails.isInviteAccepted) {
+        BadRequest('This user already accepted invitation, so you can\'t recall this invitation');
+      }
+
+      // expire invitation
+      await this._invitationService.expireInvitationById(invitationDetails._id.toString(), session);
+
+      // pull out that member from project because his/her invitation to project is recalled
+      // get project member index by member email id
+      const projectMemberIndex = projectDetails.members.findIndex(member => {
+        return member.emailId === invitationDetails.invitationToEmailId;
+      });
+
+      if (projectMemberIndex > -1) {
+        const projectUpdateQuery = {
+          $pull: { members: { emailId: invitationDetails.invitationToEmailId, isInviteAccepted: false } }
+        };
+
+        // update project members
+        await this.updateById(dto.projectId, projectUpdateQuery, session);
+      }
+    });
+
+    return this.getCollaborators(dto.projectId);
   }
 
   /**
@@ -627,12 +689,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * @param model
    */
   async searchProject(model: SearchProjectRequest) {
-    const organizationDetails = await this._organizationService.getOrganizationDetails(model.organizationId);
+    await this._organizationService.getOrganizationDetails(model.organizationId);
 
     const query = new MongooseQueryModel();
 
     query.filter = {
-      // organization: model.organizationId,
+      organizationId: model.organizationId,
       isDeleted: false,
       $and: [{
         $or: [

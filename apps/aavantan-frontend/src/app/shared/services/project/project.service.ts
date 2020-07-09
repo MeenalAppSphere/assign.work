@@ -16,7 +16,7 @@ import {
   ProjectStages,
   ProjectStatus, ProjectTags,
   ProjectTemplateUpdateModel,
-  ProjectWorkingCapacityUpdateDto,
+  ProjectWorkingCapacityUpdateDto, RecallProjectInvitationModel,
   ResendProjectInvitationModel,
   SearchProjectRequest,
   SearchProjectTags,
@@ -98,7 +98,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   }
 
   getAllProject(json: GetAllProjectsModel): Observable<BaseResponseModel<BasePaginatedResponse<Project>>> {
-    this.updateState({ getAllProjectInProcess: true, projects:null });
+    this.updateState({ getAllProjectInProcess: true, projects: null });
     return this._http.post(ProjectUrls.getAllProject, json).pipe(
       map((res: BaseResponseModel<BasePaginatedResponse<Project>>) => {
         this.updateState({
@@ -109,7 +109,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       }),
       catchError(err => {
         this.updateState({
-          projects : null,
+          projects: null,
           getAllProjectInProcess: false
         });
         return this.handleError(err);
@@ -151,7 +151,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
       map(res => {
         this.updateCurrentProjectState(res.data);
         this.notification.success('Success', 'Project Created Successfully');
-        this.router.navigate(['dashboard','settings']);
+        this.router.navigate(['dashboard', 'settings']);
         return res;
       }),
       catchError(err => {
@@ -162,6 +162,38 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
 
   addCollaborators(id: string, members: ProjectMembers[]): Observable<BaseResponseModel<Project>> {
     return this._http.post(ProjectUrls.addCollaborators.replace(':projectId', id), members).pipe(
+      map(res => {
+        this.updateCurrentProjectState(res.data);
+        return res;
+      }),
+      catchError(e => {
+        return this.handleError(e);
+      })
+    );
+  }
+
+  getCollaborators(projectId: string): Observable<BaseResponseModel<ProjectMembers[]>> {
+    return this._http.post(ProjectUrls.addCollaborators, { projectId }).pipe(
+      map((res: BaseResponseModel<ProjectMembers[]>) => {
+        this.userStore.update((state => {
+          return {
+            ...state,
+            currentProject: {
+              ...state.currentProject,
+              members: res.data
+            }
+          };
+        }));
+        return res;
+      }),
+      catchError(e => {
+        return this.handleError(e);
+      })
+    );
+  }
+
+  removeCollaborators(json: any): Observable<BaseResponseModel<Project>> {
+    return this._http.post(ProjectUrls.removeCollaborators, json).pipe(
       map(res => {
         this.updateCurrentProjectState(res.data);
         return res;
@@ -184,14 +216,23 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  removeCollaborators(json: any): Observable<BaseResponseModel<Project>> {
-    return this._http.post(ProjectUrls.removeCollaborators, json).pipe(
-      map(res => {
-        this.updateCurrentProjectState(res.data);
+  recallInvitation(json: RecallProjectInvitationModel): Observable<BaseResponseModel<ProjectMembers[]>> {
+    return this._http.post(ProjectUrls.recallInvitation, json).pipe(
+      map((res: BaseResponseModel<ProjectMembers[]>) => {
+        this.userStore.update((state => {
+          return {
+            ...state,
+            currentProject: {
+              ...state.currentProject,
+              members: res.data
+            }
+          };
+        }));
+        this.notification.success('Invitation', 'Invitation canceled successfully');
         return res;
       }),
-      catchError(e => {
-        return this.handleError(e);
+      catchError(err => {
+        return this.handleError(err);
       })
     );
   }

@@ -18,12 +18,25 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { of } from 'rxjs';
 import { UserStore } from '../../store/user/user.store';
 import { AuthService as SocialAuthService } from 'angularx-social-login';
+import { TaskTypeStore } from '../../store/task-type/task-type.store';
+import { TaskStatusStore } from '../../store/task-status/task-status.store';
+import { TaskPriorityStore } from '../../store/task-priority/task-priority.store';
+import { BoardStore } from '../../store/board/board.store';
+import { ProjectStore } from '../../store/project/project.store';
+import { TaskStore } from '../../store/task/task.store';
+import { OrganizationStore } from '../../store/organization/organization.store';
+import { SprintStore } from '../../store/sprint/sprint.store';
+import { SprintReportStore } from '../../store/sprint-report/sprint-report.store';
 
 @Injectable()
 export class AuthService extends BaseService<AuthStore, AuthState> {
 
   constructor(protected authStore: AuthStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              protected notification: NzNotificationService, protected userStore: UserStore, private socialAuthService: SocialAuthService) {
+              protected notification: NzNotificationService, protected userStore: UserStore, private socialAuthService: SocialAuthService,
+              private taskTypeStore: TaskTypeStore, private taskStatusStore: TaskStatusStore, private taskPriorityStore: TaskPriorityStore,
+              private boardStore: BoardStore, private projectStore: ProjectStore, private taskStore: TaskStore,
+              private organizationStore: OrganizationStore, private sprintStore: SprintStore, private sprintReportStore: SprintReportStore) {
+
     super(authStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -137,15 +150,18 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
   }
 
   private doLogout() {
-    this.updateState({ token: null });
-    this.userStore.update((state) => {
-      return {
-        ...state,
-        user: null,
-        currentOrganization: null,
-        currentProject: null
-      };
-    });
+    this.authStore.reset();
+    this.userStore.reset();
+    this.organizationStore.reset();
+    this.projectStore.reset();
+    this.boardStore.reset();
+    this.sprintStore.reset();
+    this.sprintReportStore.reset();
+    this.taskStore.reset();
+    this.taskTypeStore.reset();
+    this.taskStatusStore.reset();
+    this.taskPriorityStore.reset();
+
     this.router.navigate(['/login']);
   }
 
