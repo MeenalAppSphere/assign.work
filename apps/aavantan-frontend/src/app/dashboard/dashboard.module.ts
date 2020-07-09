@@ -8,7 +8,9 @@ import { RunningSprintComponent } from './running-sprint/running-sprint.componen
 import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { PermissionsComponent } from './settings/permissions/permissions.component';
 import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
-import { PopoverModule, SortableModule, TypeaheadModule } from 'ngx-bootstrap';
+import { PopoverModule } from 'ngx-bootstrap/popover';
+import { SortableModule } from 'ngx-bootstrap/sortable';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 import { JoyrideModule } from 'ngx-joyride';

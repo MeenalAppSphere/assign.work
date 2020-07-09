@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { TaskComponent } from './task.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
-import { TypeaheadModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { ActivityComponent } from './activity/activity.component';
 import { HistoryComponent } from './history/history.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
