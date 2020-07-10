@@ -1001,6 +1001,9 @@
   .ant-avatar-string  {
     color: $color-gray-light!important;
   }
+  .table>tr>th:last-child {
+    width:26%;
+  }
 }
 
 /* board-design */

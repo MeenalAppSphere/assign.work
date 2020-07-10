@@ -21,7 +21,6 @@ import { BoardService } from '../shared/services/board/board.service';
 import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
 import { Socket } from 'ngx-socket-io';
-import { environment } from '../../environments/environment';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleModel } from '@aavantan-app/models';
 import { NgxPermissionsService } from 'ngx-permissions';

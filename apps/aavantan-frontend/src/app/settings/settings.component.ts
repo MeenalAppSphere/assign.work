@@ -385,19 +385,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(500))
       .subscribe(() => {
         this.isCollaboratorExits = false;
-        const queryText = this.collaboratorForm.get('collaborator').value.trim();
+        let queryText = this.collaboratorForm.get('collaborator').value;
+        if(typeof queryText==='string' && queryText){
+          queryText = queryText.trim();
+        }
         let name = '';
         if (this.selectedCollaborator) {
-          name =
-            this.selectedCollaborator.firstName +
-            ' ' +
-            this.selectedCollaborator.lastName;
+          name = this.selectedCollaborator.firstName + ' ' + this.selectedCollaborator.lastName;
         }
 
-        if (
-          !queryText ||
-          this.collaboratorForm.get('collaborator').value === name
-        ) {
+        if (!queryText || this.collaboratorForm.get('collaborator').value === name ) {
           return;
         }
 
