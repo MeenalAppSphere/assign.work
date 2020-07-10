@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
-  BaseResponseModel, ChangePasswordModel,
+  AccessRoleGroupEnum,
+  BaseResponseModel, ChangePasswordModel, ProjectMembers,
   SearchProjectCollaborators,
   SearchUserModel,
   User
@@ -14,12 +15,14 @@ import { NzNotificationService } from 'ng-zorro-antd';
 import { Observable, of } from 'rxjs';
 import { UserState, UserStore } from '../../../store/user/user.store';
 import { UserUrls } from './user.url';
+import { NgxPermissionsService } from 'ngx-permissions';
+import { cloneDeep} from 'lodash';
 
 @Injectable()
 export class UserService extends BaseService<UserStore, UserState> {
 
   constructor(protected userStore: UserStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              protected notification: NzNotificationService) {
+              protected notification: NzNotificationService, private permissionsService: NgxPermissionsService) {
     super(userStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -36,6 +39,7 @@ export class UserService extends BaseService<UserStore, UserState> {
           currentProject: res.data.currentProject,
           currentOrganization: res.data.currentOrganization
         });
+        this.setPermissions(res.data);
         return res;
       }),
       catchError(err => {
@@ -108,5 +112,34 @@ export class UserService extends BaseService<UserStore, UserState> {
     );
   }
 
+  public setPermissions(profile:User) {
+    if(profile.currentProject) {
+      const permissionsList = [];
+      const role: ProjectMembers = profile.currentProject.members.find(member => member.userId === profile.id);
+      const recur = (obj: any, group: string) => {
+        Object.keys(obj).forEach(key => {
+          if (obj[key]) {
+            permissionsList.push(key);
+
+            // if group related to setting and access is true then haveSettingsRelatedAccess
+            if (!permissionsList.includes('canView_settingsMenu') && (group === AccessRoleGroupEnum.project || group === AccessRoleGroupEnum.boardSettings || group === AccessRoleGroupEnum.collaborators
+              || group === AccessRoleGroupEnum.status || group === AccessRoleGroupEnum.priority ||
+              group === AccessRoleGroupEnum.taskType || group === AccessRoleGroupEnum.teamCapacity)) {
+              permissionsList.push('canView_settingsMenu'); // 'canView_settingsMenu' is not is Permission.ts
+            }
+          }
+        });
+      };
+
+      Object.keys(role.roleDetails.accessPermissions).forEach(key => {
+        if (typeof role.roleDetails.accessPermissions[key] !== 'boolean') {
+          recur(role.roleDetails.accessPermissions[key], key);
+        }
+      });
+
+      this._generalService.permissions = cloneDeep(permissionsList);
+      this.permissionsService.loadPermissions(permissionsList);
+    }
+  }
 
 }

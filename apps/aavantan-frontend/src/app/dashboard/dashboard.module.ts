@@ -22,6 +22,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
 import { NoAccessComponent } from './not-found/no-access.component';
+import { NgxPermissionsRestrictStubModule } from 'ngx-permissions';
 
 const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} };
 
@@ -39,7 +40,8 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} }
     DndModule,
     SettingsModule,
     HighchartsChartModule,
-    SocketIoModule.forRoot(socketConfig)
+    SocketIoModule.forRoot(socketConfig),
+    NgxPermissionsRestrictStubModule
   ],
   exports: [],
   declarations: [

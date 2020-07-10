@@ -10,18 +10,10 @@ import { AddTaskTypeComponent } from './add-task-type/add-task-type.component';
 import { ColorSketchModule } from 'ngx-color/sketch';
 import { MoveStatusComponent } from './move-status/move-status.component';
 import { UpdateUserRoleComponent } from './update-user-role/update-user-role.component';
-import { NgxPermissionsGuard, NgxPermissionsRestrictStubModule } from 'ngx-permissions';
 
 const routes: Routes = [
   {
-    path: '', component: SettingsComponent,
-    canActivate: [NgxPermissionsGuard],
-    data: {
-      permissions: {
-        only: ['canView_settingsMenu'],
-        redirectTo: 'dashboard/no-access'
-      }
-    }
+    path: '', component: SettingsComponent
   }
 ];
 
@@ -32,8 +24,7 @@ const routes: Routes = [
     SharedModule,
     TypeaheadModule,
     SortableModule,
-    ColorSketchModule,
-    NgxPermissionsRestrictStubModule
+    ColorSketchModule
   ],
   exports: [
     AddStatusComponent

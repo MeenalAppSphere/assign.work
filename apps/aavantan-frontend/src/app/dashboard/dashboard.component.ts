@@ -69,13 +69,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.initialCheck();
     });
 
-    // get current user role from store
-    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.currentUserRole = res;
-        this.setPermissions();
-      }
-    });
+    // // get current user role from store
+    // this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+    //   if (res) {
+    //     this.currentUserRole = res;
+    //     this.setPermissions();
+    //   }
+    // });
 
     // listen for current project
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
