@@ -71,10 +71,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public priorityForm: FormGroup;
   public userRoleForm: FormGroup;
 
-  public activeView: any = {
-    title: 'Project',
-    view: 'project'
-  };
+  public activeView: any = {};
 
   public selectedAssignee: User = {};
   public selectedTaskType: TaskTypeModel;
@@ -231,7 +228,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       const recur = (obj: any, group: string) => {
         Object.keys(obj).forEach(key => {
-          if(havePermissions.includes(key) && !foundActive) {
+          if(havePermissions.includes(key) && !foundActive && !this.activeView.view) {
             this.activeView.view = group;
             foundActive = true;
           }
