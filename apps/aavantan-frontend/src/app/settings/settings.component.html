@@ -451,7 +451,7 @@
                                         </span>
 
                                         <span *ngIf="!item.isInviteAccepted" (click)="recallInvitation(item.emailId)"
-                                          class="text-danger p-l-10 font-size-12 font-weight-light">
+                                          class="text-danger p-l-10 font-size-12 font-weight-light cursor-pointer">
                                           <i nz-icon nzType="close" theme="outline"></i> Recall Invite</span>
 
                                         <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && (currentUserRole.type==='owner')">Change Role</span>
