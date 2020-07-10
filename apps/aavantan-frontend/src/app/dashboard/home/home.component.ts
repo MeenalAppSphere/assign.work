@@ -53,13 +53,13 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.getSprintReport(this.currentProject.sprint.id, this.currentProject.sprint.name);
         } else {
           this.isSprintAvailable = false;
+          this.isReportAvailable = false;
+          this.selectedSprint = null;
           this.setCurrentTimer();
         }
 
+        this.getAllClosedSprints();
       });
-
-
-    this.getAllClosedSprints();
 
     this.projectList = this._generalService.user.projects as Project[];
   }

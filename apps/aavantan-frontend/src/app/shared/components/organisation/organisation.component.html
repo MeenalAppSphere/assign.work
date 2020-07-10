@@ -64,30 +64,30 @@
 
     <form nz-form class="register-form" [formGroup]="orgForm" *ngIf="showCreateOrg">
 
-      <ng-container *ngIf="organizations?.length>0">
+<!--      <ng-container *ngIf="organizations?.length>0">-->
 
-        <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+<!--        <nz-list [nzDataSource]="organizations" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">-->
 
-          <ng-template #item let-item>
-            <a class="font-size-15" (click)="selectOrg(item)">
-              <nz-list-item class="p-l-20">
-                <nz-list-item-meta
-                  [nzTitle]="nzTitle"
-                  nzAvatar="assets/images/others/thumb-2.jpg"
-                  nzDescription="{{item.owner}}">
-                  <ng-template #nzTitle>
-                    <span class="font-size-15">{{item.name}}</span>
-                  </ng-template>
-                </nz-list-item-meta>
-              </nz-list-item>
-            </a>
-          </ng-template>
+<!--          <ng-template #item let-item>-->
+<!--            <a class="font-size-15" (click)="selectOrg(item)">-->
+<!--              <nz-list-item class="p-l-20">-->
+<!--                <nz-list-item-meta-->
+<!--                  [nzTitle]="nzTitle"-->
+<!--                  nzAvatar="assets/images/others/thumb-2.jpg"-->
+<!--                  nzDescription="{{item.owner}}">-->
+<!--                  <ng-template #nzTitle>-->
+<!--                    <span class="font-size-15">{{item.name}}</span>-->
+<!--                  </ng-template>-->
+<!--                </nz-list-item-meta>-->
+<!--              </nz-list-item>-->
+<!--            </a>-->
+<!--          </ng-template>-->
 
-        </nz-list>
+<!--        </nz-list>-->
 
-      </ng-container>
+<!--      </ng-container>-->
 
-      <ng-container *ngIf="organizations?.length===0">
+      <ng-container *ngIf="!organizations?.length || showCreateOrg">
 
         <form nz-form class="register-form" [formGroup]="orgForm">
 

@@ -371,21 +371,9 @@ export class BacklogComponent implements OnInit, OnDestroy {
 
           // check if error is related to tasks error or members error
           if (errorResponse.tasksError) {
-            // if sprint capacity is exceeding show confirm box to allow to exceed sprint capacity
-            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed) {
-
-              // uncheck item code here
-
-              this.addTaskToSprintInProgress = false;
-              await this.addTaskConfirmAfterError(task);
-              return;
-            } else {
-              // show error toaster
-              this.notification.error('Error', errorResponse.tasksError.reason);
-            }
-          } else {
-            // if member capacity is exceeding show confirm box to allow to exceed sprint capacity
-            if (errorResponse.membersError.reason === SprintErrorEnum.sprintCapacityExceed) {
+            // if sprint capacity or member capacity is exceeding show confirm box to allow to exceed sprint capacity
+            if (errorResponse.tasksError.reason === SprintErrorEnum.sprintCapacityExceed ||
+              errorResponse.tasksError.reason === SprintErrorEnum.memberCapacityExceed) {
 
               // uncheck item code here
 

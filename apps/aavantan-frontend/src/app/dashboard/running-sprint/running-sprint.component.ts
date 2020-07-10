@@ -45,7 +45,7 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
   public selectedTask = {
     columnIndex: null, taskIndex: null, taskItem: null
   };
-  public getStageInProcess: boolean;
+  public getRunningSprintInProcess: boolean;
   public closeSprintInProcess: boolean = false;
 
   public taskTypeDataSource: TaskTypeModel[] = [];
@@ -60,7 +60,7 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
 
   public currentProject: Project;
 
-  public moveFromStage: SprintColumn;
+  public moveFromColumn: SprintColumn;
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
@@ -160,13 +160,13 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
       // set filter to storage
       this._generalService.setAppFilter(this.currentProject.id, { sprintBoardFilter: this.filterSprintTasksRequest });
 
-      this.getStageInProcess = true;
+      this.getRunningSprintInProcess = true;
 
       const data = await this._sprintService.filterSprintTasks(this.filterSprintTasksRequest).toPromise();
       this.prepareBoardData(data);
-      this.getStageInProcess = false;
+      this.getRunningSprintInProcess = false;
     } catch (e) {
-      this.getStageInProcess = false;
+      this.getRunningSprintInProcess = false;
     }
   }
 
@@ -175,8 +175,8 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
       data.data.membersCapacity.forEach(member => {
         member.user.isSelected = this.filterSprintTasksRequest.assigneeIds.includes(member.userId.toString());
       });
-      data.data.columns.forEach((stage) => {
-        stage.tasks.forEach((task) => {
+      data.data.columns.forEach((column) => {
+        column.tasks.forEach((task) => {
           if (!task.task.priority) {
             task.task.priority = {
               name: null,
@@ -197,59 +197,33 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async moveTask(task: SprintColumnTask, column: SprintColumn) {
-    //push to target stage for ui
-    column.tasks.push(task);
-
-    //pop from source stage
-    if (this.moveFromStage) {
-      this.moveFromStage.tasks = this.moveFromStage.tasks.filter((ele) => {
-        if (ele.taskId !== task.taskId) {
-          return ele;
-        }
-      });
-    }
-
+  public async moveTask(task: SprintColumnTask, column: SprintColumn, dropIndex: number) {
     try {
 
       const json: MoveTaskToColumnModel = {
         projectId: this.currentProject.id,
         sprintId: this.boardData.id,
         columnId: column.id,
-        taskId: task.taskId
+        taskId: task.taskId,
+        dropIndex
       };
 
-      // console.log('json :', json);
-
-      this.getStageInProcess = true;
-      await this._sprintService.moveTaskToStage(json).toPromise();
-      this.moveFromStage = null;
+      this.getRunningSprintInProcess = true;
+      await this._sprintService.moveTaskToColumn(json).toPromise();
+      this.moveFromColumn = null;
 
       this.getBoardData();
     } catch (e) {
-
-      // revert ui changes
-      if (this.moveFromStage) {
-        this.moveFromStage.tasks.push(task);
-      }
-
-      //pop from source stage
-      column.tasks = column.tasks.filter((ele) => {
-        if (ele.taskId !== task.taskId) {
-          return ele;
-        }
-      });
-
-      this.getStageInProcess = false;
+      this.getRunningSprintInProcess = false;
     }
   }
 
   onDragStart(item: SprintColumn) {
-    this.moveFromStage = item;
+    this.moveFromColumn = item;
   }
 
   async onDragEnd($event, item: SprintColumn) {
-    this.moveTask($event.data, item);
+    this.moveTask($event.data, item, $event.index);
   }
 
   //============ close sprint =============//
@@ -321,7 +295,7 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
 
     } catch (e) {
       console.log(e);
-      this.getStageInProcess = false;
+      this.getRunningSprintInProcess = false;
     }
   }
 

@@ -6,6 +6,7 @@ import {
   ProjectMembers,
   ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
+  RecallProjectInvitationModel,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
@@ -53,9 +54,19 @@ export class ProjectController {
     return await this._projectService.updateCollaboratorRole(model);
   }
 
+  @Post('get-collaborators')
+  async getCollaborators(@Body('projectId') projectId: string) {
+    return await this._projectService.getCollaborators(projectId);
+  }
+
   @Post('resend-invitation')
   async resendInvitation(@Body() model: ResendProjectInvitationModel) {
     return await this._projectService.resendProjectInvitation(model);
+  }
+
+  @Post('recall-invitation')
+  async recallInvitation(@Body() model: RecallProjectInvitationModel) {
+    return await this._projectService.recallProjectInvitation(model);
   }
 
   @Post('update-template')

@@ -66,7 +66,8 @@ export class OrganizationService extends BaseService<Organization & Document> im
       // add organization to user organizations array
       await this._userService.updateUser(organization.createdBy as string, {
         $set: {
-          currentOrganizationId: result[0].id
+          currentOrganizationId: result[0].id,
+          currentProject: null
         }, $push: { organizations: result[0].id }
       }, session);
       return result[0];

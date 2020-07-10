@@ -15,6 +15,8 @@ import {
   ProjectWorkingDays,
   ResendProjectInvitationModel,
   SaveAndPublishBoardModel,
+  ProjectWorkingDays, RecallProjectInvitationModel,
+  ResendProjectInvitationModel, SaveAndPublishBoardModel,
   SearchProjectCollaborators,
   SearchUserModel, SettingPageTab,
   TaskStatusModel,
@@ -99,6 +101,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public isSearchingDefaultUser: boolean = false;
   public addCollaboratorsInProcess: boolean = false;
   public resendInviteInProcess: boolean = false;
+  public recallInviteInProcess: boolean = false;
   public removeCollaboratorInProcess: boolean = false;
   public modelChangedSearchCollaborators = new Subject<string>();
   public modelChangedSearchDefaultAssignee = new Subject<string>();
@@ -209,7 +212,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       nzPlacement: 'bottomRight'
     });
 
-    this.getBoardListRequestModal.projectId = this._generalService.currentProject.id;
     this.getBoardListRequestModal.count = 20;
     this.getBoardListRequestModal.page = 1;
   }
@@ -510,6 +512,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public activeTab(view: string, title: string) {
     // get all boards list when board settings tab get's activate
     if (view === 'boardSettings') {
+      this.getBoardListRequestModal.projectId = this.currentProject.id;
       this.getAllBoards();
     }
     if (view === 'security') {
@@ -671,6 +674,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * recall invitation
+   * @param {string} invitationToEmailId
+   */
+  public async recallInvitation(invitationToEmailId: string) {
+    this.recallInviteInProcess = true;
+    try {
+      const requestModel = new RecallProjectInvitationModel();
+      requestModel.projectId = this.currentProject.id;
+      requestModel.invitationToEmailId = invitationToEmailId;
+
+      await this._projectService.recallInvitation(requestModel).toPromise();
+      this.recallInviteInProcess = false;
+    } catch (e) {
+      this.recallInviteInProcess = false;
+    }
+  }
+
   //**********************//
   // Select Assignee form Typeahead DDL
   //**********************//
@@ -694,7 +715,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================== Stage tab ==================*/
-
   /*===============================================*/
 
   public addStage() {

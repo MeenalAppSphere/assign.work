@@ -153,6 +153,41 @@
                   nz-input nzSize="small">
               </nz-form-item>
 
+
+              <!-- region default assignee -->
+              <!--              <nz-form-item class="relative">-->
+              <!--                <nz-form-label nzFor="taskType">Default Assignee<span class="text-danger">*</span></nz-form-label>-->
+              <!--                <nz-form-control class="relative">-->
+              <!--                                <span class="assigned-user-icon">-->
+              <!--                              <nz-avatar [nzSize]="16" nzIcon="user"-->
+              <!--                                         [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null"></nz-avatar>-->
+              <!--                            </span>-->
+              <!--                  <nz-input-group [nzSuffix]="suffixDefaultIconSearch">-->
+              <!--                    <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input-->
+              <!--                           (ngModelChange)="selectDefaultAssigneeTypeahead($event)" nzSize="small"-->
+              <!--                           [nzAutocomplete]="autoAssignee"/>-->
+              <!--                  </nz-input-group>-->
+              <!--                  <nz-autocomplete #autoAssignee>-->
+              <!--                    <nz-auto-option *ngFor="let option of assigneeDataSource"-->
+              <!--                                    [nzLabel]="option && option.firstName ? option.firstName : option.emailId"-->
+              <!--                                    [nzValue]="option">-->
+              <!--                      <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"-->
+              <!--                                 [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>-->
+              <!--                      <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>-->
+              <!--                      <span *ngIf="option && option.lastName">&nbsp;{{ option && option.lastName }}</span>-->
+              <!--                      <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small-->
+              <!--                        class="text-muted">{{ option.emailId }}</small></div>-->
+              <!--                    </nz-auto-option>-->
+              <!--                  </nz-autocomplete>-->
+              <!--                </nz-form-control>-->
+              <!--                <ng-template #suffixDefaultIconSearch>-->
+              <!--                  <i nz-icon nzType="search" *ngIf="!isSearchingDefaultAssignee && (projectForm.controls['assigneeId'].value?.length===0 || !projectForm.controls['assigneeId'].value)"></i>-->
+              <!--                  <i nz-icon nzType="close" class="cursor-pointer" (click)="clearAssigeeSearchText()" *ngIf="!isSearchingDefaultAssignee && projectForm.controls['assigneeId'].value?.length>0"></i>-->
+              <!--                  <i class="fas fa-spin fa-spinner" *ngIf="isSearchingDefaultAssignee"></i>-->
+              <!--                </ng-template>-->
+              <!--              </nz-form-item>-->
+              <!-- endregion -->
+
               <!-- region default task status -->
               <nz-form-item class="max-width-ddls" *ngIf="statusList?.length>0">
                 <nz-form-label nzFor="taskType">Default Status <span class="text-danger">*</span></nz-form-label>
@@ -263,7 +298,7 @@
                                 <tr *ngFor="let data of smallTable.data; let index = index;">
                                     <td data-label="SN">{{(index + 1)}}</td>
                                     <td data-label="Name">
-                                      
+
                                       <a *ngxPermissionsOnly="['canViewBoardSettings_board', 'canModifyBoardSettings_board']" class="cursor-pointer font-weight-semibold text-primary" (click)="editBoard(data.id)">{{data.name}}</a>
 
                                     </td>
@@ -314,6 +349,8 @@
 
                     <!-- user access -->
                     <div class="col-md-9 ant-col-md-push-3">
+                      <nz-spin [nzSpinning]="resendInviteInProcess || recallInviteInProcess"
+                               nzTip="{{resendInviteInProcess ? 'Sending request...' : 'Recalling Invitation...'}}">
 
 
                         <form *ngxPermissionsOnly="['canAddMember_member']" nz-form class="collaborator-form" [formGroup]="collaboratorForm">
@@ -402,9 +439,9 @@
                                         <span class="text-green" *ngIf="item.isInviteAccepted">
                         <i nz-icon nzType="check-circle" class="m-r-5 font-size-18" nzTheme="fill"></i> <span>Active</span>
                                         </span>
-                                        <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">
-                        Invitation Sent
-                      </span>
+<!--                                        <span class="text-gray-light-2 d-block font-weight-light" *ngIf="item.isEmailSent && !item.isInviteAccepted">-->
+<!--                        Invitation Sent-->
+<!--                      </span>-->
                                     </td>
 
                                     <td class="relative">
@@ -412,6 +449,11 @@
                                         <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)" class="cursor-pointer text-primary p-r-10 font-size-12 font-weight-light">
                                           <i nz-icon nzType="mail" class="p-r-10" theme="outline"></i>Resend Invite
                                         </span>
+
+                                        <span *ngIf="!item.isInviteAccepted" (click)="recallInvitation(item.emailId)"
+                                          class="d-block text-danger p-l-10 font-size-12 font-weight-light">
+                                          <i nz-icon nzType="close" theme="outline"></i> Recall Invite</span>
+
                                         <span class="text-primary font-size-12 font-weight-light cursor-pointer" (click)="toggleUpdateUserRoleShow(item)" *ngIf="item.isInviteAccepted && (currentUserRole.type==='owner')">Change Role</span>
 <!--                                        <i *ngxPermissionsOnly="['canRemove_member']" (click)="removeCollaborators(item)" nz-icon nzType="close" theme="outline" class="action-remove text-gray-light-2 p-r-10 float-right p-t-5"></i>-->
 
@@ -421,6 +463,7 @@
                             </tbody>
 
                         </nz-table>
+                      </nz-spin>
                     </div>
 
                 </section>
@@ -556,7 +599,7 @@
                                     <span>
                     <i class="p-r-10 fas fa-square" nz-tooltip [nzTitle]="item.color"
                        [ngStyle]="{'color': item.color }"></i>
-                      {{item.name}}
+                    {{item.name}}
                   </span>
 
                                     <span class="float-right">
@@ -691,7 +734,7 @@
                                     </span>
 
                                     <span class="float-right d-flex">
-                                      <profile-name [user]="item.assignee"></profile-name>
+                                      <profile-name [user]="item.assignee" class="m-r-15"></profile-name>
                                         <i *ngxPermissionsOnly="['canModify_tasktype']" (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline" class="edit m-l-15 m-t-5"></i>
                                       <!--                    <i (click)="removeTaskType(item)" *ngxPermissionsOnly="['canRemove_tasktype']" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                                     </span>
@@ -736,8 +779,10 @@
 
               <div class="col-md-4 col-lg-3">
                 <span class="sn">{{i + 1}}.</span>
-                <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''" style="font-size: 10px!important;"
-                           [nzShape]="'circle'" [nzSize]="22" [nzText]="item.userDetails.firstName | slice : 0:1" class="text-black"></nz-avatar>
+                <nz-avatar [nzSrc]="item.userDetails && item.userDetails.profilePic ? item.userDetails.profilePic : ''"
+                           style="font-size: 10px!important;"
+                           [nzShape]="'circle'" [nzSize]="22" [nzText]="item.userDetails.firstName | slice : 0:1"
+                           class="text-black"></nz-avatar>
 
                                 <span class="p-l-5" *ngIf="item.userDetails && item.userDetails.firstName">{{item.userDetails.firstName}} {{item.userDetails.lastName}}</span>
                                 <div class="cap-email"><small class="text-muted">{{item.emailId}}</small></div>

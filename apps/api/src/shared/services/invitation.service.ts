@@ -18,7 +18,7 @@ export class InvitationService extends BaseService<Invitation & Document> implem
 
   constructor(
     @InjectModel(DbCollection.invitations) protected readonly _invitationModel: Model<Invitation & Document>,
-    private _moduleRef: ModuleRef, private _generalService: GeneralService,
+    private _moduleRef: ModuleRef, private _generalService: GeneralService
   ) {
     super(_invitationModel);
   }
@@ -178,6 +178,18 @@ export class InvitationService extends BaseService<Invitation & Document> implem
     } else {
       return [];
     }
+  }
+
+  /**
+   * expire invitation by id
+   * expires an invitation
+   * @param {string} invitationId
+   * @param {ClientSession} session
+   * @return {Promise<Invitation & Document>}
+   */
+  async expireInvitationById(invitationId: string, session: ClientSession) {
+    // expire invitation
+    return await this.updateById(invitationId, { $set: { isExpired: true } }, session);
   }
 
   /**
