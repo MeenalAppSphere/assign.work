@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import {
+  Notification,
   NotificationResponseModel,
   NotificationTypeEnum,
   Project,
@@ -229,16 +230,28 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnM
    * @param {string} exceptThisId
    * @param project
    */
-  private sendTaskRelatedUpdate(task: Task, event: { name: NotificationTypeEnum, arg: NotificationResponseModel }, exceptThisId: string,
-                                project: Project) {
+  private async sendTaskRelatedUpdate(task: Task, event: { name: NotificationTypeEnum, arg: NotificationResponseModel }, exceptThisId: string,
+                                      project: Project) {
 
-    // for(const [value, socketId] of this.filterOutNonTaskWatchers(task, exceptThisId)) {
-    //   this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
-    // }
+    const notificationDtos: Notification[] = [];
 
-    this.filterOutNonTaskWatchers(task, exceptThisId).forEach((value, socketId) => {
+    for (const [socketId, userId] of this.filterOutNonTaskWatchers(task, exceptThisId)) {
+      const notificationDto = new Notification();
+      notificationDto.projectId = project._id;
+      notificationDto.description = event.arg.msg;
+      notificationDto.link = event.arg.link;
+      notificationDto.createdById = this._generalService.userId;
+      notificationDto.userId = userId;
+
+      notificationDtos.push(notificationDto);
       this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
-    });
+    }
+
+    await this._notificationService.createNotification(notificationDtos, project._id);
+
+    // this.filterOutNonTaskWatchers(task, exceptThisId).forEach((userId, socketId) => {
+    //   this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
+    // });
   }
 
   /**

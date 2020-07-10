@@ -24,17 +24,16 @@ export class NotificationService extends BaseService<Notification & Document> {
   /**
    * create new notification
    * @param {Notification} dto
+   * @param projectId
    * @return {Promise<any>}
    */
-  createNotification(dto: Notification) {
+  createNotification(dto: Notification[], projectId: string) {
     return this.withRetrySession(async (session: ClientSession) => {
       // get project details
-      await this._projectService.getProjectDetails(dto.projectId);
-      // create notification module
-      const notification = new this._notificationModel(dto);
-      notification.createdById = this._generalService.userId;
+      await this._projectService.getProjectDetails(projectId);
 
-      return await this.create(notification, session);
+      // create notifications
+      return await this.createMany(dto, session);
     });
   }
 
