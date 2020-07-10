@@ -40,7 +40,9 @@ export class SideNavComponent implements OnInit, OnDestroy {
               private _taskService: TaskService,
               private router: Router, private _taskTypeQuery: TaskTypeQuery,
               private _projectService: ProjectService, private permissionsService: NgxPermissionsService) {
+  }
 
+  ngOnInit(): void {
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
       if (user) {
         this.organizations = user.organizations;
@@ -62,10 +64,6 @@ export class SideNavComponent implements OnInit, OnDestroy {
         this.currentOrganization = res;
       }
     });
-
-  }
-
-  ngOnInit(): void {
 
     // Get all access which is loading from dashboard component from userRoles
     this.permissionsService.permissions$.subscribe((permission) => {

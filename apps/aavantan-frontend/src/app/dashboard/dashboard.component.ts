@@ -22,11 +22,10 @@ import { ProjectQuery } from '../queries/project/project.query';
 import { ProjectService } from '../shared/services/project/project.service';
 import { Socket } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
-import { AccessRoleGroupEnum, NotificationResponseModel, NotificationTypeEnum } from '@aavantan-app/models';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleModel } from '@aavantan-app/models';
 import { NgxPermissionsService } from 'ngx-permissions';
-import { NotificationResponseModel, NotificationTypeEnum, Organization, Project, User } from '@aavantan-app/models';
+import { NotificationResponseModel, Organization, Project, User, AccessRoleGroupEnum, NotificationTypeEnum  } from '@aavantan-app/models';
 
 @Component({
   templateUrl: './dashboard.component.html'

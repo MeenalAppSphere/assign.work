@@ -25,9 +25,9 @@ import { TaskTypeService } from '../../services/task-type/task-type.service';
 import { UserRoleService } from '../../services/user-role/user-role.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ProjectQuery } from '../../../queries/project/project.query';
-import { COLORS } from '../../../shared/constant/color.constant'
-import { ROUTES } from '../../template/side-nav/side-nav-routes.config';
+import { COLORS } from '../../constant/color.constant';
 import { NgxPermissionsService } from 'ngx-permissions';
+import { cloneDeep } from 'lodash';
 
 
 @Component({
@@ -82,7 +82,6 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
               private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
-              private _projectQuery: ProjectQuery,
               private _userRoleService: UserRoleService, private permissionsService: NgxPermissionsService,
               private _projectQuery: ProjectQuery) {
   }
@@ -96,14 +95,10 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       }
     });
 
-
-    this.organizations = this._generalService.user && this._generalService.user.organizations as Organization[] || [];
-    this.currentOrganization = this._generalService.currentOrganization;
-
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
       if (user) {
         this.organizations = user.organizations as Organization[] || [];
-        this.projectList = user.projects as Project[] || [];
+        this.projectList = cloneDeep(user.projects as Project[] || []);
       } else {
         this.organizations = [];
         this.projectList = [];
