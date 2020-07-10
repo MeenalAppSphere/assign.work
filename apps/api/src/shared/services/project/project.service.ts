@@ -626,7 +626,13 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   async getAllProjects(model: GetAllProjectsModel) {
     const filter = {
-      organizationId: model.organizationId
+      organizationId: model.organizationId,
+      $and: [{
+        $or: [
+          { createdBy: this._generalService.userId },
+          { members: { $elemMatch: { userId: this._generalService.userId, isInviteAccepted: true } } }
+        ]
+      }]
     };
 
     // populate
