@@ -52,7 +52,7 @@ const providers = [
 @Global()
 @Module({
   imports: [
-    EasyconfigModule.register(environment.heroku ? {} : { path: path.resolve(__dirname, '.env') }),
+    // EasyconfigModule.register({ path: path.resolve(__dirname, '.env') }),
     WinstonModule.forRoot({
       level: 'error',
       transports: [
