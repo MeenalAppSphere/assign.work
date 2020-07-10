@@ -26,6 +26,7 @@ import { TaskTypeService } from './services/task-type/task-type.service';
 import { BoardService } from './services/board/board.service';
 import { TaskCommentService } from './services/task-comment/task-comment.service';
 import { SprintReportService } from './services/sprint-report/sprint-report.service';
+import { environment } from '../environments/environment';
 
 const providers = [
   UsersService,
@@ -51,14 +52,14 @@ const providers = [
 @Global()
 @Module({
   imports: [
-    EasyconfigModule.register({ path: path.resolve(__dirname, '.env') }),
+    EasyconfigModule.register(environment.heroku ? {} : { path: path.resolve(__dirname, '.env') }),
     WinstonModule.forRoot({
       level: 'error',
       transports: [
         new winston.transports.File({
           format: winston.format.combine(
             winston.format.timestamp(),
-            winston.format.prettyPrint(),
+            winston.format.prettyPrint()
           ),
           tailable: true,
           maxFiles: 2,

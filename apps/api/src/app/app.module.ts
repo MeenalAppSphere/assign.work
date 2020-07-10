@@ -22,6 +22,8 @@ import { TaskCommentModule } from '../task-comment/task-comment.module';
 import { environment } from '../environments/environment';
 import { SprintReportModule } from '../sprint-report/sprint-report.module';
 import { AppGateway } from './app.gateway';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 // set db connection string on basis of environment
 const dbConnectionString = environment.production ? process.env.DB_CONNECTION_STRING_PROD : process.env.DB_CONNECTION_STRING_DEV;
@@ -50,7 +52,11 @@ const dbConnectionString = environment.production ? process.env.DB_CONNECTION_ST
     TaskTypeModule,
     BoardModule,
     TaskCommentModule,
-    SprintReportModule
+    SprintReportModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'UI', 'dist'),
+      exclude: ['/api*']
+    })
   ],
   providers: [
     AppGateway

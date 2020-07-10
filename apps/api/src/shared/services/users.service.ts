@@ -169,7 +169,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
    * @param id
    */
   async getUserProfile(id: string) {
-    const userDetails = await this._userModel.findById(new Types.ObjectId(id))
+    const userDetails: any = await this._userModel.findById(new Types.ObjectId(id))
       .populate([{
         path: 'projects',
         select: 'name description organizationId createdAt createdById updatedAt',

@@ -66,6 +66,30 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "heroku-prod": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/aavantan-frontend/src/environments/environment.ts",
+                  "with": "apps/aavantan-frontend/src/environments/environment.heroku-prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                }
+              ]
             }
           }
         },
@@ -161,7 +185,6 @@
             "tsConfig": "apps/api/tsconfig.app.json",
             "assets": [
               "apps/api/src/assets",
-              "apps/api/src/.env",
               "apps/api/src/shared/email-templates"
             ]
           },
@@ -174,6 +197,17 @@
                 {
                   "replace": "apps/api/src/environments/environment.ts",
                   "with": "apps/api/src/environments/environment.prod.ts"
+                }
+              ]
+            },
+            "heroku-prod": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/api/src/environments/environment.ts",
+                  "with": "apps/api/src/environments/environment.heroku-prod.ts"
                 }
               ]
             }
