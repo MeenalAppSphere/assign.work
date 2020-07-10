@@ -14,7 +14,7 @@ export class NoAccessComponent implements OnInit {
 
     // if someone access direct this link and they have permission
     this.permissionsService.permissions$.subscribe((permission) => {
-      if(permission.canView_settingsMenu){
+      if(!permission.canView_settingsMenu){
         this.router.navigateByUrl('dashboard');
       }
     });

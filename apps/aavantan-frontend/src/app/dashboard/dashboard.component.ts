@@ -233,9 +233,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           permissionsList.push(key);
 
           // if group related to setting and access is true then haveSettingsRelatedAccess
-          if(group===AccessRoleGroupEnum.project || group===AccessRoleGroupEnum.boardSettings || group===AccessRoleGroupEnum.collaborators
+          if(!permissionsList.includes('canView_settingsMenu') && (group===AccessRoleGroupEnum.project || group===AccessRoleGroupEnum.boardSettings || group===AccessRoleGroupEnum.collaborators
             || group===AccessRoleGroupEnum.status || group===AccessRoleGroupEnum.priority ||
-            group===AccessRoleGroupEnum.taskType || group===AccessRoleGroupEnum.teamCapacity){
+            group===AccessRoleGroupEnum.taskType || group===AccessRoleGroupEnum.teamCapacity)){
             permissionsList.push('canView_settingsMenu'); // 'canView_settingsMenu' is not is Permission.ts
           }
         }
