@@ -232,6 +232,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect, OnM
   private sendTaskRelatedUpdate(task: Task, event: { name: NotificationTypeEnum, arg: NotificationResponseModel }, exceptThisId: string,
                                 project: Project) {
 
+    // for(const [value, socketId] of this.filterOutNonTaskWatchers(task, exceptThisId)) {
+    //   this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
+    // }
+
     this.filterOutNonTaskWatchers(task, exceptThisId).forEach((value, socketId) => {
       this.server.to(socketId).emit(event.name, { ...event.arg, projectId: project._id, projectName: project.name });
     });
