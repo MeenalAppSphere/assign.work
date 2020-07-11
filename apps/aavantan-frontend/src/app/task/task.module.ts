@@ -9,6 +9,7 @@ import { HistoryComponent } from './history/history.component';
 import { EditCommentComponent } from './edit-comment/edit-comment.component';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { QuillModule } from 'ngx-quill';
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 const routes: Routes = [
   { path: '', component: TaskComponent },
@@ -22,7 +23,8 @@ const routes: Routes = [
     SharedModule,
     TypeaheadModule,
     NzPopoverModule,
-    QuillModule.forRoot()
+    QuillModule.forRoot(),
+    NgxPermissionsModule.forChild()
   ],
   exports: [
 
