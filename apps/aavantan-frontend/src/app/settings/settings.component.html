@@ -18,7 +18,7 @@
 
 
       <!-- Project -->
-      <li *ngxPermissionsOnly="['canAdd_project','canModify_project']">
+      <li *ngxPermissionsOnly="['canModify_project']">
         <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view===tabs[0].id}" (click)="activeTab(tabs[0].id, tabs[0].label)">
           <img class="active-img" [ngClass]="activeView.view===tabs[0].id ? 'active-tab-img' : '' " src="../../assets/images/icons/{{tabs[0].iconActive}}" />
           <img class="inactive-img" src="../../assets/images/icons/{{tabs[0].icon}}" />
@@ -133,7 +133,7 @@
           </span>
         </span>
 
-        <button *ngxPermissionsOnly="['canAdd_project']" class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
+        <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
         </button>
 
       </ng-template>

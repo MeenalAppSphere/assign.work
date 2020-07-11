@@ -29,7 +29,7 @@
             <div class="horizontal-list">
               <h4 class="font-size-14 text-gray-light m-b-15">Recent Project</h4>
 
-              <div *ngIf="canAdd_project" class="recent-item" (click)="addNewProject()" style="margin-left:-12px;">
+              <div *ngIf="currentUserRole.type==='owner'" class="recent-item" (click)="addNewProject()" style="margin-left:-12px;">
                 <div class="project-box add-project">
                   <img src="../../../../assets/images/icons/icon_add_project.svg">
                 </div>

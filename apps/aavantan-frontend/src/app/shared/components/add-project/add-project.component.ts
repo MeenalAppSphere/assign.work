@@ -9,7 +9,7 @@ import {
   ProjectTemplateEnum,
   SearchUserModel,
   SwitchProjectRequest,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { UserService } from '../../services/user/user.service';
 import { ProjectService } from '../../services/project/project.service';
@@ -73,7 +73,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public isSearching: boolean;
   public searchSatarted: boolean;
   public isProjectNotFound: boolean;
-  public canAdd_project:boolean;
+  public currentUserRole: UserRoleModel;
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
@@ -82,16 +82,16 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
               private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
-              private _userRoleService: UserRoleService, private permissionsService: NgxPermissionsService,
+              private _userRoleService: UserRoleService,
               private _projectQuery: ProjectQuery) {
   }
 
   ngOnInit() {
 
-    // Get all access which is loading from dashboard component from userRoles
-    this.permissionsService.permissions$.subscribe((permission) => {
-      if(permission.canAdd_project) {
-        this.canAdd_project = true;
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
       }
     });
 

@@ -32,7 +32,6 @@ export class ProjectController {
   }
 
   @Post()
-  @Roles('project','canAdd_project')
   async createProject(@Body() model: Project) {
     return await this._projectService.createProject(model);
   }
