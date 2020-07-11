@@ -128,8 +128,9 @@
 
             <nz-form-item>
               <nz-form-control>
-                <label nz-checkbox formControlName="agree">
-                  <span>I have read the <a>agreement</a></span>
+                <label nz-checkbox formControlName="agree" [disabled]="signUpForm.invalid || !signUpForm.get('agree').value">
+                  <span>I have read <a (click)="$event.stopPropagation()" href="assets/TermsAndCondition.pdf"
+                                       target="_blank" class="text-primary m-r-15">Terms &amp; Conditions</a></span>
                 </label>
               </nz-form-control>
             </nz-form-item>
