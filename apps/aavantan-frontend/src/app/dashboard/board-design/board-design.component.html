@@ -125,9 +125,9 @@
                 </div>
 
                 <div class="column" *ngFor="let column of activeBoard?.columns; let last" [dndDraggable]="column"
-                     [dndEffectAllowed]="'move'">
+                     [dndEffectAllowed]="'move'" [dndDisableIf]="!havePermissionsToModify">
 
-                  <div class="card card-block cursor-move">
+                  <div class="card card-block" [ngClass]="{'cursor-move': havePermissionsToModify}">
 
                     <div class="card-header d-flex justify-content-between">{{column.headerStatus?.name}}
 
@@ -144,6 +144,7 @@
 
                       <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses"
                            [dndDraggable]="includedStatus.status"
+                           [dndDisableDragIf]="!havePermissionsToModify"
                            [dndEffectAllowed]="'move'">
                         <div class="flex-row">
                           <span class="text-black">

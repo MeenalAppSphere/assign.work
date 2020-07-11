@@ -30,22 +30,20 @@ const routes: Routes = [
       { path: 'board-setting/:boardId', component: BoardDesignComponent },
       { path: 'active_sprint', component: ActivesprintComponent },
       { path: 'no-access', component: NoAccessComponent },
-      { path: 'plan-sprint', loadChildren: () => import('../plan-sprint/plan-sprint.module').then(p => p.PlanSprintModule) },
+      {
+        path: 'plan-sprint',
+        loadChildren: () => import('../plan-sprint/plan-sprint.module').then(p => p.PlanSprintModule)
+      },
       { path: 'backlog', loadChildren: () => import('../backlog/backlog.module').then(p => p.BacklogModule) },
       { path: 'task', loadChildren: () => import('../task/task.module').then(p => p.TaskModule) },
       {
-        path: 'settings', loadChildren: () => import('../settings/settings.module').then(p => p.SettingsModule),
-        canActivate: [NgxPermissionsGuard],
-        data: {
-          permissions: {
-            only: ['canView_settingsMenu'],
-            redirectTo: 'dashboard/no-access'
-          }
-        }},
+        path: 'settings',
+        loadChildren: () => import('../settings/settings.module').then(p => p.SettingsModule),
+      },
       {
         path: 'profile', loadChildren: () => import('../profile/profile.module').then(p => p.ProfileModule)
       }
-    ],
+    ]
   }
 ];
 

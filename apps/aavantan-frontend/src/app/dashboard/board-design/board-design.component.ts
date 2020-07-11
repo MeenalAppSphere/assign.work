@@ -84,14 +84,19 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
 
   // for permission
   public currentUserRole:UserRoleModel;
+  public havePermissionsToModify:boolean;
 
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
               private _boardService: BoardService, private _generalService: GeneralService, private _boardQuery: BoardQuery,
               private _activatedRoute: ActivatedRoute, private modal: NzModalService,
-              private permissionService : NgxPermissionsService) {
+              private permissionsService : NgxPermissionsService) {
   }
 
   ngOnInit() {
+    // Get all access which is loaded from dashboard component from userRoles
+    this.permissionsService.permissions$.subscribe((permission) => {
+      this.havePermissionsToModify = !!permission['canModifyBoardSettings_board'];
+    })
     this.boardId = this._activatedRoute.snapshot.params['boardId'];
 
     if (this.boardId) {

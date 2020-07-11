@@ -137,6 +137,7 @@ export class UserService extends BaseService<UserStore, UserState> {
         }
       });
 
+      console.log(permissionsList);
       this._generalService.permissions = cloneDeep(permissionsList);
       this.permissionsService.loadPermissions(permissionsList);
     }

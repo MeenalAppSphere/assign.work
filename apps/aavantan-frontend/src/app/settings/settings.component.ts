@@ -219,8 +219,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Get all access which is loaded from dashboard component from userRoles
     this.permissionsService.permissions$.subscribe((permission) => {
+
+      if (!permission['canView_settingsMenu']) {
+        this.router.navigate(['dashboard', 'no-access']);
+      }
+
       const havePermissions = [];
-      let foundActive:boolean = false;
+      let foundActive: boolean = false;
 
       Object.keys(permission).forEach(key => {
         havePermissions.push(permission[key].name);
@@ -228,7 +233,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       const recur = (obj: any, group: string) => {
         Object.keys(obj).forEach(key => {
-          if(havePermissions.includes(key) && !foundActive && !this.activeView.view) {
+          if (havePermissions.includes(key) && !foundActive && !this.activeView.view) {
             this.activeView.view = group;
             foundActive = true;
           }
@@ -383,7 +388,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.isCollaboratorExits = false;
         let queryText = this.collaboratorForm.get('collaborator').value;
-        if(typeof queryText==='string' && queryText){
+        if (typeof queryText === 'string' && queryText) {
           queryText = queryText.trim();
         }
         let name = '';
@@ -391,7 +396,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           name = this.selectedCollaborator.firstName + ' ' + this.selectedCollaborator.lastName;
         }
 
-        if (!queryText || this.collaboratorForm.get('collaborator').value === name ) {
+        if (!queryText || this.collaboratorForm.get('collaborator').value === name) {
           return;
         }
 
@@ -464,7 +469,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * bind current project value in project form
    */
   public bindProjectForm() {
-    setTimeout(()=>{
+    setTimeout(() => {
       this.projectForm.patchValue({
         id: this.currentProject.id,
         name: this.currentProject.name,
@@ -473,13 +478,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
         defaultTaskStatusId: this.currentProject.settings.defaultTaskStatusId,
         defaultTaskPriorityId: this.currentProject.settings.defaultTaskPriorityId
       });
-    },200);
+    }, 200);
   }
 
   public getProjects() {
     try {
       this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
-        if (res && res.length>0) {
+        if (res && res.length > 0) {
           this.projectListData = res;
         }
       });
@@ -707,6 +712,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   /*===============================================*/
   /*================== Stage tab ==================*/
+
   /*===============================================*/
 
   public addStage() {
@@ -1085,12 +1091,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     item.checked = !item.checked;
     const group = item.group;
 
-    if(item.value.includes('Modify')) {
-      const addValue = item.value.replace('Modify','View');
+    if (item.value.includes('Modify')) {
+      const addValue = item.value.replace('Modify', 'View');
 
-      if(this.roleData.accessPermissions[group][addValue]!==undefined) {
+      if (this.roleData.accessPermissions[group][addValue] !== undefined) {
 
-        if(!this.roleData.accessPermissions[group][addValue]) {
+        if (!this.roleData.accessPermissions[group][addValue]) {
           this.roleData.accessPermissions[group][addValue] = item.checked;
         }
 
