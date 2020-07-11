@@ -92,6 +92,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public resendInviteInProcess: boolean = false;
   public recallInviteInProcess: boolean = false;
   public removeCollaboratorInProcess: boolean = false;
+  public removeCollaboratorModalIsVisible:boolean= false;
+  public removeCollaboratorData:ProjectMembers;
   public modelChangedSearchCollaborators = new Subject<string>();
   public modelChangedSearchDefaultAssignee = new Subject<string>();
   public selectedDefaultAssignee: User = {};
@@ -410,27 +412,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.isCollaboratorExits = false;
   }
 
-  async removeCollaborators(user: ProjectMembers) {
+  async toggleRemoveCollaborator(collaborator?: ProjectMembers) {
     try {
-
-      this.modalService.confirm({
-        nzTitle: 'Are you sure want to remove this Collaborator from this Project?',
-        nzOnOk: () => {
-          this.modalService.closeAll();
-
-          this.removeCollaboratorInProcess = false;
-          const json: any = {
-            projectId: this._generalService.currentProject.id,
-            userId: user.userId
-          };
-
-          this.projectMembersList = this.projectMembersList.filter(item => item.emailId !== user.emailId);
-          // await this._projectService.removeCollaborators(json).toPromise();
-          this.removeCollaboratorInProcess = false;
-
-        }
-      });
-
+      this.removeCollaboratorData = collaborator ? collaborator : null;
+      this.removeCollaboratorModalIsVisible = !this.removeCollaboratorModalIsVisible;
 
     } catch (e) {
       this.removeCollaboratorInProcess = false;

@@ -9,6 +9,7 @@ import { AddStatusComponent } from './add-status/add-status.component';
 import { AddTaskTypeComponent } from './add-task-type/add-task-type.component';
 import { ColorSketchModule } from 'ngx-color/sketch';
 import { MoveStatusComponent } from './move-status/move-status.component';
+import { RemoveCollaboratorComponent } from './remove-collaborator/remove-collaborator.component';
 
 const routes: Routes = [
   { path: '', component: SettingsComponent }
@@ -31,7 +32,8 @@ const routes: Routes = [
     AddStatusComponent,
     AddPriorityComponent,
     AddTaskTypeComponent,
-    MoveStatusComponent
+    MoveStatusComponent,
+    RemoveCollaboratorComponent
   ]
 })
 export class SettingsModule {

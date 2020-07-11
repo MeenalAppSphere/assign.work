@@ -1,0 +1,37 @@
+.task-type-section{
+  .ant-form-item{
+    margin-bottom: 5px;
+  }
+  .ant-input{
+    padding: 6px 11px!important;
+  }
+  .task-type-input{
+    //text-transform: uppercase;
+  }
+  input[type="color"] {
+    -webkit-appearance: none;
+    border: none;
+    width: 20px;
+    height: 20px;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+  }
+
+  .assigned-user-icon {
+    position: absolute;
+    z-index: 1;
+    left: 6px;
+    top: -2px;
+  }
+
+  .assigned-user-input {
+    padding-left: 28px !important;
+    height: 35px;
+  }
+
+}
+
