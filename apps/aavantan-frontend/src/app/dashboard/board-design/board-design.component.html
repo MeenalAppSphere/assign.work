@@ -85,13 +85,20 @@
           </div>
 
           <div class="col-md-8" [ngClass]="activeBoard ? 'text-right' : 'text-left'">
-            <button *ngxPermissionsOnly="['canAddBoardSettings_board','canModifyBoardSettings_board']" nz-button nzType="primary" [disabled]="!boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
-                   || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
-                    (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
-            </button>
-            <button *ngxPermissionsOnly="['canAddBoardSettings_board','canModifyBoardSettings_board']" class="m-l-5" nz-button nzType="primary" (click)="saveAndPublish()"
-                    [disabled]="!activeBoard?.id || !boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
-                   || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess">Save &amp; Publish</button>
+
+            <span *ngxPermissionsOnly="['canAddBoardSettings_board','canModifyBoardSettings_board']" >
+
+              <span *ngIf="showActionButtons">
+              <button nz-button nzType="primary" [disabled]="!boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+                     || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess"
+                      (click)="saveForm()" [nzLoading]="createBoardInProcess || updateBoardInProcess">Save
+              </button>
+              <button class="m-l-5" nz-button nzType="primary" (click)="saveAndPublish()"
+                      [disabled]="!activeBoard?.id || !boardDesignForm.valid || getActiveBoardInProcess || addColumnInBoardInProcess || mergeStatusInProcess
+                     || mergeColumnInProcess || showColumnStatusInProcess || hideColumnStatusInProcess || hideColumnInProcess">Save &amp; Publish</button>
+              </span>
+            </span>
+
             <!--          <button (click)="toggleHiddenStatusModalShow()" nz-button nzType="link" class="m-l-5"-->
             <!--                  [disabled]="!boardDesignForm.valid"><i nz-icon nzType="eye" nzTheme="outline" nz-tooltip-->
             <!--                                                         [nzTitle]="'Hide status'"></i>Hidden Status-->
@@ -125,16 +132,17 @@
                 </div>
 
                 <div class="column" *ngFor="let column of activeBoard?.columns; let last" [dndDraggable]="column"
-                     [dndEffectAllowed]="'move'" [dndDisableIf]="!havePermissionsToModify">
+                     [dndEffectAllowed]="'move'" [dndDisableIf]="!(showActionButtons || havePermissionsToModify)">
 
-                  <div class="card card-block" [ngClass]="{'cursor-move': havePermissionsToModify}">
+                  <div class="card card-block" [ngClass]="{'cursor-move': showActionButtons || havePermissionsToModify}">
 
                     <div class="card-header d-flex justify-content-between">{{column.headerStatus?.name}}
 
-                      <div class="pull-left" *ngxPermissionsOnly="['canModifyBoardSettings_board']">
+                      <div class="pull-left" *ngxPermissionsOnly="['canAddBoardSettings_board','canModifyBoardSettings_board']">
+                        <span *ngIf="showActionButtons">
                         <i nz-icon nzType="close" nzTheme="outline" nz-tooltip
                            *ngIf="!column.headerStatus?.isDefault" (click)="hideColumn(column.headerStatusId)"
-                           [nzTitle]="'Remove Column'"></i>
+                           [nzTitle]="'Remove Column'"></i></span>
                       </div>
 
                     </div>
@@ -142,9 +150,9 @@
                     <div class="card-body status-list status-box-scrollable" dndDropzone dndEffectAllowed="copyMove"
                          dndHorizontal="true" (dndDrop)="mergeRequest($event, column.headerStatusId)">
 
-                      <div class="item bg-white" *ngFor="let includedStatus of column.includedStatuses"
+                      <div class="item bg-white" [ngClass]="{'cursor-default': !showActionButtons || !havePermissionsToModify}" *ngFor="let includedStatus of column.includedStatuses"
                            [dndDraggable]="includedStatus.status"
-                           [dndDisableDragIf]="!havePermissionsToModify"
+                           [dndDisableDragIf]="!(showActionButtons || havePermissionsToModify)"
                            [dndEffectAllowed]="'move'">
                         <div class="flex-row">
                           <span class="text-black">

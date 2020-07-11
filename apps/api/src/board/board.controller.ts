@@ -25,7 +25,7 @@ export class BoardController {
   }
 
   @Post('create')
-  @Roles('canAddBoardSettings_board')
+  @Roles('boardSettings','canAddBoardSettings_board')
   async createBoard(@Body() model: BoardModel) {
     return await this._boardService.createUpdateBoard(model);
   }

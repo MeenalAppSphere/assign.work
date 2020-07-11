@@ -20,7 +20,7 @@ import { GeneralService } from '../../shared/services/general.service';
 import { BoardQuery } from '../../queries/board/board.query';
 import { DndDropEvent } from 'ngx-drag-drop/dnd-dropzone.directive';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NzModalService } from 'ng-zorro-antd';
 import { NgxPermissionsService } from 'ngx-permissions';
 
@@ -83,32 +83,46 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
   public assignUserDetails: User;
 
   // for permission
-  public currentUserRole:UserRoleModel;
   public havePermissionsToModify:boolean;
+  public havePermissionsToAdd:boolean;
+  public showActionButtons:boolean;
+  public permisssions:any;
 
   constructor(private FB: FormBuilder, private _userQuery: UserQuery, private _taskStatusQuery: TaskStatusQuery,
               private _boardService: BoardService, private _generalService: GeneralService, private _boardQuery: BoardQuery,
               private _activatedRoute: ActivatedRoute, private modal: NzModalService,
-              private permissionsService : NgxPermissionsService) {
+              private permissionsService : NgxPermissionsService, private router: Router) {
   }
 
   ngOnInit() {
     // Get all access which is loaded from dashboard component from userRoles
     this.permissionsService.permissions$.subscribe((permission) => {
-      this.havePermissionsToModify = !!permission['canModifyBoardSettings_board'];
-    })
-    this.boardId = this._activatedRoute.snapshot.params['boardId'];
+      this.permisssions = permission;
+      if (!permission['canView_settingsMenu']) { // redirect to no-access page if there is no ant setting access
+        this.router.navigate(['dashboard', 'no-access']);
+      }else {
 
-    if (this.boardId) {
-      // get board data by board id
-      this._boardService.getActiveBoard({
-        projectId: this._generalService.currentProject.id,
-        boardId: this.boardId
-      }).subscribe();
-    } else {
-      // set active board as null because we want to create a new board
-      this._boardService.setActiveBoard(null);
-    }
+        this.boardId = this._activatedRoute.snapshot.params['boardId'];
+        if (this.boardId) {
+          // get board data by board id
+          this._boardService.getActiveBoard({
+            projectId: this._generalService.currentProject.id,
+            boardId: this.boardId
+          }).subscribe();
+        } else {
+          // set active board as null because we want to create a new board
+          this._boardService.setActiveBoard(null);
+        }
+
+      }
+
+      this.havePermissionsToModify = !!this.permisssions['canModifyBoardSettings_board'];
+      this.havePermissionsToAdd = !!this.permisssions['canAddBoardSettings_board'];
+
+      // if board id and modify permission both then show Save buttons
+      this.showActionButtons = !(this.havePermissionsToAdd && !this.havePermissionsToModify && this.boardId);
+
+    })
 
     this.boardDesignForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
@@ -130,6 +144,17 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
     this._boardQuery.createBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
       this.createBoardInProcess = inProcess;
     });
+
+    // set buttons state board in success activeBoard data from store
+    this._boardQuery.activeBoard$.pipe(untilDestroyed(this)).subscribe(activeBoard => {
+      if (activeBoard) {
+        this.boardId = activeBoard.id;
+        this.havePermissionsToModify = !!this.permisssions['canModifyBoardSettings_board'];
+        this.havePermissionsToAdd = !!this.permisssions['canAddBoardSettings_board'];
+        // if board id and modify permission both then show Save buttons
+        this.showActionButtons = !(this.havePermissionsToAdd && !this.havePermissionsToModify && this.boardId);
+      }
+    })
 
     // set update board in process flag from store
     this._boardQuery.updateBoardInProcess$.pipe(untilDestroyed(this)).subscribe(inProcess => {
@@ -184,16 +209,6 @@ export class BoardDesignComponent implements OnInit, OnDestroy {
     // merge column in process
     this._boardQuery.hiddenStatuses$.pipe(untilDestroyed(this)).subscribe(list => {
       this.hiddenStatuses = list;
-    });
-
-    // get current user role from store
-    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.currentUserRole = res;
-
-
-        //this.permissionService.loadPermissions(["ADMIN"]);
-      }
     });
 
   }
