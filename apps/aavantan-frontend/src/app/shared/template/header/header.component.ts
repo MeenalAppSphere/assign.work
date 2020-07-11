@@ -5,9 +5,21 @@ import { Router } from '@angular/router';
 import { GeneralService } from '../../services/general.service';
 import { OrganizationQuery } from '../../../queries/organization/organization.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import { Organization, Project, User } from '@aavantan-app/models';
+import {
+  GetAllTaskRequestModel,
+  Organization,
+  Project,
+  SearchProjectRequest,
+  SwitchProjectRequest,
+  User
+} from '@aavantan-app/models';
 import { UserService } from '../../services/user/user.service';
 import { UserQuery } from '../../../queries/user/user.query';
+import { ProjectService } from '../../services/project/project.service';
+import { ProjectQuery } from '../../../queries/project/project.query';
+import { TaskService } from '../../services/task/task.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -18,10 +30,17 @@ import { UserQuery } from '../../../queries/user/user.query';
 export class HeaderComponent implements OnInit, OnDestroy {
   public currentProject: Project = null;
   public currentUser: User = null;
+  public projectDataSource: Project[] = [];
+  public projects: Project[] = [];
+  public isProjectSearching: boolean;
+  public projectSearchKey: string;
+
+  public searchProjectSubject$: Subject<string> = new Subject<string>();
 
   constructor(private themeService: ThemeConstantService, private router: Router, private readonly _authService: AuthService,
               private readonly _generalService: GeneralService, private _organizationQuery: OrganizationQuery, private _userService: UserService,
-              private _userQuery: UserQuery) {
+              private _userQuery: UserQuery, private _projectQuery: ProjectQuery, private _projectService: ProjectService,
+              private _taskService: TaskService) {
   }
 
   public projectModalIsVisible: boolean = false;
@@ -31,6 +50,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public isFolded: boolean;
   public isExpand: boolean;
   public selectedOrgId: string = null;
+  public switchingProjectInProcess: boolean;
+  public isProjectNotFound: boolean;
 
   notificationList = [
     // {
@@ -72,8 +93,42 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     });
 
+    this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res && res.length>0 && this.currentProject) {
+        this.projects = res;
+        this.projectDataSource = res;
+        this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
+        if(this.projectDataSource.length === 0 ){
+          this.isProjectNotFound = true;
+        }else {
+          this.isProjectNotFound = false;
+        }
+      }
+    });
+
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+
+    // search sprint tasks event
+    this.searchProjectSubject$.pipe(
+      debounceTime(700),
+      distinctUntilChanged()
+    ).subscribe(val => {
+
+      this.isProjectSearching = true;
+      this._projectService.searchProject(val).subscribe((data) => {
+        this.projectDataSource = data.data;
+        this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
+        if(this.projectDataSource.length === 0 ){
+          this.isProjectNotFound = true;
+        }else {
+          this.isProjectNotFound = false;
+        }
+        this.isProjectSearching = false;
+      });
+
+    });
+
   }
 
   toggleFold() {
@@ -103,6 +158,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public organizationModalShow(): void {
     this.organizationModalIsVisible = !this.organizationModalIsVisible;
   }
+
+
+  public clearProjectSearchText() {
+    this.projectSearchKey = null;
+    this.projectDataSource = this.projects;
+    this.projectDataSource = this.projectDataSource.filter((project) => project.id!==this.currentProject.id);
+    if(this.projectDataSource.length === 0 ){
+      this.isProjectNotFound = true;
+    }else {
+      this.isProjectNotFound = false;
+    }
+  }
+
+  async switchProject(project: Project) {
+
+    const json: SwitchProjectRequest = {
+      organizationId: this._generalService.currentOrganization.id,
+      projectId: project.id
+    };
+
+    try {
+      this.switchingProjectInProcess = true;
+      await this._projectService.switchProject(json).toPromise();
+      this.router.navigate(['']);
+      this.switchingProjectInProcess = false;
+      this.projectSearchKey = null;
+      this.router.navigate(['dashboard']);
+    } catch (e) {
+      this.switchingProjectInProcess = false;
+    }
+
+  }
+
 
   logOut() {
     this._authService.logOut();

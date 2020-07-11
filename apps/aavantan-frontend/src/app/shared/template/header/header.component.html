@@ -25,10 +25,43 @@
           <img src="assets/images/icons/icon-bar.svg"/>
         </a>
       </li>
-      <li joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
-        <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
-          <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-5" nzText="{{ currentProject?.name | slice : 0:2 }}"></nz-avatar> {{ currentProject?.name }}
+
+      <li>
+        <a href="javascript:void(0);" nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomLeft'" class="project-name-btn dark-blue-black d-inline-block">
+          <span class="p-r-10">{{ currentProject?.name }}</span> <i nz-icon nzType="down" class="font-size-10"></i>
         </a>
+        <span class="d-inline-block font-size-11 m-l-5">Change Project<span class="text-gray-light-2 font-size-10"> (Ctrl/Cmd + j)</span></span>
+
+        <nz-dropdown-menu #menu="nzDropdownMenu" class="bg-white">
+          <ul nz-menu class="search-project-box">
+            <li class="p-10 relative">
+              <nz-form-control>
+                <nz-input-group [nzSuffix]="suffixIconProjectSearch">
+                  <input placeholder="Search Project" class="assigned-user-input" nz-input style="height:28px"
+                         (ngModelChange)="searchProjectSubject$.next($event)" nzSize="small" [(ngModel)]="projectSearchKey" />
+                </nz-input-group>
+              </nz-form-control>
+              <ng-template #suffixIconProjectSearch>
+                <i nz-icon nzType="search" *ngIf="!isProjectSearching && !projectSearchKey"></i>
+                <i nz-icon nzType="close" class="cursor-pointer" (click)="clearProjectSearchText()" *ngIf="!isProjectSearching && projectSearchKey"></i>
+                <i class="fas fa-spin fa-spinner" *ngIf="isProjectSearching"></i>
+              </ng-template>
+            </li>
+          </ul>
+          <ul nz-menu class="project-ddls">
+
+            <li *ngFor="let item of projectDataSource" nz-menu-item (click)="switchProject(item)">
+              <nz-avatar [nzShape]="'square'"  [ngStyle]="{'background': item.color}" [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-10" nzText="{{ item.name | slice : 0:2 }}"></nz-avatar>
+              <span>{{item.name}}</span>
+            </li>
+            <li class="text-center p-t-30 p-b-30 text-muted" *ngIf="isProjectNotFound">
+              <img src="../../../../assets/images/not-found/no-data.svg" height="80px" class="m-b-10"/>
+              <p>Not Found</p>
+            </li>
+          </ul>
+
+        </nz-dropdown-menu>
+
       </li>
 
     </ul>
@@ -115,7 +148,7 @@
           <ul nz-menu class="p-b-15 p-t-20">
             <li class="p-h-20 p-b-15 m-b-10 border-bottom" *ngIf="currentUser">
               <div class="d-flex m-r-10 profile-link">
-                <nz-avatar nzSize="large" class="avatar-bg" nzSrc="{{ currentUser && currentUser.profilePic ? currentUser.profilePic : ''}}" [nzIcon]="'user'"></nz-avatar>
+                <nz-avatar class="avatar-bg" nzSrc="{{ currentUser && currentUser.profilePic ? currentUser.profilePic : ''}}" [nzIcon]="'user'"></nz-avatar>
                 <div class="m-l-10">
                   <p class="m-b-0 text-dark font-weight-semibold" style="line-height: 15px;">{{currentUser.firstName}} {{currentUser.lastName}}</p>
                   <p class="m-b-0 opacity-07 font-size-13">{{currentUser.currentOrganization?.name}}</p>
@@ -125,23 +158,23 @@
             <li nz-menu-item>
               <a class="p-v-5 d-flex align-items-center justify-content-between" routerLink="profile">
                 <div>
-                  <i class="opacity-04 font-size-16" nz-icon nzType="user" theme="outline"></i>
+                  <i class="font-size-16 opacity-04" nz-icon nzType="user" theme="outline"></i>
                   <span class="m-l-10">Profile</span>
                 </div>
               </a>
             </li>
-            <li nz-menu-item>
+            <li nz-menu-item *ngxPermissionsOnly="['canView_settingsMenu']">
               <a class="p-v-5 d-flex align-items-center justify-content-between" routerLink="settings">
                 <div>
-                  <img class="opacity-04"  src="../../assets/images/icons/settings.svg"/>
-                  <span class="m-l-10">Account Setting</span>
+                  <img src="../../assets/images/icons/header_menu_settings.svg"/>
+                  <span class="m-l-10">Settings</span>
                 </div>
               </a>
             </li>
             <li nz-menu-item>
               <a routerLink="my-tasks" class="p-v-5 d-flex align-items-center justify-content-between">
                 <div>
-                  <img class="opacity-04"  src="../../assets/images/icons/project.svg"/>
+                  <img src="../../assets/images/icons/header_menu_project.svg"/>
                   <span class="m-l-10">My Tasks</span>
                 </div>
               </a>
@@ -150,7 +183,7 @@
               <a class="p-v-5 d-flex align-items-center justify-content-between" href="javascript: void 0"
                  (click)="logOut()">
                 <div>
-                  <i class="opacity-04 font-size-16" nz-icon nzType="logout" theme="outline"></i>
+                  <i class="font-size-16 opacity-04" nz-icon nzType="logout" theme="outline"></i>
                   <span class="m-l-10">Logout</span>
                 </div>
               </a>
@@ -163,3 +196,4 @@
   </div>
 </div>
 
+<nz-spin nzTip="Setting up..." *ngIf="switchingProjectInProcess" [nzSpinning]="switchingProjectInProcess" class="full-page-spinner"></nz-spin>

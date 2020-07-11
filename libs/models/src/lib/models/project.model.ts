@@ -1,13 +1,13 @@
 import { Organization } from './organization.model';
 
 import {
-  BoardModel,
+  BoardModel, Permissions,
   ProjectTemplateEnum,
   Sprint,
   TaskPriorityModel,
   TaskStatusModel,
   TaskTypeModel,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { MongoosePaginateQuery } from '../queryOptions';
 import { BaseDbModel } from './base.model';
@@ -45,6 +45,9 @@ export class ProjectMembers {
   workingCapacity?: number;
   workingCapacityPerDay?: number;
   workingDays?: ProjectWorkingDays[];
+  userRoleId?: string;
+  roleDetails?: UserRoleModel;
+  accessPermissions?: Permissions
 }
 
 export class ProjectSettings {
@@ -52,6 +55,7 @@ export class ProjectSettings {
   taskTypes: TaskTypeModel[];
   priorities: TaskPriorityModel[];
   statuses?: TaskStatusModel[];
+  roles?: UserRoleModel[];
   tags?: ProjectTags[];
   defaultTaskTypeId?: string;
   defaultTaskType?: TaskTypeModel;
@@ -161,4 +165,11 @@ export class UpdateProjectRequestModel {
   defaultTaskTypeId: string;
   defaultTaskStatusId: string;
   defaultTaskPriorityId: string;
+}
+
+export class SettingPageTab {
+ label:string;
+ id:string;
+ icon:string;
+ iconActive:string;
 }

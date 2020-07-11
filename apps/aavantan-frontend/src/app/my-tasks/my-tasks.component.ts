@@ -41,7 +41,6 @@ export class MyTasksComponent implements OnInit, OnDestroy {
   public isFilterApplied: boolean;
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
-
   public currentProject: Project;
 
   constructor(protected notification: NzNotificationService,

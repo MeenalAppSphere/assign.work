@@ -2,6 +2,7 @@
   font-size: 17px!important;
   text-transform: initial;
   font-weight: 400;
+  padding: 0px 10px 0px 10px!important;
   &:hover{
     background: none!important;
   }
@@ -11,6 +12,18 @@
     border-radius: 7px;
     box-shadow: 0px 0px 1px #0000000D;
   }
+}
+.project-ddls {
+  max-height: 240px;
+  min-height: 200px;
+  overflow: auto;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.search-project-box {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 .avatar-bg{

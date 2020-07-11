@@ -18,10 +18,14 @@ import { NumericDirective } from './directives/numbers-only.directive';
 import { AddEpicComponent } from './components/add-epic/add-epic.component';
 import { RouterModule } from '@angular/router';
 import { ProfileNameComponent } from './components/profile-name/profile-name.component';
+import { KeysPipe } from './pipes/keys.pipe';
+import { NgxPermissionsModule } from 'ngx-permissions';
 import { UserFilterComponent } from './components/user-filter/user-filter.component';
 import { TeamCapacityComponent } from './components/team-capacity/team-capacity.component';
 import { TeamCapacityModelComponent } from './components/team-capacity-model/team-capacity.model.component';
 import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
+import { AddStatusComponent } from './components/add-status/add-status.component';
+import { ColorSketchModule } from 'ngx-color/sketch';
 
 
 @NgModule({
@@ -46,7 +50,9 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
+    KeysPipe,
+    AddStatusComponent
   ],
   imports: [
     CommonModule,
@@ -56,7 +62,8 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     PerfectScrollbarModule,
     TypeaheadModule,
     PopoverModule,
-    RouterModule
+    RouterModule,
+    ColorSketchModule,
   ],
   declarations: [
     AddProjectComponent,
@@ -70,10 +77,12 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     NumericDirective,
     AddEpicComponent,
     ProfileNameComponent,
+    KeysPipe,
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
+    AddStatusComponent
   ]
 })
 export class SharedModule {

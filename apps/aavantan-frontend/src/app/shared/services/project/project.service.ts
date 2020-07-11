@@ -25,17 +25,20 @@ import {
   User
 } from '@aavantan-app/models';
 import { catchError, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { UserStore } from '../../../store/user/user.store';
 import { cloneDeep } from 'lodash';
 import { TaskPriority } from 'aws-sdk/clients/swf';
 import { TaskPriorityStore } from '../../../store/task-priority/task-priority.store';
+import { UserUrls } from '../user/user.url';
+import { UserService } from '../user/user.service';
 
 
 @Injectable()
 export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   constructor(protected projectStore: ProjectStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
-              protected notification: NzNotificationService, private userStore: UserStore, private taskPriorityStore: TaskPriorityStore) {
+              protected notification: NzNotificationService, private userStore: UserStore, private taskPriorityStore: TaskPriorityStore,
+              private userService: UserService) {
     super(projectStore, notification);
     this.notification.config({
       nzPlacement: 'bottomRight'
@@ -58,7 +61,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         }));
 
         this._generalService.user.currentProject = res.data;
-
+        this.userService.setPermissions(res.data);
         this.updateState({ createProjectInProcess: false, createProjectSuccess: true });
         // this.notification.success('Success', 'Project Created Successfully');
         return res;
@@ -84,7 +87,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
         }));
 
         this._generalService.user = cloneDeep(res.data);
-
+        this.userService.setPermissions(res.data);
         this.updateState({ projectSwitchInProcess: false, projectSwitchedSuccessfully: true });
         this.notification.success('Success', 'Current Project Changed Successfully');
         this.router.navigate(['dashboard']);

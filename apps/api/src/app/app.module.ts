@@ -21,6 +21,7 @@ import { BoardModule } from '../board/board.module';
 import { TaskCommentModule } from '../task-comment/task-comment.module';
 import { environment } from '../environments/environment';
 import { SprintReportModule } from '../sprint-report/sprint-report.module';
+import { UserRoleModule } from '../user-role/user-role.module';
 import { AppGateway } from './app.gateway';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -56,7 +57,9 @@ const dbConnectionString = environment.production ? process.env.DB_CONNECTION_ST
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'UI', 'dist'),
       exclude: ['/api*']
-    })
+    }),
+    SprintReportModule,
+    UserRoleModule
   ],
   providers: [
     AppGateway

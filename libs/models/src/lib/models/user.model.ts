@@ -2,6 +2,7 @@ import { MemberTypes, OneTimeMessagesDismissed } from '../general';
 import { UserLoginProviderEnum, UserStatus } from '../enums';
 import { Organization } from './organization.model';
 import { Project } from './project.model';
+import { Permissions } from '@aavantan-app/models';
 
 export class UserLoginWithPasswordRequest {
   emailId: string;

@@ -2,18 +2,14 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TaskService } from '../shared/services/task/task.service';
 import {
-  AddCommentModel,
-  CommentPinModel,
-  DeleteCommentModel,
   DeleteTaskModel,
   GetAllTaskRequestModel,
-  GetCommentsModel,
-  GetMyTaskRequestModel,
   GetTaskByIdOrDisplayNameModel, SprintTaskFilterModel,
   Task,
   TaskFilterModel,
   UpdateCommentModel, User
 } from '@aavantan-app/models';
+import { Roles } from '../shared/guard/roles.decorators';
 import { LoggedInUser } from '../shared/decorators/loggedin-user.decorator';
 
 @Controller('task')
@@ -49,6 +45,7 @@ export class TaskController {
   }
 
   @Post('add')
+  @Roles('task', 'canAdd_task')
   async createTask(@Body() task: Task) {
     return await this._taskService.addTask(task);
   }
@@ -59,6 +56,7 @@ export class TaskController {
   }
 
   @Post('delete-task')
+  @Roles('task', 'canRemove_task')
   async deleteTask(@Body() model: DeleteTaskModel) {
     return await this._taskService.deleteTask(model);
   }

@@ -320,9 +320,9 @@
         <div class="row floating-save-btns">
           <div class="col-md-12 text-right">
 
-            <button type="button" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            <button type="button" *ngxPermissionsOnly="['canAdd_task']" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
-            <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
+            <button *ngxPermissionsOnly="['canAdd_task']" type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
                     nzType="primary" class="m-r-5 btn-save-task">Save
             </button>
 
@@ -347,9 +347,9 @@
         <div class="row" style="padding-top: 10px; border-top: 2px solid #e1e3e5; margin-top: 10px;">
           <div class="col-md-12 text-right">
             <button type="button" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
-            <button type="button" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            <button type="button" *ngxPermissionsOnly="['canAdd_task']" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
-            <button [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" type="submit" nz-button nzSize="small"
+            <button *ngxPermissionsOnly="['canAdd_task']" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" type="submit" nz-button nzSize="small"
                     nzType="primary">Save
             </button>
           </div>

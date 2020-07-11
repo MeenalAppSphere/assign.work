@@ -13,30 +13,36 @@ import {
   UpdateSprintMemberWorkingCapacity,
   UpdateSprintModel
 } from '@aavantan-app/models';
+import { Roles } from '../shared/guard/roles.decorators';
+import { RolesGuard } from '../shared/guard/roles.gaurd';
 
 @Controller('sprint')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class SprintController {
 
   constructor(private readonly _sprintService: SprintService) {
   }
 
   @Post('create')
+  @Roles('sprint', 'canCreate_sprint')
   async createSprint(@Body() model: CreateSprintModel) {
     return await this._sprintService.createSprint(model);
   }
 
   @Post('update')
+  @Roles('sprint', 'canModify_sprint')
   async updateSprint(@Body() model: UpdateSprintModel) {
     return await this._sprintService.updateSprint(model);
   }
 
   @Post('add-task')
+  @Roles('sprint', 'canAddTaskToSprint_sprint')
   async addTask(@Body() model: AddTaskToSprintModel) {
     return await this._sprintService.addTaskToSprint(model);
   }
 
   @Post('remove-task')
+  @Roles('sprint', 'canRemoveTaskToSprint_sprint')
   async removeTasks(@Body() model: RemoveTaskFromSprintModel) {
     return await this._sprintService.removeTaskFromSprint(model);
   }
@@ -82,6 +88,7 @@ export class SprintController {
   }
 
   @Post('close-sprint')
+  @Roles('sprint', 'canClose_sprint')
   async closeSprint(@Body() model: CloseSprintModel) {
     return await this._sprintService.closeSprint(model);
   }

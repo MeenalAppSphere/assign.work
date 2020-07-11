@@ -199,6 +199,9 @@ export class UsersService extends BaseService<User & Document> implements OnModu
             path: 'members.userDetails',
             select: 'firstName lastName emailId userName profilePic sprintId'
           }, {
+            path: 'members.roleDetails',
+            select: 'name description accessPermissions type'
+          }, {
             path: 'sprint',
             select: 'name goal startedAt endAt totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime reportId'
           }, {
@@ -236,6 +239,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         userDetails.currentProject.sprint.id = userDetails.currentProject.sprint._id;
         this._sprintUtilityService.calculateSprintEstimates(userDetails.currentProject.sprint);
       }
+
     }
 
     if (userDetails.currentOrganization) {

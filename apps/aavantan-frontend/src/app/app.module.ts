@@ -15,6 +15,7 @@ import { AuthInterceptor } from './shared/interceptor/auth.interceptor';
 import { ServiceModule } from './shared/services/service.module';
 import { AuthServiceConfig, GoogleLoginProvider, SocialLoginModule } from 'angularx-social-login';
 import { DndModule } from 'ngx-drag-drop';
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 registerLocaleData(en);
 
@@ -41,6 +42,7 @@ export function provideConfig() {
     AppRoutingModule,
     SharedModule,
     ServiceModule.forRoot(),
+    NgxPermissionsModule.forRoot(),
     environment.production ? [] : AkitaNgDevtools.forRoot(),
     SocialLoginModule,
     DndModule

@@ -35,7 +35,7 @@
 }
 
 .ant-card-bordered {
-  border: 1px solid #DEDFE2;
+  border: 1px solid $border;
 }
 
 .ant-input:focus {
@@ -73,6 +73,15 @@
 
 
 /* ant-checkbox-group */
+
+.ant-checkbox-disabled .ant-checkbox-inner {
+  border-color: #b2b5b8 !important;
+  background-color: #ececec;
+}
+.ant-checkbox-disabled+span {
+  color: rgba(0, 0, 0, 0.55);
+  cursor: not-allowed;
+}
 
 .vertical-checkbox.ant-checkbox-group {
   background: #ffffff;
@@ -175,10 +184,23 @@
     left: 0px !important;
     width: 32px;
     text-align: center;
+    position: inherit!important;
     background: $side-nav-bg;
     color: $dark-blue-black;
   }
 }
+
+.ant-dropdown-menu {
+
+  .ant-avatar {
+    background: $avatar-bg;
+  }
+  .ant-avatar-string{
+    position: initial!important;
+  }
+
+}
+
 
 .header .logo {
   background: #0045ab;
@@ -975,6 +997,14 @@
   }
 }
 
+.collaborator-table {
+  .ant-avatar-string  {
+    color: $color-gray-light!important;
+  }
+  .table>tr>th:last-child {
+    width:26%;
+  }
+}
 
 /* board-design */
 .assigne-user-modal {
@@ -1120,7 +1150,11 @@
 
 }
 
+/* user role modal */
 
+.user-role-modal {
+  top:3rem;
+}
 
 
 /* for color picker */
@@ -1182,4 +1216,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.full-page-spinner {
+  position: fixed;
+  height:100vh;
+  width: 100%;
+  z-index: 99999999;
+  top:0;
+  left:0;
+  background: rgba(255, 255, 255, 0.7);
 }

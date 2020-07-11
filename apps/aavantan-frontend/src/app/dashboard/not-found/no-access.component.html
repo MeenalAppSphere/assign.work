@@ -1,0 +1,20 @@
+<div class="text-center m-t-95">
+
+  <nz-empty
+    [nzNotFoundImage]="'../../../assets/images/not-found/no-data-found.svg'"
+    [nzNotFoundContent]="contentTpl"
+    [nzNotFoundFooter]="footerTpl">
+    <ng-template #contentTpl>
+      <div class="m-b-40">
+        <div class="m-b-10">No Access</div>
+        <div class="font-weight-light font-size-15">
+          No access permission for this page<br>Contact your Project owner
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #footerTpl>
+      <a routerLink="../" nz-button nzType="primary">Home</a>
+    </ng-template>
+  </nz-empty>
+
+</div>
