@@ -83,7 +83,7 @@ export class ProjectUtilityService {
     if (!Types.ObjectId.isValid(userId)) {
       throw new NotFoundException('User not found');
     }
-    return projectDetails.members.some(s => s.userId === userId && s.isInviteAccepted === true) || (projectDetails.createdBy as User)['_id'].toString() === userId;
+    return projectDetails.members.some(s => s.userId === userId && s.isInviteAccepted === true && !s.isRemoved) || (projectDetails.createdBy as User)['_id'].toString() === userId;
   }
 
   /**
@@ -93,7 +93,9 @@ export class ProjectUtilityService {
   public parseProjectToVm(project: Project): Project {
     project.id = project._id;
 
-    project.members = project.members.map(member => {
+    project.members = project.members.filter(member => {
+      return !member.isRemoved && member.isInviteAccepted;
+    }).map(member => {
       member.workingCapacity = secondsToHours(member.workingCapacity);
       member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
       return member;

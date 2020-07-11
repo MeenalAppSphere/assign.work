@@ -38,7 +38,8 @@ export const sprintReportSchema = new Schema({
       taskId: { type: Schema.Types.ObjectId, ref: DbCollection.tasks },
       totalLoggedTime: { type: Number, default: 0 },
       loggedAt: { type: Date }
-    }
+    },
+    isRemoved: { type: Boolean, default: false }
   },
   ...commonSchemaFields
 });

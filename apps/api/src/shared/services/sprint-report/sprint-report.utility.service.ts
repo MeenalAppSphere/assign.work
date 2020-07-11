@@ -94,6 +94,7 @@ export class SprintReportUtilityService {
       member.workingCapacityPerDay = capacity.workingCapacityPerDay;
       member.totalLoggedTime = 0;
       member.taskWiseTimeLog = [];
+      member.isRemoved = capacity.isRemoved;
       members.push(member);
     });
 

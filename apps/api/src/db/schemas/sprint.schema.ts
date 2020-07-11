@@ -55,7 +55,8 @@ export const sprintSchema = new Schema({
     type: Array,
     userId: { type: Schema.Types.ObjectId, ref: DbCollection.users },
     workingCapacity: { type: Number, default: DEFAULT_WORKING_CAPACITY },
-    workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY }
+    workingCapacityPerDay: { type: Number, default: DEFAULT_WORKING_CAPACITY_PER_DAY },
+    isRemoved: { type: Boolean, default: false }
   },
   totalCapacity: { type: Number, default: 0 },
   totalEstimation: { type: Number, default: 0 },

@@ -32,8 +32,7 @@ import {
   TaskHistory,
   TaskHistoryActionEnum,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel,
-  UserStatus
+  UpdateSprintModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';

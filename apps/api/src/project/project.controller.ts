@@ -6,7 +6,7 @@ import {
   ProjectMembers,
   ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
-  RecallProjectInvitationModel,
+  RecallProjectInvitationModel, RemoveProjectCollaborator,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
@@ -42,6 +42,11 @@ export class ProjectController {
   @Post(':id/add-collaborators')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
+  }
+
+  @Post('remove-collaborator')
+  async removeCollaborator(@Body() dto: RemoveProjectCollaborator) {
+    return await this._projectService.removeCollaborator(dto);
   }
 
   @Post('get-collaborators')
