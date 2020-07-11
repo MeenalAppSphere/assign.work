@@ -533,7 +533,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // region sprint
 
         // get sprint details
-        const sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails.sprintId);
+        const sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails._id);
 
         // get current and next collaborator from sprint member capacity
         const currentCollaboratorFromSprint = sprintDetails.membersCapacity.find(member => member.userId.toString() === dto.collaboratorId);
@@ -543,7 +543,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         if (currentCollaboratorFromSprint && nextCollaboratorFromSprint) {
 
           // find collaborator index from project members array
-          const collaboratorIndexInSprint = sprintDetails.membersCapacity.find(member => {
+          const collaboratorIndexInSprint = sprintDetails.membersCapacity.findIndex(member => {
             return member.userId.toString() === dto.collaboratorId;
           });
 
@@ -598,7 +598,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         const sprintReportDetails = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
 
         // find collaborator index from project members array
-        const memberIndexInSprintReport = sprintReportDetails.reportMembers.find(member => {
+        const memberIndexInSprintReport = sprintReportDetails.reportMembers.findIndex(member => {
           return member.userId.toString() === dto.collaboratorId;
         });
 
@@ -641,7 +641,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // region update project and mark collaborator as removed collaborator
 
       // find collaborator index from project members array
-      const collaboratorIndexInProject = projectDetails.members.find(member => {
+      const collaboratorIndexInProject = projectDetails.members.findIndex(member => {
         return member.userId.toString() === dto.collaboratorId;
       });
 
