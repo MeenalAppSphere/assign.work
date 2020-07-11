@@ -128,7 +128,7 @@
 
             <nz-form-item>
               <nz-form-control>
-                <label nz-checkbox formControlName="agree" [disabled]="signUpForm.invalid || !signUpForm.get('agree').value">
+                <label nz-checkbox formControlName="agree">
                   <span>I have read <a (click)="$event.stopPropagation()" href="assets/TermsAndCondition.pdf"
                                        target="_blank" class="text-primary m-r-15">Terms &amp; Conditions</a></span>
                 </label>
@@ -149,7 +149,7 @@
                         Signin</a></span>
                   <button
                     nz-button
-                    [disabled]="signUpForm.invalid"
+                    [disabled]="signUpForm.invalid || !signUpForm.get('agree').value"
                     [nzLoading]="registerInProcess"
                     class="login-form-button"
                     [nzType]="'primary'">
