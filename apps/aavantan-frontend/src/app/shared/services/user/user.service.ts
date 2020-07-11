@@ -136,7 +136,6 @@ export class UserService extends BaseService<UserStore, UserState> {
           recur(role.roleDetails.accessPermissions[key], key);
         }
       });
-
       this._generalService.permissions = cloneDeep(permissionsList);
       this.permissionsService.loadPermissions(permissionsList);
     }

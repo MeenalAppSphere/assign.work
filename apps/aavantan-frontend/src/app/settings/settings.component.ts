@@ -219,7 +219,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Get all access which is loaded from dashboard component from userRoles
     this.permissionsService.permissions$.subscribe((permission) => {
-
       if (!permission['canView_settingsMenu']) {
         this.router.navigate(['dashboard', 'no-access']);
       }
@@ -245,7 +244,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
           recur(this.permissionConst[key], key);
         }
       });
-
 
     });
 
@@ -274,6 +272,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
               this.totalCapacityPerDay =
                 this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
             });
+          }
+
+          if(this.activeView.view === 'boardSettings') {
+            this.activeTab(this.activeView.view,'Board Settings')
+          }
+          if(this.activeView.view === 'security') {
+            this.activeTab(this.activeView.view,'Access Control')
           }
           // bind project form after data
           this.bindProjectForm();
