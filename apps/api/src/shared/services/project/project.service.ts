@@ -12,19 +12,17 @@ import {
   ProjectTags,
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
-  ProjectUpdateDefaultAssigneeModel,
-  ProjectUpdateDefaultPriorityModel, ProjectUpdateDefaultTaskStatusModel,
-  ProjectUpdateDefaultTaskTypeModel,
   ProjectWorkingCapacityUpdateDto,
+  RecallProjectInvitationModel,
   RemoveProjectCollaborator,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
+  UpdateProjectRequestModel,
   User,
-  UserStatus,
-  UpdateProjectRequestModel, RecallProjectInvitationModel
+  UserStatus
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { BaseService } from '../base.service';
@@ -40,7 +38,6 @@ import {
   generateUtcDate,
   getDefaultSettingsFromProjectTemplate,
   hourToSeconds,
-  secondsToHours,
   validWorkingDaysChecker
 } from '../../helpers/helpers';
 import { environment } from '../../../environments/environment';
@@ -393,7 +390,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this._invitationService.bulkUpdate(alreadySentInvitationQuery, { $set: { isExpired: true } }, session);
 
       // create new invitation object
-      const newInvitation = this.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString(), userDetails.emailId);
+      const newInvitation = this._invitationService.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString(), userDetails.emailId);
 
       // create invitation in db
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
@@ -428,7 +425,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // get invitation details
       const invitationFindQuery: MongooseQueryModel = {
         filter: {
-          invitationToEmailId: dto.invitationToEmailId,
+          invitationToEmailId: dto.invitationToEmailId
         },
         lean: true
       };
@@ -486,7 +483,13 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       // get tasks of collaborator
       const userTaskQuery = {
-        projectId: model.projectId, assigneeId: model.collaboratorId
+        projectId: model.projectId,
+        $and: [{
+          $or: [
+            { assigneeId: model.collaboratorId },
+            { createdById: model.collaboratorId }
+          ]
+        }]
       };
 
       const tasks = await this._taskService.find({ filter: userTaskQuery, lean: true });
@@ -901,77 +904,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     }
 
     // convert to vm
-    return this.parseProjectToVm(projectDetails);
-  }
-
-  /**
-   * add missing project details default settings
-   * add defaultTaskType, defaultStatus and defaultTaskPriority Id
-   */
-  public async addMissingProjectDefaultSettings() {
-    return this.withRetrySession(async (session) => {
-      // find projects where default settings is not yet implemented
-      const findProjectsQuery = {
-        'settings.defaultTaskTypeId': { $in: [undefined, null] },
-        'settings.defaultTaskStatusId': { $in: [undefined, null] },
-        'settings.defaultTaskPriorityId': { $in: [undefined, null] }
-      };
-
-      // get projects without default settings
-      const projectsWithoutDefaultSettings = await this.find({ filter: findProjectsQuery, lean: true });
-
-      // check if we have any projects whose default settings is not yet implemented
-      if (projectsWithoutDefaultSettings && projectsWithoutDefaultSettings.length) {
-
-        // loop over projects
-        for (let i = 0; i < projectsWithoutDefaultSettings.length; i++) {
-          const project = projectsWithoutDefaultSettings[i];
-
-          // get task types for the project
-          const taskTypes = await this._taskTypesService.find({ filter: { projectId: project._id }, lean: true });
-          // get task status for the project
-          const taskStatues = await this._taskStatusService.find({ filter: { projectId: project._id }, lean: true });
-          // get task priorities for the project
-          const taskPriorities = await this._taskPriorityService.find({
-            filter: { projectId: project._id },
-            lean: true
-          });
-
-          if (taskTypes.length && taskStatues.length && taskPriorities.length) {
-            // update project and add default settings
-            await this.updateById(project._id, {
-              'settings.defaultTaskTypeId': taskTypes[0]._id,
-              'settings.defaultTaskStatusId': taskStatues[0]._id,
-              'settings.defaultTaskPriorityId': taskPriorities[0]._id
-            }, session);
-          }
-        }
-
-        return 'Default Settings added successfully';
-      }
-    });
-  }
-
-  /**
-   * create project vm model
-   * @param project
-   */
-  public parseProjectToVm(project: Project): Project {
-    project.id = project._id;
-
-    project.members = project.members.map(member => {
-      member.workingCapacity = secondsToHours(member.workingCapacity);
-      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
-      return member;
-    });
-
-    if (project.activeBoard) {
-      project.activeBoard.id = project.activeBoard._id;
-    }
-
-    // generate color for project
-    project.color = this._generalService.generateRandomColor();
-    return project;
+    return this._utilityService.parseProjectToVm(projectDetails);
   }
 
   /**
@@ -1005,7 +938,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
     for (let i = 0; i < collaborators.length; i++) {
-      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
+      const newInvitation = this._invitationService.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
 
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
       emailArrays.push({
@@ -1030,26 +963,5 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
     return await this._emailService.getTemplate(EmailTemplatePathEnum.projectInvitation, templateData);
-  }
-
-  /**
-   * prepare invite object
-   * @param to
-   * @param from
-   * @param projectId
-   * @param toEmailId
-   */
-  private prepareInvitationObject(to: string, from: string, projectId: string, toEmailId: string): Invitation {
-    const invitation = new Invitation();
-
-    invitation.invitationToId = to;
-    invitation.invitedById = from;
-    invitation.invitationToEmailId = toEmailId;
-    invitation.isExpired = false;
-    invitation.isInviteAccepted = false;
-    invitation.projectId = projectId;
-    invitation.invitedAt = generateUtcDate();
-
-    return invitation;
   }
 }

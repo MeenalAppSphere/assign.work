@@ -45,6 +45,7 @@ export class ProjectMembers {
   workingCapacity?: number;
   workingCapacityPerDay?: number;
   workingDays?: ProjectWorkingDays[];
+  isRemoved?: boolean;
 }
 
 export class ProjectSettings {

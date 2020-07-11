@@ -1,5 +1,5 @@
 import { Project, ProjectMembers, UpdateProjectRequestModel, User } from '@aavantan-app/models';
-import { BadRequest, maxLengthValidator, validOrganizationOrProjectName } from '../../helpers/helpers';
+import { BadRequest, maxLengthValidator, secondsToHours, validOrganizationOrProjectName } from '../../helpers/helpers';
 import {
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
@@ -84,5 +84,27 @@ export class ProjectUtilityService {
       throw new NotFoundException('User not found');
     }
     return projectDetails.members.some(s => s.userId === userId && s.isInviteAccepted === true) || (projectDetails.createdBy as User)['_id'].toString() === userId;
+  }
+
+  /**
+   * create project vm model
+   * @param project
+   */
+  public parseProjectToVm(project: Project): Project {
+    project.id = project._id;
+
+    project.members = project.members.map(member => {
+      member.workingCapacity = secondsToHours(member.workingCapacity);
+      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+      return member;
+    });
+
+    if (project.activeBoard) {
+      project.activeBoard.id = project.activeBoard._id;
+    }
+
+    // generate color for project
+    // project.color = this._generalService.generateRandomColor();
+    return project;
   }
 }

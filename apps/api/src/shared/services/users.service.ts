@@ -226,7 +226,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
     userDetails.id = userDetails._id;
 
     if (userDetails.currentProject) {
-      userDetails.currentProject = this._projectService.parseProjectToVm(userDetails.currentProject);
+      userDetails.currentProject = this._projectUtilityService.parseProjectToVm(userDetails.currentProject);
 
       if (userDetails.currentProject && userDetails.currentProject.activeBoard) {
         userDetails.currentProject.activeBoard = this._boardUtilityService.convertToVm(userDetails.currentProject.activeBoard);
@@ -257,7 +257,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         slice(
           userDetails.projects
             .filter(f => f.organizationId.toString() === userDetails.currentOrganizationId)
-            // .filter(f => f._id.toString() !== userDetails.currentProject.id.toString())
+          // .filter(f => f._id.toString() !== userDetails.currentProject.id.toString())
           ,
           0, 3
         ).map((project: Project) => {

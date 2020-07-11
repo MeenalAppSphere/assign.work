@@ -88,9 +88,4 @@ export class ProjectController {
   async searchProjectCollaborators(@Body() model: SearchProjectCollaborators) {
     return await this._projectService.searchProjectCollaborators(model);
   }
-
-  @Post('add-missing-project-default-settings')
-  async addMissingProjectDefaultSettings() {
-    return await this._projectService.addMissingProjectDefaultSettings();
-  }
 }

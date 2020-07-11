@@ -3,7 +3,7 @@ import { ClientSession, Document, Model } from 'mongoose';
 import { DbCollection, Invitation, MongooseQueryModel, Organization, Project, User } from '@aavantan-app/models';
 import { InjectModel } from '@nestjs/mongoose';
 import { BadRequestException, OnModuleInit } from '@nestjs/common';
-import { isInvitationExpired } from '../helpers/helpers';
+import { generateUtcDate, isInvitationExpired } from '../helpers/helpers';
 import { ProjectService } from './project/project.service';
 import { ModuleRef } from '@nestjs/core';
 import { OrganizationService } from './organization/organization.service';
@@ -287,5 +287,26 @@ export class InvitationService extends BaseService<Invitation & Document> implem
         throw new BadRequestException('Invalid invitation link! this invitation link is not for this email id');
       }
     }
+  }
+
+  /**
+   * prepare invite object
+   * @param to
+   * @param from
+   * @param projectId
+   * @param toEmailId
+   */
+  prepareInvitationObject(to: string, from: string, projectId: string, toEmailId: string): Invitation {
+    const invitation = new Invitation();
+
+    invitation.invitationToId = to;
+    invitation.invitedById = from;
+    invitation.invitationToEmailId = toEmailId;
+    invitation.isExpired = false;
+    invitation.isInviteAccepted = false;
+    invitation.projectId = projectId;
+    invitation.invitedAt = generateUtcDate();
+
+    return invitation;
   }
 }
