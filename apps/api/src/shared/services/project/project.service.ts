@@ -557,22 +557,22 @@ export class ProjectService extends BaseService<Project & Document> implements O
             column.tasks = column.tasks.map(columnTask => {
 
               // task created by id
-              if (columnTask.task.createdById === dto.collaboratorId) {
+              if (columnTask.task.createdById.toString() === dto.collaboratorId) {
                 columnTask.task.createdById = dto.nextCollaboratorId;
               }
 
               // // task update by id
-              // if (columnTask.task.updatedById === dto.collaboratorId) {
+              // if (columnTask.task.updatedById.toString() === dto.collaboratorId) {
               //   columnTask.task.updatedById = dto.nextCollaboratorId;
               // }
 
               // task assignee id
-              if (columnTask.task.assigneeId === dto.collaboratorId) {
+              if (columnTask.task.assigneeId.toString() === dto.collaboratorId) {
                 columnTask.task.assigneeId = dto.nextCollaboratorId;
               }
 
               // task moved by id
-              if (columnTask.movedById === dto.collaboratorId) {
+              if (columnTask.movedById.toString() === dto.collaboratorId) {
                 columnTask.movedById = dto.collaboratorId;
               }
 
@@ -582,7 +582,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
           });
 
           // check if sprint is created by the collaborator than update it's created By id
-          if (sprintDetails.createdById === dto.collaboratorId) {
+          if (sprintDetails.createdById.toString() === dto.collaboratorId) {
             setSprintCollaboratorAsRemovedDoc['createdById'] = dto.nextCollaboratorId;
           }
 
@@ -610,17 +610,17 @@ export class ProjectService extends BaseService<Project & Document> implements O
         setSprintReportMemberAsRemovedDoc['reportTasks'] = sprintReportDetails.reportTasks.map((task) => {
 
           // task created by id
-          if (task.createdById === dto.collaboratorId) {
+          if (task.createdById.toString() === dto.collaboratorId) {
             task.createdById = dto.nextCollaboratorId;
           }
 
           // // task update by id
-          // if (task.updatedById === dto.collaboratorId) {
+          // if (task.updatedById.toString() === dto.collaboratorId) {
           //   task.updatedById = dto.nextCollaboratorId;
           // }
 
           // task assignee id
-          if (task.assigneeId === dto.collaboratorId) {
+          if (task.assigneeId.toString() === dto.collaboratorId) {
             task.assigneeId = dto.nextCollaboratorId;
           }
 
@@ -628,7 +628,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         });
 
         // check if sprint is created by the collaborator than update it's created By id
-        if (sprintReportDetails.createdById === dto.collaboratorId) {
+        if (sprintReportDetails.createdById.toString() === dto.collaboratorId) {
           setSprintReportMemberAsRemovedDoc['createdById'] = dto.nextCollaboratorId;
         }
 
