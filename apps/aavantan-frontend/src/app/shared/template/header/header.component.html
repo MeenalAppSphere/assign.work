@@ -88,15 +88,30 @@
 <!--        </nz-dropdown-menu>-->
 <!--      </li>-->
 
-<!--      <li>-->
-<!--        <a (click)="quickViewToggle()">-->
-<!--          <i nz-icon nzType="appstore" theme="outline" class="text-gray-light"></i>-->
-<!--        </a>-->
-<!--        <nz-drawer [nzWidth]="320" nzTitle="Coming soon" [nzClosable]="false" [nzVisible]="quickViewVisible"-->
-<!--                   nzPlacement="right" (nzOnClose)="quickViewToggle()">-->
-<!--          <app-quick-view></app-quick-view>-->
-<!--        </nz-drawer>-->
-<!--      </li>-->
+      <!-- notification -->
+      <li class="notification-badge m-r-15">
+        <a (click)="quickViewToggle()">
+          <nz-badge [nzCount]="109" [nzOverflowCount]="99" >
+            <img src="../../../../assets/images/icons/bell.svg" />
+          </nz-badge>
+        </a>
+        <nz-drawer class="notification-drawer" [nzBodyStyle]="{'padding':'10px'}" [nzWidth]="320" [nzTitle]="notificationTitle" [nzClosable]="false" [nzVisible]="quickViewVisible"
+                   nzPlacement="right" (nzOnClose)="quickViewToggle()">
+          <app-quick-view></app-quick-view>
+
+          <ng-template #notificationTitle let-active>
+            <div class="notification-badge">
+              <nz-badge [nzCount]="109" [nzOverflowCount]="99" >
+                <img src="../../../../assets/images/icons/bell.svg" />
+              </nz-badge>
+              <span class="p-l-35 text-gray-light">Notifications</span>
+
+              <i (click)="quickViewToggle()" class="text-gray-light-2 float-right cursor-pointer font-size-14 p-t-5" nz-icon nzType="close" nzTheme="outline"></i>
+
+            </div>
+          </ng-template>
+        </nz-drawer>
+      </li>
 
       <li>
           <span class="p-h-10 pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'"

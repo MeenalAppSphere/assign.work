@@ -23,7 +23,6 @@ import { TeamCapacityComponent } from './components/team-capacity/team-capacity.
 import { TeamCapacityModelComponent } from './components/team-capacity-model/team-capacity.model.component';
 import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
 
-
 @NgModule({
   exports: [
     CommonModule,
@@ -46,7 +45,7 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
   ],
   imports: [
     CommonModule,
