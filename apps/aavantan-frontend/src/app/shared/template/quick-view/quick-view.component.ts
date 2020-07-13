@@ -19,21 +19,18 @@ export class QuickViewComponent implements OnInit {
       {
         id:'1',
         active: true,
-        disabled: false,
         name: 'Project 1',
         notificationCount:10,
       },
       {
         id:'2',
         active: false,
-        disabled: true,
         name: 'Project 2',
         notificationCount:99,
       },
       {
         id:'3',
         active: false,
-        disabled: false,
         name: 'Project 3',
         notificationCount:0,
       }
@@ -92,10 +89,18 @@ export class QuickViewComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.getProjectNotifications();
+  }
+
+  // get all projects with notification counts
+  public getProjectNotifications(){
 
   }
-  read(item: any): void {
 
+  // get all notifications under the project on collapse open
+  public loadNotifications(project:any): void {
+    console.log('Project:',project.name);
+    //api call here
   }
 }
 
