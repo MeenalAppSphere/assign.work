@@ -332,7 +332,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     // search assignee
     this.modelChanged
       .pipe(
-        debounceTime(500))
+        debounceTime(500),
+        untilDestroyed(this)
+      )
       .subscribe(() => {
         const queryText = this.taskForm.get('assigneeId').value;
         const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;

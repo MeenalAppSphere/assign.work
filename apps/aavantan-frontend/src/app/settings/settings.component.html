@@ -14,7 +14,7 @@
 
     <li>
       <a href="javascript:void(0);" nz-button nzType="default" [ngClass]="{'active':activeView.view==='board_settings'}"
-           (click)="activeTab('board_settings', 'Board Settings')">
+         (click)="activeTab('board_settings', 'Board Settings')">
         <img *ngIf="activeView.view==='board_settings'" src="../../assets/images/icons/white_board_settings.svg"/>
         <img *ngIf="activeView.view!=='board_settings'" src="../../assets/images/icons/board_settings.svg">
         <div>Board Settings</div>
@@ -428,7 +428,10 @@
                         <i nz-icon nzType="check-circle" class="m-r-5 m-t-5 text-green font-size-24" nzTheme="fill"></i>
                       </span>
 
-                      <i (click)="toggleRemoveCollaborator(item)" nz-icon nzType="close" theme="outline" class="p-l-15 float-right"></i>
+                      <span *ngIf="item.isInviteAccepted">
+                        <i (click)="toggleRemoveCollaborator(item)" nz-icon nzType="close" theme="outline"
+                           class="p-l-15 float-right"></i>
+                      </span>
                     </span>
                   </li>
                 </ul>

@@ -94,7 +94,7 @@ export class ProjectUtilityService {
     project.id = project._id;
 
     project.members = project.members.filter(member => {
-      return !member.isRemoved && member.isInviteAccepted;
+      return !member.isRemoved;
     }).map(member => {
       member.workingCapacity = secondsToHours(member.workingCapacity);
       member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);

@@ -20,7 +20,7 @@
                           </span>
           <nz-input-group [nzSuffix]="suffixIconSearch">
             <input placeholder="Search Assignee" formControlName="nextCollaboratorId" class="assigned-user-input" nz-input
-                   (ngModelChange)="assigneeModelChanged.next($event)" nzSize="small"
+                   (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small"
                    [nzAutocomplete]="autoAssignee"/>
           </nz-input-group>
           <nz-autocomplete #autoAssignee>
