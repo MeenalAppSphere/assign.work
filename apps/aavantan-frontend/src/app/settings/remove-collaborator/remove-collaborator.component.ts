@@ -31,7 +31,7 @@ export class RemoveCollaboratorComponent implements OnInit, OnDestroy {
 
   public removeForm: FormGroup;
 
-  public updateRequestInProcess: boolean;
+  public removeRequestInProcess: boolean;
   public selectedAssignee: User = {};
   public assigneeDataSource: User[] = [];
   public isSearchingAssignee: boolean;
@@ -101,7 +101,7 @@ export class RemoveCollaboratorComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.updateRequestInProcess = true;
+      this.removeRequestInProcess = true;
       const model: RemoveProjectCollaborator = {
         projectId: this._generalService.currentProject.id,
         collaboratorId: this.collaborator.userId,
@@ -110,10 +110,10 @@ export class RemoveCollaboratorComponent implements OnInit, OnDestroy {
 
       await this._projectService.removeCollaborator(model).toPromise();
       this.removeForm.reset();
-      this.updateRequestInProcess = false;
+      this.removeRequestInProcess = false;
       this.toggleRemoveCollaborator.emit();
     } catch (e) {
-      this.updateRequestInProcess = false;
+      this.removeRequestInProcess = false;
     }
   }
 

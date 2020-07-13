@@ -49,7 +49,7 @@
     <div *nzModalFooter>
       <button type="button" nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
       <button type="button" nz-button nzType="primary" (click)="remove()" [disabled]="removeForm.invalid"
-              [nzLoading]="updateRequestInProcess" nzSize="small">
+              [nzLoading]="removeRequestInProcess" nzSize="small">
         Remove
       </button>
     </div>
