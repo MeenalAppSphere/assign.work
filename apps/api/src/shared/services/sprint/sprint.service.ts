@@ -955,7 +955,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintStatus.updatedAt = generateUtcDate();
       sprintStatus.updatedById = this._generalService.userId;
 
-      // close old sprint and set staus as completed
+      // close old sprint and set status as completed
       await this.updateSprintStatus(model.sprintId, sprintStatus, session);
 
       // send emails for current sprint is closed

@@ -19,7 +19,7 @@
                                        [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null"></nz-avatar>
                           </span>
           <nz-input-group [nzSuffix]="suffixIconSearch">
-            <input placeholder="Search Assignee" formControlName="assigneeId" class="assigned-user-input" nz-input
+            <input placeholder="Search Assignee" formControlName="nextCollaboratorId" class="assigned-user-input" nz-input
                    (ngModelChange)="assigneeModelChanged.next($event)" nzSize="small"
                    [nzAutocomplete]="autoAssignee"/>
           </nz-input-group>
@@ -37,8 +37,8 @@
           </nz-autocomplete>
         </nz-form-control>
         <ng-template #suffixIconSearch>
-          <i nz-icon nzType="search" *ngIf="!isSearchingAssignee && (removeForm.controls['assigneeId'].value?.length===0 || !removeForm.controls['assigneeId'].value)"></i>
-          <i nz-icon nzType="close" class="cursor-pointer" (click)="clearAssigeeSearchText()" *ngIf="!isSearchingAssignee && removeForm.controls['assigneeId'].value?.length>0"></i>
+          <i nz-icon nzType="search" *ngIf="!isSearchingAssignee && (removeForm.controls['nextCollaboratorId'].value?.length===0 || !removeForm.controls['nextCollaboratorId'].value)"></i>
+          <i nz-icon nzType="close" class="cursor-pointer" (click)="clearAssigneeSearchText()" *ngIf="!isSearchingAssignee && removeForm.controls['nextCollaboratorId'].value?.length>0"></i>
           <i class="fas fa-spin fa-spinner" *ngIf="isSearchingAssignee"></i>
         </ng-template>
     </nz-form-item>

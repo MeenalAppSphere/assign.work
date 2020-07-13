@@ -1,7 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+  BuildEmailConfigurationModel,
   DbCollection,
+  EmailSubjectEnum,
   EmailTemplatePathEnum,
   GetAllProjectsModel,
   Invitation,
@@ -468,26 +470,28 @@ export class ProjectService extends BaseService<Project & Document> implements O
    * remove collaborator
    * @param dto
    */
-  async removeCollaborator(dto: RemoveProjectCollaborator) {
-    return this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this.getProjectDetails(dto.projectId);
+  async removeCollaborator(dto: RemoveProjectCollaborator): Promise<ProjectMembers[]> {
+    await this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this.getProjectDetails(dto.projectId, true);
 
+      // region basic validations
       // check if current user want's to remove him self from project
       if (dto.collaboratorId === this._generalService.userId) {
         BadRequest('You can\'t remove your self from project');
       }
 
       // check if collaborator whose going to remove is part of project
-      const isCurrentCollaboratorIsPartOfProject = this._utilityService.userPartOfProject(dto.collaboratorId, projectDetails);
-      if (!isCurrentCollaboratorIsPartOfProject) {
+      const currentCollaboratorDetails = projectDetails.members.find((member) => member.userId === dto.collaboratorId);
+      if (!currentCollaboratorDetails) {
         BadRequest('Collaborator is not part of project, so it can\'t be removed from Project');
       }
 
       // check if next collaborator is part of project
-      const isNextCollaboratorIsPartOfProject = this._utilityService.userPartOfProject(dto.nextCollaboratorId, projectDetails);
-      if (!isNextCollaboratorIsPartOfProject) {
+      const nextCollaboratorDetails = projectDetails.members.find((member) => member.userId === dto.nextCollaboratorId);
+      if (!nextCollaboratorDetails) {
         BadRequest('New selected Collaborator is not part of project');
       }
+      // endregion
 
       // generic created by query to get get things which is created by collaborator
       const genericCreatedByQuery: MongooseQueryModel = {
@@ -502,30 +506,62 @@ export class ProjectService extends BaseService<Project & Document> implements O
         createdById: dto.nextCollaboratorId
       };
 
+      // region boards
       // update boards created by collaborator
       await this._boardService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+      // endregion
 
+      // region task status
       // update task status created by collaborator
       await this._taskStatusService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+      // endregion
 
+      // region task priority
       // update task priority created by collaborator
       await this._taskPriorityService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+      // endregion
 
+      // region task types
       // update task types created by collaborator
       await this._taskTypesService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+      // endregion
 
       // region tasks
       // update assigned tasks of collaborator
       const taskAssignedQuery = {
         projectId: dto.projectId, assigneeId: dto.collaboratorId
       };
-      await this._taskService.bulkUpdate(taskAssignedQuery, { assigneeId: dto.nextCollaboratorId }, session);
+
+      await this._taskService.bulkUpdate(taskAssignedQuery, {
+        assigneeId: dto.nextCollaboratorId,
+        $pull: { watchers: { $in: [dto.collaboratorId] } },
+        $push: { watchers: dto.nextCollaboratorId }
+      }, session);
 
       // update tasks created by collaborator
       const taskCreatedByQuery = {
-        projectId: dto.projectId, assigneeId: dto.collaboratorId
+        projectId: dto.projectId, createdById: dto.collaboratorId
       };
-      await this._taskService.bulkUpdate(taskCreatedByQuery, { createdById: dto.nextCollaboratorId }, session);
+
+      await this._taskService.bulkUpdate(taskCreatedByQuery, {
+        createdById: dto.nextCollaboratorId,
+        $pull: { watchers: { $in: [dto.collaboratorId] } },
+        $push: { watchers: dto.nextCollaboratorId }
+      }, session);
+
+      // update tasks where collaborator is added as watcher
+      const collaboratorAsWatcherInTaskQuery = {
+        projectId: dto.projectId,
+        createdById: { $ne: dto.collaboratorId },
+        assigneeId: { $ne: dto.collaboratorId },
+        watchers: { $in: [dto.collaboratorId] }
+      };
+
+      await this._taskService.bulkUpdate(collaboratorAsWatcherInTaskQuery, {
+        $pull: { watchers: { $in: [dto.collaboratorId] } },
+        $push: { watchers: dto.nextCollaboratorId }
+      }, session);
+
       // endregion
 
       // region sprint and sprint report
@@ -675,8 +711,28 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }, session);
       // endregion
 
+      // region send email
+      const emailData = {
+        user: {
+          firstName: currentCollaboratorDetails.userDetails.firstName,
+          lastName: currentCollaboratorDetails.userDetails.lastName,
+          emailId: currentCollaboratorDetails.userDetails.emailId
+        },
+        project: {
+          name: projectDetails.name
+        }
+      };
+      const emailConfig: BuildEmailConfigurationModel = new BuildEmailConfigurationModel(EmailSubjectEnum.removeCollaborator, EmailTemplatePathEnum.removeCollaborator);
+      emailConfig.recipients.push();
+      emailConfig.templateDetails.push(emailData);
+
+      this._emailService.buildAndSendEmail(emailConfig);
+      // endregion
+
       return 'Collaborator removed successfully';
     });
+
+    return this.getCollaborators(dto.projectId);
   }
 
   /**

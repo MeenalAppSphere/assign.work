@@ -5,7 +5,7 @@ import { GeneralService } from '../../shared/services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import {
   ProjectMembers,
-  ProjectPriority,
+  ProjectPriority, RemoveProjectCollaborator,
   SearchProjectCollaborators,
   TaskPriorityModel,
   TaskTypeModel,
@@ -17,6 +17,7 @@ import { ColorEvent } from 'ngx-color';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { UserService } from '../../shared/services/user/user.service';
+import { untilDestroyed } from 'ngx-take-until-destroy';
 
 @Component({
   selector: 'aavantan-remove-collaborator',
@@ -45,20 +46,20 @@ export class RemoveCollaboratorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
-    console.log(this.collaborator);
     this.removeForm = this.FB.group({
-      assigneeId: new FormControl(null, [Validators.required])
+      nextCollaboratorId: new FormControl(null, [Validators.required])
     });
 
     // search default assignee
     this.assigneeModelChanged
       .pipe(
-        debounceTime(500))
+        debounceTime(500),
+        untilDestroyed(this)
+      )
       .subscribe(() => {
-        const queryText = this.removeForm.get('assigneeId').value;
+        const queryText = this.removeForm.get('nextCollaboratorId').value;
         const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
-        if (!queryText || this.removeForm.get('assigneeId').value === name) {
+        if (!queryText || this.removeForm.get('nextCollaboratorId').value === name) {
           return;
         }
         this.isSearchingAssignee = true;
@@ -82,13 +83,13 @@ export class RemoveCollaboratorComponent implements OnInit, OnDestroy {
       if (user && user.firstName && user && user.lastName) {
         userName = userName + ' ' + user.lastName;
       }
-      this.removeForm.get('assigneeId').patchValue(userName);
+      this.removeForm.get('nextCollaboratorId').patchValue(userName);
     }
     this.assigneeModelChanged.next();
   }
 
-  public clearAssigeeSearchText() {
-    this.removeForm.get('assigneeId').patchValue('');
+  public clearAssigneeSearchText() {
+    this.removeForm.get('nextCollaboratorId').patchValue('');
     this.selectedAssignee.profilePic = null;
   }
 
@@ -101,12 +102,13 @@ export class RemoveCollaboratorComponent implements OnInit, OnDestroy {
       }
 
       this.updateRequestInProcess = true;
-      const json: any = {
+      const model: RemoveProjectCollaborator = {
         projectId: this._generalService.currentProject.id,
-        userId: this.collaborator.userId
+        collaboratorId: this.collaborator.userId,
+        nextCollaboratorId: this.removeForm.getRawValue().nextCollaboratorId
       };
 
-      await this._projectService.removeCollaborators(json).toPromise();
+      await this._projectService.removeCollaborator(model).toPromise();
       this.removeForm.reset();
       this.updateRequestInProcess = false;
       this.toggleRemoveCollaborator.emit();
