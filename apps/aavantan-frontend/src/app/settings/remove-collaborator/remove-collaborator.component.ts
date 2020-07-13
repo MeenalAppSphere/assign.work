@@ -105,7 +105,7 @@ export class RemoveCollaboratorComponent implements OnInit, OnDestroy {
       const model: RemoveProjectCollaborator = {
         projectId: this._generalService.currentProject.id,
         collaboratorId: this.collaborator.userId,
-        nextCollaboratorId: this.removeForm.getRawValue().nextCollaboratorId
+        nextCollaboratorId: this.selectedAssignee.id
       };
 
       await this._projectService.removeCollaborator(model).toPromise();

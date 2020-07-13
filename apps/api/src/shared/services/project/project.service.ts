@@ -493,6 +493,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }
       // endregion
 
+      const convertedNextCollaboratorId = this.toObjectId(dto.nextCollaboratorId);
+
       // generic created by query to get get things which is created by collaborator
       const genericCreatedByQuery: MongooseQueryModel = {
         filter: {
@@ -503,7 +505,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       // generic created by update doc
       const genericCreatedByUpdateDoc = {
-        createdById: dto.nextCollaboratorId
+        createdById: convertedNextCollaboratorId
       };
 
       // region boards
@@ -524,6 +526,16 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // region task types
       // update task types created by collaborator
       await this._taskTypesService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+
+      // update task type where collaborator is set as default assignee
+      const taskTypeAssigneeQuery: MongooseQueryModel = {
+        filter: {
+          assigneeId: dto.collaboratorId
+        },
+        lean: true
+      };
+
+      await this._taskTypesService.bulkUpdate(taskTypeAssigneeQuery, { assigneeId: convertedNextCollaboratorId }, session);
       // endregion
 
       // region tasks
@@ -533,9 +545,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       };
 
       await this._taskService.bulkUpdate(taskAssignedQuery, {
-        assigneeId: dto.nextCollaboratorId,
-        $pull: { watchers: { $in: [dto.collaboratorId] } },
-        $push: { watchers: dto.nextCollaboratorId }
+        assigneeId: convertedNextCollaboratorId
       }, session);
 
       // update tasks created by collaborator
@@ -544,22 +554,19 @@ export class ProjectService extends BaseService<Project & Document> implements O
       };
 
       await this._taskService.bulkUpdate(taskCreatedByQuery, {
-        createdById: dto.nextCollaboratorId,
-        $pull: { watchers: { $in: [dto.collaboratorId] } },
-        $push: { watchers: dto.nextCollaboratorId }
+        createdById: convertedNextCollaboratorId
       }, session);
 
-      // update tasks where collaborator is added as watcher
+      // replace collaborator from watchers array with next collaborator id
       const collaboratorAsWatcherInTaskQuery = {
         projectId: dto.projectId,
-        createdById: { $ne: dto.collaboratorId },
-        assigneeId: { $ne: dto.collaboratorId },
-        watchers: { $in: [dto.collaboratorId] }
+        watchers: dto.collaboratorId
       };
 
       await this._taskService.bulkUpdate(collaboratorAsWatcherInTaskQuery, {
-        $pull: { watchers: { $in: [dto.collaboratorId] } },
-        $push: { watchers: dto.nextCollaboratorId }
+        $set: {
+          'watchers.$': convertedNextCollaboratorId
+        }
       }, session);
 
       // endregion
@@ -594,22 +601,22 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
               // task created by id
               if (columnTask.task.createdById.toString() === dto.collaboratorId) {
-                columnTask.task.createdById = dto.nextCollaboratorId;
+                columnTask.task.createdById = convertedNextCollaboratorId as any;
               }
 
               // // task update by id
               // if (columnTask.task.updatedById.toString() === dto.collaboratorId) {
-              //   columnTask.task.updatedById = dto.nextCollaboratorId;
+              //   columnTask.task.updatedById = convertedNextCollaboratorId as any;
               // }
 
               // task assignee id
               if (columnTask.task.assigneeId.toString() === dto.collaboratorId) {
-                columnTask.task.assigneeId = dto.nextCollaboratorId;
+                columnTask.task.assigneeId = convertedNextCollaboratorId as any;
               }
 
               // task moved by id
-              if (columnTask.movedById.toString() === dto.collaboratorId) {
-                columnTask.movedById = dto.collaboratorId;
+              if (columnTask.movedById && columnTask.movedById.toString() === dto.collaboratorId) {
+                columnTask.movedById = convertedNextCollaboratorId as any;
               }
 
               return columnTask;
@@ -619,11 +626,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
           // check if sprint is created by the collaborator than update it's created By id
           if (sprintDetails.createdById.toString() === dto.collaboratorId) {
-            setSprintCollaboratorAsRemovedDoc['createdById'] = dto.nextCollaboratorId;
+            setSprintCollaboratorAsRemovedDoc['createdById'] = convertedNextCollaboratorId as any;
           }
 
           // check if sprint is published by collaborator than update it's published by id
-          setSprintCollaboratorAsRemovedDoc['sprintStatus.updatedById'] = dto.nextCollaboratorId;
+          setSprintCollaboratorAsRemovedDoc['sprintStatus.updatedById'] = convertedNextCollaboratorId as any;
 
           // update report
           await this._sprintService.updateById(sprintDetails._id, setSprintCollaboratorAsRemovedDoc, session);
@@ -647,17 +654,17 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
           // task created by id
           if (task.createdById.toString() === dto.collaboratorId) {
-            task.createdById = dto.nextCollaboratorId;
+            task.createdById = convertedNextCollaboratorId as any;
           }
 
           // // task update by id
           // if (task.updatedById.toString() === dto.collaboratorId) {
-          //   task.updatedById = dto.nextCollaboratorId;
+          //   task.updatedById = convertedNextCollaboratorId as any;
           // }
 
           // task assignee id
           if (task.assigneeId.toString() === dto.collaboratorId) {
-            task.assigneeId = dto.nextCollaboratorId;
+            task.assigneeId = convertedNextCollaboratorId as any;
           }
 
           return task;
@@ -665,7 +672,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
         // check if sprint is created by the collaborator than update it's created By id
         if (sprintReportDetails.createdById.toString() === dto.collaboratorId) {
-          setSprintReportMemberAsRemovedDoc['createdById'] = dto.nextCollaboratorId;
+          setSprintReportMemberAsRemovedDoc['createdById'] = convertedNextCollaboratorId as any;
         }
 
         // update sprint report
@@ -688,7 +695,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
       // if project is created by the collaborator which we are going to remove than update project created by id
       if (projectDetails.createdById === dto.collaboratorId) {
-        setProjectCollaboratorAsRemovedDoc['createdById'] = dto.nextCollaboratorId;
+        setProjectCollaboratorAsRemovedDoc['createdById'] = convertedNextCollaboratorId as any;
       }
 
       // update project
