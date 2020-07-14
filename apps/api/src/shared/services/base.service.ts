@@ -62,7 +62,7 @@ export class BaseService<T extends Document> {
 
   public async bulkUpdate(filter: any, updatedDoc: any, session: ClientSession) {
     return this.model
-      .updateMany(filter, updatedDoc, { session });
+      .updateMany(filter, updatedDoc, { session, multi: true });
   }
 
   public async getAllPaginatedData(filter: any = {}, options: Partial<MongoosePaginateQuery> | any): Promise<BasePaginatedResponse<any>> {

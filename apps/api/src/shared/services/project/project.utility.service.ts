@@ -93,13 +93,15 @@ export class ProjectUtilityService {
   public parseProjectToVm(project: Project): Project {
     project.id = project._id;
 
-    project.members = project.members.filter(member => {
-      return !member.isRemoved;
-    }).map(member => {
-      member.workingCapacity = secondsToHours(member.workingCapacity);
-      member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
-      return member;
-    });
+    project.members = project.members
+      // .filter(member => {
+      //   return !member.isRemoved;
+      // })
+      .map(member => {
+        member.workingCapacity = secondsToHours(member.workingCapacity);
+        member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+        return member;
+      });
 
     if (project.activeBoard) {
       project.activeBoard.id = project.activeBoard._id;

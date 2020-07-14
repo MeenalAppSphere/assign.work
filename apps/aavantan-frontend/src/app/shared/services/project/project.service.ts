@@ -204,6 +204,7 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
             }
           };
         }));
+        this.notification.success('Collaborator', 'Collaborator removed successfully');
         return res;
       }),
       catchError(e => {

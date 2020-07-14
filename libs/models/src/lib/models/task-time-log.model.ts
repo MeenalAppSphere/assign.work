@@ -51,6 +51,8 @@ export class TaskTimeLogHistoryModel {
 
 export class TaskTimeLogHistoryResponseModel {
   user: string;
+  userId: string;
+  userIsRemovedFromCurrentProject: boolean;
   emailId: string;
   profilePic: string;
   totalLoggedTime: number;

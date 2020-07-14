@@ -310,8 +310,11 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
     if (!model.taskId) {
       throw new BadRequestException('Task not found');
     }
-    await this._projectService.getProjectDetails(model.projectId);
 
+    // get project details
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
+
+    // run aggregate query for getting time log data
     try {
       const timeLogHistory: TaskTimeLogHistoryResponseModel[] = await this._taskTimeLogModel.aggregate([{
         $match: { 'taskId': this.toObjectId(model.taskId) }
@@ -326,6 +329,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
         $project: {
           _id: 0,
           user: { $concat: ['$loggedBy.firstName', ' ', '$loggedBy.lastName'] },
+          userId: '$loggedBy._id',
           emailId: '$loggedBy.emailId',
           profilePic: '$loggedBy.profilePic',
           totalLoggedTime: '$loggedTime'
@@ -333,8 +337,16 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
       }]).exec();
 
       if (timeLogHistory) {
+        // loop over time log history
         timeLogHistory.forEach(timeLog => {
           timeLog.totalLoggedTimeReadable = secondsToString(timeLog.totalLoggedTime);
+
+          // loop over project member's and find if time logged by collaborator is removed from project or not
+          projectDetails.members.forEach(member => {
+            if (member.userId === timeLog.userId) {
+              timeLog.userIsRemovedFromCurrentProject = member.isRemoved;
+            }
+          });
         });
       }
 

@@ -46,6 +46,7 @@ export class User {
   currentOrganizationId?: string;
   currentOrganization?: Organization;
   currentProject?: Project;
+  isRemovedFromCurrentProject?: boolean;
   status?: UserStatus;
   mobileNumber?: string;
   username?: string;

@@ -20,6 +20,7 @@ import * as bcrypt from 'bcrypt';
 import { HASH_PASSWORD_SALT_ROUNDS } from '../helpers/defaultValueConstant';
 import { BoardUtilityService } from './board/board.utility.service';
 import { ProjectUtilityService } from './project/project.utility.service';
+import { basicUserPopulationDetails } from '../helpers/query.helper';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> implements OnModuleInit {
@@ -175,7 +176,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         select: 'name description organizationId createdAt createdById updatedAt',
         populate: [{
           path: 'createdBy',
-          select: 'emailId userName firstName lastName profilePic'
+          select: basicUserPopulationDetails
         }, {
           path: 'organization',
           select: 'name description displayName logoUrl'

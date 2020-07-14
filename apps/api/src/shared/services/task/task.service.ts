@@ -31,7 +31,7 @@ import { TaskStatusService } from '../task-status/task-status.service';
 import { ProjectService } from '../project/project.service';
 import { TaskUtilityService } from './task.utility.service';
 import { ProjectUtilityService } from '../project/project.utility.service';
-import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
+import { basicUserDetailsForAggregateQuery, basicUserPopulationDetails } from '../../helpers/query.helper';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { BoardUtilityService } from '../board/board.utility.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
@@ -43,15 +43,15 @@ import { AppGateway } from '../../../app/app.gateway';
  */
 const taskBasicPopulation: any[] = [{
   path: 'createdBy',
-  select: 'emailId userName firstName lastName profilePic _id',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'updatedBy',
-  select: 'emailId userName firstName lastName profilePic _id',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'assignee',
-  select: 'emailId userName firstName lastName profilePic _id',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'status',
@@ -63,7 +63,7 @@ const taskBasicPopulation: any[] = [{
   justOne: true,
   populate: {
     path: 'assignee',
-    select: 'emailId userName firstName lastName profilePic _id',
+    select: basicUserPopulationDetails,
     justOne: true
   }
 }, {
@@ -76,7 +76,7 @@ const taskFullPopulation: any[] = [
   ...taskBasicPopulation,
   {
     path: 'watchersDetails',
-    select: 'emailId userName firstName lastName profilePic _id'
+    select: basicUserPopulationDetails
   }, {
     path: 'dependentItem',
     select: 'name displayName description url',
@@ -144,11 +144,11 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
     // set populate fields
     model.populate = [{
       path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
+      select: basicUserPopulationDetails,
       justOne: true
     }, {
       path: 'assignee',
-      select: 'emailId userName firstName lastName profilePic -_id',
+      select: basicUserPopulationDetails,
       justOne: true
     }, {
       path: 'status',

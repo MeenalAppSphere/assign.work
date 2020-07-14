@@ -50,14 +50,15 @@ import { SprintReportService } from '../sprint-report/sprint-report.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportUtilityService } from '../sprint-report/sprint-report.utility.service';
 import { AppGateway } from '../../../app/app.gateway';
+import { basicUserPopulationDetails } from '../../helpers/query.helper';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
-  select: 'emailId userName firstName lastName profilePic',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'updatedBy',
-  select: 'emailId userName firstName lastName profilePic',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'membersCapacity.user',
@@ -71,7 +72,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'columns.tasks.addedBy',
-  select: 'emailId userName firstName lastName profilePic',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'columns.tasks.task',
@@ -79,11 +80,11 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true,
   populate: [{
     path: 'assignee',
-    select: 'emailId userName firstName lastName profilePic',
+    select: basicUserPopulationDetails,
     justOne: true
   }, {
     path: 'createdBy',
-    select: 'emailId userName firstName lastName profilePic',
+    select: basicUserPopulationDetails,
     justOne: true
   }, {
     path: 'taskType',
@@ -146,7 +147,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // set populate fields
     model.populate = [{
       path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
+      select: basicUserPopulationDetails,
       justOne: true
     }];
 

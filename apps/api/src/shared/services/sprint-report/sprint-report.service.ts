@@ -7,7 +7,7 @@ import { ModuleRef } from '@nestjs/core';
 import { SprintReportUtilityService } from './sprint-report.utility.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { GeneralService } from '../general.service';
-import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
+import { basicUserDetailsForAggregateQuery } from '../../helpers/query.helper';
 import { SprintService } from '../sprint/sprint.service';
 import { ProjectService } from '../project/project.service';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';

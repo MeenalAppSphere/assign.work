@@ -20,21 +20,22 @@ import { TaskCommentUtilityService } from './task-comment.utility.service';
 import { TaskService } from '../task/task.service';
 import { TaskHistoryService } from '../task-history.service';
 import { AppGateway } from '../../../app/app.gateway';
+import { basicUserPopulationDetails } from '../../helpers/query.helper';
 
 /**
  * common task population object
  */
 const commentFullPopulation: any[] = [{
   path: 'createdBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'updatedBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'pinnedBy',
-  select: 'emailId userName firstName lastName profilePic -_id',
+  select: basicUserPopulationDetails,
   justOne: true
 }];
 
@@ -284,17 +285,38 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
    * get all task comments
    */
   async getAllTaskComments(projectId: string, taskId: string) {
-    await this._projectService.getProjectDetails(projectId);
+    // get project details
+    const projectDetails = await this._projectService.getProjectDetails(projectId);
 
+    // get comments for this task
     const comments = await this.find({
       filter: { taskId },
       populate: commentFullPopulation,
       lean: true
     });
 
+    // loop over comments
     if (comments && comments.length) {
       return comments.map(comment => {
         comment.id = comment._id.toString();
+
+        // loop over project member's and find if comment created by, updated by or pinned by collaborator is removed from project or not
+        projectDetails.members.forEach(member => {
+          if (member.userId === comment.createdById) {
+            comment.createdBy.isRemovedFromCurrentProject = member.isRemoved;
+          }
+
+          // check for comment updated by
+          if (member.userId === comment.updatedById && comment.updatedBy) {
+            comment.updatedBy.isRemovedFromCurrentProject = member.isRemoved;
+          }
+
+          // check for comment pinned by
+          if (member.userId === comment.pinnedById && comment.pinnedBy) {
+            comment.pinnedBy.isRemovedFromCurrentProject = member.isRemoved;
+          }
+        });
+
         return comment;
       });
     } else {

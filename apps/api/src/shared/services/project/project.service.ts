@@ -55,6 +55,7 @@ import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskService } from '../task/task.service';
 import { SprintService } from '../sprint/sprint.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
+import { basicUserPopulationDetails } from '../../helpers/query.helper';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
@@ -481,13 +482,17 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }
 
       // check if collaborator whose going to remove is part of project
-      const currentCollaboratorDetails = projectDetails.members.find((member) => member.userId === dto.collaboratorId);
+      const currentCollaboratorDetails = projectDetails.members.find((member) => {
+        return member.userId === dto.collaboratorId && !member.isRemoved;
+      });
       if (!currentCollaboratorDetails) {
         BadRequest('Collaborator is not part of project, so it can\'t be removed from Project');
       }
 
       // check if next collaborator is part of project
-      const nextCollaboratorDetails = projectDetails.members.find((member) => member.userId === dto.nextCollaboratorId);
+      const nextCollaboratorDetails = projectDetails.members.find((member) => {
+        return member.userId === dto.nextCollaboratorId && !member.isRemoved;
+      });
       if (!nextCollaboratorDetails) {
         BadRequest('New selected Collaborator is not part of project');
       }
@@ -496,11 +501,9 @@ export class ProjectService extends BaseService<Project & Document> implements O
       const convertedNextCollaboratorId = this.toObjectId(dto.nextCollaboratorId);
 
       // generic created by query to get get things which is created by collaborator
-      const genericCreatedByQuery: MongooseQueryModel = {
-        filter: {
-          createdById: dto.collaboratorId
-        },
-        lean: true
+      const genericCreatedByQuery = {
+        projectId: dto.projectId,
+        createdById: dto.collaboratorId
       };
 
       // generic created by update doc
@@ -530,6 +533,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // update task type where collaborator is set as default assignee
       const taskTypeAssigneeQuery: MongooseQueryModel = {
         filter: {
+          projectId: dto.projectId,
           assigneeId: dto.collaboratorId
         },
         lean: true
@@ -725,12 +729,17 @@ export class ProjectService extends BaseService<Project & Document> implements O
           lastName: currentCollaboratorDetails.userDetails.lastName,
           emailId: currentCollaboratorDetails.userDetails.emailId
         },
+        nextUser: {
+          firstName: nextCollaboratorDetails.userDetails.firstName,
+          lastName: nextCollaboratorDetails.userDetails.lastName,
+          emailId: nextCollaboratorDetails.userDetails.emailId
+        },
         project: {
           name: projectDetails.name
         }
       };
       const emailConfig: BuildEmailConfigurationModel = new BuildEmailConfigurationModel(EmailSubjectEnum.removeCollaborator, EmailTemplatePathEnum.removeCollaborator);
-      emailConfig.recipients.push();
+      emailConfig.recipients.push(nextCollaboratorDetails.emailId);
       emailConfig.templateDetails.push(emailData);
 
       this._emailService.buildAndSendEmail(emailConfig);
@@ -867,7 +876,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     // populate
     model.populate = [{
       path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic'
+      select: basicUserPopulationDetails
     }];
 
     // get result
@@ -945,7 +954,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }]
     };
     query.select = 'name description template createdAt updatedAt createdById';
-    query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
+    query.populate = [{ path: 'createdBy', select: basicUserPopulationDetails }];
     query.sort = 'updatedAt';
     query.sortBy = 'desc';
     query.lean = true;
