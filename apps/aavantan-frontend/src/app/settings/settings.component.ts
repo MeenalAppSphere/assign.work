@@ -151,7 +151,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       if (res) {
         this.currentProject = res;
         this.stagesList = res.settings.stages;
-        this.projectMembersList = cloneDeep(res.members);
+        this.projectMembersList = cloneDeep(res.members.filter(member => {
+          return !member.isRemoved;
+        }));
 
         this.totalCapacity = 0;
         this.totalCapacityPerDay = 0;

@@ -583,20 +583,15 @@ export class ProjectService extends BaseService<Project & Document> implements O
         const sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails._id);
 
         // get current and next collaborator from sprint member capacity
-        const currentCollaboratorFromSprint = sprintDetails.membersCapacity.find(member => member.userId.toString() === dto.collaboratorId);
-        const nextCollaboratorFromSprint = sprintDetails.membersCapacity.find(member => member.userId.toString() === dto.nextCollaboratorId);
+        const currentCollaboratorFromSprint = sprintDetails.membersCapacity.findIndex(member => member.userId.toString() === dto.collaboratorId);
+        const nextCollaboratorFromSprint = sprintDetails.membersCapacity.findIndex(member => member.userId.toString() === dto.nextCollaboratorId);
 
         // check if both current and next collaborator are part of sprint
-        if (currentCollaboratorFromSprint && nextCollaboratorFromSprint) {
-
-          // find collaborator index from project members array
-          const collaboratorIndexInSprint = sprintDetails.membersCapacity.findIndex(member => {
-            return member.userId.toString() === dto.collaboratorId;
-          });
+        if (currentCollaboratorFromSprint > -1 && nextCollaboratorFromSprint > -1) {
 
           // set collaborator as removed doc
           const setSprintCollaboratorAsRemovedDoc: any = {
-            [`membersCapacity.${collaboratorIndexInSprint}.isRemoved`]: true
+            [`membersCapacity.${currentCollaboratorFromSprint}.isRemoved`]: true
           };
 
           // loop over sprint columns and change task assignee, created by or task moved by id
