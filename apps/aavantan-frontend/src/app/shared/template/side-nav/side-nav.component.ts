@@ -129,7 +129,12 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
   // close side nav on menu click
   public closeSideNav() {
-    this.themeService.toggleFold(true);
+    if (window.innerWidth < 768) {
+      this.themeService.toggleExpand(false);
+      this.themeService.toggleFold(false);
+    } else {
+      this.themeService.toggleFold(true);
+    }
   }
 
 
