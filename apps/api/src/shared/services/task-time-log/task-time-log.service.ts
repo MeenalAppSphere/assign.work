@@ -4,6 +4,8 @@ import {
   AddTaskTimeModel,
   DbCollection,
   Sprint,
+  SprintReportMembersTaskLoggingModel,
+  SprintStatusEnum,
   SprintTaskTimeLogResponse,
   Task,
   TaskHistoryActionEnum,
@@ -26,7 +28,6 @@ import { ModuleRef } from '@nestjs/core';
 import { SprintUtilityService } from '../sprint/sprint.utility.service';
 import { TaskUtilityService } from '../task/task.utility.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
-import { SprintReportMembersTaskLoggingModel } from '@aavantan-app/models';
 
 @Injectable()
 export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> implements OnModuleInit {
@@ -95,8 +96,11 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
         // get sprint details
         sprintDetails = await this._sprintService.getSprintDetails(taskDetails.sprintId, model.projectId);
 
-        // assign sprint id to time log model
-        model.timeLog.sprintId = taskDetails.sprintId;
+        // check if sprint is published then and then only add sprint id to time log object
+        if (sprintDetails && sprintDetails.sprintStatus && sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
+          // assign sprint id to time log model
+          model.timeLog.sprintId = taskDetails.sprintId;
+        }
       } else {
         delete model.timeLog['sprintId'];
       }
@@ -108,7 +112,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
       taskTimeLogResponse = await this.calculateTaskLogs(taskDetails, model, session);
 
       // region update sprint calculations
-      if (sprintDetails) {
+      if (sprintDetails && sprintDetails.sprintStatus && sprintDetails.sprintStatus.status === SprintStatusEnum.inProgress) {
         // calculate sprint calculations and update sprint
         sprintTaskTimeLogResponse = await this.calculateSprintLogs(sprintDetails, model, session);
       }
