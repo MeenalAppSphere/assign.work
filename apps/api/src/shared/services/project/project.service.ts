@@ -589,9 +589,21 @@ export class ProjectService extends BaseService<Project & Document> implements O
         // check if both current and next collaborator are part of sprint
         if (currentCollaboratorFromSprint > -1 && nextCollaboratorFromSprint > -1) {
 
+
+          // add current collaborator working capacity to next collaborator working capacity
+          const nextCollaboratorSprintWorkingCapacity = sprintDetails.membersCapacity[nextCollaboratorFromSprint].workingCapacity +
+            sprintDetails.membersCapacity[currentCollaboratorFromSprint].workingCapacity;
+
+          // get next collaborator working days
+          const nextCollaboratorSprintWorkingDays = sprintDetails.membersCapacity[nextCollaboratorFromSprint].workingDays.filter(day => day.selected).length;
+          // calculate next collaborator working capacity per day
+          const nextCollaboratorSprintWorkingCapacityPerDay = nextCollaboratorSprintWorkingCapacity / nextCollaboratorSprintWorkingDays;
+
           // set collaborator as removed doc
           const setSprintCollaboratorAsRemovedDoc: any = {
-            [`membersCapacity.${currentCollaboratorFromSprint}.isRemoved`]: true
+            [`membersCapacity.${currentCollaboratorFromSprint}.isRemoved`]: true,
+            [`membersCapacity.${nextCollaboratorFromSprint}.workingCapacity`]: nextCollaboratorSprintWorkingCapacity,
+            [`membersCapacity.${nextCollaboratorFromSprint}.workingCapacityPerDay`]: nextCollaboratorSprintWorkingCapacityPerDay
           };
 
           // loop over sprint columns and change task assignee, created by or task moved by id

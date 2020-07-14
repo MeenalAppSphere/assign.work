@@ -1134,7 +1134,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintModel.membersCapacity = model.sprint.membersCapacity;
     } else {
       // add only those members who accepted invitation of project means active collaborator of project
-      projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
+      projectDetails.members.filter(member => member.isInviteAccepted && !member.isRemoved).forEach(member => {
         sprintModel.membersCapacity.push(this._sprintUtilityService.createSprintMember(projectDetails, member.userId));
         sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
       });
