@@ -81,7 +81,7 @@ p {
 
 .list-inline {
     padding-left: 0;
-    list-style: none; 
+    list-style: none;
 
     .list-inline-item {
         display: inline-block;
@@ -89,38 +89,38 @@ p {
         &:not(:last-child) {
             margin-right: 15px;
         }
-    }    
+    }
 }
 
-.ant-typography h1, 
+.ant-typography h1,
 h1.ant-typography {
     color: $gray-dark;
     font-weight: $font-weight-semibold;
     font-size: 30px;
 }
 
-.ant-typography h2, 
+.ant-typography h2,
 h2.ant-typography {
     color: $gray-dark;
     font-weight: $font-weight-semibold;
     font-size: 24px;
 }
 
-.ant-typography h3, 
+.ant-typography h3,
 h3.ant-typography {
     color: $gray-dark;
     font-weight: $font-weight-semibold;
     font-size: 22px
 }
 
-.ant-typography h4, 
+.ant-typography h4,
 h4.ant-typography {
     color: $gray-dark;
     font-weight: $font-weight-semibold;
     font-size: 19px
 }
 
-.ant-typography p, 
+.ant-typography p,
 p.ant-typography {
     color: $gray-light;
 }

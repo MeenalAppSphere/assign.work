@@ -2,9 +2,15 @@
   <ng-template #item let-item>
     <nz-list-item>
       <div class="media">
-        <nz-avatar nzSize="small" nzIcon="user" class="m-r-10" [nzSrc]="item.createdBy.profilePic" nzShape="circle" nz-tooltip [nzTitle]="item.createdBy.firstName"></nz-avatar>
+        <nz-avatar nzSize="small" nzIcon="user" class="m-r-10" [nzSrc]="item.createdBy.profilePic" nzShape="circle"
+                   nz-tooltip [nzTitle]="item.createdBy.firstName"></nz-avatar>
         <div class="media-body">
-          <h6 class="m-b-0"><span class="p-r-10">{{item.createdBy.firstName}}</span><small class="text-muted text-right"><span>{{ item.createdAt | dateAgo}}</span></small></h6>
+          <h6 class="m-b-0">
+            <span class="p-r-10" [ngClass]="{'removed-collaborator': item.createdBy.isRemovedFromCurrentProject}">{{item.createdBy.firstName}}</span>
+            <small class="text-muted text-right">
+              <span>{{ item.createdAt | dateAgo}}</span>
+            </small>
+          </h6>
           <div class="font-size-13">{{item.action}}</div>
         </div>
       </div>
