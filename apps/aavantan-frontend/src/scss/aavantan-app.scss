@@ -636,29 +636,6 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 
-@media only screen and (max-width: 768px) {
-  .signup-link{
-    padding-left: 55px !important;
-    bottom: 10px!important;
-
-  }
-  .login-features-list{
-    padding-bottom: 120px;
-  }
-  .logo-col{
-    padding-top: 15px!important;
-    padding-bottom: 15px;
-    text-align: center;
-    img{
-      height: 35px;
-    }
-  }
-  .menu-header{
-    padding-top: 13px!important;
-    padding-bottom: 13px;
-  }
-}
-
 /* footer */
 .footer .footer-content {
   height: 25px;
@@ -715,5 +692,68 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     height: 14px;
     padding-bottom: 2px;
     vertical-align: middle;
+  }
+}
+
+
+
+@media only screen and (max-width: 768px) {
+  .signup-link{
+    padding-left: 55px !important;
+    bottom: 10px!important;
+
+  }
+  .login-features-list{
+    padding-bottom: 120px;
+  }
+  .logo-col{
+    padding-top: 15px!important;
+    padding-bottom: 15px;
+    text-align: center;
+    img{
+      height: 35px;
+    }
+  }
+  .menu-header{
+    padding-top: 13px!important;
+    padding-bottom: 13px;
+  }
+
+  /* login,signup,forgot etc*/
+  .login-signup-forgot {
+    .ant-card-body {
+      padding: 0px;
+    }
+    .login-wall h1 {
+      font-size: 20px;
+      text-align: center;
+    }
+  }
+
+  /* footer */
+  .footer .footer-content {
+    flex-direction: column;
+    height: 45px;
+    padding-top: 5px;
+  }
+
+  /* task page */
+  #row-main {
+    padding-top: 30px;
+  }
+  /*---*/
+
+  .ant-tabs-extra-content {
+    float: inherit!important;
+  }
+
+  /* backlog */
+  .ng-select {
+    min-width: 270px;
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+  #settings-page .setting-tab-btn {
+    text-align: center;
   }
 }
