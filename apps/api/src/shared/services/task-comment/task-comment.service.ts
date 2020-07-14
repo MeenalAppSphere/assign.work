@@ -302,17 +302,17 @@ export class TaskCommentService extends BaseService<TaskComments & Document> imp
 
         // loop over project member's and find if comment created by, updated by or pinned by collaborator is removed from project or not
         projectDetails.members.forEach(member => {
-          if (member.userId === comment.createdById) {
+          if (member.userId === comment.createdById.toString()) {
             comment.createdBy.isRemovedFromCurrentProject = member.isRemoved;
           }
 
           // check for comment updated by
-          if (member.userId === comment.updatedById && comment.updatedBy) {
+          if ((comment.updatedById && member.userId === comment.updatedById.toString()) && comment.updatedBy) {
             comment.updatedBy.isRemovedFromCurrentProject = member.isRemoved;
           }
 
           // check for comment pinned by
-          if (member.userId === comment.pinnedById && comment.pinnedBy) {
+          if ((comment.pinnedById && member.userId === comment.pinnedById.toString()) && comment.pinnedBy) {
             comment.pinnedBy.isRemovedFromCurrentProject = member.isRemoved;
           }
         });

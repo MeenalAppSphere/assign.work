@@ -90,7 +90,7 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> impl
 
       // loop over project member's and find if history created by collaborator is removed from project or not
       projectDetails.members.forEach(member => {
-        if (member.userId === history.createdById && history.createdBy) {
+        if ((history.createdById && member.userId === history.createdById.toString()) && history.createdBy) {
           history.createdBy.isRemovedFromCurrentProject = member.isRemoved;
         }
       });

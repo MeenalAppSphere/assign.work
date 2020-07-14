@@ -347,7 +347,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
 
           // loop over project member's and find if time logged by collaborator is removed from project or not
           projectDetails.members.forEach(member => {
-            if (member.userId === timeLog.userId) {
+            if (member.userId === timeLog.userId.toString()) {
               timeLog.userIsRemovedFromCurrentProject = member.isRemoved;
             }
           });
