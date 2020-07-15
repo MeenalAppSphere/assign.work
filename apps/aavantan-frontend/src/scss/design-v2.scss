@@ -1071,10 +1071,20 @@
 
   /* task page */
   #content .floating-save-btns {
-    z-index: 1000!important;
-    position: fixed!important;
-    top: 66px!important;
-    right: 27px!important;
+    z-index: 999 !important;
+    position: fixed !important;
+    top: 66px !important;
+    right: 0px !important;
+    width: 100%;
+    left: 9px;
+    background: white;
+    text-align: center;
+    padding-bottom: 7px;
+    box-shadow: 0px 3px 4px -4px;
+    padding-top: 5px;
+    .text-right {
+      text-align: center!important;
+    }
     .btn-save-task{
       margin-right: 0px!important;
     }
@@ -1088,7 +1098,6 @@
     .header-btn-group{
       display: block;
       width: 100%;
-      margin-top: 5px;
     }
     .user-filter-section {
       margin: 5px auto!important;

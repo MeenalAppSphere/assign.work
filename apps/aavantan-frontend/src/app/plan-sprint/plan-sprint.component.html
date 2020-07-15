@@ -7,7 +7,7 @@
 
   <ng-template #titleTemplateRef>
 
-      <span class="p-r-30">
+      <span>
         <span class="p-r-15 font-size-18 text-black">Plan/Work Sprint</span>
         <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip nzTooltipTitle="About Backlog page..."/>
       </span>
@@ -22,7 +22,7 @@
   <ng-template #createSprintBtnTemplate>
 
       <span class="sprint-date" *ngIf="activeSprintData">
-            <span class="font-size-12 text-gray-light-2 p-l-20 p-r-0">
+            <span class="font-size-12 text-gray-light-2 p-r-0">
 
               <span *ngIf="activeSprintData && activeSprintData.name"
                     class="text-gray-light font-size-16">{{activeSprintData.name}}</span>
@@ -557,7 +557,7 @@
       <span class="font-size-18 m-r-10 text-black font-weight-normal cursor-pointer"
            *ngIf="name">{{name}}</span>
 
-      <div [ngClass]="name ? '' : 'p-t-10'" (click)="$event.stopPropagation()">
+      <div class="small-screen-capacities" [ngClass]="name ? '' : 'p-t-10'" (click)="$event.stopPropagation()">
           <span class="m-r-25 text-gray-light-2 font-size-13" *ngIf="sprintDurations?.totalEstimationReadable">
             <span class="font-weight-semibold">{{sprintDurations?.totalEstimationReadable}}</span>
             <span class="font-weight-light">  Sprint Hours </span>
@@ -573,7 +573,7 @@
                         'text-red font-weight-semibold': sprintDurations?.totalRemainingCapacity<0}"
                 *ngIf="sprintDurations?.totalRemainingCapacityReadable">
 
-            <span class="p-l-5">{{sprintDurations?.totalRemainingCapacityReadable}}</span>
+            <span>{{sprintDurations?.totalRemainingCapacityReadable}}</span>
             <span class="font-weight-light"> Remains</span>
 
           </span>
