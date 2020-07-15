@@ -246,13 +246,14 @@
 
       <div class="col d-inline-flex ant-row-flex-space-between">
 
-        <label class="font-size-18 "><span class="text-black">Backlogs</span>
+        <label class="font-size-18 small-screen-column-flex"><span class="text-black">Backlogs</span>
 
-            <span class="p-l-25 text-gray-light-2 font-size-13 font-weight-semibold"
+            <span class="small-screen left-space p-l-25 text-gray-light-2 font-size-13 font-weight-semibold"
                   *ngIf="backLogTaskRequest?.totalItems">{{backLogTaskRequest?.totalItems}}
-              <span class="font-weight-light"> Total Item(s)</span></span>
+              <span class="font-weight-light"> Total Item(s)</span>
+            </span>
 
-            <span class="p-l-25 text-gray-light-2 font-size-13 font-weight-semibold"
+            <span class="small-screen p-l-25 text-gray-light-2 font-size-13 font-weight-semibold"
                   *ngIf="unPublishedSprintData && unPublishedSprintData.totalCapacityReadable">
               <span>{{unPublishedSprintData?.totalCapacityReadable}}</span>
               <span class="font-weight-light"> Total Estimates</span>
@@ -268,7 +269,7 @@
 
       </div>
 
-      <div class="col text-right" style="max-width: 360px;">
+      <div class="col text-right status-filter-select" style="max-width: 360px;">
 
         <div class="ng-select-content">
 
@@ -297,7 +298,7 @@
 
       </div>
 
-      <div class="col" style="max-width: 290px;">
+      <div class="col search-task-input" style="max-width: 290px;">
         <nz-input-group [nzSuffix]="suffixIcon">
           <input placeholder="Search Backlogs" nzSize="small" nz-input
                  [(ngModel)]="searchValue" (ngModelChange)="searchValueSubject$.next($event)"
