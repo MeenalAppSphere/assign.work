@@ -721,6 +721,18 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // endregion
 
       // region remove project and organisation from user's projects array
+      const collaboratorDetails: any = await this._userService.findById(dto.collaboratorId);
+
+      const collaboratorProjectsLength = collaboratorDetails.projects.length;
+      const collaboratorOrganizationLength = collaboratorDetails.organizations.length;
+
+      let collaboratorCurrentProject = null;
+      // let collaboratorCurrentOrganization = null;
+      if (collaboratorProjectsLength > 1) {
+        collaboratorCurrentProject = collaboratorDetails.projects.filter(project => project.toString() !== projectDetails._id.toString());
+      }
+
+
       await this._userService.updateById(dto.collaboratorId, {
         $pull: {
           projects: { $in: [projectDetails._id.toString()] },
