@@ -82,11 +82,14 @@ export class SideNavComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
       this._taskService.createNewTaskAction();
+      this.closeSideNav();
       this.router.navigateByUrl('dashboard/task/' + this.displayName);
     }
   }
 
   public createNewTask(item?: TaskTypeModel) {
+
+    this.closeSideNav();
 
     if (this.taskTypeDataSource[0] && this.taskTypeDataSource[0].displayName) {
       this.displayName = this.taskTypeDataSource[0].displayName;
@@ -105,6 +108,8 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
   public switchOrganization(organizationId: string) {
     try {
+
+      this.closeSideNav();
 
       if (this.currentOrganization.id === organizationId) {
         return;
@@ -129,7 +134,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
 
   // close side nav on menu click
   public closeSideNav() {
-    if (window.innerWidth < 768) {
+    if (window.innerWidth <= 768) {
       this.themeService.toggleExpand(false);
       this.themeService.toggleFold(false);
     } else {
