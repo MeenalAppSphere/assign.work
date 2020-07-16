@@ -470,6 +470,22 @@ export class ProjectService extends BaseService<Project & Document> implements O
   /**
    * remove collaborator
    * @param dto
+   * first check for basic validations, then start removing collaborator process
+   * 1. replace collaborator from setting boards with new collaborator
+   * 2. replace collaborator from task statues with new collaborator
+   * 3. replace collaborator from task priorities with new collaborator
+   * 4. replace collaborator from task types with new collaborator
+   * 5. replace collaborator from tasks with new collaborator
+   *    a. replace collaborator from assigned tasks with new collaborator
+   *    b. replace collaborator from created by tasks with new collaborator
+   *    c. replace collaborator from watchers list with new collaborator
+   * 6. replace collaborator from current sprint and current sprint report
+   *    a. replace collaborator from current sprint with new collaborator and recalculate current sprint calculations
+   *    b. replace collaborator from current sprint-report with new collaborator and recalculate current sprint-report calculations
+   * 7. update project and mark collaborator as removed
+   * 8. update organization and mark collaborator as removed
+   * 9. remove project and organization from user's project list and organizaiton list
+   * 10. send email to next collaborator
    */
   async removeCollaborator(dto: RemoveProjectCollaborator): Promise<ProjectMembers[]> {
     await this.withRetrySession(async (session: ClientSession) => {
@@ -564,15 +580,22 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // replace collaborator from watchers array with next collaborator id
       const collaboratorAsWatcherInTaskQuery = {
         projectId: dto.projectId,
-        watchers: dto.collaboratorId
+        watchers: { $in: [dto.collaboratorId] }
       };
 
+      // update tasks, pull collaborator from watchers array
       await this._taskService.bulkUpdate(collaboratorAsWatcherInTaskQuery, {
-        $set: {
-          'watchers.$': convertedNextCollaboratorId
-        }
+        $pull: {
+          watchers: { $in: [dto.collaboratorId] }
+        },
       }, session);
 
+      // update tasks, add next collaborator to watchers array
+      await this._taskService.bulkUpdate(collaboratorAsWatcherInTaskQuery, {
+        $addToSet: {
+          watchers: convertedNextCollaboratorId
+        }
+      }, session);
       // endregion
 
       // region sprint and sprint report
@@ -721,22 +744,34 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // endregion
 
       // region remove project and organisation from user's projects array
+      // get collaborator details
       const collaboratorDetails: any = await this._userService.findById(dto.collaboratorId);
 
-      const collaboratorProjectsLength = collaboratorDetails.projects.length;
-      const collaboratorOrganizationLength = collaboratorDetails.organizations.length;
+      // filter out current project from collaborators project list
+      const collaboratorRemainingProjects = collaboratorDetails.projects.filter(projectId => projectId.toString() !== projectDetails._id.toString());
 
-      let collaboratorCurrentProject = null;
-      // let collaboratorCurrentOrganization = null;
-      if (collaboratorProjectsLength > 1) {
-        collaboratorCurrentProject = collaboratorDetails.projects.filter(project => project.toString() !== projectDetails._id.toString());
+      let collaboratorNextProjectId = null;
+      let collaboratorNextOrganizationId = null;
+
+      // check if collaborator have other projects
+      if (collaboratorRemainingProjects.length && collaboratorRemainingProjects[0]) {
+        // set next project id
+        collaboratorNextProjectId = collaboratorRemainingProjects[0];
+
+        // get next project details and find organization id
+        const collaboratorNextProjectDetails = await this.getProjectDetails(collaboratorNextProjectId);
+        collaboratorNextOrganizationId = collaboratorNextProjectDetails.organizationId;
       }
 
-
+      // update user projects,organizations list and currentProject and currentOrganization
       await this._userService.updateById(dto.collaboratorId, {
         $pull: {
           projects: { $in: [projectDetails._id.toString()] },
           organizations: { $in: [projectDetails.organizationId.toString()] }
+        },
+        $set: {
+          currentProject: collaboratorNextProjectId,
+          currentOrganizationId: collaboratorNextOrganizationId
         }
       }, session);
       // endregion
