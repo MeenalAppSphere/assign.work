@@ -321,7 +321,6 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       taskModel.displayName = model.displayName;
       taskModel.description = model.description;
       taskModel.tags = model.tags;
-      taskModel.watchers = model.watchers;
       taskModel.attachments = model.attachments;
       taskModel.completionDate = model.completionDate || taskDetails.completionDate || generateUtcDate();
 
@@ -346,6 +345,9 @@ export class TaskService extends BaseService<Task & Document> implements OnModul
       // if not then assign it to task creator
       taskModel.assigneeId = model.assigneeId || this._generalService.userId;
       isAssigneeChanged = taskDetails.assigneeId.toString() !== taskModel.assigneeId;
+
+      // task watchers
+      taskModel.watchers = [...model.watchers.filter(watcher => watcher.toString() !== taskDetails.assigneeId), taskDetails.assigneeId];
 
       // check if estimated time updated and one have already logged in this task
       if (taskModel.estimatedTimeReadable) {
