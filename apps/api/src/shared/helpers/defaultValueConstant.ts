@@ -43,10 +43,10 @@ export const DEFAULT_WORKING_DAYS: ProjectWorkingDays[] = [{
 export const DEFAULT_DECIMAL_PLACES = 2;
 
 // max file upload size in mb
-export const MAX_FILE_UPLOAD_SIZE = 5;
+export const MAX_FILE_UPLOAD_SIZE = 2;
 
 // max profile pic upload size in mb
-export const MAX_PROFILE_PIC_UPLOAD_SIZE = 4;
+export const MAX_PROFILE_PIC_UPLOAD_SIZE = 2;
 
 // default email address for sending email
 export const DEFAULT_EMAIL_ADDRESS = 'support@assign.work';
