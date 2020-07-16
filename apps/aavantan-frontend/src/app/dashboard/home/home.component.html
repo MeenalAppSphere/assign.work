@@ -19,31 +19,33 @@
   </ng-template>
 
   <ng-template #createSprintBtnTemplate>
-    <div class="d-flex">
+    <div class="d-flex report-header-right-section">
 
-      <div class="text-gray-light-2 font-size-12 p-t-5 font-weight-light inline-block">
+      <div class="text-gray-light-2 font-size-12 p-t-5 m-r-15 font-weight-light inline-block">
         <span>{{ currentDate | date: 'dd-MMM-yyyy' }} </span>
         <span class="p-r-5 p-l-5">|</span>
         <span #currentTime> {{ currentDate | date: 'hh:mm:ss A' }} </span>
       </div>
 
 
-      <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" class="m-l-15">
-        <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
-          <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
-          <i nz-icon nzType="caret-down" theme="outline"></i>
-        </button>
-      </nz-button-group>
-      <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
-        <ul nz-menu style="max-height: 300px;overflow: auto">
-          <li nz-menu-item *ngFor="let sprint of closedSprintsList"
-              (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
-        </ul>
-      </nz-dropdown-menu>
+      <div>
+        <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" >
+          <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
+            <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
+            <i nz-icon nzType="caret-down" theme="outline"></i>
+          </button>
+        </nz-button-group>
+        <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">
+          <ul nz-menu style="max-height: 300px;overflow: auto">
+            <li nz-menu-item *ngFor="let sprint of closedSprintsList"
+                (click)="getSprintReport(sprint.id, sprint.name)">{{ sprint.name }}</li>
+          </ul>
+        </nz-dropdown-menu>
 
-      <button *ngIf="isReportAvailable" [nzLoading]="isDownloadInProgress" type="button"
-              nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download
-      </button>
+        <button *ngIf="isReportAvailable" [nzLoading]="isDownloadInProgress" type="button"
+                nzType="primary" nzSize="small" class="m-l-10" nz-button (click)="getPDF()">Download
+        </button>
+      </div>
 
     </div>
   </ng-template>
