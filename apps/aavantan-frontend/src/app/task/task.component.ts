@@ -198,7 +198,19 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.displayName = this._activatedRouter.snapshot.params.displayName;
     this.isUpdateMode = this.displayName.includes('-');
 
-    this.sprintData = this._generalService.currentProject.sprint;
+
+    // get current project from store
+    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentProject = res;
+        this.stagesDataSource = res.settings.stages;
+
+        this.sprintData = this.currentProject.sprint;
+
+      }
+    });
+
+
 
     const minDate = this.today.setDate(this.today.getDate() - 1); // returns epoch time
 
@@ -245,7 +257,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.dependentTaskDataSource = res;
       } else {
         const json: GetAllTaskRequestModel = {
-          projectId: this._generalService.currentProject.id,
+          projectId: this.currentProject.id,
           sort: 'createdAt',
           sortBy: 'desc'
         };
@@ -264,16 +276,6 @@ export class TaskComponent implements OnInit, OnDestroy {
       comment: [null, [Validators.required]],
       uuid: new FormControl(Date.now())
     });
-
-    // get current project from store
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-
-        this.currentProject = res;
-        this.stagesDataSource = res.settings.stages;
-      }
-    });
-
 
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
@@ -367,7 +369,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         }
         this.isSearchingWatchers = true;
         const json: SearchProjectCollaborators = {
-          projectId: this._generalService.currentProject.id,
+          projectId: this.currentProject.id,
           query: queryText
         };
         try {
@@ -736,7 +738,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     try {
 
       const json: AddTaskToSprintModel = {
-        projectId: this._generalService.currentProject.id,
+        projectId: this.currentProject.id,
         sprintId: this.sprintData.id,
         taskId: this.taskData.id,
         adjustHoursAllowed: adjustHoursAllowed
@@ -790,7 +792,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {
             const json: RemoveTaskFromSprintModel = {
-              projectId: this._generalService.currentProject.id,
+              projectId: this.currentProject.id,
               sprintId: this.sprintData.id,
               taskId: this.taskData.id
             };
@@ -830,7 +832,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     this.getTaskInProcess = true;
     try {
       const json: GetTaskByIdOrDisplayNameModel = {
-        projectId: this._generalService.currentProject.id,
+        projectId: this.currentProject.id,
         displayName: this.displayName,
         taskId: this.taskId
       };
@@ -912,7 +914,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
 
     const json: CommentPinModel = {
-      projectId: this._generalService.currentProject.id,
+      projectId: this.currentProject.id,
       taskId: this.taskId
     };
 
@@ -936,7 +938,7 @@ export class TaskComponent implements OnInit, OnDestroy {
     }
 
     const json: GetTaskHistoryModel = {
-      projectId: this._generalService.currentProject.id,
+      projectId: this.currentProject.id,
       taskId: this.taskId
     };
 
@@ -1195,7 +1197,7 @@ export class TaskComponent implements OnInit, OnDestroy {
 
     const comment: AddCommentModel = {
       comment: this.commentForm.getRawValue(),
-      projectId: this._generalService.currentProject.id,
+      projectId: this.currentProject.id,
       taskId: this.taskId
     };
 
@@ -1237,7 +1239,7 @@ export class TaskComponent implements OnInit, OnDestroy {
         this.getTimeLogInProcess = true;
         const json: TaskTimeLogHistoryModel = {
           taskId: this.taskId,
-          projectId: this._generalService.currentProject.id
+          projectId: this.currentProject.id
         };
         const data = await this._taskService.getLogHistory(json).toPromise();
         this.timelogHistoryList = data.data;

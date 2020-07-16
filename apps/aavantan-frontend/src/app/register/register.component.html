@@ -6,7 +6,7 @@
 
     <div class="container">
       <div class="row align-items-center">
-        <div class="col-md-6 d-none d-md-block">
+        <div class="col-md-7 d-none d-md-block">
           <img
             class="img-fluid"
             src="assets/images/others/signup_wall.svg"
@@ -14,7 +14,7 @@
           />
         </div>
 
-        <div class="m-l-auto col-md-5">
+        <div class="m-l-auto col-md-4">
           <nz-card>
             <h2 class="m-t-20">Sign Up</h2>
             <p class="m-b-30">Create your account to get access</p>
@@ -130,7 +130,8 @@
               <nz-form-item>
                 <nz-form-control>
                   <label nz-checkbox formControlName="agree">
-                    <span>I have read the <a>agreement</a></span>
+                    <span>I have read <a (click)="$event.stopPropagation()" href="assets/terms-and-condition.pdf"
+                                         target="_blank" class="text-primary m-r-15">Terms &amp; Conditions</a></span>
                   </label>
                 </nz-form-control>
               </nz-form-item>
@@ -149,7 +150,7 @@
                         Signin</a></span>
                     <button
                       nz-button
-                      [disabled]="signUpForm.invalid"
+                      [disabled]="signUpForm.invalid || !signUpForm.get('agree').value"
                       [nzLoading]="registerInProcess"
                       class="login-form-button"
                       [nzType]="'primary'">
@@ -171,15 +172,15 @@
     </div>
 
     <div class="d-none d-md-flex  p-h-40 justify-content-between">
-      <span class="">&copy; 2019 Assign.work</span>
-      <ul class="list-inline">
-        <li class="list-inline-item">
-          <a class="text-dark text-link" href="">Legal</a>
-        </li>
-        <li class="list-inline-item">
-          <a class="text-dark text-link" href="">Privacy</a>
-        </li>
-      </ul>
+      <span class="">&copy; 2020 Assign.work</span>
+<!--      <ul class="list-inline">-->
+<!--        <li class="list-inline-item">-->
+<!--          <a class="text-dark text-link" href="">Legal</a>-->
+<!--        </li>-->
+<!--        <li class="list-inline-item">-->
+<!--          <a class="text-dark text-link" href="">Privacy</a>-->
+<!--        </li>-->
+<!--      </ul>-->
     </div>
   </div>
 </div>
