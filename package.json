@@ -8,7 +8,7 @@
     "start": "ng serve -o",
     "start:api": "ng serve api",
     "build": "ng build",
-    "heroku-postbuild": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng build -c heroku-prod && node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng build api -c heroku-prod" ,
+    "heroku-postbuild": "ng build api -c heroku-prod",
     "build-ui-prod": "ng build --prod && cp package.json dist/apps/UI && cp Dockerfile dist/apps/UI && cp Dockerrun.aws.json dist/apps/UI && cp custom-nginx-file.conf dist/apps/UI",
     "build-api-prod": "ng build api --prod && cp package.json dist/apps/api && cp .npmrc dist/apps/api && cp .env dist/apps/api",
     "build-api": "ng build api && cp package.json dist/apps/api && cp .npmrc dist/apps/api",

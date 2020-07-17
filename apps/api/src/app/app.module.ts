@@ -23,7 +23,7 @@ import { environment } from '../environments/environment';
 import { SprintReportModule } from '../sprint-report/sprint-report.module';
 import { UserRoleModule } from '../user-role/user-role.module';
 import { AppGateway } from './app.gateway';
-import { ServeStaticModule } from '@nestjs/serve-static';
+// import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
 // set db connection string on basis of environment
@@ -54,10 +54,10 @@ const dbConnectionString = environment.production ? process.env.DB_CONNECTION_ST
     BoardModule,
     TaskCommentModule,
     SprintReportModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'UI', 'dist'),
-      exclude: ['/api*']
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'UI', 'dist'),
+    //   exclude: ['/api*']
+    // }),
     SprintReportModule,
     UserRoleModule
   ],
