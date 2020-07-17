@@ -201,7 +201,7 @@
               ]
             },
             "heroku-prod": {
-              "optimization": true,
+              "optimization": false,
               "extractLicenses": true,
               "inspect": false,
               "fileReplacements": [

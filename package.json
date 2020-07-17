@@ -3,7 +3,7 @@
   "version": "1.10.1",
   "license": "MIT",
   "scripts": {
-    "ng": "ng",
+    "ng": "node --max_old_space_size=8000 ./node_modules/.bin/ng",
     "nx": "nx",
     "start": "ng serve -o",
     "start:api": "ng serve api",
@@ -118,7 +118,7 @@
     "@angular/language-service": "^8.2.8",
     "@nestjs/schematics": "^6.6.7",
     "@nestjs/testing": "^6.7.2",
-    "@nrwl/cypress": "8.4.13",
+    "@nrwl/cypress": "8.12.11",
     "@nrwl/jest": "8.4.13",
     "@nrwl/nest": "8.4.13",
     "@nrwl/node": "8.4.13",
