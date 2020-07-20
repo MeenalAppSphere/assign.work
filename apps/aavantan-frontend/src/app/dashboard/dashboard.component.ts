@@ -301,15 +301,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * @param {NotificationResponseModel} res
    */
   private createDesktopNotification(title: string, res: NotificationResponseModel) {
-    const notification = new Notification(title, {
-      body: res.msg,
-      icon: 'assets/images/logo/logo.png',
-      vibrate: 1
-    });
+    navigator.serviceWorker.ready.then((swRegistration) => {
+      swRegistration.showNotification(title, {
+        body: res.msg,
+        icon: 'assets/images/logo/logo.png',
+        vibrate: 1
+      });
 
-    notification.onclick = ((ev: Event) => {
-      this.goToLink(res.link);
-      notification.close();
+      self.addEventListener('notificationclick', (ev: any) => {
+        this.goToLink(res.link);
+        ev.notification.close();
+
+        // This looks to see if the current is already open and
+        // focuses if it is
+        // ev.waitUntil(self.clients.matchAll({
+        //   type: "window"
+        // }).then((clientList) => {
+        //   for (let i = 0; i < clientList.length; i++) {
+        //     const client = clientList[i];
+        //     if (client.url === '/' && 'focus' in client)
+        //       return client.focus();
+        //   }
+        //   if (clients.openWindow)
+        //     return clients.openWindow('/');
+        // }));
+      });
     });
   }
 
