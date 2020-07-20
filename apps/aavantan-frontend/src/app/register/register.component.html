@@ -1,20 +1,26 @@
-<div class="container-fluid h-100" style="border-bottom: #024880 5px solid;">
+<div class="login-signup-forgot container-fluid h-100" style="border-bottom: #024880 5px solid;">
   <div class="d-flex h-100 flex-column">
 
     <div class="row">
       <div class="col-md-4 p-t-40 p-h-90 bg-white logo-col">
         <img src="assets/images/logo/logo.svg" alt="Assign.Work"/>
       </div>
-      <div class="col-md-8 p-t-30 p-h-40  text-right menu-header">
-      </div>
+<!--      <div class="col-md-8 p-t-30 p-h-40  text-right menu-header">-->
+        <!--        <div>-->
+        <!--          <a href="">About Us</a>-->
+        <!--          <a href="">Pricing</a>-->
+        <!--          <a href="">Supports</a>-->
+        <!--        </div>-->
+<!--      </div>-->
     </div>
 
-    <div class="border-sep"></div>
+<!--    <div class="border-sep"></div>-->
 
 
     <div class="row" style="height:calc(100vh - 90px);">
       <div class="col-md-4 p-t-30 bg-white relative">
-        <nz-card class="p-h-60"  nzBordered="false">
+        <nz-card class="p-h-60" nzBordered="false">
+
           <h2 class="m-t-20">Sign Up</h2>
           <p class="m-b-30">Create your account to get access</p>
 
@@ -129,8 +135,8 @@
             <nz-form-item>
               <nz-form-control>
                 <label nz-checkbox formControlName="agree">
-                  <span>I have read <a (click)="$event.stopPropagation()" href="assets/TermsAndCondition.pdf"
-                                       target="_blank" class="text-primary m-r-15">Terms &amp; Conditions</a></span>
+                    <span>I have read <a (click)="$event.stopPropagation()" href="assets/terms-and-condition.pdf"
+                                         target="_blank" class="text-primary m-r-15">Terms &amp; Conditions</a></span>
                 </label>
               </nz-form-control>
             </nz-form-item>
@@ -160,11 +166,18 @@
             </nz-form-item>
 
           </form>
+
+
+          <div class="m-t-20 m-b-20 relative or-line">
+            <span>or</span><div></div>
+          </div>
           <div class="text-center m-t-25 row">
             <div class="col">
-              <img class="btn-google" src="../../assets/images/icons/btn-google.svg" width="100%" (click)='loginWithGoogle()'>
+              <img class="btn-google" src="../../assets/images/icons/btn-google.svg" width="100%" (click) = 'loginWithGoogle()'>
             </div>
           </div>
+          <ng-template #prefixUser><i nz-icon nzType="mail" class="text-black"></i></ng-template>
+          <ng-template #prefixLock><i nz-icon nzType="lock" class="text-black"></i></ng-template>
         </nz-card>
 
       </div>
@@ -202,6 +215,18 @@
       </div>
     </div>
 
+
+    <!--    <div class="footer-legal d-none d-md-flex p-h-40 justify-content-between">-->
+    <!--      <span class="">© 2019 Assign.work</span>-->
+    <!--      <ul class="list-inline">-->
+    <!--        <li class="list-inline-item">-->
+    <!--          <a class="text-dark text-link" href="">Legal</a>-->
+    <!--        </li>-->
+    <!--        <li class="list-inline-item">-->
+    <!--          <a class="text-dark text-link" href="">Privacy</a>-->
+    <!--        </li>-->
+    <!--      </ul>-->
+    <!--    </div>-->
   </div>
 </div>
 

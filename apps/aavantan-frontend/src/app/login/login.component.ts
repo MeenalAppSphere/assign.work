@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
 
     this._authQuery.isLoginInProcess$.pipe(untilDestroyed(this)).subscribe(res => {
-      if(!this.isLoginWithGoogle) {
+      if(this.isSubmitted) {
         this.loginInProcess = res;
       }
     });

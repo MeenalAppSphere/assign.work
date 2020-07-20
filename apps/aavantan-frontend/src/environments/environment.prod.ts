@@ -2,6 +2,6 @@ export const environment = {
   production: true,
   apiUrl: 'https://api.assign.work/api/',
   googleApi: '768411236596-gpfmj78vq5latkc7gi7b8digjd66ngi2.apps.googleusercontent.com',
-  APP_URL: 'https://assign.work/',
+  APP_URL: 'https://app.assign.work/',
   socketUrl: 'https://api.assign.work'
 };

@@ -8,7 +8,7 @@
         <div class="p-l-10 sprint-name-button">{{boardData && boardData.name ? boardData.name : 'Sprint'}}</div>
 
 
-        <div *ngIf="boardData && boardData.name" class="total-estimates-section">
+        <div *ngIf="boardData && boardData.name" class="small-screen-capacities total-estimates-section">
                 <span class="m-r-10 text-gray-light-2 font-size-13"
                       *ngIf="boardData?.totalEstimationReadable">
                   <span class="font-weight-semibold">{{boardData?.totalEstimationReadable}}</span>
@@ -26,7 +26,7 @@
                       'text-red font-weight-semibold': boardData?.totalRemainingCapacity<0}"
                 *ngIf="boardData?.totalRemainingCapacityReadable">
                   <span
-                    class="p-l-5 font-weight-semibold">{{boardData?.totalRemainingCapacityReadable}}</span>
+                    class="font-weight-semibold">{{boardData?.totalRemainingCapacityReadable}}</span>
                   <span class="font-weight-light"> Remains</span>
                 </span>
 
@@ -43,7 +43,7 @@
 
       <div class="col-md-6">
 
-        <div class="row d-inline-flex text-right float-right">
+        <div class="small-screen-board-header-right row d-inline-flex text-right float-right">
 
           <div class="board-search-box text-right p-r-10" *ngIf="boardData">
 
@@ -61,7 +61,7 @@
 
           <div class="header-btn-group" *ngxPermissionsOnly="['canClose_sprint']">
 
-            <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="btn-add-task m-r-5 m-l-10"
+            <button *ngIf="boardData" nzType="default" nzSize="small" nz-button class="m-r-5 m-l-10"
                     (click)="toggleCloseSprintShow()">Close Sprint
             </button>
 

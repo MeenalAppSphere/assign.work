@@ -367,7 +367,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
       margin-top: 10px;
     }
     tr {
-      box-shadow: 1px 1px 4px 0px #767676b3;
+      box-shadow: 0px 1px 4px 0px #b2b2b2;
       display: block;
       border-radius: 4px;
     }
@@ -656,29 +656,6 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 
-@media only screen and (max-width: 768px) {
-  .signup-link{
-    padding-left: 55px !important;
-    bottom: 10px!important;
-
-  }
-  .login-features-list{
-    padding-bottom: 120px;
-  }
-  .logo-col{
-    padding-top: 15px!important;
-    padding-bottom: 15px;
-    text-align: center;
-    img{
-      height: 35px;
-    }
-  }
-  .menu-header{
-    padding-top: 13px!important;
-    padding-bottom: 13px;
-  }
-}
-
 /* footer */
 .footer .footer-content {
   height: 25px;
@@ -735,5 +712,170 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     height: 14px;
     padding-bottom: 2px;
     vertical-align: middle;
+  }
+}
+
+.search-task-input {
+  max-width: 300px;
+}
+/* responsive */
+@media only screen and (min-width: 320px) and (max-width: 768px) {
+  .items-summary-section {
+    overflow-x: auto;
+  }
+  .report-header-right-section {
+    flex-direction: column;
+    align-items: self-start;
+    line-height: 2.5rem;
+  }
+  .box-summary {
+    width: 100%!important;
+  }
+  .signup-link{
+    padding-left: 55px !important;
+    bottom: 10px!important;
+
+  }
+  .login-features-list{
+    padding-bottom: 120px;
+  }
+  .logo-col{
+    padding-top: 15px!important;
+    padding-bottom: 15px;
+    text-align: center;
+    img{
+      height: 35px;
+    }
+  }
+  .menu-header{
+    padding-top: 13px!important;
+    padding-bottom: 13px;
+  }
+
+  /* login,signup,forgot etc*/
+  .signup-link {
+    position: initial!important;
+  }
+  .login-gradient {
+    padding-top: 30px!important;
+    height: auto!important;
+  }
+  .login-signup-forgot {
+    .ant-card-body {
+      padding: 0px;
+    }
+    .login-wall h1 {
+      font-size: 20px;
+      text-align: center;
+    }
+  }
+
+  /* footer */
+  .footer .footer-content {
+    flex-direction: column;
+    height: 45px;
+    padding-top: 5px;
+  }
+
+  /* task page */
+  #row-main {
+    padding-top: 45px;
+  }
+  /*---*/
+
+  .ant-tabs-extra-content {
+    float: inherit!important;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  /* backlog */
+  .ng-select {
+    min-width: 320px;
+    max-width: 100%;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+  #settings-page .setting-tab-btn {
+    text-align: center;
+  }
+  .backlog-page .search-task-input {
+    max-width: 100%!important;
+  }
+  .ant-table-body table tr {
+    margin: 10px;
+  }
+
+  .small-screen-column-flex {
+    display: flex;
+    flex-direction: column;
+    .small-screen {
+      padding-left: 0px!important;
+    }
+  }
+  .small-screen-capacities {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.8;
+  }
+
+  .ant-card-head-wrapper {
+    display: flex;
+    align-items: self-start;
+    flex-direction: column;
+    text-align: center;
+    .ant-card-extra {
+      float: none;
+      margin-left: inherit;
+    }
+    .ant-card-small>.ant-card-head>.ant-card-head-wrapper>.ant-card-head-title {
+      padding: 0px;
+    }
+  }
+  .btn-create-backlog {
+    margin-top: 0px;
+    position: initial;
+    text-align: center;
+  }
+  .small-screen-board-header-right {
+    display: flex !important;
+    justify-content: space-around;
+    float: none!important;
+    div {
+      width: auto!important;
+      margin: 0px!important;
+    }
+  }
+}
+
+@media only screen and (max-width: 320px) {
+  .signup-link {
+    position: initial!important;
+  }
+  .login-gradient {
+    padding-top: 30px!important;
+    height: auto!important;
+  }
+  .ng-select {
+    min-width: 270px;
+    max-width: 100%;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+  .search-task-input  {
+    max-width: 100%!important;
+  }
+  .small-screen-column-flex {
+    display: flex;
+    flex-direction: column;
+    .small-screen {
+      padding-left: 0px!important;
+    }
+  }
+  .small-screen-capacities {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.8;
   }
 }

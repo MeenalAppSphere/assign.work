@@ -25,10 +25,9 @@
           <img src="assets/images/icons/icon-bar.svg"/>
         </a>
       </li>
-
-      <li>
-        <a href="javascript:void(0);" nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomLeft'" class="project-name-btn dark-blue-black d-inline-block">
-          <span class="p-r-10">{{ currentProject?.name }}</span> <i nz-icon nzType="down" class="font-size-10"></i>
+      <li joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
+        <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
+          <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-5" nzText="{{ currentProject?.name | slice : 0:2 }}"></nz-avatar> {{ currentProject?.name }}
         </a>
         <span class="d-inline-block font-size-11 m-l-5">Change Project<span class="text-gray-light-2 font-size-10"> (Ctrl/Cmd + j)</span></span>
 
