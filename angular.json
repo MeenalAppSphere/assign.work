@@ -67,11 +67,11 @@
                 }
               ]
             },
-            "heroku-prod": {
+            "qa": {
               "fileReplacements": [
                 {
                   "replace": "apps/aavantan-frontend/src/environments/environment.ts",
-                  "with": "apps/aavantan-frontend/src/environments/environment.heroku-prod.ts"
+                  "with": "apps/aavantan-frontend/src/environments/environment.qa.ts"
                 }
               ],
               "optimization": true,
@@ -185,6 +185,7 @@
             "tsConfig": "apps/api/tsconfig.app.json",
             "assets": [
               "apps/api/src/assets",
+              "apps/api/src/.env",
               "apps/api/src/shared/email-templates"
             ]
           },
@@ -200,14 +201,14 @@
                 }
               ]
             },
-            "heroku-prod": {
+            "qa": {
               "optimization": false,
               "extractLicenses": true,
               "inspect": false,
               "fileReplacements": [
                 {
                   "replace": "apps/api/src/environments/environment.ts",
-                  "with": "apps/api/src/environments/environment.heroku-prod.ts"
+                  "with": "apps/api/src/environments/environment.qa.ts"
                 }
               ]
             }

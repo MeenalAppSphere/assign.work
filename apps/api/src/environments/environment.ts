@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  heroku: false,
+  qa: false,
   APP_URL: 'http://localhost:4200/',
 };
