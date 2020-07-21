@@ -4,7 +4,6 @@ import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
 import { ThemeConstantService } from '../shared/services/theme-constant.service';
 import { delay, distinctUntilChanged } from 'rxjs/operators';
-import { JoyrideService } from 'ngx-joyride';
 import { GeneralService } from '../shared/services/general.service';
 import { OrganizationQuery } from '../queries/organization/organization.query';
 import { UserService } from '../shared/services/user/user.service';
@@ -42,7 +41,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentOrganization: Organization;
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private themeService: ThemeConstantService,
-              private joyrideService: JoyrideService, private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
+              private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
@@ -156,30 +155,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }, 3000);
   }
 
-  startTour() {
-    const options = {
-      steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/running-sprint'],
-      startWith: 'tour1',
-      // waitingTime: 2000,
-      stepDefaultPosition: 'top',
-      themeColor: '#000000',
-      showPrevButton: true,
-      logsEnabled: true,
-      customTexts: { prev: of('<<').pipe(delay(2000)), next: '>>' }
-    };
-    this.joyrideService.startTour(options).subscribe(
-      step => {
-        console.log('Next:', step);
-      },
-      e => {
-        console.log('Error', e);
-      },
-      () => {
-        this.stepDone();
-        console.log('Tour finished');
-      }
-    );
-  }
+  // startTour() {
+  //   const options = {
+  //     steps: ['tour1', 'tour2', 'main-menu', 'tour-card0@dashboard/home', 'tour3', 'board@dashboard/running-sprint'],
+  //     startWith: 'tour1',
+  //     // waitingTime: 2000,
+  //     stepDefaultPosition: 'top',
+  //     themeColor: '#000000',
+  //     showPrevButton: true,
+  //     logsEnabled: true,
+  //     customTexts: { prev: of('<<').pipe(delay(2000)), next: '>>' }
+  //   };
+  //   this.joyrideService.startTour(options).subscribe(
+  //     step => {
+  //       console.log('Next:', step);
+  //     },
+  //     e => {
+  //       console.log('Error', e);
+  //     },
+  //     () => {
+  //       this.stepDone();
+  //       console.log('Tour finished');
+  //     }
+  //   );
+  // }
 
   showLogoutWarning(type: 'Organization' | 'Project') {
     this._modalService.confirm({
