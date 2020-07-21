@@ -11,7 +11,6 @@ import { CollaboratorsComponent } from './settings/collaborators/collaborators.c
 import { PopoverModule, SortableModule, TypeaheadModule } from 'ngx-bootstrap';
 import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
-import { JoyrideModule } from 'ngx-joyride';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { DndModule } from 'ngx-drag-drop';
 import { BoardDesignComponent } from './board-design/board-design.component';
@@ -33,7 +32,6 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} }
     TypeaheadModule.forRoot(),
     SortableModule.forRoot(),
     PopoverModule.forRoot(),
-    JoyrideModule.forRoot(),
     NzToolTipModule,
     DndModule,
     SettingsModule,
