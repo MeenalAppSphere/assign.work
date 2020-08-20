@@ -62,7 +62,7 @@
     "angular-froala-wysiwyg": "^3.0.6",
     "angularx-social-login": "^2.2.1",
     "aws-sdk": "^2.561.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "bootstrap": "4.1.1",
     "core-js": "^2.5.4",
     "ejs": "^3.0.1",
