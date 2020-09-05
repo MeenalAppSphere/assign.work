@@ -1,6 +1,6 @@
 {
   "name": "assign.work",
-  "version": "1.10.4",
+  "version": "1.10.5",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -84,7 +84,6 @@
     "ngx-color": "4.1.1",
     "ngx-drag-drop": "^2.0.0",
     "ngx-infinite-scroll": "^8.0.0",
-    "ngx-joyride": "^2.2.10",
     "ngx-perfect-scrollbar": "^8.0.0",
     "ngx-quill": "7.3.2",
     "ngx-socket-io": "^3.0.1",
