@@ -60,7 +60,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     let fileUrl: string;
 
     // validations
-    this.fileSizeValidator(file);
+    // this.fileSizeValidator(file);
 
     try {
       fileUrl = await this.s3Client.upload(filePath, file.buffer);
@@ -120,7 +120,7 @@ export class AttachmentService extends BaseService<AttachmentModel & Document> i
     }
 
     // file size validation
-    this.fileSizeValidator(file, true);
+    // this.fileSizeValidator(file, true);
 
     // create user query where user status is active and his/her last login provider is not any third party client
     const userQuery = new MongooseQueryModel();
