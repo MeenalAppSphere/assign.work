@@ -617,7 +617,9 @@
                         <h6 class="m-b-0"><span class="p-r-10">{{item.user}}</span></h6>
                         <!--                              <div class="font-size-13" [innerHTML]="item.description | safeHtml" ></div>-->
                         <div>
-                          <small class="text-muted text-right"><span>Logged : {{ item.totalLoggedTimeReadable }}</span></small>
+                          <small class="text-muted text-right">
+                            <span>Logged : {{ item.totalLoggedTimeReadable }} - {{ item.loggedAt | dateAgo}}</span>
+                          </small>
                         </div>
                       </div>
                     </div>
