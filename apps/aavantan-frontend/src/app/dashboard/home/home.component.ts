@@ -17,7 +17,7 @@ let timeInterval;
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  @ViewChild('currentTime', { static: false }) currentTimeHolder: ElementRef;
+  @ViewChild('currentTime') currentTimeHolder: ElementRef;
 
   public view: string = 'listView';
   public projectList: Project[];

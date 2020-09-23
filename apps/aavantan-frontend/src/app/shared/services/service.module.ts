@@ -20,7 +20,7 @@ import { SprintReportService } from './sprint-report/sprint-report.service';
 @NgModule()
 export class ServiceModule {
 
-  public static forRoot(): ModuleWithProviders {
+  public static forRoot(): ModuleWithProviders<ServiceModule> {
     return {
       ngModule: ServiceModule,
       providers: [

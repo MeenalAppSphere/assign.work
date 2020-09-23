@@ -33,15 +33,15 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^8.2.14",
-    "@angular/common": "^8.2.14",
-    "@angular/compiler": "^8.2.14",
-    "@angular/core": "^8.2.14",
-    "@angular/forms": "^8.2.14",
+    "@angular/animations": "^9.1.12",
+    "@angular/common": "^9.1.12",
+    "@angular/compiler": "^9.1.12",
+    "@angular/core": "^9.1.12",
+    "@angular/forms": "^9.1.12",
     "@angular/http": "^7.2.15",
-    "@angular/platform-browser": "^8.2.14",
-    "@angular/platform-browser-dynamic": "^8.2.14",
-    "@angular/router": "^8.2.14",
+    "@angular/platform-browser": "^9.1.12",
+    "@angular/platform-browser-dynamic": "^9.1.12",
+    "@angular/router": "^9.1.12",
     "@datorama/akita": "^4.10.5",
     "@datorama/akita-ngdevtools": "^3.0.2",
     "@fortawesome/fontawesome-free": "^5.11.2",
@@ -105,13 +105,13 @@
     "swagger-ui-express": "^4.1.1",
     "tslib": "^1.10.0",
     "winston": "^3.2.1",
-    "zone.js": "^0.9.1"
+    "zone.js": "^0.10.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.803.29",
-    "@angular/cli": "8.3.29",
-    "@angular/compiler-cli": "^8.2.14",
-    "@angular/language-service": "^8.2.14",
+    "@angular-devkit/build-angular": "^0.901.12",
+    "@angular/cli": "9.1.12",
+    "@angular/compiler-cli": "^9.1.12",
+    "@angular/language-service": "^9.1.12",
     "@nestjs/schematics": "^6.6.7",
     "@nestjs/testing": "^6.7.2",
     "@nrwl/cypress": "8.4.13",
@@ -138,6 +138,6 @@
     "ts-jest": "24.0.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
-    "typescript": "~3.5.3"
+    "typescript": "~3.8.3"
   }
 }
