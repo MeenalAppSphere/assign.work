@@ -82,13 +82,13 @@
                 <nz-avatar (click)="filterTask(item.user)" *ngIf="!item.user.profilePic"
                            nzText="{{(item.user && item.user.firstName ? item.user.firstName : item.user.emailId) | slice : 0:1}}"
                            ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
-                           nzSize="" nzTitle="{{item.user.firstName}}" nzPlacement="top" nz-tooltip
+                           nzSize="" nzTooltipTitle="{{item.user.firstName}}" nzTooltipPlacement="top" nz-tooltip
                            class="bg-info"></nz-avatar>
 
                 <nz-avatar (click)="filterTask(item.user)" *ngIf="item.user.profilePic" nzIcon="user" nzSize=""
                            ngClass="{{item.user.isSelected ? 'selected-user' : ''}}"
-                           nzTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
-                           nzPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
+                           nzTooltipTitle="{{item.user && item.user.firstName ? item.user.firstName : item.user.emailId}}"
+                           nzTooltipPlacement="top" nz-tooltip nzSrc="{{item.user.profilePic}}"></nz-avatar>
 
               </span>
 
@@ -142,8 +142,8 @@
                   <span class="font-weight-bold"
                         [ngClass]="boardData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{boardData.sprintDaysLeft}}
                     days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
-                  <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                       class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
+                  <img src="../../../assets/images/icons/info.svg" height="16" nzTooltipPlacement="top"
+                       class="m-l-10 cursor-pointer" nz-tooltip [nzTooltipTitle]="titleTemplate"/>
                   </span>
 
 
@@ -212,12 +212,12 @@
 
                         <!-- task type -->
                         <a class="cursor-pointer font-size-12 font-weight-semibold text-primary"
-                           nz-tooltip [nzTitle]="task.task.priority.name ? task.task.priority.name : 'No Priority'"
+                           nz-tooltip [nzTooltipTitle]="task.task.priority.name ? task.task.priority.name : 'No Priority'"
                            routerLink="../task/{{task.task.displayName}}">{{task.task.displayName}}</a>
 
                         <span class="d-flex justify-content-between">
                           <!-- remove sprint button -->
-                          <span nz-tooltip [nzTitle]="'Remove from sprint'" class="remove-to-sprint"
+                          <span nz-tooltip [nzTooltipTitle]="'Remove from sprint'" class="remove-to-sprint"
                                 (click)="removeTaskToSprint(task.taskId)">
                             <i nz-icon nzType="close" nzTheme="outline"></i> Remove from sprint
                           </span>
@@ -266,7 +266,7 @@
 
                         <div class="col">
                           <span nz-tooltip
-                                [nzTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
+                                [nzTooltipTitle]="'Assignee: '+task.task.assignee.firstName+' '+ task.task.assignee.lastName">
                             <profile-name [user]="task.task.assignee" [isTooltip]="false" [fullName]="true"
                                           class="text-dark"></profile-name>
                           </span>
@@ -277,17 +277,17 @@
 
                             <span class="p-r-10">
                                <span class="duration">
-                                  <span nz-tooltip [nzTitle]="'Logged time'"
+                                  <span nz-tooltip [nzTooltipTitle]="'Logged time'"
                                         class="text-black-dark font-weight-semibold">{{task.totalLoggedTimeReadable}}</span>
-                                  <span nz-tooltip [nzTitle]="'Estimated time'"
+                                  <span nz-tooltip [nzTooltipTitle]="'Estimated time'"
                                         class="text-gray-light-2"> / {{task.task.estimatedTimeReadable}}</span>
                                </span>
                             </span>
 
                             <a (click)="showTimeLogModal(columnIndex, i, task.task)"
                                href="javascript:void(0);"
-                               class="text-primary" nz-tooltip [nzTitle]="'Time Log'">
-                            <i nz-icon nzType="clock-circle" theme="outline"></i></a>
+                               class="text-primary" nz-tooltip [nzTooltipTitle]="'Time Log'">
+                            <i nz-icon nzType="clock-circle" nzTheme="outline"></i></a>
 
                           </span>
                         </div>

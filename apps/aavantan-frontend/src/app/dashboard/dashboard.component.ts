@@ -1,4 +1,4 @@
-import { Component, HostListener, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Component, forwardRef, HostListener, Inject, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IBreadcrumb } from '../shared/interfaces/breadcrumb.type';
 import { Observable, of } from 'rxjs';
@@ -44,7 +44,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               private _generalService: GeneralService, private _organizationQuery: OrganizationQuery,
               private _userService: UserService, private _userQuery: UserQuery, private _modalService: NzModalService, private _authService: AuthService,
               private _invitationService: InvitationService, private _notificationService: NzNotificationService, private _projectQuery: ProjectQuery,
-              private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
+               private _taskPriorityService: TaskPriorityService, private _taskStatusService: TaskStatusService, private _projectService: ProjectService,
               private _taskTypeService: TaskTypeService, private _boardService: BoardService, private socket: Socket,
               private ngZone: NgZone) {
   }
@@ -196,6 +196,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Ctrl + j functionality
   @HostListener('document:keydown', ['$event'])
   public handleKeyboardUpEvent(event: KeyboardEvent) {
+    // tslint:disable-next-line: deprecation
     if ((event.ctrlKey || event.metaKey) && event.which === 74 && !this.projectModalIsVisible) { // CMD+J= Project modal
       event.preventDefault();
       event.stopPropagation();

@@ -38,9 +38,10 @@ export class AuthService extends BaseService<AuthStore, AuthState> {
               private organizationStore: OrganizationStore, private sprintStore: SprintStore, private sprintReportStore: SprintReportStore) {
 
     super(authStore, notification);
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   login(request: UserLoginWithPasswordRequest) {

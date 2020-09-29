@@ -45,10 +45,10 @@
 
         <div class="ng-select-content">
 
-          <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()"
+          <button [nzTooltipTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()"
                   *ngIf="selectedColumnDataSource?.length===0">
 
-            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status
+            <i nz-icon nzType="filter" nzTheme="outline" class="m-r-5"></i> Show All Status
           </button>
 
           <nz-select
@@ -224,7 +224,7 @@
                   <nz-tag *ngIf="item.status && item.status.name"
                           [nzColor]="item.status.color ? item.status.color : '#00255B'">
                     <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
-                       [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
+                       [nzTooltipTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                   </nz-tag>
                 </td>
 
@@ -243,7 +243,7 @@
                 <td data-label="Estimate" class="text-center td-log-hours">
                   <a href="javascript:void(0);"
                      class="text-primary"
-                     (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i></a>
+                     (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" nzTheme="outline"></i></a>
                 </td>
 
               </tr>

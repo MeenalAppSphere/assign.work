@@ -1,5 +1,11 @@
+//  import { CORE_QUILL_EDITOR_CONFIGURATION_SERVICE } from "@app/core";
+//  import { QuillEditorConfigurationServiceImpl } from "@app/core";
+// import { CORE_QUILL_EDITOR_CONFIGURATION_SERVICE } from "./services/quill-editor-configuration.service.constants";
+// import { QuillEditorConfigurationServiceImpl } from "./services/quill-editor-configuration.service";
+
+
 import { BaseService } from '../base.service';
-import { NzNotificationService } from 'ng-zorro-antd';
+import {  NzConfigService, NzNotificationService } from 'ng-zorro-antd';
 import { HttpWrapperService } from '../httpWrapper.service';
 import { GeneralService } from '../general.service';
 import { catchError, map } from 'rxjs/operators';
@@ -10,14 +16,23 @@ import { TaskPriorityState, TaskPriorityStore } from '../../../store/task-priori
 import { TaskPriorityUrls } from './task-priority.url';
 import { ProjectUrls } from '../project/project.url';
 import { cloneDeep } from 'lodash';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class TaskPriorityService extends BaseService<TaskPriorityStore, TaskPriorityState> {
-  constructor(protected notification: NzNotificationService, protected taskPriorityStore: TaskPriorityStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
+  constructor(protected notification: NzNotificationService, 
+    protected taskPriorityStore: TaskPriorityStore, 
+    private _generalService: GeneralService,
+    private _http: HttpWrapperService,
+    private _configService:NzConfigService ) {
+
     super(taskPriorityStore, notification);
 
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    //  this.notification.info("message","success",{nzPlacement:'bottomRight'}); 
+
+    // this._configService.set({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   getAllTaskPriorities(projectId: string) {

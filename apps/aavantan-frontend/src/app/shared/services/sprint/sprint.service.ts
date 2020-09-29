@@ -34,9 +34,10 @@ export class SprintService extends BaseService<SprintStore, SprintState> {
   constructor(protected notification: NzNotificationService, protected sprintStore: SprintStore, private _http: HttpWrapperService,
               private _generalService: GeneralService, private _userStore: UserStore) {
     super(sprintStore, notification);
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   createSprint(sprintData: CreateSprintModel): Observable<BaseResponseModel<Sprint>> {

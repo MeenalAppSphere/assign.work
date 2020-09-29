@@ -30,7 +30,7 @@
                        [nzShowUploadList]="false"
                        [(nzFileList)]="uploadedImages">
               <div class="camera-box">
-                <i nz-icon nzType="camera" theme="outline"></i>
+                <i nz-icon nzType="camera" nzTheme="outline"></i>
               </div>
             </nz-upload>
 
@@ -52,7 +52,7 @@
 
     <ng-template #templateTitle>
       Change Password
-      <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTitle]="templateTitleText"/>
+      <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTooltipTitle]="templateTitleText"/>
     </ng-template>
     <ng-template #templateTitleText>
       Change Password

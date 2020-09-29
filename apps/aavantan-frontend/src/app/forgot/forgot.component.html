@@ -46,13 +46,17 @@
                     maxlength="100"
                     required
                   />
-
-                  <nz-form-explain
+                  <nzErrorTip *ngIf="
+                      forgotPasswordForm.get('emailId').dirty &&
+                      forgotPasswordForm.get('emailId').errors
+                    ">Please input your email!
+                  </nzErrorTip>
+                  <!-- <nz-form-explain
                     *ngIf="
                       forgotPasswordForm.get('emailId').dirty &&
                       forgotPasswordForm.get('emailId').errors
                     ">Please input your email!
-                  </nz-form-explain>
+                  </nz-form-explain> -->
                 </nz-form-control>
               </nz-form-item>
 
@@ -103,13 +107,18 @@
                     maxlength="100"
                     required
                   />
-
-                  <nz-form-explain
+                  <nzErrorTip *ngIf="
+                  resetPasswordForm.get('code').dirty &&
+                  resetPasswordForm.get('code').errors
+                ">Please input your code!
+                  </nzErrorTip>
+                  
+                  <!-- <nz-form-explain
                     *ngIf="
                       resetPasswordForm.get('code').dirty &&
                       resetPasswordForm.get('code').errors
                     ">Please input your code!
-                  </nz-form-explain>
+                  </nz-form-explain> -->
                 </nz-form-control>
               </nz-form-item>
 
@@ -127,13 +136,19 @@
                     maxlength="100"
                     required
                   />
+                  <nzErrorTip *ngIf="
+                  resetPasswordForm.get('emailId').dirty &&
+                  resetPasswordForm.get('emailId').errors
+                ">Please input your email!
+                  </nzErrorTip>
 
-                  <nz-form-explain
+
+                  <!-- <nz-form-explain
                     *ngIf="
                       resetPasswordForm.get('emailId').dirty &&
                       resetPasswordForm.get('emailId').errors
                     ">Please input your email!
-                  </nz-form-explain>
+                  </nz-form-explain> -->
                 </nz-form-control>
               </nz-form-item>
 
@@ -151,13 +166,18 @@
                     maxlength="100"
                     required
                   />
-
-                  <nz-form-explain
+                  <nzErrorTip
+                   *ngIf="resetPasswordForm.get('password').dirty &&
+                  resetPasswordForm.get('password').errors"
+                  >Please input your password!
+                </nzErrorTip>
+                
+                  <!-- <nz-form-explain
                     *ngIf="
                       resetPasswordForm.get('password').dirty &&
                       resetPasswordForm.get('password').errors
                     ">Please input your password!
-                  </nz-form-explain>
+                  </nz-form-explain> -->
                 </nz-form-control>
               </nz-form-item>
 

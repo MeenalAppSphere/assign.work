@@ -16,9 +16,10 @@ export class SprintReportService extends BaseService<TaskStore, TaskState> {
   constructor(protected notification: NzNotificationService, protected taskStore: TaskStore, private _http: HttpWrapperService,
               private _generalService: GeneralService, private _userStore: UserStore) {
     super(taskStore, notification);
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   getSprintReport(sprintId: string, projectId: string): Observable<BaseResponseModel<SprintReportModel>> {

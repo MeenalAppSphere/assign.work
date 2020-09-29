@@ -29,7 +29,8 @@
     "update:check": "ng update",
     "workspace-schematic": "nx workspace-schematic",
     "dep-graph": "nx dep-graph",
-    "help": "nx help"
+    "help": "nx help",
+    "postinstall": "ngcc"
   },
   "private": true,
   "dependencies": {
@@ -79,13 +80,13 @@
     "mongoose-validation-error-transform": "^0.0.5",
     "nest-winston": "^1.1.4",
     "nestjs-easyconfig": "^1.5.1",
-    "ng-zorro-antd": "8.1.2",
+    "ng-zorro-antd": "9.3.0",
     "ngx-bootstrap": "^5.1.2",
     "ngx-color": "4.1.1",
     "ngx-drag-drop": "^2.0.0",
     "ngx-infinite-scroll": "^8.0.0",
     "ngx-perfect-scrollbar": "^8.0.0",
-    "ngx-quill": "7.3.2",
+    "ngx-quill": "^7.3.2",
     "ngx-socket-io": "^3.0.1",
     "ngx-take-until-destroy": "^5.4.0",
     "passport": "^0.4.0",

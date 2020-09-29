@@ -83,7 +83,7 @@
 
       <ng-template #templateTitle>
         {{activeView.title}}
-        <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTitle]="templateTitleText"/>
+        <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTooltipTitle]="templateTitleText"/>
       </ng-template>
       <ng-template #templateTitleText>
         About {{activeView.title}}
@@ -172,7 +172,7 @@
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                      {{selectedStatus?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedStatus?.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #statusDDL="nzDropdownMenu">
@@ -195,7 +195,7 @@
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                      {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #taskTypeDD="nzDropdownMenu">
@@ -218,7 +218,7 @@
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedPriority?.color}"></span>
-                      {{selectedPriority?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedPriority?.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #priorityDDL="nzDropdownMenu">
@@ -351,7 +351,7 @@
                   <i nz-icon nzType="search" *ngIf="!isSearching && !isCollaboratorExits"></i>
                   <i class="fas fa-spin fa-spinner" *ngIf="isSearching && !isCollaboratorExits"></i>
 
-                  <i nz-icon nzType="close" theme="outline" class="cursor-pointer"
+                  <i nz-icon nzType="close" nzTheme="outline" class="cursor-pointer"
                      (click)="clearCollaboratorSearchText()" *ngIf="isCollaboratorExits"></i>
 
                 </ng-template>
@@ -361,13 +361,13 @@
               <p class="text-info" *ngIf="enableInviteBtn && !isCollaboratorExits">Please enter email id to invite
                 member</p>
               <p class="text-danger" *ngIf="isCollaboratorExits">This user already added in this Project</p>
-              <nz-form-explain class="text-danger m-b-15"
-                               *ngIf="response && response.message">{{response.message}}</nz-form-explain>
+              <nzErrorTip class="text-danger m-b-15"
+                               *ngIf="response && response.message">{{response.message}}</nzErrorTip>
               <nz-form-item>
                 <button (click)="addCollaborators(true)" [nzLoading]="addCollaboratorsInProcess"
                         [disabled]="!enableInviteBtn || isCollaboratorExits" nz-button nzType="primary"
                         nzSize="small">
-                  <i nz-icon nzType="mail" theme="outline"></i> Invite
+                  <i nz-icon nzType="mail" nzTheme="outline"></i> Invite
                 </button>
 
               </nz-form-item>
@@ -417,11 +417,11 @@
 
                         <span *ngIf="!item.isInviteAccepted" (click)="resendInvitation(item)"
                               class="d-block text-primary p-l-10 font-size-12 font-weight-light">
-                          <i nz-icon nzType="mail" theme="outline"></i> Resend Invite</span>
+                          <i nz-icon nzType="mail" nzTheme="outline"></i> Resend Invite</span>
 
                         <span *ngIf="!item.isInviteAccepted" (click)="recallInvitation(item.emailId)"
                               class="d-block text-danger p-l-10 font-size-12 font-weight-light">
-                          <i nz-icon nzType="close" theme="outline"></i> Recall Invite</span>
+                          <i nz-icon nzType="close" nzTheme="outline"></i> Recall Invite</span>
                       </div>
 
                       <span *ngIf="item.isInviteAccepted">
@@ -543,7 +543,7 @@
                                        nzShape="circle"></nz-avatar><span class="profile-name">Jone Doe</span></span>
                             <span class="pull-right">
                             <a href="javascript:void(0);" class="text-primary">
-                              <i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a></span>
+                              <i nz-icon nzType="clock-circle" nzTheme="outline"></i> Log Time</a></span>
                           </div>
                         </div>
                       </div>
@@ -577,14 +577,14 @@
 
 
                   <span>
-                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTitle]="item.color"
+                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTooltipTitle]="item.color"
                        [ngStyle]="{'color': item.color }"></i>
                     {{item.name}}
                   </span>
 
                   <span class="float-right">
 <!--                      <i (click)="removeStatus(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" theme="outline"
+                      <i (click)="toggleAddStatusShow(item)" nz-icon nzType="edit" nzTheme="outline"
                          class="edit m-l-10"></i>
                     </span>
 
@@ -661,14 +661,14 @@
                 <li *ngFor="let item of priorityList">
 
                   <span>
-                    <i class="p-l-10" nz-tooltip [nzTitle]="item.color"
+                    <i class="p-l-10" nz-tooltip [nzTooltipTitle]="item.color"
                        [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
                     {{item.name}}
                   </span>
 
                   <span class="float-right">
 <!--                      <i (click)="removePriority(item)" nz-icon nzType="close" theme="outline" class="close"></i>-->
-                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" theme="outline"
+                      <i (click)="toggleAddPriorityShow(item)" nz-icon nzType="edit" nzTheme="outline"
                          class="edit m-l-10"></i>
                   </span>
 
@@ -766,13 +766,13 @@
 
                 <li *ngFor="let item of typesList">
                   <span>
-                    <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color"
+                    <i class="fas fa-circle m-r-10" nz-tooltip [nzTooltipTitle]="item.color"
                        [ngStyle]="{'color':item.color}"></i>
                     {{item.name}}</span>
 
                   <span class="float-right d-flex">
                     <profile-name [user]="item.assignee" class="m-r-15"></profile-name>
-                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" theme="outline"
+                      <i (click)="toggleAddTaskTypeShow(item)" nz-icon nzType="edit" nzTheme="outline"
                          class="edit p-t-5"></i>
                     <!--                    <i (click)="removeTaskType(item)" nz-icon nzType="close" theme="outline" class="close m-l-10"></i>-->
                   </span>

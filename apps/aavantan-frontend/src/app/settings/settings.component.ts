@@ -36,6 +36,7 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardQuery } from '../queries/board/board.query';
 import { BoardService } from '../shared/services/board/board.service';
 import { Router } from '@angular/router';
+import { Config } from 'aws-sdk/lib/config';
 
 @Component({
   templateUrl: './settings.component.html',
@@ -131,9 +132,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
               private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
               private modal: NzModalService) {
 
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+      //  this.notification.info("message","success",{nzPlacement:'bottomRight'});           
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
 
     this.getBoardListRequestModal.count = 20;
     this.getBoardListRequestModal.page = 1;

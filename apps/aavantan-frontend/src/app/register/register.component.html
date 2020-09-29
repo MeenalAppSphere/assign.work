@@ -83,12 +83,16 @@
                   maxlength="100"
                   id="emailId"/>
 
-                <nz-form-explain
+                 <nzErrorTip *ngIf="signUpForm.get('emailId').dirty &&
+                 signUpForm.get('emailId').errors">This is not valid E-mail!
+                 </nzErrorTip> 
+
+                <!-- <nz-form-explain
                   *ngIf="
                       signUpForm.get('emailId').dirty &&
                       signUpForm.get('emailId').errors
                     ">This is not valid E-mail!
-                </nz-form-explain>
+                </nz-form-explain> -->
               </nz-form-control>
             </nz-form-item>
 

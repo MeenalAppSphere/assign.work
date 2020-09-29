@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   DbCollection,
@@ -72,7 +72,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
     private readonly _generalService: GeneralService, private _moduleRef: ModuleRef, private _emailService: EmailService
-  ) {
+    ) {
     super(_projectModel);
   }
 
