@@ -166,10 +166,10 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _sprintService: SprintService,
               private modal: NzModalService
   ) {
-
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
 
     // if task page is visible and user clicked on Create Task button from side bar
     // router.events.subscribe((val) => {

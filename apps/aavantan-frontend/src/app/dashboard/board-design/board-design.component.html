@@ -5,7 +5,7 @@
     <span class="p-r-15 font-size-18 text-black">Board Settings</span>
 
     <img src="../../../assets/images/icons/info.svg" height="16" class="cursor-pointer" nz-tooltip
-         [nzTitle]="templateTitleText"/>
+         [nzTooltipTitle]="templateTitleText"/>
     <ng-template #templateTitleText>
       About Board Settings...
     </ng-template>
@@ -22,7 +22,7 @@
         <nz-card nzSize="small" class="status-box">
 
           <button (click)="toggleStatusSidebar()" nz-button nzSize="default" class="btn-double-arrow">
-            <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Collapse status'">
+            <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTooltipTitle]="'Collapse status'">
           </button>
 
           <div class="row m-b-20">
@@ -67,7 +67,7 @@
 
         <button (click)="toggleStatusSidebar()" *ngIf="!isOpenStatusSidebar && activeBoard" nz-button nzSize="default"
                 class="btn-double-arrow-close">
-          <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTitle]="'Show status'">
+          <img src="../../assets/images/icons/double-arrow.svg" height="10" nz-tooltip [nzTooltipTitle]="'Show status'">
         </button>
 
         <div class="row">
@@ -134,7 +134,7 @@
                       <div class="pull-left">
                         <i nz-icon nzType="close" nzTheme="outline" nz-tooltip
                            *ngIf="!column.headerStatus?.isDefault" (click)="hideColumn(column.headerStatusId)"
-                           [nzTitle]="'Remove Column'"></i>
+                           [nzTooltipTitle]="'Remove Column'"></i>
                       </div>
 
                     </div>

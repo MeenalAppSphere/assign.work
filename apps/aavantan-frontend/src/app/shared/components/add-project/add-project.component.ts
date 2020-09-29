@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../../services/validation-regex.service';
 import {
@@ -76,7 +76,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
-              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
+               private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
               private _projectQuery: ProjectQuery) {
   }
 

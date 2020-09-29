@@ -37,9 +37,10 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
   constructor(protected projectStore: ProjectStore, private _http: HttpWrapperService, private _generalService: GeneralService, private router: Router,
               protected notification: NzNotificationService, private userStore: UserStore, private taskPriorityStore: TaskPriorityStore) {
     super(projectStore, notification);
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   createProject(model: Project): Observable<BaseResponseModel<Project>> {
