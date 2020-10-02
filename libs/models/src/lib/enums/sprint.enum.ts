@@ -6,12 +6,12 @@ export enum SprintStatusEnum {
 
 export enum SprintErrorEnum {
   taskNotFound = 'Task not Found',
-  taskNoAssignee = 'Please assign a Assignee to Add Task in the Sprint',
-  taskNoEstimate = 'Please add Task Estimation',
+  taskNoAssignee = 'Please assign an assignee to Add Task in the Sprint',
+  taskNoEstimate = 'Please add task estimation',
   alreadyInSprint = 'Task is already in a sprint',
-  memberCapacityExceed = 'Member Working Capacity Limit is Exceeded',
-  sprintCapacityExceed = 'Sprint Capacity Limit is Exceeded',
-  memberNotFound = 'Member not found in Sprint'
+  memberCapacityExceed = 'Member working capacity limit is exceeded',
+  sprintCapacityExceed = 'Sprint Capacity limit is exceeded',
+  memberNotFound = 'Member not found in sprint'
 }
 
 export enum SprintActionEnum {
