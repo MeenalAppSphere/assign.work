@@ -71,6 +71,7 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
         this.taskTypeStore.reset();
         this.taskStatusStore.reset();
         this.taskPriorityStore.reset();
+        setTimeout(()=> {this.updateState({ switchOrganizationInProcess: false, switchOrganizationSuccess: false });}, 2000);
         return res;
       }),
       catchError(err => {

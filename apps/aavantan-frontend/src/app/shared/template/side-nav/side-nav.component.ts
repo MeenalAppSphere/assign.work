@@ -137,7 +137,11 @@ export class SideNavComponent implements OnInit, OnDestroy {
   }
 
   organizationModalShow(): void {
-    this.organizationModalIsVisible = !this.organizationModalIsVisible;
+    this.organizationModalIsVisible = true;
+  }
+
+  organizationModalHide(): void {
+    this.organizationModalIsVisible = false;
   }
 
   // close side nav on menu click

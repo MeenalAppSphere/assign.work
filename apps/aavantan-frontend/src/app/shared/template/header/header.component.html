@@ -25,7 +25,7 @@
           <img src="assets/images/icons/icon-bar.svg"/>
         </a>
       </li>
-      <li nz-tooltip nzPlacement="bottom" nzTitle="Current Project">
+      <li nz-tooltip nzPlacement="bottom" nzTitle="Current Project" class="d-flex align-items-center">
         <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
           <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-5" nzText="{{ currentProject?.name | slice : 0:2 }}"></nz-avatar> {{ currentProject?.name }}
         </a>
