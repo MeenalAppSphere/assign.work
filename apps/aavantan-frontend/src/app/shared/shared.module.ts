@@ -26,7 +26,8 @@ import { TeamCapacityModelComponent } from './components/team-capacity-model/tea
 import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
 import { AddStatusComponent } from './components/add-status/add-status.component';
 import { ColorSketchModule } from 'ngx-color/sketch';
-
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { SprintDetailsComponent } from './components/sprint-details/sprint-details.component';
 
 @NgModule({
   exports: [
@@ -52,7 +53,9 @@ import { ColorSketchModule } from 'ngx-color/sketch';
     TeamCapacityModelComponent,
     CloseSprintComponent,
     KeysPipe,
-    AddStatusComponent
+    AddStatusComponent,
+    NzPopoverModule,
+    SprintDetailsComponent
   ],
   imports: [
     CommonModule,
@@ -64,6 +67,7 @@ import { ColorSketchModule } from 'ngx-color/sketch';
     PopoverModule,
     RouterModule,
     ColorSketchModule,
+    NzPopoverModule,
   ],
   declarations: [
     AddProjectComponent,
@@ -82,7 +86,8 @@ import { ColorSketchModule } from 'ngx-color/sketch';
     TeamCapacityComponent,
     TeamCapacityModelComponent,
     CloseSprintComponent,
-    AddStatusComponent
+    AddStatusComponent,
+    SprintDetailsComponent
   ]
 })
 export class SharedModule {
