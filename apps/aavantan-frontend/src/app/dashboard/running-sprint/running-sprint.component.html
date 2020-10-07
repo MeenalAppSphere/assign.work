@@ -143,7 +143,8 @@
                         [ngClass]="boardData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{boardData.sprintDaysLeft}}
                     days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
                   <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                       class="m-l-10 cursor-pointer" (click)="toggleSprintGoal()"/>
+                       class="m-l-10 cursor-pointer"  nz-popover nzPlacement="leftBottom" [nzTitle]="titleTemplate" (click)="toggleSprintGoal()"/>
+
                   </span>
 
 

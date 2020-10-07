@@ -28,6 +28,7 @@ import { AddStatusComponent } from './components/add-status/add-status.component
 import { ColorSketchModule } from 'ngx-color/sketch';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { SprintDetailsComponent } from './components/sprint-details/sprint-details.component';
+import { QuillModule } from 'ngx-quill';
 
 @NgModule({
   exports: [
@@ -68,6 +69,7 @@ import { SprintDetailsComponent } from './components/sprint-details/sprint-detai
     RouterModule,
     ColorSketchModule,
     NzPopoverModule,
+    QuillModule.forRoot()
   ],
   declarations: [
     AddProjectComponent,

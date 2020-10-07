@@ -127,13 +127,9 @@ export class AddSprintComponent implements OnInit, OnDestroy {
       toolbar: {
         container: [
           ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-          ['code-block'],
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
           [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
           [{ 'color': ['#333333', '#000000', 'red', 'green'] }],
           ['clean'],                                         // remove formatting button
-          ['link']
         ]
       },
       mention: {
@@ -192,7 +188,11 @@ export class AddSprintComponent implements OnInit, OnDestroy {
   };
 
   onContentChanged = (event) => {
-    //console.log(event.html);
+    const charCount = event.text.length;
+    if (charCount > 250) {
+      this.sprintForm.get('goal').patchValue(event.text.substr(0,249));
+      return;
+    }
   };
 
   onFocus = () => {

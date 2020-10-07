@@ -35,11 +35,11 @@
               </span>
 
               <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                   class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
+                   class="m-l-10 cursor-pointer" nz-popover [nzTitle]="titleTemplate"/>
 
             </span>
           <ng-template #titleTemplate>
-              <div><span class="d-inline-block w-45px">Goal</span>: {{activeSprintData?.goal}}</div>
+              <div><span class="d-inline-block w-45px">Goal</span>: <span [innerHTML]="activeSprintData?.goal"></span></div>
               <div><span
                 class="d-inline-block w-45px">Starts</span>: {{activeSprintData?.startedAt | date : 'MMM d yyyy'}}</div>
               <div><span
