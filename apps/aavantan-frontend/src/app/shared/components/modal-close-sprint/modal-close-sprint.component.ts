@@ -15,7 +15,7 @@ import 'quill-mention';
   styleUrls: ['./modal-close-sprint.component.scss']
 })
 export class CloseSprintComponent implements OnInit, OnDestroy {
-  @Input() public closeSprintModalIsVisible;
+  @Input() public closeSprintModalIsVisible:boolean;
   @Input() public activeSprintData: Sprint;
   @Input() public currentProject: Project;
 
@@ -125,7 +125,7 @@ export class CloseSprintComponent implements OnInit, OnDestroy {
         container: [
           ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
           [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-          [{ 'color': ['#333333', '#000000', 'red', 'green'] }],
+          //[{ 'color': ['#333333', '#000000', 'red', 'green'] }],
           ['clean'],                                         // remove formatting button
         ]
       },

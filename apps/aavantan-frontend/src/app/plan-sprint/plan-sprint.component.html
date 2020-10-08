@@ -35,16 +35,25 @@
               </span>
 
               <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                   class="m-l-10 cursor-pointer" nz-popover [nzTitle]="titleTemplate"/>
+                   class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzContent]="titleTemplate" nzPlacement="bottomRight"/>
 
             </span>
           <ng-template #titleTemplate>
-              <div><span class="d-inline-block w-45px">Goal</span>: <span [innerHTML]="activeSprintData?.goal"></span></div>
-              <div><span
-                class="d-inline-block w-45px">Starts</span>: {{activeSprintData?.startedAt | date : 'MMM d yyyy'}}</div>
-              <div><span
-                class="d-inline-block w-45px">End</span>: {{activeSprintData?.endAt | date : 'MMM d yyyy'}}</div>
-          </ng-template>
+            <div>
+                <span class="d-inline-block font-weight-medium mb-3 text-black">Sprint Goal</span>
+                <div nz-row class="mb-2">
+                  <span class="pr-4">
+                    <span class="d-inline-block font-weight-bold">Starts</span>: <span clss="text-gray-light-2">{{activeSprintData?.startedAt | date : 'MMM d yyyy'}}</span>
+                  </span>
+                  <span>
+                    <span class="d-inline-block font-weight-bold">End</span>: <span clss="text-gray-light-2">{{activeSprintData?.endAt | date : 'MMM d yyyy'}}</span>
+                  </span>
+                </div>
+                <div>
+                  <div><span class="d-inline-block"><span [innerHTML]="activeSprintData?.goal"></span></span></div>
+                </div>
+            </div>
+         </ng-template>
           </span>
   </ng-template>
   <!-- create sprint button and active sprint data -->

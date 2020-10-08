@@ -128,7 +128,7 @@ export class AddSprintComponent implements OnInit, OnDestroy {
         container: [
           ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
           [{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
-          [{ 'color': ['#333333', '#000000', 'red', 'green'] }],
+          //[{ 'color': ['#333333', '#000000', 'red', 'green'] }],
           ['clean'],                                         // remove formatting button
         ]
       },
