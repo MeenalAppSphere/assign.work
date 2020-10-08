@@ -8,7 +8,16 @@
       <div class="m-b-40">
         <div class="m-b-10">No Access</div>
         <div class="font-weight-light font-size-15">
-          No access permission for this page<br>Contact your Project owner
+          No access permission for this page<br>
+          Contact your Project owner
+        </div>
+        <div class="font-weight-bold font-size-15">
+          <span class="p-h-10 pointer" nz-dropdown  [nzTrigger]="'click'">
+            
+        <nz-avatar class="m-r-10" [nzSrc]="profilePic" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+        {{firstName}} {{lastName}}
+        (<a href="mailto:{{email}}">{{email}}</a>)
+            </span>
         </div>
       </div>
     </ng-template>

@@ -206,7 +206,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
             select: 'name goal startedAt endAt totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime reportId'
           }, {
             path: 'createdBy',
-            select: 'firstName lastName'
+            select: 'firstName lastName emailId profilePic'
           }, {
             path: 'organization',
             select: 'name description displayName logoUrl'

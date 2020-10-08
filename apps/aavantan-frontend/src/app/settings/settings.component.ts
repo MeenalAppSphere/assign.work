@@ -71,7 +71,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public priorityForm: FormGroup;
   public userRoleForm: FormGroup;
 
-  public activeView: any = {};
+  public activeView: any = {
+    title:"Project"
+  };
 
   public selectedAssignee: User = {};
   public selectedTaskType: TaskTypeModel;
@@ -1004,14 +1006,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     const groupByName = {};
 
-    this.permissionsList.forEach(function(a) {
+    this.permissionsList.forEach(function(a,index) {
       groupByName[a.group] = groupByName[a.group] || [];
       groupByName[a.group].push({
         name: a.name,
         group: a.group,
         value: a.value,
         disabled: false,
-        checked: a.checked
+        checked: a.checked,
+        isActive:index===0
       });
     });
 
