@@ -62,6 +62,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
     this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentOrganization = res;
+        this._organizationService.resetOrganizationStore();
       }
     });
 
