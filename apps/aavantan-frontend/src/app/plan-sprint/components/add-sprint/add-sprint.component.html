@@ -24,9 +24,16 @@
 
 
               <div class="col-md-12">
-                <nz-form-item class="no-margin">
-                  <nz-form-label>Goal<span class="text-danger">*</span></nz-form-label>
-                  <textarea formControlName="goal" nz-input [rows]="3" placeholder="Enter Sprint Goal (max 250 character)" nzSize="small" maxlength="250"></textarea>
+                <nz-form-item>
+                  <nz-form-label nzFor="description">Goal</nz-form-label>
+                  <nz-form-control>
+                    <quill-editor
+                      formControlName="goal"
+                      placeholder="Enter Sprint Goal (max.250 characters)"
+                      [modules]="quillConfig"
+                      (onSelectionChanged)="onSelectionChanged($event)"
+                      (onContentChanged)="onContentChanged($event)"></quill-editor>
+                  </nz-form-control>
                 </nz-form-item>
               </div>
 

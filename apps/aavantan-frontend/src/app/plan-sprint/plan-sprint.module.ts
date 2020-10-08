@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { AddSprintComponent } from './components/add-sprint/add-sprint.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { QuillModule } from 'ngx-quill';
 
 const routes: Routes = [
   { path: '', component: PlanSprintComponent }
@@ -15,7 +16,8 @@ const routes: Routes = [
     CommonModule,
     RouterModule.forChild(routes),
     SharedModule,
-    NgxPermissionsModule.forChild()
+    NgxPermissionsModule.forChild(),
+    QuillModule.forRoot(),
   ],
   exports: [],
   declarations: [

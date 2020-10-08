@@ -1239,3 +1239,20 @@
   left:0;
   background: rgba(255, 255, 255, 0.7);
 }
+
+// Popover
+.sprint-goal-popover {
+  .ant-popover-inner {
+    min-width: 300px;
+    max-width: 480px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .sprint-goal-popover {
+    .ant-popover-inner {
+      min-width: 300px;
+      max-width: 300px;
+    }
+  }
+}

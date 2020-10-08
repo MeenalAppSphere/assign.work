@@ -32,6 +32,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public isSprintAvailable: boolean;
   public isDownloadInProgress: boolean;
   public currentProject: Project;
+  public boardData: Sprint;
+  
 
   constructor(
     private modalService: NzModalService, private _generalService: GeneralService, private readonly _sprintReportService: SprintReportService,
