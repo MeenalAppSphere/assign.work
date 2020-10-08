@@ -28,7 +28,7 @@
 .ant-tooltip-placement-leftBottom,
 .ant-tooltip-placement-leftTop {
     padding-right: $tooltip-placement-gutter;
-    
+
     .ant-tooltip-arrow {
         right: 3px;
         border-width: 5px 0 5px 5px;
@@ -36,8 +36,8 @@
     }
 }
 
-.ant-tooltip-placement-bottom, 
-.ant-tooltip-placement-bottomLeft, 
+.ant-tooltip-placement-bottom,
+.ant-tooltip-placement-bottomLeft,
 .ant-tooltip-placement-bottomRight {
     padding-top: $tooltip-placement-gutter;
 
@@ -61,7 +61,7 @@
 }
 
 .ant-tooltip-placement-top,
-.ant-tooltip-placement-topLeft, 
+.ant-tooltip-placement-topLeft,
 .ant-tooltip-placement-topRight {
     padding-bottom: $tooltip-placement-gutter;
 

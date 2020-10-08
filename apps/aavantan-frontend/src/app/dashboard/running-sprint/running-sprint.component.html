@@ -143,17 +143,23 @@
                         [ngClass]="boardData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{boardData.sprintDaysLeft}}
                     days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
                   <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                       class="m-l-10 cursor-pointer" nz-tooltip [nzTitle]="titleTemplate"/>
+                       class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzContent]="titleTemplate" nzPlacement="bottomRight"/>
                   </span>
-
-
                 </span>
+
                 <ng-template #titleTemplate>
-                    <div><span class="d-inline-block w-45px">Goal</span>: {{boardData?.goal}}</div>
-                    <div><span
-                      class="d-inline-block w-45px">Starts</span>: {{boardData?.startedAt | date : 'MMM d yyyy'}}</div>
-                    <div><span
-                      class="d-inline-block w-45px">End</span>: {{boardData?.endAt | date : 'MMM d yyyy'}}</div>
+                  <div>
+                    <span class="d-inline-block font-weight-medium mb-3 text-black">Sprint Goal</span>
+                    <div nz-row class="mb-2">
+                      <span class="pr-4">
+                        <span class="d-inline-block font-weight-bold">Starts</span>: <span clss="text-gray-light-2">{{boardData?.startedAt | date : 'MMM d yyyy'}}</span>
+                      </span>
+                      <span>
+                        <span class="d-inline-block font-weight-bold">End</span>: <span clss="text-gray-light-2">{{boardData?.endAt | date : 'MMM d yyyy'}}</span>
+                      </span>
+                    </div>
+                    <div><span class="d-inline-block"><span [innerHTML]="boardData?.goal"></span></span></div>
+                  </div>
                 </ng-template>
               </span>
 
@@ -327,6 +333,11 @@
 <ng-container *ngIf="timelogModalIsVisible && selectedTask?.taskItem">
   <app-timelog [timelogModalIsVisible]="timelogModalIsVisible" [selectedTaskItem]="selectedTask.taskItem"
                (toggleTimeLogShow)="hideTimeLogModal($event)"></app-timelog>
+</ng-container>
+
+
+<ng-container *ngIf="sprintGoalModalIsVisible">
+  <app-sprint-details (toggleSprintDetailsModal)="toggleSprintGoal()" [sprintGoalModalIsVisible]="sprintGoalModalIsVisible" [goal]="boardData?.goal" [startedAt]="boardData?.startedAt" [endAt]="boardData?.endAt"></app-sprint-details>
 </ng-container>
 
 <app-close-sprint *ngIf="isVisibleCloseSprint" [closeSprintModalIsVisible]="isVisibleCloseSprint"

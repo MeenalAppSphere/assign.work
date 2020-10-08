@@ -62,6 +62,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
     this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentOrganization = res;
+        this._organizationService.resetOrganizationStore();
       }
     });
 
@@ -137,7 +138,11 @@ export class SideNavComponent implements OnInit, OnDestroy {
   }
 
   organizationModalShow(): void {
-    this.organizationModalIsVisible = !this.organizationModalIsVisible;
+    this.organizationModalIsVisible = true;
+  }
+
+  organizationModalHide(): void {
+    this.organizationModalIsVisible = false;
   }
 
   // close side nav on menu click

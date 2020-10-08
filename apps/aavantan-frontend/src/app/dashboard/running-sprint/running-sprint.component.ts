@@ -27,6 +27,7 @@ import { TaskTypeQuery } from '../../queries/task-type/task-type.query';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
+
 @Component({
   selector: 'aavantan-app-board',
   templateUrl: './running-sprint.component.html',
@@ -61,6 +62,8 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
   public currentProject: Project;
 
   public moveFromColumn: SprintColumn;
+
+  public sprintGoalModalIsVisible: boolean;
 
   constructor(private _generalService: GeneralService,
               private _sprintService: SprintService,
@@ -297,6 +300,10 @@ export class RunningSprintComponent implements OnInit, OnDestroy {
       console.log(e);
       this.getRunningSprintInProcess = false;
     }
+  }
+
+  public toggleSprintGoal(){
+    this.sprintGoalModalIsVisible = !this.sprintGoalModalIsVisible;
   }
 
   ngOnDestroy() {

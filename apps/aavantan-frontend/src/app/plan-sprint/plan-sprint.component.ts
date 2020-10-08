@@ -83,6 +83,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   public totalItemsInSprint: Number;
 
+
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
 
   public timelogModalIsVisible: boolean;
@@ -97,6 +98,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   public currentProject: Project;
   public isFilterApplied: boolean;
+
 
   public sprintPanels: SprintPanel[] = [{
     name: 'Getting Sprint...',
@@ -743,6 +745,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   // Create Sprint Collapsible Panel
   // calling from getActiveSprintData() or getUnpublishedSprint()
+  boardData: any;
   public initSprintPanels() {
     if (this.activeSprintData && this.activeSprintData.name || this.unPublishedSprintData && this.unPublishedSprintData.name) {
       this.sprintPanels = [];
