@@ -30,12 +30,12 @@
                 </p>
                 <i *ngIf="item.id===currentOrganization?.id" class="fas fa-check text-success float-right selected-org-check p-l-5"></i>
             </li>
-<!--          <li  nz-menu-item (click)="organizationModalShow();" class="d-inline-flex add-org-item">-->
-<!--            <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="+"></nz-avatar>-->
-<!--            <p class="font-size-14 d-inline-block text-gray-light m-b-0 p-t-5" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="white-space: normal;width: 80%;">Add Organization-->
-<!--            </p>-->
-<!--            <i class="fas plus text-success float-right selected-org-check p-l-5"></i>-->
-<!--          </li>-->
+          <li  nz-menu-item (click)="organizationModalShow();" class="d-inline-flex add-org-item">
+            <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="+"></nz-avatar>
+            <p class="font-size-14 d-inline-block text-gray-light m-b-0 p-t-5" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="white-space: normal;width: 80%;">Add Organization
+            </p>
+            <i class="fas plus text-success float-right selected-org-check p-l-5"></i>
+          </li>
 
         </ul>
 
@@ -188,8 +188,9 @@
 <!--region add organization -->
 <ng-container *ngIf="organizationModalIsVisible">
   <aavantan-app-organisation
+    [createOnly] = "true"
     [organizationModalIsVisible]="organizationModalIsVisible"
-    (toggleShow)="organizationModalShow()">
+    (toggleShow)="organizationModalHide()">
   </aavantan-app-organisation>
 </ng-container>
 <!--endregion-->
