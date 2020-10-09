@@ -14,9 +14,9 @@
         <div class="font-weight-bold font-size-15">
           <span class="p-h-10 pointer" nz-dropdown  [nzTrigger]="'click'">
             
-        <nz-avatar class="m-r-10" [nzSrc]="profilePic" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
-        {{firstName}} {{lastName}}
-        (<a href="mailto:{{email}}">{{email}}</a>)
+        <nz-avatar class="m-r-10" [nzSrc]="currentProject?.createdBy?.profilePic" [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+        {{currentProject?.createdBy?.firstName}} {{currentProject?.createdBy?.lastName}}
+        (<a href="mailto:{{currentProject?.createdBy?.emailId}}">{{currentProject?.createdBy?.emailId}}</a>)
             </span>
         </div>
       </div>

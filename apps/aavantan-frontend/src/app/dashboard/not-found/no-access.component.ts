@@ -1,24 +1,31 @@
-import { Component, OnInit } from '@angular/core';
-import { UserStore } from '../../store/user/user.store';
+import { Project, ProjectStages, Sprint } from '@aavantan-app/models';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { untilDestroyed } from 'ngx-take-until-destroy';
+import { UserQuery } from '../../queries/user/user.query';
+
 
 @Component({
   templateUrl: './no-access.component.html'
 })
 
-export class NoAccessComponent implements OnInit{
+export class NoAccessComponent implements OnInit, OnDestroy{
 
-  firstName:string;
-  lastName:string;
-  email:string;
-  profilePic:string;
-
-  constructor(private userStore:UserStore){}
   
-  ngOnInit() {
-    this.firstName=this.userStore._value().currentProject.createdBy.firstName;
-    this.lastName=this.userStore._value().currentProject.createdBy.lastName;
-    this.email=this.userStore._value().currentProject.createdBy.emailId; 
-    this.profilePic=this.userStore._value().currentProject.createdBy.profilePic;
-  }
+  public currentProject: Project = null;
+  
+  constructor(private _userQuery:UserQuery){}
+  
+
+  ngOnInit()
+  {
+      this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
+        if (res) {
+          this.currentProject = res;
+        }
+ });
+}
+
+ngOnDestroy()
+{}
 }
 
