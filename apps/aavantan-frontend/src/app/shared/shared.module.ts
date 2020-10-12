@@ -53,7 +53,7 @@ import { StatusDropdownComponent } from './components/status-dropdown/status-dro
     TeamCapacityModelComponent,
     CloseSprintComponent,
     KeysPipe,
-    AddStatusComponent
+    AddStatusComponent,
     StatusDropdownComponent
   ],
   imports: [
@@ -85,7 +85,7 @@ import { StatusDropdownComponent } from './components/status-dropdown/status-dro
     TeamCapacityComponent,
     TeamCapacityModelComponent,
     CloseSprintComponent,
-    AddStatusComponent
+    AddStatusComponent,
     StatusDropdownComponent
   ]
 })
