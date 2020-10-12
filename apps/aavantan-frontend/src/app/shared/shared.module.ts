@@ -26,6 +26,7 @@ import { TeamCapacityModelComponent } from './components/team-capacity-model/tea
 import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
 import { AddStatusComponent } from './components/add-status/add-status.component';
 import { ColorSketchModule } from 'ngx-color/sketch';
+import { StatusDropdownComponent } from './components/status-dropdown/status-dropdown.component';
 
 
 @NgModule({
@@ -53,6 +54,7 @@ import { ColorSketchModule } from 'ngx-color/sketch';
     CloseSprintComponent,
     KeysPipe,
     AddStatusComponent
+    StatusDropdownComponent
   ],
   imports: [
     CommonModule,
@@ -84,6 +86,7 @@ import { ColorSketchModule } from 'ngx-color/sketch';
     TeamCapacityModelComponent,
     CloseSprintComponent,
     AddStatusComponent
+    StatusDropdownComponent
   ]
 })
 export class SharedModule {
