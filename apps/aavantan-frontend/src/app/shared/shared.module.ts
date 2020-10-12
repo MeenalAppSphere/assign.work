@@ -29,6 +29,8 @@ import { ColorSketchModule } from 'ngx-color/sketch';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { SprintDetailsComponent } from './components/sprint-details/sprint-details.component';
 import { QuillModule } from 'ngx-quill';
+import { StatusDropdownComponent } from './components/status-dropdown/status-dropdown.component';
+
 
 @NgModule({
   exports: [
@@ -56,7 +58,8 @@ import { QuillModule } from 'ngx-quill';
     KeysPipe,
     AddStatusComponent,
     NzPopoverModule,
-    SprintDetailsComponent
+    SprintDetailsComponent,
+    StatusDropdownComponent
   ],
   imports: [
     CommonModule,
@@ -89,7 +92,8 @@ import { QuillModule } from 'ngx-quill';
     TeamCapacityModelComponent,
     CloseSprintComponent,
     AddStatusComponent,
-    SprintDetailsComponent
+    SprintDetailsComponent,
+    StatusDropdownComponent
   ]
 })
 export class SharedModule {

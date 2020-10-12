@@ -459,8 +459,20 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.getAllBacklogTask();
   }
 
-  public updateSingleChecked(item: any) {
+  // emit handler from status-dropdown component
+  public handleStatusEmmiter(statusIds:string[]){
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: statusIds, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = statusIds;
+    }
+    this.getAllBacklogTask();
+  }
 
+  public updateSingleChecked(item: any) {
 
     // if exist statusId key in queries then update otherwise add
     const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
