@@ -7,24 +7,7 @@
 
       <div class="ng-select-content">
 
-
-
-          <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()" *ngIf="selectedColumnDataSource?.length===0">
-
-            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status</button>
-
-          <nz-select
-            *ngIf="selectedColumnDataSource?.length>0"
-            class="ng-select"
-            [nzMaxTagCount]="2"
-            (ngModelChange)="updateSingleChecked($event)"
-            [nzMaxTagPlaceholder]="tagPlaceHolder"
-            nzMode="multiple"
-            nzPlaceHolder="Please select"
-            [(ngModel)]="selectedColumnDataSource">
-            <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
-          </nz-select>
-          <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more</ng-template>
+        <status-dropdown *ngIf="statusColumnDataSource?.length>0" [statusList]="statusColumnDataSource" (statusIdsEmitter)="handleStatusEmmiter($event)"></status-dropdown>
 
       </div>
 
