@@ -8488,11 +8488,6 @@ ngx-infinite-scroll@^8.0.0:
   dependencies:
     opencollective-postinstall "^2.0.2"
 
-ngx-joyride@^2.2.10:
-  version "2.2.10"
-  resolved "https://registry.yarnpkg.com/ngx-joyride/-/ngx-joyride-2.2.10.tgz#acd1f2c9b8bbcb33e87eb74860cb2092b59fc76f"
-  integrity sha512-3HRgrf7V9gFsDBP5kcsQ/h4PpYogrSDNGCAWGtVN/WqP5jZfohrFacYCUXJZEeZMovzLgwEyir4t6LtPEDSYqQ==
-
 ngx-perfect-scrollbar@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/ngx-perfect-scrollbar/-/ngx-perfect-scrollbar-8.0.0.tgz#19c1bbf9b1a36d89b00a68f7834e39427d29182f"

@@ -336,7 +336,8 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
           userId: '$loggedBy._id',
           emailId: '$loggedBy.emailId',
           profilePic: '$loggedBy.profilePic',
-          totalLoggedTime: '$loggedTime'
+          totalLoggedTime: '$loggedTime',
+          loggedAt: '$createdAt'
         }
       }]).exec();
 

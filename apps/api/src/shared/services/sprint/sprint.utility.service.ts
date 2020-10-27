@@ -48,34 +48,34 @@ export class SprintUtilityService {
 
     // sprint name
     if (!sprint.name) {
-      BadRequest('Sprint Name is compulsory');
+      BadRequest('Sprint name is required');
     }
 
     // sprint goal
     if (!sprint.goal) {
-      BadRequest('Sprint goal is required');
+      BadRequest('Please enter a Sprint Goal');
     }
 
     // sprint started at
     if (!sprint.startedAt) {
-      BadRequest('Please select Sprint Start Date');
+      BadRequest('Please select sprint start date');
     }
 
     // sprint end at
     if (!sprint.endAt) {
-      BadRequest('Please select Sprint End Date');
+      BadRequest('Please select sprint end date');
     }
 
     // started date can not be before today
-    const isStartDateBeforeToday = moment(sprint.startedAt).isBefore(moment().startOf('d'));
+    const isStartDateBeforeToday = moment(sprint.startedAt).isBefore(moment().utc().startOf('d'));
     if (isStartDateBeforeToday) {
-      BadRequest('Sprint Started date can not be Before Today');
+      BadRequest('Sprint start date should be greater than todays date');
     }
 
     // end date can not be before start date
     const isEndDateBeforeTaskStartDate = moment(sprint.endAt).isBefore(sprint.startedAt);
     if (isEndDateBeforeTaskStartDate) {
-      BadRequest('Sprint End Date can not be before Sprint Start Date');
+      BadRequest('Sprint end date should be greater than start date');
     }
   }
 

@@ -960,6 +960,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       await this.updateSprintStatus(model.sprintId, sprintStatus, session);
 
       // send emails for current sprint is closed
+      this._sprintUtilityService.calculateSprintEstimates(currentSprintDetails);
       this._sprintUtilityService.sendSprintEmails(currentSprintDetails, EmailSubjectEnum.sprintClosed);
 
       return model.createAndPublishNewSprint ? newSprint[0] : null;

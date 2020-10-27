@@ -737,6 +737,13 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   }
 
   /* login,signup,forgot etc*/
+  .signup-link {
+    position: initial!important;
+  }
+  .login-gradient {
+    padding-top: 30px!important;
+    height: auto!important;
+  }
   .login-signup-forgot {
     .ant-card-body {
       padding: 0px;
@@ -827,6 +834,13 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 @media only screen and (max-width: 320px) {
+  .signup-link {
+    position: initial!important;
+  }
+  .login-gradient {
+    padding-top: 30px!important;
+    height: auto!important;
+  }
   .ng-select {
     min-width: 270px;
     max-width: 100%;

@@ -25,7 +25,7 @@
           <img src="assets/images/icons/icon-bar.svg"/>
         </a>
       </li>
-      <li joyrideStep="tour1" nz-tooltip nzPlacement="bottom" nzTitle="Current Project" text="You can change your project form here.">
+      <li nz-tooltip nzPlacement="bottom" nzTitle="Current Project">
         <a href="javascript:void(0);" class="project-name-btn dark-blue-black" routerLink="settings">
           <nz-avatar [nzShape]="'square'"  [nzSize]="30" class="project-avatar text-uppercase m-0 m-r-5" nzText="{{ currentProject?.name | slice : 0:2 }}"></nz-avatar> {{ currentProject?.name }}
         </a>
@@ -101,12 +101,12 @@
       <li>
           <span class="p-h-10 pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'"
                 [nzPlacement]="'bottomRight'">
-            <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile"
+            <nz-avatar title="Profile"
                        class="avatar-bg"
                        *ngIf="currentUser"
                        [nzIcon]="'user'"
                        [nzSrc]="currentUser.profilePic"></nz-avatar>
-            <nz-avatar joyrideStep="tour2" title="Profile" text="You can edit your profile"
+            <nz-avatar title="Profile"
                        class="avatar-bg"
                        [nzIcon]="'user'"
                        *ngIf="!currentUser"></nz-avatar>
@@ -133,7 +133,7 @@
             <li nz-menu-item>
               <a class="p-v-5 d-flex align-items-center justify-content-between" routerLink="settings">
                 <div>
-                  <img class="opacity-04"  src="../../assets/images/icons/settings.svg"/>
+                  <img class="opacity-04"  src="../../assets/images/icons/grey-settings.svg"/>
                   <span class="m-l-10">Account Setting</span>
                 </div>
               </a>
@@ -141,7 +141,7 @@
             <li nz-menu-item>
               <a routerLink="my-tasks" class="p-v-5 d-flex align-items-center justify-content-between">
                 <div>
-                  <img class="opacity-04"  src="../../assets/images/icons/project.svg"/>
+                  <img class="opacity-04"  src="../../assets/images/icons/grey-project.svg"/>
                   <span class="m-l-10">My Tasks</span>
                 </div>
               </a>
