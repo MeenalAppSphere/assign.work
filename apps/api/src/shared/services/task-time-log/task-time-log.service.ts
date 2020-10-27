@@ -328,7 +328,8 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
           user: { $concat: ['$loggedBy.firstName', ' ', '$loggedBy.lastName'] },
           emailId: '$loggedBy.emailId',
           profilePic: '$loggedBy.profilePic',
-          totalLoggedTime: '$loggedTime'
+          totalLoggedTime: '$loggedTime',
+          loggedAt: '$createdAt'
         }
       }]).exec();
 

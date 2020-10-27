@@ -55,4 +55,5 @@ export class TaskTimeLogHistoryResponseModel {
   profilePic: string;
   totalLoggedTime: number;
   totalLoggedTimeReadable: string;
+  loggedAt: Date;
 }
