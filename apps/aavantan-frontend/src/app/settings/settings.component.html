@@ -894,7 +894,7 @@
                                             <nz-collapse-panel *ngFor="let key of permissionsObj | keys; let idx = index"
                                                                [nzHeader]="formatGroupText(key)" [nzShowArrow]="true" [nzActive]="idx > 1 ? false : true">
                                               <!-- <ng-container *ngIf="index<=2 else ElseBlock" [nzActive]="true" > -->
-                                                {{index}}
+                                                
                                                   <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
                                                       <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" (ngModelChange)="selectPermission(item)" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
                                                   </div>
