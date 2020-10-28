@@ -1,20 +1,20 @@
-import { Schema } from 'mongoose';
-import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from '@aavantan-app/models';
-import { mongooseErrorTransformPluginOptions, schemaOptions } from './base.schema';
+import { Schema } from "mongoose";
+import { DbCollection, MemberTypes, UserLoginProviderEnum, UserStatus } from "@aavantan-app/models";
+import { mongooseErrorTransformPluginOptions, schemaOptions } from "./base.schema";
 
-const mongooseValidationErrorTransform = require('mongoose-validation-error-transform');
-const uniqueValidator = require('mongoose-unique-validator');
+const mongooseValidationErrorTransform = require("mongoose-validation-error-transform");
+const uniqueValidator = require("mongoose-unique-validator");
 
 export const userSchema = new Schema(
   {
     emailId: {
-      type: String, required: true, index: { unique: true, partialFilterExpression: { isDeleted: false } },
+      type: String, required: true, index: { unique: true },
       uniqueCaseInsensitive: true
     },
     userName: { type: String },
     password: { type: String },
-    firstName: { type: String, default: '' },
-    lastName: { type: String, default: '' },
+    firstName: { type: String, default: "" },
+    lastName: { type: String, default: "" },
     profilePic: { type: String },
     confirmed: { type: Boolean, default: false },
     locale: { type: String },
@@ -49,7 +49,7 @@ export const userSchema = new Schema(
 );
 
 // options
-userSchema.set('toJSON', {
+userSchema.set("toJSON", {
   transform: function(doc, ret) {
     ret.id = ret._id;
     delete ret._id;
@@ -57,7 +57,7 @@ userSchema.set('toJSON', {
   },
   virtuals: true
 });
-userSchema.set('toObject', {
+userSchema.set("toObject", {
   transform: function(doc, ret) {
     ret.id = ret._id;
     delete ret._id;
@@ -67,10 +67,10 @@ userSchema.set('toObject', {
 });
 
 // virtual
-userSchema.virtual('currentOrganization', {
+userSchema.virtual("currentOrganization", {
   ref: DbCollection.organizations,
-  localField: 'currentOrganizationId',
-  foreignField: '_id',
+  localField: "currentOrganizationId",
+  foreignField: "_id",
   justOne: true
 });
 
@@ -78,5 +78,5 @@ userSchema.virtual('currentOrganization', {
 // plugins
 userSchema
   .plugin(mongooseValidationErrorTransform, mongooseErrorTransformPluginOptions)
-  .plugin(uniqueValidator, { message: '{PATH} already exists :- {VALUE}' });
+  .plugin(uniqueValidator, { message: "{PATH} already exists :- {VALUE}" });
 

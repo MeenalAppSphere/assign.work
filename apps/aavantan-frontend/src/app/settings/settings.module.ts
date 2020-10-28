@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './settings.component';
 import { CommonModule } from '@angular/common';
@@ -36,6 +36,9 @@ const routes: Routes = [
     MoveStatusComponent,
     UpdateUserRoleComponent
   ]
+    MoveStatusComponent
+  ],
+  schemas: [NO_ERRORS_SCHEMA,CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SettingsModule {
 }

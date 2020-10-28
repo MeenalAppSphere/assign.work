@@ -97,15 +97,14 @@
 
         <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:470px;">
 
-            <ng-template #templateTitle>
-                {{activeView.title}}
-                <img src="../../../assets/images/icons/info.svg" height="16"  nz-tooltip [nzTitle]="templateTitleText" />
-            </ng-template>
-            <ng-template #templateTitleText>
-                About {{activeView.title}}
-
-            </ng-template>
-            <ng-template #templateExtra>
+      <ng-template #templateTitle>
+        {{activeView.title}}
+        <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTooltipTitle]="templateTitleText"/>
+      </ng-template>
+      <ng-template #templateTitleText>
+        About {{activeView.title}}
+      </ng-template>
+      <ng-template #templateExtra>
 
 
         <span *ngxPermissionsOnly="['canAddBoardSettings_board']">
@@ -198,7 +197,7 @@
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                      {{selectedStatus?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedStatus?.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #statusDDL="nzDropdownMenu">
@@ -221,7 +220,7 @@
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                      {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #taskTypeDD="nzDropdownMenu">
@@ -244,7 +243,7 @@
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedPriority?.color}"></span>
-                      {{selectedPriority?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedPriority?.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #priorityDDL="nzDropdownMenu">
@@ -894,7 +893,7 @@
                                             <nz-collapse-panel *ngFor="let key of permissionsObj | keys; let idx = index"
                                                                [nzHeader]="formatGroupText(key)" [nzShowArrow]="true" [nzActive]="idx > 1 ? false : true">
                                               <!-- <ng-container *ngIf="index<=2 else ElseBlock" [nzActive]="true" > -->
-                                                
+
                                                   <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
                                                       <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" (ngModelChange)="selectPermission(item)" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
                                                   </div>

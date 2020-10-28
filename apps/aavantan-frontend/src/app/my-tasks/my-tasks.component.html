@@ -75,10 +75,10 @@
   <ng-template #tabSwitchTemplate>
 
     <nz-button-group class="toggle-btn-group">
-      <button (click)="changeView('listView')" nz-button [nzType]="view==='listView' ? 'link' : 'default'" nzTitle="List View" nzPlacement="bottom" nz-tooltip>
+      <button (click)="changeView('listView')" nz-button [nzType]="view==='listView' ? 'link' : 'default'" nzTooltipTitle="List View" nzTooltipPlacement="bottom" nz-tooltip>
         <img src="../../assets/images/icons/{{ view === 'cardView' ? 'gray-list-view.svg' : 'blue-list-view.svg' }}"> {{ view === 'listView' ? 'List' : ''}}
       </button>
-      <button (click)="changeView('cardView')" nz-button [nzType]="view==='cardView' ? 'link' : 'default'" nzTitle="Card View" nzPlacement="bottom" nz-tooltip>
+      <button (click)="changeView('cardView')" nz-button [nzType]="view==='cardView' ? 'link' : 'default'" nzTooltipTitle="Card View" nzTooltipPlacement="bottom" nz-tooltip>
         <img src="../../assets/images/icons/{{ view === 'listView' ? 'gray-card-view.svg' : 'blue-card-view.svg' }}"> {{ view === 'cardView' ? 'Card' : ''}}
       </button>
     </nz-button-group>
@@ -93,7 +93,7 @@
       [nzDropdownMenu]="createTaskType"
       nzPlacement="bottomRight">
       <button nzType="primary" nzSize="small" nz-button>
-        Create New <i nz-icon nzType="caret-down" theme="outline"></i>
+        Create New <i nz-icon nzType="caret-down" nzTheme="outline"></i>
       </button>
     </nz-button-group>
     <nz-dropdown-menu #createTaskType="nzDropdownMenu">

@@ -1,15 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
-import { NzNotificationService } from 'ng-zorro-antd';
+import { NzConfigService, NzNotificationService } from 'ng-zorro-antd';
 
 @Component({
   selector: 'aavantan-app-root',
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit, OnDestroy {
+  @ViewChild('nzIndicatorTpl', { static: true })
+  nzIndicator!: TemplateRef<void>;
   public isLoading: boolean = false;
 
-  constructor(private router: Router, private nzNotification: NzNotificationService) {
+  constructor(private router: Router, private nzNotification: NzNotificationService,
+    private readonly nzConfigService: NzConfigService) {
     if ('Notification' in window) {
       Notification.requestPermission();
       // if (Notification.permission !== 'granted') {
@@ -29,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+    this.nzConfigService.set('spin', { nzIndicator: this.nzIndicator });
   }
 
   requestNotification() {

@@ -33,7 +33,7 @@
               <div class="pin-activity" (click)="pinMessage(item)" [ngClass]="{'pinned':item.isPinned}"></div>
 
               <div *ngIf="(currentUser.id===item.createdById)" class="edit-comment" (click)="openEditModel(item)">
-                <i nz-icon nzType="edit" class="text-warning" theme="fill"></i>
+                <i nz-icon nzType="edit" class="text-warning" nzTheme="fill"></i>
               </div>
             </ng-container>
 

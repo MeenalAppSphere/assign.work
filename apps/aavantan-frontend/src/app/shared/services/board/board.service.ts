@@ -30,9 +30,11 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
               private _userStore: UserStore) {
     super(boardStore, notification);
 
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","success",{nzPlacement:'bottomRight'}); 
+
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   getAllBoards(requestModel: GetAllBoardsRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<BoardModel>>> {

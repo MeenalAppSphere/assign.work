@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { NgZorroAntdModule } from 'ng-zorro-antd';
+//import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { AddProjectComponent } from './components/add-project/add-project.component';
 import { SearchPipe } from './pipes/search.pipe';
@@ -32,13 +32,35 @@ import { QuillModule } from 'ngx-quill';
 import { StatusDropdownComponent } from './components/status-dropdown/status-dropdown.component';
 
 
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzTypographyModule } from 'ng-zorro-antd/typography';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzGridModule } from 'ng-zorro-antd/grid';
 @NgModule({
   exports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    NgZorroAntdModule,
+    //NgZorroAntdModule,
     PerfectScrollbarModule,
     AddProjectComponent,
     OrganisationComponent,
@@ -55,6 +77,29 @@ import { StatusDropdownComponent } from './components/status-dropdown/status-dro
     TeamCapacityComponent,
     TeamCapacityModelComponent,
     CloseSprintComponent,
+    NzButtonModule,
+    NzModalModule,
+    NzSpinModule,
+    NzInputModule,
+    NzBreadCrumbModule,
+    NzDropDownModule,
+    NzAvatarModule,
+    NzToolTipModule,
+    NzTypographyModule,
+    NzIconModule,
+    NzAutocompleteModule,
+    NzCardModule,
+    NzTabsModule,
+    NzSelectModule,
+    NzEmptyModule,
+    NzTableModule,
+    NzTagModule ,
+    NzCollapseModule,
+    NzCheckboxModule,
+    NzFormModule,
+    NzDatePickerModule ,
+    NzGridModule,
+    CloseSprintComponent,
     KeysPipe,
     AddStatusComponent,
     NzPopoverModule,
@@ -65,10 +110,34 @@ import { StatusDropdownComponent } from './components/status-dropdown/status-dro
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    NgZorroAntdModule,
+    //NgZorroAntdModule,
     PerfectScrollbarModule,
     TypeaheadModule,
     PopoverModule,
+    EditorModule,
+    RouterModule,
+    NzButtonModule,
+    NzModalModule,
+    NzSpinModule,
+    NzInputModule,
+    NzBreadCrumbModule,
+    NzDropDownModule,
+    NzAvatarModule,
+    NzToolTipModule,
+    NzTypographyModule,
+    NzIconModule,
+    NzAutocompleteModule,
+    NzCardModule,
+    NzTabsModule,
+    NzSelectModule,
+    NzEmptyModule,
+    NzTableModule,
+    NzTagModule ,
+    NzCollapseModule,
+    NzCheckboxModule,
+    NzFormModule,
+    NzDatePickerModule,
+    NzGridModule
     RouterModule,
     ColorSketchModule,
     NzPopoverModule,
@@ -95,6 +164,9 @@ import { StatusDropdownComponent } from './components/status-dropdown/status-dro
     SprintDetailsComponent,
     StatusDropdownComponent
   ]
+    CloseSprintComponent
+  ],
+  schemas:[NO_ERRORS_SCHEMA,CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SharedModule {
 }
