@@ -974,14 +974,13 @@ export class TaskComponent implements OnInit, OnDestroy {
       this.uploadingImage = false;
     }
     if (status !== 'uploading') {
-      console.log(file, fileList);
+      // console.log(file, fileList);
     }
     if (status === 'done') {
 
       if (file.response && file.response.data.id) {
         this.attachementIds.push(file.response.data.id);
       }
-
       this.notification.success('Success', `${file.name} file uploaded successfully.`);
     } else if (status === 'error') {
       const message = file.error ? file.error.error.message : file.name + 'file upload failed.';
@@ -991,13 +990,19 @@ export class TaskComponent implements OnInit, OnDestroy {
 
   // file selection remove handling
   handleRemove = (file: any) => new Observable<boolean>((obs) => {
-    this.attachementIds.splice(this.attachementIds.indexOf(file.id), 1);
+    const fileId = file.response && file.response.data.id ? file.response.data.id : file.id;
+    this.attachementIds.splice(this.attachementIds.indexOf(fileId), 1);
     this.uploadedImages = this.uploadedImages.filter((ele) => {
-      if (ele.id !== file.id) {
-        return ele;
+      if(ele.response) {
+        if (ele.response.data.id !== fileId){
+          return ele.response.data;
+        }
+      } else {
+        if (ele.id !== fileId){
+          return ele;
+        }
       }
     });
-
     obs.next(false);
   });
 

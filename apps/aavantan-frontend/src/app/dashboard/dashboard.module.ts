@@ -25,7 +25,7 @@ import { environment } from '../../environments/environment';
 import { NoAccessComponent } from './not-found/no-access.component';
 import { NgxPermissionsModule, NgxPermissionsRestrictStubModule } from 'ngx-permissions';
 
-const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} };
+const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: { transports: ['websocket'] } };
 
 @NgModule({
   imports: [
