@@ -6,7 +6,8 @@ import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { AddProjectComponent } from './components/add-project/add-project.component';
 import { SearchPipe } from './pipes/search.pipe';
-import { PopoverModule, TypeaheadModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { PopoverModule } from 'ngx-bootstrap/popover';
 import { TaskListComponent } from './components/task-list/task-list.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { TimelogComponent } from './components/timelog/timelog.component';
@@ -15,13 +16,20 @@ import { Safe } from './pipes/safehtml.pipe';
 import { OrganisationComponent } from './components/organisation/organisation.component';
 import { NumericDirective } from './directives/numbers-only.directive';
 import { AddEpicComponent } from './components/add-epic/add-epic.component';
-import { EditorModule } from '@tinymce/tinymce-angular';
 import { RouterModule } from '@angular/router';
 import { ProfileNameComponent } from './components/profile-name/profile-name.component';
+import { KeysPipe } from './pipes/keys.pipe';
+import { NgxPermissionsModule } from 'ngx-permissions';
 import { UserFilterComponent } from './components/user-filter/user-filter.component';
 import { TeamCapacityComponent } from './components/team-capacity/team-capacity.component';
 import { TeamCapacityModelComponent } from './components/team-capacity-model/team-capacity.model.component';
 import { CloseSprintComponent } from './components/modal-close-sprint/modal-close-sprint.component';
+import { AddStatusComponent } from './components/add-status/add-status.component';
+import { ColorSketchModule } from 'ngx-color/sketch';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { SprintDetailsComponent } from './components/sprint-details/sprint-details.component';
+import { QuillModule } from 'ngx-quill';
+import { StatusDropdownComponent } from './components/status-dropdown/status-dropdown.component';
 
 
 @NgModule({
@@ -46,7 +54,12 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
+    KeysPipe,
+    AddStatusComponent,
+    NzPopoverModule,
+    SprintDetailsComponent,
+    StatusDropdownComponent
   ],
   imports: [
     CommonModule,
@@ -56,8 +69,10 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     PerfectScrollbarModule,
     TypeaheadModule,
     PopoverModule,
-    EditorModule,
-    RouterModule
+    RouterModule,
+    ColorSketchModule,
+    NzPopoverModule,
+    QuillModule.forRoot()
   ],
   declarations: [
     AddProjectComponent,
@@ -71,10 +86,14 @@ import { CloseSprintComponent } from './components/modal-close-sprint/modal-clos
     NumericDirective,
     AddEpicComponent,
     ProfileNameComponent,
+    KeysPipe,
     UserFilterComponent,
     TeamCapacityComponent,
     TeamCapacityModelComponent,
-    CloseSprintComponent
+    CloseSprintComponent,
+    AddStatusComponent,
+    SprintDetailsComponent,
+    StatusDropdownComponent
   ]
 })
 export class SharedModule {

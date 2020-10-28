@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NzNotificationService } from 'ng-zorro-antd';
-import { TaskService } from '../../shared/services/task/task.service';
-import { GeneralService } from '../../shared/services/general.service';
+import { TaskService } from '../../services/task/task.service';
+import { GeneralService } from '../../services/general.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskStatusModel } from '@aavantan-app/models';
-import { ProjectService } from '../../shared/services/project/project.service';
-import { TaskStatusService } from '../../shared/services/task-status/task-status.service';
+import { ProjectService } from '../../services/project/project.service';
+import { TaskStatusService } from '../../services/task-status/task-status.service';
 import { ColorEvent } from 'ngx-color';
 
 @Component({

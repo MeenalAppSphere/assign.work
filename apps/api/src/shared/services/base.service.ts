@@ -42,7 +42,7 @@ export class BaseService<T extends Document> {
     return query.exec();
   }
 
-  public async create(doc: T | T[] | Partial<T> | Partial<T[]>, session: ClientSession): Promise<T | T[]> {
+  public async create(doc: any, session: ClientSession): Promise<T | T[]> {
     return await this.model.create(doc, { session });
   }
 
@@ -52,7 +52,7 @@ export class BaseService<T extends Document> {
 
   public async updateById(id: string, updatedDoc: any, session: ClientSession): Promise<T> {
     return await this.model
-      .updateOne({ _id: id }, updatedDoc, { session }).exec();
+      .updateOne({ _id: id } as any, updatedDoc, { session }).exec();
   }
 
   public async update(condition: any, updatedDoc: any, session: ClientSession): Promise<T> {
@@ -87,7 +87,7 @@ export class BaseService<T extends Document> {
     }
 
     const result = await query.lean().exec();
-    result.forEach((doc) => {
+    result.forEach((doc: any) => {
       doc.id = String(doc._id);
     });
     const numberOfDocs = await this.model.countDocuments({ ...filter, ...DEFAULT_QUERY_FILTER });
@@ -115,7 +115,7 @@ export class BaseService<T extends Document> {
 
   public async delete(id: string, session: ClientSession): Promise<T> {
     return this.model
-      .update({ _id: this.toObjectId(id) }, { isDeleted: true }, { session })
+      .update({ _id: this.toObjectId(id)  } as any, { isDeleted: true } as any, { session })
       .exec();
   }
 

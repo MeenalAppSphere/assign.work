@@ -1,33 +1,10 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import {
-  AddTaskToSprintModel,
-  AppFilterStorageKeysEnum,
-  BoardColumns,
-  CloseSprintModel,
-  DraftSprint,
-  GetUnpublishedRequestModel,
-  Project,
-  ProjectMembers,
-  RemoveTaskFromSprintModel,
-  Sprint,
-  SprintBaseRequest,
-  SprintDurationsModel,
-  SprintErrorEnum,
-  SprintErrorResponse, SprintFilterTasksModel,
-  SprintTaskFilterModel,
-  StatusDDLModel,
-  Task,
-  TaskFilterCondition,
-  TaskFilterModel,
-  TaskStatusModel,
-  TaskTypeModel
-} from '@aavantan-app/models';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { GeneralService } from '../shared/services/general.service';
 import { TaskService } from '../shared/services/task/task.service';
 import { TaskQuery } from '../queries/task/task.query';
 import { UserQuery } from '../queries/user/user.query';
-import { cloneDeep, uniqBy } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { NzModalService, NzNotificationService } from 'ng-zorro-antd';
 import { SprintService } from '../shared/services/sprint/sprint.service';
 import { Router } from '@angular/router';
@@ -36,6 +13,26 @@ import { combineLatest, Subject } from 'rxjs';
 import { auditTime, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TaskStatusQuery } from '../queries/task-status/task-status.query';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AddTaskToSprintModel,
+  AppFilterStorageKeysEnum,
+  BoardColumns,
+  DraftSprint,
+  Project,
+  ProjectMembers,
+  Sprint,
+  SprintDurationsModel,
+  SprintErrorEnum,
+  SprintErrorResponse,
+  SprintFilterTasksModel,
+  SprintTaskFilterModel,
+  StatusDDLModel,
+  Task,
+  TaskFilterCondition,
+  TaskFilterModel,
+  TaskStatusModel,
+  TaskTypeModel
+} from '@aavantan-app/models';
 
 @Component({
   selector: 'aavantan-app-backlog',
@@ -462,9 +459,20 @@ export class BacklogComponent implements OnInit, OnDestroy {
     this.getAllBacklogTask();
   }
 
+  // emit handler from status-dropdown component
+  public handleStatusEmmiter(statusIds:string[]){
+    const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
+    if (queryIndex === -1) {
+      this.backLogTaskRequest.queries.push({
+        key: 'statusId', value: statusIds, condition: TaskFilterCondition.and
+      });
+    } else {
+      this.backLogTaskRequest.queries[queryIndex].value = statusIds;
+    }
+    this.getAllBacklogTask();
+  }
+
   public updateSingleChecked(item: any) {
-
-
     // if exist statusId key in queries then update otherwise add
     const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
     if (queryIndex === -1) {

@@ -12,19 +12,18 @@ import {
   ProjectTags,
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
-  ProjectUpdateDefaultAssigneeModel,
-  ProjectUpdateDefaultPriorityModel, ProjectUpdateDefaultTaskStatusModel,
-  ProjectUpdateDefaultTaskTypeModel,
   ProjectWorkingCapacityUpdateDto,
   RemoveProjectCollaborator,
   ResendProjectInvitationModel,
+  RoleTypeEnum,
   SearchProjectCollaborators,
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
-  User,
+  UpdateProjectRequestModel,
+  User, UserRoleUpdateRequestModel,
   UserStatus,
-  UpdateProjectRequestModel, RecallProjectInvitationModel
+  RecallProjectInvitationModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { BaseService } from '../base.service';
@@ -55,6 +54,7 @@ import { TaskTypeService } from '../task-type/task-type.service';
 import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskService } from '../task/task.service';
 import { SprintService } from '../sprint/sprint.service';
+import { UserRoleService } from '../user-role/user-role.service';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
@@ -68,6 +68,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _taskPriorityService: TaskPriorityService;
   private _boardService: BoardService;
   private _sprintService: SprintService;
+  private _userRoleService: UserRoleService;
 
   constructor(
     @InjectModel(DbCollection.projects) protected readonly _projectModel: Model<Project & Document>,
@@ -87,7 +88,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._boardService = this._moduleRef.get('BoardService');
     this._sprintService = this._moduleRef.get('SprintService');
-
+    this._userRoleService = this._moduleRef.get('UserRoleService');
     this._utilityService = new ProjectUtilityService();
   }
 
@@ -109,21 +110,18 @@ export class ProjectService extends BaseService<Project & Document> implements O
       BadRequest('Duplicate Project Name not allowed');
     }
 
+    // get user details
+    const userDetails = await this._userService.findById(this._generalService.userId);
+    if (!userDetails) {
+      BadRequest('User not found');
+    }
+
     const newProject = await this.withRetrySession(async (session: ClientSession) => {
       // get organization details
       await this._organizationService.getOrganizationDetails(model.organizationId);
 
-      // get user details
-      const userDetails = await this._userService.findById(this._generalService.userId);
-      if (!userDetails) {
-        BadRequest('User not found');
-      }
-
       const projectModel = this._utilityService.prepareProjectModelFromRequest(model);
       projectModel.createdById = this._generalService.userId;
-
-      // add project creator as project collaborator when new project is created
-      projectModel.members.push(this._utilityService.prepareProjectMemberModel(userDetails));
 
       // create project and get project id from them
       const createdProject = await this.create([projectModel], session);
@@ -137,8 +135,27 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this._userService.updateUser(userDetails.id, userDetails, session);
       return createdProject[0];
     });
+
+
+    await this.withRetrySession(async (session: ClientSession) => {
+
+      // create default roles and getting first owner type role id and assign to project owner
+      let createdRoles = await this._userRoleService.createDefaultRoles(newProject, session);
+      createdRoles = createdRoles.filter(ele => ele.type === RoleTypeEnum.owner);
+      const userRoleId = createdRoles[0]._id; // to assign project owner
+
+      // add project creator as project collaborator when new project is created
+      const projectOwner = this._utilityService.prepareProjectMemberModel(userDetails, userRoleId);
+
+      return this.updateById(newProject.id, {
+        $push: {
+          'members': projectOwner
+        }
+      }, session);
+    });
     // get project by id and send it
     return await this.getProjectDetails(newProject.id, true);
+    ;
   }
 
   /**
@@ -218,7 +235,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   async addCollaborators(id: string, collaborators: ProjectMembers[]) {
     if (!Array.isArray(collaborators)) {
-      throw new BadRequestException('invalid request');
+      throw new BadRequestException('Invalid request');
     }
 
     const projectDetails: Project = await this.getProjectDetails(id);
@@ -229,6 +246,12 @@ export class ProjectService extends BaseService<Project & Document> implements O
     const collaboratorsNotInDb: ProjectMembers[] = [];
     const collaboratorsAlreadyInDbButInviteNotAccepted: ProjectMembers[] = [];
     let finalCollaborators: ProjectMembers[] = [];
+
+    let roleDetails = null;
+    if (projectDetails.template) {
+      // get role id "Collaborator" type and assign to all collaborators by default
+      roleDetails = await this._userRoleService.getUserRoleByType(projectDetails._id, RoleTypeEnum.collaborator);
+    }
 
     try {
       collaborators.forEach(collaborator => {
@@ -319,6 +342,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         collaborator.workingCapacity = DEFAULT_WORKING_CAPACITY;
         collaborator.workingCapacityPerDay = DEFAULT_WORKING_CAPACITY_PER_DAY;
         collaborator.workingDays = DEFAULT_WORKING_DAYS;
+        collaborator.userRoleId = roleDetails ? roleDetails._id : null;
         return collaborator;
       });
 
@@ -527,7 +551,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // check if valid template selected
       const invalidTemplate = !Object.values(ProjectTemplateEnum).includes(model.template);
       if (invalidTemplate) {
-        BadRequest('invalid project template');
+        BadRequest('Invalid project template');
       }
 
       // create default statues
@@ -560,7 +584,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // create default board goes here
       const defaultBoard = await this._boardService.createDefaultBoard(project, session);
 
-      // update project's template and update default taskType, taskStatus and default taskPriority
+
+      // update project's template and update default taskType, taskStatus default taskPriority
       await this.updateById(model.projectId, {
         $set: {
           template: model.template,
@@ -618,6 +643,63 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     // update project
     return await this.updateProjectHelper(id, { $set: { members: projectDetails.members } });
+  }
+
+  /**
+   * update collaborator role
+   * @param model
+   */
+  async updateCollaboratorRole(model: UserRoleUpdateRequestModel) {
+    await this.withRetrySession(async (session: ClientSession) => {
+      // project details
+      const projectDetails: Project = await this.findById(model.projectId);
+
+      // if there's only one member in project than don't allow him/her to change his/her role
+      if (projectDetails.members.length === 1) {
+        BadRequest('At least one owner is needed in Project');
+      }
+
+      // get project members details
+      const projectMemberRolesDetails = await this._userRoleService.getAllUserRoles(model.projectId);
+
+      // get current member details
+      const memberDetails = projectDetails.members.find(member => member.userId.toString() === model.userId);
+      // get current role details for a member
+      const memberCurrentRoleDetails = projectMemberRolesDetails.find(memberRole => {
+        return memberRole._id.toString() === memberDetails.userRoleId.toString();
+      });
+
+      // check if member is owner and he/she changing his/her role from supervisor then assure that project have at-least one owner
+      if (memberCurrentRoleDetails.type === RoleTypeEnum.owner) {
+        const isThereOtherSuperVisor: boolean = projectDetails.members
+          .filter(member => member.userId.toString() !== memberDetails.userId.toString())
+          .some(member => {
+            const roleDetails = projectMemberRolesDetails.find(memberRole => {
+              return memberRole._id.toString() === member.userRoleId.toString();
+            });
+            return roleDetails.type === RoleTypeEnum.owner;
+          });
+
+        // if no supervisor than throw error
+        if (!isThereOtherSuperVisor) {
+          BadRequest('At least one owner is needed in Project');
+        }
+      }
+
+      // loop over members and set details that we got in request
+      projectDetails.members = projectDetails.members.map(pd => {
+        if (model.userId === pd.userId) {
+          pd.userRoleId = model.userRoleId;
+        }
+        return pd;
+      });
+
+      // update project
+      return await this.updateById(model.projectId, { $set: { members: projectDetails.members } }, session);
+    });
+
+    // return updated project details
+    return await this.getProjectDetails(model.projectId, true);
   }
 
   /**
@@ -882,6 +964,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
         path: 'members.userDetails',
         select: 'firstName lastName emailId userName profilePic'
       });
+
+      populate.push({
+        path: 'members.roleDetails',
+        select: 'name description accessPermissions type'
+      });
     }
 
     // project details query
@@ -962,6 +1049,11 @@ export class ProjectService extends BaseService<Project & Document> implements O
     project.members = project.members.map(member => {
       member.workingCapacity = secondsToHours(member.workingCapacity);
       member.workingCapacityPerDay = secondsToHours(member.workingCapacityPerDay);
+
+      if (member.roleDetails) {
+        member.roleDetails.id = member.roleDetails._id;
+      }
+
       return member;
     });
 

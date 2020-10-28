@@ -2,9 +2,10 @@ import { Body, Controller, Get, Post, Put, Request, UseGuards } from '@nestjs/co
 import { UsersService } from '../shared/services/users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ChangePasswordModel, SearchUserModel, User } from '@aavantan-app/models';
+import { RolesGuard } from '../shared/guard/roles.gaurd';
 
 @Controller('user')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class UserController {
   constructor(private readonly _userService: UsersService) {
   }

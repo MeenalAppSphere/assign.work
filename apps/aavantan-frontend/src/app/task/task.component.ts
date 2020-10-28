@@ -29,7 +29,8 @@ import {
   TaskTimeLogResponse,
   TaskTypeModel,
   UpdateCommentModel,
-  User
+  User,
+  UserRoleModel
 } from '@aavantan-app/models';
 import { UserQuery } from '../queries/user/user.query';
 import { untilDestroyed } from 'ngx-take-until-destroy';
@@ -134,6 +135,9 @@ export class TaskComponent implements OnInit, OnDestroy {
   public today: Date = new Date();
   public dateFormat = 'MM/dd/yyyy';
   public disabledDate: any;
+
+  // for permission
+  public currentUserRole:UserRoleModel;
 
   public panels: any[] = [{
     active: false,
@@ -281,6 +285,18 @@ export class TaskComponent implements OnInit, OnDestroy {
       if (res) {
         this.currentUser = res;
       }
+    });
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
+      }
+    });
+
+    // get all task status from store
+    this._taskStatusQuery.statuses$.pipe(untilDestroyed(this)).subscribe(statuses => {
+      this.statusDataSource = statuses;
+      this.selectedStatus = statuses.find(status => status.id === this.currentProject.settings.defaultTaskStatusId);
     });
 
     // get all task type, priorities and status from store

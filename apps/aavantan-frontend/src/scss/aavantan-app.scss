@@ -19,13 +19,13 @@ body{
 }
 
 .cursor-move{
-  cursor: move;
+  cursor: move!important;
 }
 .cursor-pointer{
-  cursor: pointer;
+  cursor: pointer!important;
 }
 .cursor-default {
-  cursor: default;
+  cursor: default!important;
 }
 
 .ant-tooltip-placement-top .ant-tooltip-arrow, .ant-tooltip-placement-topLeft .ant-tooltip-arrow, .ant-tooltip-placement-topRight .ant-tooltip-arrow {
@@ -185,7 +185,7 @@ nz-modal {
 }
 .avatar-bg{
   color:$theme-blue;
-  background-color:#DBDFEB;
+  background-color:$avatar-bg;
 }
 .ant-checkbox-inner {
   border: 1px solid #bcbcbc;
@@ -471,6 +471,26 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
       padding: 11px 0px;
     }
   }
+}
+
+
+.collapse-panel {
+
+    .ant-collapse-item {
+
+      .ant-collapse-header {
+        padding: 8px 15px;
+        text-transform: capitalize;
+        font-weight: 500;
+
+        .anticon {
+          float: right;
+          margin-top: 10px;
+          position: initial;
+        }
+
+      }
+    }
 }
 
 .sortable-wrapper{
@@ -858,4 +878,8 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
     flex-direction: column;
     line-height: 1.8;
   }
+}
+
+.ant-popover-placement-bottomRight .ant-popover-arrow {
+  right: 5px!important;
 }

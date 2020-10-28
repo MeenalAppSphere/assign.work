@@ -169,7 +169,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
    * @param id
    */
   async getUserProfile(id: string) {
-    const userDetails = await this._userModel.findById(new Types.ObjectId(id))
+    const userDetails: any = await this._userModel.findById(new Types.ObjectId(id))
       .populate([{
         path: 'projects',
         select: 'name description organizationId createdAt createdById updatedAt',
@@ -199,11 +199,14 @@ export class UsersService extends BaseService<User & Document> implements OnModu
             path: 'members.userDetails',
             select: 'firstName lastName emailId userName profilePic sprintId'
           }, {
+            path: 'members.roleDetails',
+            select: 'name description accessPermissions type'
+          }, {
             path: 'sprint',
             select: 'name goal startedAt endAt totalCapacity totalEstimation totalLoggedTime totalOverLoggedTime reportId'
           }, {
             path: 'createdBy',
-            select: 'firstName lastName'
+            select: 'firstName lastName emailId profilePic'
           }, {
             path: 'organization',
             select: 'name description displayName logoUrl'
@@ -236,6 +239,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         userDetails.currentProject.sprint.id = userDetails.currentProject.sprint._id;
         this._sprintUtilityService.calculateSprintEstimates(userDetails.currentProject.sprint);
       }
+
     }
 
     if (userDetails.currentOrganization) {

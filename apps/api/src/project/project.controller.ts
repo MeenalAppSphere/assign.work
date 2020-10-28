@@ -12,12 +12,14 @@ import {
   SearchProjectRequest,
   SearchProjectTags,
   SwitchProjectRequest,
-  UpdateProjectRequestModel
+  UpdateProjectRequestModel, UserRoleUpdateRequestModel
 } from '@aavantan-app/models';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../shared/guard/roles.decorators';
+import { RolesGuard } from '../shared/guard/roles.gaurd';
 
 @Controller('project')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 export class ProjectController {
 
   constructor(private readonly _projectService: ProjectService) {
@@ -35,13 +37,20 @@ export class ProjectController {
   }
 
   @Post('update')
+  @Roles('project','canModify_project')
   async updateProject(@Body() project: UpdateProjectRequestModel) {
     return await this._projectService.updateProject(project);
   }
 
   @Post(':id/add-collaborators')
+  @Roles('collaborators', 'canAddMember_member')
   async addCollaborators(@Param('id') id: string, @Body() members: ProjectMembers[]) {
     return await this._projectService.addCollaborators(id, members);
+  }
+
+  @Post('update-collaborators-role')
+  async updateCollaboratorRole(@Body() model: UserRoleUpdateRequestModel) {
+    return await this._projectService.updateCollaboratorRole(model);
   }
 
   @Post('get-collaborators')
@@ -65,6 +74,7 @@ export class ProjectController {
   }
 
   @Put(':id/update-working-capacity')
+  @Roles('teamCapacity','canModify_teamcapacity')
   async updateCollaboratorWorkingCapacity(@Param('id') id: string, @Body() dto: ProjectWorkingCapacityUpdateDto[]) {
     return await this._projectService.updateCollaboratorWorkingCapacity(id, dto);
   }

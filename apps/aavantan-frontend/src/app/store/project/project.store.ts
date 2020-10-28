@@ -13,11 +13,11 @@ export interface ProjectState {
 
 const initialState: ProjectState = {
   projects: null,
+  getAllProjectInProcess: false,
   createProjectInProcess: false,
   createProjectSuccess: false,
   projectSwitchInProcess: false,
   projectSwitchedSuccessfully: false,
-  getAllProjectInProcess:false,
 };
 
 @Injectable({ providedIn: 'root' })

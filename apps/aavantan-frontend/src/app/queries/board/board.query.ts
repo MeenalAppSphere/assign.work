@@ -26,6 +26,7 @@ export class BoardQuery extends Query<BoardState> {
   addDefaultAssigneeInProcess$ = this.select(s => s.addDefaultAssigneeInProcess);
 
   createBoardInProcess$ = this.select(s => s.createBoardInProcess);
+  createBoardInSuccess$ = this.select(s => s.createBoardInSuccess);
   updateBoardInProcess$ = this.select(s => s.updateBoardInProcess);
   deleteBoardInProcess$ = this.select(s => s.deleteBoardInProcess);
   publishBoardInProcess$ = this.select(s => s.publishBoardInProcess);
