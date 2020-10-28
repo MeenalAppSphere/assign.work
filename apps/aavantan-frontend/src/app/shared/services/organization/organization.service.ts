@@ -30,9 +30,10 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
               private organizationStore: OrganizationStore, private sprintStore: SprintStore, private sprintReportStore: SprintReportStore,
               private userService: UserService) {
     super(_organizationStore, notification);
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   createOrganization(org: Organization) {

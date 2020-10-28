@@ -39,7 +39,7 @@
               <div class="recent-item" (click)="switchProject(item)"
                    *ngFor="let item of projectList"
                    [ngStyle]="{'border': (currentProject && currentProject.id === item.id) ? '2px solid '+item.color+'' : '2px solid #fff'}"
-                   nz-tooltip [nzTitle]="projectTooltip">
+                   nz-tooltip [nzTooltipTitle]="projectTooltip">
 
                   <div class="project-box text-uppercase"
                        [ngStyle]="{'background': item.color}"
@@ -145,9 +145,9 @@
                             <nz-form-label nzRequired nzFor="name">Project Name<span class="text-danger">*</span></nz-form-label>
                             <nz-form-control [nzValidatingTip]="errorTpl">
                                 <input nz-input formControlName="name" placeholder="Enter Project Name, eg : Food Application" autocomplete="Off" nzSize="small" id="name">
-                                <nz-form-explain *ngIf="projectForm.get('name').dirty && projectForm.get('name').errors">
+                                <nz-form-control *ngIf="projectForm.get('name').dirty && projectForm.get('name').errors">
                                     Please Enter Project Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
-                                </nz-form-explain>
+                                </nz-form-control>
 
                                 <ng-template #errorTpl let-control>
                                     <ng-container *ngIf="projectForm.hasError('required')">
@@ -209,12 +209,12 @@
 
                     <nz-form-item *ngIf="!isCollaboratorExits && enableInviteBtn">
                       <button (click)="onKeydown($event, true)" [nzLoading]="addCollaboratorsInProcess" [disabled]="isCollaboratorExits" nz-button nzType="primary"
-                              nzSize="small"><i nz-icon nzType="mail" theme="outline"></i> Invite
+                              nzSize="small"><i nz-icon nzType="mail" nzTheme="outline"></i> Invite
                       </button>
                     </nz-form-item>
 
-                    <nz-form-explain class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
-                  </div>
+                    <nz-form-control class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-control>
+             </div>
                 </form>
               </div>
 

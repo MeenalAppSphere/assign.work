@@ -9,7 +9,7 @@
 
     <span class="p-r-30" *ngIf="!isDownloadInProgress">
       <span class="p-r-15 font-size-18 text-black">Sprint Report</span>
-       <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText"
+       <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTooltipTitle]="templateTitleText"
             class="p-l-10"/>
           <ng-template #templateTitleText>
             Sprint Report
@@ -32,7 +32,7 @@
         <nz-button-group nz-dropdown [nzDropdownMenu]="taskContextMenu" nzPlacement="bottomLeft" >
           <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
             <span class="p-r-10">{{ selectedSprint?.name || 'Select Sprint'}}</span>
-            <i nz-icon nzType="caret-down" theme="outline"></i>
+            <i nz-icon nzType="caret-down" nzTheme="outline"></i>
           </button>
         </nz-button-group>
         <nz-dropdown-menu #taskContextMenu="nzDropdownMenu">

@@ -7,13 +7,13 @@
     <nz-avatar (click)="selectMember(user)" *ngIf="!user?.userDetails.profilePic"
                nzText="{{(user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId) | slice : 0:1}}"
                ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
-               [nzSize]="avatarSize" nzTitle="{{user?.userDetails?.firstName}}" nzPlacement="top" nz-tooltip
+               [nzSize]="avatarSize" nzTooltipTitle="{{user?.userDetails?.firstName}}" nzTooltipPlacement="top" nz-tooltip
                class="bg-info"></nz-avatar>
 
     <nz-avatar (click)="selectMember(user)" *ngIf="user?.userDetails.profilePic" nzIcon="user" [nzSize]="avatarSize"
                ngClass="{{user?.userDetails?.isSelected ? 'selected-user' : ''}}"
-               nzTitle="{{user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId}}"
-               nzPlacement="top" nz-tooltip nzSrc="{{user?.userDetails?.profilePic}}"></nz-avatar>
+               nzTooltipTitle="{{user?.userDetails?.firstName ? user?.userDetails?.firstName : user?.userDetails?.emailId}}"
+               nzTooltipPlacement="top" nz-tooltip nzSrc="{{user?.userDetails?.profilePic}}"></nz-avatar>
 
   </span>
 
