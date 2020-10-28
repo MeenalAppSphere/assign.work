@@ -978,4 +978,15 @@
     </ng-container>
     <!-- endregion -->
 
+  <!-- region move status -->
+  <ng-container *ngIf="removeCollaboratorModalIsVisible">
+    <aavantan-remove-collaborator
+      [collaborator]="removeCollaboratorData"
+      [removeCollaboratorModalIsVisible]="removeCollaboratorModalIsVisible"
+      (toggleRemoveCollaborator)="toggleRemoveCollaborator()">
+    </aavantan-remove-collaborator>
+  </ng-container>
+
+  <!-- endregion -->
+
 </section>

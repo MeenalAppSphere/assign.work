@@ -614,7 +614,9 @@
                       <nz-avatar nzSize="small" *ngIf="!item.profilePic" nzIcon="user" class="m-r-10"
                                  nzShape="circle"></nz-avatar>
                       <div class="media-body">
-                        <h6 class="m-b-0"><span class="p-r-10">{{item.user}}</span></h6>
+                        <h6 class="m-b-0">
+                          <span class="p-r-10" [ngClass]="{'removed-collaborator': item.userIsRemovedFromCurrentProject}">{{item.user}}</span>
+                        </h6>
                         <!--                              <div class="font-size-13" [innerHTML]="item.description | safeHtml" ></div>-->
                         <div>
                           <small class="text-muted text-right">

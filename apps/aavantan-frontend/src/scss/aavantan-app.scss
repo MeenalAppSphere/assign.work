@@ -715,6 +715,10 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   }
 }
 
+.removed-collaborator {
+  text-decoration: line-through;
+}
+
 .search-task-input {
   max-width: 300px;
 }

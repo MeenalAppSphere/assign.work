@@ -48,6 +48,7 @@ export class ProjectMembers {
   userRoleId?: string;
   roleDetails?: UserRoleModel;
   accessPermissions?: Permissions
+  isRemoved?: boolean;
 }
 
 export class ProjectSettings {

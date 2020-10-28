@@ -216,7 +216,9 @@ export class SprintUtilityService {
 
     // loop over sprint members and convert working capacity to readable format
     if (sprint.membersCapacity) {
-      sprint.membersCapacity.forEach(member => {
+      sprint.membersCapacity.filter(member => {
+        return !member.isRemoved
+      }).forEach(member => {
         member.user.id = member.user._id.toString();
         // convert capacity to hours again
         member.workingCapacity = secondsToHours(member.workingCapacity);
@@ -610,7 +612,7 @@ export class SprintUtilityService {
 
     // check if all members are part of the project
     const everyMemberThere = model.capacity.every(member => project.members.some(proejctMember => {
-      return proejctMember.userId === member.memberId && proejctMember.isInviteAccepted;
+      return proejctMember.userId === member.memberId && proejctMember.isInviteAccepted && !proejctMember.isRemoved;
     }));
     if (!everyMemberThere) {
       BadRequest('One of member is not found in Project!');

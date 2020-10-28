@@ -20,6 +20,7 @@ import * as bcrypt from 'bcrypt';
 import { HASH_PASSWORD_SALT_ROUNDS } from '../helpers/defaultValueConstant';
 import { BoardUtilityService } from './board/board.utility.service';
 import { ProjectUtilityService } from './project/project.utility.service';
+import { basicUserPopulationDetails } from '../helpers/query.helper';
 
 @Injectable()
 export class UsersService extends BaseService<User & Document> implements OnModuleInit {
@@ -175,7 +176,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         select: 'name description organizationId createdAt createdById updatedAt',
         populate: [{
           path: 'createdBy',
-          select: 'emailId userName firstName lastName profilePic'
+          select: basicUserPopulationDetails
         }, {
           path: 'organization',
           select: 'name description displayName logoUrl'
@@ -229,7 +230,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
     userDetails.id = userDetails._id;
 
     if (userDetails.currentProject) {
-      userDetails.currentProject = this._projectService.parseProjectToVm(userDetails.currentProject);
+      userDetails.currentProject = this._projectUtilityService.parseProjectToVm(userDetails.currentProject);
 
       if (userDetails.currentProject && userDetails.currentProject.activeBoard) {
         userDetails.currentProject.activeBoard = this._boardUtilityService.convertToVm(userDetails.currentProject.activeBoard);
@@ -261,7 +262,7 @@ export class UsersService extends BaseService<User & Document> implements OnModu
         slice(
           userDetails.projects
             .filter(f => f.organizationId.toString() === userDetails.currentOrganizationId)
-            // .filter(f => f._id.toString() !== userDetails.currentProject.id.toString())
+          // .filter(f => f._id.toString() !== userDetails.currentProject.id.toString())
           ,
           0, 3
         ).map((project: Project) => {

@@ -101,6 +101,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public resendInviteInProcess: boolean = false;
   public recallInviteInProcess: boolean = false;
   public removeCollaboratorInProcess: boolean = false;
+  public removeCollaboratorModalIsVisible: boolean = false;
+  public removeCollaboratorData: ProjectMembers;
   public modelChangedSearchCollaborators = new Subject<string>();
   public modelChangedSearchDefaultAssignee = new Subject<string>();
   public selectedDefaultAssignee: User = {};
@@ -258,7 +260,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (res) {
           this.currentProject = res;
           this.stagesList = res.settings.stages;
-          this.projectMembersList = cloneDeep(res.members);
+          this.projectMembersList = cloneDeep(res.members.filter(member => {
+            return !member.isRemoved;
+          }));
 
           this.totalCapacity = 0;
           this.totalCapacityPerDay = 0;
@@ -564,6 +568,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.collaboratorForm.get('collaborator').patchValue('');
     this.isCollaboratorExits = false;
   }
+
+  async toggleRemoveCollaborator(collaborator?: ProjectMembers) {
+    try {
+      this.removeCollaboratorData = collaborator ? collaborator : null;
+      this.removeCollaboratorModalIsVisible = !this.removeCollaboratorModalIsVisible;
+    } catch (e) {
+      this.removeCollaboratorInProcess = false;
+    }
+  }
+
 
   //**********************//
   // Remove Collaborators

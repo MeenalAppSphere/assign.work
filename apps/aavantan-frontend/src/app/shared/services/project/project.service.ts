@@ -16,7 +16,7 @@ import {
   ProjectStages,
   ProjectStatus, ProjectTags,
   ProjectTemplateUpdateModel,
-  ProjectWorkingCapacityUpdateDto, RecallProjectInvitationModel,
+  ProjectWorkingCapacityUpdateDto, RecallProjectInvitationModel, RemoveProjectCollaborator,
   ResendProjectInvitationModel,
   SearchProjectRequest,
   SearchProjectTags,
@@ -196,10 +196,19 @@ export class ProjectService extends BaseService<ProjectStore, ProjectState> {
     );
   }
 
-  removeCollaborators(json: any): Observable<BaseResponseModel<Project>> {
-    return this._http.post(ProjectUrls.removeCollaborators, json).pipe(
+  removeCollaborator(model: RemoveProjectCollaborator): Observable<BaseResponseModel<ProjectMembers[]>> {
+    return this._http.post(ProjectUrls.removeCollaborators, model).pipe(
       map(res => {
-        this.updateCurrentProjectState(res.data);
+        this.userStore.update((state => {
+          return {
+            ...state,
+            currentProject: {
+              ...state.currentProject,
+              members: res.data
+            }
+          };
+        }));
+        this.notification.success('Collaborator', 'Collaborator removed successfully');
         return res;
       }),
       catchError(e => {

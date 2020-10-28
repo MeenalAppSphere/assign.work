@@ -32,8 +32,7 @@ import {
   TaskHistory,
   TaskHistoryActionEnum,
   UpdateSprintMemberWorkingCapacity,
-  UpdateSprintModel,
-  UserStatus
+  UpdateSprintModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -51,14 +50,15 @@ import { SprintReportService } from '../sprint-report/sprint-report.service';
 import { SprintReportModel } from '../../../../../../libs/models/src/lib/models/sprint-report.model';
 import { SprintReportUtilityService } from '../sprint-report/sprint-report.utility.service';
 import { AppGateway } from '../../../app/app.gateway';
+import { basicUserPopulationDetails } from '../../helpers/query.helper';
 
 const commonPopulationForSprint = [{
   path: 'createdBy',
-  select: 'emailId userName firstName lastName profilePic',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'updatedBy',
-  select: 'emailId userName firstName lastName profilePic',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'membersCapacity.user',
@@ -72,7 +72,7 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true
 }, {
   path: 'columns.tasks.addedBy',
-  select: 'emailId userName firstName lastName profilePic',
+  select: basicUserPopulationDetails,
   justOne: true
 }, {
   path: 'columns.tasks.task',
@@ -80,11 +80,11 @@ const detailedPopulationForSprint = [...commonPopulationForSprint, {
   justOne: true,
   populate: [{
     path: 'assignee',
-    select: 'emailId userName firstName lastName profilePic',
+    select: basicUserPopulationDetails,
     justOne: true
   }, {
     path: 'createdBy',
-    select: 'emailId userName firstName lastName profilePic',
+    select: basicUserPopulationDetails,
     justOne: true
   }, {
     path: 'taskType',
@@ -147,7 +147,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
     // set populate fields
     model.populate = [{
       path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
+      select: basicUserPopulationDetails,
       justOne: true
     }];
 
@@ -956,7 +956,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintStatus.updatedAt = generateUtcDate();
       sprintStatus.updatedById = this._generalService.userId;
 
-      // close old sprint and set staus as completed
+      // close old sprint and set status as completed
       await this.updateSprintStatus(model.sprintId, sprintStatus, session);
 
       // send emails for current sprint is closed
@@ -1135,7 +1135,7 @@ export class SprintService extends BaseService<Sprint & Document> implements OnM
       sprintModel.membersCapacity = model.sprint.membersCapacity;
     } else {
       // add only those members who accepted invitation of project means active collaborator of project
-      projectDetails.members.filter(member => member.isInviteAccepted).forEach(member => {
+      projectDetails.members.filter(member => member.isInviteAccepted && !member.isRemoved).forEach(member => {
         sprintModel.membersCapacity.push(this._sprintUtilityService.createSprintMember(projectDetails, member.userId));
         sprintModel.totalCapacity += Number(hourToSeconds(member.workingCapacity));
       });

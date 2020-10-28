@@ -11,4 +11,5 @@ export enum EmailSubjectEnum {
   taskCommentUpdated = 'Comment Updated',
   taskCommentPinned = 'Comment Pinned',
   taskCommentUnPinned = 'Comment Un-Pinned',
+  removeCollaborator = 'Collaborator Removed'
 }

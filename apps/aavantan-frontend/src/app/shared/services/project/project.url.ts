@@ -11,7 +11,7 @@ export const ProjectUrls = {
   addCollaborators: `${createUrl('project/:projectId/add-collaborators')}`,
   getCollaborators: `${createUrl('project/get-collaborators')}`,
 
-  removeCollaborators: `${createUrl('project/:projectId/remove-collaborators')}`,
+  removeCollaborators: `${createUrl('project/remove-collaborator')}`,
   resendInvitation: `${createUrl('project/resend-invitation')}`,
   recallInvitation: `${createUrl('project/recall-invitation')}`,
 

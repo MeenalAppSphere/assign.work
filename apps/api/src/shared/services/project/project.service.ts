@@ -1,7 +1,9 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+  BuildEmailConfigurationModel,
   DbCollection,
+  EmailSubjectEnum,
   EmailTemplatePathEnum,
   GetAllProjectsModel,
   Invitation,
@@ -13,6 +15,7 @@ import {
   ProjectTemplateEnum,
   ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
+  RecallProjectInvitationModel,
   RemoveProjectCollaborator,
   ResendProjectInvitationModel,
   RoleTypeEnum,
@@ -23,7 +26,6 @@ import {
   UpdateProjectRequestModel,
   User, UserRoleUpdateRequestModel,
   UserStatus,
-  RecallProjectInvitationModel
 } from '@aavantan-app/models';
 import { ClientSession, Document, Model } from 'mongoose';
 import { BaseService } from '../base.service';
@@ -39,7 +41,6 @@ import {
   generateUtcDate,
   getDefaultSettingsFromProjectTemplate,
   hourToSeconds,
-  secondsToHours,
   validWorkingDaysChecker
 } from '../../helpers/helpers';
 import { environment } from '../../../environments/environment';
@@ -55,6 +56,8 @@ import { TaskPriorityService } from '../task-priority/task-priority.service';
 import { TaskService } from '../task/task.service';
 import { SprintService } from '../sprint/sprint.service';
 import { UserRoleService } from '../user-role/user-role.service';
+import { SprintReportService } from '../sprint-report/sprint-report.service';
+import { basicUserPopulationDetails } from '../../helpers/query.helper';
 
 @Injectable()
 export class ProjectService extends BaseService<Project & Document> implements OnModuleInit {
@@ -68,6 +71,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
   private _taskPriorityService: TaskPriorityService;
   private _boardService: BoardService;
   private _sprintService: SprintService;
+  private _sprintReportService: SprintReportService;
   private _userRoleService: UserRoleService;
 
   constructor(
@@ -88,6 +92,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
     this._taskPriorityService = this._moduleRef.get('TaskPriorityService');
     this._boardService = this._moduleRef.get('BoardService');
     this._sprintService = this._moduleRef.get('SprintService');
+    this._sprintReportService = this._moduleRef.get(SprintReportService.name);
+
     this._userRoleService = this._moduleRef.get('UserRoleService');
     this._utilityService = new ProjectUtilityService();
   }
@@ -417,7 +423,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       await this._invitationService.bulkUpdate(alreadySentInvitationQuery, { $set: { isExpired: true } }, session);
 
       // create new invitation object
-      const newInvitation = this.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString(), userDetails.emailId);
+      const newInvitation = this._invitationService.prepareInvitationObject(userDetails._id, this._generalService.userId, projectDetails._id.toString(), userDetails.emailId);
 
       // create invitation in db
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
@@ -452,7 +458,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       // get invitation details
       const invitationFindQuery: MongooseQueryModel = {
         filter: {
-          invitationToEmailId: dto.invitationToEmailId,
+          invitationToEmailId: dto.invitationToEmailId
         },
         lean: true
       };
@@ -490,51 +496,340 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
   /**
    * remove collaborator
-   * @param model
+   * @param dto
+   * first check for basic validations, then start removing collaborator process
+   * 1. replace collaborator from setting boards with new collaborator
+   * 2. replace collaborator from task statues with new collaborator
+   * 3. replace collaborator from task priorities with new collaborator
+   * 4. replace collaborator from task types with new collaborator
+   * 5. replace collaborator from tasks with new collaborator
+   *    a. replace collaborator from assigned tasks with new collaborator
+   *    b. replace collaborator from created by tasks with new collaborator
+   *    c. replace collaborator from watchers list with new collaborator
+   * 6. replace collaborator from current sprint and current sprint report
+   *    a. replace collaborator from current sprint with new collaborator and recalculate current sprint calculations
+   *    b. replace collaborator from current sprint-report with new collaborator and recalculate current sprint-report calculations
+   * 7. update project and mark collaborator as removed
+   * 8. update organization and mark collaborator as removed
+   * 9. remove project and organization from user's project list and organizaiton list
+   * 10. send email to next collaborator
    */
-  async removeCollaborator(model: RemoveProjectCollaborator) {
-    return this.withRetrySession(async (session: ClientSession) => {
-      const projectDetails = await this.getProjectDetails(model.projectId);
+  async removeCollaborator(dto: RemoveProjectCollaborator): Promise<ProjectMembers[]> {
+    await this.withRetrySession(async (session: ClientSession) => {
+      const projectDetails = await this.getProjectDetails(dto.projectId, true);
+
+      // region basic validations
+      // check if current user want's to remove him self from project
+      if (dto.collaboratorId === this._generalService.userId) {
+        BadRequest('You can\'t remove your self from project');
+      }
 
       // check if collaborator whose going to remove is part of project
-      const isCurrentCollaboratorIsPartOfProject = this._utilityService.userPartOfProject(model.collaboratorId, projectDetails);
-      if (!isCurrentCollaboratorIsPartOfProject) {
+      const currentCollaboratorDetails = projectDetails.members.find((member) => {
+        return member.userId === dto.collaboratorId && !member.isRemoved;
+      });
+      if (!currentCollaboratorDetails) {
         BadRequest('Collaborator is not part of project, so it can\'t be removed from Project');
       }
 
       // check if next collaborator is part of project
-      const isNextCollaboratorIsPartOfProject = this._utilityService.userPartOfProject(model.nextCollaboratorId, projectDetails);
-      if (!isNextCollaboratorIsPartOfProject) {
+      const nextCollaboratorDetails = projectDetails.members.find((member) => {
+        return member.userId === dto.nextCollaboratorId && !member.isRemoved;
+      });
+      if (!nextCollaboratorDetails) {
         BadRequest('New selected Collaborator is not part of project');
       }
+      // endregion
 
-      // get tasks of collaborator
-      const userTaskQuery = {
-        projectId: model.projectId, assigneeId: model.collaboratorId
+      const convertedNextCollaboratorId = this.toObjectId(dto.nextCollaboratorId);
+
+      // generic created by query to get get things which is created by collaborator
+      const genericCreatedByQuery = {
+        projectId: dto.projectId,
+        createdById: dto.collaboratorId
       };
 
-      const tasks = await this._taskService.find({ filter: userTaskQuery, lean: true });
-      if (tasks.length) {
-        // change assignee of that task
-      } else {
-        // don't do anything
-      }
+      // generic created by update doc
+      const genericCreatedByUpdateDoc = {
+        createdById: convertedNextCollaboratorId
+      };
 
+      // region boards
+      // update boards created by collaborator
+      await this._boardService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+      // endregion
 
+      // region task status
+      // update task status created by collaborator
+      await this._taskStatusService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+      // endregion
+
+      // region task priority
+      // update task priority created by collaborator
+      await this._taskPriorityService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+      // endregion
+
+      // region task types
+      // update task types created by collaborator
+      await this._taskTypesService.bulkUpdate(genericCreatedByQuery, genericCreatedByUpdateDoc, session);
+
+      // update task type where collaborator is set as default assignee
+      const taskTypeAssigneeQuery: MongooseQueryModel = {
+        filter: {
+          projectId: dto.projectId,
+          assigneeId: dto.collaboratorId
+        },
+        lean: true
+      };
+
+      await this._taskTypesService.bulkUpdate(taskTypeAssigneeQuery, { assigneeId: convertedNextCollaboratorId }, session);
+      // endregion
+
+      // region tasks
+      // update assigned tasks of collaborator
+      const taskAssignedQuery = {
+        projectId: dto.projectId, assigneeId: dto.collaboratorId
+      };
+
+      await this._taskService.bulkUpdate(taskAssignedQuery, {
+        assigneeId: convertedNextCollaboratorId
+      }, session);
+
+      // update tasks created by collaborator
+      const taskCreatedByQuery = {
+        projectId: dto.projectId, createdById: dto.collaboratorId
+      };
+
+      await this._taskService.bulkUpdate(taskCreatedByQuery, {
+        createdById: convertedNextCollaboratorId
+      }, session);
+
+      // replace collaborator from watchers array with next collaborator id
+      const collaboratorAsWatcherInTaskQuery = {
+        projectId: dto.projectId,
+        watchers: { $in: [dto.collaboratorId] }
+      };
+
+      // update tasks, pull collaborator from watchers array
+      await this._taskService.bulkUpdate(collaboratorAsWatcherInTaskQuery, {
+        $pull: {
+          watchers: { $in: [dto.collaboratorId] }
+        },
+      }, session);
+
+      // update tasks, add next collaborator to watchers array
+      await this._taskService.bulkUpdate(collaboratorAsWatcherInTaskQuery, {
+        $addToSet: {
+          watchers: convertedNextCollaboratorId
+        }
+      }, session);
+      // endregion
+
+      // region sprint and sprint report
       if (projectDetails.sprintId) {
+        // region sprint
+
         // get sprint details
-        const sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails.sprintId);
+        const sprintDetails = await this._sprintService.getSprintDetails(projectDetails.sprintId, projectDetails._id);
 
         // get current and next collaborator from sprint member capacity
-        const currentCollaboratorFromSprint = sprintDetails.membersCapacity.find(member => member.userId.toString() === model.collaboratorId);
-        const nextCollaboratorFromSprint = sprintDetails.membersCapacity.find(member => member.userId.toString() === model.nextCollaboratorId);
+        const currentCollaboratorFromSprint = sprintDetails.membersCapacity.findIndex(member => member.userId.toString() === dto.collaboratorId);
+        const nextCollaboratorFromSprint = sprintDetails.membersCapacity.findIndex(member => member.userId.toString() === dto.nextCollaboratorId);
 
         // check if both current and next collaborator are part of sprint
-        if (currentCollaboratorFromSprint && nextCollaboratorFromSprint) {
-          // get current collaborator remaining capacity and add it next collaborator
+        if (currentCollaboratorFromSprint > -1 && nextCollaboratorFromSprint > -1) {
+
+
+          // add current collaborator working capacity to next collaborator working capacity
+          const nextCollaboratorSprintWorkingCapacity = sprintDetails.membersCapacity[nextCollaboratorFromSprint].workingCapacity +
+            sprintDetails.membersCapacity[currentCollaboratorFromSprint].workingCapacity;
+
+          // get next collaborator working days
+          const nextCollaboratorSprintWorkingDays = sprintDetails.membersCapacity[nextCollaboratorFromSprint].workingDays.filter(day => day.selected).length;
+          // calculate next collaborator working capacity per day
+          const nextCollaboratorSprintWorkingCapacityPerDay = nextCollaboratorSprintWorkingCapacity / nextCollaboratorSprintWorkingDays;
+
+          // set collaborator as removed doc
+          const setSprintCollaboratorAsRemovedDoc: any = {
+            [`membersCapacity.${currentCollaboratorFromSprint}.isRemoved`]: true,
+            [`membersCapacity.${nextCollaboratorFromSprint}.workingCapacity`]: nextCollaboratorSprintWorkingCapacity,
+            [`membersCapacity.${nextCollaboratorFromSprint}.workingCapacityPerDay`]: nextCollaboratorSprintWorkingCapacityPerDay
+          };
+
+          // loop over sprint columns and change task assignee, created by or task moved by id
+          setSprintCollaboratorAsRemovedDoc['columns'] = sprintDetails.columns.map(column => {
+            column.tasks = column.tasks.map(columnTask => {
+
+              // task created by id
+              if (columnTask.task.createdById.toString() === dto.collaboratorId) {
+                columnTask.task.createdById = convertedNextCollaboratorId as any;
+              }
+
+              // // task update by id
+              // if (columnTask.task.updatedById.toString() === dto.collaboratorId) {
+              //   columnTask.task.updatedById = convertedNextCollaboratorId as any;
+              // }
+
+              // task assignee id
+              if (columnTask.task.assigneeId.toString() === dto.collaboratorId) {
+                columnTask.task.assigneeId = convertedNextCollaboratorId as any;
+              }
+
+              // task moved by id
+              if (columnTask.movedById && columnTask.movedById.toString() === dto.collaboratorId) {
+                columnTask.movedById = convertedNextCollaboratorId as any;
+              }
+
+              return columnTask;
+            });
+            return column;
+          });
+
+          // check if sprint is created by the collaborator than update it's created By id
+          if (sprintDetails.createdById.toString() === dto.collaboratorId) {
+            setSprintCollaboratorAsRemovedDoc['createdById'] = convertedNextCollaboratorId as any;
+          }
+
+          // check if sprint is published by collaborator than update it's published by id
+          setSprintCollaboratorAsRemovedDoc['sprintStatus.updatedById'] = convertedNextCollaboratorId as any;
+
+          // update report
+          await this._sprintService.updateById(sprintDetails._id, setSprintCollaboratorAsRemovedDoc, session);
         }
+        // endregion
+
+        // region sprint report
+        const sprintReportDetails = await this._sprintReportService.getSprintReportDetails(sprintDetails.reportId);
+
+        // find collaborator index from project members array
+        const memberIndexInSprintReport = sprintReportDetails.reportMembers.findIndex(member => {
+          return member.userId.toString() === dto.collaboratorId;
+        });
+
+        // set collaborator as removed doc
+        const setSprintReportMemberAsRemovedDoc: any = {
+          [`reportMembers.${memberIndexInSprintReport}.isRemoved`]: true
+        };
+
+        setSprintReportMemberAsRemovedDoc['reportTasks'] = sprintReportDetails.reportTasks.map((task) => {
+
+          // task created by id
+          if (task.createdById.toString() === dto.collaboratorId) {
+            task.createdById = convertedNextCollaboratorId as any;
+          }
+
+          // // task update by id
+          // if (task.updatedById.toString() === dto.collaboratorId) {
+          //   task.updatedById = convertedNextCollaboratorId as any;
+          // }
+
+          // task assignee id
+          if (task.assigneeId.toString() === dto.collaboratorId) {
+            task.assigneeId = convertedNextCollaboratorId as any;
+          }
+
+          return task;
+        });
+
+        // check if sprint is created by the collaborator than update it's created By id
+        if (sprintReportDetails.createdById.toString() === dto.collaboratorId) {
+          setSprintReportMemberAsRemovedDoc['createdById'] = convertedNextCollaboratorId as any;
+        }
+
+        // update sprint report
+        await this._sprintReportService.updateById(sprintReportDetails._id, setSprintReportMemberAsRemovedDoc, session);
+        // endregion
       }
+      // endregion
+
+      // region update project and mark collaborator as removed collaborator
+
+      // find collaborator index from project members array
+      const collaboratorIndexInProject = projectDetails.members.findIndex(member => {
+        return member.userId.toString() === dto.collaboratorId;
+      });
+
+      // set collaborator as removed doc
+      const setProjectCollaboratorAsRemovedDoc: any = {
+        [`members.${collaboratorIndexInProject}.isRemoved`]: true
+      };
+
+      // if project is created by the collaborator which we are going to remove than update project created by id
+      if (projectDetails.createdById === dto.collaboratorId) {
+        setProjectCollaboratorAsRemovedDoc['createdById'] = convertedNextCollaboratorId as any;
+      }
+
+      // update project
+      await this.updateById(dto.projectId, setProjectCollaboratorAsRemovedDoc, session);
+      // endregion
+
+      // region check if  organization is created by the collaborator which we are going to remove
+      if (projectDetails.organization.createdBy.toString() === dto.collaboratorId) {
+        // update organization created by id
+        await this._organizationService.updateById(projectDetails.organizationId, genericCreatedByUpdateDoc, session);
+      }
+      // endregion
+
+      // region remove project and organisation from user's projects array
+      // get collaborator details
+      const collaboratorDetails: any = await this._userService.findById(dto.collaboratorId);
+
+      // filter out current project from collaborators project list
+      const collaboratorRemainingProjects = collaboratorDetails.projects.filter(projectId => projectId.toString() !== projectDetails._id.toString());
+
+      let collaboratorNextProjectId = null;
+      let collaboratorNextOrganizationId = null;
+
+      // check if collaborator have other projects
+      if (collaboratorRemainingProjects.length && collaboratorRemainingProjects[0]) {
+        // set next project id
+        collaboratorNextProjectId = collaboratorRemainingProjects[0];
+
+        // get next project details and find organization id
+        const collaboratorNextProjectDetails = await this.getProjectDetails(collaboratorNextProjectId);
+        collaboratorNextOrganizationId = collaboratorNextProjectDetails.organizationId;
+      }
+
+      // update user projects,organizations list and currentProject and currentOrganization
+      await this._userService.updateById(dto.collaboratorId, {
+        $pull: {
+          projects: { $in: [projectDetails._id.toString()] },
+          organizations: { $in: [projectDetails.organizationId.toString()] }
+        },
+        $set: {
+          currentProject: collaboratorNextProjectId,
+          currentOrganizationId: collaboratorNextOrganizationId
+        }
+      }, session);
+      // endregion
+
+      // region send email
+      const emailData = {
+        user: {
+          firstName: currentCollaboratorDetails.userDetails.firstName,
+          lastName: currentCollaboratorDetails.userDetails.lastName,
+          emailId: currentCollaboratorDetails.userDetails.emailId
+        },
+        nextUser: {
+          firstName: nextCollaboratorDetails.userDetails.firstName,
+          lastName: nextCollaboratorDetails.userDetails.lastName,
+          emailId: nextCollaboratorDetails.userDetails.emailId
+        },
+        project: {
+          name: projectDetails.name
+        }
+      };
+      const emailConfig: BuildEmailConfigurationModel = new BuildEmailConfigurationModel(EmailSubjectEnum.removeCollaborator, EmailTemplatePathEnum.removeCollaborator);
+      emailConfig.recipients.push(nextCollaboratorDetails.emailId);
+      emailConfig.templateDetails.push(emailData);
+
+      this._emailService.buildAndSendEmail(emailConfig);
+      // endregion
+
+      return 'Collaborator removed successfully';
     });
+
+    return this.getCollaborators(dto.projectId);
   }
 
   /**
@@ -720,7 +1015,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
     // populate
     model.populate = [{
       path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic'
+      select: basicUserPopulationDetails
     }];
 
     // get result
@@ -798,7 +1093,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
       }]
     };
     query.select = 'name description template createdAt updatedAt createdById';
-    query.populate = [{ path: 'createdBy', select: 'emailId userName firstName lastName profilePic -_id' }];
+    query.populate = [{ path: 'createdBy', select: basicUserPopulationDetails }];
     query.sort = 'updatedAt';
     query.sortBy = 'desc';
     query.lean = true;
@@ -886,8 +1181,8 @@ export class ProjectService extends BaseService<Project & Document> implements O
     if (project && project.members && project.members.length) {
       return project.members
         .filter(member => {
-          // filter out members who are either deleted, or not accepted the invitation or not an active member
-          return !member.userDetails.isDeleted && member.isInviteAccepted && member.userDetails.status === UserStatus.Active;
+          // filter out members who are either removed, or not accepted the invitation or not an active member
+          return !member.isRemoved && member.isInviteAccepted && member.userDetails.status === UserStatus.Active;
         })
         .filter(member => {
           // search in email id , first name or last name
@@ -948,7 +1243,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
         select: 'firstName lastName emailId'
       }, {
         path: 'organization',
-        select: 'name'
+        select: 'name createdBy'
       }];
 
     // check if full details is required
@@ -1097,7 +1392,7 @@ export class ProjectService extends BaseService<Project & Document> implements O
    */
   private async createInvitation(collaborators: ProjectMembers[], projectDetails: Project, invitationType: ProjectInvitationType, session: ClientSession, emailArrays: any[]) {
     for (let i = 0; i < collaborators.length; i++) {
-      const newInvitation = this.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
+      const newInvitation = this._invitationService.prepareInvitationObject(collaborators[i].userId, this._generalService.userId, projectDetails._id.toString(), collaborators[i].emailId);
 
       const invitation = await this._invitationService.createInvitation(newInvitation, session);
       emailArrays.push({
@@ -1122,26 +1417,5 @@ export class ProjectService extends BaseService<Project & Document> implements O
 
     const templateData = { project: projectDetails, invitationLink: link, user: projectDetails.createdBy };
     return await this._emailService.getTemplate(EmailTemplatePathEnum.projectInvitation, templateData);
-  }
-
-  /**
-   * prepare invite object
-   * @param to
-   * @param from
-   * @param projectId
-   * @param toEmailId
-   */
-  private prepareInvitationObject(to: string, from: string, projectId: string, toEmailId: string): Invitation {
-    const invitation = new Invitation();
-
-    invitation.invitationToId = to;
-    invitation.invitedById = from;
-    invitation.invitationToEmailId = toEmailId;
-    invitation.isExpired = false;
-    invitation.isInviteAccepted = false;
-    invitation.projectId = projectId;
-    invitation.invitedAt = generateUtcDate();
-
-    return invitation;
   }
 }

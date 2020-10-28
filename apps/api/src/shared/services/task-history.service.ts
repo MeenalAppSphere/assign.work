@@ -15,6 +15,7 @@ import { GeneralService } from './general.service';
 import { generateUtcDate } from '../helpers/helpers';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectService } from './project/project.service';
+import { basicUserPopulationDetails } from '../helpers/query.helper';
 
 @Injectable()
 export class TaskHistoryService extends BaseService<TaskHistory & Document> implements OnModuleInit {
@@ -67,32 +68,43 @@ export class TaskHistoryService extends BaseService<TaskHistory & Document> impl
    * @returns {Promise<BasePaginatedResponse<TaskHistory>>}
    */
   async getTaskHistory(model: GetTaskHistoryModel) {
-    await this._projectService.getProjectDetails(model.projectId);
+    // get project details
+    const projectDetails = await this._projectService.getProjectDetails(model.projectId);
 
+    // set populate object
     model.populate = [{
       path: 'createdBy',
-      select: 'emailId userName firstName lastName profilePic -_id',
+      select: basicUserPopulationDetails,
       justOne: true
     }];
 
     model.sort = 'createdAt';
     model.sortBy = 'desc';
 
+    // get all histories by pagination
     const result: BasePaginatedResponse<TaskHistory> = await this.getAllPaginatedData({ taskId: model.taskId }, model);
 
+    // loop over history and prepare vm
     result.items = result.items.map(history => {
-      history = this.parseHistoryObject(history);
+      history = this.parseHistoryVm(history);
+
+      // loop over project member's and find if history created by collaborator is removed from project or not
+      projectDetails.members.forEach(member => {
+        if ((history.createdById && member.userId === history.createdById.toString()) && history.createdBy) {
+          history.createdBy.isRemovedFromCurrentProject = member.isRemoved;
+        }
+      });
       return history;
     });
     return result;
   }
 
   /**
-   * parse history object
+   * parse history vm
    * @param history
    * @returns {TaskHistory}
    */
-  private parseHistoryObject(history: TaskHistory): TaskHistory {
+  private parseHistoryVm(history: TaskHistory): TaskHistory {
     if (history.task) {
       history.task = {
         name: history.task.name,
