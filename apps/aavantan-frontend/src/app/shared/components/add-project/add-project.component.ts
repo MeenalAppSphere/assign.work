@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../../services/validation-regex.service';
 import {
@@ -9,7 +9,7 @@ import {
   ProjectTemplateEnum,
   SearchUserModel,
   SwitchProjectRequest,
-  User
+  User, UserRoleModel
 } from '@aavantan-app/models';
 import { UserService } from '../../services/user/user.service';
 import { ProjectService } from '../../services/project/project.service';
@@ -22,8 +22,12 @@ import { Router } from '@angular/router';
 import { TaskStatusService } from '../../services/task-status/task-status.service';
 import { TaskPriorityService } from '../../services/task-priority/task-priority.service';
 import { TaskTypeService } from '../../services/task-type/task-type.service';
+import { UserRoleService } from '../../services/user-role/user-role.service';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 import { ProjectQuery } from '../../../queries/project/project.query';
+import { COLORS } from '../../constant/color.constant';
+import { NgxPermissionsService } from 'ngx-permissions';
+import { cloneDeep } from 'lodash';
 
 
 @Component({
@@ -69,6 +73,7 @@ export class AddProjectComponent implements OnInit, OnDestroy {
   public isSearching: boolean;
   public searchSatarted: boolean;
   public isProjectNotFound: boolean;
+  public currentUserRole: UserRoleModel;
 
   public selectedTemplate: ProjectTemplateEnum = ProjectTemplateEnum.softwareDevelopment;
 
@@ -76,16 +81,24 @@ export class AddProjectComponent implements OnInit, OnDestroy {
               private _userService: UserService, private _projectService: ProjectService,
               protected notification: NzNotificationService, private _taskService: TaskService,
               private router: Router, private _taskStatusService: TaskStatusService,
-              private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
+               private _taskPriorityService: TaskPriorityService, private _taskTypeService: TaskTypeService,
+              private _userRoleService: UserRoleService,
               private _projectQuery: ProjectQuery) {
   }
 
   ngOnInit() {
 
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
+      }
+    });
+
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
       if (user) {
         this.organizations = user.organizations as Organization[] || [];
-        this.projectList = user.projects as Project[] || [];
+        this.projectList = cloneDeep(user.projects as Project[] || []);
       } else {
         this.organizations = [];
         this.projectList = [];
@@ -103,12 +116,20 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this.currentOrganization = organization;
     });
 
+    // assign color to each projects
+    if(this.projectList && this.projectList.length > 0) {
+        this.projectList.map((project, index) => {
+          const colorIndex = index % COLORS.length; // return remainder
+          project.color = COLORS[colorIndex];
+        });
+    }
+
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(project => {
       this.currentProject = project;
     });
 
     this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
+      if (res && res.length>0 && this.currentProject) {
         this.projectListSearch = res;
         this.projectListSearch = this.projectListSearch.filter((project) => project.id !== this.currentProject.id);
 
@@ -401,6 +422,12 @@ export class AddProjectComponent implements OnInit, OnDestroy {
       this._taskPriorityService.getAllTaskPriorities(this.currentProject.id).subscribe();
 
       this.isCreatingNewProject = false;
+      // get all user roles
+      this._userRoleService.getAllUserRoles(this.currentProject.id).subscribe();
+
+      // get all project limit 10 for header dropdown init
+      this._projectService.getAllProject({organizationId: this.currentOrganization.id}).subscribe();
+
       this.toggleShow.emit();
     } catch (e) {
       this.selectTemplateInProcess = false;

@@ -9,7 +9,7 @@
               <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomLeft" style="width: 100%!important;">
                 <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width: 100%!important;">
                   <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType.color}"></span>
-                  {{selectedTaskType.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                  {{selectedTaskType.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                 </button>
               </nz-button-group>
               <nz-dropdown-menu #createTaskType="nzDropdownMenu">
@@ -101,7 +101,7 @@
           <nz-form-item>
             <nz-form-label nzFor="description">Description</nz-form-label>
             <nz-form-control>
-              <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" formControlName="description" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>
+<!--              <editor apiKey="2glbfd5m3zwpf1ckd1sj39gkmufrhyqb29lyfmftbszq29qv" formControlName="description" [init]="{plugins: 'link', menubar:false, statusbar: false}"></editor>-->
             </nz-form-control>
           </nz-form-item>
         </div>

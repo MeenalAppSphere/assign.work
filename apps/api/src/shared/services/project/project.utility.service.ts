@@ -1,5 +1,6 @@
-import { Project, ProjectMembers, UpdateProjectRequestModel, User } from '@aavantan-app/models';
-import { BadRequest, maxLengthValidator, secondsToHours, validOrganizationOrProjectName } from '../../helpers/helpers';
+import { Project, ProjectMembers, UpdateProjectRequestModel, User, UserRoleModel } from '@aavantan-app/models';
+import { BadRequest, maxLengthValidator, validOrganizationOrProjectName } from '../../helpers/helpers';
+import { secondsToHours} from '../../helpers/helpers';
 import {
   DEFAULT_WORKING_CAPACITY,
   DEFAULT_WORKING_CAPACITY_PER_DAY,
@@ -62,7 +63,7 @@ export class ProjectUtilityService {
    * prepare project member model
    * @param user
    */
-  prepareProjectMemberModel(user: User): ProjectMembers {
+  prepareProjectMemberModel(user: User, userRoleId: string): ProjectMembers {
     return {
       userId: user.id,
       emailId: user.emailId,
@@ -70,7 +71,8 @@ export class ProjectUtilityService {
       isInviteAccepted: true,
       workingCapacity: DEFAULT_WORKING_CAPACITY,
       workingCapacityPerDay: DEFAULT_WORKING_CAPACITY_PER_DAY,
-      workingDays: DEFAULT_WORKING_DAYS
+      workingDays: DEFAULT_WORKING_DAYS,
+      userRoleId: userRoleId
     } as ProjectMembers;
   }
 

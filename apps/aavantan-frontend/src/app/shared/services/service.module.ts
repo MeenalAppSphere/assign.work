@@ -16,13 +16,18 @@ import { TaskStatusService } from './task-status/task-status.service';
 import { TaskTypeService } from './task-type/task-type.service';
 import { BoardService } from './board/board.service';
 import { SprintReportService } from './sprint-report/sprint-report.service';
+import { NzConfigService, NzNotificationModule } from 'ng-zorro-antd';
+import { UserRoleService } from './user-role/user-role.service';
 
-@NgModule()
+@NgModule({
+  imports: [NzNotificationModule],
+})
 export class ServiceModule {
 
-  public static forRoot(): ModuleWithProviders {
+  public static forRoot(): ModuleWithProviders<ServiceModule> {
     return {
       ngModule: ServiceModule,
+
       providers: [
         ThemeConstantService,
         ValidationRegexService,
@@ -40,7 +45,8 @@ export class ServiceModule {
         TaskStatusService,
         TaskTypeService,
         BoardService,
-        SprintReportService
+        SprintReportService,
+        UserRoleService
       ]
     };
   }

@@ -41,7 +41,6 @@ export class MyTasksComponent implements OnInit, OnDestroy {
   public isFilterApplied: boolean;
   public statusColumnDataSource: StatusDDLModel[] = [];
   public selectedColumnDataSource: string[] = [];
-
   public currentProject: Project;
 
   constructor(protected notification: NzNotificationService,
@@ -203,23 +202,23 @@ export class MyTasksComponent implements OnInit, OnDestroy {
 
 
   // this function also calling from emitter from task list component
-  public filterStatusApplied(query: string[]) {
+  public filterStatusApplied(statusIds: string[]) {
     if (this.activeTab === 'my') {
-      if (query.length === this.statusColumnDataSource.length) {
+      if (statusIds.length === this.statusColumnDataSource.length) {
         this.myTaskFilterRequest.page = 1;
       }
       this.myTaskFilterRequest.queries = [];
       this.myTaskFilterRequest.queries.push({
-        key: 'statusId', value: query, condition: TaskFilterCondition.and
+        key: 'statusId', value: statusIds, condition: TaskFilterCondition.and
       });
       this.getMyTasks();
     } else {
-      if (query.length === this.statusColumnDataSource.length) {
+      if (statusIds.length === this.statusColumnDataSource.length) {
         this.allTaskFilterRequest.page = 1;
       }
       this.allTaskFilterRequest.queries = [];
       this.allTaskFilterRequest.queries.push({
-        key: 'statusId', value: query, condition: TaskFilterCondition.and
+        key: 'statusId', value: statusIds, condition: TaskFilterCondition.and
       });
       this.getAllTasks();
     }

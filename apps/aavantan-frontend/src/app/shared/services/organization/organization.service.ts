@@ -18,6 +18,7 @@ import { ProjectStore } from '../../../store/project/project.store';
 import { TaskStore } from '../../../store/task/task.store';
 import { SprintStore } from '../../../store/sprint/sprint.store';
 import { SprintReportStore } from '../../../store/sprint-report/sprint-report.store';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class OrganizationService extends BaseService<OrganizationStore, OrganizationState> {
@@ -26,11 +27,13 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
               private _userStore: UserStore, private _generalService: GeneralService, protected notification: NzNotificationService,
               private _router: Router, private taskTypeStore: TaskTypeStore, private taskStatusStore: TaskStatusStore, private taskPriorityStore: TaskPriorityStore,
               private boardStore: BoardStore, private projectStore: ProjectStore, private taskStore: TaskStore,
-              private organizationStore: OrganizationStore, private sprintStore: SprintStore, private sprintReportStore: SprintReportStore) {
+              private organizationStore: OrganizationStore, private sprintStore: SprintStore, private sprintReportStore: SprintReportStore,
+              private userService: UserService) {
     super(_organizationStore, notification);
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   createOrganization(org: Organization) {
@@ -69,6 +72,7 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
         this.taskTypeStore.reset();
         this.taskStatusStore.reset();
         this.taskPriorityStore.reset();
+        setTimeout(()=> {this.updateState({ switchOrganizationInProcess: false, switchOrganizationSuccess: false });}, 2000);
         return res;
       }),
       catchError(err => {
@@ -90,6 +94,7 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
             currentOrganization: res.data.currentOrganization
           };
         }));
+        this.userService.setPermissions(res.data);
         this.updateState({ switchOrganizationInProcess: false, switchOrganizationSuccess: true });
         this._router.navigate(['dashboard']);
         this.notification.success('Success', 'Organization Switched Successfully');
@@ -108,5 +113,10 @@ export class OrganizationService extends BaseService<OrganizationStore, Organiza
       }),
       catchError((err => of(err)))
     );
+  }
+
+
+  resetOrganizationStore() {
+    this.updateState({ createOrganizationInProcess: false, createOrganizationSuccess: false });
   }
 }

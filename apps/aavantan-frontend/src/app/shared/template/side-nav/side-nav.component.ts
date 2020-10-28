@@ -10,6 +10,7 @@ import { OrganizationService } from '../../services/organization/organization.se
 import { TaskTypeQuery } from '../../../queries/task-type/task-type.query';
 import { TaskService } from '../../services/task/task.service';
 import { ProjectService } from '../../services/project/project.service';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Component({
   selector: 'app-sidenav',
@@ -38,8 +39,10 @@ export class SideNavComponent implements OnInit, OnDestroy {
               private _organizationService: OrganizationService,
               private _taskService: TaskService,
               private router: Router, private _taskTypeQuery: TaskTypeQuery,
-              private _projectService: ProjectService) {
+              private _projectService: ProjectService, private permissionsService: NgxPermissionsService) {
+  }
 
+  ngOnInit(): void {
     this._userQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
       if (user) {
         this.organizations = user.organizations;
@@ -59,13 +62,19 @@ export class SideNavComponent implements OnInit, OnDestroy {
     this._userQuery.currentOrganization$.pipe(untilDestroyed(this)).subscribe(res => {
       if (res) {
         this.currentOrganization = res;
+        this._organizationService.resetOrganizationStore();
       }
     });
 
-  }
+    // Get all access which is loading from dashboard component from userRoles
+    this.permissionsService.permissions$.subscribe((permission) => {
+      if(permission.canView_settingsMenu){
+        this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin');
+      }else {
+        this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin' && menuItem.path!=='settings');
+      }
+    });
 
-  ngOnInit(): void {
-    this.menuItems = ROUTES.filter(menuItem => menuItem.type !== 'admin');
     this.adminMenuItems = ROUTES.filter(menuItem => menuItem.type === 'admin');
     this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
     this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
@@ -129,7 +138,11 @@ export class SideNavComponent implements OnInit, OnDestroy {
   }
 
   organizationModalShow(): void {
-    this.organizationModalIsVisible = !this.organizationModalIsVisible;
+    this.organizationModalIsVisible = true;
+  }
+
+  organizationModalHide(): void {
+    this.organizationModalIsVisible = false;
   }
 
   // close side nav on menu click

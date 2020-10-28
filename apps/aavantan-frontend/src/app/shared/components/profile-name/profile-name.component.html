@@ -8,7 +8,7 @@
 <!-- user : if noting is true from above fields the only will show profile pic  -->
 <!-- avatarSize : if nothing input the will set 22 -->
 
-<span class="d-inline-flex" *ngIf="user" nz-tooltip [nzTitle]="isTooltip ? (user?.firstName ? user?.firstName+' '+user?.lastName : user?.emailId) : ''">
+<span class="d-inline-flex" *ngIf="user" nz-tooltip [nzTooltipTitle]="isTooltip ? (user?.firstName ? user?.firstName+' '+user?.lastName : user?.emailId) : ''">
   <nz-avatar *ngIf="user?.profilePic" [nzSize]="avatarSize ? avatarSize : 22" nzIcon="user" class="m-r-5" [nzSrc]="user?.profilePic"></nz-avatar>
 
   <nz-avatar *ngIf="!user?.profilePic" [nzSize]="avatarSize ? avatarSize : 22" style="background: #F7F8FB; color:#333;" class="m-r-5" [nzText]="user?.firstName | slice : 0:1"></nz-avatar>

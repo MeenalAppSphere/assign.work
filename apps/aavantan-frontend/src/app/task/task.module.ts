@@ -1,15 +1,15 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { TaskComponent } from './task.component';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
-import { TypeaheadModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { ActivityComponent } from './activity/activity.component';
 import { HistoryComponent } from './history/history.component';
-import { EditorModule } from '@tinymce/tinymce-angular';
 import { EditCommentComponent } from './edit-comment/edit-comment.component';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { QuillModule } from 'ngx-quill';
+import { NgxPermissionsModule } from 'ngx-permissions';
 
 const routes: Routes = [
   { path: '', component: TaskComponent },
@@ -22,17 +22,20 @@ const routes: Routes = [
     CommonModule,
     SharedModule,
     TypeaheadModule,
-    EditorModule,
     NzPopoverModule,
-    QuillModule.forRoot()
+    QuillModule.forRoot(),
+    NgxPermissionsModule.forChild()
   ],
-  exports: [],
+  exports: [
+
+  ],
   declarations: [
     TaskComponent,
     ActivityComponent,
     HistoryComponent,
     EditCommentComponent
-  ]
+  ],
+  schemas:[NO_ERRORS_SCHEMA,CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TaskModule {
 

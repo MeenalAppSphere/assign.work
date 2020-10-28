@@ -30,9 +30,11 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
               private _userStore: UserStore) {
     super(boardStore, notification);
 
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","success",{nzPlacement:'bottomRight'}); 
+
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   getAllBoards(requestModel: GetAllBoardsRequestModel): Observable<BaseResponseModel<BasePaginatedResponse<BoardModel>>> {
@@ -50,15 +52,15 @@ export class BoardService extends BaseService<BoardStore, BoardState> {
   }
 
   createBoard(requestModel: BoardModel) {
-    this.updateState({ createBoardInProcess: true });
+    this.updateState({ createBoardInProcess: true, createBoardInSuccess: false });
     return this._http.post(BoardUrls.createBoard, requestModel).pipe(
       map((res: BaseResponseModel<BoardModel>) => {
-        this.updateState({ createBoardInProcess: false, activeBoard: res.data });
+        this.updateState({ createBoardInProcess: false, createBoardInSuccess: true, activeBoard: res.data });
         this.notification.success('Success', 'Board Created Successfully');
         return res;
       }),
       catchError((e) => {
-        this.updateState({ createBoardInProcess: false });
+        this.updateState({ createBoardInProcess: false, createBoardInSuccess: false });
         return this.handleError(e);
       })
     );

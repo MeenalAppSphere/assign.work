@@ -83,6 +83,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   public totalItemsInSprint: Number;
 
+
   @Output() toggleTimeLogShow: EventEmitter<any> = new EventEmitter<any>();
 
   public timelogModalIsVisible: boolean;
@@ -97,6 +98,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   public currentProject: Project;
   public isFilterApplied: boolean;
+
 
   public sprintPanels: SprintPanel[] = [{
     name: 'Getting Sprint...',
@@ -696,17 +698,15 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
     this.getAllBacklogTask();
   }
 
-  public updateSingleChecked(item: any) {
-
-
-    // if exist statusId key in queries then update otherwise add
+  // emit handler from status-dropdown component
+  public handleStatusEmmiter(statusIds:string[]){
     const queryIndex = this.backLogTaskRequest.queries.findIndex((query) => query.key === 'statusId');
     if (queryIndex === -1) {
       this.backLogTaskRequest.queries.push({
-        key: 'statusId', value: item, condition: TaskFilterCondition.and
+        key: 'statusId', value: statusIds, condition: TaskFilterCondition.and
       });
     } else {
-      this.backLogTaskRequest.queries[queryIndex].value = item;
+      this.backLogTaskRequest.queries[queryIndex].value = statusIds;
     }
     this.getAllBacklogTask();
   }
@@ -743,6 +743,7 @@ export class PlanSprintComponent implements OnInit, OnDestroy {
 
   // Create Sprint Collapsible Panel
   // calling from getActiveSprintData() or getUnpublishedSprint()
+  boardData: any;
   public initSprintPanels() {
     if (this.activeSprintData && this.activeSprintData.name || this.unPublishedSprintData && this.unPublishedSprintData.name) {
       this.sprintPanels = [];

@@ -14,7 +14,7 @@ import {
   DraftSprint,
   GetAllTaskRequestModel,
   RemoveTaskFromSprintModel, StatusDDLModel,
-  Task,
+  Task, TaskFilterCondition,
   TaskFilterModel,
   TaskTimeLogResponse, TaskTypeModel
 } from '@aavantan-app/models';
@@ -137,10 +137,9 @@ export class TaskListComponent implements OnInit, OnChanges, OnDestroy {
     this.filterEvent.emit(this.selectedColumnDataSource);
   }
 
-  public updateSingleChecked(item: any) {
-    this.filterEvent.emit(item);
+  public handleStatusEmmiter(statusIds:string[]) {
+    this.filterEvent.emit(statusIds);
   }
-
 
   //---------------------//
 

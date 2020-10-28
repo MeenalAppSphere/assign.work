@@ -7,24 +7,7 @@
 
       <div class="ng-select-content">
 
-
-
-          <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()" *ngIf="selectedColumnDataSource?.length===0">
-
-            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status</button>
-
-          <nz-select
-            *ngIf="selectedColumnDataSource?.length>0"
-            class="ng-select"
-            [nzMaxTagCount]="2"
-            (ngModelChange)="updateSingleChecked($event)"
-            [nzMaxTagPlaceholder]="tagPlaceHolder"
-            nzMode="multiple"
-            nzPlaceHolder="Please select"
-            [(ngModel)]="selectedColumnDataSource">
-            <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
-          </nz-select>
-          <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more</ng-template>
+        <status-dropdown *ngIf="statusColumnDataSource?.length>0" [statusList]="statusColumnDataSource" (statusIdsEmitter)="handleStatusEmmiter($event)"></status-dropdown>
 
       </div>
 
@@ -59,12 +42,14 @@
 
             <div class="m-b-40"><span>Task Not Found</span></div>
 
-            <button
-              nz-button
-              nzType="primary"
-              (click)="createTask()">
-              Create New Task
-            </button>
+            <span>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="createTask()">
+                Create New Task
+              </button>
+            </span>
 
           </ng-template>
         </nz-empty>
@@ -79,7 +64,7 @@
         <div class="clearfix m-b-10 font-size-12">
 
           <a class="d-inline-block p-t-5 text-primary cursor-pointer" routerLink="../../task/{{item.displayName}}"
-                [nzTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''"
+                [nzTooltipTitle]="item.taskType && item.taskType.name ? item.taskType.name : ''"
                 nz-tooltip>{{item.displayName}}</a>
 
             <span class="float-right">
@@ -109,7 +94,7 @@
 
             <span>
                         <a *ngIf="showLogOption" (click)="timeLog(item)" href="javascript:void(0);"
-                           class="text-primary"><i nz-icon nzType="clock-circle" theme="outline"></i> Log Time</a>
+                           class="text-primary"><i nz-icon nzType="clock-circle" nzTheme="outline"></i> Log Time</a>
                       </span>
 
 
@@ -128,7 +113,7 @@
                       <span *ngIf="item.assignee">
                         <nz-avatar style="margin-top: -10px;" nzSize="small" nzIcon="user"
                                    [nzSrc]="item.assignee.profilePic" nz-tooltip
-                                   [nzTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar>
+                                   [nzTooltipTitle]="item.assignee && item.assignee.firstName ? item.assignee.firstName : ''"></nz-avatar>
                         <div
                           class="d-inline-block user-name p-l-5 text-black">{{item.assignee && item.assignee.firstName ? item.assignee.firstName : item.assignee.emailId}}</div>
                       </span>
@@ -154,12 +139,12 @@
 
             <div class="m-b-40"><span>Task Not Found</span></div>
 
-            <button
-              nz-button
-              nzType="primary"
-              (click)="createTask()">
-              Create New Task
-            </button>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="createTask()">
+                Create New Task
+              </button>
 
           </ng-template>
         </nz-empty>
@@ -239,7 +224,7 @@
 
         <td data-label="#" *ngIf="isDraftTable" class="text-center">
           <i *ngIf="isDraftTable" (click)="deselectTaskFromSprint(item)" nz-icon nzType="close-circle"
-             class="remove-item cursor-pointer text-muted" theme="fill"></i>
+             class="remove-item cursor-pointer text-muted" nzTheme="fill"></i>
         </td>
 
         <td data-label="#" *ngIf="showCheckboxOption &&
@@ -250,8 +235,8 @@
 
           <i *ngIf="(tasksSelected && tasksSelected.sprintId) && (!item.assigneeId || !item.estimatedTime)"
              class="text-red"
-             nz-icon nz-tooltip nzTitle="Assignee or Estimated time is missing" nzType="exclamation-circle"
-             style="margin-left: -8px;" theme="fill"></i>
+             nz-icon nz-tooltip nzTooltipTitle="Assignee or Estimated time is missing" nzType="exclamation-circle"
+             style="margin-left: -8px;" nzTheme="fill"></i>
         </td>
 
         <td data-label="Priority" class="text-left">
@@ -294,7 +279,7 @@
           <span *ngIf="!item.status">-</span>
           <nz-tag *ngIf="item.status && item.status.name" [nzColor]="item.status.color ? item.status.color : '#475364'">
             <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
-               [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
+               [nzTooltipTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
           </nz-tag>
         </td>
 
@@ -313,7 +298,7 @@
         <td data-label="Log Hours" class="text-center">
           <a href="javascript:void(0);" class="text-primary" *ngIf="showLogOption"
                                                                         (click)="timeLog(item)">&nbsp;<i
-          nz-icon nzType="clock-circle" theme="outline"></i></a>
+          nz-icon nzType="clock-circle" nzTheme="outline"></i></a>
         </td>
 
       </tr>

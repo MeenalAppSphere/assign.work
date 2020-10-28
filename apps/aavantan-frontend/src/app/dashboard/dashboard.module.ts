@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '../shared/shared.module';
 import { DashboardRoutingModule } from './dashboard-routing.module';
@@ -8,7 +8,9 @@ import { RunningSprintComponent } from './running-sprint/running-sprint.componen
 import { ActivesprintComponent } from './activesprint/activesprint.component';
 import { PermissionsComponent } from './settings/permissions/permissions.component';
 import { CollaboratorsComponent } from './settings/collaborators/collaborators.component';
-import { PopoverModule, SortableModule, TypeaheadModule } from 'ngx-bootstrap';
+import { PopoverModule } from 'ngx-bootstrap/popover';
+import { SortableModule } from 'ngx-bootstrap/sortable';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { DashboardComponent } from './dashboard.component';
 import { TemplateModule } from '../shared/template/template.module';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
@@ -20,8 +22,10 @@ import { HiddenStatusComponent } from './board-design/hidden-status/hidden-statu
 import { HighchartsChartModule } from 'highcharts-angular';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
+import { NoAccessComponent } from './not-found/no-access.component';
+import { NgxPermissionsModule, NgxPermissionsRestrictStubModule } from 'ngx-permissions';
 
-const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} };
+const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: { transports: ['websocket'] } };
 
 @NgModule({
   imports: [
@@ -34,9 +38,10 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} }
     PopoverModule.forRoot(),
     NzToolTipModule,
     DndModule,
-    SettingsModule,
+    // SettingsModule,
     HighchartsChartModule,
-    SocketIoModule.forRoot(socketConfig)
+    SocketIoModule.forRoot(socketConfig),
+    NgxPermissionsModule.forChild()
   ],
   exports: [],
   declarations: [
@@ -48,11 +53,13 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: {} }
     CollaboratorsComponent,
     BoardDesignComponent,
     AssignUserComponent,
-    HiddenStatusComponent
+    HiddenStatusComponent,
+    NoAccessComponent
   ],
   providers: [
     ThemeConstantService
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class DashboardModule {
 }

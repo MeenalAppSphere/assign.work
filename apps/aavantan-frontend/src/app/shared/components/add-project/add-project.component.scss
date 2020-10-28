@@ -12,8 +12,9 @@
   .switch-search-box {
 
     .ant-input {
-      font-size: 24px;
-      padding: 1.5rem 75px;
+      font-size: 1rem;
+      line-height: 18px;
+      padding: 1.2rem 70px;
       background: #F7F8FB;
       border: 0px!important;
       border-radius: 12px 12px 0px 0px;
@@ -23,7 +24,7 @@
     padding: 0px 32px;
 
     .recent-item {
-      margin-right: 15px;
+      margin-right: 22px;
       display: inline-block;
       cursor: pointer;
       padding: 10px;
@@ -35,12 +36,12 @@
       }
 
       .project-box {
-        width: 102px;
-        height: 93px;
+        width: 90px;
+        height: 80px;
         border-radius: 8px;
         color: #fff;
-        font-size: 21px;
-        line-height: 93px;
+        font-size: 18px;
+        line-height: 80px;
         background: #2c7df6;
         text-align: center;
       }
@@ -52,13 +53,13 @@
 
       .project-name-truncated {
         text-align: center;
-        width: 102px;
-        min-width: 102px;
+        width: 90px;
+        min-width: 90px;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
-        font-size: 1rem;
-        margin-top: 12px;
+        font-size: 0.8rem;
+        margin-top: 10px;
       }
     }
 
@@ -68,18 +69,18 @@
       cursor: not-allowed !important;
     }
     .recent-item:first-child {
-      margin-left: -12px;
+      margin-left: -12px!important;
     }
 
     .recent-item:last-child {
-      margin-right: 0px;
+      margin-right: -12px;
     }
 
   }
 }
 
 .all-search-projects {
-  padding: 45px 32px 0px 32px;
+  padding: 30px 32px 0px 32px;
   .all-project-title {
     border-bottom: 1px solid #DEDFE2;
   }
@@ -87,8 +88,8 @@
 
 .search-list {
     overflow: auto;
-    max-height: 191px;
-    min-height: 191px;
+    max-height: 230px;
+    min-height: 230px;
   .ant-list-item{
     &:hover{
       cursor: pointer;
@@ -99,7 +100,7 @@
     margin-bottom: 0px!important;
   }
   .ant-list-split .ant-list-item {
-    padding: 8px 0px;
+    padding: 8px 0px 2px;
     border-bottom: 1px solid #DEDFE2;
   }
 }

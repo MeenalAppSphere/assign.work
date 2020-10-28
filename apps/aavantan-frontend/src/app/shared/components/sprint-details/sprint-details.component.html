@@ -1,0 +1,12 @@
+<nz-modal [(nzVisible)]="sprintGoalModalIsVisible" [nzTitle]="'Sprint Goal'" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="480" nzClosable="false">
+  <div>
+    <div nz-row>
+      <div nz-col nzSpan="8"><div><span class="d-inline-block w-45px font-weight-bold">Starts</span>: <span clss="text-gray-light-2">{{startedAt | date : 'MMM d yyyy'}}</span></div></div>
+      <div nz-col nzSpan="8"><div><span class="d-inline-block w-45px font-weight-bold">End</span>: <span clss="text-gray-light-2">{{endAt | date : 'MMM d yyyy'}}</span></div></div>
+    </div>
+    <div><span class="d-inline-block w-45px font-weight-bold mt-3">Goal</span>: <span [innerHTML]="goal"></span></div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzSize="small" nzType="default" (click)="handleCancel()">Close</button>
+  </div>
+</nz-modal>

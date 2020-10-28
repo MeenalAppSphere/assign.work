@@ -26,6 +26,8 @@ import { TaskTypeService } from './services/task-type/task-type.service';
 import { BoardService } from './services/board/board.service';
 import { TaskCommentService } from './services/task-comment/task-comment.service';
 import { SprintReportService } from './services/sprint-report/sprint-report.service';
+import { environment } from '../environments/environment';
+import { UserRoleService } from './services/user-role/user-role.service';
 
 const providers = [
   UsersService,
@@ -45,7 +47,8 @@ const providers = [
   TaskTypeService,
   BoardService,
   TaskCommentService,
-  SprintReportService
+  SprintReportService,
+  UserRoleService
 ];
 
 @Global()
@@ -58,7 +61,7 @@ const providers = [
         new winston.transports.File({
           format: winston.format.combine(
             winston.format.timestamp(),
-            winston.format.prettyPrint(),
+            winston.format.prettyPrint()
           ),
           tailable: true,
           maxFiles: 2,

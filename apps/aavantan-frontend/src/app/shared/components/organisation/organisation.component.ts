@@ -17,7 +17,8 @@ import { UserQuery } from '../../../queries/user/user.query';
 
 export class OrganisationComponent implements OnInit, OnDestroy {
   public orgForm: FormGroup;
-  @Input() public organizationModalIsVisible: Boolean = false;
+  @Input() public organizationModalIsVisible: boolean = false;
+  @Input() public createOnly: boolean = false; // Hide list of switch org list
   @Output() toggleShow: EventEmitter<any> = new EventEmitter<any>();
 
   public modalTitle = 'Organization';
@@ -49,7 +50,9 @@ export class OrganisationComponent implements OnInit, OnDestroy {
         this.pendingProjectList = user.projects as Project[];
 
         this.organizations = user.organizations as Organization[];
-        this.showCreateOrg = this.havePendingInvitations ? false : !(this.organizations.length > 0);
+        if(!this.createOnly) {
+          this.showCreateOrg = this.havePendingInvitations ? false : !(this.organizations.length > 0);
+        }
       } else {
         this.havePendingInvitations = false;
         this.pendingProjectList = [];
@@ -84,7 +87,7 @@ export class OrganisationComponent implements OnInit, OnDestroy {
   }
 
   public selectOrg(item: Organization) {
-    console.log('Selected Org:', item.name);
+    this._organizationService.switchOrganization(item._id).subscribe();
   }
 
   async switchProject(project: Project) {

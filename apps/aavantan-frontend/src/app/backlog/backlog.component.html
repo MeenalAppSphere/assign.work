@@ -15,6 +15,11 @@
 
   <section ngClass="{{unPublishedSprintData && unPublishedSprintData.id ? 'm-t-30' : 'm-t-10'}}">
 
+
+
+
+
+
     <div class="row m-b-10">
 
       <div class="col d-inline-flex ant-row-flex-space-between">
@@ -45,26 +50,28 @@
 
         <div class="ng-select-content">
 
-          <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()"
-                  *ngIf="selectedColumnDataSource?.length===0">
+          <status-dropdown *ngIf="statusColumnDataSource?.length>0" [statusList]="statusColumnDataSource" (statusIdsEmitter)="handleStatusEmmiter($event)"></status-dropdown>
 
-            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status
-          </button>
+<!--          <button [nzTitle]="'Filter Status'" nz-tooltip nz-button nzType="default" (click)="showAll()"-->
+<!--                  *ngIf="selectedColumnDataSource?.length===0">-->
 
-          <nz-select
-            *ngIf="selectedColumnDataSource?.length>0"
-            class="ng-select"
-            [nzMaxTagCount]="2"
-            (ngModelChange)="updateSingleChecked($event)"
-            [nzMaxTagPlaceholder]="tagPlaceHolder"
-            nzMode="multiple"
-            nzPlaceHolder="Please select"
-            [(ngModel)]="selectedColumnDataSource">
-            <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label"
-                       [nzValue]="item.value"></nz-option>
-          </nz-select>
-          <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more
-          </ng-template>
+<!--            <i nz-icon nzType="filter" theme="outline" class="m-r-5"></i> Show All Status-->
+<!--          </button>-->
+
+<!--          <nz-select-->
+<!--            *ngIf="selectedColumnDataSource?.length>0"-->
+<!--            class="ng-select"-->
+<!--            [nzMaxTagCount]="2"-->
+<!--            (ngModelChange)="updateSingleChecked($event)"-->
+<!--            [nzMaxTagPlaceholder]="tagPlaceHolder"-->
+<!--            nzMode="multiple"-->
+<!--            nzPlaceHolder="Please select"-->
+<!--            [(ngModel)]="selectedColumnDataSource">-->
+<!--            <nz-option *ngFor="let item of statusColumnDataSource" [nzLabel]="item.label"-->
+<!--                       [nzValue]="item.value"></nz-option>-->
+<!--          </nz-select>-->
+<!--          <ng-template #tagPlaceHolder let-selectedColumnDataSource>{{ selectedColumnDataSource.length }}+ more-->
+<!--          </ng-template>-->
 
         </div>
 
@@ -224,7 +231,7 @@
                   <nz-tag *ngIf="item.status && item.status.name"
                           [nzColor]="item.status.color ? item.status.color : '#00255B'">
                     <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
-                       [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
+                       [nzTooltipTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                   </nz-tag>
                 </td>
 
@@ -243,7 +250,7 @@
                 <td data-label="Estimate" class="text-center td-log-hours">
                   <a href="javascript:void(0);"
                      class="text-primary"
-                     (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i></a>
+                     (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" nzTheme="outline"></i></a>
                 </td>
 
               </tr>
@@ -263,7 +270,7 @@
     <!-- backlog task list container -->
 
     <!-- create backlog button -->
-    <div ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
+    <div *ngxPermissionsOnly="['canAdd_task']" ngClass="{{backLogTasksList && backLogTasksList.length>0 ? 'btn-create-backlog': ''}}">
       <a href="javascript:void(0);" class="text-primary cursor-pointer font-weight-normal font-size-13"
          (click)="addTaskNavigate()">+ Create Backlog</a>
     </div>

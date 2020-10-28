@@ -106,7 +106,7 @@ export class TaskTimeLogService extends BaseService<TaskTimeLog & Document> impl
       }
 
       // add task log to db
-      await this._taskTimeLogModel.create([model.timeLog], session);
+      await this._taskTimeLogModel.create([model.timeLog], (session as any));
 
       // calculate task logs and update task
       taskTimeLogResponse = await this.calculateTaskLogs(taskDetails, model, session);

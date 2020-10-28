@@ -8,14 +8,16 @@ import { catchError, map } from 'rxjs/operators';
 import { BaseResponseModel, TaskTypeModel } from '@aavantan-app/models';
 import { Observable } from 'rxjs';
 import { cloneDeep } from 'lodash';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class TaskTypeService extends BaseService<TaskTypeStore, TaskTypeState> {
   constructor(protected notification: NzNotificationService, protected taskTypeStore: TaskTypeStore, private _http: HttpWrapperService, private _generalService: GeneralService) {
     super(taskTypeStore, notification);
-
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   getAllTaskTypes(projectId: string) {

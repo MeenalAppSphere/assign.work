@@ -15,10 +15,10 @@ export class InvitationService extends BaseService<InvitationStore, InvitationSt
               private _generalService: GeneralService, protected notification: NzNotificationService,
               private _userService: UserService) {
     super(_invitationStore, notification);
-
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   acceptInvitation(invitationId: string) {

@@ -29,7 +29,7 @@
     <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
       <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
         <h5>{{taskId ? displayName : 'Create Task'}}
-          <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTitle]="templateTitleText"
+          <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTooltipTitle]="templateTitleText"
                class="p-l-10 m-r-20"/>
 
           <span *ngIf="taskId && taskData?.createdBy" class="font-size-12 d-inline-flex">
@@ -63,7 +63,7 @@
                   <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                           style="width: 100%!important;">
                     <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                    {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                    {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                   </button>
                 </nz-button-group>
                 <nz-dropdown-menu #createTaskType="nzDropdownMenu">
@@ -126,7 +126,7 @@
                     <span *ngIf="!selectedStatus?.color" class="fas fa-square m-r-5" [ngStyle]="{'color': '#cccccc' }"></span>
 
                     {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}}
-                    <i nz-icon nzType="caret-down" theme="outline"></i>
+                    <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                   </button>
                 </nz-button-group>
                 <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">
@@ -154,7 +154,7 @@
                     <span *ngIf="!selectedPriority?.color" class="p-r-5" [ngStyle]="{'border-left':'5px solid #ccc', 'height':'12px'}"></span>
 
                     {{selectedPriority && selectedPriority.name ? selectedPriority.name : 'Select Priority' }}
-                    <i nz-icon nzType="caret-down" theme="outline"></i>
+                    <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                   </button>
                 </nz-button-group>
 
@@ -320,9 +320,9 @@
         <div class="row floating-save-btns">
           <div class="col-md-12 text-right">
 
-            <button type="button" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            <button type="button" *ngxPermissionsOnly="['canAdd_task']" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
-            <button type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
+            <button *ngxPermissionsOnly="['canAdd_task']" type="submit" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" nz-button
                     nzType="primary" class="m-r-5 btn-save-task">Save
             </button>
 
@@ -347,9 +347,9 @@
         <div class="row" style="padding-top: 10px; border-top: 2px solid #e1e3e5; margin-top: 10px;">
           <div class="col-md-12 text-right">
             <button type="button" routerLink="../../backlog" nz-button nzType="link" class="m-r-5">Backlogs</button>
-            <button type="button" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
+            <button type="button" *ngxPermissionsOnly="['canAdd_task']" (click)="resetTaskForm()" nz-button nzType="default" class="m-r-5">Create new Task
             </button>
-            <button [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" type="submit" nz-button nzSize="small"
+            <button *ngxPermissionsOnly="['canAdd_task']" [nzLoading]="createTaskInProcess" [disabled]="uploadingImage" type="submit" nz-button nzSize="small"
                     nzType="primary">Save
             </button>
           </div>
@@ -441,12 +441,12 @@
         <div class="col-md-11 text-right">
             <div class="d-flex float-right add-task-to-sprint">
 
-              <button *ngIf="taskData?.sprintId" nzType="primary" class="remove" nzSize="small" nz-button nz-tooltip nzTitle="Remove from running sprint"
+              <button *ngIf="taskData?.sprintId" nzType="primary" class="remove" nzSize="small" nz-button nz-tooltip nzTooltipTitle="Remove from running sprint"
                       (click)="removeTaskToSprint()">
                 <i nz-icon nzType="close" nzTheme="outline"></i>Remove From Sprint
               </button>
 
-              <button *ngIf="sprintData?.id && !taskData?.sprintId" class="add" nzType="primary" nzSize="small"  nz-button nz-tooltip nzTitle="Add to running sprint"
+              <button *ngIf="sprintData?.id && !taskData?.sprintId" class="add" nzType="primary" nzSize="small"  nz-button nz-tooltip nzTooltipTitle="Add to running sprint"
                       (click)="addTaskToSprint()">
                 <i nz-icon nzType="plus" nzTheme="outline"></i>Add to Sprint
               </button>
@@ -456,7 +456,7 @@
 <!--                <i nz-icon nzType="plus" theme="outline"></i> Create New Epic-->
 <!--              </button>-->
 
-              <button class="m-l-10" [disabled]="!taskId" nzType="link" nzSize="small" nz-button nz-tooltip nzTitle="Log your working time"
+              <button class="m-l-10" [disabled]="!taskId" nzType="link" nzSize="small" nz-button nz-tooltip nzTooltipTitle="Log your working time"
                       (click)="timeLog()">
                 Log Time
               </button>

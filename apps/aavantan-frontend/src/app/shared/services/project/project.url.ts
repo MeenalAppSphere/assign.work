@@ -29,6 +29,8 @@ export const ProjectUrls = {
   removePriority: `${createUrl('task-priority/remove')}`,
 
   updateCapacity: `${createUrl('project/:projectId/update-working-capacity')}`,
-  searchTags: `${createUrl('project/search-tags')}`
+  searchTags: `${createUrl('project/search-tags')}`,
+
+  changeAccess: createUrl('project/update-collaborators-role')
 
 };

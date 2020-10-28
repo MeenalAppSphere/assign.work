@@ -30,12 +30,12 @@
                 </p>
                 <i *ngIf="item.id===currentOrganization?.id" class="fas fa-check text-success float-right selected-org-check p-l-5"></i>
             </li>
-<!--          <li  nz-menu-item (click)="organizationModalShow();" class="d-inline-flex add-org-item">-->
-<!--            <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="+"></nz-avatar>-->
-<!--            <p class="font-size-14 d-inline-block text-gray-light m-b-0 p-t-5" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="white-space: normal;width: 80%;">Add Organization-->
-<!--            </p>-->
-<!--            <i class="fas plus text-success float-right selected-org-check p-l-5"></i>-->
-<!--          </li>-->
+          <li  nz-menu-item (click)="organizationModalShow();" class="d-inline-flex add-org-item">
+            <nz-avatar [nzShape]="'square'" [nzSize]="32" class="icon-org-list text-uppercase m-0 m-r-10" nzText="+"></nz-avatar>
+            <p class="font-size-14 d-inline-block text-gray-light m-b-0 p-t-5" nz-paragraph nzEllipsis [nzEllipsisRows]="1" style="white-space: normal;width: 80%;">Add Organization
+            </p>
+            <i class="fas plus text-success float-right selected-org-check p-l-5"></i>
+          </li>
 
         </ul>
 
@@ -46,17 +46,19 @@
             'ant-menu-inline-collapsed': isFolded,
             'ant-menu-dark' : isSideNavDark
         }">
-            <li (click)="closeSideNav()" [ngClass]="item.submenu.length > 0?'ant-menu-submenu ant-menu-submenu-inline':'ant-menu-item'" *ngFor="let item of menuItems" [routerLinkActive]="item.submenu.length > 0 ? 'ant-menu-submenu-open' : 'ant-menu-item-selected'" [routerLinkActiveOptions]="{exact: true}">
+            <li (click)="closeSideNav()" [ngClass]="item.submenu.length > 0?'ant-menu-submenu ant-menu-submenu-inline':'ant-menu-item'"
+                *ngFor="let item of menuItems" [routerLinkActive]="item.submenu.length > 0 ? 'ant-menu-submenu-open' : 'ant-menu-item-selected'"
+                [routerLinkActiveOptions]="{exact: true}">
                 <a href="javascript:void(0);" class="ant-menu-submenu-title" *ngIf="item.submenu.length > 0">
                     <span class="img-menu-svg"><img *ngIf="item.iconType == ''" src="../../../../assets/images/icons/{{item.img}}" height="16"></span>
-                    <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [theme]="item.iconTheme"></i>
+                    <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [nzTheme]="item.iconTheme"></i>
                     <i *ngIf="item.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[item.iconTheme , item.icon]"></i>
                     <span>{{item.title}}</span>
                     <i class="ant-menu-submenu-arrow"></i>
                 </a>
-                <a [routerLink]="item.path" nz-tooltip nzPlacement="bottom" n [nzTitle]="isFolded ? item.title : ''" *ngIf="!item.submenu.length > 0">
+                <a [routerLink]="item.path" nz-tooltip nzTooltipPlacement="bottom" n [nzTooltipTitle]="isFolded ? item.title : ''" *ngIf="!item.submenu.length > 0">
                     <span class="img-menu-svg"><span *ngIf="item.iconType == ''" ngClass="{{item.img}}"></span></span>
-                    <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [theme]="item.iconTheme"></i>
+                    <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [nzTheme]="item.iconTheme"></i>
                     <i *ngIf="item.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[item.iconTheme , item.icon]"></i>
                     <span class="m-l-15" *ngIf="!isFolded">{{item.title}}</span>
                 </a>
@@ -66,14 +68,14 @@
                     <li (click)="closeSideNav()" [ngClass]="subItem.submenu.length > 0?'ant-menu-submenu ant-menu-submenu-inline':'ant-menu-item'" *ngFor="let subItem of item.submenu" [routerLinkActive]="subItem.submenu.length > 0 ? 'ant-menu-submenu-open' : 'ant-menu-item-selected'" [routerLinkActiveOptions]="{exact: true}">
                         <a href="javascript:void(0);" class="ant-menu-submenu-title p-l-50" *ngIf="subItem.submenu.length > 0">
                             <img *ngIf="item.iconType == ''" src="../../../../assets/images/icons/{{item.img}}" height="16">
-                            <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [theme]="subItem.iconTheme"></i>
+                            <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [nzTheme]="subItem.iconTheme"></i>
                             <i *ngIf="subItem.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[subItem.iconTheme , subItem.icon]"></i>
                             <span>{{subItem.title}}</span>
                             <i class="ant-menu-submenu-arrow"></i>
                         </a>
                         <a [routerLink]="subItem.path" class="p-l-30" *ngIf="!subItem.submenu.length > 0">
                             <img *ngIf="item.iconType == ''" src="../../../../assets/images/icons/{{item.img}}" height="16">
-                            <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [theme]="subItem.iconTheme"></i>
+                            <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [nzTheme]="subItem.iconTheme"></i>
                             <i *ngIf="subItem.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[subItem.iconTheme , subItem.icon]"></i>
                             <span>{{subItem.title}}</span>
                         </a>
@@ -82,13 +84,13 @@
                         <ul class="ant-menu ant-menu-inline ant-menu-sub dropdown-menu" *ngIf="subItem.submenu.length > 0">
                             <li (click)="closeSideNav()"  [ngClass]="subItem.submenu.length > 0?'ant-menu-submenu ant-menu-submenu-inline':'ant-menu-item'" *ngFor="let subItem of subItem.submenu" routerLinkActive="ant-menu-item-selected" [routerLinkActiveOptions]="{exact: true}">
                                 <a href="javascript:void(0);" class="ant-menu-submenu-title p-l-50" *ngIf="subItem.submenu.length > 0">
-                                    <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [theme]="subItem.iconTheme"></i>
+                                    <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [nzTheme]="subItem.iconTheme"></i>
                                     <i *ngIf="subItem.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[subItem.iconTheme , subItem.icon]"></i>
                                     <span>{{subItem.title}}</span>
                                     <i class="ant-menu-submenu-arrow"></i>
                                 </a>
                                 <a [routerLink]="subItem.path" class="p-l-50" *ngIf="!subItem.submenu.length > 0">
-                                    <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [theme]="subItem.iconTheme"></i>
+                                    <i *ngIf="subItem.iconType == 'nzIcon'" nz-icon [nzType]="subItem.icon" [nzTheme]="subItem.iconTheme"></i>
                                     <i *ngIf="subItem.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[subItem.iconTheme , subItem.icon]"></i>
                                     <span>{{subItem.title}}</span>
                                 </a>
@@ -139,7 +141,7 @@
 </div>
 
 
-<div class="btn-floating-container {{ 'is-' + selectedHeaderColor }}"
+<div *ngxPermissionsOnly="['canAdd_task']" class="btn-floating-container {{ 'is-' + selectedHeaderColor }}"
      [ngClass]="{
         'is-folded': isFolded,
         'is-side-nav-dark' : isSideNavDark,
@@ -147,7 +149,7 @@
     }">
   <a *ngIf="isFolded" href="javascript:void(0);"
        [ngStyle]="{'background':isFolded ? '#ffffff20' : 'none' }"
-       (click)="createNewTask()" class="btn-floating" nz-button nzType="primary" nzSize="small" nzShape="round" nzTitle="Create Task" nzPlacement="right" nz-tooltip>
+       (click)="createNewTask()" class="btn-floating" nz-button nzType="primary" nzSize="small" nzShape="round" nzTooltipTitle="Create Task" nzTooltipPlacement="right" nz-tooltip>
     +
   </a>
 
@@ -186,8 +188,9 @@
 <!--region add organization -->
 <ng-container *ngIf="organizationModalIsVisible">
   <aavantan-app-organisation
+    [createOnly] = "true"
     [organizationModalIsVisible]="organizationModalIsVisible"
-    (toggleShow)="organizationModalShow()">
+    (toggleShow)="organizationModalHide()">
   </aavantan-app-organisation>
 </ng-container>
 <!--endregion-->

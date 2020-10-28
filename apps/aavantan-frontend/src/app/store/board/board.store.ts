@@ -10,6 +10,7 @@ export interface BoardState {
   hiddenStatuses: TaskStatusModel[];
 
   createBoardInProcess: boolean;
+  createBoardInSuccess: boolean;
   updateBoardInProcess: boolean;
   deleteBoardInProcess: boolean;
   publishBoardInProcess: boolean;
@@ -33,6 +34,7 @@ const initialState: BoardState = {
   hiddenStatuses: [],
 
   createBoardInProcess: false,
+  createBoardInSuccess:false,
   updateBoardInProcess: false,
   deleteBoardInProcess: false,
   publishBoardInProcess: false,

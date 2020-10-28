@@ -30,6 +30,7 @@ export const projectSchema = new Schema({
     workingDays: {
       type: Array, default: DEFAULT_WORKING_DAYS
     },
+    userRoleId: { type: Schema.Types.ObjectId, ref: DbCollection.userRole },
     isRemoved: { type: Boolean, default: false }
   },
   organizationId: {
@@ -129,6 +130,14 @@ projectSchema
   .virtual('sprint', {
     ref: DbCollection.sprint,
     localField: 'sprintId',
+    foreignField: '_id',
+    justOne: true
+  });
+
+projectSchema
+  .virtual('members.roleDetails', {
+    ref: DbCollection.userRole,
+    localField: 'members.userRoleId',
     foreignField: '_id',
     justOne: true
   });

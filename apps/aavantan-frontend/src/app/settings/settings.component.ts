@@ -1,22 +1,26 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  AccessPermissionVM, AccessRoleGroupEnum,
   BoardModel,
   BoardModelBaseRequest,
   GetAllBoardsRequestModel,
-  GetAllProjectsModel,
   Organization,
+  Permissions,
   Project,
   ProjectMembers,
   ProjectPriority,
   ProjectStages,
   ProjectStatus,
   ProjectWorkingCapacityUpdateDto,
+  SaveAndPublishBoardModel,
   ProjectWorkingDays, RecallProjectInvitationModel,
-  ResendProjectInvitationModel, SaveAndPublishBoardModel,
+  ResendProjectInvitationModel,
   SearchProjectCollaborators,
-  SearchUserModel, TaskStatusModel,
+  SearchUserModel, SettingPageTab,
+  TaskStatusModel,
   TaskTypeModel,
-  User
+  User,
+  UserRoleModel
 } from '@aavantan-app/models';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ValidationRegexService } from '../shared/services/validation-regex.service';
@@ -36,12 +40,17 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardQuery } from '../queries/board/board.query';
 import { BoardService } from '../shared/services/board/board.service';
 import { Router } from '@angular/router';
+import { Config } from 'aws-sdk/lib/config';
+import { ProjectQuery } from '../queries/project/project.query';
+import { UserRoleService } from '../shared/services/user-role/user-role.service';
+import { UserRoleQuery } from '../queries/user-role/user-role.query';
+import { PERMISSIONS } from '../../../../../libs/models/src/lib/constants/permission';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Component({
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
-
 export class SettingsComponent implements OnInit, OnDestroy {
   public response: any;
   public collaboratorForm: FormGroup;
@@ -61,10 +70,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public projectForm: FormGroup;
   public taskTypeForm: FormGroup;
   public priorityForm: FormGroup;
+  public userRoleForm: FormGroup;
 
   public activeView: any = {
-    title: 'Project',
-    view: 'project'
+    title:"Project"
   };
 
   public selectedAssignee: User = {};
@@ -121,21 +130,88 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public addTaskTypeModalIsVisible: boolean;
   public getBoardListRequestModal: GetAllBoardsRequestModel = new GetAllBoardsRequestModel();
 
-
   public moveStatusModalIsVisible: boolean;
 
-  public assigneeModelChanged = new Subject<string>();
+
+  //security permissions
+  public permissionsList: AccessPermissionVM[] = [];
+  public permissionsObj: Permissions = {};
+  public permissionConst = cloneDeep(PERMISSIONS);
+
+  public updateUserRoleModalIsVisible: boolean;
+  public updateUserRoleData: ProjectMembers;
+  public requestRoleInProcess: boolean;
+  public roleList: UserRoleModel[] = [];
+  public roleData: UserRoleModel;
+
+  public tabs: SettingPageTab[] = [
+    {
+      label: 'Project',
+      id: AccessRoleGroupEnum.project,
+      icon: 'project_setting.svg',
+      iconActive: 'white_project_setting.svg'
+    },
+    {
+      label: 'Board Settings',
+      id: AccessRoleGroupEnum.boardSettings,
+      icon: 'board_settings.svg',
+      iconActive: 'white_board_settings.svg'
+    },
+    {
+      label: 'Collaborators',
+      id: AccessRoleGroupEnum.collaborators,
+      icon: 'collaborator.svg',
+      iconActive: 'white_collaborator.svg'
+    },
+    {
+      label: 'Status',
+      id: AccessRoleGroupEnum.status,
+      icon: 'status.svg',
+      iconActive: 'white_status.svg'
+    },
+    {
+      label: 'Priority',
+      id: AccessRoleGroupEnum.priority,
+      icon: 'priority.svg',
+      iconActive: 'white_priority.svg'
+    },
+    {
+      label: 'Task Type',
+      id: AccessRoleGroupEnum.taskType,
+      icon: 'task_type.svg',
+      iconActive: 'white_task_type.svg'
+    },
+    {
+      label: 'Team Capacity',
+      id: AccessRoleGroupEnum.teamCapacity,
+      icon: 'team_capacity.svg',
+      iconActive: 'white_team_capacity.svg'
+    },
+    {
+      label: 'Access Control',
+      id: 'security',
+      icon: 'security.svg',
+      iconActive: 'white_security.svg'
+    }
+  ];
+  // for permission
+  public currentUserRole: UserRoleModel;
 
   constructor(protected notification: NzNotificationService, private FB: FormBuilder, private validationRegexService: ValidationRegexService,
               private _generalService: GeneralService, private _projectService: ProjectService, private _userQuery: UserQuery,
               private _userService: UserService, private modalService: NzModalService, private _taskTypeService: TaskTypeService,
               private _taskStatusQuery: TaskStatusQuery, private _taskPriorityQuery: TaskPriorityQuery, private _boardQuery: BoardQuery,
               private _taskTypeQuery: TaskTypeQuery, private _boardService: BoardService, private router: Router,
-              private modal: NzModalService) {
+              private modal: NzModalService,
+              private _projectQuery: ProjectQuery,
+              private _userRolesService: UserRoleService,
+              private _userRoleQuery: UserRoleQuery,
+              private permissionsService: NgxPermissionsService) {
 
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+      //  this.notification.info("message","success",{nzPlacement:'bottomRight'});
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
 
     this.getBoardListRequestModal.count = 20;
     this.getBoardListRequestModal.page = 1;
@@ -146,33 +222,77 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.currentOrganization = this._generalService.currentOrganization;
 
-    // get current project from store
-    this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      if (res) {
-        this.currentProject = res;
-        this.stagesList = res.settings.stages;
-        this.projectMembersList = cloneDeep(res.members.filter(member => {
-          return !member.isRemoved;
-        }));
 
-        this.totalCapacity = 0;
-        this.totalCapacityPerDay = 0;
-
-        if (this.projectMembersList && this.projectMembersList.length > 0) {
-          this.projectCapacityMembersList = this.projectMembersList.filter((ele) => {
-            if (ele.isInviteAccepted) {
-              return ele;
-            }
-          });
-          this.projectCapacityMembersList.forEach((ele) => {
-            this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
-            this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
-          });
-        }
-
-        this.bindProjectForm();
+    // Get all access which is loaded from dashboard component from userRoles
+    this.permissionsService.permissions$.subscribe((permission) => {
+      if (!permission['canView_settingsMenu']) {
+        this.router.navigate(['dashboard', 'no-access']);
       }
+
+      const havePermissions = [];
+      let foundActive: boolean = false;
+
+      Object.keys(permission).forEach(key => {
+        havePermissions.push(permission[key].name);
+      });
+
+      const recur = (obj: any, group: string) => {
+        Object.keys(obj).forEach(key => {
+          if (havePermissions.includes(key) && !foundActive && !this.activeView.view) {
+            this.activeView.view = group;
+            foundActive = true;
+          }
+        });
+      };
+
+      Object.keys(this.permissionConst).forEach(key => {
+        if (typeof this.permissionConst[key] !== 'boolean') {
+          recur(this.permissionConst[key], key);
+        }
+      });
+
     });
+
+    // get current project from store
+    this._userQuery.currentProject$
+      .pipe(untilDestroyed(this))
+      .subscribe(res => {
+        if (res) {
+          this.currentProject = res;
+          this.stagesList = res.settings.stages;
+          this.projectMembersList = cloneDeep(res.members.filter(member => {
+            return !member.isRemoved;
+          }));
+
+          this.totalCapacity = 0;
+          this.totalCapacityPerDay = 0;
+          if (this.projectMembersList && this.projectMembersList.length > 0) {
+            this.projectCapacityMembersList = this.projectMembersList.filter(
+              ele => {
+                if (ele.isInviteAccepted) {
+                  return ele;
+                }
+              }
+            );
+            this.projectCapacityMembersList.forEach(ele => {
+              this.totalCapacity =
+                this.totalCapacity + Number(ele.workingCapacity);
+              this.totalCapacityPerDay =
+                this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
+            });
+          }
+
+          if(this.activeView.view === 'boardSettings') {
+            this.activeTab(this.activeView.view,'Board Settings')
+          }
+          if(this.activeView.view === 'security') {
+            this.activeTab(this.activeView.view,'Access Control')
+          }
+          // bind project form after data
+          this.bindProjectForm();
+        }
+      });
+
 
     // get all boards
     this._boardQuery.boards$.pipe(untilDestroyed(this)).subscribe(boards => {
@@ -212,44 +332,42 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.selectedPriority = this.priorityList.find(priority => priority.id === this.currentProject.settings.defaultTaskPriorityId);
     });
 
-    // search default assignee
-    this.assigneeModelChanged
-      .pipe(
-        debounceTime(500))
-      .subscribe(() => {
-        const queryText = this.projectForm.get('assigneeId').value.trim();
-        const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;
-        if (!queryText || this.projectForm.get('assigneeId').value === name) {
-          return;
-        }
-        this.isSearchingDefaultAssignee = true;
-        const json: SearchProjectCollaborators = {
-          projectId: this._generalService.currentProject.id,
-          query: queryText
-        };
-        this._userService.searchProjectCollaborator(json).subscribe((data) => {
-          this.isSearchingDefaultAssignee = false;
-          this.assigneeDataSource = data.data;
-        });
-      });
-    // end default search assignee
+    // get all roles from store
+    this._userRoleQuery.roles$.pipe(untilDestroyed(this)).subscribe(roles => {
+      this.roleList = roles;
+    });
 
+    // get current user role from store
+    this._userQuery.userRole$.pipe(untilDestroyed(this)).subscribe(res => {
+      if (res) {
+        this.currentUserRole = res;
+      }
+    });
+
+    // Form for collaborator tab
     this.collaboratorForm = this.FB.group({
       collaborator: new FormControl(null, [Validators.required])
     });
 
+    // Form for stage tab
     this.stageForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
 
+    // Form for status tab
     this.statusForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
 
+    // Form for workflow tab
     this.workflowForm = this.FB.group({
       name: new FormControl(null, [Validators.required])
     });
 
+    // init project form
+    this.createProjectForm();
+
+    // Form for priority tab
     this.taskTypeForm = this.FB.group({
       displayName: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [Validators.required]),
@@ -258,20 +376,34 @@ export class SettingsComponent implements OnInit, OnDestroy {
       projectId: new FormControl(this.currentProject.id)
     });
 
+    // Form for priority tab
     this.priorityForm = this.FB.group({
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required])
     });
 
+    // Form for security tab
+    this.userRoleForm = this.FB.group({
+      name: new FormControl(null, [Validators.required]),
+      accessPermissions: new FormControl([], [Validators.required]),
+      description: new FormControl(null)
+    });
+
+    // init/prepare all permissions list from 'PERMISSIONS' const
+    this.generatePermissionsList(PERMISSIONS);
+
+    // get Projects
     this.getProjects();
 
     // search collaborators
     this.modelChangedSearchCollaborators
-      .pipe(
-        debounceTime(500))
+      .pipe(debounceTime(500))
       .subscribe(() => {
         this.isCollaboratorExits = false;
-        const queryText = this.collaboratorForm.get('collaborator').value.trim();
+        let queryText = this.collaboratorForm.get('collaborator').value;
+        if (typeof queryText === 'string' && queryText) {
+          queryText = queryText.trim();
+        }
         let name = '';
         if (this.selectedCollaborator) {
           name = this.selectedCollaborator.firstName + ' ' + this.selectedCollaborator.lastName;
@@ -293,30 +425,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
           }
         });
 
-
-        this._userService.searchOrgUser(json).subscribe((data) => {
+        this._userService.searchOrgUser(json).subscribe(data => {
           this.isSearching = false;
           this.collaboratorsDataSource = data.data;
-          if (this.collaboratorsDataSource && this.collaboratorsDataSource.length === 0 && !this.validationRegexService.emailValidator(queryText).invalidEmailAddress) {
-
+          if (
+            this.collaboratorsDataSource &&
+            this.collaboratorsDataSource.length === 0 &&
+            !this.validationRegexService.emailValidator(queryText)
+              .invalidEmailAddress
+          ) {
             if (!this.isCollaboratorExits) {
               this.enableInviteBtn = true;
             }
-
           } else {
             this.enableInviteBtn = false;
           }
         });
-
-
       });
     // end search collaborators
 
-
     // search default assignee
     this.modelChangedSearchDefaultAssignee
-      .pipe(
-        debounceTime(500))
+      .pipe(debounceTime(500))
       .subscribe(() => {
         const queryText = this.workflowForm.get('assigneeId').value.trim();
         const name = this.selectedDefaultAssignee.firstName + ' ' + this.selectedDefaultAssignee.lastName;
@@ -328,14 +458,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
           projectId: this._generalService.currentProject.id,
           query: queryText
         };
-        this._userService.searchProjectCollaborator(json).subscribe((data) => {
+        this._userService.searchProjectCollaborator(json).subscribe(data => {
           this.isSearchingDefaultUser = false;
           this.defaultAssigneeDataSource = data.data;
         });
-
       });
     // end search assignee
-
   }
 
   public createProjectForm() {
@@ -354,24 +482,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
    * bind current project value in project form
    */
   public bindProjectForm() {
-    this.projectForm.patchValue({
-      id: this.currentProject.id,
-      name: this.currentProject.name,
-      organizationId: this.currentProject.organizationId,
-      defaultTaskTypeId: this.currentProject.settings.defaultTaskTypeId,
-      defaultTaskStatusId: this.currentProject.settings.defaultTaskStatusId,
-      defaultTaskPriorityId: this.currentProject.settings.defaultTaskPriorityId
-    });
+    setTimeout(() => {
+      this.projectForm.patchValue({
+        id: this.currentProject.id,
+        name: this.currentProject.name,
+        organizationId: this.currentProject.organizationId,
+        defaultTaskTypeId: this.currentProject.settings.defaultTaskTypeId,
+        defaultTaskStatusId: this.currentProject.settings.defaultTaskStatusId,
+        defaultTaskPriorityId: this.currentProject.settings.defaultTaskPriorityId
+      });
+    }, 200);
   }
 
   public getProjects() {
     try {
-      const json: GetAllProjectsModel = {
-        organizationId: this._generalService.currentOrganization.id
-      };
-      this._projectService.getAllProject(json).subscribe((data) => {
-        this.projectListData = data.data.items;
-        this.getProjectsInProcess = false;
+      this._projectQuery.projects$.pipe(untilDestroyed(this)).subscribe(res => {
+        if (res && res.length > 0) {
+          this.projectListData = res;
+        }
       });
     } catch (e) {
       this.getProjectsInProcess = false;
@@ -380,33 +508,60 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public async getAllBoards() {
     try {
-      const result = await this._boardService.getAllBoards(this.getBoardListRequestModal).toPromise();
+      const result = await this._boardService
+        .getAllBoards(this.getBoardListRequestModal)
+        .toPromise();
       this.getBoardListRequestModal.page = result.data.page;
       this.getBoardListRequestModal.count = result.data.count;
       this.getBoardListRequestModal.totalItems = result.data.totalItems;
       this.getBoardListRequestModal.totalPages = result.data.totalPages;
     } catch (e) {
     }
-
   }
 
   public activeTab(view: string, title: string) {
     // get all boards list when board settings tab get's activate
-    if (view === 'board_settings') {
+    if (view === 'boardSettings') {
       this.getBoardListRequestModal.projectId = this.currentProject.id;
       this.getAllBoards();
+    }
+    if (view === 'security') {
+      this.resetRoleForm(); // init roleData object
     }
     this.activeView = {
       title: title,
       view: view
     };
+
+  }
+
+  /*=======================================================*/
+  /*================== Project tab ==================*/
+
+  /*=======================================================*/
+
+  public selectTaskType(item: TaskTypeModel) {
+    this.selectedTaskType = item;
+    this.projectForm.get('defaultTaskTypeId').patchValue(item.id);
+  }
+
+  public selectPriority(item: ProjectPriority) {
+    this.selectedPriority = item;
+    this.projectForm.get('defaultTaskPriorityId').patchValue(item.id);
+  }
+
+  public selectStatus(item: ProjectStatus) {
+    this.selectedStatus = item;
+    this.projectForm.get('defaultTaskStatusId').patchValue(item.id);
   }
 
   public saveProject() {
     this.updateProjectDetails(this.projectForm.value);
   }
 
+  /*=======================================================*/
   /*================== Collaborators tab ==================*/
+  /*=======================================================*/
 
   // if user is exits while search then remove button enable to clear
   public clearCollaboratorSearchText() {
@@ -423,6 +578,39 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  //**********************//
+  // Remove Collaborators
+  //**********************//
+  async removeCollaborators(user: ProjectMembers) {
+    try {
+      this.modalService.confirm({
+        nzTitle:
+          'Are you sure want to remove this Collaborator from this Project?',
+        nzOnOk: () => {
+          this.modalService.closeAll();
+
+          this.removeCollaboratorInProcess = false;
+          const json: any = {
+            projectId: this._generalService.currentProject.id,
+            userId: user.userId
+          };
+
+          this.projectMembersList = this.projectMembersList.filter(
+            item => item.emailId !== user.emailId
+          );
+          // await this._projectService.removeCollaborators(json).toPromise();
+          this.removeCollaboratorInProcess = false;
+        }
+      });
+    } catch (e) {
+      this.removeCollaboratorInProcess = false;
+    }
+  }
+
+  //**********************//
+  // Resend Invitation
+  //**********************//
   async resendInvitation(user: ProjectMembers) {
     try {
       this.resendInviteInProcess = true;
@@ -438,6 +626,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  //**********************//
+  // Add member to project
+  //**********************//
   async addMembers() {
     this.addCollaboratorsInProcess = true;
     const members: ProjectMembers[] = [];
@@ -449,7 +640,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     try {
-      await this._projectService.addCollaborators(this.currentProject.id, members).toPromise();
+      await this._projectService
+        .addCollaborators(this.currentProject.id, members)
+        .toPromise();
       this.selectedCollaborators = [];
       this.addCollaboratorsInProcess = false;
       this.collaboratorForm.get('collaborator').patchValue('');
@@ -458,6 +651,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  //**********************//
+  // Add selected Collabarator list
+  //**********************//
   public addCollaborators(isInvite?: boolean) {
     let emailData = null;
 
@@ -479,7 +675,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     };
 
     this.response = this.validationRegexService.emailValidator(user.emailId);
-    if (this.selectedCollaborators.filter(item => item.emailId === user.emailId).length === 0) {
+    if (
+      this.selectedCollaborators.filter(item => item.emailId === user.emailId)
+        .length === 0
+    ) {
       if (!this.response.invalidEmailAddress) {
         this.projectMembersList.push({
           userId: user.id,
@@ -513,6 +712,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  //**********************//
+  // Select Assignee form Typeahead DDL
+  //**********************//
   public selectAssigneeTypeahead(user: User) {
     if (user && user.emailId) {
       this.selectedCollaborator = user;
@@ -521,7 +723,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.modelChangedSearchCollaborators.next();
   }
 
+  //**********************//
+  // Toggle User Role modal
+  //**********************//
+  public toggleUpdateUserRoleShow(item?: ProjectMembers) {
+    if (item) {
+      this.updateUserRoleData = item;
+    }
+    this.updateUserRoleModalIsVisible = !this.updateUserRoleModalIsVisible;
+  }
+
+  /*===============================================*/
   /*================== Stage tab ==================*/
+
+  /*===============================================*/
+
   public addStage() {
     if (this.stageForm.invalid) {
       this.notification.error('Error', 'Please check Stage title');
@@ -531,71 +747,39 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const stageData: ProjectStages = this.stageForm.value;
     stageData.name = stageData.name.trim();
 
-    this._projectService.addStage(this.currentProject.id, stageData).subscribe((res => {
-      this.stageForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
+    this._projectService.addStage(this.currentProject.id, stageData).subscribe(
+      res => {
+        this.stageForm.reset();
+        this.updateRequestInProcess = false;
+      },
+      error => {
+        this.updateRequestInProcess = false;
+      }
+    );
   }
 
   public removeStage(stage: ProjectStages) {
     this.deleteStageInProcess = true;
-    this._projectService.removeStage(this.currentProject.id, stage.id).subscribe((res => {
-      this.deleteStageInProcess = false;
-    }), (error => {
-      this.deleteStageInProcess = false;
-    }));
+    this._projectService
+      .removeStage(this.currentProject.id, stage.id)
+      .subscribe(
+        res => {
+          this.deleteStageInProcess = false;
+        },
+        error => {
+          this.deleteStageInProcess = false;
+        }
+      );
   }
 
   public reorderList(ev: any) {
     console.log(this.stagesList);
   }
 
-  /*================ Status ==================*/
-  public addStatus() {
+  /*===============================================*/
+  /*================== Status tab =================*/
 
-    if (this.statusForm.invalid) {
-      this.notification.error('Error', 'Please check Status title');
-      return;
-    }
-
-    const statusData: ProjectStatus = this.statusForm.value;
-    statusData.name = statusData.name.trim();
-    this.updateRequestInProcess = true;
-
-    this._projectService.addStatus(this.currentProject.id, statusData).subscribe((res => {
-      this.statusForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
-  }
-
-  public removeStatus(status: ProjectStatus) {
-    this.deleteStatusInProcess = true;
-
-    try {
-      this.modal.confirm({
-        nzTitle: 'Do you really want to remove status?',
-        nzContent: '',
-        nzOnOk: () =>
-          new Promise(async (resolve, reject) => {
-
-            // await this._projectService.removeStatus(this.currentProject.id, status.id);
-
-            this.moveStatusModalIsVisible = true;
-
-            setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
-
-            resolve();
-          }).catch(() => console.log('Oops errors!'))
-      });
-    } catch (e) {
-      console.log(e);
-    }
-
-  }
+  /*===============================================*/
 
   public toggleMoveStatusShow(data: any) {
     this.moveStatusModalIsVisible = !this.moveStatusModalIsVisible;
@@ -610,14 +794,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.addStatusModalIsVisible = !this.addStatusModalIsVisible;
   }
 
-  public removePriority(item: ProjectPriority) {
-    this.deletePriorityInProcess = true;
-    this._projectService.removePriority(this.currentProject.id, item.id).subscribe((res => {
-      this.deletePriorityInProcess = false;
-    }), (error => {
-      this.deletePriorityInProcess = false;
-    }));
-  }
+  /*===============================================*/
+  /*================== Priority tab ===============*/
+
+  /*===============================================*/
 
   public toggleAddPriorityShow(item?: ProjectPriority) {
     if (item) {
@@ -628,39 +808,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.addPriorityModalIsVisible = !this.addPriorityModalIsVisible;
   }
 
-  //================== task type ==================//
-  public saveTaskType() {
-    if (this.taskTypeForm.invalid) {
-      this.notification.error('Error', 'Please check Display name, Color and Task type');
-      return;
-    }
-    const dup: TaskTypeModel[] = this.typesList.filter((ele) => {
-      if (ele.color === this.taskTypeForm.value.color || ele.name === this.taskTypeForm.value.name || ele.displayName === this.taskTypeForm.value.displayName) {
-        return ele;
-      }
-    });
+  /*===============================================*/
+  /*================= Task Type tab ===============*/
 
-    if (dup && dup.length > 0) {
-      this.notification.error('Error', 'Duplicate Display Name, Color or Task type');
-      return;
-    }
-    this.updateRequestInProcess = true;
-    this._taskTypeService.createTaskType(this.taskTypeForm.value).subscribe((res => {
-      this.taskTypeForm.reset({ projectId: this.currentProject.id });
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
-  }
-
-  public removeTaskType(taskType: TaskTypeModel) {
-    this.deleteTaskTypeInProcess = true;
-    this._projectService.removeTaskType(this.currentProject.id, taskType.id).subscribe((res => {
-      this.deleteTaskTypeInProcess = false;
-    }), (error => {
-      this.deleteTaskTypeInProcess = false;
-    }));
-  }
+  /*===============================================*/
 
   public toggleAddTaskTypeShow(item?: TaskTypeModel) {
     if (item) {
@@ -671,24 +822,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.addTaskTypeModalIsVisible = !this.addTaskTypeModalIsVisible;
   }
 
+  /*===============================================*/
+  /*==================== Capacity =================*/
 
-  public copyName() {
-    // this.taskTypeForm.get('displayName').patchValue(this.taskTypeForm.get('name').value);
-  }
+  /*===============================================*/
 
-  //================== capacity ==================//
   public selectDay(wd: ProjectWorkingDays, userRow: ProjectMembers) {
     if (wd.selected) {
       wd.selected = false;
     } else {
       wd.selected = true;
     }
-    const countSelected = userRow.workingDays.filter((ele) => {
+    const countSelected = userRow.workingDays.filter(ele => {
       if (ele.selected) {
         return ele;
       }
     });
-    userRow.workingCapacity = userRow.workingCapacityPerDay * countSelected.length;
+    userRow.workingCapacity =
+      userRow.workingCapacityPerDay * countSelected.length;
     this.calculateTotal();
   }
 
@@ -696,9 +847,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const capacityList: ProjectWorkingCapacityUpdateDto[] = [];
     this.totalCapacity = 0;
     this.totalCapacityPerDay = 0;
-    this.projectCapacityMembersList.forEach((ele) => {
+    this.projectCapacityMembersList.forEach(ele => {
       this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
-      this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
+      this.totalCapacityPerDay =
+        this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
       const obj: ProjectWorkingCapacityUpdateDto = {
         userId: ele.userId,
         workingCapacityPerDay: ele.workingCapacityPerDay,
@@ -709,12 +861,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
 
     this.updateRequestInProcess = true;
-    this._projectService.updateCapacity(this.currentProject.id, capacityList).subscribe((res => {
-      // this.taskTypeForm.reset();
-      this.updateRequestInProcess = false;
-    }), (error => {
-      this.updateRequestInProcess = false;
-    }));
+    this._projectService
+      .updateCapacity(this.currentProject.id, capacityList)
+      .subscribe(
+        res => {
+          // this.taskTypeForm.reset();
+          this.updateRequestInProcess = false;
+        },
+        error => {
+          this.updateRequestInProcess = false;
+        }
+      );
   }
 
   public calculateTotal() {
@@ -722,9 +879,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.totalCapacityPerDay = 0;
 
     if (this.projectCapacityMembersList && this.projectMembersList.length > 0) {
-      this.projectCapacityMembersList.forEach((ele) => {
-
-        const countSelected = ele.workingDays.filter((ele1) => {
+      this.projectCapacityMembersList.forEach(ele => {
+        const countSelected = ele.workingDays.filter(ele1 => {
           if (ele1.selected) {
             return ele1;
           }
@@ -732,17 +888,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
         ele.workingCapacity = ele.workingCapacityPerDay * countSelected.length;
 
         this.totalCapacity = this.totalCapacity + Number(ele.workingCapacity);
-        this.totalCapacityPerDay = this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
-
+        this.totalCapacityPerDay =
+          this.totalCapacityPerDay + Number(ele.workingCapacityPerDay);
       });
     }
-
   }
 
-  //================== project tab ==================//
+  /*===============================================*/
+  /*================== Project Tab ================*/
+
+  /*===============================================*/
 
   public updateProjectDetails(project: Partial<Project>) {
     this.updateRequestInProcess = true;
+    this._projectService.updateProject(project).subscribe(
+      res => {
+        this.updateRequestInProcess = false;
+      },
+      error => {
+        this.updateRequestInProcess = false;
+      }
+    );
     this._projectService.updateProject(project).subscribe((res => {
       this.updateRequestInProcess = false;
     }), (error => {
@@ -754,40 +920,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.projectModalIsVisible = !this.projectModalIsVisible;
   }
 
-  public selectTaskType(item: TaskTypeModel) {
-    this.selectedTaskType = item;
-    this.projectForm.get('defaultTaskTypeId').patchValue(item.id);
-  }
+  /*===============================================*/
+  /*================== Workflow Tab ===============*/
 
-  public selectPriority(item: ProjectPriority) {
-    this.selectedPriority = item;
-    this.projectForm.get('defaultTaskPriorityId').patchValue(item.id);
-  }
-
-  public selectStatus(item: ProjectStatus) {
-    this.selectedStatus = item;
-    this.projectForm.get('defaultTaskStatusId').patchValue(item.id);
-  }
-
-
-  public selectDefaultAssigneeTypeahead(user: User) {
-    if (user && user.emailId) {
-      this.selectedAssignee = user;
-      let userName = user && user.firstName ? user.firstName : user.emailId;
-      if (user && user.firstName && user && user.lastName) {
-        userName = userName + ' ' + user.lastName;
-      }
-      this.projectForm.get('assigneeId').patchValue(userName);
-    }
-    this.assigneeModelChanged.next();
-  }
-
-  public clearAssigeeSearchText() {
-    this.projectForm.get('assigneeId').patchValue('');
-    this.selectedAssignee.profilePic = null;
-  }
-
-  //================== workflow =====================//
+  /*===============================================*/
 
   public editBoard(boardId: string) {
     this.router.navigate(['dashboard', 'board-setting', boardId]);
@@ -799,17 +935,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     request.projectId = this._generalService.currentProject.id;
 
     try {
-
       this.modal.confirm({
         nzTitle: 'You want to Publish?',
         nzContent: '',
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {
-
             await this._boardService.publishBoard(request).toPromise();
             this.getAllBoards();
             setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
-
           }).catch(() => console.log('Oops errors!'))
       });
     } catch (e) {
@@ -823,21 +956,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
     request.projectId = this._generalService.currentProject.id;
 
     try {
-
       this.modal.confirm({
         nzTitle: 'You want to delete?',
         nzContent: '',
         nzOnOk: () =>
           new Promise(async (resolve, reject) => {
-
             await this._boardService.deleteBoard(request).toPromise();
             this.getAllBoards();
 
             setTimeout(Math.random() > 0.5 ? resolve : reject, 10);
-
           }).catch(() => console.log('Oops errors!'))
       });
-
     } catch (e) {
       console.log(e);
     }
@@ -850,11 +979,159 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   public boardSortOrderChanged(sort: { key: string; value: string }) {
     this.getBoardListRequestModal.sort = sort.key;
-    this.getBoardListRequestModal.sortBy = sort.value === 'ascend' ? 'desc' : 'asc';
+    this.getBoardListRequestModal.sortBy =
+      sort.value === 'ascend' ? 'desc' : 'asc';
     this.getAllBoards();
+  }
+
+  /*===============================================*/
+  /*================== Security Tab ===============*/
+  /*===============================================*/
+
+  //**********************//
+  // Generate Permissions List from object
+  //**********************//
+  public formatGroupText(text) {
+    return text.replace(/([A-Z])/g, ' $1').trim();
+  }
+
+  public initPermissionData() {
+    this.roleData = { name: '', accessPermissions: cloneDeep(this.permissionConst), description: '' };
+  }
+
+  public generatePermissionsList(permissionConstantObj: Permissions) {
+    this.permissionsList = [];
+    const recur = (obj: any, group: string) => {
+      Object.keys(obj).forEach(key => {
+        const name = key.match(/[A-Z][a-z]*/g).join(' ').replace(group, ''); // to format "canRemove" like " Remove"
+        this.permissionsList.push({
+          name: name,
+          group: group,
+          value: key,
+          disabled: false,
+          checked: obj[key]
+        });
+      });
+    };
+
+    Object.keys(permissionConstantObj).forEach(key => {
+      if (typeof permissionConstantObj[key] !== 'boolean') {
+        recur(permissionConstantObj[key], key);
+      }
+    });
+
+    const groupByName = {};
+
+    this.permissionsList.forEach(function(a,index) {
+      groupByName[a.group] = groupByName[a.group] || [];
+      groupByName[a.group].push({
+        name: a.name,
+        group: a.group,
+        value: a.value,
+        disabled: false,
+        checked: a.checked,
+        isActive:index===0
+      });
+    });
+
+    this.permissionsObj = groupByName;
+  }
+
+  //**********************//
+  // // Create or Update user role
+  //**********************//
+
+  async saveUserRole() {
+    try {
+      if (this.userRoleForm.invalid) {
+        this.notification.error('Error', 'Please check Role');
+        return;
+      }
+
+      const json: UserRoleModel = { ...this.userRoleForm.getRawValue() };
+      json.projectId = this._generalService.currentProject.id;
+
+      // update role
+
+      if (this.roleData && this.roleData.id) {
+        json.id = this.roleData.id;
+        this.updateRequestInProcess = true;
+
+        await this._userRolesService.updateRole(json).toPromise();
+        this.updateRequestInProcess = false;
+      } else {
+        // add role
+
+        const dup: UserRoleModel[] = this.roleList.filter(ele => {
+          if (ele.name === this.userRoleForm.value.name) {
+            return ele;
+          }
+        });
+
+        if (dup && dup.length > 0) {
+          this.notification.error('Error', 'Duplicate name not allowed');
+          return;
+        }
+
+        this.updateRequestInProcess = true;
+
+        await this._userRolesService.createRole(json).toPromise();
+
+        this.resetRoleForm();
+
+        this.updateRequestInProcess = false;
+      }
+    } catch (e) {
+      this.updateRequestInProcess = false;
+    }
+  }
+
+  //**********************//
+  // Start edit to prefill form
+  //**********************//
+
+  public startEditRole(item: UserRoleModel) {
+    this.generatePermissionsList(item.accessPermissions);
+    this.roleData = cloneDeep(item);
+    this.userRoleForm.patchValue(item);
+  }
+
+  //**********************//
+  // Cancel/reset edit
+  //**********************//
+
+  public resetRoleForm() {
+    this.generatePermissionsList(this.permissionConst); // reset with CONSTANT data
+
+    this.initPermissionData();
+    this.userRoleForm.reset();
+  }
+
+  //**********************//
+  // check uncheck permissions
+  //**********************//
+
+  public selectPermission(item: AccessPermissionVM) {
+    item.checked = !item.checked;
+    const group = item.group;
+
+    if (item.value.includes('Modify')) {
+      const addValue = item.value.replace('Modify', 'View');
+
+      if (this.roleData.accessPermissions[group][addValue] !== undefined) {
+
+        if (!this.roleData.accessPermissions[group][addValue]) {
+          this.roleData.accessPermissions[group][addValue] = item.checked;
+        }
+
+      }
+    }
+
+    this.roleData.accessPermissions[group][item.value] = item.checked;
+    this.generatePermissionsList(this.roleData.accessPermissions);
+    this.userRoleForm.get('accessPermissions').patchValue(this.roleData.accessPermissions);
   }
 
   public ngOnDestroy(): void {
   }
-
 }

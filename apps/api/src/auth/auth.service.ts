@@ -515,7 +515,7 @@ export class AuthService implements OnModuleInit {
             user.memberType = MemberTypes.alien;
 
             // save it to db
-            const newUser = await this._userModel.create([user], session);
+            const newUser = await this._userModel.create([user], (session as any));
             jwtPayload.sub = newUser[0].emailId;
             jwtPayload.id = newUser[0].id;
           }

@@ -32,36 +32,37 @@ export class UserFilterComponent implements OnInit, OnDestroy {
 
     // listen for current project
     this._userQuery.currentProject$.pipe(untilDestroyed(this)).subscribe(res => {
-      this.currentProjectId = res.id;
-      this.projectMembers = cloneDeep(res.members.filter(ele => ele.isInviteAccepted));
+      if(res) {
+        this.currentProjectId = res.id;
+        this.projectMembers = cloneDeep(res.members.filter(ele => ele.isInviteAccepted));
 
-      if (this.projectMembers && this.projectMembers.length > 0) {
+        if (this.projectMembers && this.projectMembers.length > 0) {
 
-        // get sprint filter from local storage
-        const availableFilter: any = this._generalService.getAppFilter(res.id, AppFilterStorageKeysEnum.backLogFilter);
+          // get sprint filter from local storage
+          const availableFilter: any = this._generalService.getAppFilter(res.id, AppFilterStorageKeysEnum.backLogFilter);
 
-        if (availableFilter) {
+          if (availableFilter) {
 
-          const assigneeIndex = availableFilter.queries.findIndex((query) => query.key === 'assigneeId');
-          let assigneeIds: string[] = [];
-          if (assigneeIndex > -1) {
-            assigneeIds = availableFilter.queries[assigneeIndex].value
+            const assigneeIndex = availableFilter.queries.findIndex((query) => query.key === 'assigneeId');
+            let assigneeIds: string[] = [];
+            if (assigneeIndex > -1) {
+              assigneeIds = availableFilter.queries[assigneeIndex].value
+            }
+
+            this.projectMembers = this.projectMembers.map((member) => {
+              member.userDetails.isSelected = assigneeIds ? assigneeIds.includes(member.userId) : false;
+
+              if (member.userDetails.isSelected) {
+                this.filterMembersId.push(member.userId);
+              }
+              return member;
+            });
+
+            this.isAssigneeFilterApplied = !!(assigneeIds && assigneeIds.length);
           }
 
-          this.projectMembers = this.projectMembers.map((member) => {
-            member.userDetails.isSelected = assigneeIds ? assigneeIds.includes(member.userId) : false;
-
-            if (member.userDetails.isSelected) {
-              this.filterMembersId.push(member.userId);
-            }
-            return member;
-          });
-
-          this.isAssigneeFilterApplied = !!(assigneeIds && assigneeIds.length);
         }
-
       }
-
     });
 
   }

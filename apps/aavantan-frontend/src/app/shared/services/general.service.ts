@@ -43,6 +43,15 @@ export class GeneralService {
     this._user = value;
   }
 
+  set permissions(value: string[]) {
+    this._permissions = value;
+  }
+
+  get permissions(): string[] {
+    return this._permissions;
+  }
+
+  private _permissions: string[];
   private _user: User;
   private _token: string;
   private _userLocale: string;
