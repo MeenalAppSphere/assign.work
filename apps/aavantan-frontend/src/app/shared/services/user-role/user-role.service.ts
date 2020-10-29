@@ -14,7 +14,9 @@ import { cloneDeep } from 'lodash';
 import { UserRoleState, UserRoleStore } from '../../../store/user-role/user-role.store';
 import { ProjectUrls } from '../project/project.url';
 import { UserStore } from '../../../store/user/user.store';
+import { Injectable } from "@angular/core";
 
+@Injectable({ providedIn: 'root' })
 export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
   constructor(protected notification: NzNotificationService,
               protected userRoleStore: UserRoleStore,
@@ -22,9 +24,6 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
               private _http: HttpWrapperService) {
     super(userRoleStore, notification);
 
-    // this.notification.config({
-    //   nzPlacement: 'bottomRight'
-    // });
   }
 
   /**
