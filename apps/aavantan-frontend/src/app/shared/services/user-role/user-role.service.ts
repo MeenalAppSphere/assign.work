@@ -22,9 +22,9 @@ export class UserRoleService extends BaseService<UserRoleStore, UserRoleState> {
               private _http: HttpWrapperService) {
     super(userRoleStore, notification);
 
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   /**

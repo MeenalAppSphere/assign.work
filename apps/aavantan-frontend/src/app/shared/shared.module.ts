@@ -114,7 +114,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
     PerfectScrollbarModule,
     TypeaheadModule,
     PopoverModule,
-    EditorModule,
+    //EditorModule,
     RouterModule,
     NzButtonModule,
     NzModalModule,
@@ -137,7 +137,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
     NzCheckboxModule,
     NzFormModule,
     NzDatePickerModule,
-    NzGridModule
+    NzGridModule,
     RouterModule,
     ColorSketchModule,
     NzPopoverModule,
@@ -162,9 +162,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
     CloseSprintComponent,
     AddStatusComponent,
     SprintDetailsComponent,
-    StatusDropdownComponent
-  ]
-    CloseSprintComponent
+    StatusDropdownComponent,
   ],
   schemas:[NO_ERRORS_SCHEMA,CUSTOM_ELEMENTS_SCHEMA],
 })
