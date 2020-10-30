@@ -41,6 +41,7 @@ import {
   generateUtcDate,
   getDefaultSettingsFromProjectTemplate,
   hourToSeconds,
+  secondsToHours,
   validWorkingDaysChecker
 } from '../../helpers/helpers';
 import { environment } from '../../../environments/environment';
