@@ -80,7 +80,7 @@
 
                             <nz-list-item (click)="switchProject(item)">
 
-                                <nz-list-item-meta [nzTitle]="nzTitle">
+                                <nz-list-item-meta [nzTooltipTitle]="nzTitle">
                                     <ng-template #nzTitle>
                                         <div class="project-header-title d-flex justify-content-between">
 
@@ -130,9 +130,9 @@
 
           <div class="p-l-40 p-r-40">
             <nz-steps [nzCurrent]="switchStepCurrent">
-                <nz-step nzTitle="Project">Project</nz-step>
-                <nz-step nzTitle="Collaborators">Collaborators</nz-step>
-                <nz-step nzTitle="Template">Template</nz-step>
+                <nz-step nzTooltipTitle="Project">Project</nz-step>
+                <nz-step nzTooltipTitle="Collaborators">Collaborators</nz-step>
+                <nz-step nzTooltipTitle="Template">Template</nz-step>
             </nz-steps>
           </div>
 

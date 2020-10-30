@@ -1,6 +1,6 @@
 <nz-modal
   [(nzVisible)]="closeSprintModalIsVisible"
-  nzTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
+  nzTooltipTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
   [nzWidth]="900" nzCancelText="Cancel" (nzOnOk)="closeSprint()" [nzOkLoading]="sprintCloseInProcess"
   nzClassName="close-sprint-modal-confirm-box"
   (nzOnCancel)="handleCancel()">

@@ -93,7 +93,7 @@
               </span>
 
             <nz-avatar *ngIf="boardData.membersCapacity?.length>10"
-                       nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
+                       nz-dropdown [nzDropdownMenu]="menu" [nzTooltipPlacement]="'bottomRight'"
                        nzText="{{boardData.membersCapacity?.length - 10}}+" class="bg-info"></nz-avatar>
 
               <nz-dropdown-menu #menu="nzDropdownMenu">
@@ -142,8 +142,8 @@
                   <span class="font-weight-bold"
                         [ngClass]="boardData.sprintDaysLeft<0 ? 'text-red' : 'text-gray-light-2'">{{boardData.sprintDaysLeft}}
                     days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
-                  <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                       class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzContent]="titleTemplate" nzPlacement="bottomRight"/>
+                  <img src="../../../assets/images/icons/info.svg" height="16" nzTooltipPlacement="top"
+                       class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzContent]="titleTemplate" nzTooltipPlacement="bottomRight"/>
                   </span>
                 </span>
 

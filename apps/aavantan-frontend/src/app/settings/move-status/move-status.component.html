@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="moveStatusModalIsVisible" [nzTitle]="titleTemp" nzClassName="move-status-modal"
+<nz-modal [(nzVisible)]="moveStatusModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="move-status-modal"
           nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
 
   <form nz-form (ngSubmit)="moveTask()">
@@ -11,7 +11,7 @@
       <nz-form-item style="max-width: 300px;">
         <nz-form-label nzFor="taskType">Status</nz-form-label>
         <nz-form-control class="issue-type-btn-grp">
-          <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight"
+          <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzTooltipPlacement="bottomRight"
                            style="width:100%!important;">
             <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
                     style="width:100%!important;">

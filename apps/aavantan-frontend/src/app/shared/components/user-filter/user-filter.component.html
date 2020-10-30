@@ -19,7 +19,7 @@
 
   <nz-avatar *ngIf="projectMembers?.length>5"
              [nzSize]="avatarSize"
-             nz-dropdown [nzDropdownMenu]="menu" [nzPlacement]="'bottomRight'"
+             nz-dropdown [nzDropdownMenu]="menu" [nzTooltipPlacement]="'bottomRight'"
              nzText="{{projectMembers?.length - 5}}+" class="bg-info"></nz-avatar>
 
     <span class="show-and-clear-btn" *ngIf="isAssigneeFilterApplied">

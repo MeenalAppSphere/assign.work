@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="epicModalIsVisible" [nzTitle]="titleTemp" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="600" nzClosable="false">
+<nz-modal [(nzVisible)]="epicModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="600" nzClosable="false">
   <form  nz-form class="bg-white create-task-form task-sections" [formGroup]="epicForm" (ngSubmit)="saveForm()" autocomplete="off">
     <div>
       <div class="row row-1">
@@ -6,7 +6,7 @@
           <nz-form-item>
             <nz-form-label nzFor="taskType">Epic Type<span class="text-danger">*</span></nz-form-label>
             <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-              <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomLeft" style="width: 100%!important;">
+              <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzTooltipPlacement="bottomLeft" style="width: 100%!important;">
                 <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button style="width: 100%!important;">
                   <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType.color}"></span>
                   {{selectedTaskType.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>

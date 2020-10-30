@@ -58,7 +58,7 @@
             <nz-form-item>
               <nz-form-label nzFor="taskType">Task Type <span class="text-danger">*</span></nz-form-label>
               <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzPlacement="bottomLeft"
+                <nz-button-group nz-dropdown [nzDropdownMenu]="createTaskType" nzTooltipPlacement="bottomLeft"
                                  style="width: 100%!important;">
                   <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                           style="width: 100%!important;">
@@ -117,7 +117,7 @@
             <nz-form-item>
               <nz-form-label nzFor="taskType">Status</nz-form-label>
               <nz-form-control class="issue-type-btn-grp">
-                <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight"
+                <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzTooltipPlacement="bottomRight"
                                  style="width:100%!important;">
                   <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
                           style="width:100%!important;">
@@ -145,7 +145,7 @@
               <nz-form-label>Priority</nz-form-label>
               <nz-form-control class="issue-type-btn-grp">
 
-                <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzPlacement="bottomRight"
+                <nz-button-group nz-dropdown [nzDropdownMenu]="proiorityDDLTemplate" nzTooltipPlacement="bottomRight"
                                  style="width:100%!important;">
                   <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
                           style="width:100%!important;">
@@ -647,7 +647,7 @@
 
 
             <nz-tabset nzSize="small">
-              <nz-tab nzTitle="Pinned Comments">
+              <nz-tab nzTooltipTitle="Pinned Comments">
 
                 <div *ngIf="taskId">
                   <div class="comment-history-scrollable">
@@ -680,7 +680,7 @@
                 </div>
 
               </nz-tab>
-              <nz-tab nzSize="small" nzTitle="History">
+              <nz-tab nzSize="small" nzTooltipTitle="History">
 
                 <div *ngIf="taskId">
                   <div class="comment-history-scrollable">

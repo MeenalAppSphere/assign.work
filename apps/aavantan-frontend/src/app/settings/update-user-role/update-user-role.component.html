@@ -1,4 +1,4 @@
-<nz-modal [(nzVisible)]="updateUserRoleModalIsVisible" [nzTitle]="titleTemp" nzClassName="user-role-modal" nzFooter="nzModalFooter" nzWidth="800" nzClosable="false">
+<nz-modal [(nzVisible)]="updateUserRoleModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="user-role-modal" nzFooter="nzModalFooter" nzWidth="800" nzClosable="false">
 
   <form  autocomplete="off" nz-form>
     <div>
@@ -38,7 +38,7 @@
 
               <nz-form-label>Select Role to Change</nz-form-label>
               <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                <nz-button-group nz-dropdown [nzDropdownMenu]="role" nzPlacement="bottomLeft"
+                <nz-button-group nz-dropdown [nzDropdownMenu]="role" nzTooltipPlacement="bottomLeft"
                                  style="width: 100%!important;">
                   <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button>
                     {{selectedUserRole?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>

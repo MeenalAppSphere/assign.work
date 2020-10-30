@@ -34,8 +34,8 @@
                   days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
               </span>
 
-              <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                   class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzContent]="titleTemplate" nzPlacement="bottomRight"/>
+              <img src="../../../assets/images/icons/info.svg" height="16" nzTooltipPlacement="top"
+                   class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzContent]="titleTemplate" nzTooltipPlacement="bottomRight"/>
 
             </span>
           <ng-template #titleTemplate>
@@ -587,7 +587,7 @@
       </span>
 
       <button *ngIf="unPublishedSprintData?.id" nzSize="32" class="m-l-10" nz-button
-              nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">
+              nz-dropdown [nzDropdownMenu]="menu1" nzTooltipPlacement="bottomRight" style="min-width: 32px;">
         <i class="fas fa-ellipsis-v"></i>
       </button>
 

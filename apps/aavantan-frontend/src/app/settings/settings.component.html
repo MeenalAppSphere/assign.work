@@ -95,7 +95,7 @@
 
     <section>
 
-        <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:470px;">
+        <nz-card [nzTooltipTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:470px;">
 
       <ng-template #templateTitle>
         {{activeView.title}}
@@ -192,7 +192,7 @@
               <nz-form-item class="max-width-ddls" *ngIf="statusList?.length>0">
                 <nz-form-label nzFor="taskType">Default Status <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                  <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDL" nzPlacement="bottomLeft"
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDL" nzTooltipPlacement="bottomLeft"
                                    style="width: 100%!important;">
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
@@ -215,7 +215,7 @@
               <nz-form-item class="max-width-ddls" *ngIf="typesList?.length>0">
                 <nz-form-label nzFor="taskType">Default Task Type <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                  <nz-button-group nz-dropdown [nzDropdownMenu]="taskTypeDD" nzPlacement="bottomLeft"
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="taskTypeDD" nzTooltipPlacement="bottomLeft"
                                    style="width: 100%!important;">
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
@@ -238,7 +238,7 @@
               <nz-form-item class="max-width-ddls" *ngIf="priorityList?.length>0">
                 <nz-form-label nzFor="taskType">Default Priority <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                  <nz-button-group nz-dropdown [nzDropdownMenu]="priorityDDL" nzPlacement="bottomLeft"
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="priorityDDL" nzTooltipPlacement="bottomLeft"
                                    style="width: 100%!important;">
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
@@ -285,9 +285,9 @@
                             <thead (nzSortChange)="boardSortOrderChanged($event)">
                                 <tr>
                                     <th data-label="SN">#</th>
-                                    <th width="35%" nzSortKey="name" nzShowSort>Name</th>
+                                    <th width="35%" nzColumnKey="name" nzShowSort>Name</th>
                                     <th>Created By</th>
-                                    <th nzSortKey="createdAt" nzShowSort>Created On</th>
+                                    <th nzColumnKey="createdAt" nzShowSort>Created On</th>
                                     <th>Published</th>
                                     <th width="125px">Action</th>
                                 </tr>
@@ -597,7 +597,7 @@
 
 
                                     <span>
-                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTitle]="item.color"
+                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTooltipTitle]="item.color"
                        [ngStyle]="{'color': item.color }"></i>
                     {{item.name}}
                   </span>
@@ -678,7 +678,7 @@
                                 <li *ngFor="let item of priorityList">
 
                                     <span>
-                    <i class="p-l-10" nz-tooltip [nzTitle]="item.color"
+                    <i class="p-l-10" nz-tooltip [nzTooltipTitle]="item.color"
                        [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
                     {{item.name}}
                   </span>
@@ -729,7 +729,7 @@
 
                                 <li *ngFor="let item of typesList">
                                     <span>
-                                      <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color" [ngStyle]="{'color':item.color}"></i>
+                                      <i class="fas fa-circle m-r-10" nz-tooltip [nzTooltipTitle]="item.color" [ngStyle]="{'color':item.color}"></i>
                                     {{item.name}}
                                     </span>
 
@@ -830,7 +830,7 @@
                             <div *ngIf="roleList?.length>0">
                                 <nz-form-label>Roles</nz-form-label>
                                 <ul class="stages-list">
-                                    <li nz-tooltip [nzTitle]="item.type==='owner' ? 'Owner have all permissions' : item.description" *ngFor="let item of roleList" [ngClass]="item.id===roleData?.id ? 'modifiying-role' : ''">
+                                    <li nz-tooltip [nzTooltipTitle]="item.type==='owner' ? 'Owner have all permissions' : item.description" *ngFor="let item of roleList" [ngClass]="item.id===roleData?.id ? 'modifiying-role' : ''">
 
                                         <span>{{item.name}}</span>
 
