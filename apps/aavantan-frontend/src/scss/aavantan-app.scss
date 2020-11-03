@@ -242,7 +242,8 @@ button:focus{
 }
 
 .ant-input{
-  border:1px solid #cccccc!important;
+  border:1px solid #cccccc;
+  
 }
 .ant-input:disabled {
   background-color: #ededed4d;
@@ -720,7 +721,7 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
 }
 
 .search-task-input {
-  max-width: 300px;
+  max-width: 100px;
 }
 /* responsive */
 @media only screen and (min-width: 320px) and (max-width: 768px) {

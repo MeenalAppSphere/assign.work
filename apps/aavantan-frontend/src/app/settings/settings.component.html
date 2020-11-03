@@ -352,9 +352,11 @@
                       <nz-spin [nzSpinning]="resendInviteInProcess || recallInviteInProcess"
                                nzTip="{{resendInviteInProcess ? 'Sending request...' : 'Recalling Invitation...'}}">
 
-
-                        <form *ngxPermissionsOnly="['canAddMember_member']" nz-form class="collaborator-form" [formGroup]="collaboratorForm">
-
+                     
+                        <form
+                        [nzLayout]="'vertical'"
+                        
+                        *ngxPermissionsOnly="['canAddMember_member']" nz-form class="collaborator-form" [formGroup]="collaboratorForm">
                             <nz-form-item>
                                 <nz-form-label>Search or Invite Collaborator</nz-form-label>
                                 <nz-form-control class="relative m-b-5">

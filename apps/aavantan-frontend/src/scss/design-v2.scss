@@ -39,16 +39,19 @@
 }
 
 .ant-input:focus {
-  border: 1px solid $theme-blue!important;
+  
   box-shadow: none;
 }
 
 .ant-input-affix-wrapper .ant-input-prefix {
   left: 17px;
-  opacity: 0.6;
+  opacity: 0.6
 }
 .ant-input-affix-wrapper .ant-input:not(:first-child) {
-  padding-left: 42px;
+  padding-left: 12px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+
 }
 .ant-radio-button-wrapper-checked {
   color: #ffffff!important;
@@ -174,6 +177,7 @@
   .ant-dropdown-menu-item:first-child {
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
+    
   }
   .ant-dropdown-menu-item:last-child{
     border-bottom: none;
@@ -300,6 +304,7 @@
   font-weight: 400;
   box-shadow: none;
   line-height: 15px;
+  display: flex;
   &:hover {
     //box-shadow: 0px 3px 4px -2px #9b9b9b;
   }
@@ -1259,3 +1264,35 @@
     }
   }
 }
+
+
+
+//Angular 9 upgrade changes
+
+.ant-input-affix-wrapper {
+  padding-left: 10px;
+  padding-top: 6px;
+  border-radius: 4px;
+}
+
+.ant-input-suffix {
+  margin-left: 4px;
+  margin-top: 6px;
+  margin-right: 10px;
+}
+.ant-input-affix-wrapper .ant-input:not(:first-child) {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.ant-input-prefix {
+  margin-top: 14px;
+  margin-right: 4px;
+}
+.anticon {
+  vertical-align: 0.4em;
+  padding-bottom: 2px;
+}
+
+
+
