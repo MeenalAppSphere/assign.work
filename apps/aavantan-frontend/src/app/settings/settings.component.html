@@ -773,7 +773,7 @@
                             <div class="col-md-4 col-lg-3 text-left" colspan="2">Name</div>
                             <div class="col-md-1 col-lg-1 text-right" width="140">Working hours</div>
                             <div class="col-md-2 col-lg-1 text-right" width="190">Per day</div>
-                            <div class="col-md-5 col-lg-7 text-center">Working days</div>
+                            <div class="col-md-5 col-lg-7 text-center ">Working days</div>
                         </div>
 
 
@@ -796,7 +796,7 @@
                             <div class="col-md-2 col-lg-1 text-right">
                                 <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacityPerDay" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="2" />
                             </div>
-                            <div class="col-md-5 col-lg-7">
+                            <div class="col-md-5 col-lg-7 d-flex">
                                 <span *ngFor="let wd of item.workingDays">
                     <button *ngIf="wd.selected" (click)="selectDay(wd,item)" nz-button nzType="primary" nzSize="small"
                             nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{wd.day}}</button>

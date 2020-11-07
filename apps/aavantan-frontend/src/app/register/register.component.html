@@ -25,7 +25,7 @@
           <p class="m-b-30">Create your account to get access</p>
 
           <form
-            autocomplete="off"
+        [nzLayout]="'vertical'"            autocomplete="off"
             nz-form
             [formGroup]="signUpForm"
             class="login-form"
@@ -163,7 +163,7 @@
                     [nzLoading]="registerInProcess"
                     class="login-form-button"
                     [nzType]="'primary'">
-                    Sign Up
+                    <div class="ml-0.5">Sign Up</div>
                   </button>
                 </div>
               </nz-form-control>

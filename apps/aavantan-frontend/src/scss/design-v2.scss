@@ -1270,29 +1270,51 @@
 //Angular 9 upgrade changes
 
 .ant-input-affix-wrapper {
-  padding-left: 10px;
-  padding-top: 6px;
+  padding: 0px;
   border-radius: 4px;
 }
 
-.ant-input-suffix {
-  margin-left: 4px;
-  margin-top: 6px;
-  margin-right: 10px;
+.ant-input-suffix, .ant-input-prefix {
+  margin-left: 5px;
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
 }
-.ant-input-affix-wrapper .ant-input:not(:first-child) {
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
+.login-signup-forgot {
+  .ant-input-affix-wrapper .ant-input:not(:first-child) {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+  }
+  
 
-.ant-input-prefix {
-  margin-top: 14px;
-  margin-right: 4px;
-}
-.anticon {
-  vertical-align: 0.4em;
-  padding-bottom: 2px;
 }
 
+.login-signup-forgot .ant-input-prefix {
+
+  margin-left: 11px;
+}
+ 
+
+.ant-form-item-label label {
+  margin-bottom: -15px !important;
+  
+}
+
+.ant-col-24.ant-form-item-label, .ant-col-xl-24.ant-form-item-label, .ant-form-vertical .ant-form-item-label {
+  padding-bottom: 3px;
+}
 
 
+.collaborator-form {
+  .ant-input-prefix {
+    margin-left: 12px!important;  
+  }
+  .ant-input-sufix {
+    margin-right: 12px!important;  
+  }
+}
+
+.ant-card-extra {
+  display: flex;
+}
