@@ -27,7 +27,7 @@
       'col-md-12': !isOpenActivitySidebar || !taskId
     }">
     <nz-spin nzTip="Loading..." [nzSpinning]="getTaskInProcess">
-      <form nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
+      <form [nzLayout]="'vertical'" nz-form class="bg-white p-15 create-task-form task-sections" [formGroup]="taskForm" (ngSubmit)="saveForm()">
         <h5>{{taskId ? displayName : 'Create Task'}}
           <img src="../../../assets/images/icons/info.svg" height="16" nz-icon nz-tooltip [nzTooltipTitle]="templateTitleText"
                class="p-l-10 m-r-20"/>
@@ -387,7 +387,7 @@
       <hr
         style="border-top: 4px solid #3f86f5; margin-bottom:5px; box-shadow: 0px 0px 3px 0px #ddd; margin-top: 15px;border-top: 4px solid #3f86f5; margin-top: 5px;"/>
 
-      <form (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12 p-15 p-t-5">
+      <form [nzLayout]="'vertical'" (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12 p-15 p-t-5">
         <nz-form-item>
           <nz-form-label nzFor="comment">Comment</nz-form-label>
           <nz-form-control nzValidatingTip="Please enter some comment">
@@ -467,7 +467,7 @@
       </div>
 
 
-      <form [formGroup]="taskFormSideBar">
+      <form [nzLayout]="'vertical'" [formGroup]="taskFormSideBar">
 
         <!-- row 2-->
         <div class="row">

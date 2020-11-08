@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <form *ngIf="closeSprintModeSelection === 'createNewSprint'" [formGroup]="closeSprintNewSprintForm"
+      <form [nzLayout]="'vertical'" *ngIf="closeSprintModeSelection === 'createNewSprint'" [formGroup]="closeSprintNewSprintForm"
             autocomplete="off" nz-form>
         <ng-container>
           <section class="draft-sprint-box">

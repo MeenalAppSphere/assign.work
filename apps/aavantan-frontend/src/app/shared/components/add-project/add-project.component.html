@@ -3,8 +3,6 @@
 
     <nz-spin nzTip="Setting up..." [nzSpinning]="switchingProjectInProcess">
 
-
-
       <ng-container>
 
         <!-- Search and Switch Project -->
@@ -138,7 +136,7 @@
 
            <!--first-->
             <ng-container *ngIf="switchStepCurrent===0">
-                <form nz-form class="register-form" [formGroup]="projectForm">
+                <form [nzLayout]="'vertical'" nz-form class="register-form" [formGroup]="projectForm">
 
                     <div class="min-height-100 m-t-25">
                         <nz-form-item>
@@ -172,7 +170,7 @@
             <ng-container *ngIf="switchStepCurrent===1" class="h-100">
 
               <div class="min-height-100 m-t-25">
-                <form nz-form [formGroup]="collaboratorForm">
+                <form [nzLayout]="'vertical'" nz-form [formGroup]="collaboratorForm">
                   <div class="form-group">
 
                     <nz-form-item class="m-b-5">

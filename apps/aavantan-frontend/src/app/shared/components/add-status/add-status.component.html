@@ -1,5 +1,5 @@
 <nz-modal [(nzVisible)]="addStatusModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="status-modal" nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
-  <form  autocomplete="off" nz-form (submit)="addStatus()" [formGroup]="statusForm">
+  <form [nzLayout]="'vertical'" autocomplete="off" nz-form (submit)="addStatus()" [formGroup]="statusForm">
     <div>
 
       <nz-form-item>

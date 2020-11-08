@@ -35,7 +35,7 @@
               </span>
 
               <img src="../../../assets/images/icons/info.svg" height="16" nzTooltipPlacement="top"
-                   class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzPopoverContent]="titleTemplate" nzTooltipPlacement="bottomRight"/>
+                   class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover [nzPopoverContent]="titleTemplate" nzTooltipPlacement="bottomRight"/>
 
             </span>
           <ng-template #titleTemplate>
@@ -253,7 +253,7 @@
 
   <div class="row m-b-10">
 
-      <div class="col d-inline-flex ant-row-flex-space-between">
+      <div class="col d-inline-flex justify-content-between">
 
         <label class="font-size-18 small-screen-column-flex"><span class="text-black">Backlogs</span>
 

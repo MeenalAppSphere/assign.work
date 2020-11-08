@@ -243,7 +243,7 @@ button:focus{
 
 .ant-input{
   border:1px solid #cccccc;
-  
+
 }
 .ant-input:disabled {
   background-color: #ededed4d;
@@ -602,7 +602,8 @@ ck-rounded-corners .ck.ck-editor__main>.ck-editor__editable, .ck.ck-editor__main
   position: relative;
   line-height: 13px!important;
   min-height: 29px;
-
+  background: $brand-default-btn;
+  color:$color-gray-light;
   i {
     float: right;
     position: absolute;
