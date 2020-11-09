@@ -29,22 +29,22 @@ body{
 }
 
 .ant-tooltip-placement-top .ant-tooltip-arrow, .ant-tooltip-placement-topLeft .ant-tooltip-arrow, .ant-tooltip-placement-topRight .ant-tooltip-arrow {
-  bottom: 7px;
+  bottom: 14px;
   border-width: 5px 5px 0;
   border-top-color: rgba(0, 0, 0, 0);
 }
 .ant-tooltip-placement-bottom .ant-tooltip-arrow, .ant-tooltip-placement-bottomLeft .ant-tooltip-arrow, .ant-tooltip-placement-bottomRight .ant-tooltip-arrow {
-  top: 7px;
+  top: 14px;
   border-width: 0 7px 7px;
   border-bottom-color: #404040;
 }
 .ant-tooltip-placement-left .ant-tooltip-arrow, .ant-tooltip-placement-leftBottom .ant-tooltip-arrow, .ant-tooltip-placement-leftTop .ant-tooltip-arrow {
-  right: 7px;
+  right: 14px;
   border-width: 5px 0 5px 5px;
   border-left-color: #404040;
 }
 .ant-tooltip-placement-right .ant-tooltip-arrow, .ant-tooltip-placement-leftBottom .ant-tooltip-arrow, .ant-tooltip-placement-leftTop .ant-tooltip-arrow {
-  right: 7px;
+  right: 14px;
   border-width: 5px 0 5px 5px;
   border-left-color: #404040;
 }
