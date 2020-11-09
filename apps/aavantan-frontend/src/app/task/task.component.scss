@@ -220,7 +220,7 @@
   position: absolute;
   z-index: 1;
   left: 6px;
-  top: -2px;
+  top: 5px;
 }
 
 .assigned-user-input {
@@ -229,6 +229,12 @@
 
 .ant-input{
   height: 29px;
+}
+
+.assigned-to-me {
+  right:0px;
+  top:0px;
+  position: absolute;
 }
 
 .collaborators-badge .ant-avatar {

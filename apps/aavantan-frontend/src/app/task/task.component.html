@@ -79,10 +79,14 @@
 
           <div class="col-md-5">
             <nz-form-item class="relative">
-              <a href="javascript:void(0);"><small class="text-info float-right" (click)="assignedToMe()">Assign to
-                Me</small></a>
-              <nz-form-label nzFor="taskType">Assigned To<span class="text-danger">*</span></nz-form-label>
-              <nz-form-control class="relative">
+
+              <div class="relative">
+                <nz-form-label nzFor="taskType" class="d-flex justify-content-between">
+                  <span>Assigned To<span class="text-danger">*</span></span>
+                </nz-form-label>
+                <a href="javascript:void(0);" class="assigned-to-me"><small class="text-info float-right" (click)="assignedToMe()">Assign to Me</small></a>
+              </div>
+                <nz-form-control class="relative">
                                 <span class="assigned-user-icon">
                               <nz-avatar [nzSize]="16" nzIcon="user"
                                          [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null"></nz-avatar>
@@ -387,7 +391,7 @@
       <hr
         style="border-top: 4px solid #3f86f5; margin-bottom:5px; box-shadow: 0px 0px 3px 0px #ddd; margin-top: 15px;border-top: 4px solid #3f86f5; margin-top: 5px;"/>
 
-      <form [nzLayout]="'vertical'" (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12 p-15 p-t-5">
+      <form (ngSubmit)="saveComment()" [formGroup]="commentForm" class="col-md-12 p-15 p-t-5 ant-form-vertical">
         <nz-form-item>
           <nz-form-label nzFor="comment">Comment</nz-form-label>
           <nz-form-control nzValidatingTip="Please enter some comment">
@@ -467,7 +471,7 @@
       </div>
 
 
-      <form [nzLayout]="'vertical'" [formGroup]="taskFormSideBar">
+      <form class="ant-form-vertical" [formGroup]="taskFormSideBar">
 
         <!-- row 2-->
         <div class="row">

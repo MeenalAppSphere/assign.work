@@ -1268,25 +1268,20 @@
     padding-right: 10px;
   }
 
-
 }
 
 .login-signup-forgot .ant-input-prefix {
-
   margin-left: 11px;
 }
 
-
-.ant-form-item-label label {
-  margin-bottom: -15px !important;
-
+.ant-form-item-label {
+  padding-bottom: 3px!important;
 }
-
-.ant-col-24.ant-form-item-label, .ant-col-xl-24.ant-form-item-label, .ant-form-vertical .ant-form-item-label {
-  padding-bottom: 3px;
+.ant-form-item-label>label {
+  height: auto;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
 }
-
-
 .collaborator-form {
   .ant-input-prefix {
     margin-left: 12px!important;
@@ -1298,4 +1293,7 @@
 
 .ant-card-extra {
   display: flex;
+}
+.ant-select-multiple.ant-select-sm .ant-select-selection-search {
+  height: 27px;
 }
