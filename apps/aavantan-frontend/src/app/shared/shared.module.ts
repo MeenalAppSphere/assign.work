@@ -225,6 +225,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { EditorModule } from "@tinymce/tinymce-angular";
+import { NzListModule } from 'ng-zorro-antd';
 @NgModule({
   exports: [
     CommonModule,
@@ -303,7 +304,7 @@ import { EditorModule } from "@tinymce/tinymce-angular";
     NzSelectModule,
     NzEmptyModule,
     NzTableModule,
-    NzTagModule ,
+    NzTagModule,
     NzCollapseModule,
     NzCheckboxModule,
     NzFormModule,
@@ -312,7 +313,8 @@ import { EditorModule } from "@tinymce/tinymce-angular";
     RouterModule,
     ColorSketchModule,
     NzPopoverModule,
-    QuillModule.forRoot()
+    QuillModule.forRoot(),
+    NzListModule
   ],
   declarations: [
     AddProjectComponent,

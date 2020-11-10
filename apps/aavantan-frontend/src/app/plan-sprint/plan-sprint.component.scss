@@ -89,30 +89,3 @@
     color: red!important;
   }
 }
-
-
-.sprint-panels {
-  .ant-collapse-content > .ant-collapse-content-box {
-    padding: 0rem;
-  }
-  .ant-collapse > .ant-collapse-item > .ant-collapse-header {
-    line-height: 1.25;
-    padding: 0rem 0rem 0rem 1.5rem;
-    color: #2a2a2a;
-    position: relative;
-  }
-  .ant-collapse>.ant-collapse-item>.ant-collapse-header .ant-collapse-arrow {
-    top: 22%;
-    left: -0px;
-    color: $color-gray-light-2;
-  }
-  .ant-collapse-borderless>.ant-collapse-item>.ant-collapse-content {
-    padding-top: 0px;
-  }
-
-  .ant-collapse-item {
-    background: #fcfcfc;
-    border: 1px solid $border;
-    padding: 0px 10px;
-  }
-}

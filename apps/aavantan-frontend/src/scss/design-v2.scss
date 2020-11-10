@@ -34,12 +34,14 @@
   //padding: calc(70px + 10px) 25px 10px 25px;
 }
 
+.ant-table-content {
+  border: 1px solid $border;
+}
 .ant-card-bordered {
   border: 1px solid $border;
 }
 
 .ant-input:focus {
-
   box-shadow: none;
 }
 
@@ -378,7 +380,7 @@
     padding-bottom: 5px!important;
     padding-left: 10px;
     padding-right: 10px;
-
+    border: 1px solid $border;
     img {
       margin-top: -3px;
     }
@@ -1296,4 +1298,32 @@
 }
 .ant-select-multiple.ant-select-sm .ant-select-selection-search {
   height: 27px;
+}
+
+
+
+.sprint-panels {
+  .ant-collapse-header {
+    padding: 0rem 0rem 0rem 3rem!important;
+    line-height: 1.25;
+    color: #2a2a2a;
+    position: relative;
+  }
+   .ant-collapse-content-box {
+    padding: 0rem;
+  }
+   .ant-collapse-arrow {
+    top: 22%;
+    left: -0px;
+    color: $color-gray-light-2;
+  }
+  .ant-collapse-content {
+    padding-top: 0px;
+  }
+
+  .ant-collapse-item {
+    background: #fcfcfc;
+    border: 1px solid $border;
+    padding: 0px 10px;
+  }
 }
