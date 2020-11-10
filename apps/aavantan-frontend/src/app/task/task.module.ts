@@ -10,6 +10,7 @@ import { EditCommentComponent } from './edit-comment/edit-comment.component';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { QuillModule } from 'ngx-quill';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { NzListModule, NzProgressModule } from 'ng-zorro-antd';
 
 const routes: Routes = [
   { path: '', component: TaskComponent },
@@ -24,7 +25,9 @@ const routes: Routes = [
     TypeaheadModule,
     NzPopoverModule,
     QuillModule.forRoot(),
-    NgxPermissionsModule.forChild()
+    NgxPermissionsModule.forChild(),
+    NzProgressModule,
+    NzListModule
   ],
   exports: [
 

@@ -50,10 +50,12 @@
                                     (keyup)="calculateTotalCapacity()" nzSize="small" maxlength="2"/></td>
 
       <td *ngFor="let wd of item.workingDays" class="p-r-0">
+        <tr>
         <button *ngIf="wd.selected" (click)="selectDay(wd, item)" nz-button nzType="primary" nzSize="small"
                 nzShape="rounded"><i nz-icon nzType="check"></i>{{wd.day}}</button>
         <button *ngIf="!wd.selected" (click)="selectDay(wd,item)" nz-button nzType="link" nzSize="small"
                 nzShape="rounded"><i nz-icon nzType="check"></i>{{wd.day}}</button>
+                </tr>
       </td>
 
     </tr>

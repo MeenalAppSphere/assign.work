@@ -24,6 +24,7 @@ import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from '../../environments/environment';
 import { NoAccessComponent } from './not-found/no-access.component';
 import { NgxPermissionsModule, NgxPermissionsRestrictStubModule } from 'ngx-permissions';
+import { NzProgressModule } from 'ng-zorro-antd';
 
 const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: { transports: ['websocket'] } };
 
@@ -41,7 +42,8 @@ const socketConfig: SocketIoConfig = { url: environment.socketUrl, options: { tr
     // SettingsModule,
     HighchartsChartModule,
     SocketIoModule.forRoot(socketConfig),
-    NgxPermissionsModule.forChild()
+    NgxPermissionsModule.forChild(),
+    NzProgressModule
   ],
   exports: [],
   declarations: [

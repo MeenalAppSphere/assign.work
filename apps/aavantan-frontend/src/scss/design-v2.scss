@@ -39,16 +39,19 @@
 }
 
 .ant-input:focus {
-  border: 1px solid $theme-blue!important;
+
   box-shadow: none;
 }
 
 .ant-input-affix-wrapper .ant-input-prefix {
   left: 17px;
-  opacity: 0.6;
+  opacity: 0.6
 }
 .ant-input-affix-wrapper .ant-input:not(:first-child) {
   padding-left: 12px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+
 }
 .ant-radio-button-wrapper-checked {
   color: #ffffff!important;
@@ -174,6 +177,7 @@
   .ant-dropdown-menu-item:first-child {
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
+
   }
   .ant-dropdown-menu-item:last-child{
     border-bottom: none;
@@ -304,6 +308,11 @@
     //box-shadow: 0px 3px 4px -2px #9b9b9b;
   }
 }
+
+.ant-btn[nztype="default"] {
+  background-color: $brand-default-btn;
+}
+
 
 .ant-dropdown-trigger.ant-btn-group {
   .ant-btn {
@@ -711,32 +720,7 @@
 }
 
 
-.sprint-panels {
-  .ant-collapse-content > .ant-collapse-content-box {
-    padding: 0rem;
-  }
-  .ant-collapse > .ant-collapse-item > .ant-collapse-header {
-    line-height: 1.25;
-    padding: 0rem 0rem 0rem 1.5rem;
-    color: #2a2a2a;
-    position: relative;
-  }
-  .ant-collapse>.ant-collapse-item>.ant-collapse-header .ant-collapse-arrow {
-    top: 22%;
-    left: -0px;
-    color: $color-gray-light-2;
-  }
-  .ant-collapse-borderless>.ant-collapse-item>.ant-collapse-content {
-    padding-top: 0px;
-  }
 
-  .ant-collapse-item {
-    background: #fcfcfc;
-    border: 1px solid $border;
-    padding: 0px 10px;
-  }
-
-}
 
 
 /* task-list */
@@ -1258,4 +1242,58 @@
       max-width: 300px;
     }
   }
+}
+
+
+
+//Angular 9 upgrade changes
+.ant-input-affix-wrapper:hover {
+  border-color: $border;
+}
+.ant-input-affix-wrapper {
+  padding: 0px;
+  border-radius: 4px;
+}
+
+.ant-input-suffix, .ant-input-prefix {
+  margin-left: 5px;
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+}
+.login-signup-forgot {
+  .ant-input-affix-wrapper .ant-input:not(:first-child) {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+  }
+
+}
+
+.login-signup-forgot .ant-input-prefix {
+  margin-left: 11px;
+}
+
+.ant-form-item-label {
+  padding-bottom: 3px!important;
+}
+.ant-form-item-label>label {
+  height: auto;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+}
+.collaborator-form {
+  .ant-input-prefix {
+    margin-left: 12px!important;
+  }
+  .ant-input-sufix {
+    margin-right: 12px!important;
+  }
+}
+
+.ant-card-extra {
+  display: flex;
+}
+.ant-select-multiple.ant-select-sm .ant-select-selection-search {
+  height: 27px;
 }

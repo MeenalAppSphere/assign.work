@@ -25,7 +25,9 @@
               Enter your registered email to get reset password
             </p>
 
-            <form *ngIf="!(isForgotPasswordSuccess | async)"
+            <form 
+            [nzLayout]="'vertical'"
+            *ngIf="!(isForgotPasswordSuccess | async)"
                   autocomplete="off"
                   nz-form
                   [formGroup]="forgotPasswordForm"

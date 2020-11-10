@@ -1,7 +1,7 @@
 <nz-modal [(nzVisible)]="moveStatusModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="move-status-modal"
           nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
 
-  <form nz-form (ngSubmit)="moveTask()">
+  <form [nzLayout]="'vertical'" nz-form (ngSubmit)="moveTask()">
     <div class="task-type-section">
 
       <p class="m-b-20">Note : Lorem Ipsum is simply dummy text of the printing and typesetting industry.

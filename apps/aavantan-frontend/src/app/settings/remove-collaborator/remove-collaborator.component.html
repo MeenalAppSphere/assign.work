@@ -1,6 +1,6 @@
 <nz-modal [(nzVisible)]="removeCollaboratorModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="priority-modal"
           nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
-  <form nz-form [formGroup]="removeForm">
+  <form [nzLayout]="'vertical'" nz-form [formGroup]="removeForm">
     <div class="task-type-section">
 
       <nz-form-item>

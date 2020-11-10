@@ -25,13 +25,13 @@
           <h2 class="m-b-25 font-weight-bold">Assign.Work</h2>
 
           <form
-           [nzLayout]="'vertical'"
+          [nzLayout]="'vertical'"
             nz-form
             [formGroup]="loginForm"
             class="login-form"
             (ngSubmit)="submitForm()">
             <nz-form-item>
-              <nz-form-label nzRequired nzFor="emailId">Email</nz-form-label>
+              <nz-form-label class="mb-0" nzRequired nzFor="emailId">Email</nz-form-label>
               <nz-form-control nzValidatingTip="Please input your email!">
                 <nz-input-group [nzPrefix]="prefixUser">
                   <input
