@@ -16,7 +16,7 @@
               </nz-input-group>
               <ng-template #prefixIconSearch>
                 <img class="m-l-15" style="padding-bottom:2px;" src="../../../../assets/images/icons/search_switch_project.svg" style="width: 16px;" *ngIf="!isSearching">
-                <span class="p-l-15"><i class="fas fa-spin fa-spinner font-size-16" *ngIf="isSearching"></i></span>
+                <span class="p-l-15"><span class="p-r-15" *ngIf="isSearching"><i class="fas fa-spin fa-spinner font-size-16" ></i></span></span>
               </ng-template>
               <ng-template #suffixIconSearch>
                 <span class="text-gray-light-2 font-size-16 p-r-20">Ctrl/Cmd + j</span>
