@@ -25,8 +25,8 @@ registerLocaleData(en);
 //   scope: 'profile email'
 // };
 const ngZorroConfig: NzConfig = {
-  message: { nzTop: 120 },
-  notification: { nzTop: 240 }
+  message: { nzTop:20 },
+  notification: { nzTop:535}
 };
 
 const config = new AuthServiceConfig([
