@@ -42,3 +42,6 @@ package-lock.json
 .env
 /apps/api/error.log
 error.log
+/apps/aavantan-frontend/src/.env
+/apps/aavantan-frontend/src/.env.qa
+/apps/aavantan-frontend/src/.env.prod
