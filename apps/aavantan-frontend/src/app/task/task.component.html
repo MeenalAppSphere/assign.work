@@ -574,29 +574,29 @@
 
       <div class="duration-box m-t-15">
         <div>
-          <nz-form-item>
+          <div>
             <nz-form-label style="line-height: 12px; margin-top: 5px;">Estimated Time</nz-form-label>
             <nz-progress [nzPercent]="currentTask && currentTask.estimatedTime ? 100 : 0" nzStatus="active"
                          [nzShowInfo]="false"></nz-progress>
             <small
               class="text-muted">{{currentTask && currentTask.estimatedTimeReadable ? currentTask.estimatedTimeReadable : '0h'}}</small>
-          </nz-form-item>
+          </div>
         </div>
         <div *ngIf="progressData">
-          <nz-form-item>
+          <div>
             <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Tracking</nz-form-label>
             <nz-progress [nzPercent]="progressData.progress" nzStatus="active" class="progress-success"></nz-progress>
             <small
               class="text-muted">{{progressData && progressData.totalLoggedTimeReadable ? progressData.totalLoggedTimeReadable : '0h'}}</small>
-          </nz-form-item>
+          </div>
 
-          <nz-form-item *ngIf="progressData.overProgress">
+          <div *ngIf="progressData.overProgress">
             <nz-form-label style="line-height: 12px; margin-top: 5px;">Time Exceeded</nz-form-label>
             <nz-progress [nzPercent]="progressData.overProgress" nzStatus="exception" [nzShowInfo]="false"
                          class="progress-exception"></nz-progress>
             <small
               class="text-muted">{{progressData && progressData.overLoggedTimeReadable ? progressData.overLoggedTimeReadable : '0h'}}</small>
-          </nz-form-item>
+          </div>
         </div>
       </div>
 
