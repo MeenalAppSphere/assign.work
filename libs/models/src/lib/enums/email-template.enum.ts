@@ -10,5 +10,6 @@ export enum EmailTemplatePathEnum {
   taskCommentUpdated = 'task-comment/task-comment.ejs',
   taskCommentPinned = 'task-comment/task-comment.ejs',
   taskCommentUnPinned = 'task-comment/task-comment.ejs',
-  taskMoved = 'task-moved/task-moved.ejs'
+  taskMoved = 'task-moved/task-moved.ejs',
+  removeCollaborator = 'remove-collaborator/remove-collaborator.ejs'
 }

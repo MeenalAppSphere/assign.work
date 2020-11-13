@@ -36,13 +36,14 @@
   }
 
   .collaborator-form {
-    .ant-form-item {
+        .ant-form-item {
       margin-bottom: 5px;
     }
     .collaborator-search-invite {
       padding-right: 130px!important;
-      padding-left: 45px!important;
-      height: 46px;
+      padding-left: 20px!important;
+      height: 44px!important;
+
     }
     .btn-collaborator-search-invite {
       padding:5px 20px!important;
@@ -65,13 +66,13 @@
     padding: 0px;
     li{
       display: inline-block;
-      border-radius: 4px;
+      border-radius: 9px;
       margin-right: 20px;
       margin-bottom: 10px;
       margin-top: 10px;
       a {
         text-align: center;
-        background: #ffffff!important;
+        background: #ffffff;
         border: 0px solid #87878a;
         height: 95px;
         min-width: 124px;
@@ -81,10 +82,10 @@
         box-shadow: 0px 5px 15px -8px #5f5f5fc4;
         border-radius: 8px;
         color: #7A869A;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
 
-        .active-img {
-          display: none;
-        }
         &:hover{
           border: 0px solid $theme-blue-hover;
           background: $theme-blue-hover!important;
@@ -99,6 +100,12 @@
             color: $theme-blue-hover;
           }
         }
+    }
+
+      .active-img {
+        display: none;
+      }
+
         div{
           margin-top: 14px;
         }
@@ -286,7 +293,7 @@
       }
     }
   }
-}
+
 
 .workflow-section {
 
@@ -362,7 +369,7 @@
     position: absolute;
     z-index: 1;
     left: 6px;
-    top: -2px;
+    top: 5px;
   }
 
   .assigned-user-input {
@@ -399,4 +406,8 @@
     }
   }
 
+}
+.ant-btn.ant-btn-primary {
+  display: flex;
+  justify-content: center;
 }

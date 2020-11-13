@@ -1,5 +1,5 @@
 <nz-modal [(nzVisible)]="sprintModalIsVisible" [nzTitle]="titleTemp" nzClassName="sprint-modal" nzFooter="nzModalFooter" nzWidth="650" nzClosable="false">
-  <form [formGroup]="sprintForm" autocomplete="off" nz-form>
+  <form [nzLayout]="'vertical'" [formGroup]="sprintForm" autocomplete="off" nz-form>
     <ng-container>
       <section class="draft-sprint-box">
 

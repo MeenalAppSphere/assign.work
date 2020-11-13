@@ -6,7 +6,7 @@ import {
   ProjectMembers,
   ProjectTemplateUpdateModel,
   ProjectWorkingCapacityUpdateDto,
-  RecallProjectInvitationModel,
+  RecallProjectInvitationModel, RemoveProjectCollaborator,
   ResendProjectInvitationModel,
   SearchProjectCollaborators,
   SearchProjectRequest,
@@ -53,6 +53,11 @@ export class ProjectController {
     return await this._projectService.updateCollaboratorRole(model);
   }
 
+  @Post('remove-collaborator')
+  async removeCollaborator(@Body() dto: RemoveProjectCollaborator) {
+    return await this._projectService.removeCollaborator(dto);
+  }
+
   @Post('get-collaborators')
   async getCollaborators(@Body('projectId') projectId: string) {
     return await this._projectService.getCollaborators(projectId);
@@ -97,10 +102,5 @@ export class ProjectController {
   @Post('search-collaborator')
   async searchProjectCollaborators(@Body() model: SearchProjectCollaborators) {
     return await this._projectService.searchProjectCollaborators(model);
-  }
-
-  @Post('add-missing-project-default-settings')
-  async addMissingProjectDefaultSettings() {
-    return await this._projectService.addMissingProjectDefaultSettings();
   }
 }

@@ -40,6 +40,7 @@ import { TaskTypeService } from '../shared/services/task-type/task-type.service'
 import { BoardQuery } from '../queries/board/board.query';
 import { BoardService } from '../shared/services/board/board.service';
 import { Router } from '@angular/router';
+import { Config } from 'aws-sdk/lib/config';
 import { ProjectQuery } from '../queries/project/project.query';
 import { UserRoleService } from '../shared/services/user-role/user-role.service';
 import { UserRoleQuery } from '../queries/user-role/user-role.query';
@@ -100,6 +101,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   public resendInviteInProcess: boolean = false;
   public recallInviteInProcess: boolean = false;
   public removeCollaboratorInProcess: boolean = false;
+  public removeCollaboratorModalIsVisible: boolean = false;
+  public removeCollaboratorData: ProjectMembers;
   public modelChangedSearchCollaborators = new Subject<string>();
   public modelChangedSearchDefaultAssignee = new Subject<string>();
   public selectedDefaultAssignee: User = {};
@@ -205,9 +208,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
               private _userRoleQuery: UserRoleQuery,
               private permissionsService: NgxPermissionsService) {
 
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+      //  this.notification.info("message","success",{nzPlacement:'bottomRight'});
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
 
     this.getBoardListRequestModal.count = 20;
     this.getBoardListRequestModal.page = 1;
@@ -256,7 +260,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (res) {
           this.currentProject = res;
           this.stagesList = res.settings.stages;
-          this.projectMembersList = cloneDeep(res.members);
+          this.projectMembersList = cloneDeep(res.members.filter(member => {
+            return !member.isRemoved;
+          }));
 
           this.totalCapacity = 0;
           this.totalCapacityPerDay = 0;
@@ -562,6 +568,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.collaboratorForm.get('collaborator').patchValue('');
     this.isCollaboratorExits = false;
   }
+
+  async toggleRemoveCollaborator(collaborator?: ProjectMembers) {
+    try {
+      this.removeCollaboratorData = collaborator ? collaborator : null;
+      this.removeCollaboratorModalIsVisible = !this.removeCollaboratorModalIsVisible;
+    } catch (e) {
+      this.removeCollaboratorInProcess = false;
+    }
+  }
+
 
   //**********************//
   // Remove Collaborators

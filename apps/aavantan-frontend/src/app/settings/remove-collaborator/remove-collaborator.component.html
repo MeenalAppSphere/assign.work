@@ -1,0 +1,60 @@
+<nz-modal [(nzVisible)]="removeCollaboratorModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="priority-modal"
+          nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
+  <form [nzLayout]="'vertical'" nz-form [formGroup]="removeForm">
+    <div class="task-type-section">
+
+      <nz-form-item>
+        <profile-name [avatarSize]="24" [user]="collaborator?.userDetails" [fullName]="true" [isTooltip]="false"></profile-name>
+      </nz-form-item>
+
+
+      <p class="font-size-16 m-t-25">Are you sure want to remove this Collaborator from this Project?</p>
+      <p class="font-size-14">Assignee all backlogs to new collaborator</p>
+
+      <nz-form-item class="relative">
+        <nz-form-label nzFor="taskType">Assignee To<span class="text-danger">*</span></nz-form-label>
+        <nz-form-control class="relative">
+                              <span class="assigned-user-icon">
+                            <nz-avatar [nzSize]="16" nzIcon="user"
+                                       [nzSrc]="selectedAssignee ? selectedAssignee.profilePic : null"></nz-avatar>
+                          </span>
+          <nz-input-group [nzSuffix]="suffixIconSearch">
+            <input placeholder="Search Assignee" formControlName="nextCollaboratorId" class="assigned-user-input" nz-input
+                   (ngModelChange)="selectAssigneeTypeahead($event)" nzSize="small"
+                   [nzAutocomplete]="autoAssignee"/>
+          </nz-input-group>
+          <nz-autocomplete #autoAssignee>
+            <nz-auto-option *ngFor="let option of assigneeDataSource"
+                            [nzLabel]="option && option.firstName ? option.firstName : option.emailId"
+                            [nzValue]="option">
+              <nz-avatar class="m-r-10" [nzSrc]="option && option.profilePic ? option.profilePic : ''"
+                         [nzShape]="'circle'" [nzSize]="'small'" [nzIcon]="'user'"></nz-avatar>
+              <span>{{ option && option.firstName ? option.firstName : option.emailId }}</span>
+              <span *ngIf="option && option.lastName">&nbsp;{{ option && option.lastName }}</span>
+              <div *ngIf="option && option.firstName" style="margin-top: -6px;" class="p-l-35"><small
+                class="text-muted">{{ option.emailId }}</small></div>
+            </nz-auto-option>
+          </nz-autocomplete>
+        </nz-form-control>
+        <ng-template #suffixIconSearch>
+          <i nz-icon nzType="search" *ngIf="!isSearchingAssignee && (removeForm.controls['nextCollaboratorId'].value?.length===0 || !removeForm.controls['nextCollaboratorId'].value)"></i>
+          <i nz-icon nzType="close" class="cursor-pointer" (click)="clearAssigneeSearchText()" *ngIf="!isSearchingAssignee && removeForm.controls['nextCollaboratorId'].value?.length>0"></i>
+          <i class="fas fa-spin fa-spinner" *ngIf="isSearchingAssignee"></i>
+        </ng-template>
+    </nz-form-item>
+
+
+
+    </div>
+    <div *nzModalFooter>
+      <button type="button" nz-button nzSize="small" nzType="default" (click)="handleCancel()">Cancel</button>
+      <button type="button" nz-button nzType="primary" (click)="remove()" [disabled]="removeForm.invalid"
+              [nzLoading]="removeRequestInProcess" nzSize="small">
+        Remove
+      </button>
+    </div>
+    <ng-template #titleTemp>
+      <span>Remove Collaborator</span>
+    </ng-template>
+  </form>
+</nz-modal>

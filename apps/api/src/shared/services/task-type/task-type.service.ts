@@ -10,8 +10,7 @@ import { TaskTypeUtilityService } from './task-type.utility.service';
 import { GeneralService } from '../general.service';
 import { TaskService } from '../task/task.service';
 import { ProjectUtilityService } from '../project/project.utility.service';
-import { DEFAULT_TASK_STATUS_COLOR } from '../../helpers/defaultValueConstant';
-import { basicUserDetailsForAggregateQuery } from '../../helpers/aggregate.helper';
+import { basicUserDetailsForAggregateQuery, basicUserPopulationDetails } from '../../helpers/query.helper';
 
 @Injectable()
 export class TaskTypeService extends BaseService<TaskTypeModel & Document> implements OnModuleInit {
@@ -251,7 +250,7 @@ export class TaskTypeService extends BaseService<TaskTypeModel & Document> imple
       if (getFullDetails) {
         query.populate = [{
           path: 'assignee',
-          select: 'emailId userName firstName lastName profilePic _id',
+          select: basicUserPopulationDetails,
           justOne: true
         }];
       }

@@ -1,7 +1,7 @@
-<nz-modal [(nzVisible)]="moveStatusModalIsVisible" [nzTitle]="titleTemp" nzClassName="move-status-modal"
+<nz-modal [(nzVisible)]="moveStatusModalIsVisible" [nzTooltipTitle]="titleTemp" nzClassName="move-status-modal"
           nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
 
-  <form nz-form (ngSubmit)="moveTask()">
+  <form [nzLayout]="'vertical'" nz-form (ngSubmit)="moveTask()">
     <div class="task-type-section">
 
       <p class="m-b-20">Note : Lorem Ipsum is simply dummy text of the printing and typesetting industry.
@@ -11,13 +11,13 @@
       <nz-form-item style="max-width: 300px;">
         <nz-form-label nzFor="taskType">Status</nz-form-label>
         <nz-form-control class="issue-type-btn-grp">
-          <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzPlacement="bottomRight"
+          <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDLTemplate" nzTooltipPlacement="bottomRight"
                            style="width:100%!important;">
             <button type="button" nzType="default" nzSize="small" class="ddls-btn" nz-button
                     style="width:100%!important;">
               {{selectedStatus && selectedStatus.name ? selectedStatus.name : 'Select Status'}} <i nz-icon
                                                                                                    nzType="caret-down"
-                                                                                                   theme="outline"></i>
+                                                                                                   nzTheme="outline"></i>
             </button>
           </nz-button-group>
           <nz-dropdown-menu #statusDDLTemplate="nzDropdownMenu">

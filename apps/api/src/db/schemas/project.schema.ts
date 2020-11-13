@@ -31,6 +31,7 @@ export const projectSchema = new Schema({
       type: Array, default: DEFAULT_WORKING_DAYS
     },
     userRoleId: { type: Schema.Types.ObjectId, ref: DbCollection.userRole },
+    isRemoved: { type: Boolean, default: false }
   },
   organizationId: {
     type: Schema.Types.ObjectId,

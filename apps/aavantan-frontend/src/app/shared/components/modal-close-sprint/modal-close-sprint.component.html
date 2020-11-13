@@ -1,6 +1,6 @@
 <nz-modal
   [(nzVisible)]="closeSprintModalIsVisible"
-  nzTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
+  nzTooltipTitle="Close Sprint" nzOkText="Submit" nzMaskClosable="false"
   [nzWidth]="900" nzCancelText="Cancel" (nzOnOk)="closeSprint()" [nzOkLoading]="sprintCloseInProcess"
   nzClassName="close-sprint-modal-confirm-box"
   (nzOnCancel)="handleCancel()">
@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <form *ngIf="closeSprintModeSelection === 'createNewSprint'" [formGroup]="closeSprintNewSprintForm"
+      <form [nzLayout]="'vertical'" *ngIf="closeSprintModeSelection === 'createNewSprint'" [formGroup]="closeSprintNewSprintForm"
             autocomplete="off" nz-form>
         <ng-container>
           <section class="draft-sprint-box">

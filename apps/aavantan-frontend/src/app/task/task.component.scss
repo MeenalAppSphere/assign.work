@@ -17,7 +17,6 @@
     border: #d6dada 0px solid;
     background: #FFFFFF 0% 0% no-repeat padding-box;
     box-shadow: 0px 0px 7px 0px #29292924;
-    border-radius: 8px;
     border-radius: 4px;
     margin-bottom: 15px;
   }
@@ -123,15 +122,14 @@
   background: #F2F2F2!important;
   min-width: 24px!important;
   border-radius: 4px;
-  width: 24px!important;
-  height: 25px!important;
-  padding: 4px!important;
+  padding: 8px!important;
   display: flex;
+  align-items: center;
   justify-content: center;
 }
 
 .comment-history-scrollable{
-  eight: calc(100vh - 590px);
+  height: calc(100vh - 590px);
   overflow: auto;
   overflow-x: hidden;
 }
@@ -222,7 +220,7 @@
   position: absolute;
   z-index: 1;
   left: 6px;
-  top: -2px;
+  top: 5px;
 }
 
 .assigned-user-input {
@@ -231,6 +229,12 @@
 
 .ant-input{
   height: 29px;
+}
+
+.assigned-to-me {
+  right:0px;
+  top:0px;
+  position: absolute;
 }
 
 .collaborators-badge .ant-avatar {

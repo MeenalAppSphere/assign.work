@@ -31,6 +31,7 @@ import { ProjectUtilityService } from '../project/project.utility.service';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { SprintService } from '../sprint/sprint.service';
 import { SprintReportService } from '../sprint-report/sprint-report.service';
+import { basicUserPopulationDetails } from '../../helpers/query.helper';
 
 const detailsBoardPopulationObject = [{
   path: 'columns.headerStatus', select: 'name _id'
@@ -79,11 +80,11 @@ export class BoardService extends BaseService<BoardModel & Document> implements 
       // populate essential columns
       requestModel.populate = [{
         path: 'createdBy',
-        select: 'emailId userName firstName lastName profilePic -_id',
+        select: basicUserPopulationDetails,
         justOne: true
       }, {
         path: 'publishedBy',
-        select: 'emailId userName firstName lastName profilePic -_id',
+        select: basicUserPopulationDetails,
         justOne: true
       }];
 

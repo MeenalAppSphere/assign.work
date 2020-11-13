@@ -1,5 +1,5 @@
 <nz-modal [(nzVisible)]="timelogModalIsVisible" [nzTitle]="titleTemp" nzClassName="time-log-modal" nzFooter="nzModalFooter" nzWidth="300" nzClosable="false">
-  <form [formGroup]="timeLogForm"  autocomplete="off" nz-form>
+  <form [formGroup]="timeLogForm" [nzLayout]="'vertical'" autocomplete="off" nz-form>
       <div >
         <nz-form-item>
           <nz-form-control nzValidatingTip="Description">

@@ -8,15 +8,17 @@ import { Observable } from 'rxjs';
 import { TaskStatusState, TaskStatusStore } from '../../../store/task-status/task-status.store';
 import { TaskStatusUrls } from './task-status.url';
 import { cloneDeep } from 'lodash';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class TaskStatusService extends BaseService<TaskStatusStore, TaskStatusState> {
   constructor(protected notification: NzNotificationService, protected taskStatusStore: TaskStatusStore, private _http: HttpWrapperService,
               private _generalService: GeneralService) {
     super(taskStatusStore, notification);
-
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","success",{nzPlacement:'bottomRight'});            
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
   }
 
   getAllTaskStatuses(projectId: string) {

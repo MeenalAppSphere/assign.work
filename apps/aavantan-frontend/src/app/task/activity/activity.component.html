@@ -12,7 +12,8 @@
 
           <div class="media-body">
 
-            <h6 class="m-b-0"><span class="p-r-10">{{item.createdBy.firstName}}</span>
+            <h6 class="m-b-0"><span class="p-r-10" [ngClass]="{'removed-collaborator': item.createdBy.isRemovedFromCurrentProject}">
+              {{item.createdBy.firstName}}</span>
               <small *ngIf="enablePinButton" class="text-muted text-right"><span>{{ item.createdAt | date : 'medium'}}</span></small>
             </h6>
 
@@ -33,7 +34,7 @@
               <div class="pin-activity" (click)="pinMessage(item)" [ngClass]="{'pinned':item.isPinned}"></div>
 
               <div *ngIf="(currentUser.id===item.createdById)" class="edit-comment" (click)="openEditModel(item)">
-                <i nz-icon nzType="edit" class="text-warning" theme="fill"></i>
+                <i nz-icon nzType="edit" class="text-warning" nzTheme="fill"></i>
               </div>
             </ng-container>
 

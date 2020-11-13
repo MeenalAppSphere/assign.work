@@ -34,8 +34,8 @@
                   days</span>&nbsp;<span class="text-gray-light-2 font-weight-light">remaining</span>
               </span>
 
-              <img src="../../../assets/images/icons/info.svg" height="16" nzPlacement="top"
-                   class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover nzPopoverTitle="Title" [nzContent]="titleTemplate" nzPlacement="bottomRight"/>
+              <img src="../../../assets/images/icons/info.svg" height="16" nzTooltipPlacement="top"
+                   class="m-l-10 cursor-pointer" [nzOverlayClassName]="'sprint-goal-popover'" [nzTrigger]="'click'" nz-popover [nzPopoverContent]="titleTemplate" nzTooltipPlacement="bottomRight"/>
 
             </span>
           <ng-template #titleTemplate>
@@ -101,7 +101,7 @@
                           [nzPageSize]="sprintTasksRequest.count"
                           [nzShowPagination]="true" (nzPageIndexChange)="pageChanged($event, 'activeSprint')"
                           nzSize="small"
-                          class="draft-table" [nzScroll]="{ y: '220px' }">
+                          class="draft-table">
                   <thead>
                   <tr>
 
@@ -207,7 +207,7 @@
                       <nz-tag *ngIf="item.status && item.status.name"
                               [nzColor]="item.status.color ? item.status.color : '#00255B'">
                         <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
-                           [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
+                           [nzTooltipTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                       </nz-tag>
                     </td>
 
@@ -253,7 +253,7 @@
 
   <div class="row m-b-10">
 
-      <div class="col d-inline-flex ant-row-flex-space-between">
+      <div class="col d-inline-flex justify-content-between">
 
         <label class="font-size-18 small-screen-column-flex"><span class="text-black">Backlogs</span>
 
@@ -427,8 +427,8 @@
 
                   <i *ngIf="(!item.assignee || !item.estimatedTime)"
                      class="text-red"
-                     nz-icon nz-tooltip nzTitle="Assignee or Estimated time is missing" nzType="exclamation-circle"
-                     style="margin-left: -8px;" theme="fill"></i>
+                     nz-icon nz-tooltip nzTooltipTitle="Assignee or Estimated time is missing" nzType="exclamation-circle"
+                     style="margin-left: -8px;" nzTheme="fill"></i>
 
                 </td>
 
@@ -469,7 +469,7 @@
                   <nz-tag *ngIf="item.status && item.status.name"
                           [nzColor]="item.status.color ? item.status.color : '#00255B'">
                     <p class="status-tag-label m-0 text-white" nz-paragraph nzEllipsis [nzEllipsisRows]="1" nz-tooltip
-                       [nzTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
+                       [nzTooltipTitle]="item.status && item.status.name ? item.status.name : ''">{{item.status.name}}</p>
                   </nz-tag>
                 </td>
 
@@ -488,7 +488,7 @@
                 <td data-label="Estimate" class="text-center td-log-hours">
                   <a href="javascript:void(0);"
                      class="text-primary"
-                     (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" theme="outline"></i></a>
+                     (click)="timeLog(item)">&nbsp;<i nz-icon nzType="clock-circle" nzTheme="outline"></i></a>
                 </td>
 
               </tr>
@@ -587,7 +587,7 @@
       </span>
 
       <button *ngIf="unPublishedSprintData?.id" nzSize="32" class="m-l-10" nz-button
-              nz-dropdown [nzDropdownMenu]="menu1" nzPlacement="bottomRight" style="min-width: 32px;">
+              nz-dropdown [nzDropdownMenu]="menu1" nzTooltipPlacement="bottomRight" style="min-width: 32px;">
         <i class="fas fa-ellipsis-v"></i>
       </button>
 

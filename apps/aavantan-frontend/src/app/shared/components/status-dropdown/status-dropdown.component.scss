@@ -3,18 +3,21 @@
 .aw-status-dropdown {
   background: $lighter-blue;
   border-radius: 4px;
-  padding: 5px 0px 6px 10px;
+  padding: 0px;
   width: 260px;
   display: inline-flex;
 
-  .ant-btn-default {
+  .ant-btn-group {
+    display: flex;
+    align-items: center;
+  }
+  .ant-btn-default, .ant-dropdown-trigger {
     background: transparent !important;
-    padding: 0px !important;
-    min-width: 60px!important;
-    width: 60px!important;
-    img {
-      margin-top: -1px;
-    }
+    padding: 10px !important;
+    min-width: 70px!important;
+    width: 70px!important;
+    display: flex!important;
+    align-items: stretch;
   }
 
   .badges {

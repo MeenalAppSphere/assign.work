@@ -92,6 +92,7 @@ export class SprintMembersCapacity {
   workingCapacityPerDay?: number;
   workingCapacityPerDayReadable?: string;
   workingDays?: ProjectWorkingDays[];
+  isRemoved?: boolean;
 }
 
 export class SprintErrorResponse {

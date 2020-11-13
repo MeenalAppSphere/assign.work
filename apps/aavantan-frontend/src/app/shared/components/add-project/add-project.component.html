@@ -3,8 +3,6 @@
 
     <nz-spin nzTip="Setting up..." [nzSpinning]="switchingProjectInProcess">
 
-
-
       <ng-container>
 
         <!-- Search and Switch Project -->
@@ -18,7 +16,7 @@
               </nz-input-group>
               <ng-template #prefixIconSearch>
                 <img class="m-l-15" style="padding-bottom:2px;" src="../../../../assets/images/icons/search_switch_project.svg" style="width: 16px;" *ngIf="!isSearching">
-                <span class="p-l-15"><i class="fas fa-spin fa-spinner font-size-16" *ngIf="isSearching"></i></span>
+                <span class="p-l-15"><span class="p-r-15" *ngIf="isSearching"><i class="fas fa-spin fa-spinner font-size-16" ></i></span></span>
               </ng-template>
               <ng-template #suffixIconSearch>
                 <span class="text-gray-light-2 font-size-16 p-r-20">Ctrl/Cmd + j</span>
@@ -39,7 +37,7 @@
               <div class="recent-item" (click)="switchProject(item)"
                    *ngFor="let item of projectList"
                    [ngStyle]="{'border': (currentProject && currentProject.id === item.id) ? '2px solid '+item.color+'' : '2px solid #fff'}"
-                   nz-tooltip [nzTitle]="projectTooltip">
+                   nz-tooltip [nzTooltipTitle]="projectTooltip">
 
                   <div class="project-box text-uppercase"
                        [ngStyle]="{'background': item.color}"
@@ -130,24 +128,24 @@
 
           <div class="p-l-40 p-r-40">
             <nz-steps [nzCurrent]="switchStepCurrent">
-                <nz-step nzTitle="Project">Project</nz-step>
-                <nz-step nzTitle="Collaborators">Collaborators</nz-step>
-                <nz-step nzTitle="Template">Template</nz-step>
+                <nz-step nzTooltipTitle="Project">Project</nz-step>
+                <nz-step nzTooltipTitle="Collaborators">Collaborators</nz-step>
+                <nz-step nzTooltipTitle="Template">Template</nz-step>
             </nz-steps>
           </div>
 
            <!--first-->
             <ng-container *ngIf="switchStepCurrent===0">
-                <form nz-form class="register-form" [formGroup]="projectForm">
+                <form [nzLayout]="'vertical'" nz-form class="register-form" [formGroup]="projectForm">
 
                     <div class="min-height-100 m-t-25">
                         <nz-form-item>
                             <nz-form-label nzRequired nzFor="name">Project Name<span class="text-danger">*</span></nz-form-label>
                             <nz-form-control [nzValidatingTip]="errorTpl">
                                 <input nz-input formControlName="name" placeholder="Enter Project Name, eg : Food Application" autocomplete="Off" nzSize="small" id="name">
-                                <nz-form-explain *ngIf="projectForm.get('name').dirty && projectForm.get('name').errors">
+                                <nz-form-control *ngIf="projectForm.get('name').dirty && projectForm.get('name').errors">
                                     Please Enter Project Name! <small class="text-muted"> (Allowed Alphanumeric only)</small>
-                                </nz-form-explain>
+                                </nz-form-control>
 
                                 <ng-template #errorTpl let-control>
                                     <ng-container *ngIf="projectForm.hasError('required')">
@@ -172,7 +170,7 @@
             <ng-container *ngIf="switchStepCurrent===1" class="h-100">
 
               <div class="min-height-100 m-t-25">
-                <form nz-form [formGroup]="collaboratorForm">
+                <form [nzLayout]="'vertical'" nz-form [formGroup]="collaboratorForm">
                   <div class="form-group">
 
                     <nz-form-item class="m-b-5">
@@ -209,12 +207,12 @@
 
                     <nz-form-item *ngIf="!isCollaboratorExits && enableInviteBtn">
                       <button (click)="onKeydown($event, true)" [nzLoading]="addCollaboratorsInProcess" [disabled]="isCollaboratorExits" nz-button nzType="primary"
-                              nzSize="small"><i nz-icon nzType="mail" theme="outline"></i> Invite
+                              nzSize="small"><i nz-icon nzType="mail" nzTheme="outline"></i> Invite
                       </button>
                     </nz-form-item>
 
-                    <nz-form-explain class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-explain>
-                  </div>
+                    <nz-form-control class="text-danger" *ngIf="response && response.message">{{response.message}}</nz-form-control>
+             </div>
                 </form>
               </div>
 

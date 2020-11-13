@@ -170,10 +170,10 @@ export class TaskComponent implements OnInit, OnDestroy {
               private _sprintService: SprintService,
               private modal: NzModalService
   ) {
-
-    this.notification.config({
-      nzPlacement: 'bottomRight'
-    });
+    // this.notification.info("message","suucess",{nzPlacement:'bottomRight'}); 
+    // this.notification.config({
+    //   nzPlacement: 'bottomRight'
+    // });
 
     // if task page is visible and user clicked on Create Task button from side bar
     // router.events.subscribe((val) => {
@@ -350,7 +350,9 @@ export class TaskComponent implements OnInit, OnDestroy {
     // search assignee
     this.modelChanged
       .pipe(
-        debounceTime(500))
+        debounceTime(500),
+        untilDestroyed(this)
+      )
       .subscribe(() => {
         const queryText = this.taskForm.get('assigneeId').value;
         const name = this.selectedAssignee.firstName + ' ' + this.selectedAssignee.lastName;

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { SettingsComponent } from './settings.component';
 import { CommonModule } from '@angular/common';
@@ -11,6 +11,7 @@ import { ColorSketchModule } from 'ngx-color/sketch';
 import { MoveStatusComponent } from './move-status/move-status.component';
 import { UpdateUserRoleComponent } from './update-user-role/update-user-role.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { RemoveCollaboratorComponent } from './remove-collaborator/remove-collaborator.component';
 
 const routes: Routes = [
   {
@@ -34,8 +35,10 @@ const routes: Routes = [
     AddPriorityComponent,
     AddTaskTypeComponent,
     MoveStatusComponent,
+    RemoveCollaboratorComponent,
     UpdateUserRoleComponent
-  ]
+  ],
+  schemas: [NO_ERRORS_SCHEMA,CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SettingsModule {
 }

@@ -95,17 +95,16 @@
 
     <section>
 
-        <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:470px;">
+      <nz-card [nzTitle]="templateTitle" [nzExtra]="templateExtra" style="min-height:470px;">
 
-            <ng-template #templateTitle>
-                {{activeView.title}}
-                <img src="../../../assets/images/icons/info.svg" height="16"  nz-tooltip [nzTitle]="templateTitleText" />
-            </ng-template>
-            <ng-template #templateTitleText>
-                About {{activeView.title}}
-
-            </ng-template>
-            <ng-template #templateExtra>
+      <ng-template #templateTitle>
+        {{activeView.title}}
+        <img src="../../../assets/images/icons/info.svg" height="16" nz-tooltip [nzTooltipTitle]="templateTitleText"/>
+      </ng-template>
+      <ng-template #templateTitleText>
+        About {{activeView.title}}
+      </ng-template>
+      <ng-template #templateExtra>
 
 
         <span *ngxPermissionsOnly="['canAddBoardSettings_board']">
@@ -130,11 +129,11 @@
 
         <span *ngxPermissionsOnly="['canAdd_tasktype']">
           <span *ngIf="activeView.view==='taskType'">
-            <button nz-button nzType="primary" (click)="toggleAddTaskTypeShow()">+ Add Task Type</button>
+            <button nz-button nzType="default" (click)="toggleAddTaskTypeShow()">+ Add Task Type</button>
           </span>
         </span>
 
-        <button class="m-l-5" nz-button nzType="link" size="small" (click)="projectModalShow()">+ Add/Switch Project
+        <button class="m-l-5" nz-button nzType="default" size="small" (click)="projectModalShow()">+ Add/Switch Project
         </button>
 
       </ng-template>
@@ -143,7 +142,7 @@
       <ng-container *ngIf="activeView.view==='project'">
         <section class="row">
           <aside class="col-md-4">
-            <form nz-form class="register-form" [formGroup]="projectForm">
+            <form [nzLayout]="'vertical'"  nz-form class="register-form" [formGroup]="projectForm">
 
               <nz-form-item>
                 <nz-form-label>Project Title<span class="text-danger">*</span></nz-form-label>
@@ -193,12 +192,12 @@
               <nz-form-item class="max-width-ddls" *ngIf="statusList?.length>0">
                 <nz-form-label nzFor="taskType">Default Status <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                  <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDL" nzPlacement="bottomLeft"
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="statusDDL" nzTooltipPlacement="bottomLeft"
                                    style="width: 100%!important;">
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                      {{selectedStatus?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedStatus?.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #statusDDL="nzDropdownMenu">
@@ -216,12 +215,12 @@
               <nz-form-item class="max-width-ddls" *ngIf="typesList?.length>0">
                 <nz-form-label nzFor="taskType">Default Task Type <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                  <nz-button-group nz-dropdown [nzDropdownMenu]="taskTypeDD" nzPlacement="bottomLeft"
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="taskTypeDD" nzTooltipPlacement="bottomLeft"
                                    style="width: 100%!important;">
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedTaskType?.color}"></span>
-                      {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedTaskType?.displayName}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #taskTypeDD="nzDropdownMenu">
@@ -239,12 +238,12 @@
               <nz-form-item class="max-width-ddls" *ngIf="priorityList?.length>0">
                 <nz-form-label nzFor="taskType">Default Priority <span class="text-danger">*</span></nz-form-label>
                 <nz-form-control class="issue-type-btn-grp" nzValidatingTip="Please select task type!">
-                  <nz-button-group nz-dropdown [nzDropdownMenu]="priorityDDL" nzPlacement="bottomLeft"
+                  <nz-button-group nz-dropdown [nzDropdownMenu]="priorityDDL" nzTooltipPlacement="bottomLeft"
                                    style="width: 100%!important;">
                     <button type="button" nzType="default" nzSize="default" class="ddls-btn" nz-button
                             style="width: 100%!important;">
                       <span class="fas fa-circle m-r-5" [ngStyle]="{'color':selectedPriority?.color}"></span>
-                      {{selectedPriority?.name}} <i nz-icon nzType="caret-down" theme="outline"></i>
+                      {{selectedPriority?.name}} <i nz-icon nzType="caret-down" nzTheme="outline"></i>
                     </button>
                   </nz-button-group>
                   <nz-dropdown-menu #priorityDDL="nzDropdownMenu">
@@ -258,12 +257,12 @@
               </nz-form-item>
               <!-- endregion -->
 
-              <nz-form-item *ngxPermissionsOnly="['canModify_project']">
+              <ng-container *ngxPermissionsOnly="['canModify_project']">
                 <button type="button" (click)="saveProject()" [disabled]="projectForm.invalid" [nzLoading]="updateRequestInProcess"
                         nz-button nzType="primary"
                         nzSize="small"> Save
                 </button>
-              </nz-form-item>
+              </ng-container>
             </form>
 
           </aside>
@@ -286,9 +285,9 @@
                             <thead (nzSortChange)="boardSortOrderChanged($event)">
                                 <tr>
                                     <th data-label="SN">#</th>
-                                    <th width="35%" nzSortKey="name" nzShowSort>Name</th>
+                                    <th width="35%" nzColumnKey="name" nzShowSort>Name</th>
                                     <th>Created By</th>
-                                    <th nzSortKey="createdAt" nzShowSort>Created On</th>
+                                    <th nzColumnKey="createdAt" nzShowSort>Created On</th>
                                     <th>Published</th>
                                     <th width="125px">Action</th>
                                 </tr>
@@ -354,8 +353,10 @@
                                nzTip="{{resendInviteInProcess ? 'Sending request...' : 'Recalling Invitation...'}}">
 
 
-                        <form *ngxPermissionsOnly="['canAddMember_member']" nz-form class="collaborator-form" [formGroup]="collaboratorForm">
+                        <form
+                        [nzLayout]="'vertical'"
 
+                        *ngxPermissionsOnly="['canAddMember_member']" nz-form class="collaborator-form" [formGroup]="collaboratorForm">
                             <nz-form-item>
                                 <nz-form-label>Search or Invite Collaborator</nz-form-label>
                                 <nz-form-control class="relative m-b-5">
@@ -478,7 +479,7 @@
 
                     <aside class="col-md-3">
 
-                        <form nz-form (submit)="addStage()" [formGroup]="stageForm">
+                        <form [nzLayout]="'vertical'" nz-form (submit)="addStage()" [formGroup]="stageForm">
 
                             <nz-form-item>
 
@@ -598,7 +599,7 @@
 
 
                                     <span>
-                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTitle]="item.color"
+                    <i class="p-r-10 fas fa-square" nz-tooltip [nzTooltipTitle]="item.color"
                        [ngStyle]="{'color': item.color }"></i>
                     {{item.name}}
                   </span>
@@ -679,7 +680,7 @@
                                 <li *ngFor="let item of priorityList">
 
                                     <span>
-                    <i class="p-l-10" nz-tooltip [nzTitle]="item.color"
+                    <i class="p-l-10" nz-tooltip [nzTooltipTitle]="item.color"
                        [ngStyle]="{'border-left':'solid 5px ' + item.color, 'height':'18px' }"></i>
                     {{item.name}}
                   </span>
@@ -730,7 +731,7 @@
 
                                 <li *ngFor="let item of typesList">
                                     <span>
-                                      <i class="fas fa-circle m-r-10" nz-tooltip [nzTitle]="item.color" [ngStyle]="{'color':item.color}"></i>
+                                      <i class="fas fa-circle m-r-10" nz-tooltip [nzTooltipTitle]="item.color" [ngStyle]="{'color':item.color}"></i>
                                     {{item.name}}
                                     </span>
 
@@ -772,7 +773,7 @@
                             <div class="col-md-4 col-lg-3 text-left" colspan="2">Name</div>
                             <div class="col-md-1 col-lg-1 text-right" width="140">Working hours</div>
                             <div class="col-md-2 col-lg-1 text-right" width="190">Per day</div>
-                            <div class="col-md-5 col-lg-7 text-center">Working days</div>
+                            <div class="col-md-5 col-lg-7 text-center ">Working days</div>
                         </div>
 
 
@@ -795,7 +796,7 @@
                             <div class="col-md-2 col-lg-1 text-right">
                                 <input nz-input placeholder="Hours" numeric numericType="decimal" [(ngModel)]="item.workingCapacityPerDay" (keyup)="calculateTotal()" class="team-list-input" nzSize="small" maxlength="2" />
                             </div>
-                            <div class="col-md-5 col-lg-7">
+                            <div class="col-md-5 col-lg-7 d-flex">
                                 <span *ngFor="let wd of item.workingDays">
                     <button *ngIf="wd.selected" (click)="selectDay(wd,item)" nz-button nzType="primary" nzSize="small"
                             nzShape="rounded" class="m-r-5"><i nz-icon nzType="check"></i>{{wd.day}}</button>
@@ -831,7 +832,7 @@
                             <div *ngIf="roleList?.length>0">
                                 <nz-form-label>Roles</nz-form-label>
                                 <ul class="stages-list">
-                                    <li nz-tooltip [nzTitle]="item.type==='owner' ? 'Owner have all permissions' : item.description" *ngFor="let item of roleList" [ngClass]="item.id===roleData?.id ? 'modifiying-role' : ''">
+                                    <li nz-tooltip [nzTooltipTitle]="item.type==='owner' ? 'Owner have all permissions' : item.description" *ngFor="let item of roleList" [ngClass]="item.id===roleData?.id ? 'modifiying-role' : ''">
 
                                         <span>{{item.name}}</span>
 
@@ -860,7 +861,7 @@
 
                     <aside class="col-md-8">
 
-                        <form nz-form class="" (ngSubmit)="saveUserRole()" [formGroup]="userRoleForm">
+                        <form [nzLayout]="'vertical'" nz-form class="" (ngSubmit)="saveUserRole()" [formGroup]="userRoleForm">
 
                             <div class="row">
 
@@ -893,26 +894,20 @@
 
                                             <nz-collapse-panel *ngFor="let key of permissionsObj | keys; let idx = index"
                                                                [nzHeader]="formatGroupText(key)" [nzShowArrow]="true" [nzActive]="idx > 1 ? false : true">
-                                              <!-- <ng-container *ngIf="index<=2 else ElseBlock" [nzActive]="true" > -->
-                                                
+
+                                              <div class="row pl-2">
                                                   <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
                                                       <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" (ngModelChange)="selectPermission(item)" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
                                                   </div>
-                                                <!-- </ng-container> -->
-                                                <!-- <ng-template #ElseBlock [nzActive]="false">
-                                                  <div class="p-b-10" nz-col nzSpan="8" *ngFor="let item of permissionsObj[key]; let index">
-                                                    <label class="text-capitalize" nz-checkbox [ngModelOptions]="{standalone: true}" (ngModelChange)="selectPermission(item)" [nzValue]="item.value" [(ngModel)]="item.checked">{{item.name}}</label>
-                                                </div>
-                                                </ng-template>     -->
+                                              </div>
+
                                             </nz-collapse-panel>
                                         </nz-collapse>
 
                                     </nz-form-item>
                                     <nz-form-item>
                                         <nz-form-control>
-                                            <button nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">
-                            {{roleData?.id ? 'Save' : 'Add'}}
-                          </button>
+                                            <button nz-button nzType="primary" class="m-r-10" [nzLoading]="updateRequestInProcess" nzSize="small">{{roleData?.id ? 'Save' : 'Add'}}</button>
                                             <button type="button" nz-button nzType="default" *ngIf="roleData?.id" (click)="resetRoleForm()" nzSize="small">Cancel</button>
                                         </nz-form-control>
                                     </nz-form-item>
@@ -978,5 +973,16 @@
         </update-user-role>
     </ng-container>
     <!-- endregion -->
+
+  <!-- region move status -->
+  <ng-container *ngIf="removeCollaboratorModalIsVisible">
+    <aavantan-remove-collaborator
+      [collaborator]="removeCollaboratorData"
+      [removeCollaboratorModalIsVisible]="removeCollaboratorModalIsVisible"
+      (toggleRemoveCollaborator)="toggleRemoveCollaborator()">
+    </aavantan-remove-collaborator>
+  </ng-container>
+
+  <!-- endregion -->
 
 </section>

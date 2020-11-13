@@ -1,6 +1,6 @@
-<nz-modal [(nzVisible)]="addTaskTypeModalIsVisible" [nzTitle]="titleTemp" nzClassName="priority-modal"
+<nz-modal [(nzVisible)]="addTaskTypeModalIsVisible" [nzToolTipTitle]="titleTemp" nzClassName="priority-modal"
           nzFooter="nzModalFooter" nzWidth="400" nzClosable="false">
-  <form nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
+  <form [nzLayout]="'vertical'" nz-form (submit)="saveTaskType()" [formGroup]="taskTypeForm">
     <div class="task-type-section">
 
       <nz-form-item>

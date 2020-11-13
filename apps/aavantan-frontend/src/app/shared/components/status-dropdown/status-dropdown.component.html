@@ -1,11 +1,11 @@
 <div class="aw-status-dropdown">
   <nz-button-group >
-    <button nz-button class="d-inline-flex" nzTrigger="click" nz-dropdown [nzDropdownMenu]="awStatusDDL" nzPlacement="bottomLeft" >
+    <button nz-button class="d-inline-flex" nzTrigger="click" nz-dropdown [nzDropdownMenu]="awStatusDDL" nzTooltipPlacement="bottomLeft" >
       <img src="../../../../assets/images/icons/filter.svg" /> <span class="text-black1 font-size-12 font-weight-bold p-l-5">Status</span>
     </button>
     <div class="badges">
         <span *ngFor="let item of selectedStatusList | slice:0:2;" class="aw-badge">
-          <span class="aw-badge-text" nz-tooltip [nzTitle]="item.label">{{item.label}}</span>
+          <span class="aw-badge-text" nz-tooltip [nzTooltipTitle]="item.label">{{item.label}}</span>
           <span class="aw-badge-close">
             <img src="../../../../assets/images/icons/close-small.svg" (click)="toggleStatus(item)"/>
           </span>

@@ -25,7 +25,7 @@
           <p class="m-b-30">Create your account to get access</p>
 
           <form
-            autocomplete="off"
+        [nzLayout]="'vertical'"            autocomplete="off"
             nz-form
             [formGroup]="signUpForm"
             class="login-form"
@@ -83,12 +83,16 @@
                   maxlength="100"
                   id="emailId"/>
 
-                <nz-form-explain
+                 <nzErrorTip *ngIf="signUpForm.get('emailId').dirty &&
+                 signUpForm.get('emailId').errors">This is not valid E-mail!
+                 </nzErrorTip> 
+
+                <!-- <nz-form-explain
                   *ngIf="
                       signUpForm.get('emailId').dirty &&
                       signUpForm.get('emailId').errors
                     ">This is not valid E-mail!
-                </nz-form-explain>
+                </nz-form-explain> -->
               </nz-form-control>
             </nz-form-item>
 
@@ -159,7 +163,7 @@
                     [nzLoading]="registerInProcess"
                     class="login-form-button"
                     [nzType]="'primary'">
-                    Sign Up
+                    <div class="ml-0.5">Sign Up</div>
                   </button>
                 </div>
               </nz-form-control>

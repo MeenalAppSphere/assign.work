@@ -19,5 +19,8 @@
       "@aavantan-app/models": ["libs/models/src/index.ts"]
     }
   },
+//   "angularCompilerOptions": {
+//     "enableIvy": false
+//  },
   "exclude": ["node_modules", "tmp"]
 }
